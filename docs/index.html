@@ -344,9 +344,14 @@
       <div class="card"><h2>Ganho liquido por modelo</h2><canvas id="cReclassModelo"></canvas></div>
       <div class="card"><h2>Composicao dos resultados por modelo</h2><canvas id="cReclassComp"></canvas></div>
     </div>
+    <div class="card full" style="padding-bottom:8px">
+      <label for="selReclassTurno" class="muted" style="display:block;margin-bottom:6px">Modelo da reclassificacao por turno</label>
+      <select id="selReclassTurno" style="border:1px solid var(--bd);border-radius:6px;padding:7px 9px;background:#fff;color:var(--tx)"></select>
+      <p class="muted" id="reclassTurnoFonte" style="margin-top:8px"></p>
+    </div>
     <div class="kpis" id="kpisR"></div>
     <div class="grid">
-      <div class="card full"><h2>Ganho liquido por turno (Etapa 2 / coluna O)</h2><canvas id="cGanho"></canvas></div>
+      <div class="card full"><h2 id="hGanhoTurno">Ganho liquido por turno (Etapa 2)</h2><canvas id="cGanho"></canvas></div>
       <div class="card"><h2>Concordancia antes x depois</h2><canvas id="cAntesDepois"></canvas></div>
       <div class="card"><h2>Corrigidos vs prejudicados</h2><canvas id="cCorr"></canvas></div>
       <div class="card full">
@@ -1546,6 +1551,56 @@ document.getElementById("selMetricaModelo").addEventListener("change",renderMode
 document.querySelectorAll("#tabCat th").forEach(th=>th.onclick=()=>{ const k=th.dataset.k; sortDir = (sortK===k)? -sortDir : -1; sortK=k; renderCat(); });
 document.addEventListener("click",e=>{ if(!e.target.closest(".ms")) document.querySelectorAll(".ms-panel").forEach(p=>p.classList.add("hide")); });
 
+// ---- Reclassificacao por turno: agora model-aware (todos os modelos do zoo) ----
+// O log oficial (coluna O) so existe para o LSTM; os demais modelos tem os turnos
+// em multimodelo_reclass_turnos.json (schema diferente). Normaliza ambos para o
+// schema que renderReclass espera e deixa o usuario escolher o modelo.
+let RECLASS_TURNO_FONTES = {};   // modelo -> {turnos:[...], fonte:"texto"}
+function normalizarTurnoMulti(r){
+  // multimodelo_reclass_turnos.json -> schema do log_turnos_reclassificacao.json
+  const qtd=N(r.qtd), corr=N(r.corrigidos), prej=N(r.prejudicados), cAntes=N(r.corretos_antes);
+  const mantCorr=Math.max(0,cAntes-prej);
+  return {turno:r.turno, qtd_reclassificados:qtd,
+    taxa_concordancia_antes:N(r.concordancia_antes), taxa_concordancia_depois:N(r.concordancia_depois),
+    qtd_corrigidos:corr, qtd_prejudicados:prej,
+    qtd_mantidos_corretos:mantCorr, qtd_mantidos_errados:Math.max(0,qtd-corr-prej-mantCorr),
+    ganho_liquido:N(r.ganho_liquido), executor:"Reclass_"+r.modelo};
+}
+function prepararReclassPorModelo(logOficial, multiRecl){
+  RECLASS_TURNO_FONTES = {};
+  // Demais modelos (e tambem o lstm 06/06) a partir do multimodelo.
+  (Array.isArray(multiRecl)?multiRecl:[]).forEach(r=>{
+    const m=r.modelo; if(!m) return;
+    (RECLASS_TURNO_FONTES[m]||(RECLASS_TURNO_FONTES[m]={turnos:[],fonte:""}));
+    RECLASS_TURNO_FONTES[m].turnos.push(normalizarTurnoMulti(r));
+    RECLASS_TURNO_FONTES[m].fonte="multimodelo_reclass_turnos.json (Etapa 2 por turno)";
+  });
+  // LSTM: preferir o log oficial (coluna O), mais completo, quando existir.
+  if(Array.isArray(logOficial) && logOficial.length){
+    RECLASS_TURNO_FONTES["lstm"]={turnos:logOficial, fonte:"log_turnos_reclassificacao.json (Etapa 2 / coluna O, oficial)"};
+  }
+  // Popula o seletor: lstm primeiro, demais em ordem alfabetica.
+  const sel=document.getElementById("selReclassTurno");
+  const modelos=Object.keys(RECLASS_TURNO_FONTES)
+    .sort((a,b)=> (a==="lstm"?-1:b==="lstm"?1:a.localeCompare(b)));
+  if(sel){
+    sel.innerHTML = modelos.map(m=>`<option value="${esc(m)}">${esc(m)}</option>`).join("");
+    sel.disabled = modelos.length<=1;
+  }
+  return modelos;
+}
+function renderReclassSelecionado(temMulti){
+  const sel=document.getElementById("selReclassTurno");
+  const modelo = sel && sel.value ? sel.value : "lstm";
+  const fonte = RECLASS_TURNO_FONTES[modelo];
+  const turnos = fonte ? fonte.turnos : [];
+  const h=document.getElementById("hGanhoTurno");
+  if(h) h.textContent = `Ganho liquido por turno (Etapa 2 - ${modelo})`;
+  const fnote=document.getElementById("reclassTurnoFonte");
+  if(fnote) fnote.textContent = fonte ? ("Fonte: "+fonte.fonte) : "";
+  renderReclass(turnos, temMulti);
+}
+
 (async function(){
   const [turnos,cat,rt,met,resumo,cal,calModels,calAjustada,mod,compCat,registros,multiMet,multiTurnos,multiRecl,estat,taxCorr,taxTermos,taxCruz] = await Promise.all([
     getJSON("log_turnos_classificacao.json"), getJSON("metricas_por_categoria.json"),
@@ -1583,7 +1638,10 @@ document.addEventListener("click",e=>{ if(!e.target.closest(".ms")) document.que
   renderTaxonomia(taxCorr, taxTermos, taxCruz);
   renderEstatistica(estat);
   const temMulti = renderReclassModelo(Array.isArray(reclassResumo)?null:reclassResumo);
-  renderReclass(Array.isArray(rt) ? rt : [], temMulti);
+  prepararReclassPorModelo(Array.isArray(rt) ? rt : [], Array.isArray(multiRecl) ? multiRecl : []);
+  const selRT=document.getElementById("selReclassTurno");
+  if(selRT) selRT.addEventListener("change", ()=>renderReclassSelecionado(temMulti));
+  renderReclassSelecionado(temMulti);
   renderDecisao(Array.isArray(avFinal)?null:avFinal, Array.isArray(anErros)?null:anErros);
   instalarBotoesPNG();
 })();
