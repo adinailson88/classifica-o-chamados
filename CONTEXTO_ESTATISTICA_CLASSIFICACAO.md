@@ -40,6 +40,36 @@ A análise (`src/analise_estatistica.py` → `docs/dados/estatistica.json`) adot
 9. **Calibração** — ECE/MCE/Brier por modelo (`calibracao_modelos.py`) e calibração escalar
    out-of-fold (`calibracao_confianca.py`); softmax/margem alto NÃO é confiança calibrada.
 
+## Protocolo de exploração de dados (Zuur, Ieno & Elphick, 2010)
+
+Antes de qualquer inferência, os dados são explorados pelos **8 passos do protocolo de
+Zuur et al. (2010)**, adaptados do contexto ecológico (resposta contínua) para este objeto
+categórico. O bloco `protocolo_zuur` em `estatistica.json` registra ferramenta, status
+(`aplicado`/`adaptado`/`nao_aplicavel`) e leitura de cada passo, e é exibido na aba
+**Estatística** do painel. O protocolo **justifica formalmente** a postura não paramétrica
+(deixa de ser só o Shapiro) e expõe heterogeneidade, colinearidade e dependência temporal.
+
+| # | Passo (Zuur) | Adaptação neste experimento | Ferramenta |
+|---|---|---|---|
+| 1 | Outliers em Y e X | confiança extrema por modelo | boxplot / Cleveland dotplot (1,5×IQR) |
+| 2 | Homogeneidade de variância | variância da confiança entre modelos | razão maior/menor variância (limiar 4) |
+| 3 | Normalidade | concordância por turno (diagnóstico, não critério) | Shapiro-Wilk |
+| 4 | Excesso de zeros | categorias de suporte quase nulo (análogo) | frequência das categorias |
+| 5 | Colinearidade (X) | confianças dos modelos redundantes | VIF (limiar 3) |
+| 6 | Relações Y × X | confiança × acerto | Spearman / ponto-bisserial |
+| 7 | Interações | modelo × categoria (coplot não se aplica) | métricas por categoria / top confusões |
+| 8 | Independência | concordância ao longo dos turnos | ACF + Durbin-Watson |
+
+**Referência:** Zuur, A.F., Ieno, E.N. & Elphick, C.S. (2010). *A protocol for data
+exploration to avoid common statistical problems*. Methods in Ecology and Evolution, 1(1),
+3–14. doi:10.1111/j.2041-210X.2009.00001.x
+
+> **Padrão a estender:** este protocolo deve ser aplicado também aos **demais repositórios
+> do Malha IA** (previsão de chamados, custos, ODS e filtros) e à **seção de métodos do
+> artigo** em preparação, sempre citando Zuur et al. (2010). Nos eixos preditivos (resposta
+> contínua/contagem), o protocolo é usado na forma original — incluindo os passos de
+> outliers em covariáveis, colinearidade por VIF e independência por ACF/variograma.
+
 ## Histórico × validação humana (regra de leitura)
 
 Enquanto a validação humana for pequena/incompleta, **todos os resultados acima são
@@ -60,7 +90,8 @@ forem preenchidas; **nenhuma aba nova é necessária** (lê o snapshot/registros
   "Multimodelo - classificacao completa", e em agendamento periódico) e comita o JSON.
 - `docs/index.html` (aba **Estatística**): renderiza correlação, acurácia+IC, Kappa,
   normalidade/resíduos, Cochran Q, Friedman/Nemenyi, **macro-F1 (IC95)**, **pares
-  significativos McNemar+Holm**, **matriz IA×GLPI** e **acerto contra a verdade validada**.
+  significativos McNemar+Holm**, **matriz IA×GLPI**, **acerto contra a verdade validada**
+  e o **protocolo de exploração de dados de Zuur et al. (2010)** (bloco `protocolo_zuur`).
 - Requisitos: `requirements-estatistica.txt` (numpy, scikit-learn, scipy, statsmodels,
   gspread, google-auth).
 
