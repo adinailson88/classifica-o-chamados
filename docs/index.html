@@ -416,6 +416,12 @@
         <h2>Resumo dos testes estatisticos</h2>
         <div class="tablebox"><table id="tabEstResumo"><thead><tr><th>Teste</th><th>Resultado</th><th>Como interpretar</th></tr></thead><tbody></tbody></table></div>
       </div>
+      <div class="card full">
+        <h2>Protocolo de exploracao de dados (Zuur, Ieno &amp; Elphick, 2010)</h2>
+        <p class="muted" id="zuurInfo">Oito passos de exploracao aplicados <strong>antes</strong> da inferencia, adaptados ao objeto categorico do experimento. Passe o mouse sobre cada linha para a leitura metodologica.</p>
+        <div class="tablebox"><table id="tabZuur"><thead><tr><th>#</th><th>Passo</th><th>Ferramenta</th><th>Status</th><th>Resultado</th></tr></thead><tbody></tbody></table></div>
+        <p class="muted" id="zuurRef" style="margin-top:8px"></p>
+      </div>
       <div class="card">
         <h2>Ranking por acuracia e intervalo</h2>
         <div class="tablebox"><table id="tabEstAcc"><thead><tr><th>Modelo</th><th>Acuracia</th><th>IC 95%</th></tr></thead><tbody></tbody></table></div>
@@ -468,6 +474,7 @@
       <div class="definition"><strong>Cruzamento entre confusao e correlacao</strong>: a matriz de confusao entre a previsao da IA e a categoria historica e cruzada com a correlacao vocabular. Pares de categorias com valores elevados em ambas as dimensoes constituem candidatos a revisao da taxonomia &mdash; fusao, renomeacao ou criterio de desambiguacao. O procedimento e exploratorio e destina-se a priorizar a revisao humana, sem decidir a taxonomia. Implementado em <code>src/cruzamento_taxonomia.py</code>.</div>
       <div class="definition"><strong>Comparacao multimodelo</strong>: sete algoritmos (naive_bayes, regressao_logistica, linear_svc, sgd, extra_trees, random_forest e lstm) classificam toda a base com predicao <em>out-of-fold</em>, de modo que o modelo que rotula cada registro nao foi treinado nele. Resultados na aba <strong>Modelos</strong>.</div>
       <div class="definition"><strong>Analise estatistica nao parametrica</strong>: o teste de Shapiro-Wilk rejeitou a normalidade nos sete modelos; adotam-se, portanto, Spearman, Friedman com pos-teste de Nemenyi, Q de Cochran, McNemar, coeficientes Kappa (Cohen e Fleiss) e intervalos de confianca por reamostragem (bootstrap, 95%). Aba <strong>Estatistica</strong>.</div>
+      <div class="definition"><strong>Protocolo de exploracao de dados (Zuur, Ieno &amp; Elphick, 2010)</strong>: antes de qualquer inferencia, os dados sao explorados pelos oito passos do protocolo de Zuur et al. (2010) &mdash; (1) outliers em Y e X por boxplot/Cleveland dotplot (regra 1,5&times;IQR sobre a confianca); (2) homogeneidade de variancia (razao entre a maior e a menor variancia, com limiar 4); (3) normalidade por Shapiro-Wilk, tratada como diagnostico e nao como criterio; (4) excesso de zeros, adaptado para categorias de suporte quase nulo; (5) colinearidade por fator de inflacao da variancia (VIF) entre as confiancas dos modelos; (6) relacoes entre Y e X (confianca &times; acerto); (7) interacoes, adaptadas para modelo &times; categoria; e (8) independencia por funcao de autocorrelacao (ACF) e Durbin-Watson da concordancia por turno. O protocolo justifica formalmente a postura nao parametrica e e exibido na aba <strong>Estatistica</strong>. Referencia: Zuur, A.F., Ieno, E.N. &amp; Elphick, C.S. (2010), <em>A protocol for data exploration to avoid common statistical problems</em>, Methods in Ecology and Evolution, 1(1), 3&ndash;14. <strong>Padrao metodologico a estender</strong> aos demais repositorios do Malha IA (previsao de chamados, custos, ODS e filtros) e a secao de metodos do artigo em preparacao.</div>
       <div class="definition"><strong>Calibracao preliminar por modelo</strong>: diagnostico bruto (ECE, escore de Brier, faixa &ge;95%) e calibracao escalar <em>out-of-fold</em> de P(previsao correta | confianca). Os resultados sao preliminares e referem-se ao historico; a calibracao definitiva depende de validacao humana. Aba <strong>Metricas</strong>.</div>
       <div class="definition"><strong>Conferencia dupla (validacao humana)</strong>: o veredito humano e registrado em duas colunas independentes &mdash; <code>M</code> (adequacao da classificacao historica) e <code>N</code> (adequacao da classificacao da IA) &mdash; compondo a matriz 2&times;2 IA&times;historico, que distingue inclusive os casos em que a IA corrige o registro historico. A reclassificacao dispoe de conferencia propria na coluna <code>P</code>. Esta etapa encontra-se suspensa por decisao do pesquisador.</div>
     </div>
@@ -541,6 +548,7 @@
           <tr><td>Estatistica</td><td>Macro-F1 e Recall macro</td><td><a href="dados/estatistica.json">estatistica.json</a></td><td>Como os modelos performam considerando equilibrio entre categorias, nao apenas volume total.</td><td>Use para proteger categorias menores; acuracia global pode mascarar baixo recall macro.</td></tr>
           <tr><td>Estatistica</td><td>Pares significativos (McNemar + Holm-Bonferroni)</td><td><a href="dados/estatistica.json">estatistica.json</a></td><td>Quais diferencas entre modelos permanecem significativas apos correcao por multiplas comparacoes.</td><td>So trate um modelo como superior a outro quando o par for significativo e o ganho fizer sentido operacional.</td></tr>
           <tr><td>Estatistica</td><td>Acerto por modelo contra a verdade validada</td><td><a href="dados/estatistica.json">estatistica.json</a></td><td>Qual modelo acerta contra a verdade conferida manualmente, quando disponivel.</td><td>Este e o criterio final mais forte; enquanto o n for baixo, use apenas como sinal preliminar.</td></tr>
+          <tr><td>Estatistica</td><td>Protocolo de exploracao de dados (Zuur et al., 2010)</td><td><a href="dados/estatistica.json">estatistica.json</a> (bloco <code>protocolo_zuur</code>)</td><td>Quais dos 8 passos de exploracao de dados foram aplicados antes da inferencia e o que cada um revelou (outliers, variancia, normalidade, categorias raras, VIF, relacoes, interacoes, ACF).</td><td>Leia antes de confiar nos testes: e a verificacao previa que justifica a estatistica nao parametrica e sinaliza heterogeneidade, colinearidade e dependencia temporal.</td></tr>
           <tr><td>Todas</td><td>Botoes PNG de cada grafico</td><td>Canvas renderizado no navegador</td><td>Gerar imagem do grafico atual para relatorio, artigo, apresentacao ou auditoria visual.</td><td>Antes de exportar, confirme filtro, aba, data de atualizacao e fonte JSON; a imagem congela o estado visual daquele momento.</td></tr>
         </tbody>
       </table></div>
@@ -1278,6 +1286,29 @@ function renderEstatistica(est){
   const algum = vpm.some(r=>N(r.n)>0);
   if(vmi && N(vm.n_verdade_derivada)>0) vmi.textContent = `Verdade derivada em ${fmt(vm.n_verdade_derivada)} chamados validados (amostra possivelmente nao aleatoria; preliminar).`;
   if(tVM) tVM.innerHTML = algum ? vpm.map(r=>`<tr><td>${esc(r.modelo)}</td><td>${fmt(r.n)}</td><td>${r.acerto_validado==null?"-":pct(r.acerto_validado)}</td></tr>`).join("") : `<tr><td colspan="3">Sem conferencia humana suficiente ainda (preencha M e N).</td></tr>`;
+  // Protocolo de exploracao de dados (Zuur, Ieno & Elphick, 2010)
+  const zu = est.protocolo_zuur||{};
+  const passos = Array.isArray(zu.passos)?zu.passos:[];
+  const tZ=document.querySelector("#tabZuur tbody"), zr=document.getElementById("zuurRef");
+  if(tZ) tZ.innerHTML = passos.length ? passos.map(p=>{
+    const it = (p.resultado&&p.resultado.interpretacao)||"";
+    return `<tr title="${esc(it)}"><td>${esc(p.passo)}</td><td>${esc(p.titulo)}</td><td>${esc(p.ferramenta)}</td><td>${esc(p.status)}</td><td>${esc(zuurResumo(p))}</td></tr>`;
+  }).join("") : `<tr><td colspan="5">Protocolo ainda nao calculado. Execute <code>src/analise_estatistica.py</code>.</td></tr>`;
+  if(zr) zr.innerHTML = zu.referencia ? `<strong>Referencia:</strong> ${esc(zu.referencia)}` : "";
+}
+function zuurResumo(p){
+  const r=p.resultado||{};
+  switch(N(p.passo)){
+    case 1: return `${fmt(r.total_outliers_confianca)} outliers de confianca (regra 1,5*IQR)`;
+    case 2: return r.razao_var_max_min!=null ? `razao de variancia ${r.razao_var_max_min} (limiar ${r.limiar_preocupacao}) - ${r.heterogeneo?"heterogeneo":"homogeneo"}` : "indisponivel";
+    case 3: return r.normalidade_rejeitada ? "normalidade rejeitada (Shapiro-Wilk)" : "normalidade nao rejeitada";
+    case 4: return `${fmt(r.n_categorias_raras)} de ${fmt(r.n_categorias)} categorias raras (suporte < ${fmt(r.limiar_suporte)})`;
+    case 5: { const v=Array.isArray(r.vif)?r.vif:[]; const lim=N(r.limiar_vif)||3; const alto=v.filter(x=>N(x.vif)>=lim).length; return `VIF entre confiancas: ${alto} de ${v.length} covariavel(is) com VIF >= ${lim}`; }
+    case 6: return "confianca x acerto (ver card de correlacao acima)";
+    case 7: return "interacao modelo x categoria (metricas por categoria)";
+    case 8: { const a=Array.isArray(r.acf_por_modelo)?r.acf_por_modelo:[]; return `ACF (lags 1-5) calculada para ${a.length} modelo(s)`; }
+    default: return r.interpretacao||"";
+  }
 }
 function renderReclassMulti(rt){
   // Reclassificacao multimodelo (agregado por modelo) — agora dentro da aba Modelos.
