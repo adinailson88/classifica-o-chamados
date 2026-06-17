@@ -1,5 +1,5 @@
 {
-  "gerado_em": "16/06/2026 18:29",
+  "gerado_em": "16/06/2026 22:55",
   "n_linhas_comuns": 13825,
   "modelos": [
     "naive_bayes",
@@ -1214,6 +1214,278 @@
         "modelo": "naive_bayes",
         "n": 307,
         "acerto_validado": 0.5375
+      }
+    ]
+  },
+  "protocolo_zuur": {
+    "referencia": "Zuur, A.F., Ieno, E.N. & Elphick, C.S. (2010). A protocol for data exploration to avoid common statistical problems. Methods in Ecology and Evolution, 1(1), 3-14. doi:10.1111/j.2041-210X.2009.00001.x",
+    "nota": "Protocolo de 8 passos aplicado antes da inferencia, adaptado de uma resposta continua ecologica para o objeto categorico (classificacao de chamados). Variaveis continuas exploradas: confianca por modelo e concordancia por turno. Passos sem analogo direto recebem justificativa explicita.",
+    "tambem_aplicar_em": "Aplicar o mesmo protocolo nos demais repositorios do Malha IA (previsao de chamados, custos, ODS, filtros) e na secao de metodos do artigo, citando Zuur et al. (2010).",
+    "passos": [
+      {
+        "passo": 1,
+        "titulo": "Outliers em Y e X",
+        "ferramenta": "boxplot e Cleveland dotplot (regra 1,5*IQR) sobre a confianca por modelo",
+        "status": "aplicado",
+        "resultado": {
+          "por_modelo": [
+            {
+              "modelo": "naive_bayes",
+              "n": 13825,
+              "min": 0.1169,
+              "max": 1.0,
+              "q1": 0.4531,
+              "q3": 1.0,
+              "outliers_baixos": 0,
+              "outliers_altos": 0
+            },
+            {
+              "modelo": "regressao_logistica",
+              "n": 13825,
+              "min": 0.0472,
+              "max": 0.9992,
+              "q1": 0.181,
+              "q3": 0.8648,
+              "outliers_baixos": 0,
+              "outliers_altos": 0
+            },
+            {
+              "modelo": "linear_svc",
+              "n": 13825,
+              "min": 0.0236,
+              "max": 0.8129,
+              "q1": 0.0447,
+              "q3": 0.1383,
+              "outliers_baixos": 0,
+              "outliers_altos": 50
+            },
+            {
+              "modelo": "sgd",
+              "n": 13825,
+              "min": 0.0373,
+              "max": 0.9743,
+              "q1": 0.1617,
+              "q3": 0.7595,
+              "outliers_baixos": 0,
+              "outliers_altos": 0
+            },
+            {
+              "modelo": "extra_trees",
+              "n": 13825,
+              "min": 0.13,
+              "max": 1.0,
+              "q1": 0.46,
+              "q3": 1.0,
+              "outliers_baixos": 0,
+              "outliers_altos": 0
+            },
+            {
+              "modelo": "random_forest",
+              "n": 13825,
+              "min": 0.095,
+              "max": 1.0,
+              "q1": 0.36,
+              "q3": 0.99,
+              "outliers_baixos": 0,
+              "outliers_altos": 0
+            },
+            {
+              "modelo": "lstm",
+              "n": 13825,
+              "min": 0.065,
+              "max": 0.9998,
+              "q1": 0.3555,
+              "q3": 0.9739,
+              "outliers_baixos": 0,
+              "outliers_altos": 0
+            }
+          ],
+          "total_outliers_confianca": 50,
+          "interpretacao": "confianca extrema sinaliza casos a inspecionar; nao se removem observacoes, registra-se sua presenca (Zuur 2010, passo 1)."
+        }
+      },
+      {
+        "passo": 2,
+        "titulo": "Homogeneidade de variancia",
+        "ferramenta": "variancia da confianca por modelo; razao entre a maior e a menor variancia",
+        "status": "aplicado",
+        "resultado": {
+          "razao_var_max_min": 41.19,
+          "limiar_preocupacao": 4,
+          "heterogeneo": true,
+          "interpretacao": "razao > 4 (Zuur 2010, passo 2) indica heterogeneidade; favorece metodos robustos/nao parametricos, ja adotados aqui."
+        }
+      },
+      {
+        "passo": 3,
+        "titulo": "Normalidade",
+        "ferramenta": "Shapiro-Wilk sobre a concordancia por turno (diagnostico, nao criterio principal)",
+        "status": "aplicado",
+        "resultado": {
+          "modelos_avaliados": 7,
+          "normalidade_rejeitada": true,
+          "interpretacao": "Zuur (2010, passo 3): normalidade importa nos residuos, nao nos dados brutos; a rejeicao reforca a postura nao parametrica."
+        }
+      },
+      {
+        "passo": 4,
+        "titulo": "Excesso de zeros (categorias raras)",
+        "ferramenta": "frequencia das categorias (analogo categorico do zero inflation)",
+        "status": "adaptado",
+        "resultado": {
+          "n_categorias": 54,
+          "n_categorias_raras": 29,
+          "limiar_suporte": 69,
+          "interpretacao": "categorias com suporte quase nulo desestabilizam metricas por classe; tratadas com macro-F1 e IC (Zuur 2010, passo 4, adaptado)."
+        }
+      },
+      {
+        "passo": 5,
+        "titulo": "Colinearidade entre covariaveis (X)",
+        "ferramenta": "VIF (fator de inflacao da variancia) entre a confianca dos modelos",
+        "status": "aplicado",
+        "resultado": {
+          "vif": [
+            {
+              "covariavel": "naive_bayes",
+              "vif": 3.486
+            },
+            {
+              "covariavel": "regressao_logistica",
+              "vif": 20.935
+            },
+            {
+              "covariavel": "linear_svc",
+              "vif": 3.268
+            },
+            {
+              "covariavel": "sgd",
+              "vif": 19.754
+            },
+            {
+              "covariavel": "extra_trees",
+              "vif": 9.19
+            },
+            {
+              "covariavel": "random_forest",
+              "vif": 13.295
+            },
+            {
+              "covariavel": "lstm",
+              "vif": 2.851
+            }
+          ],
+          "limiar_vif": 3,
+          "interpretacao": "VIF > 3 (Zuur 2010, passo 5) indica confianca redundante entre modelos; reduz a informacao independente do comite."
+        }
+      },
+      {
+        "passo": 6,
+        "titulo": "Relacoes entre Y e X",
+        "ferramenta": "correlacao confianca x acerto (Spearman e ponto-bisserial)",
+        "status": "aplicado",
+        "resultado": {
+          "ver_bloco": "correlacao_conf_acerto",
+          "interpretacao": "mede se maior confianca corresponde a maior acerto, entrada para calibracao (Zuur 2010, passo 6)."
+        }
+      },
+      {
+        "passo": 7,
+        "titulo": "Interacoes",
+        "ferramenta": "desempenho por modelo x categoria (metricas por categoria e top de confusoes)",
+        "status": "adaptado",
+        "resultado": {
+          "ver_bloco": "top_confusoes",
+          "interpretacao": "a interacao modelo x categoria substitui o coplot continuo, inaplicavel a resposta categorica (Zuur 2010, passo 7, adaptado)."
+        }
+      },
+      {
+        "passo": 8,
+        "titulo": "Independencia das observacoes",
+        "ferramenta": "ACF da concordancia por turno e Durbin-Watson (ver residuos_tendencia)",
+        "status": "aplicado",
+        "resultado": {
+          "acf_por_modelo": [
+            {
+              "modelo": "naive_bayes",
+              "n_turnos": 922,
+              "acf_lags_1_5": [
+                0.274,
+                0.131,
+                0.142,
+                0.147,
+                0.131
+              ]
+            },
+            {
+              "modelo": "regressao_logistica",
+              "n_turnos": 922,
+              "acf_lags_1_5": [
+                0.344,
+                0.246,
+                0.204,
+                0.194,
+                0.173
+              ]
+            },
+            {
+              "modelo": "linear_svc",
+              "n_turnos": 922,
+              "acf_lags_1_5": [
+                0.342,
+                0.239,
+                0.198,
+                0.182,
+                0.187
+              ]
+            },
+            {
+              "modelo": "sgd",
+              "n_turnos": 922,
+              "acf_lags_1_5": [
+                0.343,
+                0.226,
+                0.185,
+                0.185,
+                0.16
+              ]
+            },
+            {
+              "modelo": "extra_trees",
+              "n_turnos": 922,
+              "acf_lags_1_5": [
+                0.359,
+                0.226,
+                0.224,
+                0.236,
+                0.173
+              ]
+            },
+            {
+              "modelo": "random_forest",
+              "n_turnos": 922,
+              "acf_lags_1_5": [
+                0.348,
+                0.227,
+                0.186,
+                0.169,
+                0.148
+              ]
+            },
+            {
+              "modelo": "lstm",
+              "n_turnos": 922,
+              "acf_lags_1_5": [
+                0.361,
+                0.17,
+                0.151,
+                0.162,
+                0.156
+              ]
+            }
+          ],
+          "interpretacao": "ACF/Durbin-Watson fora das bandas indicam dependencia temporal entre turnos; os lotes nao sao intercambiaveis (Zuur 2010, passo 8)."
+        }
       }
     ]
   }
