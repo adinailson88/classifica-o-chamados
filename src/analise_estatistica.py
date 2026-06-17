@@ -14,6 +14,9 @@ Análises:
 - Kappa de Cohen (IA × histórico) por modelo; Kappa de Fleiss entre as 7 IAs.
 - Cochran's Q (as 7 IAs têm a mesma acurácia?) e teste de McNemar par a par.
 - Friedman entre modelos sobre os recortes + ranks médios e diferença crítica (Nemenyi).
+- Protocolo de exploração de dados de Zuur, Ieno & Elphick (2010), 8 passos adaptados ao
+  objeto categórico (outliers, homogeneidade, normalidade, categorias raras, colinearidade/VIF,
+  relações, interações e independência/ACF).
 
 100% local, sem texto sensível na saída. Acesso via conta de serviço (gspread).
 """
@@ -118,6 +121,56 @@ def bootstrap_ic(acertos: np.ndarray, n_boot=2000, seed=42):
         return 0.0, 0.0, 0.0
     means = acertos[rng.integers(0, n, size=(n_boot, n))].mean(axis=1)
     return float(acertos.mean()), float(np.percentile(means, 2.5)), float(np.percentile(means, 97.5))
+
+
+# --- Auxiliares do protocolo de exploracao de dados (Zuur, Ieno & Elphick, 2010) ---
+def iqr_outliers(x) -> dict | None:
+    """Outliers pela regra 1,5*IQR (boxplot/Cleveland dotplot, passo 1 de Zuur)."""
+    x = np.asarray(x, dtype=float)
+    if x.size == 0:
+        return None
+    q1, q3 = np.percentile(x, [25, 75])
+    iqr = q3 - q1
+    lo, hi = q1 - 1.5 * iqr, q3 + 1.5 * iqr
+    return {"n": int(x.size), "min": round(float(x.min()), 4), "max": round(float(x.max()), 4),
+            "q1": round(float(q1), 4), "q3": round(float(q3), 4),
+            "outliers_baixos": int((x < lo).sum()), "outliers_altos": int((x > hi).sum())}
+
+
+def vif_colunas(cols: dict) -> list:
+    """VIF por covariavel: regressa cada coluna nas demais (passo 5 de Zuur)."""
+    nomes = list(cols)
+    if len(nomes) < 2:
+        return []
+    M = np.column_stack([np.asarray(cols[c], dtype=float) for c in nomes])
+    out = []
+    for j, nome in enumerate(nomes):
+        y = M[:, j]
+        X = np.column_stack([np.ones(len(y)), np.delete(M, j, axis=1)])
+        try:
+            beta, *_ = np.linalg.lstsq(X, y, rcond=None)
+            ss_res = float(((y - X @ beta) ** 2).sum())
+            ss_tot = float(((y - y.mean()) ** 2).sum())
+            r2 = 1.0 - ss_res / ss_tot if ss_tot > 0 else 0.0
+            vif = round(1.0 / (1.0 - r2), 3) if r2 < 0.999999 else 9999.0
+        except Exception:  # noqa: BLE001
+            vif = None
+        out.append({"covariavel": nome, "vif": vif})
+    return out
+
+
+def acf_serie(y, nlags=5) -> list:
+    """Funcao de autocorrelacao ate nlags (passo 8 de Zuur: independencia)."""
+    y = np.asarray(y, dtype=float)
+    n = len(y)
+    if n < 3:
+        return []
+    y = y - y.mean()
+    denom = float((y ** 2).sum())
+    if denom == 0:
+        return []
+    return [round(float((y[: n - k] * y[k:]).sum() / denom), 3)
+            for k in range(1, min(nlags, n - 1) + 1)]
 
 
 def main() -> int:
@@ -401,6 +454,116 @@ def main() -> int:
         print(f"validacao: verdade_derivada={len(verdade)}")
     except Exception as e:  # noqa: BLE001
         print(f"validado: {e}", file=sys.stderr)
+
+    # 12) Protocolo de exploracao de dados de Zuur, Ieno & Elphick (2010), 8 passos,
+    #     adaptado ANTES da inferencia a este objeto categorico. Reaproveita os blocos
+    #     ja calculados (normalidade, correlacao, residuos) e acrescenta os passos que
+    #     ainda nao tinham diagnostico explicito (outliers, homogeneidade, colinearidade,
+    #     categorias raras e ACF). Cada passo declara ferramenta, status e leitura.
+    try:
+        from collections import Counter as _Counter
+        zuur = {
+            "referencia": "Zuur, A.F., Ieno, E.N. & Elphick, C.S. (2010). A protocol for data "
+            "exploration to avoid common statistical problems. Methods in Ecology and "
+            "Evolution, 1(1), 3-14. doi:10.1111/j.2041-210X.2009.00001.x",
+            "nota": "Protocolo de 8 passos aplicado antes da inferencia, adaptado de uma resposta "
+            "continua ecologica para o objeto categorico (classificacao de chamados). Variaveis "
+            "continuas exploradas: confianca por modelo e concordancia por turno. Passos sem "
+            "analogo direto recebem justificativa explicita.",
+            "tambem_aplicar_em": "Aplicar o mesmo protocolo nos demais repositorios do Malha IA "
+            "(previsao de chamados, custos, ODS, filtros) e na secao de metodos do artigo, "
+            "citando Zuur et al. (2010).",
+            "passos": []}
+
+        def _passo(num, titulo, ferramenta, status, resultado):
+            zuur["passos"].append({"passo": num, "titulo": titulo, "ferramenta": ferramenta,
+                                   "status": status, "resultado": resultado})
+
+        # Passo 1 - Outliers em Y e X (boxplot e Cleveland dotplot sobre a confianca)
+        out_conf = {m: iqr_outliers(conf[m]) for m in modelos}
+        tot_out = sum((d["outliers_baixos"] + d["outliers_altos"]) for d in out_conf.values() if d)
+        _passo(1, "Outliers em Y e X",
+                "boxplot e Cleveland dotplot (regra 1,5*IQR) sobre a confianca por modelo",
+                "aplicado",
+                {"por_modelo": [dict(modelo=m, **out_conf[m]) for m in modelos if out_conf[m]],
+                 "total_outliers_confianca": int(tot_out),
+                 "interpretacao": "confianca extrema sinaliza casos a inspecionar; nao se "
+                 "removem observacoes, registra-se sua presenca (Zuur 2010, passo 1)."})
+
+        # Passo 2 - Homogeneidade de variancia (razao max/min > 4 e preocupante; Zuur 2010)
+        varis = {m: float(np.var(conf[m])) for m in modelos}
+        vv = [v for v in varis.values() if v > 0]
+        razao = (max(vv) / min(vv)) if len(vv) >= 2 and min(vv) > 0 else None
+        _passo(2, "Homogeneidade de variancia",
+                "variancia da confianca por modelo; razao entre a maior e a menor variancia",
+                "aplicado",
+                {"razao_var_max_min": (round(razao, 2) if razao else None), "limiar_preocupacao": 4,
+                 "heterogeneo": bool(razao and razao > 4),
+                 "interpretacao": "razao > 4 (Zuur 2010, passo 2) indica heterogeneidade; "
+                 "favorece metodos robustos/nao parametricos, ja adotados aqui."})
+
+        # Passo 3 - Normalidade (reaproveita o veredito do bloco de pressupostos)
+        _passo(3, "Normalidade",
+                "Shapiro-Wilk sobre a concordancia por turno (diagnostico, nao criterio principal)",
+                "aplicado",
+                {"modelos_avaliados": out["pressupostos"]["modelos_avaliados"],
+                 "normalidade_rejeitada": out["pressupostos"]["normalidade_rejeitada"],
+                 "interpretacao": "Zuur (2010, passo 3): normalidade importa nos residuos, nao "
+                 "nos dados brutos; a rejeicao reforca a postura nao parametrica."})
+
+        # Passo 4 - Excesso de zeros: analogo categorico = categorias de suporte quase nulo
+        sup = _Counter(orig)
+        limiar_sup = max(5, round(0.005 * n))
+        raras = sorted([c for c, q in sup.items() if q < limiar_sup])
+        _passo(4, "Excesso de zeros (categorias raras)",
+                "frequencia das categorias (analogo categorico do zero inflation)",
+                "adaptado",
+                {"n_categorias": len(sup), "n_categorias_raras": len(raras),
+                 "limiar_suporte": limiar_sup,
+                 "interpretacao": "categorias com suporte quase nulo desestabilizam metricas por "
+                 "classe; tratadas com macro-F1 e IC (Zuur 2010, passo 4, adaptado)."})
+
+        # Passo 5 - Colinearidade entre covariaveis: VIF entre as confiancas dos modelos
+        _passo(5, "Colinearidade entre covariaveis (X)",
+                "VIF (fator de inflacao da variancia) entre a confianca dos modelos",
+                "aplicado",
+                {"vif": vif_colunas(conf), "limiar_vif": 3,
+                 "interpretacao": "VIF > 3 (Zuur 2010, passo 5) indica confianca redundante entre "
+                 "modelos; reduz a informacao independente do comite."})
+
+        # Passo 6 - Relacoes entre Y e X (confianca x acerto, ja calculado no bloco 1)
+        _passo(6, "Relacoes entre Y e X",
+                "correlacao confianca x acerto (Spearman e ponto-bisserial)",
+                "aplicado",
+                {"ver_bloco": "correlacao_conf_acerto",
+                 "interpretacao": "mede se maior confianca corresponde a maior acerto, entrada "
+                 "para calibracao (Zuur 2010, passo 6)."})
+
+        # Passo 7 - Interacoes (coplot classico nao se aplica; usa-se modelo x categoria)
+        _passo(7, "Interacoes",
+                "desempenho por modelo x categoria (metricas por categoria e top de confusoes)",
+                "adaptado",
+                {"ver_bloco": "top_confusoes",
+                 "interpretacao": "a interacao modelo x categoria substitui o coplot continuo, "
+                 "inaplicavel a resposta categorica (Zuur 2010, passo 7, adaptado)."})
+
+        # Passo 8 - Independencia: ACF da concordancia por turno (+ Durbin-Watson do bloco 2/3)
+        acf_mod = []
+        for m in modelos:
+            serie = [taxa for _, taxa in tur.get(m, [])]
+            if len(serie) >= 8:
+                acf_mod.append({"modelo": m, "n_turnos": len(serie), "acf_lags_1_5": acf_serie(serie, 5)})
+        _passo(8, "Independencia das observacoes",
+                "ACF da concordancia por turno e Durbin-Watson (ver residuos_tendencia)",
+                "aplicado",
+                {"acf_por_modelo": acf_mod,
+                 "interpretacao": "ACF/Durbin-Watson fora das bandas indicam dependencia temporal "
+                 "entre turnos; os lotes nao sao intercambiaveis (Zuur 2010, passo 8)."})
+
+        out["protocolo_zuur"] = zuur
+        print(f"zuur: {len(zuur['passos'])} passos | outliers_conf={tot_out} | razao_var={razao}")
+    except Exception as e:  # noqa: BLE001
+        print(f"zuur: {e}", file=sys.stderr)
 
     SAIDA.parent.mkdir(parents=True, exist_ok=True)
     SAIDA.write_text(json.dumps(out, ensure_ascii=False, indent=2), encoding="utf-8")
