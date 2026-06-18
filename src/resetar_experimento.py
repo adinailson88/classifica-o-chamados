@@ -2,13 +2,14 @@
 """Reseta o experimento: apaga tudo que a IA gravou e volta ao ZERO.
 
 Limpa na planilha principal as colunas G:K (Classificação IA, Avaliação,
-Executor, Criticidade e a fórmula de conferência) e LIMPA o conteúdo das abas do
+Executor, Criticidade e a fórmula de conferência), a coluna O
+(Classificação IA - 2/reclassificação) e LIMPA o conteúdo das abas do
 experimento (EXPERIMENTO_CONFIG, LOG_TURNOS_CLASSIFICACAO, LOG_LINHA_A_LINHA,
 SNAPSHOT_ETAPA_1, LOG_TURNOS_RECLASSIFICACAO, VALIDACAO_HUMANA,
 METRICAS_EXPERIMENTO, METRICAS_POR_CATEGORIA e abas multimodelo, quando existirem).
 
 NÃO mexe na coluna C (categoria original/histórica), em L (fórmula do usuário) nem
-em M (CONFERÊNCIA manual). Acesso via conta de serviço (gspread).
+em M/N/P (CONFERÊNCIAS manuais). Acesso via conta de serviço (gspread).
 
 SEGURANÇA: só executa com --aplicar E --confirmar RESETAR. Sem isso, é dry-run.
 Use sempre que quiser recomeçar a classificação/reclassificação do zero.
@@ -22,11 +23,20 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-import planilha as pl  # noqa: E402
 
 RAIZ = Path(__file__).resolve().parents[1]
 CONFIG_PADRAO = RAIZ / "config_experimento.json"
 PALAVRA_CONFIRMACAO = "RESETAR"
+ABAS_IA_2 = [
+    "RECLASS_VALIDADOS",
+    "MEMORIA_VALIDADA_CLASSIFICACAO",
+    "METRICAS_CLASSIFICACAO_2",
+    "CONTROLE_CLASSIFICACAO_2",
+    "CANDIDATOS_CLASSIFICACAO_2",
+    "COMITE_CLASSIFICACAO_2",
+    "CLASSIFICACAO_2_DRYRUN",
+    "AUDITORIA_CLASSIFICACAO_2",
+]
 
 
 def parse_args() -> argparse.Namespace:
@@ -54,11 +64,13 @@ def main() -> int:
             mm.get("aba_turnos", ""),
             mm.get("aba_metricas", ""),
             mm.get("aba_turnos", "").replace("TURNOS", "RECLASS_TURNOS"),
+            mm.get("aba_historico_reclassificacao", ""),
         ])
+    abas.extend(ABAS_IA_2)
     abas = [a for a in dict.fromkeys(abas) if a]
 
     print("planilha=<via SPREADSHEET_ID/local>")
-    print(f"principal={aba} -> limpar G:K (preserva C, L, M)")
+    print(f"principal={aba} -> limpar G:K e O (preserva C, L, M/N/P)")
     print(f"abas a limpar: {', '.join(abas)}")
 
     if not args.aplicar:
@@ -68,6 +80,8 @@ def main() -> int:
     if args.confirmar != PALAVRA_CONFIRMACAO:
         print(f"ABORTADO: confirmação inválida. Passe --confirmar {PALAVRA_CONFIRMACAO}.", file=sys.stderr)
         return 2
+
+    import planilha as pl  # noqa: PLC0415
 
     try:
         sh = pl.abrir_planilha(pl.id_planilha(config), args.credenciais)
@@ -79,8 +93,9 @@ def main() -> int:
         print(f"Falha ao acessar a planilha: {type(e).__name__}: {e}", file=sys.stderr)
         return 1
 
-    ws.batch_clear([f"G2:K{ws.row_count}"])
+    ws.batch_clear([f"G2:K{ws.row_count}", f"O2:O{ws.row_count}"])
     print(f"limpo: {aba}!G2:K{ws.row_count}")
+    print(f"limpo: {aba}!O2:O{ws.row_count}")
 
     for nome in abas:
         try:
