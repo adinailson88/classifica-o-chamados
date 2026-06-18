@@ -76,15 +76,33 @@ jobs:
           printf '%s' "$GCP_SA_KEY" > credenciais_sa.json
       - name: Reclassificar por modelo
         run: |
-          MODELOS="${{ github.event.inputs.modelos || 'lstm' }}"
+          MODELOS_AGENDADOS="naive_bayes,regressao_logistica,linear_svc,sgd,extra_trees,random_forest,lstm"
+          MODELOS="${{ github.event.inputs.modelos || 'naive_bayes,regressao_logistica,linear_svc,sgd,extra_trees,random_forest,lstm' }}"
           MAX_TURNOS="${{ github.event.inputs.max_turnos || '4' }}"
-          FLAGS="--modelos $MODELOS --max-turnos $MAX_TURNOS"
-          if [ "${{ github.event_name }}" = "schedule" ] || [ "${{ github.event.inputs.aplicar }}" = "true" ]; then FLAGS="$FLAGS --aplicar"; fi
-          if [ "${{ github.event.inputs.usar_calibrado }}" = "true" ]; then FLAGS="$FLAGS --usar-calibrado"; fi
-          if [ "${{ github.event_name }}" = "schedule" ] || [ "${{ github.event.inputs.so_validados }}" = "true" ]; then FLAGS="$FLAGS --so-validados"; fi
-          if [ "${{ github.event.inputs.gravar_coluna_2 }}" = "true" ]; then FLAGS="$FLAGS --gravar-coluna-2"; fi
-          echo "flags: $FLAGS"
-          python src/reclassificacao_multimodelo.py $FLAGS
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            echo "rodada automatica 1/2: validados"
+            python src/reclassificacao_multimodelo.py \
+              --modelos "$MODELOS_AGENDADOS" \
+              --max-turnos "$MAX_TURNOS" \
+              --aplicar \
+              --so-validados \
+              --contexto-rodada validados
+
+            echo "rodada automatica 2/2: baixa confianca geral"
+            python src/reclassificacao_multimodelo.py \
+              --modelos "$MODELOS_AGENDADOS" \
+              --max-turnos "$MAX_TURNOS" \
+              --aplicar \
+              --contexto-rodada baixa_confianca
+          else
+            FLAGS="--modelos $MODELOS --max-turnos $MAX_TURNOS --contexto-rodada manual"
+            if [ "${{ github.event.inputs.aplicar }}" = "true" ]; then FLAGS="$FLAGS --aplicar"; fi
+            if [ "${{ github.event.inputs.usar_calibrado }}" = "true" ]; then FLAGS="$FLAGS --usar-calibrado"; fi
+            if [ "${{ github.event.inputs.so_validados }}" = "true" ]; then FLAGS="$FLAGS --so-validados"; fi
+            if [ "${{ github.event.inputs.gravar_coluna_2 }}" = "true" ]; then FLAGS="$FLAGS --gravar-coluna-2"; fi
+            echo "flags: $FLAGS"
+            python src/reclassificacao_multimodelo.py $FLAGS
+          fi
       - name: Remover credenciais
         if: always()
         run: rm -f credenciais_sa.json

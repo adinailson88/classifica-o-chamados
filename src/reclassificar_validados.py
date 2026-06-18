@@ -187,6 +187,47 @@ def main() -> int:
                 break
             time.sleep(10 * tentativa)
 
+    # 3) Historico consolidado comparavel com a reclassificacao multimodelo.
+    aba_historico = config.get("multimodelo", {}).get(
+        "aba_historico_reclassificacao", "RECLASS_HISTORICO")
+    cab_h = ["data", "run_id", "modelo", "tipo_rodada", "linha_planilha", "id_chamado",
+             "categoria_referencia", "categoria_antes", "confianca_antes", "acerto_antes",
+             "categoria_depois", "confianca_depois", "acerto_depois", "mudou",
+             "delta_confianca", "resultado", "base_comparacao", "metodo_reclassificacao",
+             "limiar_alta_confianca", "usar_calibrado", "so_validados", "max_turnos",
+             "tamanho_turno", "gravou_coluna_2"]
+    linhas_h = []
+    for r in registros:
+        verdade = r["verdade"]
+        antes_ok = "" if not verdade else str(r["cat_G"] == verdade)
+        depois_ok = "" if r["acertou"] is None else str(r["acertou"])
+        if not verdade:
+            resultado = "sem_referencia"
+        elif r["cat_G"] != verdade and r["acertou"]:
+            resultado = "corrigido"
+        elif r["cat_G"] == verdade and not r["acertou"]:
+            resultado = "prejudicado"
+        elif r["cat_G"] == verdade and r["acertou"]:
+            resultado = "mantido_correto"
+        else:
+            resultado = "mantido_errado"
+        linhas_h.append([gerado, run_id, f"Reclass_{tag}", "validados_coluna_o",
+                         r["linha"], r["id"], verdade, r["cat_G"], "", antes_ok,
+                         r["cat_o"], r["conf_o"], depois_ok, str(r["cat_o"] != r["cat_G"]),
+                         "", resultado, "validada" if verdade else "sem_referencia",
+                         f"Reclass_{tag}", "", "False", "True", int(args.max_turnos),
+                         tam, "True"])
+    for tentativa in range(1, 4):
+        try:
+            pl.append_aba(sh, aba_historico, cab_h, linhas_h)
+            break
+        except Exception as e:  # noqa: BLE001
+            if tentativa >= 3:
+                print(f"[aviso] coluna O gravada, mas historico consolidado falhou: "
+                      f"{type(e).__name__}: {e}", file=sys.stderr)
+                break
+            time.sleep(10 * tentativa)
+
     print(f"OK: {len(registros)} reclassificados na coluna O | acertos_robusto={acertos}/{len(com_verdade)} | "
           f"restam {total - len(sel)} validados pendentes.")
     return 0
