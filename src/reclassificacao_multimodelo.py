@@ -153,9 +153,12 @@ def reclassificar_modelo(sh, config, modelo, elegiveis, por_linha, cap, base_ext
     lim_alta = float(config.get("classificacao", {}).get("limiar_alta_confianca", 0.95))
     aba_classif = clf.nome_aba(mm["aba_classificacao"], modelo)
     aba_reclass = clf.nome_aba(mm["aba_reclassificacao"], modelo)
+    aba_historico = mm.get("aba_historico_reclassificacao", "RECLASS_HISTORICO")
     decisoes = decisoes or {}
 
     so_validados = getattr(args, "so_validados", False)
+    tipo_rodada = getattr(args, "contexto_rodada", "") or (
+        "validados" if so_validados else "baixa_confianca")
     calibrador = _carregar_calibrador(modelo) if getattr(args, "usar_calibrado", False) else None
     # Modo padrao: candidatos = baixa confianca. Modo --so-validados: candidatos =
     # chamados COM conferencia humana (independente da confianca).
@@ -293,6 +296,21 @@ def reclassificar_modelo(sh, config, modelo, elegiveis, por_linha, cap, base_ext
                r["delta"], r["res"], r.get("base_comparacao", "historico"), gerado] for r in registros]
     _append_resiliente(sh, aba_reclass, cab, linhas, colunas_percentuais=[7, 10])
 
+    cab_h = ["data", "run_id", "modelo", "tipo_rodada", "linha_planilha", "id_chamado",
+             "categoria_referencia", "categoria_antes", "confianca_antes", "acerto_antes",
+             "categoria_depois", "confianca_depois", "acerto_depois", "mudou",
+             "delta_confianca", "resultado", "base_comparacao", "metodo_reclassificacao",
+             "limiar_alta_confianca", "usar_calibrado", "so_validados", "max_turnos",
+             "tamanho_turno", "gravou_coluna_2"]
+    linhas_h = [[gerado, run_id, modelo, tipo_rodada, r["linha"], r["id"], r["original"],
+                 r["cat_1"], r["conf_1"], str(r["antes_ok"]), r["cat_2"], r["conf_2"],
+                 str(r["depois_ok"]), str(r["mudou"]), r["delta"], r["res"],
+                 r.get("base_comparacao", "historico"), metodo, lim_alta,
+                 str(bool(getattr(args, "usar_calibrado", False))), str(bool(so_validados)),
+                 int(getattr(args, "max_turnos", 0)), tam,
+                 str(bool(getattr(args, "col2_ativa", False)))] for r in registros]
+    _append_resiliente(sh, aba_historico, cab_h, linhas_h, colunas_percentuais=[9, 12])
+
     # Turnos de 15 no log consolidado.
     turnos = []
     for k, ini in enumerate(range(0, len(registros), tam)):
@@ -354,6 +372,9 @@ def parse_args():
                    help="Grava a reclassificacao na coluna 'Classificacao IA - 2' (O) da aba principal, "
                         "sem tocar em G/M/N. Use com UM unico modelo no escopo (ex.: pesados=lstm). "
                         "So tem efeito junto com --aplicar.")
+    p.add_argument("--contexto-rodada", default="",
+                   help="Rotulo livre para auditoria do historico consolidado "
+                        "(ex.: validados, baixa_confianca, manual).")
     return p.parse_args()
 
 
