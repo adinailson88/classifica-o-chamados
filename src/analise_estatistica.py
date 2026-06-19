@@ -199,8 +199,21 @@ def main() -> int:
             print(f"{m}: {len(d)} linhas")
     modelos = [m for m in modelos if m in dados]
     if len(modelos) < 2:
+        # Estado NORMAL de "dados insuficientes": as abas CLASSIF__<modelo> ainda nao
+        # tem >=2 modelos materializados (ex.: o multimodelo nao rodou desde o ultimo
+        # reset). Nao e erro de CI -> sai com sucesso para nao spammar falha a cada
+        # agendamento. Preserva o ultimo estatistica.json valido ja commitado; so grava
+        # um stub de status no cold start (quando o arquivo ainda nao existe).
         print("Menos de 2 modelos materializados; estatística comparativa indisponível.")
-        return 1
+        if not SAIDA.exists():
+            SAIDA.parent.mkdir(parents=True, exist_ok=True)
+            stub = {"gerado_em": agora_bahia(), "status": "indisponivel",
+                    "motivo": "Menos de 2 modelos materializados; estatistica comparativa "
+                    "indisponivel ate o multimodelo materializar >=2 abas CLASSIF__<modelo>.",
+                    "modelos_materializados": modelos, "n_linhas_comuns": 0}
+            SAIDA.write_text(json.dumps(stub, ensure_ascii=False, indent=2), encoding="utf-8")
+            print(f"stub de status gravado -> {SAIDA}")
+        return 0
 
     linhas_comuns = sorted(set.intersection(*[set(dados[m]) for m in modelos]))
     n = len(linhas_comuns)
