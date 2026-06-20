@@ -1415,3 +1415,34 @@ reduz tanto consumo de cota quanto conflitos de commits entre workflows independ
 Documentacao tecnica curta: `docs/CACHE_PLANILHA_WORKFLOWS.md`. Backup operacional:
 verificacao agendada para 09:00 deve conferir o run noturno e disparar o workflow manual
 se o lote ainda estiver falho, cancelado ou incompleto.
+
+## Atualizacao Codex - camada Shannon/Jensen-Shannon para ambiguidade e artigo (2026-06-20)
+
+Registrada e implementada a camada informacional solicitada para avaliar dispersao,
+ambiguidade e distancia distributiva nas classificacoes. O objetivo nao e substituir
+acuracia, F1, Kappa, calibracao ou validacao humana; a camada Shannon responde outra
+pergunta: onde os modelos, as categorias e as linhas apresentam maior incerteza
+estrutural.
+
+Implementacao: novo `src/analise_shannon.py`, somente leitura, usando os JSONs publicos
+e sanitizados de `docs/dados` (`registros.json` e `registros_<modelo>.json`). O script
+calcula: (1) entropia de Shannon por IA sobre a distribuicao de categorias previstas;
+(2) entropia por categoria historica, com suporte minimo padrao de 30 registros; (3)
+entropia de votos entre IAs por linha, sem exportar ID/titulo/descricao; e (4)
+divergencia Jensen-Shannon entre a distribuicao prevista por cada IA e a distribuicao
+historica. Saidas: `shannon_resumo.json`, `shannon_modelos.json`,
+`jensen_shannon_modelos.json`, `shannon_categorias.json` e `shannon_votos.json`.
+
+Dashboard: adicionada a aba `Shannon`, com KPIs, grafico de entropia por IA, grafico de
+Jensen-Shannon vs historico, tabela de categorias historicas mais ambiguas e tabela
+sanitizada de linhas com maior divergencia de votos entre IAs. O `dashboard.yml` passou a
+executar `python src/analise_shannon.py` imediatamente apos `src/exportar_dashboard.py`,
+mantendo a camada atualizada junto com os demais dados publicos.
+
+Documentacao/artigo: criados `docs/METODOLOGIA_SHANNON.md` e
+`docs/CONTRIBUICAO_SHANNON_ARTIGO.md`. A contribuicao metodologica registrada e que a
+classificacao automatica passa a ser avaliada por quatro eixos complementares:
+desempenho supervisionado, confiabilidade/calibracao, robustez estatistica e ambiguidade
+informacional. Para o artigo, a camada sustenta uma conclusao mais forte: o painel nao
+apenas compara IAs, mas tambem orienta governanca da taxonomia, priorizacao da validacao
+humana e selecao mais segura de modelos.

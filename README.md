@@ -246,6 +246,11 @@ docs/dados/estatistica.json               # analise nao parametrica (aba Estatis
 docs/dados/calibracao.json
 docs/dados/calibracao_modelos.json        # diagnostico bruto por IA
 docs/dados/calibracao_ajustada_modelos.json # calibracao escalar preliminar por IA
+docs/dados/shannon_resumo.json            # criterios e destaques da camada Shannon
+docs/dados/shannon_modelos.json           # entropia por IA
+docs/dados/jensen_shannon_modelos.json    # distancia distributiva IA x historico
+docs/dados/shannon_categorias.json        # ambiguidade por categoria historica
+docs/dados/shannon_votos.json             # linhas sanitizadas com maior desacordo entre IAs
 ```
 
 O site publicado pelo GitHub Pages deve identificar o projeto como `Classificacao de Chamados - Painel Experimental`. A referencia a Malha IA deve aparecer apenas como contexto de origem, nao como nome principal do site.
@@ -275,6 +280,23 @@ mesmo visualizador. Roda junto no workflow `relevancia_termos.yml`.
 python src/cruzamento_taxonomia.py --top 40 --min-df 5 --min-chamados-categoria 10
 ```
 
+## Shannon / Jensen-Shannon (ambiguidade e governanca)
+
+`src/analise_shannon.py` calcula uma camada informacional sobre os JSONs publicos do
+dashboard. Ela mede dispersao das previsoes por IA, ambiguidade por categoria historica,
+desacordo de votos entre IAs e divergencia Jensen-Shannon entre a distribuicao prevista
+por cada IA e a distribuicao historica. Nao e acuracia, nao substitui validacao humana e
+nao grava nada na planilha.
+
+Saidas sanitizadas em `docs/dados`: `shannon_resumo.json`, `shannon_modelos.json`,
+`jensen_shannon_modelos.json`, `shannon_categorias.json` e `shannon_votos.json`.
+O dashboard exibe esses dados na aba **Shannon**. O workflow `dashboard.yml` roda essa
+analise automaticamente apos `src/exportar_dashboard.py`.
+
+```bash
+python src/analise_shannon.py
+```
+
 ## Documentacao
 
 1. `CONTEXTO.md`: panorama vivo do repositorio, decisoes e proximos passos.
@@ -283,6 +305,8 @@ python src/cruzamento_taxonomia.py --top 40 --min-df 5 --min-chamados-categoria 
 4. `docs/index.html`: painel publico com graficos, tabelas, metricas e aba de documentacao.
 5. `docs/RELEVANCIA_TERMOS.md`: termos caracteristicos por categoria + mapa de correlacao.
 6. `docs/RELATORIO_ESTADO_ATUAL.md`: diagnostico tecnico/metodologico desta revisao.
+7. `docs/METODOLOGIA_SHANNON.md`: calculos, fontes, interpretacao e limitacoes da camada Shannon.
+8. `docs/CONTRIBUICAO_SHANNON_ARTIGO.md`: texto tecnico para artigo e conclusao.
 
 ## Apps Script
 
