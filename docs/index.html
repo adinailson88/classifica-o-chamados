@@ -152,6 +152,7 @@
     <button data-t="modelos">Modelos</button>
     <button data-t="estat">Estatistica</button>
     <button data-t="taxon">Taxonomia</button>
+    <button data-t="shannon">Shannon</button>
     <button data-t="reclass">Reclassificacao</button>
     <button data-t="decisao">Decisao</button>
     <button data-t="docs">Documentacao</button>
@@ -346,6 +347,35 @@
     </div>
   </section>
 
+  <section id="tab-shannon" class="hide">
+    <div class="alerta" id="shannonAviso">Shannon mede dispersao/ambiguidade das classificacoes; Jensen-Shannon mede distancia entre distribuicoes. Nao e metrica de acuracia e nao substitui validacao humana.</div>
+    <div class="kpis" id="kpisShannon"></div>
+    <div class="grid">
+      <div class="card">
+        <h2>Entropia de Shannon por IA</h2>
+        <canvas id="cShannonModelos"></canvas>
+      </div>
+      <div class="card">
+        <h2>Jensen-Shannon vs historico</h2>
+        <canvas id="cJensenShannon"></canvas>
+      </div>
+      <div class="card full">
+        <h2>Categorias historicas mais ambiguas</h2>
+        <p class="muted">Ranking por entropia normalizada media nas previsoes dos modelos, com suporte minimo publicado no JSON.</p>
+        <div class="tablebox"><table id="tabShannonCategorias"><thead><tr>
+          <th>Categoria historica</th><th>Modelos</th><th>Suporte max.</th><th>Entropia media</th><th>Risco</th>
+        </tr></thead><tbody></tbody></table></div>
+      </div>
+      <div class="card full">
+        <h2>Linhas com maior divergencia de votos entre IAs</h2>
+        <p class="muted">Lista sanitizada: sem ID, titulo ou descricao. A linha serve para auditoria interna na planilha.</p>
+        <div class="tablebox"><table id="tabShannonVotos"><thead><tr>
+          <th>Linha</th><th>Categoria historica</th><th>Modelos</th><th>Categorias votadas</th><th>Entropia votos</th><th>Maioria</th><th>Maioria %</th>
+        </tr></thead><tbody></tbody></table></div>
+      </div>
+    </div>
+  </section>
+
   <section id="tab-reclass" class="hide">
     <div class="alerta" id="reclassAviso">Etapa 2 (reclassificacao) ainda nao executada apos o reset. Nao iniciar a validacao humana ainda; o proximo passo tecnico e um dry-run ou aplicacao controlada da reclassificacao.</div>
     <div class="kpis" id="kpisRM"></div>
@@ -487,6 +517,7 @@
       <div class="definition"><strong>Relevancia de termos e mapa de correlacao</strong>: para cada categoria, identificam-se os termos caracteristicos (por exemplo, "agua", "torneira", "sanitario" para hidraulica) por meio de razao de chances logaritmica com prior de Dirichlet e do peso medio no centroide TF-IDF. A proximidade entre categorias e estimada pela similaridade do cosseno entre os centroides, representada como mapa de calor: celulas de maior intensidade indicam vocabulario sobreposto. Procedimento implementado em <code>src/relevancia_termos.py</code>. Visualizacao em <a href="mapa_correlacao.html">mapa de correlacao</a>.</div>
       <div class="definition"><strong>Cruzamento entre confusao e correlacao</strong>: a matriz de confusao entre a previsao da IA e a categoria historica e cruzada com a correlacao vocabular. Pares de categorias com valores elevados em ambas as dimensoes constituem candidatos a revisao da taxonomia &mdash; fusao, renomeacao ou criterio de desambiguacao. O procedimento e exploratorio e destina-se a priorizar a revisao humana, sem decidir a taxonomia. Implementado em <code>src/cruzamento_taxonomia.py</code>.</div>
       <div class="definition"><strong>Comparacao multimodelo</strong>: sete algoritmos (naive_bayes, regressao_logistica, linear_svc, sgd, extra_trees, random_forest e lstm) classificam toda a base com predicao <em>out-of-fold</em>, de modo que o modelo que rotula cada registro nao foi treinado nele. Resultados na aba <strong>Modelos</strong>.</div>
+      <div class="definition"><strong>Camada Shannon / Jensen-Shannon</strong>: a entropia de Shannon mede a dispersao das categorias previstas por IA e por categoria historica; a entropia de votos mede desacordo entre IAs na mesma linha; e a divergencia Jensen-Shannon mede o quanto a distribuicao de previsoes de uma IA se afasta da distribuicao historica. E uma camada de ambiguidade e governanca taxonomica, nao uma medida direta de acerto. Implementado em <code>src/analise_shannon.py</code> e exibido na aba <strong>Shannon</strong>.</div>
       <div class="definition"><strong>Analise estatistica nao parametrica</strong>: o teste de Shapiro-Wilk rejeitou a normalidade nos sete modelos; adotam-se, portanto, Spearman, Friedman com pos-teste de Nemenyi, Q de Cochran, McNemar, coeficientes Kappa (Cohen e Fleiss) e intervalos de confianca por reamostragem (bootstrap, 95%). Aba <strong>Estatistica</strong>.</div>
       <div class="definition"><strong>Protocolo de exploracao de dados (Zuur, Ieno &amp; Elphick, 2010)</strong>: antes de qualquer inferencia, os dados sao explorados pelos oito passos do protocolo de Zuur et al. (2010) &mdash; (1) outliers em Y e X por boxplot/Cleveland dotplot (regra 1,5&times;IQR sobre a confianca); (2) homogeneidade de variancia (razao entre a maior e a menor variancia, com limiar 4); (3) normalidade por Shapiro-Wilk, tratada como diagnostico e nao como criterio; (4) excesso de zeros, adaptado para categorias de suporte quase nulo; (5) colinearidade por fator de inflacao da variancia (VIF) entre as confiancas dos modelos; (6) relacoes entre Y e X (confianca &times; acerto); (7) interacoes, adaptadas para modelo &times; categoria; e (8) independencia por funcao de autocorrelacao (ACF) e Durbin-Watson da concordancia por turno. O protocolo justifica formalmente a postura nao parametrica e e exibido na aba <strong>Estatistica</strong>. Referencia: Zuur, A.F., Ieno, E.N. &amp; Elphick, C.S. (2010), <em>A protocol for data exploration to avoid common statistical problems</em>, Methods in Ecology and Evolution, 1(1), 3&ndash;14. <strong>Padrao metodologico a estender</strong> aos demais repositorios do Malha IA (previsao de chamados, custos, ODS e filtros) e a secao de metodos do artigo em preparacao.</div>
       <div class="definition"><strong>Calibracao preliminar por modelo</strong>: diagnostico bruto (ECE, escore de Brier, faixa &ge;95%) e calibracao escalar <em>out-of-fold</em> de P(previsao correta | confianca). Os resultados sao preliminares e referem-se ao historico; a calibracao definitiva depende de validacao humana. Aba <strong>Metricas</strong>.</div>
@@ -540,6 +571,10 @@
           <tr><td>Taxonomia</td><td>Pares mais proximos (vocabulario)</td><td><a href="dados/correlacao_categorias.json">correlacao_categorias.json</a></td><td>Quais pares de categorias sao semanticamente mais semelhantes.</td><td>Priorize pares de alta similaridade e alto volume para revisao metodologica.</td></tr>
           <tr><td>Taxonomia</td><td>Candidatos a revisao de taxonomia</td><td><a href="dados/cruzamento_taxonomia.json">cruzamento_taxonomia.json</a></td><td>Quais pares combinam confusao IA x historico com similaridade vocabular.</td><td>Esses pares sao bons candidatos a fusao, renomeacao, regra de desempate ou validacao humana dirigida.</td></tr>
           <tr><td>Taxonomia</td><td>Mapas compactos por categoria</td><td><a href="dados/correlacao_categorias.json">correlacao_categorias.json</a></td><td>Imagem compacta da vizinhanca vocabular das categorias mais relevantes.</td><td>Use como leitura visual: blocos fortes indicam familias de categorias; blocos fracos indicam categorias isoladas.</td></tr>
+          <tr><td>Shannon</td><td>Entropia de Shannon por IA</td><td><a href="dados/shannon_modelos.json">shannon_modelos.json</a></td><td>Quao dispersa e a distribuicao de categorias previstas por cada IA.</td><td>Entropia alta indica previsoes mais espalhadas; entropia baixa indica concentracao em poucas categorias. Compare junto com concordancia e calibracao.</td></tr>
+          <tr><td>Shannon</td><td>Jensen-Shannon vs historico</td><td><a href="dados/jensen_shannon_modelos.json">jensen_shannon_modelos.json</a></td><td>Qual IA produz distribuicao de categorias mais proxima da distribuicao historica.</td><td>Valor menor indica menor distorcao distributiva; isso nao prova maior acerto, apenas maior proximidade de perfil.</td></tr>
+          <tr><td>Shannon</td><td>Categorias historicas mais ambiguas</td><td><a href="dados/shannon_categorias.json">shannon_categorias.json</a></td><td>Quais categorias geram previsoes mais espalhadas dentro dos modelos.</td><td>Priorize categorias com alto suporte e alta entropia para revisao de regra, nome, fronteira taxonomica ou validacao humana dirigida.</td></tr>
+          <tr><td>Shannon</td><td>Linhas com divergencia de votos entre IAs</td><td><a href="dados/shannon_votos.json">shannon_votos.json</a></td><td>Quais linhas tiveram maior desacordo entre as IAs publicadas.</td><td>Use como fila de auditoria; a tabela e sanitizada e nao contem ID, titulo ou descricao.</td></tr>
           <tr><td>Reclassificacao</td><td>Reclassificacao por modelo</td><td><a href="dados/reclass_resumo.json">reclass_resumo.json</a></td><td>Quanto cada modelo reclassificou, reaproveitou decisao humana, corrigiu, prejudicou ou ficou sem referencia.</td><td>Leia junto com base de comparacao. Resultado validado pesa mais que comparacao apenas contra historico.</td></tr>
           <tr><td>Reclassificacao</td><td>Ganho liquido por modelo</td><td><a href="dados/reclass_resumo.json">reclass_resumo.json</a></td><td>Qual modelo gera maior saldo de corrigidos menos prejudicados.</td><td>Ganho positivo e desejavel; confira tambem quantos casos foram processados e quantos tinham referencia valida.</td></tr>
           <tr><td>Reclassificacao</td><td>Composicao dos resultados por modelo</td><td><a href="dados/reclass_resumo.json">reclass_resumo.json</a></td><td>Decompoe o resultado em corrigidos, prejudicados, reuso humano e sem referencia.</td><td>Evite interpretar so a barra total; a composicao mostra se o ganho vem de predicao nova ou de memoria validada.</td></tr>
@@ -585,6 +620,8 @@
       <div class="definition"><strong>Faixas de confianca</strong>: abaixo de 70%, entre 70% e 95%, e acima ou igual a 95%.</div>
       <div class="definition"><strong>Executor</strong>: modelo ou etapa que gerou a classificacao, como LSTM, RF_Fallback ou Reclass_LSTM.</div>
       <div class="definition"><strong>Ganho liquido</strong>: quantidade de chamados corrigidos na reclassificacao menos a quantidade de chamados prejudicados.</div>
+      <div class="definition"><strong>Entropia de Shannon</strong>: medida de dispersao. Neste painel, indica se as previsoes se concentram em poucas categorias ou se ficam espalhadas por muitas categorias.</div>
+      <div class="definition"><strong>Divergencia Jensen-Shannon</strong>: distancia simetrica entre duas distribuicoes; aqui compara a distribuicao prevista por uma IA com a distribuicao historica das categorias.</div>
       <div class="definition"><strong>Validacao humana</strong>: etapa ainda necessaria para confirmar se a IA ou a classificacao historica esta correta nos casos divergentes ou ambiguos.</div>
       <div class="definition"><strong>Filtros (multi-selecao)</strong>: na barra superior da pagina, escolha varias opcoes de Grupo, Tipo de manutencao, Faixa de confianca, Situacao (concorda/diverge) e Validacao humana. Eles recalculam a distribuicao por faixa (Classificacao), as tabelas por categoria (Categorias) e o contador de metricas filtradas no topo (chamados, concordancia, confianca media). A fonte desta barra e a Etapa 1/LSTM; a comparacao das 7 IAs fica nas abas Modelos, Multimodelo e Estatistica. O filtro de Validacao humana fica pronto para, apos a revisao manual, comparar os resultados pela categoria validada. A evolucao por turno e a aba Reclassificacao sao series temporais (por lote/turno) e nao usam esses filtros.</div>
       <div class="definition"><strong>Dados dinamicos</strong>: os numeros NAO sao fixos. A base de chamados cresce com o tempo e a classificacao avanca por turnos; cada indicador e recontado a cada atualizacao. Um valor visto hoje (ex.: total de registros) tende a aumentar.</div>
@@ -1407,6 +1444,63 @@ function zuurResumo(p){
     default: return r.interpretacao||"";
   }
 }
+function riscoLabel(r){
+  const s=String(r||"").replace(/_/g," ");
+  return s ? s.charAt(0).toUpperCase()+s.slice(1) : "-";
+}
+function renderShannon(resumo, modelos, jsd, categorias, votos){
+  const aviso=document.getElementById("shannonAviso");
+  const kpis=document.getElementById("kpisShannon");
+  const mods=Array.isArray(modelos)?modelos:[];
+  const jss=Array.isArray(jsd)?jsd:[];
+  const cats=Array.isArray(categorias?.ranking_categorias)?categorias.ranking_categorias:[];
+  const vrows=Array.isArray(votos?.linhas_mais_ambiguas)?votos.linhas_mais_ambiguas:[];
+  if(!mods.length){
+    if(aviso) aviso.innerHTML = "Camada Shannon ainda nao publicada. Execute <code>python src/analise_shannon.py</code>.";
+    if(kpis) kpis.innerHTML = "";
+    destroy("cShannonModelos"); destroy("cJensenShannon");
+    document.querySelector("#tabShannonCategorias tbody").innerHTML = `<tr><td colspan="5">Sem dados publicados.</td></tr>`;
+    document.querySelector("#tabShannonVotos tbody").innerHTML = `<tr><td colspan="7">Sem dados publicados.</td></tr>`;
+    return;
+  }
+  if(aviso){
+    aviso.innerHTML =
+      `<strong>Leitura:</strong> ${esc(resumo?.leitura||"Shannon mede diversidade de distribuicao; Jensen-Shannon mede distancia entre distribuicoes.")} `+
+      `Fonte gerada em <strong>${esc(resumo?.gerado_em||"-")}</strong>; suporte minimo por categoria: <strong>${fmt(resumo?.criterios?.min_suporte_categoria||0)}</strong>.`;
+  }
+  const maisDiverso = [...mods].sort((a,b)=>N(b.entropia_normalizada)-N(a.entropia_normalizada))[0];
+  const menorJS = [...jss].sort((a,b)=>N(a.js_vs_historico_global)-N(b.js_vs_historico_global))[0];
+  const concMelhor = [...mods].sort((a,b)=>N(b.concordancia_historico)-N(a.concordancia_historico))[0];
+  const alta = cats.filter(c=>String(c.maior_risco)==="alta_ambiguidade").length;
+  if(kpis) kpis.innerHTML = [
+    kpi(maisDiverso?.modelo||"-","Maior diversidade de previsoes"),
+    kpi(menorJS?.modelo||"-","Menor Jensen-Shannon vs historico"),
+    kpi(concMelhor?.modelo||"-","Maior concordancia historica"),
+    kpi(fmt(alta),"Categorias com alta ambiguidade")
+  ].join("");
+  const ordMods=[...mods].sort((a,b)=>N(b.entropia_normalizada)-N(a.entropia_normalizada));
+  destroy("cShannonModelos");
+  charts.cShannonModelos = new Chart(cShannonModelos,{type:"bar",data:{labels:ordMods.map(r=>r.modelo),datasets:[
+    {label:"Entropia normalizada (%)",data:ordMods.map(r=>N(r.entropia_normalizada)*100),backgroundColor:"#1d4ed8"},
+    {label:"Categorias efetivas",data:ordMods.map(r=>N(r.categorias_efetivas)),backgroundColor:"#b7791f",yAxisID:"y1"}
+  ]},options:{responsive:true,plugins:{legend:{labels:{color:"#24303a",boxWidth:12}}},
+    scales:{x:{ticks:{color:"#68737d"},grid:{color:"#edf0ea"}},
+      y:{position:"left",ticks:{color:"#68737d",callback:v=>v+"%"},grid:{color:"#edf0ea"}},
+      y1:{position:"right",ticks:{color:"#68737d"},grid:{drawOnChartArea:false}}}}});
+  destroy("cJensenShannon");
+  charts.cJensenShannon = new Chart(cJensenShannon,{type:"bar",data:{labels:jss.map(r=>r.modelo),datasets:[
+    {label:"JS divergence (0=igual; maior=mais distante)",data:jss.map(r=>N(r.js_vs_historico_global)),backgroundColor:"#2f5f9e"}
+  ]},options:chartOpts("")});
+  document.querySelector("#tabShannonCategorias tbody").innerHTML = cats.length ? cats.slice(0,80).map(r=>`<tr>
+    <td>${esc(r.categoria_historica)}</td><td>${fmt(r.modelos)}</td><td>${fmt(r.suporte_max)}</td>
+    <td>${pct(r.entropia_media_normalizada)}</td><td>${esc(riscoLabel(r.maior_risco))}</td></tr>`).join("")
+    : `<tr><td colspan="5">Nenhuma categoria atingiu o suporte minimo.</td></tr>`;
+  document.querySelector("#tabShannonVotos tbody").innerHTML = vrows.length ? vrows.map(r=>`<tr>
+    <td>${esc(r.linha)}</td><td>${esc(r.categoria_historica)}</td><td>${fmt(r.n_modelos)}</td>
+    <td>${fmt(r.categorias_votadas)}</td><td>${pct(r.entropia_normalizada)}</td>
+    <td>${esc(r.maioria)}</td><td>${pct(r.maioria_pct)}</td></tr>`).join("")
+    : `<tr><td colspan="7">Sem linhas com dois ou mais modelos publicados.</td></tr>`;
+}
 function renderReclassMulti(rt){
   // Reclassificacao multimodelo (agregado por modelo) — agora dentro da aba Modelos.
   const trb=document.querySelector("#tabMultiReclass tbody"), rv=document.getElementById("multiReclassVazio");
@@ -1748,7 +1842,7 @@ function ajustarFiltros(aba){
 document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{
   document.querySelectorAll(".tabs button").forEach(x=>x.classList.remove("on"));
   b.classList.add("on");
-  ["class","cat","metrics","modelos","estat","taxon","reclass","decisao","docs"].forEach(t=>document.getElementById("tab-"+t).classList.toggle("hide",t!==b.dataset.t));
+  ["class","cat","metrics","modelos","estat","taxon","shannon","reclass","decisao","docs"].forEach(t=>document.getElementById("tab-"+t).classList.toggle("hide",t!==b.dataset.t));
   ajustarFiltros(b.dataset.t);
 });
 document.getElementById("filtroCat").addEventListener("input",renderCat);
@@ -1817,8 +1911,10 @@ function renderReclassSelecionado(temMulti){
     getJSON("estatistica.json"),
     getJSON("correlacao_categorias.json"), getJSON("termos_relevantes.json"), getJSON("cruzamento_taxonomia.json")
   ]);
-  const [avFinal, anErros, reclassResumo] = await Promise.all([
-    getJSON("avaliacao_final.json"), getJSON("analise_erros.json"), getJSON("reclass_resumo.json")
+  const [avFinal, anErros, reclassResumo, shResumo, shModelos, jsModelos, shCategorias, shVotos] = await Promise.all([
+    getJSON("avaliacao_final.json"), getJSON("analise_erros.json"), getJSON("reclass_resumo.json"),
+    getJSON("shannon_resumo.json"), getJSON("shannon_modelos.json"), getJSON("jensen_shannon_modelos.json"),
+    getJSON("shannon_categorias.json"), getJSON("shannon_votos.json")
   ]);
   CAT = Array.isArray(cat) ? cat : [];
   MET = Array.isArray(met) ? met : [];
@@ -1852,6 +1948,7 @@ function renderReclassSelecionado(temMulti){
   if(selRT) selRT.addEventListener("change", ()=>renderReclassSelecionado(temMulti));
   renderReclassSelecionado(temMulti);
   renderDecisao(Array.isArray(avFinal)?null:avFinal, Array.isArray(anErros)?null:anErros);
+  renderShannon(Array.isArray(shResumo)?null:shResumo, shModelos, jsModelos, Array.isArray(shCategorias)?null:shCategorias, Array.isArray(shVotos)?null:shVotos);
   instalarBotoesPNG();
 })();
 </script>
