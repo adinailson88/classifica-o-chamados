@@ -79,6 +79,9 @@
   .notefiltro{display:inline-block;font-size:11px;color:var(--mut);background:var(--panel-soft);border:1px solid var(--bd);border-radius:10px;padding:1px 8px;margin-left:8px;vertical-align:middle;font-weight:600}
   table.compacta{table-layout:fixed}
   table.compacta th,table.compacta td{white-space:normal;word-break:break-word;text-align:left;font-size:12.5px}
+  .workflow-link{font-weight:700;text-decoration:none}
+  .workflow-link code{color:var(--blue)}
+  .workflow-link:hover{text-decoration:underline}
   .modelos-doc{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:12px;margin-top:6px}
   .mod{border:1px solid var(--bd);border-radius:8px;padding:12px 13px;background:var(--panel-soft)}
   .mod h3{margin:0 0 6px;font-size:14px;color:var(--ink)}
@@ -414,6 +417,13 @@
     <div class="alerta" id="decisaoAviso">Aguardando a conferencia manual (colunas M/N) para liberar a resposta final.</div>
     <div class="grid">
       <div class="card full">
+        <h2>Estado parcial da decisao</h2>
+        <p class="muted">Esta aba permanece visivel mesmo antes do fechamento da conferencia humana. Quando ainda nao houver ranking final, ela mostra o que ja existe nos JSONs publicados e qual workflow precisa ser rodado.</p>
+        <div class="tablebox"><table id="tabDecStatus" class="compacta"><thead><tr>
+          <th>Fonte</th><th>Status publicado</th><th>Dados ja disponiveis</th><th>Workflow para atualizar</th>
+        </tr></thead><tbody></tbody></table></div>
+      </div>
+      <div class="card full">
         <h2>Qual IA usar? — ranking pelo acerto VALIDADO</h2>
         <div class="tablebox"><table id="tabDecRank"><thead><tr>
           <th>#</th><th>Modelo</th><th>Acerto validado</th><th>IC 95%</th><th>Peso (log-odds)</th><th>Peso normalizado</th>
@@ -605,20 +615,20 @@
 
     <div class="card full" style="margin-top:12px;border-left:3px solid #b7791f">
       <h2>Workflows que atualizam cada aba</h2>
-      <p class="muted">Esta tabela documenta a origem operacional das abas sem repetir essa informacao em cada visualizacao. Todos os horarios de cron sao definidos em UTC no GitHub Actions; quando relevante, a equivalencia America/Bahia esta descrita na coluna de acionamento.</p>
+      <p class="muted">Esta tabela documenta a origem operacional das abas sem repetir essa informacao em cada visualizacao. Os nomes dos workflows sao links diretos para o GitHub Actions; quando o arquivo tiver botao <strong>Run workflow</strong>, ele pode ser disparado manualmente mesmo existindo cron.</p>
       <div class="tablebox"><table class="compacta">
         <thead><tr><th style="width:13%">Aba</th><th style="width:21%">Workflow principal</th><th style="width:18%">Acionamento</th><th style="width:25%">Quando roda</th><th style="width:23%">O que atualiza</th></tr></thead>
         <tbody>
-          <tr><td>Classificacao</td><td><code>etapa1_turnos.yml</code> + <code>dashboard.yml</code></td><td>Automatico e manual</td><td><code>etapa1_turnos.yml</code> roda a cada 15 min; <code>dashboard.yml</code> roda a cada 30 min e apos Etapa 1 concluida com sucesso.</td><td>Gera a classificacao progressiva em turnos de 15 e republica <code>registros.json</code>, <code>metricas_por_categoria.json</code>, <code>log_turnos_classificacao.json</code> e resumo.</td></tr>
-          <tr><td>Categorias</td><td><code>dashboard.yml</code></td><td>Automatico e manual</td><td>A cada 30 min; tambem apos Etapa 1, Etapa 2, multimodelo, reclassificacao, transformer e reset quando esses workflows terminam com sucesso.</td><td>Recalcula agregados por categoria, volumes, concordancia, confianca e comparacao contra a categoria historica.</td></tr>
-          <tr><td>Metricas</td><td><code>dashboard.yml</code> + scripts de calibracao/exportacao</td><td>Automatico e manual</td><td>A cada 30 min e apos workflows que alteram dados da planilha; depende dos JSONs gerados por <code>src/exportar_dashboard.py</code>.</td><td>Atualiza metricas consolidadas, calibracao, validacao humana publicada e estado da meta.</td></tr>
-          <tr><td>Modelos</td><td><code>multimodelo_classificacao.yml</code>, <code>comparar_modelos.yml</code>, <code>dashboard.yml</code></td><td>Manual + republicacao automatica</td><td><code>multimodelo_classificacao.yml</code> e <code>comparar_modelos.yml</code> sao disparos manuais; quando concluem com sucesso, <code>dashboard.yml</code> republica os JSONs.</td><td>Materializa/mostra comparacao entre IAs, ranking por modelo, series por turno e recortes held-out.</td></tr>
-          <tr><td>Estatistica</td><td><code>estatistica.yml</code></td><td>Automatico e manual</td><td>Roda a cada 6 h no minuto 30 (<code>30 */6 * * *</code>) e apos Multimodelo, Comparar modelos, Reclassificar validados e Transformer quando concluem com sucesso.</td><td>Atualiza <code>estatistica.json</code>: IC95, Shapiro, Spearman, Friedman/Nemenyi, Cochran Q, McNemar/Holm, Kappa, Macro-F1 e protocolo exploratorio.</td></tr>
-          <tr><td>Taxonomia</td><td><code>relevancia_termos.yml</code></td><td>Manual</td><td>Roda somente por <code>workflow_dispatch</code>. Por padrao gera JSONs; com <code>aplicar=true</code> tambem grava abas privadas na planilha.</td><td>Atualiza termos caracteristicos, correlacao vocabular, confusao IA x historico e candidatos a revisao de taxonomia.</td></tr>
-          <tr><td>Shannon</td><td><code>dashboard.yml</code> chamando <code>src/analise_shannon.py</code></td><td>Automatico e manual</td><td>Roda sempre que <code>dashboard.yml</code> roda: a cada 30 min, manualmente, ou apos workflows gatilho concluirem com sucesso.</td><td>Atualiza entropia de Shannon por IA/categoria, entropia de votos entre IAs e Jensen-Shannon vs historico.</td></tr>
-          <tr><td>Reclassificacao</td><td><code>multimodelo_reclassificacao.yml</code>, <code>reclassificar_validados.yml</code>, <code>dashboard.yml</code></td><td>Automatico parcial e manual</td><td><code>multimodelo_reclassificacao.yml</code> roda diariamente as 08:47 UTC (05:47 America/Bahia) e tambem manualmente. <code>reclassificar_validados.yml</code> esta manual; o cron de 15 min foi pausado para evitar disputa pela coluna O.</td><td>Atualiza reclassificacao por modelo, ganho liquido, reuso de decisao humana, baixa confianca e coluna O quando aplicada com confirmacao.</td></tr>
-          <tr><td>Decisao</td><td><code>avaliacao_final.yml</code></td><td>Manual</td><td>Roda somente por <code>workflow_dispatch</code>, quando houver volume suficiente de conferencia humana em M/N/P.</td><td>Atualiza <code>avaliacao_final.json</code> e <code>analise_erros.json</code>: melhor IA validada, pesos/ensemble, IC95 e analise de erros.</td></tr>
-          <tr><td>Documentacao</td><td><code>pages-build-deployment</code> apos merge na <code>main</code></td><td>Automatico por publicacao</td><td>Roda quando o GitHub Pages detecta alteracao em <code>docs/</code> na <code>main</code>.</td><td>Publica esta pagina estatica, os textos metodologicos e os links para arquivos em <code>docs/dados</code>.</td></tr>
+          <tr><td>Classificacao</td><td><a class="workflow-link" href="https://github.com/adinailson88/classificacao-chamados/actions/workflows/etapa1_turnos.yml"><code>etapa1_turnos.yml</code></a> + <a class="workflow-link" href="https://github.com/adinailson88/classificacao-chamados/actions/workflows/dashboard.yml"><code>dashboard.yml</code></a></td><td>Automatico e manual</td><td><code>etapa1_turnos.yml</code> roda a cada 15 min; <code>dashboard.yml</code> roda a cada 30 min e apos Etapa 1 concluida com sucesso.</td><td>Gera a classificacao progressiva em turnos de 15 e republica <code>registros.json</code>, <code>metricas_por_categoria.json</code>, <code>log_turnos_classificacao.json</code> e resumo.</td></tr>
+          <tr><td>Categorias</td><td><a class="workflow-link" href="https://github.com/adinailson88/classificacao-chamados/actions/workflows/dashboard.yml"><code>dashboard.yml</code></a></td><td>Automatico e manual</td><td>A cada 30 min; tambem apos Etapa 1, Etapa 2, multimodelo, reclassificacao, transformer e reset quando esses workflows terminam com sucesso.</td><td>Recalcula agregados por categoria, volumes, concordancia, confianca e comparacao contra a categoria historica.</td></tr>
+          <tr><td>Metricas</td><td><a class="workflow-link" href="https://github.com/adinailson88/classificacao-chamados/actions/workflows/dashboard.yml"><code>dashboard.yml</code></a> + scripts de calibracao/exportacao</td><td>Automatico e manual</td><td>A cada 30 min e apos workflows que alteram dados da planilha; depende dos JSONs gerados por <code>src/exportar_dashboard.py</code>.</td><td>Atualiza metricas consolidadas, calibracao, validacao humana publicada e estado da meta.</td></tr>
+          <tr><td>Modelos</td><td><a class="workflow-link" href="https://github.com/adinailson88/classificacao-chamados/actions/workflows/multimodelo_classificacao.yml"><code>multimodelo_classificacao.yml</code></a>, <a class="workflow-link" href="https://github.com/adinailson88/classificacao-chamados/actions/workflows/comparar_modelos.yml"><code>comparar_modelos.yml</code></a>, <a class="workflow-link" href="https://github.com/adinailson88/classificacao-chamados/actions/workflows/dashboard.yml"><code>dashboard.yml</code></a></td><td>Manual + republicacao automatica</td><td><code>multimodelo_classificacao.yml</code> e <code>comparar_modelos.yml</code> sao disparos manuais; quando concluem com sucesso, <code>dashboard.yml</code> republica os JSONs.</td><td>Materializa/mostra comparacao entre IAs, ranking por modelo, series por turno e recortes held-out.</td></tr>
+          <tr><td>Estatistica</td><td><a class="workflow-link" href="https://github.com/adinailson88/classificacao-chamados/actions/workflows/estatistica.yml"><code>estatistica.yml</code></a></td><td>Automatico e manual</td><td>Roda a cada 6 h no minuto 30 (<code>30 */6 * * *</code>) e apos Multimodelo, Comparar modelos, Reclassificar validados e Transformer quando concluem com sucesso.</td><td>Atualiza <code>estatistica.json</code>: IC95, Shapiro, Spearman, Friedman/Nemenyi, Cochran Q, McNemar/Holm, Kappa, Macro-F1 e protocolo exploratorio.</td></tr>
+          <tr><td>Taxonomia</td><td><a class="workflow-link" href="https://github.com/adinailson88/classificacao-chamados/actions/workflows/relevancia_termos.yml"><code>relevancia_termos.yml</code></a></td><td>Manual</td><td>Roda somente por <code>workflow_dispatch</code>. Por padrao gera JSONs; com <code>aplicar=true</code> tambem grava abas privadas na planilha.</td><td>Atualiza termos caracteristicos, correlacao vocabular, confusao IA x historico e candidatos a revisao de taxonomia.</td></tr>
+          <tr><td>Shannon</td><td><a class="workflow-link" href="https://github.com/adinailson88/classificacao-chamados/actions/workflows/dashboard.yml"><code>dashboard.yml</code></a> chamando <code>src/analise_shannon.py</code></td><td>Automatico e manual</td><td>Roda sempre que <code>dashboard.yml</code> roda: a cada 30 min, manualmente, ou apos workflows gatilho concluirem com sucesso.</td><td>Atualiza entropia de Shannon por IA/categoria, entropia de votos entre IAs e Jensen-Shannon vs historico.</td></tr>
+          <tr><td>Reclassificacao</td><td><a class="workflow-link" href="https://github.com/adinailson88/classificacao-chamados/actions/workflows/multimodelo_reclassificacao.yml"><code>multimodelo_reclassificacao.yml</code></a>, <a class="workflow-link" href="https://github.com/adinailson88/classificacao-chamados/actions/workflows/reclassificar_validados.yml"><code>reclassificar_validados.yml</code></a>, <a class="workflow-link" href="https://github.com/adinailson88/classificacao-chamados/actions/workflows/dashboard.yml"><code>dashboard.yml</code></a></td><td>Automatico parcial e manual</td><td><code>multimodelo_reclassificacao.yml</code> roda diariamente as 08:47 UTC (05:47 America/Bahia) e tambem manualmente. <code>reclassificar_validados.yml</code> esta manual; o cron de 15 min foi pausado para evitar disputa pela coluna O.</td><td>Atualiza reclassificacao por modelo, ganho liquido, reuso de decisao humana, baixa confianca e coluna O quando aplicada com confirmacao.</td></tr>
+          <tr><td>Decisao</td><td><a class="workflow-link" href="https://github.com/adinailson88/classificacao-chamados/actions/workflows/avaliacao_final.yml"><code>avaliacao_final.yml</code></a>, <a class="workflow-link" href="https://github.com/adinailson88/classificacao-chamados/actions/workflows/auditar_conferencias.yml"><code>auditar_conferencias.yml</code></a></td><td>Manual</td><td>Roda por <code>workflow_dispatch</code>; pode ser executado mesmo antes do fechamento total para republicar o estado parcial de M/N/P.</td><td>Atualiza <code>avaliacao_final.json</code>, <code>analise_erros.json</code> e auditoria: melhor IA validada quando houver modelos legiveis, pesos/ensemble, IC95, analise de erros e estado parcial das conferencias.</td></tr>
+          <tr><td>Documentacao</td><td><a class="workflow-link" href="https://github.com/adinailson88/classificacao-chamados/actions?query=workflow%3Apages-build-deployment"><code>pages-build-deployment</code></a> apos merge na <code>main</code></td><td>Automatico por publicacao</td><td>Roda quando o GitHub Pages detecta alteracao em <code>docs/</code> na <code>main</code>.</td><td>Publica esta pagina estatica, os textos metodologicos e os links para arquivos em <code>docs/dados</code>.</td></tr>
         </tbody>
       </table></div>
       <p class="muted">Fluxos auxiliares como <code>lote_noturno_cache.yml</code>, <code>auditar_conferencias.yml</code>, <code>check_final_ready.yml</code>, <code>transformer_ft.yml</code>, <code>resetar.yml</code> e <code>iniciar_pipeline.yml</code> apoiam operacao, auditoria ou disparos especiais; quando eles alteram dados e estao listados como gatilho, o <code>dashboard.yml</code> republica o painel.</p>
@@ -1221,8 +1231,12 @@ function renderReclassModelo(rr){
   const lin=(rr&&rr.por_modelo)||[];
   if(!tb) return false;
   if(!lin.length){
-    if(box) box.innerHTML="";
-    tb.innerHTML=`<tr><td colspan="10" class="muted">Nenhuma reclassificacao por modelo registrada ainda. Rode o workflow <code>multimodelo_reclassificacao.yml</code> (opcao <code>so_validados</code> reclassifica os chamados ja conferidos).</td></tr>`;
+    if(box) box.innerHTML =
+      kpi("0","Modelos com reclassificacao")+
+      kpi(esc(rr&&rr.gerado_em||"—"),"Resumo gerado em")+
+      kpi("parcial","Estado publicado")+
+      kpi("workflow","Proximo passo");
+    tb.innerHTML=`<tr><td colspan="10" class="muted">Resumo publicado em <strong>${esc(rr&&rr.gerado_em||"sem data")}</strong>, mas sem modelos reclassificados no JSON. Rode <a class="workflow-link" href="https://github.com/adinailson88/classificacao-chamados/actions/workflows/multimodelo_reclassificacao.yml"><code>multimodelo_reclassificacao.yml</code></a> ou <a class="workflow-link" href="https://github.com/adinailson88/classificacao-chamados/actions/workflows/reclassificar_validados.yml"><code>reclassificar_validados.yml</code></a> quando quiser materializar novos dados.</td></tr>`;
     return false;
   }
   const tot=k=>lin.reduce((s,m)=>s+N(m[k]),0);
@@ -1715,6 +1729,21 @@ function renderDecisao(av, er){
   const aviso=document.getElementById("decisaoAviso");
   const temAv = av && av.status==="ok";
   const temEr = er && er.status==="ok";
+  const statusTb=document.querySelector("#tabDecStatus tbody");
+  if(statusTb){
+    const conf=av&&av.conferencias||{};
+    const campos=(er&&er.campos_formulario_sugeridos)||[];
+    statusTb.innerHTML =
+      `<tr><td><a href="dados/avaliacao_final.json">avaliacao_final.json</a></td><td>${esc(av&&av.status||"nao publicado")}</td>`+
+      `<td>validados=${fmt(av&&av.validados)}; conferencias=${fmt(conf.com_conferencia)}; decididos=${fmt(conf.decididos)}; restritos=${fmt(conf.restritos)}; conflitos=${fmt(conf.conflitos)}</td>`+
+      `<td><a class="workflow-link" href="https://github.com/adinailson88/classificacao-chamados/actions/workflows/avaliacao_final.yml"><code>avaliacao_final.yml</code></a></td></tr>`+
+      `<tr><td><a href="dados/analise_erros.json">analise_erros.json</a></td><td>${esc(er&&er.status||"nao publicado")}</td>`+
+      `<td>conferidos IA=${fmt(er&&er.n_conferidos_ia)}; minimo recomendado=${fmt(er&&er.minimo_recomendado)}; campos sugeridos=${fmt(campos.length)}</td>`+
+      `<td><a class="workflow-link" href="https://github.com/adinailson88/classificacao-chamados/actions/workflows/avaliacao_final.yml"><code>avaliacao_final.yml</code></a></td></tr>`+
+      `<tr><td>conferencia humana M/N/P</td><td>parcial ate fechamento manual</td>`+
+      `<td>M e N sustentam a verdade validada; P avalia a reclassificacao IA-2. A aba mostra o parcial sem tratar como conclusao final.</td>`+
+      `<td><a class="workflow-link" href="https://github.com/adinailson88/classificacao-chamados/actions/workflows/auditar_conferencias.yml"><code>auditar_conferencias.yml</code></a></td></tr>`;
+  }
   if(aviso){
     if(temAv){
       const vc=av.vale_combinar||{};
@@ -1732,11 +1761,17 @@ function renderDecisao(av, er){
         +`<code>avaliacao_final.yml</code> — esta aba se preenche sozinha com a resposta: qual IA, com que peso, se vale combinar e por que ela erra.`;
     }
   }
+  if(aviso && !temAv){
+    const n=(av&&av.validados)!=null?av.validados:0;
+    aviso.innerHTML=`<strong>Dados parciais publicados; decisao final ainda bloqueada.</strong> Chamados com decisao travada ate agora: `
+      +`<strong>${fmt(n)}</strong>. Rode <a class="workflow-link" href="https://github.com/adinailson88/classificacao-chamados/actions/workflows/avaliacao_final.yml"><code>avaliacao_final.yml</code></a> para republicar a avaliacao parcial/final. `
+      +`Status atual: <strong>${esc(av&&av.status||"aguardando")}</strong>. ${esc(av&&av.mensagem||"")}`;
+  }
   const tR=document.querySelector("#tabDecRank tbody");
   if(tR) tR.innerHTML = temAv ? (av.por_modelo||[]).map((m,i)=>
       `<tr><td>${i+1}</td><td>${esc(m.modelo)}</td><td>${pct(m.acerto_validado)}</td>`
       +`<td>${pct(m.ic95[0])} – ${pct(m.ic95[1])}</td><td>${esc(m.peso_log_odds)}</td><td>${esc(m.peso_normalizado)}</td></tr>`).join("")
-    : `<tr><td colspan="6" class="muted">Sem dados validados ainda.</td></tr>`;
+    : `<tr><td colspan="6" class="muted">Ainda sem ranking final por IA. Dados parciais: ${fmt(av&&av.validados)} decisoes travadas; status <strong>${esc(av&&av.status||"aguardando")}</strong>. ${esc(av&&av.mensagem||"")}</td></tr>`;
   const ri=document.getElementById("decRankInfo");
   if(ri && temAv && av.melhor_vs_segundo){
     const d=av.melhor_vs_segundo;
@@ -1749,7 +1784,7 @@ function renderDecisao(av, er){
       +`<td>${pct(e.ic95[0])} – ${pct(e.ic95[1])}</td>`
       +`<td class="${e.delta_vs_melhor_ia>0?'status-ok':'muted'}">${(100*e.delta_vs_melhor_ia).toFixed(2)} p.p.</td>`
       +`<td>${e.p_mcnemar_vs_melhor_ia==null?"-":Number(e.p_mcnemar_vs_melhor_ia).toFixed(4)}</td></tr>`).join("")
-    : `<tr><td colspan="5" class="muted">Sem dados validados ainda.</td></tr>`;
+    : `<tr><td colspan="5" class="muted">Ainda sem ensemble validado. O veredicto sera calculado quando <code>avaliacao_final.yml</code> encontrar modelos legiveis e amostra validada suficiente.</td></tr>`;
   const vd=document.getElementById("decVeredicto");
   if(vd && temAv){
     const vc=av.vale_combinar||{};
@@ -1757,20 +1792,23 @@ function renderDecisao(av, er){
       ? `<strong class="status-ok">SIM</strong> — ${esc(vc.justificativa||"")}`
       : `<strong>NAO</strong> — ${esc(vc.justificativa||"")}`;
   }
+  if(vd && !temAv){
+    vd.innerHTML = `Ainda nao ha veredicto de combinacao. O painel ja registra <strong>${fmt(av&&av.validados)}</strong> decisoes travadas e aguarda predicoes/modelos legiveis ou nova rodada de <a class="workflow-link" href="https://github.com/adinailson88/classificacao-chamados/actions/workflows/avaliacao_final.yml"><code>avaliacao_final.yml</code></a>.`;
+  }
   const tErr=document.querySelector("#tabDecErr tbody");
   if(tErr) tErr.innerHTML = temEr ? (er.comparacao_erros_vs_acertos||[]).map(c=>{
       const sig = c.p_mann_whitney!=null && c.p_mann_whitney<0.05 && Math.abs(c.delta_cliff)>=0.147;
       return `<tr><td>${esc(c.caracteristica)}</td><td>${esc(c.mediana_erros)}</td><td>${esc(c.mediana_acertos)}</td>`
         +`<td class="${sig?'status-ok':''}">${c.p_mann_whitney==null?"-":Number(c.p_mann_whitney).toFixed(4)}</td>`
         +`<td>${esc(c.delta_cliff)}</td></tr>`; }).join("")
-    : `<tr><td colspan="5" class="muted">Sem conferencia da IA (coluna N) suficiente ainda.</td></tr>`;
+    : `<tr><td colspan="5" class="muted">Analise inferencial de erro ainda aguardando conferencia suficiente da IA (N). Status publicado: <strong>${esc(er&&er.status||"aguardando")}</strong>. ${esc(er&&er.mensagem||"")}</td></tr>`;
   const el=document.getElementById("decErrLeitura");
-  if(el && temEr) el.textContent = er.leitura||"";
+  if(el) el.textContent = temEr ? (er.leitura||"") : (er&&er.natureza||"Dados parciais publicados; resultado final depende de validacao humana.");
   const tC=document.querySelector("#tabDecCat tbody");
   if(tC) tC.innerHTML = temEr ? (er.por_categoria||[]).filter(c=>c.n_conferidos>0).map(c=>
       `<tr><td>${esc(c.categoria)}</td><td>${fmt(c.n_conferidos)}</td><td>${fmt(c.erros_ia)}</td>`
       +`<td>${pct(c.taxa_erro_ia)}</td><td>${esc(c.informacao_a_solicitar||"—")}</td></tr>`).join("")
-    : `<tr><td colspan="5" class="muted">Sem dados ainda.</td></tr>`;
+    : `<tr><td colspan="5" class="muted">Sem tabela por categoria ainda; abaixo ficam visiveis os campos gerais ja sugeridos por <code>analise_erros.json</code>.</td></tr>`;
   const fo=document.getElementById("decForm");
   if(fo){
     const campos=(er&&er.campos_formulario_sugeridos)||[];
