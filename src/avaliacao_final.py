@@ -262,8 +262,16 @@ def main() -> int:
 
     preds = carregar_predicoes(sh, config, modelos)
     if not preds:
-        print("Nenhuma aba CLASSIF__<modelo> legivel.", file=sys.stderr)
-        return 1
+        # Estado NORMAL: o multimodelo ainda nao materializou as abas CLASSIF__<modelo>
+        # (mesma causa de "Menos de 2 modelos" na estatistica). Nao e erro de CI: grava
+        # status e sai com sucesso para nao derrubar o passo (em lote noturno roda sob bash -e).
+        saida["status"] = "aguardando_modelos"
+        saida["mensagem"] = ("Nenhuma aba CLASSIF__<modelo> legivel; rode o multimodelo "
+                             "para materializar as predicoes antes da avaliacao final.")
+        args.saida.parent.mkdir(parents=True, exist_ok=True)
+        args.saida.write_text(json.dumps(saida, ensure_ascii=False, indent=2), encoding="utf-8")
+        print("status=aguardando_modelos (sem abas CLASSIF__<modelo>); JSON gravado.")
+        return 0
     calibradores = _carregar_calibradores()
 
     # Linhas avaliaveis: verdade conhecida e TODOS os modelos com predicao
