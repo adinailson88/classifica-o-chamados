@@ -11,8 +11,10 @@ name: Multimodelo - classificacao completa
 # LSTM/transformer/pesados continuam em seus proprios fluxos.
 
 on:
+  # A cada 15 min, mas DESLOCADO 5 min da Etapa 1/LSTM (que roda em :00/:15/:30/:45)
+  # para nao baterem na API da planilha ao mesmo tempo (reduz erros 5xx/429 transitorios).
   schedule:
-    - cron: "*/15 * * * *"
+    - cron: "5,20,35,50 * * * *"
   workflow_dispatch:
     inputs:
       modelos:

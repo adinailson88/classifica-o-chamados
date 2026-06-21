@@ -168,6 +168,34 @@ def _cliente(credenciais: str | Path | None = None):
     return gspread.service_account_from_dict(info)
 
 
+# Erros TRANSITORIOS da API do Google (servidor/limite), que devem ser re-tentados em
+# vez de derrubar o workflow. Inclui 5xx (ex.: "[500]: Internal error encountered") e
+# limites/rate (429). A maior concorrencia entre os fluxos de 15 min torna isso mais comum.
+_API_TRANSITORIA = ("429", "500", "502", "503", "internal error", "quota",
+                    "rate limit", "backenderror", "service is currently unavailable",
+                    "deadline", "timeout")
+
+
+def _erro_api_transitorio(e) -> bool:
+    msg = str(e).lower()
+    return any(t in msg for t in _API_TRANSITORIA)
+
+
+def _com_retry(fn, *, tentativas: int = 5, base: int = 10, rotulo: str = "api"):
+    """Executa fn() com retry exponencial em erros TRANSITORIOS da API (5xx/429).
+    Erros nao transitorios (permissao, planilha inexistente, etc.) sobem na hora."""
+    for tentativa in range(1, tentativas + 1):
+        try:
+            return fn()
+        except gspread.exceptions.APIError as e:
+            if not _erro_api_transitorio(e) or tentativa >= tentativas:
+                raise
+            espera = base * tentativa
+            print(f"[{rotulo}] erro transitorio da API ({str(e)[:70]}); "
+                  f"retry {tentativa}/{tentativas} em {espera}s")
+            time.sleep(espera)
+
+
 def abrir_planilha(spreadsheet_id: str, credenciais: str | Path | None = None):
     """Abre o workbook (Spreadsheet) inteiro, para acessar várias abas."""
     cache = _cache_configurado()
@@ -175,7 +203,8 @@ def abrir_planilha(spreadsheet_id: str, credenciais: str | Path | None = None):
         if not cache.exists():
             raise FileNotFoundError(f"Cache local da planilha nao encontrado em {cache}.")
         return _abrir_cache(cache)
-    return _cliente(credenciais).open_by_key(spreadsheet_id)
+    return _com_retry(lambda: _cliente(credenciais).open_by_key(spreadsheet_id),
+                      rotulo="abrir_planilha")
 
 
 def abrir_worksheet(spreadsheet_id: str, aba: str, credenciais: str | Path | None = None):
@@ -264,18 +293,10 @@ def ler_valores(ws, range_a1: str = "A:M") -> list[list[Any]]:
     UNFORMATTED_VALUE retorna números crus (ex.: 0.8887 em vez de "88,87%"),
     o que permite comparar confiança numericamente na reclassificação.
     """
-    for tentativa in range(1, 6):
-        try:
-            return ws.get_values(range_a1, value_render_option="UNFORMATTED_VALUE")
-        except gspread.exceptions.APIError as e:
-            msg = str(e).lower()
-            if "429" not in msg and "quota" not in msg:
-                raise
-            if tentativa >= 5:
-                raise
-            espera = 30 * tentativa
-            print(f"[ler_valores] quota de leitura atingida; retry {tentativa}/5 em {espera}s")
-            time.sleep(espera)
+    # Retry em erros transitorios (429 quota E 5xx server, ex.: [500] Internal error).
+    return _com_retry(
+        lambda: ws.get_values(range_a1, value_render_option="UNFORMATTED_VALUE"),
+        tentativas=5, base=30, rotulo="ler_valores")
 
 
 def _norm_veredito(valor) -> str | None:
