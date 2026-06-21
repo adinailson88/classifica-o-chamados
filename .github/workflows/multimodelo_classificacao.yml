@@ -3,15 +3,16 @@ name: Multimodelo - classificacao completa
 # Materializa CLASSIF__<modelo> para cada IA selecionada, com predicao
 # out-of-fold e lote dinamico.
 #
-# AUTOMATICO DIARIO: o cron roda 1x/dia e materializa TODOS os pendentes dos modelos
-# leves (max_turnos=0), para os 6 modelos nao-LSTM acompanharem a Etapa 1/LSTM (que roda
-# a cada 15 min). E incremental e barato: classificacao_multimodelo.py so processa as
-# linhas ainda nao feitas e encerra rapido quando nao ha pendentes. No cron materializa
-# APENAS os leves; LSTM/transformer/pesados continuam em seus proprios fluxos.
+# AUTOMATICO A CADA 15 MIN (MESMO CRON DA ETAPA 1/LSTM): os 6 modelos nao-LSTM
+# classificam os chamados novos no mesmo ritmo do LSTM. max_turnos=0 = todos os
+# pendentes. E incremental e barato: classificacao_multimodelo.py so processa as
+# linhas ainda nao feitas e encerra rapido quando nao ha pendentes (no-op). Serializado
+# com a Etapa 1 e o dashboard pelo concurrency 'escrita-planilha' (um escritor por vez).
+# LSTM/transformer/pesados continuam em seus proprios fluxos.
 
 on:
   schedule:
-    - cron: "20 4 * * *"
+    - cron: "*/15 * * * *"
   workflow_dispatch:
     inputs:
       modelos:
