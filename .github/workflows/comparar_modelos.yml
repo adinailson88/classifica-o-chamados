@@ -37,8 +37,11 @@ on:
         description: "Se >0, ladrilha TODA a base nesse passo e substitui a tabela (cobertura completa)"
         default: "0"
 
+# Grupo PROPRIO: o tiling completo pode levar bastante tempo e NAO deve bloquear os
+# fluxos de 15 min (Etapa 1/LSTM, multimodelo, dashboard). Escreve so as abas
+# COMPARACAO_* (worksheets separadas), entao nao conflita com as colunas principais.
 concurrency:
-  group: escrita-planilha
+  group: comparacao-modelos
   cancel-in-progress: false
 
 permissions:
