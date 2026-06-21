@@ -1,6 +1,11 @@
 name: Auditar conferencias humanas
 
 on:
+  # Automatico leve: auditoria das conferencias M/N/P a cada 6 h (so LE a planilha
+  # e regenera 1 JSON pequeno). Mantem frescos os contadores que o guard de
+  # avaliacao_final usa. Disparo manual continua disponivel.
+  schedule:
+    - cron: "0 */6 * * *"
   workflow_dispatch:
     inputs:
       aplicar:
