@@ -15,7 +15,7 @@ on:
         default: "leves"
       max_turnos:
         description: "Turnos de 15 por modelo (0 = todos os candidatos)"
-        default: "1"
+        default: "0"
       aplicar:
         description: "Gravar na planilha"
         type: boolean
@@ -78,23 +78,28 @@ jobs:
         run: |
           MODELOS_AGENDADOS="naive_bayes,regressao_logistica,linear_svc,sgd,extra_trees,random_forest,lstm"
           MODELOS="${{ github.event.inputs.modelos || 'naive_bayes,regressao_logistica,linear_svc,sgd,extra_trees,random_forest,lstm' }}"
-          MAX_TURNOS="${{ github.event.inputs.max_turnos || '4' }}"
+          # Validados (poucos, ~conferencias humanas): TODOS os turnos (0).
+          MAX_VALIDADOS="${{ github.event.inputs.max_turnos || '0' }}"
+          # Baixa confianca (base inteira): limitado por execucao p/ nao estourar o tempo;
+          # e incremental, entao avanca a cada rodada diaria.
+          MAX_BAIXA="${{ github.event.inputs.max_turnos || '40' }}"
           if [ "${{ github.event_name }}" = "schedule" ]; then
-            echo "rodada automatica 1/2: validados"
+            echo "rodada automatica 1/2: validados (todos os turnos)"
             python src/reclassificacao_multimodelo.py \
               --modelos "$MODELOS_AGENDADOS" \
-              --max-turnos "$MAX_TURNOS" \
+              --max-turnos "$MAX_VALIDADOS" \
               --aplicar \
               --so-validados \
               --contexto-rodada validados
 
-            echo "rodada automatica 2/2: baixa confianca geral"
+            echo "rodada automatica 2/2: baixa confianca geral (lote por dia)"
             python src/reclassificacao_multimodelo.py \
               --modelos "$MODELOS_AGENDADOS" \
-              --max-turnos "$MAX_TURNOS" \
+              --max-turnos "$MAX_BAIXA" \
               --aplicar \
               --contexto-rodada baixa_confianca
           else
+            MAX_TURNOS="${{ github.event.inputs.max_turnos || '0' }}"
             FLAGS="--modelos $MODELOS --max-turnos $MAX_TURNOS --contexto-rodada manual"
             if [ "${{ github.event.inputs.aplicar }}" = "true" ]; then FLAGS="$FLAGS --aplicar"; fi
             if [ "${{ github.event.inputs.usar_calibrado }}" = "true" ]; then FLAGS="$FLAGS --usar-calibrado"; fi
