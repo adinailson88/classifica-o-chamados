@@ -324,19 +324,19 @@
     {
       "workflow": "Transformer fine-tuning (BERTimbau)",
       "arquivo": "transformer_ft.yml",
-      "gatilho": "cron 0 */6 h + manual",
-      "faz": "Treina/compara o transformer local e reclassifica validados (comparar_modelos_lote.py + reclassificar_validados.py).",
-      "entrada": "Base completa de chamados",
-      "saida": "recortes held-out do transformer + coluna O quando aplicado",
+      "gatilho": "cron noturno 05:17 UTC (~02:17 BRT) + manual (condicionado)",
+      "faz": "Fine-tuning do BERTimbau (8o modelo). Acao reclassificar_validados (coluna O) ou comparar (held-out). Modos: smoke/auto/manual/force.",
+      "entrada": "Base de chamados (treino vs categoria historica) + conferencias humanas",
+      "saida": "coluna O (acao=reclassificar) ou COMPARACAO_MODELOS (acao=comparar); dados/bertimbau_training_state.json",
       "abas": [
         "Modelos",
         "Reclassificacao"
       ],
-      "quando": "A cada 6 h e manual.",
-      "obs": "Muito pesado (modelo local de ~118 mi parametros); roda raramente.",
+      "quando": "Noturno 1x/dia se houver +100 conferencias novas (modo auto). Manual/force para treino completo; smoke para teste sem secrets.",
+      "obs": "Runner GitHub-hosted tem teto rigido de 6h: timeout=330 + orcamento de tempo interno (18000s) + early stopping. Auto subamostra (4000) para caber em CPU; base inteira exige self-hosted ou divisao. Concurrency dedicada (nao bloqueia etapa1/dashboard).",
       "tipo": "Gera dados",
-      "automacao": "Automatico",
-      "condicao": "Cron a cada 6 h (pesado)"
+      "automacao": "Automatico condicionado",
+      "condicao": "+100 conferencias humanas desde o ultimo treino (modo auto); guarda em dados/estado_automacao.json + estado em dados/bertimbau_training_state.json"
     },
     {
       "workflow": "Lote noturno com cache da planilha",
