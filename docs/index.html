@@ -531,6 +531,8 @@
       <h2>Estado do ultimo treino do BERTimbau (8o modelo)</h2>
       <div class="kpis" id="kpisBertimbau"></div>
       <p class="muted" id="bertimbauMotivo"></p>
+      <div class="kpis" id="kpisBertimbauCoreset"></div>
+      <p class="muted" id="bertimbauCoresetMotivo"></p>
       <p class="muted">Fine-tuning pesado: roda de madrugada (~02:17 BRT) so com +100 conferencias humanas novas; runner GitHub-hosted tem teto de 6h, por isso usa orcamento de tempo + early stopping. Metricas finais por categoria vem da acao <code>comparar</code> (aba Modelos/Estatistica).</p>
     </div>
     <div class="card full">
@@ -2052,6 +2054,33 @@ function renderBertimbau(st){
   if(mot) mot.textContent = st.motivo ? ("Motivo: "+st.motivo) : "";
 }
 
+function renderBertimbauCoreset(cs){
+  const kb=document.getElementById("kpisBertimbauCoreset"), mot=document.getElementById("bertimbauCoresetMotivo");
+  if(!kb) return;
+  if(!cs || typeof cs!=="object"){
+    kb.innerHTML=kpi("sem coreset","Coreset")+kpi("experimental","Status");
+    if(mot) mot.textContent="Arquivo docs/dados/bertimbau_coreset_resumo.json ainda nao publicado. O modo cluster_coreset nao substitui o treino full.";
+    return;
+  }
+  const dec = cs.decisao || "experimental";
+  kb.innerHTML=
+    kpi(esc(dec),"Decisao coreset")+
+    kpi(cs.total_registros_elegiveis!=null?fmt(cs.total_registros_elegiveis):"—","Elegiveis")+
+    kpi(cs.total_registros_selecionados!=null?fmt(cs.total_registros_selecionados):"—","Selecionados")+
+    kpi(cs.reducao_percentual_exemplos!=null?pct(cs.reducao_percentual_exemplos):"—","Reducao exemplos")+
+    kpi(cs.reducao_percentual_tokens!=null?pct(cs.reducao_percentual_tokens):"—","Reducao tokens")+
+    kpi(esc(cs.gerado_em||"—"),"Gerado em");
+  const cmp = cs.comparacao_full_vs_coreset;
+  let txt = "cluster_coreset e EXPERIMENTAL — so vira padrao do automatico se a comparacao aprovar (sem queda de F1 macro > 0,02 e sem piora em categoria rara). Metodo: "+esc(cs.metodo||"TF-IDF/KMeans por categoria")+".";
+  if(cmp && cmp.delta_f1_macro!=null){
+    txt += " Comparacao full x coreset: delta F1 macro "+esc(cmp.delta_f1_macro)+" -> "+esc(cmp.decisao||dec)+
+      (cmp.ganho_tempo!=null?" (ganho de tempo "+pct(cmp.ganho_tempo)+")":"")+".";
+  } else {
+    txt += " Ainda sem comparacao contra o treino full (rode full e cluster_coreset e use src/comparar_coreset.py).";
+  }
+  if(mot) mot.textContent = txt;
+}
+
 (async function(){
   const [turnos,cat,rt,met,resumo,cal,calModels,calAjustada,mod,compCat,registros,multiMet,multiTurnos,multiRecl,estat,taxCorr,taxTermos,taxCruz] = await Promise.all([
     getJSON("log_turnos_classificacao.json"), getJSON("metricas_por_categoria.json"),
@@ -2108,6 +2137,8 @@ function renderBertimbau(st){
   renderFluxo();
   const bertState = await getJSON("bertimbau_training_state.json");
   renderBertimbau(Array.isArray(bertState)?null:bertState);
+  const bertCoreset = await getJSON("bertimbau_coreset_resumo.json");
+  renderBertimbauCoreset(Array.isArray(bertCoreset)?null:bertCoreset);
   instalarBotoesPNG();
 })();
 </script>

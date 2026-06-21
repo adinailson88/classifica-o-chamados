@@ -325,15 +325,15 @@
       "workflow": "Transformer fine-tuning (BERTimbau)",
       "arquivo": "transformer_ft.yml",
       "gatilho": "cron noturno 05:17 UTC (~02:17 BRT) + manual (condicionado)",
-      "faz": "Fine-tuning do BERTimbau (8o modelo). Acao reclassificar_validados (coluna O) ou comparar (held-out). Modos: smoke/auto/manual/force.",
+      "faz": "Fine-tuning do BERTimbau (8o modelo) ou diagnostico experimental de coreset. Acao reclassificar_validados (coluna O), comparar (held-out) ou modo cluster_coreset sem treino. Modos: smoke/auto/manual/force/full/cluster_coreset.",
       "entrada": "Base de chamados (treino vs categoria historica) + conferencias humanas",
-      "saida": "coluna O (acao=reclassificar) ou COMPARACAO_MODELOS (acao=comparar); dados/bertimbau_training_state.json",
+      "saida": "coluna O (acao=reclassificar), COMPARACAO_MODELOS (acao=comparar) ou docs/dados/bertimbau_coreset_*.json (modo cluster_coreset); dados/bertimbau_training_state.json",
       "abas": [
         "Modelos",
         "Reclassificacao"
       ],
-      "quando": "Noturno 1x/dia se houver +100 conferencias novas (modo auto). Manual/force para treino completo; smoke para teste sem secrets.",
-      "obs": "Runner GitHub-hosted tem teto rigido de 6h: timeout=330 + orcamento de tempo interno (18000s) + early stopping. Auto subamostra (4000) para caber em CPU; base inteira exige self-hosted ou divisao. Concurrency dedicada (nao bloqueia etapa1/dashboard).",
+      "quando": "Noturno 1x/dia se houver +100 conferencias novas (modo auto). Manual/force/full para treino completo controlado; smoke para teste sem secrets; cluster_coreset para diagnostico e selecao sem treino.",
+      "obs": "Runner GitHub-hosted tem teto rigido de 6h: timeout=330 + orcamento de tempo interno (18000s) + early stopping. Auto subamostra (4000) para caber em CPU; cluster_coreset usa TF-IDF/KMeans por categoria e permanece experimental ate comparacao real contra full. Concurrency dedicada (nao bloqueia etapa1/dashboard).",
       "tipo": "Gera dados",
       "automacao": "Automatico condicionado",
       "condicao": "+100 conferencias humanas desde o ultimo treino (modo auto); guarda em dados/estado_automacao.json + estado em dados/bertimbau_training_state.json"
