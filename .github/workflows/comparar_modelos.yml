@@ -63,7 +63,7 @@ jobs:
     needs: guard
     if: ${{ github.event_name == 'workflow_dispatch' || needs.guard.outputs.executar == 'true' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 180
     env:
       SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
     steps:
@@ -87,13 +87,17 @@ jobs:
           if [ -z "$GCP_SA_KEY" ]; then echo "Secret GCP_SA_KEY ausente." >&2; exit 1; fi
           printf '%s' "$GCP_SA_KEY" > credenciais_sa.json
       - name: Comparar
-        run: >
-          python src/comparar_modelos_lote.py
-          --modelo "${{ github.event.inputs.modelo || 'todos' }}"
-          --inicio "${{ github.event.inputs.inicio || '0' }}"
-          --limite "${{ github.event.inputs.limite || '200' }}"
-          --passo "${{ github.event.inputs.passo || '0' }}"
-          --aplicar
+        run: |
+          # No cron, ladrilha TODA a base em janelas de 1.000 (cobertura held-out completa,
+          # nao so 0-200). No manual respeita o input 'passo'.
+          PASSO="${{ github.event.inputs.passo || '0' }}"
+          if [ "${{ github.event_name }}" = "schedule" ]; then PASSO="1000"; fi
+          python src/comparar_modelos_lote.py \
+            --modelo "${{ github.event.inputs.modelo || 'todos' }}" \
+            --inicio "${{ github.event.inputs.inicio || '0' }}" \
+            --limite "${{ github.event.inputs.limite || '200' }}" \
+            --passo "$PASSO" \
+            --aplicar
       - name: Remover credenciais
         if: always()
         run: rm -f credenciais_sa.json
