@@ -186,7 +186,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add docs/dados/bertimbau_coreset_resumo.json docs/dados/bertimbau_token_stats.json docs/dados/bertimbau_cluster_report.json docs/dados/bertimbau_review_queue.json
+          git add docs/dados/bertimbau_coreset_resumo.json docs/dados/bertimbau_token_stats.json docs/dados/bertimbau_cluster_report.json docs/dados/bertimbau_review_queue.json dados/bertimbau_coreset_ids.json
           git diff --cached --quiet && { echo "sem mudanca nos relatorios"; exit 0; }
           git commit -m "dados BERTimbau: cluster coreset experimental [skip ci]"
           for i in 1 2 3 4 5; do
