@@ -1351,7 +1351,22 @@ function renderModelos(piloto, mm=[], turnos=[]){
   const tr = document.querySelector("#tabRankModelos tbody");
   MODELOS_ROWS = Array.isArray(piloto) ? piloto : [];
   MODELOS_TURNOS = Array.isArray(turnos) ? turnos : [];
-  let completos = Array.isArray(mm) ? [...mm].sort((a,b)=>N(b.concordancia_acumulada)-N(a.concordancia_acumulada)) : [];
+  // Fallback robusto: quando o resumo (multimodelo_metricas) vem com concordancia vazia
+  // — ex.: um run de 0 pendentes —, deriva da ULTIMA linha de turnos por modelo
+  // (multimodelo_turnos tem o historico completo). Evita mostrar 0,0% indevidamente.
+  const _ultTurno={};
+  (Array.isArray(turnos)?turnos:[]).forEach(t=>{
+    const m=t.modelo, tn=N(t.turno);
+    if(!_ultTurno[m] || tn>=_ultTurno[m]._turno) _ultTurno[m]={_turno:tn, ca:N(t.concordancia_acumulada), cl:N(t.taxa_concordancia)};
+  });
+  let completos = (Array.isArray(mm)?mm:[]).map(d=>{
+    const fb=_ultTurno[d.modelo]||{};
+    const ca=N(d.concordancia_acumulada), cl=N(d.concordancia_ultimo_lote);
+    return {...d,
+      concordancia_acumulada: ca>0 ? ca : N(fb.ca),
+      concordancia_ultimo_lote: cl>0 ? cl : N(fb.cl),
+      metodo_ultimo: d.metodo_ultimo || (fb.ca!=null ? "multimodelo (turnos)" : "")};
+  }).sort((a,b)=>N(b.concordancia_acumulada)-N(a.concordancia_acumulada));
   const usandoFallback = !completos.length;
   if(usandoFallback) completos = modelosFallbackEstatistica();
   const ord=[...MODELOS_ROWS].sort((a,b)=> String(a.modelo).localeCompare(String(b.modelo)) || N(a.inicio)-N(b.inicio));
