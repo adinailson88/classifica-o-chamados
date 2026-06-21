@@ -114,7 +114,34 @@ def parse_args():
                         "COMPARACAO_MODELOS/_CATEGORIA (cobertura completa, nao so 0-1000).")
     p.add_argument("--executar-todos", action="store_true")
     p.add_argument("--aplicar", action="store_true")
+    p.add_argument("--metricas-json", default=None,
+                   help="Grava as metricas do modelo avaliado (f1_macro, acuracia, por_categoria) "
+                        "neste caminho, no formato consumido por src/comparar_coreset.py. Usado para "
+                        "comparar full vs cluster_coreset sem depender da aba (que sobrescreve).")
     return p.parse_args()
+
+
+def emitir_metricas_json(caminho, met, por_cat):
+    """Grava metricas no formato de src/comparar_coreset.py (full vs coreset)."""
+    payload = {
+        "modelo": met.get("modelo"),
+        "n": met.get("n"),
+        "acuracia": met.get("acuracia"),
+        "f1_macro": met.get("f1_macro"),
+        "f1_weighted": met.get("f1_weighted"),
+        "balanced_accuracy": met.get("balanced_accuracy"),
+        "tempo_treino_s": met.get("tempo_treino_s"),
+        "por_categoria": {
+            c["categoria"]: {"precision": c["precision"], "recall": c["recall"],
+                             "f1": c["f1"], "suporte": c["suporte"]}
+            for c in por_cat
+        },
+    }
+    p = Path(caminho)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    print(f"[metricas-json] escrito {caminho} (f1_macro={met.get('f1_macro')}, "
+          f"categorias={len(por_cat)})")
 
 
 def main() -> int:
@@ -204,6 +231,11 @@ def main() -> int:
         print(f"[{nome}] acc={met['acuracia']} f1_macro={met['f1_macro']} "
               f"bal_acc={met['balanced_accuracy']} revisao={met['n_revisao']} "
               f"treino={met['tempo_treino_s']}s infer={met['tempo_inferencia_s']}s")
+
+    # Emite metricas do PRIMEIRO modelo avaliado (na comparacao full vs coreset roda-se
+    # 1 modelo, o transformer_ft), independente de --aplicar.
+    if args.metricas_json and resultados:
+        emitir_metricas_json(args.metricas_json, resultados[0][0], resultados[0][1])
 
     if not args.aplicar:
         print("modo=dry-run (nada gravado).")

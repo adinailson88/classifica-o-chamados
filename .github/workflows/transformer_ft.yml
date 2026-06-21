@@ -241,9 +241,13 @@ jobs:
       - name: Executar fine-tuning
         id: treino
         run: |
-          echo "Modo=${{ needs.preparar.outputs.modo }} | acao=${{ github.event.inputs.acao || 'reclassificar_validados' }} | MAX_TRAIN=$TRANSFORMER_MAX_TRAIN | epochs=$TRANSFORMER_EPOCHS"
+          echo "Modo=${{ needs.preparar.outputs.modo }} | acao=${{ github.event.inputs.acao || 'reclassificar_validados' }} | MAX_TRAIN=$TRANSFORMER_MAX_TRAIN | SELECT=$TRANSFORMER_SELECT | epochs=$TRANSFORMER_EPOCHS"
           if [ "${{ github.event.inputs.acao }}" = "comparar" ]; then
-            python src/comparar_modelos_lote.py --modelo transformer_ft --inicio 0 --limite "${{ github.event.inputs.limite || '500' }}" --aplicar
+            # Nome do JSON de metricas por estrategia de selecao, para comparar full vs coreset.
+            SEL="${{ github.event.inputs.selecao_treino || 'none' }}"
+            [ "$SEL" = "cluster_coreset" ] && METR="docs/dados/bertimbau_metr_coreset.json" || METR="docs/dados/bertimbau_metr_full.json"
+            python src/comparar_modelos_lote.py --modelo transformer_ft --inicio 0 --limite "${{ github.event.inputs.limite || '500' }}" --aplicar --metricas-json "$METR"
+            echo "METR_JSON=$METR" >> "$GITHUB_ENV"
           else
             python src/reclassificar_validados.py --modelo transformer_ft --max-turnos 0 --aplicar
           fi
@@ -266,6 +270,8 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add docs/dados/bertimbau_training_state.json dados/estado_automacao.json
+          # Metricas da comparacao (full/coreset), quando geradas:
+          git add docs/dados/bertimbau_metr_full.json docs/dados/bertimbau_metr_coreset.json 2>/dev/null || true
           git diff --cached --quiet && { echo "sem mudanca no estado"; exit 0; }
           git commit -m "estado BERTimbau: treino ${{ needs.preparar.outputs.modo }} [skip ci]"
           for i in 1 2 3 4 5; do
