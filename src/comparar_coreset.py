@@ -25,8 +25,10 @@ Uso:
 import argparse
 import json
 import sys
-from datetime import datetime, timezone
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from tempo import agora_bahia  # noqa: E402
 
 RAIZ = Path(__file__).resolve().parents[1]
 RESUMO = RAIZ / "docs" / "dados" / "bertimbau_coreset_resumo.json"
@@ -91,7 +93,7 @@ def main() -> int:
             f"F1 macro entre os limites (delta {delta}) ou categorias criticas a verificar; precisa de mais evidencia")
 
     comparacao = {
-        "decidido_em": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
+        "decidido_em": agora_bahia(),
         "f1_macro_full": round(f1_full, 4),
         "f1_macro_coreset": round(f1_core, 4),
         "delta_f1_macro": delta,
