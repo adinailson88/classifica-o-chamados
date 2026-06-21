@@ -1,6 +1,9 @@
 name: Validacao nao supervisionada
 
 on:
+  # Automatico diario (madrugada): no cron grava na planilha; manual respeita 'aplicar'.
+  schedule:
+    - cron: "30 3 * * *"
   workflow_dispatch:
     inputs:
       aplicar:
@@ -11,8 +14,9 @@ on:
         description: "Componentes SVD"
         default: "100"
 
+# Grupo proprio: nao disputa a fila 'escrita-planilha' (saturada pelos fluxos de 15 min).
 concurrency:
-  group: escrita-planilha
+  group: validacao-nao-superv
   cancel-in-progress: false
 
 permissions:
@@ -42,7 +46,7 @@ jobs:
       - name: Rodar validacao nao supervisionada
         run: |
           CMD="python src/validacao_nao_supervisionada.py --n-componentes '${{ github.event.inputs.n_componentes || '100' }}'"
-          if [ "${{ github.event.inputs.aplicar }}" = "true" ]; then
+          if [ "${{ github.event.inputs.aplicar }}" = "true" ] || [ "${{ github.event_name }}" = "schedule" ]; then
             CMD="$CMD --aplicar"
           fi
           eval "$CMD"
