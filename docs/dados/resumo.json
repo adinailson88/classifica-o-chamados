@@ -1,16 +1,16 @@
 {
-  "gerado_em": "20/06/2026 23:06",
+  "gerado_em": "20/06/2026 23:36",
   "run_id": "EXP_CLASSIFICACAO_CHAMADOS_2026_06_001",
   "abas": {
     "log_turnos_classificacao": 925,
     "metricas_por_categoria": 53,
     "log_turnos_reclassificacao": 0,
     "metricas_experimento": 11,
-    "comparacao_modelos": 0,
-    "comparacao_categoria": 0,
-    "comparacao_previsoes": 0,
-    "multimodelo_turnos": 0,
-    "multimodelo_metricas": 0,
+    "comparacao_modelos": 6,
+    "comparacao_categoria": 138,
+    "comparacao_previsoes": 1200,
+    "multimodelo_turnos": 6,
+    "multimodelo_metricas": 6,
     "multimodelo_reclass_turnos": 0,
     "reclass_resumo": 0
   },
@@ -20,16 +20,23 @@
     "validados": 345
   },
   "registros": 13872,
-  "registros_modelos": {},
+  "registros_modelos": {
+    "naive_bayes": 15,
+    "regressao_logistica": 15,
+    "linear_svc": 15,
+    "sgd": 15,
+    "extra_trees": 15,
+    "random_forest": 15
+  },
   "calibracao_modelos": {
-    "modelos": 0,
-    "melhor_ece": "",
+    "modelos": 6,
+    "melhor_ece": "naive_bayes",
     "melhor_faixa_95": "",
     "calibrador_ajustado": false
   },
   "calibracao_ajustada_modelos": {
-    "modelos": 0,
-    "melhor_ece_ajustado": "",
+    "modelos": 6,
+    "melhor_ece_ajustado": "naive_bayes",
     "alvo": "categoria historica; validacao humana ainda nao iniciada"
   }
 }
