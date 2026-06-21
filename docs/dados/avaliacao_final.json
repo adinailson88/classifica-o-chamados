@@ -1,5 +1,5 @@
 {
-  "gerado_em": "21/06/2026 11:04",
+  "gerado_em": "21/06/2026 17:24",
   "natureza": "acerto contra a VERDADE VALIDADA pela conferencia humana (M/N/P); NAO e concordancia com o historico",
   "validados": 327,
   "minimo_recomendado": 50,
@@ -9,7 +9,122 @@
     "restritos": 56,
     "conflitos": 0
   },
-  "n_avaliado": 11,
-  "status": "aguardando_validacao",
-  "mensagem": "So 11 validados tem predicao de todos os modelos (minimo: 50)."
+  "n_avaliado": 327,
+  "status": "ok",
+  "por_modelo": [
+    {
+      "modelo": "regressao_logistica",
+      "n": 327,
+      "acerto_validado": 0.7156,
+      "ic95": [
+        0.6636,
+        0.7645
+      ],
+      "peso_log_odds": 0.9227,
+      "peso_normalizado": 0.1786
+    },
+    {
+      "modelo": "linear_svc",
+      "n": 327,
+      "acerto_validado": 0.7125,
+      "ic95": [
+        0.6606,
+        0.7615
+      ],
+      "peso_log_odds": 0.9077,
+      "peso_normalizado": 0.1779
+    },
+    {
+      "modelo": "sgd",
+      "n": 327,
+      "acerto_validado": 0.7034,
+      "ic95": [
+        0.6514,
+        0.7523
+      ],
+      "peso_log_odds": 0.8634,
+      "peso_normalizado": 0.1756
+    },
+    {
+      "modelo": "extra_trees",
+      "n": 327,
+      "acerto_validado": 0.6544,
+      "ic95": [
+        0.5994,
+        0.7064
+      ],
+      "peso_log_odds": 0.6386,
+      "peso_normalizado": 0.1634
+    },
+    {
+      "modelo": "random_forest",
+      "n": 327,
+      "acerto_validado": 0.6422,
+      "ic95": [
+        0.5872,
+        0.6972
+      ],
+      "peso_log_odds": 0.5849,
+      "peso_normalizado": 0.1603
+    },
+    {
+      "modelo": "naive_bayes",
+      "n": 327,
+      "acerto_validado": 0.578,
+      "ic95": [
+        0.5229,
+        0.633
+      ],
+      "peso_log_odds": 0.3145,
+      "peso_normalizado": 0.1443
+    }
+  ],
+  "melhor_ia": "regressao_logistica",
+  "melhor_vs_segundo": {
+    "segundo": "linear_svc",
+    "delta": 0.0031,
+    "p_mcnemar": 1.0
+  },
+  "ensembles": [
+    {
+      "metodo": "maioria_ponderada",
+      "acerto_validado": 0.7156,
+      "ic95": [
+        0.6667,
+        0.7645
+      ],
+      "delta_vs_melhor_ia": -0.0,
+      "p_mcnemar_vs_melhor_ia": 1.0
+    },
+    {
+      "metodo": "confianca_calibrada_max",
+      "acerto_validado": 0.6972,
+      "ic95": [
+        0.6483,
+        0.7492
+      ],
+      "delta_vs_melhor_ia": -0.0184,
+      "p_mcnemar_vs_melhor_ia": 0.4050322461407632
+    },
+    {
+      "metodo": "maioria_simples",
+      "acerto_validado": 0.682,
+      "ic95": [
+        0.633,
+        0.731
+      ],
+      "delta_vs_melhor_ia": -0.0336,
+      "p_mcnemar_vs_melhor_ia": 0.09887174959294498
+    }
+  ],
+  "vale_combinar": {
+    "veredicto": false,
+    "recomendacao": "regressao_logistica",
+    "justificativa": "Nenhum ensemble supera a melhor IA isolada com significancia (McNemar p>=0,05) — combinar nao compensa o custo adicional; use 'regressao_logistica' com calibracao."
+  },
+  "observacoes": [
+    "Pesos do voto ponderado aprendidos out-of-fold (k-fold nos validados).",
+    "Votos que cairiam em categoria ja conferida como ERRADA sao vetados (regra de memoria).",
+    "Amostra validada pode nao ser aleatoria (priorizou divergentes); interpretar como piso/teto conforme o desenho da conferencia."
+  ]
 }
