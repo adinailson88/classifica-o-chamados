@@ -1,0 +1,418 @@
+{
+  "gerado_em": "2026-06-20",
+  "fonte": "Arquivo versionado mantido a mao a partir de .github/workflows/*.yml. E a fonte de verdade da aba 'Fluxo de atualizacao'; ao criar/alterar um workflow, atualize este JSON.",
+  "repo": "adinailson88/classificacao-chamados",
+  "concorrencia": "Quase todos os workflows que escrevem usam concurrency group 'escrita-planilha' com cancel-in-progress=false, ou seja, sao serializados: nao ha escrita simultanea nos mesmos arquivos. 'classificacao_incremental' usa o grupo 'classificacao-export' (manual).",
+  "workflows": [
+    {
+      "workflow": "Etapa 1 - classificacao progressiva",
+      "arquivo": "etapa1_turnos.yml",
+      "gatilho": "cron */15 min + manual",
+      "faz": "Motor principal: classifica os chamados pendentes em turnos de 15 (LSTM + RF de fallback) e avanca a base.",
+      "entrada": "Planilha/cache de chamados (texto B+D+E+F, categoria historica C)",
+      "saida": "registros.json, metricas_por_categoria.json, log_turnos_classificacao.json, resumo.json (republicados via dashboard.yml)",
+      "abas": [
+        "Classificacao",
+        "Categorias",
+        "Metricas"
+      ],
+      "quando": "Roda sozinho a cada 15 min. Manual so para forcar o avanco da base.",
+      "obs": "Serializado em 'escrita-planilha'. E a versao agendada da classificacao (classificacao_incremental fica manual).",
+      "tipo": "Gera dados",
+      "automacao": "Automatico",
+      "condicao": "Cron a cada 15 min (motor da base)"
+    },
+    {
+      "workflow": "Atualizar dashboard",
+      "arquivo": "dashboard.yml",
+      "gatilho": "cron */30 min + manual + workflow_run (apos 8 workflows)",
+      "faz": "Republicador central: exporta os JSONs do painel (exportar_dashboard.py) e a analise de Shannon (analise_shannon.py).",
+      "entrada": "Estado do experimento na planilha + caches",
+      "saida": "docs/dados/*.json (registros, resumo, calibracao*, reclass_resumo, comparacao_previsoes, shannon_*, jensen_shannon_modelos)",
+      "abas": [
+        "Classificacao",
+        "Categorias",
+        "Metricas",
+        "Shannon",
+        "Reclassificacao",
+        "Decisao"
+      ],
+      "quando": "A cada 30 min e automaticamente quando Etapa 1/2, Multimodelo, Comparar modelos, Reclassificar, Transformer ou Reset concluem com sucesso.",
+      "obs": "Rode este workflow (ou aguarde o cron) sempre que outro fluxo mexer nos dados, para o painel refletir o novo estado.",
+      "tipo": "Publica",
+      "automacao": "Automatico",
+      "condicao": "Cron a cada 30 min + apos os fluxos de dados concluirem (workflow_run)"
+    },
+    {
+      "workflow": "Estatistica multimodelo",
+      "arquivo": "estatistica.yml",
+      "gatilho": "cron 30 */6 h + manual + workflow_run (apos 4 workflows)",
+      "faz": "Calcula a estatistica das 7 IAs vs categoria historica (analise_estatistica.py).",
+      "entrada": "registros_*.json materializados por modelo",
+      "saida": "estatistica.json, comparacao_modelos.json",
+      "abas": [
+        "Estatistica",
+        "Modelos"
+      ],
+      "quando": "A cada 6 h e apos Multimodelo, Comparar modelos, Reclassificar validados e Transformer.",
+      "obs": "Gera IC95, Shapiro, Spearman, Friedman/Nemenyi, Cochran Q, McNemar/Holm, Kappa e Macro-F1. Tambem serve de fallback do ranking na aba Modelos.",
+      "tipo": "Gera dados",
+      "automacao": "Automatico",
+      "condicao": "Cron a cada 6 h + apos Multimodelo/Comparar/Reclassificar/Transformer (workflow_run)"
+    },
+    {
+      "workflow": "Multimodelo - classificacao completa",
+      "arquivo": "multimodelo_classificacao.yml",
+      "gatilho": "cron semanal + manual (condicionado)",
+      "faz": "Materializa as 7 IAs locais na base completa (classificacao_multimodelo.py).",
+      "entrada": "Planilha de chamados",
+      "saida": "multimodelo_ultimo.json (-> multimodelo_metricas.json, multimodelo_turnos.json via dashboard)",
+      "abas": [
+        "Modelos"
+      ],
+      "quando": "1x/semana, so com base +1000 ou multimodelo vazio; manual ignora a guarda. Pesados/LSTM continuam manuais.",
+      "obs": "Input 'aplicar' grava na planilha; sem ele e dry-run. Enquanto nao roda, a aba Modelos usa estatistica.json como fallback.",
+      "tipo": "Gera dados",
+      "automacao": "Automatico condicionado",
+      "condicao": "Base cresceu >= 1000 chamados desde a ultima vez OU multimodelo ainda vazio (cron semanal; so modelos leves no automatico)"
+    },
+    {
+      "workflow": "Comparar modelos (lote)",
+      "arquivo": "comparar_modelos.yml",
+      "gatilho": "cron diario + manual (condicionado)",
+      "faz": "Avaliacao held-out por janelas de 1.000 cobrindo toda a base (comparar_modelos_lote.py).",
+      "entrada": "Base completa de chamados",
+      "saida": "recortes held-out por janela (tabela Modelos) e tempos de treino/inferencia; estatistica consome em comparacao_modelos.json",
+      "abas": [
+        "Modelos",
+        "Categorias"
+      ],
+      "quando": "1x/dia, mas so roda com base +1000 ou comparacao vazia; manual ignora a guarda. Varredura completa (passo>0) continua manual.",
+      "obs": "Alimenta os tempos de execucao exibidos na aba Documentacao.",
+      "tipo": "Gera dados",
+      "automacao": "Automatico condicionado",
+      "condicao": "Base cresceu >= 1000 chamados OU comparacao ainda vazia (cron diario; lote leve)"
+    },
+    {
+      "workflow": "Multimodelo - reclassificacao",
+      "arquivo": "multimodelo_reclassificacao.yml",
+      "gatilho": "cron diario 08:47 UTC (05:47 America/Bahia) + manual",
+      "faz": "Reclassificacao da Etapa 2 por modelo (reclassificacao_multimodelo.py).",
+      "entrada": "registros por modelo + confianca calibrada",
+      "saida": "reclass_multimodelo_ultimo.json (-> multimodelo_reclass_turnos.json, reclass_resumo.json), calibracao_ajustada_modelos.json",
+      "abas": [
+        "Reclassificacao",
+        "Modelos"
+      ],
+      "quando": "Diario as 05:47 BA; manual sempre comecando por dry-run (aplicar=false).",
+      "obs": "Horario deslocado dos ciclos :00/:15/:30. Nao usar aplicar=true sem revisar o ganho liquido.",
+      "tipo": "Gera dados",
+      "automacao": "Automatico",
+      "condicao": "Cron diario 08:47 UTC"
+    },
+    {
+      "workflow": "Reclassificar validados (M e N) -> coluna O",
+      "arquivo": "reclassificar_validados.yml",
+      "gatilho": "manual (cron de 15 min PAUSADO no YAML)",
+      "faz": "Reaproveita as conferencias humanas (M/N) para gravar a coluna O (reclassificar_validados.py).",
+      "entrada": "Chamados com conferencia humana M e N",
+      "saida": "coluna O na planilha + reclass_resumo.json (via dashboard)",
+      "abas": [
+        "Reclassificacao"
+      ],
+      "quando": "Manual, depois que houver validacao humana M/N suficiente.",
+      "obs": "Cron de 15 min foi comentado de proposito para evitar disputa pela coluna O.",
+      "tipo": "Gera dados (coluna O)",
+      "automacao": "Manual",
+      "condicao": "Disparo manual; grava coluna O (cron pausado de proposito)"
+    },
+    {
+      "workflow": "Etapa 2 - reclassificacao",
+      "arquivo": "etapa2_reclassificacao.yml",
+      "gatilho": "manual (dry-run por padrao)",
+      "faz": "Reclassificacao de baixa confianca em turnos (executar_etapa2.py).",
+      "entrada": "Candidatos de baixa confianca da Etapa 1",
+      "saida": "log_turnos_reclassificacao.json",
+      "abas": [
+        "Reclassificacao"
+      ],
+      "quando": "Manual; aplicar=true so com confirmacao explicita.",
+      "obs": "Dry-run por padrao (aplicar=false nao grava).",
+      "tipo": "Gera dados",
+      "automacao": "Manual",
+      "condicao": "Disparo manual; dry-run por padrao"
+    },
+    {
+      "workflow": "Reclassificacao dry-run",
+      "arquivo": "reclassificacao_dry_run.yml",
+      "gatilho": "manual",
+      "faz": "Simula a Etapa 2 sem gravar (executar_etapa2.py em dry-run).",
+      "entrada": "Candidatos de baixa confianca",
+      "saida": "Relatorio de simulacao (nao grava planilha)",
+      "abas": [
+        "Reclassificacao"
+      ],
+      "quando": "Manual, para estimar ganho antes de aplicar.",
+      "obs": "Nunca grava dados.",
+      "tipo": "Simulacao",
+      "automacao": "Manual",
+      "condicao": "Disparo manual; nunca grava"
+    },
+    {
+      "workflow": "Reclassificacao robusta (modelo pesado)",
+      "arquivo": "reclassificacao_robusta.yml",
+      "gatilho": "manual",
+      "faz": "Reclassificacao da Etapa 2 com LSTM robusto (executar_etapa2.py, modelo pesado).",
+      "entrada": "Candidatos de baixa confianca",
+      "saida": "log_turnos_reclassificacao.json (executor robusto)",
+      "abas": [
+        "Reclassificacao",
+        "Modelos"
+      ],
+      "quando": "Manual, quando o modelo leve nao resolve casos dificeis.",
+      "obs": "Pesado; usar com parcimonia.",
+      "tipo": "Gera dados",
+      "automacao": "Manual",
+      "condicao": "Disparo manual; modelo pesado"
+    },
+    {
+      "workflow": "Classificacao IA 2 - dry-run",
+      "arquivo": "classificacao_ia_2_dryrun.yml",
+      "gatilho": "manual",
+      "faz": "Simula a IA-2 (comite de modelos) sem gravar a coluna O (classificacao_ia_2_comite.py).",
+      "entrada": "Chamados classificados na Etapa 1",
+      "saida": "Relatorio de simulacao do comite",
+      "abas": [
+        "Reclassificacao"
+      ],
+      "quando": "Manual, antes de aplicar a IA-2.",
+      "obs": "Dry-run.",
+      "tipo": "Simulacao",
+      "automacao": "Manual",
+      "condicao": "Disparo manual; nunca grava"
+    },
+    {
+      "workflow": "Classificacao IA 2 - aplicar coluna O",
+      "arquivo": "classificacao_ia_2_aplicar.yml",
+      "gatilho": "manual (exige confirmacao APLICAR_O)",
+      "faz": "Aplica o comite IA-2 e grava a coluna O (classificacao_ia_2_comite.py).",
+      "entrada": "Chamados classificados + voto do comite",
+      "saida": "coluna O na planilha",
+      "abas": [
+        "Reclassificacao"
+      ],
+      "quando": "Manual, apos revisar o dry-run.",
+      "obs": "Exige digitar APLICAR_O para gravar; serializado em escrita-planilha.",
+      "tipo": "Gera dados (coluna O)",
+      "automacao": "Manual",
+      "condicao": "Disparo manual com confirmacao APLICAR_O"
+    },
+    {
+      "workflow": "Consolidar validacao da Classificacao IA 2",
+      "arquivo": "consolidar_validacao_classificacao_2.yml",
+      "gatilho": "manual",
+      "faz": "Consolida a memoria validada da IA-2 (consolidar_memoria_validada_classificacao.py).",
+      "entrada": "Conferencias humanas da IA-2 (coluna P)",
+      "saida": "memoria validada consolidada",
+      "abas": [
+        "Decisao",
+        "Reclassificacao"
+      ],
+      "quando": "Manual, depois de conferir a coluna P.",
+      "obs": "Regra de memoria: reaproveita decisoes humanas e veta categorias ja conferidas como erradas.",
+      "tipo": "Gera dados",
+      "automacao": "Manual",
+      "condicao": "Disparo manual"
+    },
+    {
+      "workflow": "Avaliacao final validada (qual IA + erros)",
+      "arquivo": "avaliacao_final.yml",
+      "gatilho": "cron 6h + manual",
+      "faz": "Ranking da IA pelo acerto VALIDADO, ensembles e analise de erros (avaliacao_final.py + analise_erros.py).",
+      "entrada": "Chamados com decisao humana travada (M/N/P)",
+      "saida": "avaliacao_final.json, analise_erros.json",
+      "abas": [
+        "Decisao"
+      ],
+      "quando": "A cada 6 h, mas a parte pesada so roda com +100 conferencias novas; manual ignora a guarda. Pode rodar parcial para publicar M/N/P.",
+      "obs": "Input min_validados define o minimo de casos travados para emitir numeros finais.",
+      "tipo": "Gera dados",
+      "automacao": "Automatico condicionado",
+      "condicao": "+100 conferencias humanas (validados) desde a ultima vez (cron a cada 6 h; regra 'a cada 100 conferencias')"
+    },
+    {
+      "workflow": "Auditar conferencias humanas",
+      "arquivo": "auditar_conferencias.yml",
+      "gatilho": "cron 6h + manual",
+      "faz": "Audita o estado das conferencias humanas (auditar_conferencias.py).",
+      "entrada": "Colunas M/N/P da planilha",
+      "saida": "auditoria_conferencias.json",
+      "abas": [
+        "Decisao"
+      ],
+      "quando": "A cada 6 h, automatico; manual quando quiser checar na hora.",
+      "obs": "Serializado em escrita-planilha.",
+      "tipo": "Gera dados",
+      "automacao": "Automatico",
+      "condicao": "Cron a cada 6 h (leve, so leitura)"
+    },
+    {
+      "workflow": "Check final ready",
+      "arquivo": "check_final_ready.yml",
+      "gatilho": "manual",
+      "faz": "Verifica se a base esta pronta para a resposta final (check_final_ready.py).",
+      "entrada": "Estado de validacao humana",
+      "saida": "Diagnostico (gate); nao publica JSON do painel",
+      "abas": [
+        "Decisao"
+      ],
+      "quando": "Manual, antes de fechar a avaliacao final.",
+      "obs": "Porta de entrada (gate), nao gera dados para o dashboard.",
+      "tipo": "Operacional (gate)",
+      "automacao": "Manual",
+      "condicao": "Disparo manual; nao publica dados"
+    },
+    {
+      "workflow": "Preparar validacao humana",
+      "arquivo": "preparar_validacao.yml",
+      "gatilho": "manual",
+      "faz": "Monta a amostra para conferencia humana M/N (preparar_validacao_humana.py).",
+      "entrada": "Base classificada",
+      "saida": "abas privadas de validacao na planilha",
+      "abas": [
+        "Metricas",
+        "Decisao"
+      ],
+      "quando": "Manual, para iniciar a validacao humana.",
+      "obs": "Escreve abas privadas; nao expoe dados no site.",
+      "tipo": "Operacional",
+      "automacao": "Manual",
+      "condicao": "Disparo manual; escreve abas privadas"
+    },
+    {
+      "workflow": "Validacao nao supervisionada",
+      "arquivo": "validacao_nao_supervisionada.yml",
+      "gatilho": "manual",
+      "faz": "Verificacao metodologica sem rotulo humano (validacao_nao_supervisionada.py).",
+      "entrada": "Previsoes das IAs",
+      "saida": "Diagnostico de validacao nao supervisionada",
+      "abas": [
+        "Estatistica"
+      ],
+      "quando": "Manual, como apoio metodologico.",
+      "obs": "Nao substitui a validacao humana.",
+      "tipo": "Gera dados",
+      "automacao": "Manual",
+      "condicao": "Disparo manual; apoio metodologico"
+    },
+    {
+      "workflow": "Relevancia de termos + mapa de correlacao",
+      "arquivo": "relevancia_termos.yml",
+      "gatilho": "cron diario + manual",
+      "faz": "Calcula termos caracteristicos, correlacao vocabular e cruzamento taxonomico (relevancia_termos.py + cruzamento_taxonomia.py).",
+      "entrada": "Texto dos chamados + previsoes IA",
+      "saida": "termos_relevantes.json, correlacao_categorias.json, confusao_historico_ia.json, cruzamento_taxonomia.json",
+      "abas": [
+        "Taxonomia"
+      ],
+      "quando": "1x/dia automatico (so JSON); manual com aplicar=true grava abas privadas.",
+      "obs": "Triagem de taxonomia (prioriza revisao humana), nao metrica de acuracia validada.",
+      "tipo": "Gera dados",
+      "automacao": "Automatico",
+      "condicao": "Cron diario (leve; aplicar=false no automatico)"
+    },
+    {
+      "workflow": "Transformer fine-tuning (BERTimbau)",
+      "arquivo": "transformer_ft.yml",
+      "gatilho": "cron 0 */6 h + manual",
+      "faz": "Treina/compara o transformer local e reclassifica validados (comparar_modelos_lote.py + reclassificar_validados.py).",
+      "entrada": "Base completa de chamados",
+      "saida": "recortes held-out do transformer + coluna O quando aplicado",
+      "abas": [
+        "Modelos",
+        "Reclassificacao"
+      ],
+      "quando": "A cada 6 h e manual.",
+      "obs": "Muito pesado (modelo local de ~118 mi parametros); roda raramente.",
+      "tipo": "Gera dados",
+      "automacao": "Automatico",
+      "condicao": "Cron a cada 6 h (pesado)"
+    },
+    {
+      "workflow": "Lote noturno com cache da planilha",
+      "arquivo": "lote_noturno_cache.yml",
+      "gatilho": "cron diario 05:30 UTC + manual",
+      "faz": "Atualiza o cache da planilha e roda auditoria, dashboard, relevancia, cruzamento, avaliacao, erros e estatistica em sequencia.",
+      "entrada": "Planilha de chamados",
+      "saida": "cache_planilha.json + republicacao de docs/dados",
+      "abas": [
+        "Classificacao",
+        "Categorias",
+        "Metricas",
+        "Taxonomia",
+        "Decisao",
+        "Estatistica"
+      ],
+      "quando": "Diario de madrugada; manual quando quiser um refresh completo com cache.",
+      "obs": "Usa cache para reduzir leituras diretas da planilha (cota da API).",
+      "tipo": "Publica + gera",
+      "automacao": "Automatico",
+      "condicao": "Cron diario 05:30 UTC (refresh completo com cache)"
+    },
+    {
+      "workflow": "Classificacao incremental",
+      "arquivo": "classificacao_incremental.yml",
+      "gatilho": "manual (cron desativado)",
+      "faz": "Classificacao incremental/full operacional (classificar_etapa.py + exportar_etapa.py).",
+      "entrada": "Planilha de chamados",
+      "saida": "registros e turnos da etapa",
+      "abas": [
+        "Classificacao"
+      ],
+      "quando": "Manual (operacional/teste). A versao agendada e a etapa1_turnos.",
+      "obs": "Schedule desativado para nao competir com etapa1_turnos. Usa o grupo 'classificacao-export'.",
+      "tipo": "Gera dados",
+      "automacao": "Manual",
+      "condicao": "Disparo manual (cron desativado; etapa1_turnos e a versao agendada)"
+    },
+    {
+      "workflow": "Iniciar pipeline (orquestrador)",
+      "arquivo": "iniciar_pipeline.yml",
+      "gatilho": "manual",
+      "faz": "Ponto unico de partida: dispara Etapa 1, Reclassificar validados e/ou Dashboard conforme os inputs.",
+      "entrada": "Inputs booleanos do operador",
+      "saida": "Nenhuma direta (apenas dispara outros workflows)",
+      "abas": [],
+      "quando": "Manual, para arrancar o ciclo sem entrar em cada workflow.",
+      "obs": "Nao processa dados; so orquestra.",
+      "tipo": "Orquestra",
+      "automacao": "Manual",
+      "condicao": "Disparo manual; so dispara outros workflows"
+    },
+    {
+      "workflow": "Resetar experimento (zero)",
+      "arquivo": "resetar.yml",
+      "gatilho": "manual",
+      "faz": "Zera o experimento para recomecar do zero (resetar_experimento.py).",
+      "entrada": "Estado atual do experimento",
+      "saida": "Limpa colunas/abas de classificacao",
+      "abas": [
+        "Classificacao",
+        "Categorias",
+        "Metricas",
+        "Reclassificacao",
+        "Decisao"
+      ],
+      "quando": "Manual, apenas quando for reiniciar todo o experimento.",
+      "obs": "Destrutivo. Confirmar antes; em seguida o dashboard republica o estado zerado.",
+      "tipo": "Operacional (destrutivo)",
+      "automacao": "Manual",
+      "condicao": "Disparo manual; confirmar antes"
+    }
+  ],
+  "legenda": {
+    "tipo": "Gera dados = produz JSON/abas de analise; Publica = republica o painel; Operacional/Orquestra = apoio, gate ou disparo.",
+    "automacao": "Manual = so workflow_dispatch; Automatico = cron/workflow_run; Automatico condicionado = cron + guarda de avanco (so roda quando ha dados suficientes).",
+    "guarda": "src/guard_automacao.py compara docs/dados/resumo.json com dados/estado_automacao.json; sem avanco suficiente, encerra com sucesso e log claro."
+  }
+}
