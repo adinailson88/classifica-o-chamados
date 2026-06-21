@@ -63,18 +63,18 @@
     {
       "workflow": "Multimodelo - classificacao completa",
       "arquivo": "multimodelo_classificacao.yml",
-      "gatilho": "cron diario 04:20 UTC + manual",
+      "gatilho": "cron a cada 15 min (mesmo do LSTM) + manual",
       "faz": "Materializa as 7 IAs locais na base completa (classificacao_multimodelo.py).",
       "entrada": "Planilha de chamados",
       "saida": "multimodelo_ultimo.json (-> multimodelo_metricas.json, multimodelo_turnos.json via dashboard)",
       "abas": [
         "Modelos"
       ],
-      "quando": "1x/dia materializa TODOS os pendentes dos 6 modelos leves (max_turnos=0), acompanhando a Etapa 1/LSTM; manual a qualquer momento.",
-      "obs": "Antes era semanal+guarda(+1000); agora diario para os leves nao ficarem para tras do LSTM (~14k). Barato quando nao ha pendentes (no-op no script).",
+      "quando": "A cada 15 min, junto com a Etapa 1/LSTM: classifica os chamados novos nos 6 modelos leves (max_turnos=0). Manual a qualquer momento.",
+      "obs": "Serializado com Etapa 1 e dashboard pelo concurrency 'escrita-planilha' (um escritor por vez).",
       "tipo": "Gera dados",
       "automacao": "Automatico condicionado",
-      "condicao": "Diario; incremental (so processa linhas ainda nao classificadas por modelo). LSTM/transformer/pesados ficam em seus proprios fluxos."
+      "condicao": "Mesma cadencia do LSTM (*/15). Incremental: so processa pendentes e e no-op barato quando nao ha chamado novo. LSTM/transformer/pesados em seus proprios fluxos."
     },
     {
       "workflow": "Comparar modelos (lote)",
@@ -327,7 +327,7 @@
       "gatilho": "cron noturno 05:17 UTC (~02:17 BRT) + manual (condicionado)",
       "faz": "Fine-tuning do BERTimbau (8o modelo) ou diagnostico experimental de coreset. Acao reclassificar_validados (coluna O), comparar (held-out) ou modo cluster_coreset sem treino. Modos: smoke/auto/manual/force/full/cluster_coreset.",
       "entrada": "Base de chamados (treino vs categoria historica) + conferencias humanas",
-      "saida": "coluna O (acao=reclassificar), COMPARACAO_MODELOS (acao=comparar) ou docs/dados/bertimbau_coreset_*.json (modo cluster_coreset); dados/bertimbau_training_state.json",
+      "saida": "coluna O (acao=reclassificar), COMPARACAO_MODELOS (acao=comparar) ou docs/dados/bertimbau_coreset_*.json (modo cluster_coreset); dados/bertimbau_training_state.json; docs/dados/bertimbau_metr_full.json / bertimbau_metr_coreset.json (acao=comparar)",
       "abas": [
         "Modelos",
         "Reclassificacao"
