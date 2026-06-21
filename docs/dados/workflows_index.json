@@ -121,7 +121,7 @@
         "Reclassificacao"
       ],
       "quando": "Manual, depois que houver validacao humana M/N suficiente.",
-      "obs": "Cron de 15 min foi comentado de proposito para evitar disputa pela coluna O.",
+      "obs": "MANUAL: a coluna O e atualizada no automatico pelo transformer_ft (noturno). Cron de 15 min pausado p/ nao disputar a coluna O.",
       "tipo": "Gera dados (coluna O)",
       "automacao": "Manual",
       "condicao": "Disparo manual; grava coluna O (cron pausado de proposito)"
@@ -137,7 +137,7 @@
         "Reclassificacao"
       ],
       "quando": "Manual; aplicar=true so com confirmacao explicita.",
-      "obs": "Dry-run por padrao (aplicar=false nao grava).",
+      "obs": "MANUAL: a reclassificacao automatica (que atualiza a aba Reclassificacao) e coberta por multimodelo_reclassificacao (cron diario).",
       "tipo": "Gera dados",
       "automacao": "Manual",
       "condicao": "Disparo manual; dry-run por padrao"
@@ -153,7 +153,7 @@
         "Reclassificacao"
       ],
       "quando": "Manual, para estimar ganho antes de aplicar.",
-      "obs": "Nunca grava dados.",
+      "obs": "MANUAL: simulacao (nunca grava) — nao atualiza graficos/tabelas, entao nao faz sentido em cron.",
       "tipo": "Simulacao",
       "automacao": "Manual",
       "condicao": "Disparo manual; nunca grava"
@@ -170,7 +170,7 @@
         "Modelos"
       ],
       "quando": "Manual, quando o modelo leve nao resolve casos dificeis.",
-      "obs": "Pesado; usar com parcimonia.",
+      "obs": "MANUAL: a reclassificacao automatica e coberta por multimodelo_reclassificacao (cron). Este e o LSTM robusto sob demanda.",
       "tipo": "Gera dados",
       "automacao": "Manual",
       "condicao": "Disparo manual; modelo pesado"
@@ -186,7 +186,7 @@
         "Reclassificacao"
       ],
       "quando": "Manual, antes de aplicar a IA-2.",
-      "obs": "Dry-run.",
+      "obs": "MANUAL: simulacao (nunca grava) — nao atualiza dados.",
       "tipo": "Simulacao",
       "automacao": "Manual",
       "condicao": "Disparo manual; nunca grava"
@@ -202,7 +202,7 @@
         "Reclassificacao"
       ],
       "quando": "Manual, apos revisar o dry-run.",
-      "obs": "Exige digitar APLICAR_O para gravar; serializado em escrita-planilha.",
+      "obs": "MANUAL: grava coluna O com confirmacao APLICAR_O. A coluna O ja e atualizada no automatico pelo transformer_ft (noturno).",
       "tipo": "Gera dados (coluna O)",
       "automacao": "Manual",
       "condicao": "Disparo manual com confirmacao APLICAR_O"
@@ -210,7 +210,7 @@
     {
       "workflow": "Consolidar validacao da Classificacao IA 2",
       "arquivo": "consolidar_validacao_classificacao_2.yml",
-      "gatilho": "manual",
+      "gatilho": "cron diario 03:50 UTC + manual",
       "faz": "Consolida a memoria validada da IA-2 (consolidar_memoria_validada_classificacao.py).",
       "entrada": "Conferencias humanas da IA-2 (coluna P)",
       "saida": "memoria validada consolidada",
@@ -218,11 +218,11 @@
         "Decisao",
         "Reclassificacao"
       ],
-      "quando": "Manual, depois de conferir a coluna P.",
+      "quando": "Diario; manual quando quiser na hora.",
       "obs": "Regra de memoria: reaproveita decisoes humanas e veta categorias ja conferidas como erradas.",
       "tipo": "Gera dados",
-      "automacao": "Manual",
-      "condicao": "Disparo manual"
+      "automacao": "Automatico",
+      "condicao": "1x/dia (madrugada); consolida memoria/metricas/calibracao validadas da IA-2."
     },
     {
       "workflow": "Avaliacao final validada (qual IA + erros)",
@@ -267,7 +267,7 @@
         "Decisao"
       ],
       "quando": "Manual, antes de fechar a avaliacao final.",
-      "obs": "Porta de entrada (gate), nao gera dados para o dashboard.",
+      "obs": "MANUAL: porta/gate de verificacao; nao publica dados do painel.",
       "tipo": "Operacional (gate)",
       "automacao": "Manual",
       "condicao": "Disparo manual; nao publica dados"
@@ -284,7 +284,7 @@
         "Decisao"
       ],
       "quando": "Manual, para iniciar a validacao humana.",
-      "obs": "Escreve abas privadas; nao expoe dados no site.",
+      "obs": "MANUAL DE PROPOSITO: re-amostra a aba VALIDACAO_HUMANA; automatizar poderia trocar a amostra que o humano esta conferindo.",
       "tipo": "Operacional",
       "automacao": "Manual",
       "condicao": "Disparo manual; escreve abas privadas"
@@ -292,18 +292,18 @@
     {
       "workflow": "Validacao nao supervisionada",
       "arquivo": "validacao_nao_supervisionada.yml",
-      "gatilho": "manual",
+      "gatilho": "cron diario 03:30 UTC + manual",
       "faz": "Verificacao metodologica sem rotulo humano (validacao_nao_supervisionada.py).",
       "entrada": "Previsoes das IAs",
       "saida": "Diagnostico de validacao nao supervisionada",
       "abas": [
         "Estatistica"
       ],
-      "quando": "Manual, como apoio metodologico.",
+      "quando": "Diario; manual quando quiser na hora.",
       "obs": "Nao substitui a validacao humana.",
       "tipo": "Gera dados",
-      "automacao": "Manual",
-      "condicao": "Disparo manual; apoio metodologico"
+      "automacao": "Automatico",
+      "condicao": "1x/dia (madrugada); grava no schedule."
     },
     {
       "workflow": "Relevancia de termos + mapa de correlacao",
@@ -370,7 +370,7 @@
         "Classificacao"
       ],
       "quando": "Manual (operacional/teste). A versao agendada e a etapa1_turnos.",
-      "obs": "Schedule desativado para nao competir com etapa1_turnos. Usa o grupo 'classificacao-export'.",
+      "obs": "MANUAL: superseded por etapa1_turnos (cron */15), que e quem atualiza a classificacao automaticamente.",
       "tipo": "Gera dados",
       "automacao": "Manual",
       "condicao": "Disparo manual (cron desativado; etapa1_turnos e a versao agendada)"
@@ -384,7 +384,7 @@
       "saida": "Nenhuma direta (apenas dispara outros workflows)",
       "abas": [],
       "quando": "Manual, para arrancar o ciclo sem entrar em cada workflow.",
-      "obs": "Nao processa dados; so orquestra.",
+      "obs": "MANUAL: orquestrador; os fluxos que ele dispara (Etapa 1, reclassificar, dashboard) ja tem cron proprio.",
       "tipo": "Orquestra",
       "automacao": "Manual",
       "condicao": "Disparo manual; so dispara outros workflows"
@@ -404,7 +404,7 @@
         "Decisao"
       ],
       "quando": "Manual, apenas quando for reiniciar todo o experimento.",
-      "obs": "Destrutivo. Confirmar antes; em seguida o dashboard republica o estado zerado.",
+      "obs": "MANUAL DE PROPOSITO: destrutivo (zera o experimento). Nunca automatizar.",
       "tipo": "Operacional (destrutivo)",
       "automacao": "Manual",
       "condicao": "Disparo manual; confirmar antes"
