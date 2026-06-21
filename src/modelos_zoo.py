@@ -129,12 +129,44 @@ class _ModeloTransformerFT:
         self.max_len = int(os.environ.get("TRANSFORMER_MAXLEN", "192"))
         self.batch = int(os.environ.get("TRANSFORMER_BATCH", "16"))
         self.lr = float(os.environ.get("TRANSFORMER_LR", "2e-5"))
+        # Otimizacoes opcionais (default = comportamento original preservado):
+        # subamostragem do treino, orcamento de tempo de parede e early stopping.
+        self.max_train = int(os.environ.get("TRANSFORMER_MAX_TRAIN", "0"))      # 0 = base inteira
+        self.time_budget = float(os.environ.get("TRANSFORMER_TIME_BUDGET_S", "0"))  # 0 = sem limite
+        self.early_stop = os.environ.get("TRANSFORMER_EARLY_STOP", "0").lower() in ("1", "true", "sim")
+        self.patience = int(os.environ.get("TRANSFORMER_PATIENCE", "1"))
+        self.eval_frac = float(os.environ.get("TRANSFORMER_EVAL_FRAC", "0.1"))
+        self.seed = int(os.environ.get("TRANSFORMER_SEED", "42"))
         self._fb = None              # fallback (LSTM/RF) se transformers indisponivel
         self._tok = self._model = None
         self.classes_ = None
         self._id2lab = None
+        # Resumo do ultimo treino (consumido pelo estado/dashboard do BERTimbau).
+        self.train_info = {}
+
+    def _subamostra_estratificada(self, textos, y, limite):
+        """Reduz o conjunto de treino para 'limite' linhas preservando, na medida
+        do possivel, a proporcao por categoria (estratificada). Retorna (textos, y)."""
+        import random
+        if limite <= 0 or limite >= len(y):
+            return textos, y
+        por_classe = {}
+        for i, lab in enumerate(y):
+            por_classe.setdefault(lab, []).append(i)
+        rng = random.Random(self.seed)
+        n = len(y)
+        escolhidos = []
+        for lab, idxs in por_classe.items():
+            cota = max(1, round(limite * len(idxs) / n))  # garante >=1 por classe
+            cota = min(cota, len(idxs))
+            escolhidos.extend(rng.sample(idxs, cota))
+        rng.shuffle(escolhidos)
+        escolhidos = escolhidos[:max(limite, len(por_classe))]  # nunca abaixo de 1/classe
+        return [textos[i] for i in escolhidos], [y[i] for i in escolhidos]
 
     def fit(self, textos, categorias):
+        import time
+        t0 = time.time()
         textos = [str(t) for t in textos]
         cats = [str(c) for c in categorias]
         try:
@@ -147,6 +179,7 @@ class _ModeloTransformerFT:
                   "fallback LSTM/RF.", file=sys.stderr)
             self._fb = _ModeloLSTM().fit(textos, cats)
             self.classes_ = getattr(self._fb, "classes_", None)
+            self.train_info = {"status": "fallback_lstm", "motivo": f"{type(e).__name__}: {e}"}
             return self
 
         labels = sorted(set(cats))
@@ -155,27 +188,137 @@ class _ModeloTransformerFT:
         self.classes_ = np.array(labels)
         y = [lab2id[c] for c in cats]
 
+        n_total = len(y)
+        textos, y = self._subamostra_estratificada(textos, y, self.max_train)
+        if len(y) < n_total:
+            print(f"[transformer_ft] subamostragem estratificada: {len(y)}/{n_total} "
+                  f"(TRANSFORMER_MAX_TRAIN={self.max_train}).", file=sys.stderr)
+
+        # Holdout estratificado para early stopping (so quando viavel).
+        idx_tr, idx_ev = list(range(len(y))), []
+        if self.early_stop and len(y) >= 50:
+            try:
+                from sklearn.model_selection import train_test_split
+                idx_tr, idx_ev = train_test_split(
+                    list(range(len(y))), test_size=self.eval_frac, random_state=self.seed,
+                    stratify=y if len(set(y)) > 1 else None)
+            except Exception as e:  # noqa: BLE001
+                print(f"[transformer_ft] holdout estratificado indisponivel ({e}); sem early stopping.",
+                      file=sys.stderr)
+                idx_tr, idx_ev = list(range(len(y))), []
+
         self._tok = AutoTokenizer.from_pretrained(self.base)
         self._model = AutoModelForSequenceClassification.from_pretrained(self.base, num_labels=len(labels))
         device = "cuda" if torch.cuda.is_available() else "cpu"
+        usar_fp16 = bool(os.environ.get("TRANSFORMER_FP16", "1").lower() in ("1", "true", "sim")
+                         and device == "cuda")
         self._model.to(device)
 
-        enc = self._tok(textos, truncation=True, padding=True, max_length=self.max_len, return_tensors="pt")
-        ds = torch.utils.data.TensorDataset(enc["input_ids"], enc["attention_mask"], torch.tensor(y))
-        dl = DataLoader(ds, batch_size=self.batch, shuffle=True)
+        # Padding DINAMICO: tokeniza por lote (pad ao maior do lote), nao a base toda.
+        # Resultado identico ao padding global, porem mais rapido e com menos memoria.
+        tok, max_len = self._tok, self.max_len
+        textos_tr = [textos[i] for i in idx_tr]
+        y_tr = [y[i] for i in idx_tr]
+
+        def collate(batch):
+            xs = [b[0] for b in batch]
+            ys = [b[1] for b in batch]
+            enc = tok(xs, truncation=True, padding=True, max_length=max_len, return_tensors="pt")
+            enc["labels"] = torch.tensor(ys)
+            return enc
+
+        ds = list(zip(textos_tr, y_tr))
+        dl = DataLoader(ds, batch_size=self.batch, shuffle=True, collate_fn=collate)
         opt = torch.optim.AdamW(self._model.parameters(), lr=self.lr)
         total = max(1, len(dl) * self.epochs)
         sched = get_linear_schedule_with_warmup(opt, int(0.1 * total), total)
+        scaler = torch.cuda.amp.GradScaler() if usar_fp16 else None
 
+        def avaliar_macro_f1():
+            if not idx_ev:
+                return None
+            from sklearn.metrics import f1_score
+            self._model.eval()
+            preds, reais = [], []
+            with torch.no_grad():
+                for i in range(0, len(idx_ev), self.batch):
+                    sub = idx_ev[i:i + self.batch]
+                    enc = tok([textos[j] for j in sub], truncation=True, padding=True,
+                              max_length=max_len, return_tensors="pt")
+                    logits = self._model(input_ids=enc["input_ids"].to(device),
+                                         attention_mask=enc["attention_mask"].to(device)).logits
+                    preds.extend(logits.argmax(dim=1).cpu().tolist())
+                    reais.extend(y[j] for j in sub)
+            self._model.train()
+            return float(f1_score(reais, preds, average="macro", zero_division=0))
+
+        melhor_f1, melhor_estado, sem_melhora = -1.0, None, 0
+        epocas_rodadas, parou_por_tempo = 0, False
         self._model.train()
         for ep in range(self.epochs):
-            for ids, mask, lab in dl:
+            for enc in dl:
+                if self.time_budget > 0 and (time.time() - t0) > self.time_budget:
+                    parou_por_tempo = True
+                    break
                 opt.zero_grad()
-                out = self._model(input_ids=ids.to(device), attention_mask=mask.to(device), labels=lab.to(device))
-                out.loss.backward()
-                torch.nn.utils.clip_grad_norm_(self._model.parameters(), 1.0)
-                opt.step(); sched.step()
-            print(f"[transformer_ft] epoca {ep + 1}/{self.epochs} concluida.", file=sys.stderr)
+                if scaler is not None:
+                    with torch.cuda.amp.autocast():
+                        out = self._model(input_ids=enc["input_ids"].to(device),
+                                          attention_mask=enc["attention_mask"].to(device),
+                                          labels=enc["labels"].to(device))
+                    scaler.scale(out.loss).backward()
+                    scaler.unscale_(opt)
+                    torch.nn.utils.clip_grad_norm_(self._model.parameters(), 1.0)
+                    scaler.step(opt); scaler.update()
+                else:
+                    out = self._model(input_ids=enc["input_ids"].to(device),
+                                      attention_mask=enc["attention_mask"].to(device),
+                                      labels=enc["labels"].to(device))
+                    out.loss.backward()
+                    torch.nn.utils.clip_grad_norm_(self._model.parameters(), 1.0)
+                    opt.step()
+                sched.step()
+            epocas_rodadas = ep + 1
+            f1 = avaliar_macro_f1()
+            dt = time.time() - t0
+            msg = f"[transformer_ft] epoca {ep + 1}/{self.epochs} ({dt:.0f}s)"
+            if f1 is not None:
+                msg += f" | macro-F1(val)={f1:.4f}"
+            print(msg + (" | parou por orcamento de tempo" if parou_por_tempo else ""), file=sys.stderr)
+            if f1 is not None:
+                if f1 > melhor_f1 + 1e-4:
+                    melhor_f1, sem_melhora = f1, 0
+                    melhor_estado = {k: v.detach().cpu().clone() for k, v in self._model.state_dict().items()}
+                else:
+                    sem_melhora += 1
+            if parou_por_tempo:
+                break
+            if self.early_stop and idx_ev and sem_melhora >= self.patience:
+                print(f"[transformer_ft] early stopping na epoca {ep + 1} (sem melhora >= {self.patience}).",
+                      file=sys.stderr)
+                break
+
+        if melhor_estado is not None:
+            self._model.load_state_dict(melhor_estado)  # load_best_model_at_end
+            print(f"[transformer_ft] restaurado melhor modelo (macro-F1 val={melhor_f1:.4f}).", file=sys.stderr)
+
+        self.train_info = {
+            "status": "ok",
+            "n_treino": len(y_tr),
+            "n_total_disponivel": n_total,
+            "n_validacao": len(idx_ev),
+            "n_categorias": len(labels),
+            "epocas_pedidas": self.epochs,
+            "epocas_rodadas": epocas_rodadas,
+            "early_stopping": bool(self.early_stop and idx_ev),
+            "parou_por_tempo": parou_por_tempo,
+            "macro_f1_validacao": round(melhor_f1, 4) if melhor_f1 >= 0 else None,
+            "max_len": self.max_len,
+            "batch": self.batch,
+            "fp16": usar_fp16,
+            "subamostrado": len(y) < n_total,
+            "segundos": round(time.time() - t0, 1),
+        }
         return self
 
     def predict_score(self, textos):
