@@ -158,6 +158,7 @@
     <button data-t="shannon">Shannon</button>
     <button data-t="reclass">Reclassificacao</button>
     <button data-t="decisao">Decisao</button>
+    <button data-t="fluxo">Fluxo de atualizacao</button>
     <button data-t="docs">Documentacao</button>
   </nav>
 
@@ -512,6 +513,23 @@
         <p class="muted" id="valModInfo">Aparece quando houver conferencia humana (M e N). Verdade derivada: N=Correto &rarr; categoria da IA (G); senao M=Correto &rarr; historico (C).</p>
         <div class="tablebox"><table id="tabEstValMod"><thead><tr><th>Modelo</th><th>n validados</th><th>Acerto validado</th></tr></thead><tbody></tbody></table></div>
       </div>
+    </div>
+  </section>
+
+  <section id="tab-fluxo" class="hide">
+    <div class="alerta" id="fluxoAviso">Indice tecnico dos workflows: o que cada automacao faz, quando roda e qual aba do painel ela alimenta. Gerado a partir do arquivo versionado <code>docs/dados/workflows_index.json</code> (fonte de verdade); ao criar ou alterar um workflow, atualize esse JSON.</div>
+    <div class="kpis" id="kpisFluxo"></div>
+    <div class="card full">
+      <h2>Como executar e ler os dados parciais</h2>
+      <p class="muted">O painel renderiza com o que ja existir: quando um JSON ainda nao foi gerado, a aba correspondente mostra uma mensagem controlada e o link do workflow que precisa rodar, em vez de quebrar. Para forcar uma atualizacao, abra o workflow no GitHub Actions e use <strong>Run workflow</strong> (todos os fluxos principais aceitam disparo manual). Depois que qualquer fluxo de dados conclui, o <code>dashboard.yml</code> republica o painel automaticamente.</p>
+    </div>
+    <div class="card full">
+      <h2>Workflows do experimento</h2>
+      <input type="text" id="filtroFluxo" placeholder="Filtrar por workflow, aba, gatilho ou arquivo">
+      <div class="tablebox"><table id="tabFluxo" class="compacta"><thead><tr>
+        <th style="width:14%">Workflow</th><th style="width:12%">Arquivo</th><th style="width:11%">Gatilho</th><th style="width:17%">O que faz</th><th style="width:13%">Entrada</th><th style="width:13%">Saida</th><th style="width:9%">Aba(s)</th><th style="width:11%">Quando executar</th><th>Observacoes</th>
+      </tr></thead><tbody></tbody></table></div>
+      <p class="muted" id="fluxoVazio"></p>
     </div>
   </section>
 
@@ -1901,7 +1919,7 @@ function ajustarFiltros(aba){
 document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{
   document.querySelectorAll(".tabs button").forEach(x=>x.classList.remove("on"));
   b.classList.add("on");
-  ["class","cat","metrics","modelos","estat","taxon","shannon","reclass","decisao","docs"].forEach(t=>document.getElementById("tab-"+t).classList.toggle("hide",t!==b.dataset.t));
+  ["class","cat","metrics","modelos","estat","taxon","shannon","reclass","decisao","fluxo","docs"].forEach(t=>document.getElementById("tab-"+t).classList.toggle("hide",t!==b.dataset.t));
   ajustarFiltros(b.dataset.t);
 });
 document.getElementById("filtroCat").addEventListener("input",renderCat);
@@ -1960,6 +1978,43 @@ function renderReclassSelecionado(temMulti){
   renderReclass(turnos, temMulti);
 }
 
+let FLUXO_WF=[];
+function fluxoLink(arq){
+  return `<a class="workflow-link" href="https://github.com/adinailson88/classificacao-chamados/actions/workflows/${esc(arq)}"><code>${esc(arq)}</code></a>`;
+}
+function renderFluxo(filtro=""){
+  const tb=document.querySelector("#tabFluxo tbody"), vazio=document.getElementById("fluxoVazio");
+  const kb=document.getElementById("kpisFluxo");
+  if(!tb) return;
+  if(!FLUXO_WF.length){
+    tb.innerHTML=`<tr><td colspan="9" class="muted">Indice de workflows ainda nao publicado. Verifique se <code>docs/dados/workflows_index.json</code> existe no repositorio.</td></tr>`;
+    if(kb) kb.innerHTML="";
+    if(vazio) vazio.textContent="";
+    return;
+  }
+  const f=String(filtro||"").toLowerCase();
+  const rows=FLUXO_WF.filter(w=>!f || [w.workflow,w.arquivo,w.gatilho,w.quando,(w.abas||[]).join(" ")].join(" ").toLowerCase().includes(f));
+  if(kb){
+    const auto=FLUXO_WF.filter(w=>/cron|workflow_run/i.test(w.gatilho)).length;
+    kb.innerHTML=kpi(fmt(FLUXO_WF.length),"Workflows mapeados")
+      +kpi(fmt(auto),"Com gatilho automatico")
+      +kpi(fmt(FLUXO_WF.length-auto),"Apenas manuais")
+      +kpi("dashboard.yml","Republicador central");
+  }
+  tb.innerHTML = rows.length ? rows.map(w=>`<tr>
+    <td>${esc(w.workflow)}</td>
+    <td>${fluxoLink(w.arquivo)}</td>
+    <td>${esc(w.gatilho)}</td>
+    <td>${esc(w.faz)}</td>
+    <td>${esc(w.entrada)}</td>
+    <td>${esc(w.saida)}</td>
+    <td>${(w.abas&&w.abas.length)?esc(w.abas.join(", ")):'<span class="muted">-</span>'}</td>
+    <td>${esc(w.quando)}</td>
+    <td class="muted">${esc(w.obs)}</td></tr>`).join("")
+    : `<tr><td colspan="9" class="muted">Nenhum workflow corresponde ao filtro.</td></tr>`;
+  if(vazio) vazio.textContent = `Fonte: docs/dados/workflows_index.json (gerado em ${esc(FLUXO_WF._gerado_em||"sem data")}). ${FLUXO_WF.length} workflows mapeados.`;
+}
+
 (async function(){
   const [turnos,cat,rt,met,resumo,cal,calModels,calAjustada,mod,compCat,registros,multiMet,multiTurnos,multiRecl,estat,taxCorr,taxTermos,taxCruz] = await Promise.all([
     getJSON("log_turnos_classificacao.json"), getJSON("metricas_por_categoria.json"),
@@ -2008,6 +2063,12 @@ function renderReclassSelecionado(temMulti){
   renderReclassSelecionado(temMulti);
   renderDecisao(Array.isArray(avFinal)?null:avFinal, Array.isArray(anErros)?null:anErros);
   renderShannon(Array.isArray(shResumo)?null:shResumo, shModelos, jsModelos, Array.isArray(shCategorias)?null:shCategorias, Array.isArray(shVotos)?null:shVotos);
+  const wfIndex = await getJSON("workflows_index.json");
+  FLUXO_WF = (wfIndex && Array.isArray(wfIndex.workflows)) ? wfIndex.workflows : [];
+  FLUXO_WF._gerado_em = wfIndex && wfIndex.gerado_em;
+  const filtroFluxo=document.getElementById("filtroFluxo");
+  if(filtroFluxo) filtroFluxo.addEventListener("input", ()=>renderFluxo(filtroFluxo.value));
+  renderFluxo();
   instalarBotoesPNG();
 })();
 </script>
