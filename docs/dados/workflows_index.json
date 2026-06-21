@@ -63,18 +63,18 @@
     {
       "workflow": "Multimodelo - classificacao completa",
       "arquivo": "multimodelo_classificacao.yml",
-      "gatilho": "cron semanal + manual (condicionado)",
+      "gatilho": "cron diario 04:20 UTC + manual",
       "faz": "Materializa as 7 IAs locais na base completa (classificacao_multimodelo.py).",
       "entrada": "Planilha de chamados",
       "saida": "multimodelo_ultimo.json (-> multimodelo_metricas.json, multimodelo_turnos.json via dashboard)",
       "abas": [
         "Modelos"
       ],
-      "quando": "1x/semana, so com base +1000 ou multimodelo vazio; manual ignora a guarda. Pesados/LSTM continuam manuais.",
-      "obs": "Input 'aplicar' grava na planilha; sem ele e dry-run. Enquanto nao roda, a aba Modelos usa estatistica.json como fallback.",
+      "quando": "1x/dia materializa TODOS os pendentes dos 6 modelos leves (max_turnos=0), acompanhando a Etapa 1/LSTM; manual a qualquer momento.",
+      "obs": "Antes era semanal+guarda(+1000); agora diario para os leves nao ficarem para tras do LSTM (~14k). Barato quando nao ha pendentes (no-op no script).",
       "tipo": "Gera dados",
       "automacao": "Automatico condicionado",
-      "condicao": "Base cresceu >= 1000 chamados desde a ultima vez OU multimodelo ainda vazio (cron semanal; so modelos leves no automatico)"
+      "condicao": "Diario; incremental (so processa linhas ainda nao classificadas por modelo). LSTM/transformer/pesados ficam em seus proprios fluxos."
     },
     {
       "workflow": "Comparar modelos (lote)",

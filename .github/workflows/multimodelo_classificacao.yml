@@ -3,14 +3,15 @@ name: Multimodelo - classificacao completa
 # Materializa CLASSIF__<modelo> para cada IA selecionada, com predicao
 # out-of-fold e lote dinamico.
 #
-# AUTOMATICO CONDICIONADO: 1x/semana, mas a materializacao (pesada) so roda quando
-# a base cresceu >= 1000 chamados desde a ultima vez OU quando ainda nao ha
-# multimodelo publicado. No cron materializa APENAS os modelos leves; perfis
-# robustos/LSTM/pesados continuam manuais. Disparo manual ignora a guarda.
+# AUTOMATICO DIARIO: o cron roda 1x/dia e materializa TODOS os pendentes dos modelos
+# leves (max_turnos=0), para os 6 modelos nao-LSTM acompanharem a Etapa 1/LSTM (que roda
+# a cada 15 min). E incremental e barato: classificacao_multimodelo.py so processa as
+# linhas ainda nao feitas e encerra rapido quando nao ha pendentes. No cron materializa
+# APENAS os leves; LSTM/transformer/pesados continuam em seus proprios fluxos.
 
 on:
   schedule:
-    - cron: "20 4 * * 1"
+    - cron: "20 4 * * *"
   workflow_dispatch:
     inputs:
       modelos:
@@ -18,7 +19,7 @@ on:
         default: "leves"
       max_turnos:
         description: "Turnos de 15 por modelo (0 = todos os pendentes)"
-        default: "1"
+        default: "0"
       aplicar:
         description: "Gravar na planilha"
         type: boolean
@@ -55,7 +56,9 @@ jobs:
 
   multimodelo:
     needs: guard
-    if: ${{ github.event_name == 'workflow_dispatch' || needs.guard.outputs.executar == 'true' }}
+    # Roda no cron diario (acompanha a Etapa 1), no disparo manual, ou quando a guarda
+    # de avanco aprovar. O custo e barato quando nao ha pendentes (no-op no script).
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' || needs.guard.outputs.executar == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 90
     env:
