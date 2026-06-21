@@ -206,10 +206,47 @@ python src/resetar_experimento.py --aplicar --confirmar RESETAR
 7. `classificacao_incremental.yml`: fluxo incremental antigo, mantido manual.
 8. `multimodelo_classificacao.yml`: classificacao por modelo em `CLASSIF__<modelo>`, manual, dry-run por padrao.
 9. `multimodelo_reclassificacao.yml`: reclassificacao por modelo em `RECLASS__<modelo>`, manual, dry-run por padrao.
-10. `reclassificar_validados.yml`: reclassifica AUTOMATICAMENTE os chamados ja validados (colunas `M` e `N` preenchidas) com o modelo robusto, gravando o resultado na coluna `O` (Classificacao IA - 2). Cron a cada 15 min, no maximo 15 chamados por execucao; so treina quando ha validados pendentes.
+10. `reclassificar_validados.yml`: reclassifica os chamados ja validados (colunas `M` e `N` preenchidas) com o modelo robusto, gravando o resultado na coluna `O` (Classificacao IA - 2). **Manual** (`workflow_dispatch`): o cron de 15 min esta comentado/pausado no YAML para evitar disputa pela coluna `O`. No maximo 15 chamados por execucao; so treina quando ha validados pendentes.
 11. `transformer_ft.yml`: 8o modelo, **BERTimbau com fine-tuning** (contextual, self-attention). PESADO (torch + transformers, fine-tuning em CPU) — manual, timeout alto. Acoes: `reclassificar_validados` (refaz a coluna `O` de todos os validados com o transformer, 1 treino) ou `comparar` (avalia numa janela held-out e grava em `COMPARACAO_MODELOS`, lado a lado com os 7).
 12. `iniciar_pipeline.yml`: orquestrador manual que dispara Etapa 1 + reclassificar_validados + dashboard de uma vez.
 13. `relevancia_termos.yml`: termos caracteristicos por categoria + mapa de correlacao, manual, dry-run por padrao; commita os JSON agregados.
+
+O indice completo dos workflows (todos os 24, com gatilho, entrada, saida e a aba do
+painel que cada um alimenta) esta versionado em `docs/dados/workflows_index.json` e e
+exibido na aba **Fluxo de atualizacao** do dashboard. Mantenha esse JSON atualizado ao
+criar ou alterar um workflow.
+
+### Automacao condicionada (geracao de dados sem depender de disparo manual)
+
+Os fluxos que geram dados deixaram de depender so de disparo manual. Cada um tem
+`workflow_dispatch` (manual, que **ignora a guarda** e sempre roda) **e** um gatilho
+automatico:
+
+- **Automatico** (leves, so leitura): `auditar_conferencias.yml` (a cada 6 h),
+  `relevancia_termos.yml` (diario, `aplicar=false`), alem dos ja existentes
+  `etapa1_turnos`, `estatistica`, `multimodelo_reclassificacao`, `transformer_ft`,
+  `lote_noturno_cache`.
+- **Automatico condicionado** (pesados, com guarda de avanco):
+  - `avaliacao_final.yml` — a cada 6 h, mas a parte pesada (bootstrap/ensembles) so
+    roda com **+100 conferencias humanas** novas (`validados`).
+  - `comparar_modelos.yml` — diario, so roda com **base +1000 chamados** ou comparacao
+    ainda vazia.
+  - `multimodelo_classificacao.yml` — semanal, so materializa (modelos **leves**) com
+    **base +1000 chamados** ou multimodelo ainda vazio.
+
+A guarda e `src/guard_automacao.py`: compara uma metrica de `docs/dados/resumo.json`
+(`registros` ou `calibracao.validados`) com o marcador em `dados/estado_automacao.json`.
+Sem avanco suficiente, encerra **com sucesso** e log claro (nao falha o workflow); com
+avanco, gera os JSON reais e so entao avanca o marcador. O `dashboard.yml` permanece
+intacto como publicador (cron 30 min + `workflow_run`) e republica o painel apos esses
+fluxos. As escritas continuam serializadas por `concurrency: escrita-planilha`, sem loop
+de publicacao. Fluxos destrutivos ou que gravam a coluna `O`
+(`reclassificar_validados`, `classificacao_ia_2_aplicar`, `resetar`) seguem **manuais**.
+
+Todos os workflows que escrevem dados compartilham `concurrency: group: escrita-planilha`
+com `cancel-in-progress: false`, ou seja, sao **serializados** — nao ha escrita
+simultanea nos mesmos arquivos. O `dashboard.yml` republica o painel automaticamente
+(via `workflow_run`) quando os fluxos de dados concluem com sucesso.
 
 Nos workflows manuais com input `aplicar`, mantenha `false` ate revisar logs, ganho liquido e impacto esperado.
 
@@ -251,9 +288,53 @@ docs/dados/shannon_modelos.json           # entropia por IA
 docs/dados/jensen_shannon_modelos.json    # distancia distributiva IA x historico
 docs/dados/shannon_categorias.json        # ambiguidade por categoria historica
 docs/dados/shannon_votos.json             # linhas sanitizadas com maior desacordo entre IAs
+docs/dados/workflows_index.json           # indice tecnico dos workflows (aba Fluxo de atualizacao)
 ```
 
 O site publicado pelo GitHub Pages deve identificar o projeto como `Classificacao de Chamados - Painel Experimental`. A referencia a Malha IA deve aparecer apenas como contexto de origem, nao como nome principal do site.
+
+### Dados parciais e tolerancia a JSON ausente
+
+O painel **nao depende de o experimento estar 100% concluido** para renderizar. Cada
+renderizador degrada com seguranca:
+
+- `getJSON()` devolve `[]` quando o arquivo nao existe ou falha; o boot normaliza
+  com `Array.isArray(...)` / `|| {}`, entao nenhuma aba quebra por um JSON faltante.
+- Quando um JSON ainda esta vazio (`[]` / `{}`), a aba mostra uma **mensagem
+  controlada** ("Sem ... publicado", "aguardando conferencia humana") com o link do
+  workflow que precisa rodar, em vez de um grafico ou tabela vazia sem explicacao.
+- A aba **Modelos** usa `estatistica.json` como fallback quando os JSON multimodelo
+  ainda estao vazios, identificando o resultado como concordancia vs. historico.
+- Metricas dependentes de validacao humana (M/N/P) so aparecem como **definitivas**
+  quando ha conferencia suficiente; antes disso sao rotuladas como parciais.
+
+### Aba "Fluxo de atualizacao" (indice tecnico dos workflows)
+
+A aba **Fluxo de atualizacao** lista todos os workflows com gatilho, o que fazem,
+entrada, saida, aba(s) alimentada(s), quando executar manualmente e observacoes. Ela
+e gerada a partir do arquivo versionado `docs/dados/workflows_index.json` — **fonte de
+verdade**: ao criar ou alterar um workflow em `.github/workflows/`, atualize tambem
+esse JSON.
+
+### Validar o painel localmente
+
+```bash
+cd docs
+python -m http.server 8765
+# abra http://localhost:8765/index.html
+```
+
+Servir por HTTP (e nao abrir o arquivo por `file://`) e necessario porque o painel
+busca os JSON via `fetch("./dados/...")`. Checagem rapida de que tudo renderiza:
+
+1. Abra o console do navegador — nao deve haver erro de JavaScript.
+2. Percorra as abas Classificacao, Categorias, Metricas, Modelos, Reclassificacao,
+   Decisao e Fluxo de atualizacao: cada uma deve mostrar dados reais **ou** uma
+   mensagem controlada de "dados ainda nao gerados".
+3. Valide os JSON antes de publicar:
+   ```bash
+   python -c "import json,glob; [json.load(open(p,encoding='utf-8')) for p in glob.glob('docs/dados/*.json')]" && echo OK
+   ```
 
 ## Relevancia de termos + mapa de correlacao (exploratorio)
 

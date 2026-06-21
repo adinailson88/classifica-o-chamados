@@ -8,6 +8,11 @@ name: Relevancia de termos + mapa de correlacao
 # CORRELACAO_CATEGORIAS e CRUZAMENTO_TAXONOMIA.
 
 on:
+  # Automatico leve: roda 1x/dia gerando apenas os JSON (aplicar=false por padrao,
+  # nao grava abas privadas). So LE a planilha; mantem a aba Taxonomia atualizada.
+  # Disparo manual continua disponivel (e com aplicar=true grava as abas privadas).
+  schedule:
+    - cron: "40 3 * * *"
   workflow_dispatch:
     inputs:
       aplicar:
