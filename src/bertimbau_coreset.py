@@ -22,6 +22,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import planilha as pl  # noqa: E402
+from tempo import agora_bahia  # noqa: E402
 
 RAIZ = Path(__file__).resolve().parents[1]
 CONFIG_PADRAO = RAIZ / "config_experimento.json"
@@ -363,7 +364,7 @@ def main() -> int:
     n_sel = len(selecionados)
     tokens_total = sum(r["tokens"] for r in registros)
     tokens_sel = sum(r["tokens"] for r in registros if r["linha"] in selecionados)
-    agora = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+    agora = agora_bahia()
     params = vars(args).copy()
     params.pop("config", None)
     params.pop("credenciais", None)

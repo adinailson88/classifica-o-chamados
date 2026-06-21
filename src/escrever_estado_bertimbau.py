@@ -14,8 +14,11 @@ Uso (no workflow, apos um treino bem-sucedido):
 """
 import argparse
 import json
-from datetime import datetime, timezone
+import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from tempo import agora_bahia  # noqa: E402
 
 RAIZ = Path(__file__).resolve().parent.parent
 # Em docs/dados/ para o dashboard conseguir buscar via fetch e o Pages publicar.
@@ -45,8 +48,7 @@ def main() -> int:
     validados = validados_atuais()
     estado = {
         "status": args.status,
-        "ultimo_treino_em": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
-        if args.status == "ok" else None,
+        "ultimo_treino_em": agora_bahia() if args.status == "ok" else None,
         "modo": args.modo or None,
         "acao": args.acao or None,
         "registros_conferidos_no_treino": validados if args.status == "ok" else None,
