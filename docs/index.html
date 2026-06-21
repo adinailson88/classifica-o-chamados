@@ -527,6 +527,12 @@
       <h2>Como executar e ler os dados parciais</h2>
       <p class="muted">O painel renderiza com o que ja existir: quando um JSON ainda nao foi gerado, a aba correspondente mostra uma mensagem controlada e o link do workflow que precisa rodar, em vez de quebrar. Para forcar uma atualizacao, abra o workflow no GitHub Actions e use <strong>Run workflow</strong> (todos os fluxos principais aceitam disparo manual). Depois que qualquer fluxo de dados conclui, o <code>dashboard.yml</code> republica o painel automaticamente.</p>
     </div>
+    <div class="card full" id="cardBertimbau" style="border-left:3px solid #7c3aed">
+      <h2>Estado do ultimo treino do BERTimbau (8o modelo)</h2>
+      <div class="kpis" id="kpisBertimbau"></div>
+      <p class="muted" id="bertimbauMotivo"></p>
+      <p class="muted">Fine-tuning pesado: roda de madrugada (~02:17 BRT) so com +100 conferencias humanas novas; runner GitHub-hosted tem teto de 6h, por isso usa orcamento de tempo + early stopping. Metricas finais por categoria vem da acao <code>comparar</code> (aba Modelos/Estatistica).</p>
+    </div>
     <div class="card full">
       <h2>Workflows do experimento</h2>
       <p class="muted">Tipo separa quem <strong>gera dados</strong> de quem apenas <strong>publica</strong> o painel. Automacao distingue <strong>manual</strong>, <strong>automatico</strong> e <strong>automatico condicionado</strong> (so roda quando ha avanco suficiente — ver coluna Condicao). A guarda e <code>src/guard_automacao.py</code>: compara <code>resumo.json</code> com <code>dados/estado_automacao.json</code> e, sem avanco, encerra com sucesso e log claro.</p>
@@ -2027,6 +2033,25 @@ function renderFluxo(filtro=""){
   if(vazio) vazio.textContent = `Fonte: docs/dados/workflows_index.json (gerado em ${esc(FLUXO_WF._gerado_em||"sem data")}). ${FLUXO_WF.length} workflows mapeados.`;
 }
 
+function renderBertimbau(st){
+  const kb=document.getElementById("kpisBertimbau"), mot=document.getElementById("bertimbauMotivo");
+  if(!kb) return;
+  if(!st || typeof st!=="object"){
+    kb.innerHTML=kpi("sem estado","Status")+kpi("—","Ultimo treino");
+    if(mot) mot.textContent="Arquivo docs/dados/bertimbau_training_state.json ainda nao publicado.";
+    return;
+  }
+  const rotStatus={ok:"treinado",sem_dados:"adiado (sem dados novos)",nunca_treinado:"nunca treinado",falha:"falha",smoke:"smoke"};
+  const m=st.metricas||{};
+  kb.innerHTML=
+    kpi(esc(rotStatus[st.status]||st.status||"—"),"Status do ultimo treino")+
+    kpi(esc(st.ultimo_treino_em||"—"),"Quando")+
+    kpi(esc(st.modo||"—"),"Modo")+
+    kpi(st.registros_conferidos_no_treino!=null?fmt(st.registros_conferidos_no_treino):"—","Conferidos no treino")+
+    kpi(m.macro_f1_validacao!=null?pct(m.macro_f1_validacao):"—","Macro-F1 (validacao)");
+  if(mot) mot.textContent = st.motivo ? ("Motivo: "+st.motivo) : "";
+}
+
 (async function(){
   const [turnos,cat,rt,met,resumo,cal,calModels,calAjustada,mod,compCat,registros,multiMet,multiTurnos,multiRecl,estat,taxCorr,taxTermos,taxCruz] = await Promise.all([
     getJSON("log_turnos_classificacao.json"), getJSON("metricas_por_categoria.json"),
@@ -2081,6 +2106,8 @@ function renderFluxo(filtro=""){
   const filtroFluxo=document.getElementById("filtroFluxo");
   if(filtroFluxo) filtroFluxo.addEventListener("input", ()=>renderFluxo(filtroFluxo.value));
   renderFluxo();
+  const bertState = await getJSON("bertimbau_training_state.json");
+  renderBertimbau(Array.isArray(bertState)?null:bertState);
   instalarBotoesPNG();
 })();
 </script>

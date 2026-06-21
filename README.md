@@ -207,7 +207,7 @@ python src/resetar_experimento.py --aplicar --confirmar RESETAR
 8. `multimodelo_classificacao.yml`: classificacao por modelo em `CLASSIF__<modelo>`, manual, dry-run por padrao.
 9. `multimodelo_reclassificacao.yml`: reclassificacao por modelo em `RECLASS__<modelo>`, manual, dry-run por padrao.
 10. `reclassificar_validados.yml`: reclassifica os chamados ja validados (colunas `M` e `N` preenchidas) com o modelo robusto, gravando o resultado na coluna `O` (Classificacao IA - 2). **Manual** (`workflow_dispatch`): o cron de 15 min esta comentado/pausado no YAML para evitar disputa pela coluna `O`. No maximo 15 chamados por execucao; so treina quando ha validados pendentes.
-11. `transformer_ft.yml`: 8o modelo, **BERTimbau com fine-tuning** (contextual, self-attention). PESADO (torch + transformers, fine-tuning em CPU) — manual, timeout alto. Acoes: `reclassificar_validados` (refaz a coluna `O` de todos os validados com o transformer, 1 treino) ou `comparar` (avalia numa janela held-out e grava em `COMPARACAO_MODELOS`, lado a lado com os 7).
+11. `transformer_ft.yml`: 8o modelo, **BERTimbau com fine-tuning** (contextual, self-attention). PESADO (torch + transformers, fine-tuning em CPU). **Noturno condicionado** (cron `17 5 * * *` ≈ 02:17 BRT) + manual; ver secao "BERTimbau" abaixo. Acoes: `reclassificar_validados` (refaz a coluna `O`) ou `comparar` (janela held-out -> `COMPARACAO_MODELOS`).
 12. `iniciar_pipeline.yml`: orquestrador manual que dispara Etapa 1 + reclassificar_validados + dashboard de uma vez.
 13. `relevancia_termos.yml`: termos caracteristicos por categoria + mapa de correlacao, manual, dry-run por padrao; commita os JSON agregados.
 
@@ -242,6 +242,48 @@ intacto como publicador (cron 30 min + `workflow_run`) e republica o painel apos
 fluxos. As escritas continuam serializadas por `concurrency: escrita-planilha`, sem loop
 de publicacao. Fluxos destrutivos ou que gravam a coluna `O`
 (`reclassificar_validados`, `classificacao_ia_2_aplicar`, `resetar`) seguem **manuais**.
+
+### BERTimbau (fine-tuning) — limite do runner e modos
+
+O fine-tuning do BERTimbau (`transformer_ft.yml`) treina sobre a base historica
+(`reclassificar_validados.py` usa "base menos o lote", ~13,8 mil chamados) em **CPU**.
+Runners **GitHub-hosted tem teto rigido de 6 h por job** — `timeout-minutes` acima de
+360 nao tem efeito. O treino de base inteira em CPU NAO cabe em 6 h; por isso o job
+ficava ~6 h e era morto antes de gerar a coluna `O`, deixando a aba Reclassificacao/
+Decisao sem dados.
+
+Correcoes:
+- **`timeout-minutes: 330`** (abaixo do teto) + **orcamento de tempo interno**
+  (`TRANSFORMER_TIME_BUDGET_S=18000`): o treino para sozinho, **salva o melhor modelo**
+  e encerra com sucesso antes de ser morto — nunca mais fica indefinidamente preso.
+- **`concurrency: bertimbau-finetune`** (grupo proprio): um treino de horas **nao
+  bloqueia** `etapa1_turnos`/`dashboard` (que usam `escrita-planilha`).
+- **Guarda** (`src/guard_automacao.py`, `chave=transformer_ft`): no modo `auto` so
+  treina com **+100 conferencias humanas** novas; senao encerra com sucesso e registra
+  o motivo. Estado em `docs/dados/bertimbau_training_state.json` (mostrado na aba
+  **Fluxo de atualizacao**).
+- **Otimizacoes** (em `src/modelos_zoo.py`, todas opt-in por env; default preserva o
+  comportamento atual): **padding dinamico** (por lote), **early stopping** por
+  macro-F1 de validacao com `load_best_model_at_end`, **subamostragem estratificada**
+  (`TRANSFORMER_MAX_TRAIN`), `fp16` quando ha GPU, e logs de tempo por epoca.
+
+Modos (input `modo` do `workflow_dispatch`; cron usa `auto`):
+- **`smoke`**: teste rapido com dados sinteticos, **sem secrets** e sem planilha
+  (`src/smoke_transformer.py`) — valida o pipeline barato.
+- **`auto`**: noturno condicionado. Subamostra estratificada (`TRANSFORMER_MAX_TRAIN=4000`)
+  + early stopping para **caber no runner**.
+- **`manual`**: treino completo (base inteira, metodologia original).
+- **`force`**: manual ignorando a regra das 100 conferencias (mantem as validacoes de
+  secret/dados).
+
+> **Qualidade vs. custo:** o modo `auto` usa subamostra para caber em CPU/6 h — e uma
+> variante operacional para manter a coluna `O` fresca, **nao** substitui a avaliacao
+> rigorosa. As metricas autoritativas por categoria (acuracia, precision, recall, F1
+> macro, matriz de confusao) vem da acao `comparar` -> `COMPARACAO_MODELOS` ->
+> `estatistica.json`, com a **base inteira**. Para fine-tuning de fidelidade total
+> (base inteira, varias epocas) sem o teto de 6 h, use **self-hosted runner** ou divida
+> o treino; os hiperparametros nao foram alterados no default justamente para nao
+> degradar qualidade sem comparacao medida.
 
 Todos os workflows que escrevem dados compartilham `concurrency: group: escrita-planilha`
 com `cancel-in-progress: false`, ou seja, sao **serializados** — nao ha escrita
