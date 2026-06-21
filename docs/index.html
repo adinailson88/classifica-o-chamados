@@ -82,6 +82,10 @@
   .workflow-link{font-weight:700;text-decoration:none}
   .workflow-link code{color:var(--blue)}
   .workflow-link:hover{text-decoration:underline}
+  .auto-badge{display:inline-block;padding:2px 7px;border-radius:10px;font-size:11px;font-weight:700;white-space:nowrap;border:1px solid transparent}
+  .auto-badge.auto-cond{background:#fdf4e7;color:#7a4d12;border-color:#e7c9a3}
+  .auto-badge.auto-on{background:#e7f3ec;color:#1d6b3f;border-color:#b7dcc4}
+  .auto-badge.auto-man{background:#eef1f4;color:#445; border-color:#cdd5dd}
   .modelos-doc{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:12px;margin-top:6px}
   .mod{border:1px solid var(--bd);border-radius:8px;padding:12px 13px;background:var(--panel-soft)}
   .mod h3{margin:0 0 6px;font-size:14px;color:var(--ink)}
@@ -525,9 +529,10 @@
     </div>
     <div class="card full">
       <h2>Workflows do experimento</h2>
-      <input type="text" id="filtroFluxo" placeholder="Filtrar por workflow, aba, gatilho ou arquivo">
+      <p class="muted">Tipo separa quem <strong>gera dados</strong> de quem apenas <strong>publica</strong> o painel. Automacao distingue <strong>manual</strong>, <strong>automatico</strong> e <strong>automatico condicionado</strong> (so roda quando ha avanco suficiente — ver coluna Condicao). A guarda e <code>src/guard_automacao.py</code>: compara <code>resumo.json</code> com <code>dados/estado_automacao.json</code> e, sem avanco, encerra com sucesso e log claro.</p>
+      <input type="text" id="filtroFluxo" placeholder="Filtrar por workflow, aba, tipo, automacao, gatilho ou arquivo">
       <div class="tablebox"><table id="tabFluxo" class="compacta"><thead><tr>
-        <th style="width:14%">Workflow</th><th style="width:12%">Arquivo</th><th style="width:11%">Gatilho</th><th style="width:17%">O que faz</th><th style="width:13%">Entrada</th><th style="width:13%">Saida</th><th style="width:9%">Aba(s)</th><th style="width:11%">Quando executar</th><th>Observacoes</th>
+        <th style="width:12%">Workflow</th><th style="width:11%">Arquivo</th><th style="width:8%">Tipo</th><th style="width:9%">Automacao</th><th style="width:13%">Condicao</th><th style="width:14%">O que faz</th><th style="width:12%">Saida</th><th style="width:8%">Aba(s)</th><th>Observacoes</th>
       </tr></thead><tbody></tbody></table></div>
       <p class="muted" id="fluxoVazio"></p>
     </div>
@@ -1993,23 +1998,30 @@ function renderFluxo(filtro=""){
     return;
   }
   const f=String(filtro||"").toLowerCase();
-  const rows=FLUXO_WF.filter(w=>!f || [w.workflow,w.arquivo,w.gatilho,w.quando,(w.abas||[]).join(" ")].join(" ").toLowerCase().includes(f));
+  const rows=FLUXO_WF.filter(w=>!f || [w.workflow,w.arquivo,w.tipo,w.automacao,w.gatilho,w.condicao,w.quando,(w.abas||[]).join(" ")].join(" ").toLowerCase().includes(f));
+  const isAuto=a=>/^automatico$/i.test(a||"");
+  const isCond=a=>/condicionado/i.test(a||"");
   if(kb){
-    const auto=FLUXO_WF.filter(w=>/cron|workflow_run/i.test(w.gatilho)).length;
+    const cond=FLUXO_WF.filter(w=>isCond(w.automacao)).length;
+    const auto=FLUXO_WF.filter(w=>isAuto(w.automacao)).length;
     kb.innerHTML=kpi(fmt(FLUXO_WF.length),"Workflows mapeados")
-      +kpi(fmt(auto),"Com gatilho automatico")
-      +kpi(fmt(FLUXO_WF.length-auto),"Apenas manuais")
-      +kpi("dashboard.yml","Republicador central");
+      +kpi(fmt(auto),"Automaticos")
+      +kpi(fmt(cond),"Automaticos condicionados")
+      +kpi(fmt(FLUXO_WF.length-auto-cond),"Manuais");
   }
+  const badge=a=>{
+    const cls=isCond(a)?"auto-cond":isAuto(a)?"auto-on":"auto-man";
+    return `<span class="auto-badge ${cls}">${esc(a||"-")}</span>`;
+  };
   tb.innerHTML = rows.length ? rows.map(w=>`<tr>
     <td>${esc(w.workflow)}</td>
     <td>${fluxoLink(w.arquivo)}</td>
-    <td>${esc(w.gatilho)}</td>
+    <td>${esc(w.tipo||"-")}</td>
+    <td>${badge(w.automacao)}</td>
+    <td class="muted">${esc(w.condicao||"-")}</td>
     <td>${esc(w.faz)}</td>
-    <td>${esc(w.entrada)}</td>
     <td>${esc(w.saida)}</td>
     <td>${(w.abas&&w.abas.length)?esc(w.abas.join(", ")):'<span class="muted">-</span>'}</td>
-    <td>${esc(w.quando)}</td>
     <td class="muted">${esc(w.obs)}</td></tr>`).join("")
     : `<tr><td colspan="9" class="muted">Nenhum workflow corresponde ao filtro.</td></tr>`;
   if(vazio) vazio.textContent = `Fonte: docs/dados/workflows_index.json (gerado em ${esc(FLUXO_WF._gerado_em||"sem data")}). ${FLUXO_WF.length} workflows mapeados.`;

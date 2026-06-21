@@ -216,6 +216,33 @@ painel que cada um alimenta) esta versionado em `docs/dados/workflows_index.json
 exibido na aba **Fluxo de atualizacao** do dashboard. Mantenha esse JSON atualizado ao
 criar ou alterar um workflow.
 
+### Automacao condicionada (geracao de dados sem depender de disparo manual)
+
+Os fluxos que geram dados deixaram de depender so de disparo manual. Cada um tem
+`workflow_dispatch` (manual, que **ignora a guarda** e sempre roda) **e** um gatilho
+automatico:
+
+- **Automatico** (leves, so leitura): `auditar_conferencias.yml` (a cada 6 h),
+  `relevancia_termos.yml` (diario, `aplicar=false`), alem dos ja existentes
+  `etapa1_turnos`, `estatistica`, `multimodelo_reclassificacao`, `transformer_ft`,
+  `lote_noturno_cache`.
+- **Automatico condicionado** (pesados, com guarda de avanco):
+  - `avaliacao_final.yml` — a cada 6 h, mas a parte pesada (bootstrap/ensembles) so
+    roda com **+100 conferencias humanas** novas (`validados`).
+  - `comparar_modelos.yml` — diario, so roda com **base +1000 chamados** ou comparacao
+    ainda vazia.
+  - `multimodelo_classificacao.yml` — semanal, so materializa (modelos **leves**) com
+    **base +1000 chamados** ou multimodelo ainda vazio.
+
+A guarda e `src/guard_automacao.py`: compara uma metrica de `docs/dados/resumo.json`
+(`registros` ou `calibracao.validados`) com o marcador em `dados/estado_automacao.json`.
+Sem avanco suficiente, encerra **com sucesso** e log claro (nao falha o workflow); com
+avanco, gera os JSON reais e so entao avanca o marcador. O `dashboard.yml` permanece
+intacto como publicador (cron 30 min + `workflow_run`) e republica o painel apos esses
+fluxos. As escritas continuam serializadas por `concurrency: escrita-planilha`, sem loop
+de publicacao. Fluxos destrutivos ou que gravam a coluna `O`
+(`reclassificar_validados`, `classificacao_ia_2_aplicar`, `resetar`) seguem **manuais**.
+
 Todos os workflows que escrevem dados compartilham `concurrency: group: escrita-planilha`
 com `cancel-in-progress: false`, ou seja, sao **serializados** — nao ha escrita
 simultanea nos mesmos arquivos. O `dashboard.yml` republica o painel automaticamente

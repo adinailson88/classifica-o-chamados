@@ -13,6 +13,9 @@ classificacao-chamados-*.json
 # Dados reais do experimento (repo publico — nao versionar conteudo de chamados)
 dados/*.json
 dados/*.jsonl
+# Excecao: marcador da automacao condicionada (apenas contadores inteiros, sem
+# nenhum conteudo de chamado) — precisa ser versionado para a guarda comparar runs.
+!dados/estado_automacao.json
 
 # ID da planilha (uso local; nunca versionar)
 spreadsheet_id.local

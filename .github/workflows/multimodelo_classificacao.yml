@@ -1,9 +1,16 @@
 name: Multimodelo - classificacao completa
 
 # Materializa CLASSIF__<modelo> para cada IA selecionada, com predicao
-# out-of-fold e lote dinamico. Disparo manual para evitar escrita acidental.
+# out-of-fold e lote dinamico.
+#
+# AUTOMATICO CONDICIONADO: 1x/semana, mas a materializacao (pesada) so roda quando
+# a base cresceu >= 1000 chamados desde a ultima vez OU quando ainda nao ha
+# multimodelo publicado. No cron materializa APENAS os modelos leves; perfis
+# robustos/LSTM/pesados continuam manuais. Disparo manual ignora a guarda.
 
 on:
+  schedule:
+    - cron: "20 4 * * 1"
   workflow_dispatch:
     inputs:
       modelos:
@@ -29,10 +36,26 @@ concurrency:
   cancel-in-progress: false
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
+  guard:
+    runs-on: ubuntu-latest
+    outputs:
+      executar: ${{ steps.g.outputs.executar }}
+      valor_atual: ${{ steps.g.outputs.valor_atual }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Avaliar avanco da base (>=1000 chamados ou multimodelo vazio)
+        id: g
+        run: python src/guard_automacao.py --chave multimodelo_classificacao --metrica registros --limiar 1000 --forcar-se-aba-zero multimodelo_metricas
+
   multimodelo:
+    needs: guard
+    if: ${{ github.event_name == 'workflow_dispatch' || needs.guard.outputs.executar == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 90
     env:
@@ -59,12 +82,30 @@ jobs:
           if [ -z "$GCP_SA_KEY" ]; then echo "Secret GCP_SA_KEY ausente." >&2; exit 1; fi
           printf '%s' "$GCP_SA_KEY" > credenciais_sa.json
       - name: Classificar por modelo
+        env:
+          MODELOS: ${{ github.event.inputs.modelos || 'leves' }}
+          MAX_TURNOS: ${{ github.event.inputs.max_turnos || '0' }}
         run: |
-          if [ "${{ github.event.inputs.aplicar }}" = "true" ]; then
-            python src/classificacao_multimodelo.py --modelos "${{ github.event.inputs.modelos }}" --max-turnos "${{ github.event.inputs.max_turnos }}" --aplicar
-          else
-            python src/classificacao_multimodelo.py --modelos "${{ github.event.inputs.modelos }}" --max-turnos "${{ github.event.inputs.max_turnos }}"
+          # No cron (schedule) materializa os leves; manual respeita o input 'aplicar'.
+          APLICAR=""
+          if [ "${{ github.event.inputs.aplicar }}" = "true" ] || [ "${{ github.event_name }}" = "schedule" ]; then
+            APLICAR="--aplicar"
           fi
+          python src/classificacao_multimodelo.py --modelos "$MODELOS" --max-turnos "$MAX_TURNOS" $APLICAR
       - name: Remover credenciais
         if: always()
         run: rm -f credenciais_sa.json
+      - name: Registrar marcador e commit do estado
+        run: |
+          python src/guard_automacao.py --registrar --chave multimodelo_classificacao --valor '${{ needs.guard.outputs.valor_atual || '0' }}'
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add dados/estado_automacao.json
+          git diff --cached --quiet && { echo "sem mudanca no estado"; exit 0; }
+          git commit -m "estado automacao: multimodelo_classificacao [skip ci]"
+          for i in 1 2 3 4 5; do
+            git pull --rebase --autostash -X theirs origin main && git push && exit 0
+            git rebase --abort 2>/dev/null || true
+            echo "push rejeitado (tentativa $i/5); novo rebase em 5s"; sleep 5
+          done
+          echo "push falhou apos 5 tentativas" >&2; exit 1
