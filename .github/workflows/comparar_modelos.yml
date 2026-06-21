@@ -2,9 +2,16 @@ name: Comparar modelos (lote)
 
 # Roda 1 modelo (ou 'todos' os leves) sobre o MESMO lote [inicio, inicio+limite),
 # na mesma ordem, e grava metricas comparaveis (COMPARACAO_MODELOS / _CATEGORIA /
-# _PREVISOES). Nao altera o fluxo de classificacao (etapa1/etapa2). Disparo manual.
+# _PREVISOES). Nao altera o fluxo de classificacao (etapa1/etapa2).
+#
+# AUTOMATICO CONDICIONADO: 1x/dia, mas a comparacao so roda quando a base cresceu
+# >= 1000 chamados desde a ultima vez OU quando ainda nao ha comparacao publicada.
+# No cron usa o lote padrao (leves, 200) para custo baixo; varreduras completas
+# (passo>0, lstm) continuam manuais. Disparo manual ignora a guarda e sempre roda.
 
 on:
+  schedule:
+    - cron: "40 4 * * *"
   workflow_dispatch:
     inputs:
       modelo:
@@ -35,10 +42,26 @@ concurrency:
   cancel-in-progress: false
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
+  guard:
+    runs-on: ubuntu-latest
+    outputs:
+      executar: ${{ steps.g.outputs.executar }}
+      valor_atual: ${{ steps.g.outputs.valor_atual }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Avaliar avanco da base (>=1000 chamados ou comparacao vazia)
+        id: g
+        run: python src/guard_automacao.py --chave comparar_modelos --metrica registros --limiar 1000 --forcar-se-aba-zero comparacao_modelos
+
   comparar:
+    needs: guard
+    if: ${{ github.event_name == 'workflow_dispatch' || needs.guard.outputs.executar == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 60
     env:
@@ -74,3 +97,17 @@ jobs:
       - name: Remover credenciais
         if: always()
         run: rm -f credenciais_sa.json
+      - name: Registrar marcador e commit do estado
+        run: |
+          python src/guard_automacao.py --registrar --chave comparar_modelos --valor '${{ needs.guard.outputs.valor_atual || '0' }}'
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add dados/estado_automacao.json
+          git diff --cached --quiet && { echo "sem mudanca no estado"; exit 0; }
+          git commit -m "estado automacao: comparar_modelos [skip ci]"
+          for i in 1 2 3 4 5; do
+            git pull --rebase --autostash -X theirs origin main && git push && exit 0
+            git rebase --abort 2>/dev/null || true
+            echo "push rejeitado (tentativa $i/5); novo rebase em 5s"; sleep 5
+          done
+          echo "push falhou apos 5 tentativas" >&2; exit 1
