@@ -132,6 +132,10 @@ class _ModeloTransformerFT:
         # Otimizacoes opcionais (default = comportamento original preservado):
         # subamostragem do treino, orcamento de tempo de parede e early stopping.
         self.max_train = int(os.environ.get("TRANSFORMER_MAX_TRAIN", "0"))      # 0 = base inteira
+        # Estrategia de selecao do treino: "" / "estratificada" (subamostra aleatoria
+        # estratificada) ou "cluster_coreset" (selecao representativa por clustering,
+        # mesmo criterio de src/bertimbau_coreset.py). EXPERIMENTAL; default preserva.
+        self.select = os.environ.get("TRANSFORMER_SELECT", "").lower()
         self.time_budget = float(os.environ.get("TRANSFORMER_TIME_BUDGET_S", "0"))  # 0 = sem limite
         self.early_stop = os.environ.get("TRANSFORMER_EARLY_STOP", "0").lower() in ("1", "true", "sim")
         self.patience = int(os.environ.get("TRANSFORMER_PATIENCE", "1"))
@@ -189,10 +193,28 @@ class _ModeloTransformerFT:
         y = [lab2id[c] for c in cats]
 
         n_total = len(y)
-        textos, y = self._subamostra_estratificada(textos, y, self.max_train)
-        if len(y) < n_total:
-            print(f"[transformer_ft] subamostragem estratificada: {len(y)}/{n_total} "
-                  f"(TRANSFORMER_MAX_TRAIN={self.max_train}).", file=sys.stderr)
+        metodo_selecao = "completo"
+        if self.select == "cluster_coreset":
+            try:
+                import bertimbau_coreset as bc
+                alvo = self.max_train if self.max_train > 0 else 4000
+                idx_sel = bc.selecionar_indices(textos, [self._id2lab[i] for i in y],
+                                                seed=self.seed, max_total=alvo)
+                if idx_sel and len(idx_sel) < n_total:
+                    textos = [textos[i] for i in idx_sel]
+                    y = [y[i] for i in idx_sel]
+                    metodo_selecao = "cluster_coreset"
+                    print(f"[transformer_ft] selecao cluster_coreset: {len(y)}/{n_total} "
+                          f"(alvo={alvo}).", file=sys.stderr)
+            except Exception as e:  # noqa: BLE001
+                print(f"[transformer_ft] cluster_coreset indisponivel ({type(e).__name__}: {e}); "
+                      "caindo para subamostra estratificada.", file=sys.stderr)
+        if metodo_selecao == "completo":
+            textos, y = self._subamostra_estratificada(textos, y, self.max_train)
+            if len(y) < n_total:
+                metodo_selecao = "estratificada"
+                print(f"[transformer_ft] subamostragem estratificada: {len(y)}/{n_total} "
+                      f"(TRANSFORMER_MAX_TRAIN={self.max_train}).", file=sys.stderr)
 
         # Holdout estratificado para early stopping (so quando viavel).
         idx_tr, idx_ev = list(range(len(y))), []
@@ -317,6 +339,7 @@ class _ModeloTransformerFT:
             "batch": self.batch,
             "fp16": usar_fp16,
             "subamostrado": len(y) < n_total,
+            "metodo_selecao": metodo_selecao,
             "segundos": round(time.time() - t0, 1),
         }
         return self
