@@ -275,6 +275,12 @@ Modos (input `modo` do `workflow_dispatch`; cron usa `auto`):
 - **`manual`**: treino completo (base inteira, metodologia original).
 - **`force`**: manual ignorando a regra das 100 conferencias (mantem as validacoes de
   secret/dados).
+- **`full`**: alias explicito para base completa; mantem o caminho de validacao futura
+  sem subamostra.
+- **`cluster_coreset`**: diagnostico e selecao representativa experimental, sem
+  fine-tuning. Gera TF-IDF + KMeans por categoria, preserva categorias raras,
+  baixa confianca, divergencias IA/historico, divergencias humanas e alta
+  divergencia entre modelos quando publicada em `shannon_votos.json`.
 
 > **Qualidade vs. custo:** o modo `auto` usa subamostra para caber em CPU/6 h — e uma
 > variante operacional para manter a coluna `O` fresca, **nao** substitui a avaliacao
@@ -284,6 +290,71 @@ Modos (input `modo` do `workflow_dispatch`; cron usa `auto`):
 > (base inteira, varias epocas) sem o teto de 6 h, use **self-hosted runner** ou divida
 > o treino; os hiperparametros nao foram alterados no default justamente para nao
 > degradar qualidade sem comparacao medida.
+
+#### `cluster_coreset` experimental
+
+O modo `cluster_coreset` prepara uma alternativa de reducao de custo antes de qualquer
+novo treino caro. Ele **nao treina** o BERTimbau e **nao vira padrao**. A selecao e
+por categoria: categorias com ate `categoria_rara_max` exemplos ficam integrais; nas
+categorias volumosas, o script agrupa os textos por TF-IDF + KMeans, preserva exemplos
+proximos ao centroide, outliers, possiveis fronteiras, baixa confianca, divergencias
+IA x historico, divergencias humanas e linhas com alta entropia de votos entre modelos.
+
+Artefatos:
+
+- `dados/bertimbau_coreset_ids.json`: lista auditavel de linhas selecionadas, com
+  `id_hash` e sem texto do chamado.
+- `docs/dados/bertimbau_coreset_resumo.json`: resumo agregado publicado no dashboard.
+- `docs/dados/bertimbau_token_stats.json`: estimativa de tokens antes/depois.
+- `docs/dados/bertimbau_cluster_report.json`: parametros, clusters e duplicatas.
+- `docs/dados/bertimbau_review_queue.json`: fila sugestiva de conferencia humana.
+
+Comando local sem planilha, apenas para validar o codigo:
+
+```bash
+python src/bertimbau_coreset.py --fixture 120 --max-total 60
+```
+
+Comando real via Actions, sem treino:
+
+```bash
+gh workflow run transformer_ft.yml -f modo=cluster_coreset -f coreset_max_total=4000
+```
+
+O criterio de seguranca permanece: nao tornar `cluster_coreset` padrao se houver queda
+maior que `0,02` no F1 macro, piora em categoria rara ou instabilidade. A comparacao
+futura deve confrontar `full`, `auto_subamostra` e `cluster_coreset` em acuracia,
+precisao/recall/F1 por categoria, F1 macro, matriz de confusao, tempo, total de
+exemplos e tokens estimados.
+
+#### Treinar sobre o coreset e decidir (porta de aprovacao)
+
+O coreset deixa de ser so diagnostico quando voce TREINA sobre ele e compara com o
+treino completo:
+
+1. **Treino full** (referencia): `modo=full` (ou `manual`), `acao=comparar` — avalia
+   held-out e grava metricas em `COMPARACAO_MODELOS` -> `estatistica.json`.
+2. **Treino coreset**: `modo=full`, `acao=comparar`, `selecao_treino=cluster_coreset`
+   — o fine-tuning usa a MESMA selecao por clustering (`TRANSFORMER_SELECT=cluster_coreset`
+   em `src/modelos_zoo.py`, reutilizando `src/bertimbau_coreset.py`), sobre a mesma
+   janela held-out.
+3. **Decisao**: com as duas metricas (JSON `{f1_macro, acuracia, por_categoria:{cat:{f1,
+   suporte}}}`), rode:
+   ```bash
+   python src/comparar_coreset.py --full metr_full.json --coreset metr_coreset.json \
+       --tempo-full-s <s> --tempo-coreset-s <s>
+   ```
+   Ele grava `decisao` em `docs/dados/bertimbau_coreset_resumo.json`:
+   - **`rejeitado`**: queda de F1 macro > `0,02` **ou** piora numa categoria rara
+     (suporte <= 30) maior que `0,05`.
+   - **`aprovado`**: F1 macro equivalente ou melhor (queda <= `0,005`) e sem piora em
+     raras/criticas.
+   - **`experimental`**: intermediario — precisa de mais evidencia.
+
+So apos `decisao = aprovado` faz sentido considerar `cluster_coreset` no automatico
+noturno; ate la, o automatico segue na subamostra estratificada (`auto`) e o treino
+**`full` permanece sempre disponivel**. A decisao e mostrada no card do BERTimbau no
+dashboard (aba **Fluxo de atualizacao**) e e reversivel: basta nao promover o modo.
 
 Todos os workflows que escrevem dados compartilham `concurrency: group: escrita-planilha`
 com `cancel-in-progress: false`, ou seja, sao **serializados** — nao ha escrita

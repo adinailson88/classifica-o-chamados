@@ -16,6 +16,9 @@ dados/*.jsonl
 # Excecao: marcador da automacao condicionada (apenas contadores inteiros, sem
 # nenhum conteudo de chamado) — precisa ser versionado para a guarda comparar runs.
 !dados/estado_automacao.json
+# Excecao: lista auditavel de IDs do coreset (linha_planilha, id_hash, categoria,
+# motivos — SEM texto de chamado nem ID real) — versionada para rastreabilidade.
+!dados/bertimbau_coreset_ids.json
 
 # ID da planilha (uso local; nunca versionar)
 spreadsheet_id.local
