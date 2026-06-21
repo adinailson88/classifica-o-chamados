@@ -123,8 +123,8 @@
       "quando": "Manual, depois que houver validacao humana M/N suficiente.",
       "obs": "MANUAL: a coluna O e atualizada no automatico pelo transformer_ft (noturno). Cron de 15 min pausado p/ nao disputar a coluna O.",
       "tipo": "Gera dados (coluna O)",
-      "automacao": "Manual",
-      "condicao": "Disparo manual; grava coluna O (cron pausado de proposito)"
+      "automacao": "Manual (isolado/desativado)",
+      "condicao": "DESATIVADO: movido para .github/manual_workflows/ (nao roda; mover de volta p/ .github/workflows para reativar)."
     },
     {
       "workflow": "Etapa 2 - reclassificacao",
@@ -139,8 +139,8 @@
       "quando": "Manual; aplicar=true so com confirmacao explicita.",
       "obs": "MANUAL: a reclassificacao automatica (que atualiza a aba Reclassificacao) e coberta por multimodelo_reclassificacao (cron diario).",
       "tipo": "Gera dados",
-      "automacao": "Manual",
-      "condicao": "Disparo manual; dry-run por padrao"
+      "automacao": "Manual (isolado/desativado)",
+      "condicao": "DESATIVADO: movido para .github/manual_workflows/ (nao roda; mover de volta p/ .github/workflows para reativar)."
     },
     {
       "workflow": "Reclassificacao dry-run",
@@ -155,8 +155,8 @@
       "quando": "Manual, para estimar ganho antes de aplicar.",
       "obs": "MANUAL: simulacao (nunca grava) — nao atualiza graficos/tabelas, entao nao faz sentido em cron.",
       "tipo": "Simulacao",
-      "automacao": "Manual",
-      "condicao": "Disparo manual; nunca grava"
+      "automacao": "Manual (isolado/desativado)",
+      "condicao": "DESATIVADO: movido para .github/manual_workflows/ (nao roda; mover de volta p/ .github/workflows para reativar)."
     },
     {
       "workflow": "Reclassificacao robusta (modelo pesado)",
@@ -172,8 +172,8 @@
       "quando": "Manual, quando o modelo leve nao resolve casos dificeis.",
       "obs": "MANUAL: a reclassificacao automatica e coberta por multimodelo_reclassificacao (cron). Este e o LSTM robusto sob demanda.",
       "tipo": "Gera dados",
-      "automacao": "Manual",
-      "condicao": "Disparo manual; modelo pesado"
+      "automacao": "Manual (isolado/desativado)",
+      "condicao": "DESATIVADO: movido para .github/manual_workflows/ (nao roda; mover de volta p/ .github/workflows para reativar)."
     },
     {
       "workflow": "Classificacao IA 2 - dry-run",
@@ -188,8 +188,8 @@
       "quando": "Manual, antes de aplicar a IA-2.",
       "obs": "MANUAL: simulacao (nunca grava) — nao atualiza dados.",
       "tipo": "Simulacao",
-      "automacao": "Manual",
-      "condicao": "Disparo manual; nunca grava"
+      "automacao": "Manual (isolado/desativado)",
+      "condicao": "DESATIVADO: movido para .github/manual_workflows/ (nao roda; mover de volta p/ .github/workflows para reativar)."
     },
     {
       "workflow": "Classificacao IA 2 - aplicar coluna O",
@@ -204,8 +204,8 @@
       "quando": "Manual, apos revisar o dry-run.",
       "obs": "MANUAL: grava coluna O com confirmacao APLICAR_O. A coluna O ja e atualizada no automatico pelo transformer_ft (noturno).",
       "tipo": "Gera dados (coluna O)",
-      "automacao": "Manual",
-      "condicao": "Disparo manual com confirmacao APLICAR_O"
+      "automacao": "Manual (isolado/desativado)",
+      "condicao": "DESATIVADO: movido para .github/manual_workflows/ (nao roda; mover de volta p/ .github/workflows para reativar)."
     },
     {
       "workflow": "Consolidar validacao da Classificacao IA 2",
@@ -269,8 +269,8 @@
       "quando": "Manual, antes de fechar a avaliacao final.",
       "obs": "MANUAL: porta/gate de verificacao; nao publica dados do painel.",
       "tipo": "Operacional (gate)",
-      "automacao": "Manual",
-      "condicao": "Disparo manual; nao publica dados"
+      "automacao": "Manual (isolado/desativado)",
+      "condicao": "DESATIVADO: movido para .github/manual_workflows/ (nao roda; mover de volta p/ .github/workflows para reativar)."
     },
     {
       "workflow": "Preparar validacao humana",
@@ -286,8 +286,8 @@
       "quando": "Manual, para iniciar a validacao humana.",
       "obs": "MANUAL DE PROPOSITO: re-amostra a aba VALIDACAO_HUMANA; automatizar poderia trocar a amostra que o humano esta conferindo.",
       "tipo": "Operacional",
-      "automacao": "Manual",
-      "condicao": "Disparo manual; escreve abas privadas"
+      "automacao": "Manual (isolado/desativado)",
+      "condicao": "DESATIVADO: movido para .github/manual_workflows/ (nao roda; mover de volta p/ .github/workflows para reativar)."
     },
     {
       "workflow": "Validacao nao supervisionada",
@@ -372,8 +372,8 @@
       "quando": "Manual (operacional/teste). A versao agendada e a etapa1_turnos.",
       "obs": "MANUAL: superseded por etapa1_turnos (cron */15), que e quem atualiza a classificacao automaticamente.",
       "tipo": "Gera dados",
-      "automacao": "Manual",
-      "condicao": "Disparo manual (cron desativado; etapa1_turnos e a versao agendada)"
+      "automacao": "Manual (isolado/desativado)",
+      "condicao": "DESATIVADO: movido para .github/manual_workflows/ (nao roda; mover de volta p/ .github/workflows para reativar)."
     },
     {
       "workflow": "Iniciar pipeline (orquestrador)",
@@ -386,8 +386,8 @@
       "quando": "Manual, para arrancar o ciclo sem entrar em cada workflow.",
       "obs": "MANUAL: orquestrador; os fluxos que ele dispara (Etapa 1, reclassificar, dashboard) ja tem cron proprio.",
       "tipo": "Orquestra",
-      "automacao": "Manual",
-      "condicao": "Disparo manual; so dispara outros workflows"
+      "automacao": "Manual (isolado/desativado)",
+      "condicao": "DESATIVADO: movido para .github/manual_workflows/ (nao roda; mover de volta p/ .github/workflows para reativar)."
     },
     {
       "workflow": "Resetar experimento (zero)",
@@ -406,8 +406,8 @@
       "quando": "Manual, apenas quando for reiniciar todo o experimento.",
       "obs": "MANUAL DE PROPOSITO: destrutivo (zera o experimento). Nunca automatizar.",
       "tipo": "Operacional (destrutivo)",
-      "automacao": "Manual",
-      "condicao": "Disparo manual; confirmar antes"
+      "automacao": "Manual (isolado/desativado)",
+      "condicao": "DESATIVADO: movido para .github/manual_workflows/resetar_destrutivo/ (nao roda; mover de volta p/ .github/workflows para reativar)."
     }
   ],
   "legenda": {
