@@ -234,8 +234,15 @@ def classificar_modelo(sh, config, modelo, elegiveis, cap, base_extra, args) -> 
     pendentes = [e for e in elegiveis if e["linha"] not in feitas]
     classificados = [e for e in elegiveis if e["linha"] in feitas]
     if not pendentes:
-        print(f"[{modelo}] 0 pendentes (ja classificou {len(feitas)}).")
-        return {"modelo": modelo, "processados": 0, "pendentes": 0, "feitos_total": len(feitas)}
+        # Ja classificou tudo: NAO ha novo lote, mas precisamos preservar a
+        # concordancia acumulada (senao a tabela de metricas zera). Recalcula a partir
+        # da aba de turnos (que tem o historico completo por modelo).
+        _t, acum_proc, acum_true = cumulativo_turnos(sh, mm["aba_turnos"], modelo)
+        concord_acum = round(acum_true / acum_proc, 4) if acum_proc else ""
+        print(f"[{modelo}] 0 pendentes (ja classificou {len(feitas)}); "
+              f"concordancia_acumulada={concord_acum} (de {acum_proc} turnos).")
+        return {"modelo": modelo, "processados": 0, "pendentes": 0,
+                "feitos_total": len(feitas), "concordancia_acumulada": concord_acum}
 
     n_lote = len(pendentes) if cap <= 0 else min(len(pendentes), cap)
     lote = pendentes[:n_lote]
@@ -310,10 +317,19 @@ def atualizar_metricas(sh, config, resumos, gerado) -> None:
     except Exception:  # noqa: BLE001
         pass
     for s in resumos:
+        ant = existentes.get(s["modelo"], [])
+        def _ant(i):  # valor anterior da coluna i (preserva quando o run nao traz)
+            return ant[i] if len(ant) > i else ""
+        # Fallback para o valor anterior quando este run nao recalculou o campo
+        # (ex.: 0 pendentes nao tem 'ultimo_lote'/'metodo' novos, mas a tabela
+        # nao deve zerar esses campos).
+        conc_acum = s.get("concordancia_acumulada", "")
+        if conc_acum == "":
+            conc_acum = _ant(3)
         existentes[s["modelo"]] = [
-            s["modelo"], s.get("feitos_total", ""), s.get("pendentes", ""),
-            s.get("concordancia_acumulada", ""), s.get("concordancia_lote", ""),
-            s.get("metodo", ""), s.get("processados", 0), gerado]
+            s["modelo"], s.get("feitos_total", "") or _ant(1), s.get("pendentes", ""),
+            conc_acum, s.get("concordancia_lote", "") or _ant(4),
+            s.get("metodo", "") or _ant(5), s.get("processados", 0), gerado]
     linhas = [existentes[m] for m in sorted(existentes)]
     pl.escrever_aba(sh, mm["aba_metricas"], cab, linhas, colunas_percentuais=[4, 5])
 
