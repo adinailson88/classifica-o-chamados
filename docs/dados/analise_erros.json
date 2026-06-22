@@ -1,7 +1,7 @@
 {
-  "gerado_em": "21/06/2026 17:24",
+  "gerado_em": "22/06/2026 08:14",
   "natureza": "analise exploratoria de erros da IA contra a conferencia humana; orienta a qualidade da ABERTURA do chamado, nao e metrica de producao",
-  "n_conferidos_ia": 345,
+  "n_conferidos_ia": 4698,
   "minimo_recomendado": 30,
   "campos_formulario_sugeridos": [
     {
@@ -22,53 +22,53 @@
     }
   ],
   "status": "ok",
-  "n_erros_ia": 111,
-  "n_acertos_ia": 234,
+  "n_erros_ia": 231,
+  "n_acertos_ia": 4467,
   "comparacao_erros_vs_acertos": [
     {
       "caracteristica": "comprimento_titulo",
-      "n_erros": 111,
-      "n_acertos": 234,
-      "mediana_erros": 66.0,
-      "mediana_acertos": 48.0,
-      "p_mann_whitney": 0.2783195283173723,
-      "delta_cliff": 0.0711
+      "n_erros": 231,
+      "n_acertos": 4467,
+      "mediana_erros": 62.0,
+      "mediana_acertos": 70.0,
+      "p_mann_whitney": 1.0666750122127938e-22,
+      "delta_cliff": -0.3818
     },
     {
       "caracteristica": "comprimento_descricao",
-      "n_erros": 111,
-      "n_acertos": 234,
-      "mediana_erros": 125.0,
-      "mediana_acertos": 122.5,
-      "p_mann_whitney": 0.6850354589406812,
-      "delta_cliff": 0.0271
+      "n_erros": 231,
+      "n_acertos": 4467,
+      "mediana_erros": 130.0,
+      "mediana_acertos": 298.0,
+      "p_mann_whitney": 1.4133056632869837e-33,
+      "delta_cliff": -0.4646
     },
     {
       "caracteristica": "n_tokens",
-      "n_erros": 111,
-      "n_acertos": 234,
+      "n_erros": 231,
+      "n_acertos": 4467,
       "mediana_erros": 31.0,
-      "mediana_acertos": 29.0,
-      "p_mann_whitney": 0.3129349350549463,
-      "delta_cliff": 0.0673
+      "mediana_acertos": 55.0,
+      "p_mann_whitney": 8.803435008873366e-35,
+      "delta_cliff": -0.4782
     },
     {
       "caracteristica": "campos_preenchidos",
-      "n_erros": 111,
-      "n_acertos": 234,
+      "n_erros": 231,
+      "n_acertos": 4467,
       "mediana_erros": 1.0,
       "mediana_acertos": 1.0,
-      "p_mann_whitney": 0.10362327705548238,
-      "delta_cliff": -0.0175
+      "p_mann_whitney": 1.4827983797906832e-06,
+      "delta_cliff": -0.0916
     },
     {
       "caracteristica": "cobertura_termos_categoria",
-      "n_erros": 66,
-      "n_acertos": 234,
-      "mediana_erros": 0.08,
-      "mediana_acertos": 0.08,
-      "p_mann_whitney": 0.03149059319647879,
-      "delta_cliff": -0.1704
+      "n_erros": 186,
+      "n_acertos": 4467,
+      "mediana_erros": 0.12,
+      "mediana_acertos": 0.64,
+      "p_mann_whitney": 3.562936856434101e-97,
+      "delta_cliff": -0.8804
     }
   ],
   "leitura": "Se 'cobertura_termos_categoria' e comprimentos forem significativamente menores nos ERROS (p<0,05 e |delta de Cliff|>=0,147), a hipotese se confirma: texto pobre -> erro de categoria. O checklist por categoria lista os termos discriminativos ausentes nos erros — e a informacao que o formulario deve induzir o solicitante a fornecer, sem nunca pedir a categoria em si.",
@@ -83,6 +83,14 @@
     },
     {
       "categoria": "Suprimentos / Apoio Técnico > Limpeza de equipamentos, ambiente e mobiliário",
+      "n_conferidos": 1,
+      "erros_ia": 1,
+      "taxa_erro_ia": 1.0,
+      "termos_que_faltaram_nos_erros": [],
+      "informacao_a_solicitar": null
+    },
+    {
+      "categoria": "Manutenção Preventiva",
       "n_conferidos": 1,
       "erros_ia": 1,
       "taxa_erro_ia": 1.0,
@@ -303,6 +311,47 @@
       "informacao_a_solicitar": "Pedir que o solicitante descreva o problema citando o objeto e o sintoma (vocabulario tipico desta categoria: pia, bebedouro, torneira, masculino, vaso)."
     },
     {
+      "categoria": "Manutenção Preventiva > Hidráulica",
+      "n_conferidos": 31,
+      "erros_ia": 11,
+      "taxa_erro_ia": 0.3548,
+      "termos_que_faltaram_nos_erros": [
+        {
+          "termo": "localizados reitoria",
+          "ausente_em": 11
+        },
+        {
+          "termo": "reitoria limpeza",
+          "ausente_em": 11
+        },
+        {
+          "termo": "reitoria seguir",
+          "ausente_em": 11
+        },
+        {
+          "termo": "reservatorios reitoria",
+          "ausente_em": 11
+        },
+        {
+          "termo": "agua fria",
+          "ausente_em": 11
+        },
+        {
+          "termo": "fria",
+          "ausente_em": 11
+        },
+        {
+          "termo": "estado reservatorio",
+          "ausente_em": 11
+        },
+        {
+          "termo": "fotografias estado",
+          "ausente_em": 11
+        }
+      ],
+      "informacao_a_solicitar": "Pedir que o solicitante descreva o problema citando o objeto e o sintoma (vocabulario tipico desta categoria: localizados reitoria, reitoria limpeza, reitoria seguir, reservatorios reitoria, agua fria)."
+    },
+    {
       "categoria": "Manutenção Preventiva > Vistoria em Instalações",
       "n_conferidos": 3,
       "erros_ia": 1,
@@ -312,6 +361,14 @@
     },
     {
       "categoria": "Estrutura Predial > Infiltração",
+      "n_conferidos": 3,
+      "erros_ia": 1,
+      "taxa_erro_ia": 0.3333,
+      "termos_que_faltaram_nos_erros": [],
+      "informacao_a_solicitar": null
+    },
+    {
+      "categoria": "Manutenção Preventiva > Aplicação cupinicida",
       "n_conferidos": 3,
       "erros_ia": 1,
       "taxa_erro_ia": 0.3333,
@@ -360,12 +417,61 @@
       "informacao_a_solicitar": "Pedir que o solicitante descreva o problema citando o objeto e o sintoma (vocabulario tipico desta categoria: ponto, pontos, ponto rede, pontos rede, instalacao ponto)."
     },
     {
+      "categoria": "Manutenção Preventiva > Bomba",
+      "n_conferidos": 4,
+      "erros_ia": 1,
+      "taxa_erro_ia": 0.25,
+      "termos_que_faltaram_nos_erros": [],
+      "informacao_a_solicitar": null
+    },
+    {
       "categoria": "Estrutura Predial > Forro",
       "n_conferidos": 7,
       "erros_ia": 1,
       "taxa_erro_ia": 0.1429,
       "termos_que_faltaram_nos_erros": [],
       "informacao_a_solicitar": null
+    },
+    {
+      "categoria": "Manutenção Preventiva > Esgoto",
+      "n_conferidos": 30,
+      "erros_ia": 4,
+      "taxa_erro_ia": 0.1333,
+      "termos_que_faltaram_nos_erros": [
+        {
+          "termo": "bomba poco",
+          "ausente_em": 4
+        },
+        {
+          "termo": "limpeza fossa",
+          "ausente_em": 4
+        },
+        {
+          "termo": "estacao elevatoria",
+          "ausente_em": 4
+        },
+        {
+          "termo": "elevatoria",
+          "ausente_em": 4
+        },
+        {
+          "termo": "manutencao bomba",
+          "ausente_em": 4
+        },
+        {
+          "termo": "elevatoria esgoto",
+          "ausente_em": 4
+        },
+        {
+          "termo": "estacao",
+          "ausente_em": 4
+        },
+        {
+          "termo": "rede esgoto",
+          "ausente_em": 4
+        }
+      ],
+      "informacao_a_solicitar": "Pedir que o solicitante descreva o problema citando o objeto e o sintoma (vocabulario tipico desta categoria: bomba poco, limpeza fossa, estacao elevatoria, elevatoria, manutencao bomba)."
     },
     {
       "categoria": "Elétrica > Iluminação",
@@ -458,6 +564,235 @@
       "informacao_a_solicitar": null
     },
     {
+      "categoria": "Manutenção Preventiva > Iluminação",
+      "n_conferidos": 132,
+      "erros_ia": 5,
+      "taxa_erro_ia": 0.0379,
+      "termos_que_faltaram_nos_erros": [
+        {
+          "termo": "emergencia",
+          "ausente_em": 5
+        },
+        {
+          "termo": "situacao",
+          "ausente_em": 5
+        },
+        {
+          "termo": "informando",
+          "ausente_em": 5
+        },
+        {
+          "termo": "localizacao",
+          "ausente_em": 5
+        },
+        {
+          "termo": "luz",
+          "ausente_em": 5
+        },
+        {
+          "termo": "planilha",
+          "ausente_em": 5
+        },
+        {
+          "termo": "verifique",
+          "ausente_em": 5
+        },
+        {
+          "termo": "tomada",
+          "ausente_em": 5
+        }
+      ],
+      "informacao_a_solicitar": "Pedir que o solicitante descreva o problema citando o objeto e o sintoma (vocabulario tipico desta categoria: emergencia, situacao, informando, localizacao, luz)."
+    },
+    {
+      "categoria": "Manutenção Preventiva > Ar condicionado split",
+      "n_conferidos": 1772,
+      "erros_ia": 54,
+      "taxa_erro_ia": 0.0305,
+      "termos_que_faltaram_nos_erros": [
+        {
+          "termo": "acordo anexo",
+          "ausente_em": 54
+        },
+        {
+          "termo": "equipamentos ar",
+          "ausente_em": 54
+        },
+        {
+          "termo": "mensal ar",
+          "ausente_em": 54
+        },
+        {
+          "termo": "anexo pagina",
+          "ausente_em": 54
+        },
+        {
+          "termo": "servicos devera",
+          "ausente_em": 54
+        },
+        {
+          "termo": "anexo acompanhamento",
+          "ausente_em": 54
+        },
+        {
+          "termo": "acompanhamento servicos",
+          "ausente_em": 54
+        },
+        {
+          "termo": "feito acordo",
+          "ausente_em": 54
+        }
+      ],
+      "informacao_a_solicitar": "Pedir que o solicitante descreva o problema citando o objeto e o sintoma (vocabulario tipico desta categoria: acordo anexo, equipamentos ar, mensal ar, anexo pagina, servicos devera)."
+    },
+    {
+      "categoria": "Manutenção Preventiva > Reservatório",
+      "n_conferidos": 279,
+      "erros_ia": 7,
+      "taxa_erro_ia": 0.0251,
+      "termos_que_faltaram_nos_erros": [
+        {
+          "termo": "estado reservatorio",
+          "ausente_em": 7
+        },
+        {
+          "termo": "fotografias estado",
+          "ausente_em": 7
+        },
+        {
+          "termo": "acordo documento",
+          "ausente_em": 7
+        },
+        {
+          "termo": "seguir seguintes",
+          "ausente_em": 7
+        },
+        {
+          "termo": "seguir",
+          "ausente_em": 4
+        },
+        {
+          "termo": "estado",
+          "ausente_em": 4
+        },
+        {
+          "termo": "fotografias",
+          "ausente_em": 4
+        },
+        {
+          "termo": "instrucoes",
+          "ausente_em": 4
+        }
+      ],
+      "informacao_a_solicitar": "Pedir que o solicitante descreva o problema citando o objeto e o sintoma (vocabulario tipico desta categoria: estado reservatorio, fotografias estado, acordo documento, seguir seguintes, seguir)."
+    },
+    {
+      "categoria": "Manutenção Preventiva > Elevador",
+      "n_conferidos": 83,
+      "erros_ia": 2,
+      "taxa_erro_ia": 0.0241,
+      "termos_que_faltaram_nos_erros": [],
+      "informacao_a_solicitar": null
+    },
+    {
+      "categoria": "Manutenção Preventiva > Quadros Elétricos",
+      "n_conferidos": 576,
+      "erros_ia": 11,
+      "taxa_erro_ia": 0.0191,
+      "termos_que_faltaram_nos_erros": [
+        {
+          "termo": "modo",
+          "ausente_em": 11
+        },
+        {
+          "termo": "retorno",
+          "ausente_em": 11
+        },
+        {
+          "termo": "deste",
+          "ausente_em": 11
+        },
+        {
+          "termo": "entrega",
+          "ausente_em": 11
+        },
+        {
+          "termo": "deste documento",
+          "ausente_em": 11
+        },
+        {
+          "termo": "dar",
+          "ausente_em": 11
+        },
+        {
+          "termo": "tensao",
+          "ausente_em": 11
+        },
+        {
+          "termo": "baixa",
+          "ausente_em": 11
+        }
+      ],
+      "informacao_a_solicitar": "Pedir que o solicitante descreva o problema citando o objeto e o sintoma (vocabulario tipico desta categoria: modo, retorno, deste, entrega, deste documento)."
+    },
+    {
+      "categoria": "Manutenção Preventiva > Gerador",
+      "n_conferidos": 1209,
+      "erros_ia": 21,
+      "taxa_erro_ia": 0.0174,
+      "termos_que_faltaram_nos_erros": [
+        {
+          "termo": "documento",
+          "ausente_em": 21
+        },
+        {
+          "termo": "coordenacao manutencao",
+          "ausente_em": 21
+        },
+        {
+          "termo": "documento anexo",
+          "ausente_em": 21
+        },
+        {
+          "termo": "nesse",
+          "ausente_em": 21
+        },
+        {
+          "termo": "manutencao coordenacao",
+          "ausente_em": 21
+        },
+        {
+          "termo": "detectado",
+          "ausente_em": 21
+        },
+        {
+          "termo": "informar coordenacao",
+          "ausente_em": 21
+        },
+        {
+          "termo": "descrever",
+          "ausente_em": 21
+        }
+      ],
+      "informacao_a_solicitar": "Pedir que o solicitante descreva o problema citando o objeto e o sintoma (vocabulario tipico desta categoria: documento, coordenacao manutencao, documento anexo, nesse, manutencao coordenacao)."
+    },
+    {
+      "categoria": "Manutenção Preventiva > Extintor",
+      "n_conferidos": 59,
+      "erros_ia": 1,
+      "taxa_erro_ia": 0.0169,
+      "termos_que_faltaram_nos_erros": [],
+      "informacao_a_solicitar": null
+    },
+    {
+      "categoria": "Manutenção Preventiva > Ar condicionado central",
+      "n_conferidos": 163,
+      "erros_ia": 1,
+      "taxa_erro_ia": 0.0061,
+      "termos_que_faltaram_nos_erros": [],
+      "informacao_a_solicitar": null
+    },
+    {
       "categoria": "Elétrica > Nobreak",
       "n_conferidos": 3,
       "erros_ia": 0,
@@ -506,14 +841,6 @@
       "informacao_a_solicitar": null
     },
     {
-      "categoria": "Manutenção Preventiva > Esgoto",
-      "n_conferidos": 2,
-      "erros_ia": 0,
-      "taxa_erro_ia": 0.0,
-      "termos_que_faltaram_nos_erros": [],
-      "informacao_a_solicitar": null
-    },
-    {
       "categoria": "Elétrica > Subestação",
       "n_conferidos": 1,
       "erros_ia": 0,
@@ -538,22 +865,6 @@
       "informacao_a_solicitar": null
     },
     {
-      "categoria": "Manutenção Preventiva > Bomba",
-      "n_conferidos": 1,
-      "erros_ia": 0,
-      "taxa_erro_ia": 0.0,
-      "termos_que_faltaram_nos_erros": [],
-      "informacao_a_solicitar": null
-    },
-    {
-      "categoria": "Manutenção Preventiva > Quadros Elétricos",
-      "n_conferidos": 1,
-      "erros_ia": 0,
-      "taxa_erro_ia": 0.0,
-      "termos_que_faltaram_nos_erros": [],
-      "informacao_a_solicitar": null
-    },
-    {
       "categoria": "Manutenção Preventiva > Nobreak",
       "n_conferidos": 1,
       "erros_ia": 0,
@@ -570,16 +881,16 @@
       "informacao_a_solicitar": null
     },
     {
-      "categoria": "Manutenção Preventiva > Hidráulica",
-      "n_conferidos": 1,
+      "categoria": "Manutenção Preventiva > Sistemas de incêndio",
+      "n_conferidos": 4,
       "erros_ia": 0,
       "taxa_erro_ia": 0.0,
       "termos_que_faltaram_nos_erros": [],
       "informacao_a_solicitar": null
     },
     {
-      "categoria": "Manutenção Preventiva > Reservatório",
-      "n_conferidos": 1,
+      "categoria": "Manutenção Preventiva > Poços artesianos",
+      "n_conferidos": 13,
       "erros_ia": 0,
       "taxa_erro_ia": 0.0,
       "termos_que_faltaram_nos_erros": [],
