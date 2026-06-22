@@ -51,8 +51,8 @@
     {
       "categoria_historica": "Manutenção Preventiva > Telhados, calhas, rufos, etc.",
       "modelos": 8,
-      "suporte_max": 43,
-      "entropia_media_normalizada": 0.6482,
+      "suporte_max": 44,
+      "entropia_media_normalizada": 0.6465,
       "maior_risco": "alta_ambiguidade"
     },
     {
@@ -128,8 +128,8 @@
     {
       "categoria_historica": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
       "modelos": 8,
-      "suporte_max": 386,
-      "entropia_media_normalizada": 0.4539,
+      "suporte_max": 387,
+      "entropia_media_normalizada": 0.4534,
       "maior_risco": "alta_ambiguidade"
     },
     {
@@ -653,16 +653,16 @@
     {
       "modelo": "naive_bayes",
       "categoria_historica": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
-      "suporte": 386,
+      "suporte": 387,
       "categorias_previstas": 5,
-      "entropia_previsoes": 1.7239,
-      "entropia_normalizada": 0.7424,
-      "categorias_efetivas": 3.3033,
+      "entropia_previsoes": 1.7227,
+      "entropia_normalizada": 0.7419,
+      "categorias_efetivas": 3.3006,
       "top_1_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-      "top_1_pct": 0.4145,
+      "top_1_pct": 0.416,
       "top_2_previsto": "Elétrica > Instalações elétricas",
-      "top_2_pct": 0.3679,
-      "concordancia_historico": 0.0363,
+      "top_2_pct": 0.3669,
+      "concordancia_historico": 0.0362,
       "risco": "alta_ambiguidade"
     },
     {
@@ -876,21 +876,6 @@
       "risco": "alta_ambiguidade"
     },
     {
-      "modelo": "random_forest",
-      "categoria_historica": "Manutenção Preventiva > Telhados, calhas, rufos, etc.",
-      "suporte": 43,
-      "categorias_previstas": 7,
-      "entropia_previsoes": 1.9808,
-      "entropia_normalizada": 0.7056,
-      "categorias_efetivas": 3.9472,
-      "top_1_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-      "top_1_pct": 0.4651,
-      "top_2_previsto": "Estrutura Predial > Telhados, calhas, rufos, etc.",
-      "top_2_pct": 0.3023,
-      "concordancia_historico": 0.0,
-      "risco": "alta_ambiguidade"
-    },
-    {
       "modelo": "naive_bayes",
       "categoria_historica": "Projetos e Reformas > Reforma",
       "suporte": 83,
@@ -936,19 +921,34 @@
       "risco": "alta_ambiguidade"
     },
     {
-      "modelo": "naive_bayes",
+      "modelo": "random_forest",
       "categoria_historica": "Manutenção Preventiva > Telhados, calhas, rufos, etc.",
-      "suporte": 43,
-      "categorias_previstas": 5,
-      "entropia_previsoes": 1.6239,
-      "entropia_normalizada": 0.6994,
-      "categorias_efetivas": 3.0821,
+      "suporte": 44,
+      "categorias_previstas": 8,
+      "entropia_previsoes": 2.0923,
+      "entropia_normalizada": 0.6974,
+      "categorias_efetivas": 4.2643,
       "top_1_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-      "top_1_pct": 0.6279,
-      "top_2_previsto": "Hidrossanitária > Hidráulica",
-      "top_2_pct": 0.1395,
-      "concordancia_historico": 0.0,
-      "risco": "ambiguidade_moderada"
+      "top_1_pct": 0.4545,
+      "top_2_previsto": "Estrutura Predial > Telhados, calhas, rufos, etc.",
+      "top_2_pct": 0.2955,
+      "concordancia_historico": 0.0227,
+      "risco": "alta_ambiguidade"
+    },
+    {
+      "modelo": "extra_trees",
+      "categoria_historica": "Manutenção Preventiva > Telhados, calhas, rufos, etc.",
+      "suporte": 44,
+      "categorias_previstas": 7,
+      "entropia_previsoes": 1.9527,
+      "entropia_normalizada": 0.6956,
+      "categorias_efetivas": 3.871,
+      "top_1_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
+      "top_1_pct": 0.4773,
+      "top_2_previsto": "Estrutura Predial > Telhados, calhas, rufos, etc.",
+      "top_2_pct": 0.3182,
+      "concordancia_historico": 0.0682,
+      "risco": "alta_ambiguidade"
     },
     {
       "modelo": "sgd",
@@ -979,6 +979,21 @@
       "top_2_pct": 0.1171,
       "concordancia_historico": 0.4146,
       "risco": "alta_ambiguidade"
+    },
+    {
+      "modelo": "naive_bayes",
+      "categoria_historica": "Manutenção Preventiva > Telhados, calhas, rufos, etc.",
+      "suporte": 44,
+      "categorias_previstas": 5,
+      "entropia_previsoes": 1.602,
+      "entropia_normalizada": 0.69,
+      "categorias_efetivas": 3.0357,
+      "top_1_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
+      "top_1_pct": 0.6364,
+      "top_2_previsto": "Hidrossanitária > Hidráulica",
+      "top_2_pct": 0.1364,
+      "concordancia_historico": 0.0,
+      "risco": "ambiguidade_moderada"
     },
     {
       "modelo": "regressao_logistica",
@@ -1024,21 +1039,6 @@
       "top_2_pct": 0.1294,
       "concordancia_historico": 0.0,
       "risco": "ambiguidade_moderada"
-    },
-    {
-      "modelo": "extra_trees",
-      "categoria_historica": "Manutenção Preventiva > Telhados, calhas, rufos, etc.",
-      "suporte": 43,
-      "categorias_previstas": 7,
-      "entropia_previsoes": 1.902,
-      "entropia_normalizada": 0.6775,
-      "categorias_efetivas": 3.7374,
-      "top_1_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-      "top_1_pct": 0.4884,
-      "top_2_previsto": "Estrutura Predial > Telhados, calhas, rufos, etc.",
-      "top_2_pct": 0.3256,
-      "concordancia_historico": 0.0465,
-      "risco": "alta_ambiguidade"
     },
     {
       "modelo": "extra_trees",
@@ -1191,21 +1191,6 @@
       "risco": "ambiguidade_moderada"
     },
     {
-      "modelo": "regressao_logistica",
-      "categoria_historica": "Manutenção Preventiva > Telhados, calhas, rufos, etc.",
-      "suporte": 43,
-      "categorias_previstas": 9,
-      "entropia_previsoes": 2.0934,
-      "entropia_normalizada": 0.6604,
-      "categorias_efetivas": 4.2675,
-      "top_1_previsto": "Manutenção Preventiva > Telhados, calhas, rufos, etc.",
-      "top_1_pct": 0.4419,
-      "top_2_previsto": "Estrutura Predial > Telhados, calhas, rufos, etc.",
-      "top_2_pct": 0.3488,
-      "concordancia_historico": 0.4419,
-      "risco": "alta_ambiguidade"
-    },
-    {
       "modelo": "extra_trees",
       "categoria_historica": "Estrutura Predial > Infiltração",
       "suporte": 213,
@@ -1218,21 +1203,6 @@
       "top_2_previsto": "Hidrossanitária > Hidráulica",
       "top_2_pct": 0.169,
       "concordancia_historico": 0.4977,
-      "risco": "alta_ambiguidade"
-    },
-    {
-      "modelo": "linear_svc",
-      "categoria_historica": "Manutenção Preventiva > Telhados, calhas, rufos, etc.",
-      "suporte": 43,
-      "categorias_previstas": 11,
-      "entropia_previsoes": 2.2791,
-      "entropia_normalizada": 0.6588,
-      "categorias_efetivas": 4.8539,
-      "top_1_previsto": "Estrutura Predial > Telhados, calhas, rufos, etc.",
-      "top_1_pct": 0.5116,
-      "top_2_previsto": "Manutenção Preventiva > Telhados, calhas, rufos, etc.",
-      "top_2_pct": 0.2326,
-      "concordancia_historico": 0.2326,
       "risco": "alta_ambiguidade"
     },
     {
@@ -1251,18 +1221,18 @@
       "risco": "ambiguidade_moderada"
     },
     {
-      "modelo": "sgd",
+      "modelo": "linear_svc",
       "categoria_historica": "Manutenção Preventiva > Telhados, calhas, rufos, etc.",
-      "suporte": 43,
-      "categorias_previstas": 8,
-      "entropia_previsoes": 1.9717,
-      "entropia_normalizada": 0.6572,
-      "categorias_efetivas": 3.9223,
-      "top_1_previsto": "Manutenção Preventiva > Telhados, calhas, rufos, etc.",
-      "top_1_pct": 0.4186,
-      "top_2_previsto": "Estrutura Predial > Telhados, calhas, rufos, etc.",
-      "top_2_pct": 0.3953,
-      "concordancia_historico": 0.4186,
+      "suporte": 44,
+      "categorias_previstas": 11,
+      "entropia_previsoes": 2.2739,
+      "entropia_normalizada": 0.6573,
+      "categorias_efetivas": 4.8365,
+      "top_1_previsto": "Estrutura Predial > Telhados, calhas, rufos, etc.",
+      "top_1_pct": 0.5,
+      "top_2_previsto": "Manutenção Preventiva > Telhados, calhas, rufos, etc.",
+      "top_2_pct": 0.25,
+      "concordancia_historico": 0.25,
       "risco": "alta_ambiguidade"
     },
     {
@@ -1278,6 +1248,36 @@
       "top_2_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
       "top_2_pct": 0.3333,
       "concordancia_historico": 0.0,
+      "risco": "alta_ambiguidade"
+    },
+    {
+      "modelo": "regressao_logistica",
+      "categoria_historica": "Manutenção Preventiva > Telhados, calhas, rufos, etc.",
+      "suporte": 44,
+      "categorias_previstas": 9,
+      "entropia_previsoes": 2.0721,
+      "entropia_normalizada": 0.6537,
+      "categorias_efetivas": 4.205,
+      "top_1_previsto": "Manutenção Preventiva > Telhados, calhas, rufos, etc.",
+      "top_1_pct": 0.4545,
+      "top_2_previsto": "Estrutura Predial > Telhados, calhas, rufos, etc.",
+      "top_2_pct": 0.3409,
+      "concordancia_historico": 0.4545,
+      "risco": "alta_ambiguidade"
+    },
+    {
+      "modelo": "sgd",
+      "categoria_historica": "Manutenção Preventiva > Telhados, calhas, rufos, etc.",
+      "suporte": 44,
+      "categorias_previstas": 8,
+      "entropia_previsoes": 1.9549,
+      "entropia_normalizada": 0.6516,
+      "categorias_efetivas": 3.877,
+      "top_1_previsto": "Manutenção Preventiva > Telhados, calhas, rufos, etc.",
+      "top_1_pct": 0.4318,
+      "top_2_previsto": "Estrutura Predial > Telhados, calhas, rufos, etc.",
+      "top_2_pct": 0.3864,
+      "concordancia_historico": 0.4318,
       "risco": "alta_ambiguidade"
     },
     {
@@ -2033,16 +2033,16 @@
     {
       "modelo": "random_forest",
       "categoria_historica": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
-      "suporte": 386,
+      "suporte": 387,
       "categorias_previstas": 8,
-      "entropia_previsoes": 1.4682,
-      "entropia_normalizada": 0.4894,
-      "categorias_efetivas": 2.7667,
+      "entropia_previsoes": 1.4662,
+      "entropia_normalizada": 0.4887,
+      "categorias_efetivas": 2.7629,
       "top_1_previsto": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
-      "top_1_pct": 0.6114,
+      "top_1_pct": 0.6124,
       "top_2_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-      "top_2_pct": 0.2798,
-      "concordancia_historico": 0.6114,
+      "top_2_pct": 0.2791,
+      "concordancia_historico": 0.6124,
       "risco": "ambiguidade_moderada"
     },
     {
@@ -2138,16 +2138,16 @@
     {
       "modelo": "extra_trees",
       "categoria_historica": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
-      "suporte": 386,
+      "suporte": 387,
       "categorias_previstas": 8,
-      "entropia_previsoes": 1.4045,
-      "entropia_normalizada": 0.4682,
-      "categorias_efetivas": 2.6473,
+      "entropia_previsoes": 1.4024,
+      "entropia_normalizada": 0.4675,
+      "categorias_efetivas": 2.6434,
       "top_1_previsto": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
-      "top_1_pct": 0.6632,
+      "top_1_pct": 0.6641,
       "top_2_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-      "top_2_pct": 0.2306,
-      "concordancia_historico": 0.6632,
+      "top_2_pct": 0.23,
+      "concordancia_historico": 0.6641,
       "risco": "ambiguidade_moderada"
     },
     {
@@ -2258,16 +2258,16 @@
     {
       "modelo": "regressao_logistica",
       "categoria_historica": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
-      "suporte": 386,
+      "suporte": 387,
       "categorias_previstas": 12,
-      "entropia_previsoes": 1.5312,
-      "entropia_normalizada": 0.4271,
-      "categorias_efetivas": 2.8902,
+      "entropia_previsoes": 1.5288,
+      "entropia_normalizada": 0.4264,
+      "categorias_efetivas": 2.8855,
       "top_1_previsto": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
-      "top_1_pct": 0.6554,
+      "top_1_pct": 0.6563,
       "top_2_previsto": "Outros > Erro de chamado",
-      "top_2_pct": 0.2409,
-      "concordancia_historico": 0.6554,
+      "top_2_pct": 0.2403,
+      "concordancia_historico": 0.6563,
       "risco": "ambiguidade_moderada"
     },
     {
@@ -2423,16 +2423,16 @@
     {
       "modelo": "sgd",
       "categoria_historica": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
-      "suporte": 386,
+      "suporte": 387,
       "categorias_previstas": 15,
-      "entropia_previsoes": 1.6057,
-      "entropia_normalizada": 0.411,
-      "categorias_efetivas": 3.0434,
+      "entropia_previsoes": 1.6031,
+      "entropia_normalizada": 0.4103,
+      "categorias_efetivas": 3.038,
       "top_1_previsto": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
-      "top_1_pct": 0.6528,
+      "top_1_pct": 0.6537,
       "top_2_previsto": "Outros > Erro de chamado",
-      "top_2_pct": 0.2306,
-      "concordancia_historico": 0.6528,
+      "top_2_pct": 0.23,
+      "concordancia_historico": 0.6537,
       "risco": "ambiguidade_moderada"
     },
     {
@@ -2691,21 +2691,6 @@
       "risco": "estavel"
     },
     {
-      "modelo": "linear_svc",
-      "categoria_historica": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
-      "suporte": 386,
-      "categorias_previstas": 14,
-      "entropia_previsoes": 1.3681,
-      "entropia_normalizada": 0.3593,
-      "categorias_efetivas": 2.5814,
-      "top_1_previsto": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
-      "top_1_pct": 0.7461,
-      "top_2_previsto": "Outros > Erro de chamado",
-      "top_2_pct": 0.1269,
-      "concordancia_historico": 0.7461,
-      "risco": "estavel"
-    },
-    {
       "modelo": "regressao_logistica",
       "categoria_historica": "Manutenção Preventiva > Iluminação",
       "suporte": 132,
@@ -2733,6 +2718,21 @@
       "top_2_previsto": "Elétrica > Iluminação",
       "top_2_pct": 0.0682,
       "concordancia_historico": 0.9318,
+      "risco": "estavel"
+    },
+    {
+      "modelo": "linear_svc",
+      "categoria_historica": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
+      "suporte": 387,
+      "categorias_previstas": 14,
+      "entropia_previsoes": 1.3657,
+      "entropia_normalizada": 0.3587,
+      "categorias_efetivas": 2.577,
+      "top_1_previsto": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
+      "top_1_pct": 0.7468,
+      "top_2_previsto": "Outros > Erro de chamado",
+      "top_2_pct": 0.1266,
+      "concordancia_historico": 0.7468,
       "risco": "estavel"
     },
     {
