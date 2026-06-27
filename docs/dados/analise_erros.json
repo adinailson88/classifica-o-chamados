@@ -1,5 +1,5 @@
 {
-  "gerado_em": "26/06/2026 05:49",
+  "gerado_em": "27/06/2026 05:19",
   "natureza": "analise exploratoria de erros da IA contra a conferencia humana; orienta a qualidade da ABERTURA do chamado, nao e metrica de producao",
   "n_conferidos_ia": 4698,
   "minimo_recomendado": 30,
@@ -40,8 +40,8 @@
       "n_acertos": 4467,
       "mediana_erros": 130.0,
       "mediana_acertos": 298.0,
-      "p_mann_whitney": 1.4133056632869837e-33,
-      "delta_cliff": -0.4646
+      "p_mann_whitney": 1.0803389051935828e-32,
+      "delta_cliff": -0.4581
     },
     {
       "caracteristica": "n_tokens",
@@ -49,8 +49,8 @@
       "n_acertos": 4467,
       "mediana_erros": 31.0,
       "mediana_acertos": 55.0,
-      "p_mann_whitney": 8.803435008873366e-35,
-      "delta_cliff": -0.4782
+      "p_mann_whitney": 5.389607092165611e-34,
+      "delta_cliff": -0.4725
     },
     {
       "caracteristica": "campos_preenchidos",
@@ -58,8 +58,8 @@
       "n_acertos": 4467,
       "mediana_erros": 1.0,
       "mediana_acertos": 1.0,
-      "p_mann_whitney": 1.4827983797906832e-06,
-      "delta_cliff": -0.0916
+      "p_mann_whitney": 4.06099804533408e-06,
+      "delta_cliff": -0.0876
     },
     {
       "caracteristica": "cobertura_termos_categoria",
@@ -67,8 +67,8 @@
       "n_acertos": 4467,
       "mediana_erros": 0.12,
       "mediana_acertos": 0.64,
-      "p_mann_whitney": 3.7001523662517176e-97,
-      "delta_cliff": -0.8804
+      "p_mann_whitney": 2.113949209102092e-95,
+      "delta_cliff": -0.8722
     }
   ],
   "leitura": "Se 'cobertura_termos_categoria' e comprimentos forem significativamente menores nos ERROS (p<0,05 e |delta de Cliff|>=0,147), a hipotese se confirma: texto pobre -> erro de categoria. O checklist por categoria lista os termos discriminativos ausentes nos erros — e a informacao que o formulario deve induzir o solicitante a fornecer, sem nunca pedir a categoria em si.",
@@ -341,11 +341,11 @@
           "ausente_em": 11
         },
         {
-          "termo": "estado reservatorio",
+          "termo": "fotografias estado",
           "ausente_em": 11
         },
         {
-          "termo": "fotografias estado",
+          "termo": "estado reservatorio",
           "ausente_em": 11
         }
       ],
@@ -627,10 +627,6 @@
           "ausente_em": 54
         },
         {
-          "termo": "anexo acompanhamento",
-          "ausente_em": 54
-        },
-        {
           "termo": "servicos devera",
           "ausente_em": 54
         },
@@ -639,11 +635,15 @@
           "ausente_em": 54
         },
         {
+          "termo": "anexo acompanhamento",
+          "ausente_em": 54
+        },
+        {
           "termo": "feito acordo",
           "ausente_em": 54
         }
       ],
-      "informacao_a_solicitar": "Pedir que o solicitante descreva o problema citando o objeto e o sintoma (vocabulario tipico desta categoria: acordo anexo, equipamentos ar, mensal ar, anexo pagina, anexo acompanhamento)."
+      "informacao_a_solicitar": "Pedir que o solicitante descreva o problema citando o objeto e o sintoma (vocabulario tipico desta categoria: acordo anexo, equipamentos ar, mensal ar, anexo pagina, servicos devera)."
     },
     {
       "categoria": "Manutenção Preventiva > Reservatório",
@@ -652,11 +652,11 @@
       "taxa_erro_ia": 0.0251,
       "termos_que_faltaram_nos_erros": [
         {
-          "termo": "estado reservatorio",
+          "termo": "fotografias estado",
           "ausente_em": 7
         },
         {
-          "termo": "fotografias estado",
+          "termo": "estado reservatorio",
           "ausente_em": 7
         },
         {
@@ -684,7 +684,7 @@
           "ausente_em": 4
         }
       ],
-      "informacao_a_solicitar": "Pedir que o solicitante descreva o problema citando o objeto e o sintoma (vocabulario tipico desta categoria: estado reservatorio, fotografias estado, acordo documento, seguir seguintes, seguir)."
+      "informacao_a_solicitar": "Pedir que o solicitante descreva o problema citando o objeto e o sintoma (vocabulario tipico desta categoria: fotografias estado, estado reservatorio, acordo documento, seguir seguintes, seguir)."
     },
     {
       "categoria": "Manutenção Preventiva > Elevador",
@@ -701,39 +701,39 @@
       "taxa_erro_ia": 0.0191,
       "termos_que_faltaram_nos_erros": [
         {
-          "termo": "modo",
+          "termo": "anexo pagina",
           "ausente_em": 11
+        },
+        {
+          "termo": "anexo acompanhamento",
+          "ausente_em": 11
+        },
+        {
+          "termo": "acompanhamento servicos",
+          "ausente_em": 11
+        },
+        {
+          "termo": "feito acordo",
+          "ausente_em": 11
+        },
+        {
+          "termo": "devera feito",
+          "ausente_em": 11
+        },
+        {
+          "termo": "arquivo anexo",
+          "ausente_em": 11
+        },
+        {
+          "termo": "modo",
+          "ausente_em": 10
         },
         {
           "termo": "retorno",
-          "ausente_em": 11
-        },
-        {
-          "termo": "deste",
-          "ausente_em": 11
-        },
-        {
-          "termo": "entrega",
-          "ausente_em": 11
-        },
-        {
-          "termo": "deste documento",
-          "ausente_em": 11
-        },
-        {
-          "termo": "dar",
-          "ausente_em": 11
-        },
-        {
-          "termo": "tensao",
-          "ausente_em": 11
-        },
-        {
-          "termo": "baixa",
-          "ausente_em": 11
+          "ausente_em": 10
         }
       ],
-      "informacao_a_solicitar": "Pedir que o solicitante descreva o problema citando o objeto e o sintoma (vocabulario tipico desta categoria: modo, retorno, deste, entrega, deste documento)."
+      "informacao_a_solicitar": "Pedir que o solicitante descreva o problema citando o objeto e o sintoma (vocabulario tipico desta categoria: anexo pagina, anexo acompanhamento, acompanhamento servicos, feito acordo, devera feito)."
     },
     {
       "categoria": "Manutenção Preventiva > Gerador",
