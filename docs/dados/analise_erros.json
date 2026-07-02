@@ -1,5 +1,5 @@
 {
-  "gerado_em": "01/07/2026 06:03",
+  "gerado_em": "02/07/2026 05:38",
   "natureza": "analise exploratoria de erros da IA contra a conferencia humana; orienta a qualidade da ABERTURA do chamado, nao e metrica de producao",
   "n_conferidos_ia": 4698,
   "minimo_recomendado": 30,
@@ -38,10 +38,10 @@
       "caracteristica": "comprimento_descricao",
       "n_erros": 231,
       "n_acertos": 4467,
-      "mediana_erros": 130.0,
+      "mediana_erros": 131.0,
       "mediana_acertos": 298.0,
-      "p_mann_whitney": 1.0849170837599613e-32,
-      "delta_cliff": -0.4581
+      "p_mann_whitney": 1.830304535786205e-32,
+      "delta_cliff": -0.4564
     },
     {
       "caracteristica": "n_tokens",
@@ -49,8 +49,8 @@
       "n_acertos": 4467,
       "mediana_erros": 31.0,
       "mediana_acertos": 55.0,
-      "p_mann_whitney": 5.861162931320709e-34,
-      "delta_cliff": -0.4722
+      "p_mann_whitney": 1.3132081874607995e-33,
+      "delta_cliff": -0.4696
     },
     {
       "caracteristica": "campos_preenchidos",
@@ -58,8 +58,8 @@
       "n_acertos": 4467,
       "mediana_erros": 1.0,
       "mediana_acertos": 1.0,
-      "p_mann_whitney": 1.2111402253660424e-05,
-      "delta_cliff": -0.0833
+      "p_mann_whitney": 3.0489686987834962e-05,
+      "delta_cliff": -0.0793
     },
     {
       "caracteristica": "cobertura_termos_categoria",
@@ -67,8 +67,8 @@
       "n_acertos": 4467,
       "mediana_erros": 0.12,
       "mediana_acertos": 0.64,
-      "p_mann_whitney": 2.113949209102092e-95,
-      "delta_cliff": -0.8722
+      "p_mann_whitney": 7.965324099267747e-95,
+      "delta_cliff": -0.8695
     }
   ],
   "leitura": "Se 'cobertura_termos_categoria' e comprimentos forem significativamente menores nos ERROS (p<0,05 e |delta de Cliff|>=0,147), a hipotese se confirma: texto pobre -> erro de categoria. O checklist por categoria lista os termos discriminativos ausentes nos erros — e a informacao que o formulario deve induzir o solicitante a fornecer, sem nunca pedir a categoria em si.",
@@ -243,11 +243,11 @@
           "ausente_em": 7
         },
         {
-          "termo": "sabonete",
+          "termo": "assento",
           "ausente_em": 7
         },
         {
-          "termo": "assento",
+          "termo": "sabonete",
           "ausente_em": 7
         },
         {
@@ -267,7 +267,7 @@
           "ausente_em": 7
         }
       ],
-      "informacao_a_solicitar": "Pedir que o solicitante descreva o problema citando o objeto e o sintoma (vocabulario tipico desta categoria: sanitario, liquido, sabonete, assento, papel)."
+      "informacao_a_solicitar": "Pedir que o solicitante descreva o problema citando o objeto e o sintoma (vocabulario tipico desta categoria: sanitario, liquido, assento, sabonete, papel)."
     },
     {
       "categoria": "Hidrossanitária > Hidráulica",
@@ -627,7 +627,7 @@
           "ausente_em": 54
         },
         {
-          "termo": "servicos devera",
+          "termo": "anexo acompanhamento",
           "ausente_em": 54
         },
         {
@@ -635,15 +635,15 @@
           "ausente_em": 54
         },
         {
-          "termo": "anexo acompanhamento",
+          "termo": "feito acordo",
           "ausente_em": 54
         },
         {
-          "termo": "feito acordo",
+          "termo": "devera feito",
           "ausente_em": 54
         }
       ],
-      "informacao_a_solicitar": "Pedir que o solicitante descreva o problema citando o objeto e o sintoma (vocabulario tipico desta categoria: acordo anexo, equipamentos ar, mensal ar, anexo pagina, servicos devera)."
+      "informacao_a_solicitar": "Pedir que o solicitante descreva o problema citando o objeto e o sintoma (vocabulario tipico desta categoria: acordo anexo, equipamentos ar, mensal ar, anexo pagina, anexo acompanhamento)."
     },
     {
       "categoria": "Manutenção Preventiva > Reservatório",
@@ -705,11 +705,11 @@
           "ausente_em": 11
         },
         {
-          "termo": "anexo acompanhamento",
+          "termo": "acompanhamento servicos",
           "ausente_em": 11
         },
         {
-          "termo": "acompanhamento servicos",
+          "termo": "anexo acompanhamento",
           "ausente_em": 11
         },
         {
@@ -733,7 +733,7 @@
           "ausente_em": 10
         }
       ],
-      "informacao_a_solicitar": "Pedir que o solicitante descreva o problema citando o objeto e o sintoma (vocabulario tipico desta categoria: anexo pagina, anexo acompanhamento, acompanhamento servicos, feito acordo, devera feito)."
+      "informacao_a_solicitar": "Pedir que o solicitante descreva o problema citando o objeto e o sintoma (vocabulario tipico desta categoria: anexo pagina, acompanhamento servicos, anexo acompanhamento, feito acordo, devera feito)."
     },
     {
       "categoria": "Manutenção Preventiva > Gerador",
