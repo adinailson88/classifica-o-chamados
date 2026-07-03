@@ -25,7 +25,7 @@ from typing import Any
 OLD_FULL = "Instalação de Acessórios e Mobiliário > Instalação/Reparo de Equipamentos, Acessórios e Mobiliários"
 OLD_PARENT = "Instalação de Acessórios e Mobiliário"
 OLD_CHILD = "Instalação/Reparo de Equipamentos, Acessórios e Mobiliários"
-NEW_NAME = "Instalação/reparo de equipamentos (Suportes de TV, acessórios de banheiro e quadro branco)"
+NEW_NAME = "Instalação de Acessórios e Mobiliário > Instalação/reparo de equipamentos (Suportes de TV, acessórios de banheiro e quadro branco)"
 
 DEFAULT_REPORT = Path("docs/RELATORIO_MIGRACAO_CATEGORIA_EQUIPAMENTOS_ACESSORIOS.md")
 EXTENSIONS = {".json", ".jsonl", ".csv", ".md", ".html", ".js", ".py", ".yml", ".yaml", ".txt"}
@@ -425,7 +425,7 @@ def determine_scenario(result: ScanResult, args: argparse.Namespace) -> None:
     new_ids = result.category_ids.get(NEW_NAME, set())
     has_id_fields = any(result.id_fields_found.values())
     operational_old = any(
-        is_operational(o.path) and o.term in {OLD_FULL, OLD_CHILD, OLD_PARENT}
+        is_operational(o.path) and o.term in {OLD_FULL, OLD_CHILD}
         for o in result.occurrences
     )
     operational_new = any(is_operational(o.path) and o.term == NEW_NAME for o in result.occurrences)
@@ -494,7 +494,7 @@ def validate_changed_jsons(result: ScanResult) -> None:
 
 def build_report(result: ScanResult) -> str:
     counts_by_bucket = Counter(o.bucket for o in result.occurrences)
-    old_remaining = sorted({o.path for o in result.occurrences if o.term in {OLD_FULL, OLD_CHILD, OLD_PARENT}})
+    old_remaining = sorted({o.path for o in result.occurrences if o.term in {OLD_FULL, OLD_CHILD}})
     new_files = sorted({o.path for o in result.occurrences if o.term == NEW_NAME})
     id_fields = {
         key: sorted(set(paths))
