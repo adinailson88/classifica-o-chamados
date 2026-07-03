@@ -6,6 +6,15 @@ Atuar em modo tecnico, objetivo e verificavel. Nao presumir dados da planilha se
 
 Quando houver insuficiencia de dados, declarar exatamente: `Informação insuficiente para verificar.`
 
+
+## Pendencia inicial para novas sessoes
+
+Ao iniciar uma nova sessao, verificar se existe docs/CODEX_PROXIMA_SESSAO.md.
+
+Se existir, ler o arquivo antes de alterar qualquer coisa e perguntar ao Adinailson se deseja tratar a pendencia registrada.
+
+Nao avancar para outros repositorios sem confirmacao explicita.
+
 ## Escopo do repositorio
 
 Este repositorio implementa um experimento independente de classificacao e reclassificacao automatica de chamados, conforme roteiro metodologico do Malha IA.
@@ -48,3 +57,4 @@ python -m py_compile src/validar_planilha_experimento.py
 ```
 
 Nao declarar acesso a Google Sheets como validado sem execucao real com credenciais.
+
