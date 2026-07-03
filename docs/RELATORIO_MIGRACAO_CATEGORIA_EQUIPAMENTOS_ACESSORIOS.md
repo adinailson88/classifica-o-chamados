@@ -1,13 +1,13 @@
 # Relatório de Migração da Categoria de Equipamentos e Acessórios
 
-- Data/hora: 2026-07-03T16:55:46-03:00
+- Data/hora: 2026-07-03T18:22:15-03:00
 - Repositório: `https://github.com/adinailson88/classificacao-chamados.git`
 - Branch: `main`
-- Commit inicial: `7041a951325bf39eddc33f5fe21c7386e33d0ace`
+- Commit inicial: `dfb3def8a81ca053f3c523057c3fdbd698cfb64a`
 - Nome antigo: `Instalação de Acessórios e Mobiliário > Instalação/Reparo de Equipamentos, Acessórios e Mobiliários`
-- Nome novo: `Instalação/reparo de equipamentos (Suportes de TV, acessórios de banheiro e quadro branco)`
-- Cenário aplicado: `E`
-- Decisão tomada: mudança do Helpdesk/GLPI ainda não propagada para os dados do repositório; migração bloqueada
+- Nome novo: `Instalação de Acessórios e Mobiliário > Instalação/reparo de equipamentos (Suportes de TV, acessórios de banheiro e quadro branco)`
+- Cenário aplicado: `B`
+- Decisão tomada: validação textual média; migração de artefatos textuais/JSONs permitida
 - Modo de aplicação: dry-run ou bloqueado
 
 ## Validação por ID
@@ -26,8 +26,8 @@
 
 ## Ocorrências por grupo
 
-- JSON do dashboard: `282`
-- dados brutos ou intermediarios: `3531`
+- JSON do dashboard: `197`
+- dados brutos ou intermediarios: `2458`
 
 ## Arquivos alterados
 
@@ -192,6 +192,10 @@
 
 ## Arquivos com ocorrência antiga remanescente
 
+- nenhum
+
+## Arquivos com ocorrência nova
+
 - `analise_R/dados_modelos.txt`
 - `dados/bertimbau_coreset_ids.json`
 - `docs/dados/analise_erros.json`
@@ -217,10 +221,6 @@
 - `docs/dados/shannon_categorias.json`
 - `docs/dados/shannon_votos.json`
 - `docs/dados/termos_relevantes.json`
-
-## Arquivos com ocorrência nova
-
-- nenhum
 
 ## Validações executadas
 
