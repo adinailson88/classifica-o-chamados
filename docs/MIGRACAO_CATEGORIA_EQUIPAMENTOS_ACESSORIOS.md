@@ -1,6 +1,6 @@
 # Migração da categoria de equipamentos e acessórios
 
-A categoria `Instalação de Acessórios e Mobiliário > Instalação/Reparo de Equipamentos, Acessórios e Mobiliários` foi renomeada no Helpdesk/GLPI para `Instalação/reparo de equipamentos (Suportes de TV, acessórios de banheiro e quadro branco)`.
+A categoria `Instalação de Acessórios e Mobiliário > Instalação/Reparo de Equipamentos, Acessórios e Mobiliários` foi renomeada no Helpdesk/GLPI para `Instalação de Acessórios e Mobiliário > Instalação/reparo de equipamentos (Suportes de TV, acessórios de banheiro e quadro branco)`.
 
 A categoria antiga e a categoria nova devem ser tratadas como a mesma categoria operacional quando houver evidência de equivalência. O critério preferencial é o ID próprio da categoria no GLPI, por exemplo `itilcategories_id`, `categoria_id`, `id_categoria`, `categoria_glpi_id` ou campo equivalente. O ID do chamado (`id`, `ID Chamado`, `id_chamado`) não comprova equivalência taxonômica.
 
