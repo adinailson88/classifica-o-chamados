@@ -247,8 +247,8 @@
     {
       "categoria_historica": "Manutenção Preventiva > Elevador",
       "modelos": 8,
-      "suporte_max": 166,
-      "entropia_media_normalizada": 0.1822,
+      "suporte_max": 169,
+      "entropia_media_normalizada": 0.2004,
       "maior_risco": "estavel"
     },
     {
@@ -289,8 +289,8 @@
     {
       "categoria_historica": "Manutenção Preventiva > Ar condicionado split",
       "modelos": 8,
-      "suporte_max": 3545,
-      "entropia_media_normalizada": 0.0615,
+      "suporte_max": 3567,
+      "entropia_media_normalizada": 0.0759,
       "maior_risco": "estavel"
     },
     {
@@ -3198,6 +3198,21 @@
       "risco": "estavel"
     },
     {
+      "modelo": "sgd",
+      "categoria_historica": "Manutenção Preventiva > Elevador",
+      "suporte": 86,
+      "categorias_previstas": 3,
+      "entropia_previsoes": 0.4552,
+      "entropia_normalizada": 0.2872,
+      "categorias_efetivas": 1.371,
+      "top_1_previsto": "Manutenção Preventiva > Elevador",
+      "top_1_pct": 0.9186,
+      "top_2_previsto": "Equipamentos de Transporte > Elevador",
+      "top_2_pct": 0.0698,
+      "concordancia_historico": 0.9186,
+      "risco": "estavel"
+    },
+    {
       "modelo": "extra_trees",
       "categoria_historica": "Estrutura Predial > Esquadrias, porta, portão e janelas",
       "suporte": 967,
@@ -3378,18 +3393,18 @@
       "risco": "estavel"
     },
     {
-      "modelo": "sgd",
+      "modelo": "regressao_logistica",
       "categoria_historica": "Manutenção Preventiva > Elevador",
-      "suporte": 83,
+      "suporte": 86,
       "categorias_previstas": 3,
-      "entropia_previsoes": 0.4214,
-      "entropia_normalizada": 0.2659,
-      "categorias_efetivas": 1.3392,
+      "entropia_previsoes": 0.4104,
+      "entropia_normalizada": 0.2589,
+      "categorias_efetivas": 1.3291,
       "top_1_previsto": "Manutenção Preventiva > Elevador",
-      "top_1_pct": 0.9277,
+      "top_1_pct": 0.9302,
       "top_2_previsto": "Equipamentos de Transporte > Elevador",
-      "top_2_pct": 0.0602,
-      "concordancia_historico": 0.9277,
+      "top_2_pct": 0.0581,
+      "concordancia_historico": 0.9302,
       "risco": "estavel"
     },
     {
@@ -3405,6 +3420,21 @@
       "top_2_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
       "top_2_pct": 0.0631,
       "concordancia_historico": 0.8407,
+      "risco": "estavel"
+    },
+    {
+      "modelo": "naive_bayes",
+      "categoria_historica": "Manutenção Preventiva > Elevador",
+      "suporte": 86,
+      "categorias_previstas": 4,
+      "entropia_previsoes": 0.5006,
+      "entropia_normalizada": 0.2503,
+      "categorias_efetivas": 1.4148,
+      "top_1_previsto": "Manutenção Preventiva > Gerador",
+      "top_1_pct": 0.9186,
+      "top_2_previsto": "Manutenção Preventiva > Ar condicionado split",
+      "top_2_pct": 0.0581,
+      "concordancia_historico": 0.0,
       "risco": "estavel"
     },
     {
@@ -3435,36 +3465,6 @@
       "top_2_previsto": "Manutenção Preventiva > Ar condicionado split",
       "top_2_pct": 0.1136,
       "concordancia_historico": 0.8348,
-      "risco": "estavel"
-    },
-    {
-      "modelo": "regressao_logistica",
-      "categoria_historica": "Manutenção Preventiva > Elevador",
-      "suporte": 83,
-      "categorias_previstas": 3,
-      "entropia_previsoes": 0.3719,
-      "entropia_normalizada": 0.2346,
-      "categorias_efetivas": 1.294,
-      "top_1_previsto": "Manutenção Preventiva > Elevador",
-      "top_1_pct": 0.9398,
-      "top_2_previsto": "Equipamentos de Transporte > Elevador",
-      "top_2_pct": 0.0482,
-      "concordancia_historico": 0.9398,
-      "risco": "estavel"
-    },
-    {
-      "modelo": "naive_bayes",
-      "categoria_historica": "Manutenção Preventiva > Elevador",
-      "suporte": 83,
-      "categorias_previstas": 4,
-      "entropia_previsoes": 0.4649,
-      "entropia_normalizada": 0.2324,
-      "categorias_efetivas": 1.3802,
-      "top_1_previsto": "Manutenção Preventiva > Gerador",
-      "top_1_pct": 0.9277,
-      "top_2_previsto": "Manutenção Preventiva > Ar condicionado split",
-      "top_2_pct": 0.0482,
-      "concordancia_historico": 0.0,
       "risco": "estavel"
     },
     {
@@ -3663,6 +3663,36 @@
       "risco": "estavel"
     },
     {
+      "modelo": "extra_trees",
+      "categoria_historica": "Manutenção Preventiva > Elevador",
+      "suporte": 86,
+      "categorias_previstas": 3,
+      "entropia_previsoes": 0.3091,
+      "entropia_normalizada": 0.195,
+      "categorias_efetivas": 1.239,
+      "top_1_previsto": "Manutenção Preventiva > Elevador",
+      "top_1_pct": 0.9535,
+      "top_2_previsto": "Equipamentos de Transporte > Elevador",
+      "top_2_pct": 0.0349,
+      "concordancia_historico": 0.9535,
+      "risco": "estavel"
+    },
+    {
+      "modelo": "linear_svc",
+      "categoria_historica": "Manutenção Preventiva > Elevador",
+      "suporte": 86,
+      "categorias_previstas": 3,
+      "entropia_previsoes": 0.3091,
+      "entropia_normalizada": 0.195,
+      "categorias_efetivas": 1.239,
+      "top_1_previsto": "Manutenção Preventiva > Elevador",
+      "top_1_pct": 0.9535,
+      "top_2_previsto": "Equipamentos de Transporte > Elevador",
+      "top_2_pct": 0.0349,
+      "concordancia_historico": 0.9535,
+      "risco": "estavel"
+    },
+    {
       "modelo": "linear_svc",
       "categoria_historica": "Hidrossanitária > Hidráulica",
       "suporte": 1272,
@@ -3735,6 +3765,21 @@
       "top_2_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
       "top_2_pct": 0.0162,
       "concordancia_historico": 0.9231,
+      "risco": "estavel"
+    },
+    {
+      "modelo": "random_forest",
+      "categoria_historica": "Manutenção Preventiva > Elevador",
+      "suporte": 169,
+      "categorias_previstas": 3,
+      "entropia_previsoes": 0.2845,
+      "entropia_normalizada": 0.1795,
+      "categorias_efetivas": 1.218,
+      "top_1_previsto": "Manutenção Preventiva > Elevador",
+      "top_1_pct": 0.9586,
+      "top_2_previsto": "Equipamentos de Transporte > Elevador",
+      "top_2_pct": 0.0296,
+      "concordancia_historico": 0.9586,
       "risco": "estavel"
     },
     {
@@ -3903,51 +3948,6 @@
       "risco": "estavel"
     },
     {
-      "modelo": "random_forest",
-      "categoria_historica": "Manutenção Preventiva > Elevador",
-      "suporte": 166,
-      "categorias_previstas": 3,
-      "entropia_previsoes": 0.2575,
-      "entropia_normalizada": 0.1625,
-      "categorias_efetivas": 1.1954,
-      "top_1_previsto": "Manutenção Preventiva > Elevador",
-      "top_1_pct": 0.9639,
-      "top_2_previsto": "Equipamentos de Transporte > Elevador",
-      "top_2_pct": 0.0241,
-      "concordancia_historico": 0.9639,
-      "risco": "estavel"
-    },
-    {
-      "modelo": "extra_trees",
-      "categoria_historica": "Manutenção Preventiva > Elevador",
-      "suporte": 83,
-      "categorias_previstas": 3,
-      "entropia_previsoes": 0.2575,
-      "entropia_normalizada": 0.1625,
-      "categorias_efetivas": 1.1954,
-      "top_1_previsto": "Manutenção Preventiva > Elevador",
-      "top_1_pct": 0.9639,
-      "top_2_previsto": "Equipamentos de Transporte > Elevador",
-      "top_2_pct": 0.0241,
-      "concordancia_historico": 0.9639,
-      "risco": "estavel"
-    },
-    {
-      "modelo": "linear_svc",
-      "categoria_historica": "Manutenção Preventiva > Elevador",
-      "suporte": 83,
-      "categorias_previstas": 3,
-      "entropia_previsoes": 0.2575,
-      "entropia_normalizada": 0.1625,
-      "categorias_efetivas": 1.1954,
-      "top_1_previsto": "Manutenção Preventiva > Elevador",
-      "top_1_pct": 0.9639,
-      "top_2_previsto": "Equipamentos de Transporte > Elevador",
-      "top_2_pct": 0.0241,
-      "concordancia_historico": 0.9639,
-      "risco": "estavel"
-    },
-    {
       "modelo": "lstm",
       "categoria_historica": "Manutenção Preventiva > Vistoria em Instalações",
       "suporte": 247,
@@ -4035,6 +4035,21 @@
       "top_2_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
       "top_2_pct": 0.0196,
       "concordancia_historico": 0.9608,
+      "risco": "estavel"
+    },
+    {
+      "modelo": "regressao_logistica",
+      "categoria_historica": "Manutenção Preventiva > Ar condicionado split",
+      "suporte": 1795,
+      "categorias_previstas": 3,
+      "entropia_previsoes": 0.2318,
+      "entropia_normalizada": 0.1463,
+      "categorias_efetivas": 1.1743,
+      "top_1_previsto": "Manutenção Preventiva > Ar condicionado split",
+      "top_1_pct": 0.9638,
+      "top_2_previsto": "Climatização > Ar condicionado",
+      "top_2_pct": 0.0351,
+      "concordancia_historico": 0.9638,
       "risco": "estavel"
     },
     {
@@ -4218,21 +4233,6 @@
       "risco": "estavel"
     },
     {
-      "modelo": "regressao_logistica",
-      "categoria_historica": "Manutenção Preventiva > Ar condicionado split",
-      "suporte": 1773,
-      "categorias_previstas": 3,
-      "entropia_previsoes": 0.1713,
-      "entropia_normalizada": 0.1081,
-      "categorias_efetivas": 1.1261,
-      "top_1_previsto": "Manutenção Preventiva > Ar condicionado split",
-      "top_1_pct": 0.9757,
-      "top_2_previsto": "Climatização > Ar condicionado",
-      "top_2_pct": 0.0231,
-      "concordancia_historico": 0.9757,
-      "risco": "estavel"
-    },
-    {
       "modelo": "random_forest",
       "categoria_historica": "Manutenção Preventiva > Ar condicionado central",
       "suporte": 328,
@@ -4305,6 +4305,21 @@
       "top_2_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
       "top_2_pct": 0.0139,
       "concordancia_historico": 0.9705,
+      "risco": "estavel"
+    },
+    {
+      "modelo": "extra_trees",
+      "categoria_historica": "Manutenção Preventiva > Ar condicionado split",
+      "suporte": 1795,
+      "categorias_previstas": 3,
+      "entropia_previsoes": 0.1359,
+      "entropia_normalizada": 0.0857,
+      "categorias_efetivas": 1.0988,
+      "top_1_previsto": "Manutenção Preventiva > Ar condicionado split",
+      "top_1_pct": 0.9816,
+      "top_2_previsto": "Climatização > Ar condicionado",
+      "top_2_pct": 0.0178,
+      "concordancia_historico": 0.9816,
       "risco": "estavel"
     },
     {
@@ -4473,6 +4488,21 @@
       "risco": "estavel"
     },
     {
+      "modelo": "random_forest",
+      "categoria_historica": "Manutenção Preventiva > Ar condicionado split",
+      "suporte": 3567,
+      "categorias_previstas": 3,
+      "entropia_previsoes": 0.1031,
+      "entropia_normalizada": 0.0651,
+      "categorias_efetivas": 1.0741,
+      "top_1_previsto": "Manutenção Preventiva > Ar condicionado split",
+      "top_1_pct": 0.9868,
+      "top_2_previsto": "Climatização > Ar condicionado",
+      "top_2_pct": 0.0129,
+      "concordancia_historico": 0.9868,
+      "risco": "estavel"
+    },
+    {
       "modelo": "etapa1_oficial",
       "categoria_historica": "Manutenção Preventiva > Quadros Elétricos",
       "suporte": 576,
@@ -4595,11 +4625,11 @@
     {
       "modelo": "naive_bayes",
       "categoria_historica": "Manutenção Preventiva > Ar condicionado split",
-      "suporte": 1773,
+      "suporte": 1795,
       "categorias_previstas": 2,
-      "entropia_previsoes": 0.0502,
-      "entropia_normalizada": 0.0502,
-      "categorias_efetivas": 1.0354,
+      "entropia_previsoes": 0.0497,
+      "entropia_normalizada": 0.0497,
+      "categorias_efetivas": 1.0351,
       "top_1_previsto": "Manutenção Preventiva > Ar condicionado split",
       "top_1_pct": 0.9944,
       "top_2_previsto": "Climatização > Ar condicionado",
@@ -4623,63 +4653,33 @@
       "risco": "estavel"
     },
     {
-      "modelo": "linear_svc",
-      "categoria_historica": "Manutenção Preventiva > Ar condicionado split",
-      "suporte": 1773,
-      "categorias_previstas": 3,
-      "entropia_previsoes": 0.0694,
-      "entropia_normalizada": 0.0438,
-      "categorias_efetivas": 1.0493,
-      "top_1_previsto": "Manutenção Preventiva > Ar condicionado split",
-      "top_1_pct": 0.9921,
-      "top_2_previsto": "Climatização > Ar condicionado",
-      "top_2_pct": 0.0073,
-      "concordancia_historico": 0.9921,
-      "risco": "estavel"
-    },
-    {
       "modelo": "sgd",
       "categoria_historica": "Manutenção Preventiva > Ar condicionado split",
-      "suporte": 1773,
+      "suporte": 1795,
       "categorias_previstas": 3,
-      "entropia_previsoes": 0.0694,
-      "entropia_normalizada": 0.0438,
-      "categorias_efetivas": 1.0493,
+      "entropia_previsoes": 0.0726,
+      "entropia_normalizada": 0.0458,
+      "categorias_efetivas": 1.0516,
       "top_1_previsto": "Manutenção Preventiva > Ar condicionado split",
-      "top_1_pct": 0.9921,
+      "top_1_pct": 0.9916,
       "top_2_previsto": "Climatização > Ar condicionado",
-      "top_2_pct": 0.0073,
-      "concordancia_historico": 0.9921,
+      "top_2_pct": 0.0078,
+      "concordancia_historico": 0.9916,
       "risco": "estavel"
     },
     {
-      "modelo": "random_forest",
+      "modelo": "linear_svc",
       "categoria_historica": "Manutenção Preventiva > Ar condicionado split",
-      "suporte": 3545,
+      "suporte": 1795,
       "categorias_previstas": 3,
-      "entropia_previsoes": 0.0623,
-      "entropia_normalizada": 0.0393,
-      "categorias_efetivas": 1.0441,
+      "entropia_previsoes": 0.0687,
+      "entropia_normalizada": 0.0434,
+      "categorias_efetivas": 1.0488,
       "top_1_previsto": "Manutenção Preventiva > Ar condicionado split",
-      "top_1_pct": 0.9929,
+      "top_1_pct": 0.9922,
       "top_2_previsto": "Climatização > Ar condicionado",
-      "top_2_pct": 0.0068,
-      "concordancia_historico": 0.9929,
-      "risco": "estavel"
-    },
-    {
-      "modelo": "extra_trees",
-      "categoria_historica": "Manutenção Preventiva > Ar condicionado split",
-      "suporte": 1773,
-      "categorias_previstas": 3,
-      "entropia_previsoes": 0.0571,
-      "entropia_normalizada": 0.0361,
-      "categorias_efetivas": 1.0404,
-      "top_1_previsto": "Manutenção Preventiva > Ar condicionado split",
-      "top_1_pct": 0.9938,
-      "top_2_previsto": "Climatização > Ar condicionado",
-      "top_2_pct": 0.0056,
-      "concordancia_historico": 0.9938,
+      "top_2_pct": 0.0072,
+      "concordancia_historico": 0.9922,
       "risco": "estavel"
     },
     {
