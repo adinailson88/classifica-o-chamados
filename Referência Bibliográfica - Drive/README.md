@@ -6,7 +6,7 @@ Esta pasta reúne referências do acervo bibliográfico mantido no Google Drive 
 
 - Referências selecionadas nesta etapa: **66**
 - Fichas com resumo já disponível: **47**
-- Fichas que ainda exigem leitura integral: **19**
+- Fichas com arquivo disponível e resumo analítico ainda não cadastrado no índice: **19**
 - Índice geral: [00_INDICE_ACERVO.xlsx](https://docs.google.com/spreadsheets/d/1hpSUv-qeEBpCTeQ0CFDROuTq8rSrmraV/edit)
 - Pasta principal do acervo: [Google Drive](https://drive.google.com/drive/folders/1cNnLTU6ENFIUX5yi6M17QO-o-kfaf5al)
 
@@ -16,12 +16,12 @@ Esta pasta reúne referências do acervo bibliográfico mantido no Google Drive 
 2. Leia o resumo e a indicação de uso no repositório.
 3. Antes de citar método, número ou conclusão específica, abra o PDF pelo link do Drive e confirme a informação in loco.
 4. Não trate “aderência” como qualidade metodológica; ela indica proximidade temática com o projeto.
-5. Itens marcados como leitura pendente servem apenas como candidatos até a conferência integral.
+5. Itens sem resumo analítico cadastrado possuem arquivo disponível no Drive; confirme no documento os dados específicos antes de citar.
 
 ## Plano de atualização por etapas
 
 - **Etapa 1 — concluída neste arquivo:** inventário, seleção por aderência, links diretos e incorporação dos resumos já existentes.
-- **Etapa 2:** leitura integral dos itens pendentes, processada por pasta do Drive na ordem 01 a 08.
+- **Etapa 2:** elaboração de resumos analíticos completos dos itens ainda sem síntese cadastrada, processados por pasta do Drive na ordem 01 a 08, com citações, páginas e conferência no texto original.
 - **Etapa 3:** revisão da aderência específica ao repositório e inclusão de trechos de uso recomendado, limitações e páginas relevantes.
 - **Etapa 4:** atualização contínua quando novos documentos forem adicionados ao índice do acervo.
 
@@ -35,8 +35,8 @@ Esta pasta reúne referências do acervo bibliográfico mantido no Google Drive 
 - **Aderência geral registrada:** a avaliar
 - **Palavras-chave:** APO; habitação de interesse social; inserção urbana
 - **Como pode fundamentar este repositório:** Oferece contexto de domínio, qualidade de registros ou método de validação útil ao pipeline de chamados.
-- **Resumo:** O índice atual identifica a obra pelo título e pelo tema “APO”, mas ainda não contém síntese validada do conteúdo. Consulte o documento no Drive antes de atribuir método, resultados ou conclusões.
-- **Situação da ficha:** Leitura integral pendente; não usar como evidência específica sem conferir o PDF.
+- **Resumo:** O arquivo completo está disponível no Google Drive. O índice identifica a obra pelo título e pelo tema “APO”, mas ainda não contém um resumo analítico completo cadastrado. A síntese detalhada, com citações e páginas, será produzida na próxima etapa; até lá, confirme no documento qualquer método, resultado, número ou conclusão.
+- **Situação da ficha:** Arquivo completo disponível no Drive; resumo analítico completo ainda não cadastrado no índice.
 - **Acesso:** [Abrir o arquivo no Google Drive](https://drive.google.com/file/d/1tg0vxIgNll3R6-WwGBiZRFv73ClGdneB/view?usp=drivesdk)
 
 ### 2. Lateef, O. A.; Khamidi, M. F.; Idrus, A. (2010) — Building Maintenance Management in Malaysian University Campuses: A Case Study
@@ -95,8 +95,8 @@ Esta pasta reúne referências do acervo bibliográfico mantido no Google Drive 
 - **Aderência geral registrada:** a avaliar
 - **Palavras-chave:** Facility management; manutenção predial; UFPE
 - **Como pode fundamentar este repositório:** Oferece contexto de domínio, qualidade de registros ou método de validação útil ao pipeline de chamados.
-- **Resumo:** O índice atual identifica a obra pelo título e pelo tema “FacilityManagement”, mas ainda não contém síntese validada do conteúdo. Consulte o documento no Drive antes de atribuir método, resultados ou conclusões.
-- **Situação da ficha:** Leitura integral pendente; não usar como evidência específica sem conferir o PDF.
+- **Resumo:** O arquivo completo está disponível no Google Drive. O índice identifica a obra pelo título e pelo tema “FacilityManagement”, mas ainda não contém um resumo analítico completo cadastrado. A síntese detalhada, com citações e páginas, será produzida na próxima etapa; até lá, confirme no documento qualquer método, resultado, número ou conclusão.
+- **Situação da ficha:** Arquivo completo disponível no Drive; resumo analítico completo ainda não cadastrado no índice.
 - **Acesso:** [Abrir o arquivo no Google Drive](https://drive.google.com/file/d/1hVlog7jo06UzzVlceHh-AC_kHuVbGH-0/view?usp=drivesdk)
 
 ### 7. Aldairi, J.; Khan, M. K.; Munive-Hernandez, J. E. (2017) — Knowledge-based Lean Six Sigma maintenance system for sustainable buildings
@@ -287,8 +287,8 @@ Esta pasta reúne referências do acervo bibliográfico mantido no Google Drive 
 - **Aderência geral registrada:** a avaliar
 - **Palavras-chave:** não registradas
 - **Como pode fundamentar este repositório:** Oferece contexto de domínio, qualidade de registros ou método de validação útil ao pipeline de chamados.
-- **Resumo:** O índice atual identifica a obra pelo título e pelo tema “ManutencaoPreditiva”, mas ainda não contém síntese validada do conteúdo. Consulte o documento no Drive antes de atribuir método, resultados ou conclusões.
-- **Situação da ficha:** Leitura integral pendente; não usar como evidência específica sem conferir o PDF.
+- **Resumo:** O arquivo completo está disponível no Google Drive. O índice identifica a obra pelo título e pelo tema “ManutencaoPreditiva”, mas ainda não contém um resumo analítico completo cadastrado. A síntese detalhada, com citações e páginas, será produzida na próxima etapa; até lá, confirme no documento qualquer método, resultado, número ou conclusão.
+- **Situação da ficha:** Arquivo completo disponível no Drive; resumo analítico completo ainda não cadastrado no índice.
 - **Acesso:** [Abrir o arquivo no Google Drive](https://drive.google.com/file/d/16_ARpNT5IVTkeC-0NxeTu_swt6V7I6f4/view?usp=drivesdk)
 
 ### 23. Pimenta, D.; Silva, E. C. R. da; Santana, E. R. de; Nascimento, F. A. R. do; Teixeira, G. A. da S.; Santos, G. S.; Pipa, H. D. C. (2024) — Aplicação de soluções de inteligência artificial para análise e melhoria da estratégia de manutenção
@@ -361,8 +361,8 @@ Esta pasta reúne referências do acervo bibliográfico mantido no Google Drive 
 - **Aderência geral registrada:** a avaliar
 - **Palavras-chave:** IA neuro-fuzzy; manutenção predial; predição de vida útil; cadeia de Markov
 - **Como pode fundamentar este repositório:** Oferece contexto de domínio, qualidade de registros ou método de validação útil ao pipeline de chamados.
-- **Resumo:** O índice atual identifica a obra pelo título e pelo tema “IA”, mas ainda não contém síntese validada do conteúdo. Consulte o documento no Drive antes de atribuir método, resultados ou conclusões.
-- **Situação da ficha:** Leitura integral pendente; não usar como evidência específica sem conferir o PDF.
+- **Resumo:** O arquivo completo está disponível no Google Drive. O índice identifica a obra pelo título e pelo tema “IA”, mas ainda não contém um resumo analítico completo cadastrado. A síntese detalhada, com citações e páginas, será produzida na próxima etapa; até lá, confirme no documento qualquer método, resultado, número ou conclusão.
+- **Situação da ficha:** Arquivo completo disponível no Drive; resumo analítico completo ainda não cadastrado no índice.
 - **Acesso:** [Abrir o arquivo no Google Drive](https://drive.google.com/file/d/1S2hC9FvNzaY5tCngL9WrfzpPJWPlNgp_/view?usp=drivesdk)
 
 ### 2. Manning, C. D.; Raghavan, P.; Schütze, H. (2009) — An Introduction to Information Retrieval
@@ -481,8 +481,8 @@ Esta pasta reúne referências do acervo bibliográfico mantido no Google Drive 
 - **Aderência geral registrada:** a avaliar
 - **Palavras-chave:** não registradas
 - **Como pode fundamentar este repositório:** Oferece contexto de domínio, qualidade de registros ou método de validação útil ao pipeline de chamados.
-- **Resumo:** O índice atual identifica a obra pelo título e pelo tema “DigitalTwin”, mas ainda não contém síntese validada do conteúdo. Consulte o documento no Drive antes de atribuir método, resultados ou conclusões.
-- **Situação da ficha:** Leitura integral pendente; não usar como evidência específica sem conferir o PDF.
+- **Resumo:** O arquivo completo está disponível no Google Drive. O índice identifica a obra pelo título e pelo tema “DigitalTwin”, mas ainda não contém um resumo analítico completo cadastrado. A síntese detalhada, com citações e páginas, será produzida na próxima etapa; até lá, confirme no documento qualquer método, resultado, número ou conclusão.
+- **Situação da ficha:** Arquivo completo disponível no Drive; resumo analítico completo ainda não cadastrado no índice.
 - **Acesso:** [Abrir o arquivo no Google Drive](https://drive.google.com/file/d/1X3mKeRrvnHyk8wGfuHY3UG72lDIYgxrF/view?usp=drivesdk)
 
 ### 12. Siqueira, M. B.; Santos, V. M. dos; Diniz, E. H.; Cruz, A. P. A. (2024) — Artificial Intelligence for Sustainability: A Systematic Literature Review in Information Systems
@@ -565,8 +565,8 @@ Esta pasta reúne referências do acervo bibliográfico mantido no Google Drive 
 - **Aderência geral registrada:** a avaliar
 - **Palavras-chave:** não registradas
 - **Como pode fundamentar este repositório:** Oferece contexto de domínio, qualidade de registros ou método de validação útil ao pipeline de chamados.
-- **Resumo:** O índice atual identifica a obra pelo título e pelo tema “IA”, mas ainda não contém síntese validada do conteúdo. Consulte o documento no Drive antes de atribuir método, resultados ou conclusões.
-- **Situação da ficha:** Leitura integral pendente; não usar como evidência específica sem conferir o PDF.
+- **Resumo:** O arquivo completo está disponível no Google Drive. O índice identifica a obra pelo título e pelo tema “IA”, mas ainda não contém um resumo analítico completo cadastrado. A síntese detalhada, com citações e páginas, será produzida na próxima etapa; até lá, confirme no documento qualquer método, resultado, número ou conclusão.
+- **Situação da ficha:** Arquivo completo disponível no Drive; resumo analítico completo ainda não cadastrado no índice.
 - **Acesso:** [Abrir o arquivo no Google Drive](https://drive.google.com/file/d/1WrTdA5Q6QecQdmKMAo92DO-E3XMH-3Sx/view?usp=drivesdk)
 
 ### 19. Udemy Business (2025) — O manual da era do desempenho: um guia para potencializar a força de trabalho humana + IA
@@ -577,8 +577,8 @@ Esta pasta reúne referências do acervo bibliográfico mantido no Google Drive 
 - **Aderência geral registrada:** a avaliar
 - **Palavras-chave:** IA; capacitação; força de trabalho (material corporativo)
 - **Como pode fundamentar este repositório:** Oferece contexto de domínio, qualidade de registros ou método de validação útil ao pipeline de chamados.
-- **Resumo:** O índice atual identifica a obra pelo título e pelo tema “IA”, mas ainda não contém síntese validada do conteúdo. Consulte o documento no Drive antes de atribuir método, resultados ou conclusões.
-- **Situação da ficha:** Leitura integral pendente; não usar como evidência específica sem conferir o PDF.
+- **Resumo:** O arquivo completo está disponível no Google Drive. O índice identifica a obra pelo título e pelo tema “IA”, mas ainda não contém um resumo analítico completo cadastrado. A síntese detalhada, com citações e páginas, será produzida na próxima etapa; até lá, confirme no documento qualquer método, resultado, número ou conclusão.
+- **Situação da ficha:** Arquivo completo disponível no Drive; resumo analítico completo ainda não cadastrado no índice.
 - **Acesso:** [Abrir o arquivo no Google Drive](https://drive.google.com/file/d/1OgXhZnOYe4SZEI2rhfNKVs3JyWtHFjNG/view?usp=drivesdk)
 
 ### 20. Prates, R. M. (2025) — Aprendizagem de Máquina – Parte 1 (Aula síncrona, Residência)
@@ -613,8 +613,8 @@ Esta pasta reúne referências do acervo bibliográfico mantido no Google Drive 
 - **Aderência geral registrada:** a avaliar
 - **Palavras-chave:** não registradas
 - **Como pode fundamentar este repositório:** Oferece contexto de domínio, qualidade de registros ou método de validação útil ao pipeline de chamados.
-- **Resumo:** O índice atual identifica a obra pelo título e pelo tema “IA”, mas ainda não contém síntese validada do conteúdo. Consulte o documento no Drive antes de atribuir método, resultados ou conclusões.
-- **Situação da ficha:** Leitura integral pendente; não usar como evidência específica sem conferir o PDF.
+- **Resumo:** O arquivo completo está disponível no Google Drive. O índice identifica a obra pelo título e pelo tema “IA”, mas ainda não contém um resumo analítico completo cadastrado. A síntese detalhada, com citações e páginas, será produzida na próxima etapa; até lá, confirme no documento qualquer método, resultado, número ou conclusão.
+- **Situação da ficha:** Arquivo completo disponível no Drive; resumo analítico completo ainda não cadastrado no índice.
 - **Acesso:** [Abrir o arquivo no Google Drive](https://drive.google.com/file/d/1I7o3nX2_yobfbiBvmi5SwapOPKEjYnv5/view?usp=drivesdk)
 
 ### 23. Cao (2026) — End Software Engineering AI Agents
@@ -625,8 +625,8 @@ Esta pasta reúne referências do acervo bibliográfico mantido no Google Drive 
 - **Aderência geral registrada:** a avaliar
 - **Palavras-chave:** não registradas
 - **Como pode fundamentar este repositório:** Oferece contexto de domínio, qualidade de registros ou método de validação útil ao pipeline de chamados.
-- **Resumo:** O índice atual identifica a obra pelo título e pelo tema “IA”, mas ainda não contém síntese validada do conteúdo. Consulte o documento no Drive antes de atribuir método, resultados ou conclusões.
-- **Situação da ficha:** Leitura integral pendente; não usar como evidência específica sem conferir o PDF.
+- **Resumo:** O arquivo completo está disponível no Google Drive. O índice identifica a obra pelo título e pelo tema “IA”, mas ainda não contém um resumo analítico completo cadastrado. A síntese detalhada, com citações e páginas, será produzida na próxima etapa; até lá, confirme no documento qualquer método, resultado, número ou conclusão.
+- **Situação da ficha:** Arquivo completo disponível no Drive; resumo analítico completo ainda não cadastrado no índice.
 - **Acesso:** [Abrir o arquivo no Google Drive](https://drive.google.com/file/d/16LLLBNVmT4fF22h-eTHRl44cNBpHBeyS/view?usp=drivesdk)
 
 ### 24. Huang (2026) — Why Larger Models Learn More
@@ -637,8 +637,8 @@ Esta pasta reúne referências do acervo bibliográfico mantido no Google Drive 
 - **Aderência geral registrada:** a avaliar
 - **Palavras-chave:** não registradas
 - **Como pode fundamentar este repositório:** Oferece contexto de domínio, qualidade de registros ou método de validação útil ao pipeline de chamados.
-- **Resumo:** O índice atual identifica a obra pelo título e pelo tema “IA”, mas ainda não contém síntese validada do conteúdo. Consulte o documento no Drive antes de atribuir método, resultados ou conclusões.
-- **Situação da ficha:** Leitura integral pendente; não usar como evidência específica sem conferir o PDF.
+- **Resumo:** O arquivo completo está disponível no Google Drive. O índice identifica a obra pelo título e pelo tema “IA”, mas ainda não contém um resumo analítico completo cadastrado. A síntese detalhada, com citações e páginas, será produzida na próxima etapa; até lá, confirme no documento qualquer método, resultado, número ou conclusão.
+- **Situação da ficha:** Arquivo completo disponível no Drive; resumo analítico completo ainda não cadastrado no índice.
 - **Acesso:** [Abrir o arquivo no Google Drive](https://drive.google.com/file/d/1NqPjdaRP01FkITwr27uHU9RN5TRqO5HU/view?usp=drivesdk)
 
 ### 25. Kontonis (2026) — MEMENTO LLM Manage Context
@@ -649,8 +649,8 @@ Esta pasta reúne referências do acervo bibliográfico mantido no Google Drive 
 - **Aderência geral registrada:** a avaliar
 - **Palavras-chave:** não registradas
 - **Como pode fundamentar este repositório:** Oferece contexto de domínio, qualidade de registros ou método de validação útil ao pipeline de chamados.
-- **Resumo:** O índice atual identifica a obra pelo título e pelo tema “IA”, mas ainda não contém síntese validada do conteúdo. Consulte o documento no Drive antes de atribuir método, resultados ou conclusões.
-- **Situação da ficha:** Leitura integral pendente; não usar como evidência específica sem conferir o PDF.
+- **Resumo:** O arquivo completo está disponível no Google Drive. O índice identifica a obra pelo título e pelo tema “IA”, mas ainda não contém um resumo analítico completo cadastrado. A síntese detalhada, com citações e páginas, será produzida na próxima etapa; até lá, confirme no documento qualquer método, resultado, número ou conclusão.
+- **Situação da ficha:** Arquivo completo disponível no Drive; resumo analítico completo ainda não cadastrado no índice.
 - **Acesso:** [Abrir o arquivo no Google Drive](https://drive.google.com/file/d/1qNX9gNVhKTQsf82SJAUEtb4SrT9r4kIC/view?usp=drivesdk)
 
 ### 26. Osmani, A. (com Steinberger, P.; Cherny, B.) (2026) — Loop Engineering: The Anthropic Playbook for Designing Systems That Prompt Your Agents
@@ -675,8 +675,8 @@ Esta pasta reúne referências do acervo bibliográfico mantido no Google Drive 
 - **Aderência geral registrada:** a avaliar
 - **Palavras-chave:** não registradas
 - **Como pode fundamentar este repositório:** Oferece contexto de domínio, qualidade de registros ou método de validação útil ao pipeline de chamados.
-- **Resumo:** O índice atual identifica a obra pelo título e pelo tema “Estatistica”, mas ainda não contém síntese validada do conteúdo. Consulte o documento no Drive antes de atribuir método, resultados ou conclusões.
-- **Situação da ficha:** Leitura integral pendente; não usar como evidência específica sem conferir o PDF.
+- **Resumo:** O arquivo completo está disponível no Google Drive. O índice identifica a obra pelo título e pelo tema “Estatistica”, mas ainda não contém um resumo analítico completo cadastrado. A síntese detalhada, com citações e páginas, será produzida na próxima etapa; até lá, confirme no documento qualquer método, resultado, número ou conclusão.
+- **Situação da ficha:** Arquivo completo disponível no Drive; resumo analítico completo ainda não cadastrado no índice.
 - **Acesso:** [Abrir o arquivo no Google Drive](https://drive.google.com/file/d/1qDYxOoL5zhLZVTBxq-8LlixoVVh2mfnU/view?usp=drivesdk)
 
 ### 2. Fornara, F.; Bonaiuto, M.; Bonnes, M. (2010) — Cross-Validation of Abbreviated Perceived Residential Environment Quality (PREQ) and Neighborhood Attachment (NA) Indicators
@@ -687,8 +687,8 @@ Esta pasta reúne referências do acervo bibliográfico mantido no Google Drive 
 - **Aderência geral registrada:** a avaliar
 - **Palavras-chave:** Psicometria; qualidade ambiental percebida; apego ao bairro
 - **Como pode fundamentar este repositório:** Oferece contexto de domínio, qualidade de registros ou método de validação útil ao pipeline de chamados.
-- **Resumo:** O índice atual identifica a obra pelo título e pelo tema “Psicometria”, mas ainda não contém síntese validada do conteúdo. Consulte o documento no Drive antes de atribuir método, resultados ou conclusões.
-- **Situação da ficha:** Leitura integral pendente; não usar como evidência específica sem conferir o PDF.
+- **Resumo:** O arquivo completo está disponível no Google Drive. O índice identifica a obra pelo título e pelo tema “Psicometria”, mas ainda não contém um resumo analítico completo cadastrado. A síntese detalhada, com citações e páginas, será produzida na próxima etapa; até lá, confirme no documento qualquer método, resultado, número ou conclusão.
+- **Situação da ficha:** Arquivo completo disponível no Drive; resumo analítico completo ainda não cadastrado no índice.
 - **Acesso:** [Abrir o arquivo no Google Drive](https://drive.google.com/file/d/1shasc9eKJOtvR-Mbzai3LjHo283BbhKJ/view?usp=drivesdk)
 
 ### 3. Razali (2011) — Power Comparisons Normality Tests
@@ -699,8 +699,8 @@ Esta pasta reúne referências do acervo bibliográfico mantido no Google Drive 
 - **Aderência geral registrada:** a avaliar
 - **Palavras-chave:** não registradas
 - **Como pode fundamentar este repositório:** Oferece contexto de domínio, qualidade de registros ou método de validação útil ao pipeline de chamados.
-- **Resumo:** O índice atual identifica a obra pelo título e pelo tema “Estatistica”, mas ainda não contém síntese validada do conteúdo. Consulte o documento no Drive antes de atribuir método, resultados ou conclusões.
-- **Situação da ficha:** Leitura integral pendente; não usar como evidência específica sem conferir o PDF.
+- **Resumo:** O arquivo completo está disponível no Google Drive. O índice identifica a obra pelo título e pelo tema “Estatistica”, mas ainda não contém um resumo analítico completo cadastrado. A síntese detalhada, com citações e páginas, será produzida na próxima etapa; até lá, confirme no documento qualquer método, resultado, número ou conclusão.
+- **Situação da ficha:** Arquivo completo disponível no Drive; resumo analítico completo ainda não cadastrado no índice.
 - **Acesso:** [Abrir o arquivo no Google Drive](https://drive.google.com/file/d/14y9niXJ4DTQDXrvc55ti2nTcFxq41cPV/view?usp=drivesdk)
 
 ## 08_Metodologia
@@ -713,8 +713,8 @@ Esta pasta reúne referências do acervo bibliográfico mantido no Google Drive 
 - **Aderência geral registrada:** a avaliar
 - **Palavras-chave:** Metodologia; redação de tese; pesquisa bibliográfica
 - **Como pode fundamentar este repositório:** Oferece contexto de domínio, qualidade de registros ou método de validação útil ao pipeline de chamados.
-- **Resumo:** O índice atual identifica a obra pelo título e pelo tema “Metodologia”, mas ainda não contém síntese validada do conteúdo. Consulte o documento no Drive antes de atribuir método, resultados ou conclusões.
-- **Situação da ficha:** Leitura integral pendente; não usar como evidência específica sem conferir o PDF.
+- **Resumo:** O arquivo completo está disponível no Google Drive. O índice identifica a obra pelo título e pelo tema “Metodologia”, mas ainda não contém um resumo analítico completo cadastrado. A síntese detalhada, com citações e páginas, será produzida na próxima etapa; até lá, confirme no documento qualquer método, resultado, número ou conclusão.
+- **Situação da ficha:** Arquivo completo disponível no Drive; resumo analítico completo ainda não cadastrado no índice.
 - **Acesso:** [Abrir o arquivo no Google Drive](https://drive.google.com/file/d/1Bfwp7nhN8eBt_AQK0L9uEPU8EePL0Wc6/view?usp=drivesdk)
 
 ### 2. Marconi, M. de A.; Lakatos, E. M. (2003) — Fundamentos de Metodologia Científica
@@ -725,8 +725,8 @@ Esta pasta reúne referências do acervo bibliográfico mantido no Google Drive 
 - **Aderência geral registrada:** a avaliar
 - **Palavras-chave:** Metodologia científica
 - **Como pode fundamentar este repositório:** Oferece contexto de domínio, qualidade de registros ou método de validação útil ao pipeline de chamados.
-- **Resumo:** O índice atual identifica a obra pelo título e pelo tema “Metodologia”, mas ainda não contém síntese validada do conteúdo. Consulte o documento no Drive antes de atribuir método, resultados ou conclusões.
-- **Situação da ficha:** Leitura integral pendente; não usar como evidência específica sem conferir o PDF.
+- **Resumo:** O arquivo completo está disponível no Google Drive. O índice identifica a obra pelo título e pelo tema “Metodologia”, mas ainda não contém um resumo analítico completo cadastrado. A síntese detalhada, com citações e páginas, será produzida na próxima etapa; até lá, confirme no documento qualquer método, resultado, número ou conclusão.
+- **Situação da ficha:** Arquivo completo disponível no Drive; resumo analítico completo ainda não cadastrado no índice.
 - **Acesso:** [Abrir o arquivo no Google Drive](https://drive.google.com/file/d/1fPjuI0Nq3uk8zztzI_1Jg8fo1lOpvFgG/view?usp=drivesdk)
 
 ### 3. Gil, A. C. (2008) — Métodos e Técnicas de Pesquisa Social
@@ -737,8 +737,8 @@ Esta pasta reúne referências do acervo bibliográfico mantido no Google Drive 
 - **Aderência geral registrada:** a avaliar
 - **Palavras-chave:** Metodologia; pesquisa social
 - **Como pode fundamentar este repositório:** Oferece contexto de domínio, qualidade de registros ou método de validação útil ao pipeline de chamados.
-- **Resumo:** O índice atual identifica a obra pelo título e pelo tema “Metodologia”, mas ainda não contém síntese validada do conteúdo. Consulte o documento no Drive antes de atribuir método, resultados ou conclusões.
-- **Situação da ficha:** Leitura integral pendente; não usar como evidência específica sem conferir o PDF.
+- **Resumo:** O arquivo completo está disponível no Google Drive. O índice identifica a obra pelo título e pelo tema “Metodologia”, mas ainda não contém um resumo analítico completo cadastrado. A síntese detalhada, com citações e páginas, será produzida na próxima etapa; até lá, confirme no documento qualquer método, resultado, número ou conclusão.
+- **Situação da ficha:** Arquivo completo disponível no Drive; resumo analítico completo ainda não cadastrado no índice.
 - **Acesso:** [Abrir o arquivo no Google Drive](https://drive.google.com/file/d/17uUmcVnWBbGfpwr6Svt-HPFfz26g7-EI/view?usp=drivesdk)
 
 ### 4. Ford (2010) — Scientific Method Ecological Research
@@ -749,8 +749,8 @@ Esta pasta reúne referências do acervo bibliográfico mantido no Google Drive 
 - **Aderência geral registrada:** a avaliar
 - **Palavras-chave:** não registradas
 - **Como pode fundamentar este repositório:** Oferece contexto de domínio, qualidade de registros ou método de validação útil ao pipeline de chamados.
-- **Resumo:** O índice atual identifica a obra pelo título e pelo tema “Metodologia”, mas ainda não contém síntese validada do conteúdo. Consulte o documento no Drive antes de atribuir método, resultados ou conclusões.
-- **Situação da ficha:** Leitura integral pendente; não usar como evidência específica sem conferir o PDF.
+- **Resumo:** O arquivo completo está disponível no Google Drive. O índice identifica a obra pelo título e pelo tema “Metodologia”, mas ainda não contém um resumo analítico completo cadastrado. A síntese detalhada, com citações e páginas, será produzida na próxima etapa; até lá, confirme no documento qualquer método, resultado, número ou conclusão.
+- **Situação da ficha:** Arquivo completo disponível no Drive; resumo analítico completo ainda não cadastrado no índice.
 - **Acesso:** [Abrir o arquivo no Google Drive](https://drive.google.com/file/d/1LZcN4fyNYxwKDwio7FnKi7LE_ioAbLcJ/view?usp=drivesdk)
 
 ### 5. Prodanov, C. C.; Freitas, E. C. de (2013) — Metodologia do Trabalho Científico: Métodos e Técnicas da Pesquisa e do Trabalho Acadêmico
@@ -761,8 +761,8 @@ Esta pasta reúne referências do acervo bibliográfico mantido no Google Drive 
 - **Aderência geral registrada:** a avaliar
 - **Palavras-chave:** Metodologia do trabalho científico
 - **Como pode fundamentar este repositório:** Oferece contexto de domínio, qualidade de registros ou método de validação útil ao pipeline de chamados.
-- **Resumo:** O índice atual identifica a obra pelo título e pelo tema “Metodologia”, mas ainda não contém síntese validada do conteúdo. Consulte o documento no Drive antes de atribuir método, resultados ou conclusões.
-- **Situação da ficha:** Leitura integral pendente; não usar como evidência específica sem conferir o PDF.
+- **Resumo:** O arquivo completo está disponível no Google Drive. O índice identifica a obra pelo título e pelo tema “Metodologia”, mas ainda não contém um resumo analítico completo cadastrado. A síntese detalhada, com citações e páginas, será produzida na próxima etapa; até lá, confirme no documento qualquer método, resultado, número ou conclusão.
+- **Situação da ficha:** Arquivo completo disponível no Drive; resumo analítico completo ainda não cadastrado no índice.
 - **Acesso:** [Abrir o arquivo no Google Drive](https://drive.google.com/file/d/1NSMLiAou9n-gE3nGLUnRO8oLLpYnOVJE/view?usp=drivesdk)
 
 ### 6. Jiang, Y.; Lin, C.; Meng, W.; Yu, C.; Cohen, A. M.; Smalheiser, N. R. (2014) — Rule-based deduplication of article records from bibliographic databases
