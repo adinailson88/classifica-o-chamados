@@ -29,6 +29,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
+import gspread
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -76,10 +77,17 @@ def carregar_elegiveis(ws, config) -> list[dict[str, Any]]:
 
 
 def linhas_ja_classificadas(sh, aba: str) -> set[int]:
-    """Le a coluna linha_planilha (B) de CLASSIF__<modelo>; vazio se a aba nao existe."""
+    """Le a coluna linha_planilha (B) de CLASSIF__<modelo>; vazio se a aba nao existe.
+
+    Aba inexistente e o UNICO caso legitimo de comecar do zero. Erro de API nao
+    pode virar set vazio: o run trataria a base inteira como pendente e
+    re-anexaria tudo (duplicou CLASSIF__random_forest em 14/07/2026)."""
     try:
-        vals = sh.worksheet(aba).get_values("B:B", value_render_option="UNFORMATTED_VALUE")
-    except Exception:  # noqa: BLE001
+        vals = pl._com_retry(
+            lambda: sh.worksheet(aba).get_values(
+                "B:B", value_render_option="UNFORMATTED_VALUE"),
+            rotulo=f"ler {aba}")
+    except gspread.WorksheetNotFound:
         return set()
     feitas = set()
     for r in vals[1:]:

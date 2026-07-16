@@ -1,0 +1,57 @@
+name: Limpar duplicatas CLASSIF
+
+# Remove linhas duplicadas (mesma linha_planilha) das abas CLASSIF__<modelo>,
+# mantendo a ULTIMA ocorrencia. Corrige a duplicacao do random_forest de
+# 14/07/2026 (27.838 linhas para 13.954 unicas). Dry-run por padrao;
+# aplicar=true reescreve as abas afetadas em uma escrita em lote.
+# MANUAL apenas. Mesmo grupo de concorrencia do multimodelo para nao
+# disputar escrita com o cron de classificacao.
+on:
+  workflow_dispatch:
+    inputs:
+      modelos:
+        description: "todos | leves | pesados | lista separada por virgula"
+        default: "todos"
+      aplicar:
+        description: "Reescrever as abas com duplicatas (false = so relatorio)"
+        type: boolean
+        default: false
+
+concurrency:
+  group: multimodelo-classif
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  limpar-duplicatas:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: requirements-leves.txt
+      - name: Instalar dependencias leves
+        run: python -m pip install --retries 5 --timeout 120 -r requirements-leves.txt
+      - name: Recriar chave da conta de servico
+        env:
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+        run: |
+          if [ -z "$GCP_SA_KEY" ]; then echo "Secret GCP_SA_KEY ausente." >&2; exit 1; fi
+          printf '%s' "$GCP_SA_KEY" > credenciais_sa.json
+      - name: Limpar duplicatas
+        run: |
+          if [ "${{ github.event.inputs.aplicar }}" = "true" ]; then
+            python src/limpar_duplicatas_classif.py --modelos "${{ github.event.inputs.modelos }}" --aplicar
+          else
+            python src/limpar_duplicatas_classif.py --modelos "${{ github.event.inputs.modelos }}"
+          fi
+      - name: Remover credenciais
+        if: always()
+        run: rm -f credenciais_sa.json

@@ -292,7 +292,11 @@ def main() -> int:
                 f"ler {nome_aba}",
                 lambda na=nome_aba: sh.worksheet(na).get_values(
                     "A:K", value_render_option="UNFORMATTED_VALUE"))
-        except Exception:  # noqa: BLE001
+        except Exception as e:  # noqa: BLE001
+            # Skip silencioso esconderia o modelo do resumo (caso do lstm apos o
+            # reset de 18/06): deixa o motivo visivel no log do workflow.
+            print(f"AVISO: falha ao ler {nome_aba}; registros_{modelo}.json NAO sera "
+                  f"atualizado ({type(e).__name__}: {str(e)[:80]})", file=sys.stderr)
             vals = []
         rm = []
         for rr in vals[1:]:
@@ -309,6 +313,15 @@ def main() -> int:
             rm.append({"l": ln, "g": (orig.split(" > ")[0].strip() if orig else "(sem)"),
                        "m": tipo_manutencao(orig), "o": orig, "p": cia, "c": round(c, 4), "f": fa, "e": ex or modelo,
                        "k": 1 if cia == orig else 0, "v": valida.get(ln, "")})
+        # Dedupe defensivo: a aba e um log de append; se a mesma linha_planilha
+        # aparecer 2x (falha de API re-anexou a base), vale a ULTIMA ocorrencia.
+        vistos = {}
+        for reg in rm:
+            vistos[reg["l"]] = reg
+        if len(vistos) != len(rm):
+            print(f"AVISO: {nome_aba} tem {len(rm) - len(vistos)} linhas duplicadas; "
+                  f"mantida a ultima ocorrencia por linha_planilha", file=sys.stderr)
+            rm = list(vistos.values())
         if rm:
             (SAIDA / f"registros_{modelo}.json").write_text(
                 json.dumps(rm, ensure_ascii=False), encoding="utf-8")
