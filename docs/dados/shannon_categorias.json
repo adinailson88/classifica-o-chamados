@@ -17,7 +17,7 @@
       "categoria_historica": "Projetos e Reformas > Reforma",
       "modelos": 9,
       "suporte_max": 83,
-      "entropia_media_normalizada": 0.7665,
+      "entropia_media_normalizada": 0.7638,
       "maior_risco": "alta_ambiguidade"
     },
     {
@@ -52,7 +52,7 @@
       "categoria_historica": "Estrutura Predial > Telhados, calhas, rufos, etc.",
       "modelos": 9,
       "suporte_max": 205,
-      "entropia_media_normalizada": 0.6976,
+      "entropia_media_normalizada": 0.692,
       "maior_risco": "alta_ambiguidade"
     },
     {
@@ -73,7 +73,7 @@
       "categoria_historica": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
       "modelos": 9,
       "suporte_max": 1300,
-      "entropia_media_normalizada": 0.6287,
+      "entropia_media_normalizada": 0.6244,
       "maior_risco": "alta_ambiguidade"
     },
     {
@@ -108,7 +108,7 @@
       "categoria_historica": "Elétrica > Instalações elétricas",
       "modelos": 9,
       "suporte_max": 939,
-      "entropia_media_normalizada": 0.5229,
+      "entropia_media_normalizada": 0.5242,
       "maior_risco": "alta_ambiguidade"
     },
     {
@@ -157,21 +157,21 @@
       "categoria_historica": "Hidrossanitária > Hidráulica",
       "modelos": 9,
       "suporte_max": 1275,
-      "entropia_media_normalizada": 0.3383,
+      "entropia_media_normalizada": 0.3326,
       "maior_risco": "ambiguidade_moderada"
     },
     {
       "categoria_historica": "Elétrica > Iluminação",
       "modelos": 9,
       "suporte_max": 747,
-      "entropia_media_normalizada": 0.3162,
+      "entropia_media_normalizada": 0.3115,
       "maior_risco": "ambiguidade_moderada"
     },
     {
       "categoria_historica": "Estrutura Predial > Esquadrias, porta, portão e janelas",
       "modelos": 9,
       "suporte_max": 968,
-      "entropia_media_normalizada": 0.3156,
+      "entropia_media_normalizada": 0.311,
       "maior_risco": "estavel"
     },
     {
@@ -192,7 +192,7 @@
       "categoria_historica": "Climatização > Ar condicionado",
       "modelos": 9,
       "suporte_max": 1632,
-      "entropia_media_normalizada": 0.2513,
+      "entropia_media_normalizada": 0.2506,
       "maior_risco": "ambiguidade_moderada"
     },
     {
@@ -211,9 +211,9 @@
     },
     {
       "categoria_historica": "Manutenção Preventiva > Vistoria em Instalações",
-      "modelos": 8,
+      "modelos": 9,
       "suporte_max": 247,
-      "entropia_media_normalizada": 0.1788,
+      "entropia_media_normalizada": 0.1805,
       "maior_risco": "estavel"
     },
     {
@@ -231,6 +231,13 @@
       "maior_risco": "estavel"
     },
     {
+      "categoria_historica": "Manutenção Preventiva > Quadros Elétricos",
+      "modelos": 9,
+      "suporte_max": 576,
+      "entropia_media_normalizada": 0.1079,
+      "maior_risco": "estavel"
+    },
+    {
       "categoria_historica": "Manutenção Preventiva > Reservatório",
       "modelos": 8,
       "suporte_max": 279,
@@ -238,24 +245,17 @@
       "maior_risco": "estavel"
     },
     {
-      "categoria_historica": "Manutenção Preventiva > Quadros Elétricos",
-      "modelos": 8,
-      "suporte_max": 576,
-      "entropia_media_normalizada": 0.082,
-      "maior_risco": "estavel"
-    },
-    {
       "categoria_historica": "Manutenção Preventiva > Gerador",
       "modelos": 9,
       "suporte_max": 1211,
-      "entropia_media_normalizada": 0.0676,
+      "entropia_media_normalizada": 0.0655,
       "maior_risco": "estavel"
     },
     {
       "categoria_historica": "Manutenção Preventiva > Ar condicionado split",
-      "modelos": 8,
+      "modelos": 9,
       "suporte_max": 1795,
-      "entropia_media_normalizada": 0.051,
+      "entropia_media_normalizada": 0.0454,
       "maior_risco": "estavel"
     }
   ],
@@ -651,21 +651,6 @@
       "risco": "alta_ambiguidade"
     },
     {
-      "modelo": "etapa1_oficial",
-      "categoria_historica": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-      "suporte": 170,
-      "categorias_previstas": 18,
-      "entropia_previsoes": 3.2723,
-      "entropia_normalizada": 0.7847,
-      "categorias_efetivas": 9.6617,
-      "top_1_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-      "top_1_pct": 0.3588,
-      "top_2_previsto": "Estrutura Predial > Esquadrias, porta, portão e janelas",
-      "top_2_pct": 0.1176,
-      "concordancia_historico": 0.3588,
-      "risco": "alta_ambiguidade"
-    },
-    {
       "modelo": "lstm",
       "categoria_historica": "Suprimentos / Apoio Técnico > Materiais",
       "suporte": 85,
@@ -846,6 +831,21 @@
       "risco": "alta_ambiguidade"
     },
     {
+      "modelo": "etapa1_oficial",
+      "categoria_historica": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
+      "suporte": 253,
+      "categorias_previstas": 20,
+      "entropia_previsoes": 3.2252,
+      "entropia_normalizada": 0.7462,
+      "categorias_efetivas": 9.3517,
+      "top_1_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
+      "top_1_pct": 0.3953,
+      "top_2_previsto": "Estrutura Predial > Esquadrias, porta, portão e janelas",
+      "top_2_pct": 0.0949,
+      "concordancia_historico": 0.3953,
+      "risco": "alta_ambiguidade"
+    },
+    {
       "modelo": "transformer_ft",
       "categoria_historica": "Suprimentos / Apoio Técnico > Materiais",
       "suporte": 85,
@@ -964,21 +964,6 @@
       "top_2_pct": 0.1842,
       "concordancia_historico": 0.6053,
       "risco": "ambiguidade_moderada"
-    },
-    {
-      "modelo": "etapa1_oficial",
-      "categoria_historica": "Estrutura Predial > Telhados, calhas, rufos, etc.",
-      "suporte": 58,
-      "categorias_previstas": 8,
-      "entropia_previsoes": 2.1814,
-      "entropia_normalizada": 0.7271,
-      "categorias_efetivas": 4.5359,
-      "top_1_previsto": "Estrutura Predial > Telhados, calhas, rufos, etc.",
-      "top_1_pct": 0.4655,
-      "top_2_previsto": "Estrutura Predial > Forro",
-      "top_2_pct": 0.2241,
-      "concordancia_historico": 0.4655,
-      "risco": "alta_ambiguidade"
     },
     {
       "modelo": "sgd",
@@ -1341,6 +1326,21 @@
       "risco": "alta_ambiguidade"
     },
     {
+      "modelo": "etapa1_oficial",
+      "categoria_historica": "Estrutura Predial > Telhados, calhas, rufos, etc.",
+      "suporte": 70,
+      "categorias_previstas": 8,
+      "entropia_previsoes": 2.0311,
+      "entropia_normalizada": 0.677,
+      "categorias_efetivas": 4.0872,
+      "top_1_previsto": "Estrutura Predial > Telhados, calhas, rufos, etc.",
+      "top_1_pct": 0.5143,
+      "top_2_previsto": "Estrutura Predial > Forro",
+      "top_2_pct": 0.2286,
+      "concordancia_historico": 0.5143,
+      "risco": "alta_ambiguidade"
+    },
+    {
       "modelo": "transformer_ft",
       "categoria_historica": "Instalação de Acessórios e Mobiliário > Placas de identificação",
       "suporte": 54,
@@ -1686,21 +1686,6 @@
       "risco": "ambiguidade_moderada"
     },
     {
-      "modelo": "etapa1_oficial",
-      "categoria_historica": "Projetos e Reformas > Reforma",
-      "suporte": 73,
-      "categorias_previstas": 10,
-      "entropia_previsoes": 1.9878,
-      "entropia_normalizada": 0.5984,
-      "categorias_efetivas": 3.9664,
-      "top_1_previsto": "Projetos e Reformas > Reforma",
-      "top_1_pct": 0.6027,
-      "top_2_previsto": "Projetos e Reformas > Projeto",
-      "top_2_pct": 0.1644,
-      "concordancia_historico": 0.6027,
-      "risco": "ambiguidade_moderada"
-    },
-    {
       "modelo": "regressao_logistica",
       "categoria_historica": "Outros > Erro de chamado",
       "suporte": 243,
@@ -1821,6 +1806,21 @@
       "risco": "ambiguidade_moderada"
     },
     {
+      "modelo": "etapa1_oficial",
+      "categoria_historica": "Projetos e Reformas > Reforma",
+      "suporte": 78,
+      "categorias_previstas": 10,
+      "entropia_previsoes": 1.9053,
+      "entropia_normalizada": 0.5735,
+      "categorias_efetivas": 3.7458,
+      "top_1_previsto": "Projetos e Reformas > Reforma",
+      "top_1_pct": 0.6282,
+      "top_2_previsto": "Projetos e Reformas > Projeto",
+      "top_2_pct": 0.1538,
+      "concordancia_historico": 0.6282,
+      "risco": "ambiguidade_moderada"
+    },
+    {
       "modelo": "transformer_ft",
       "categoria_historica": "Estrutura Predial > Infiltração",
       "suporte": 213,
@@ -1911,6 +1911,21 @@
       "risco": "ambiguidade_moderada"
     },
     {
+      "modelo": "etapa1_oficial",
+      "categoria_historica": "Elétrica > Instalações elétricas",
+      "suporte": 341,
+      "categorias_previstas": 23,
+      "entropia_previsoes": 2.5382,
+      "entropia_normalizada": 0.5611,
+      "categorias_efetivas": 5.8086,
+      "top_1_previsto": "Elétrica > Instalações elétricas",
+      "top_1_pct": 0.5718,
+      "top_2_previsto": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
+      "top_2_pct": 0.1056,
+      "concordancia_historico": 0.5718,
+      "risco": "ambiguidade_moderada"
+    },
+    {
       "modelo": "naive_bayes",
       "categoria_historica": "Climatização > Ar condicionado central",
       "suporte": 36,
@@ -1953,36 +1968,6 @@
       "top_2_previsto": "Climatização > Ar condicionado",
       "top_2_pct": 0.1053,
       "concordancia_historico": 0.0,
-      "risco": "ambiguidade_moderada"
-    },
-    {
-      "modelo": "etapa1_oficial",
-      "categoria_historica": "Elétrica > Instalações elétricas",
-      "suporte": 260,
-      "categorias_previstas": 22,
-      "entropia_previsoes": 2.4518,
-      "entropia_normalizada": 0.5498,
-      "categorias_efetivas": 5.471,
-      "top_1_previsto": "Elétrica > Instalações elétricas",
-      "top_1_pct": 0.5923,
-      "top_2_previsto": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
-      "top_2_pct": 0.1115,
-      "concordancia_historico": 0.5923,
-      "risco": "ambiguidade_moderada"
-    },
-    {
-      "modelo": "etapa1_oficial",
-      "categoria_historica": "Hidrossanitária > Hidráulica",
-      "suporte": 149,
-      "categorias_previstas": 14,
-      "entropia_previsoes": 2.0923,
-      "entropia_normalizada": 0.5495,
-      "categorias_efetivas": 4.2641,
-      "top_1_previsto": "Hidrossanitária > Hidráulica",
-      "top_1_pct": 0.6376,
-      "top_2_previsto": "Manutenção Preventiva > Esgoto",
-      "top_2_pct": 0.1074,
-      "concordancia_historico": 0.6376,
       "risco": "ambiguidade_moderada"
     },
     {
@@ -2253,6 +2238,21 @@
       "top_2_previsto": "Climatização > Ar condicionado",
       "top_2_pct": 0.1356,
       "concordancia_historico": 0.7458,
+      "risco": "ambiguidade_moderada"
+    },
+    {
+      "modelo": "etapa1_oficial",
+      "categoria_historica": "Hidrossanitária > Hidráulica",
+      "suporte": 230,
+      "categorias_previstas": 16,
+      "entropia_previsoes": 1.9931,
+      "entropia_normalizada": 0.4983,
+      "categorias_efetivas": 3.9808,
+      "top_1_previsto": "Hidrossanitária > Hidráulica",
+      "top_1_pct": 0.6696,
+      "top_2_previsto": "Manutenção Preventiva > Esgoto",
+      "top_2_pct": 0.0739,
+      "concordancia_historico": 0.6696,
       "risco": "ambiguidade_moderada"
     },
     {
@@ -2948,16 +2948,16 @@
     {
       "modelo": "etapa1_oficial",
       "categoria_historica": "Climatização > Ar condicionado",
-      "suporte": 358,
-      "categorias_previstas": 14,
-      "entropia_previsoes": 1.3314,
-      "entropia_normalizada": 0.3497,
-      "categorias_efetivas": 2.5165,
+      "suporte": 517,
+      "categorias_previstas": 15,
+      "entropia_previsoes": 1.342,
+      "entropia_normalizada": 0.3435,
+      "categorias_efetivas": 2.5351,
       "top_1_previsto": "Climatização > Ar condicionado",
-      "top_1_pct": 0.6425,
+      "top_1_pct": 0.5996,
       "top_2_previsto": "Manutenção Preventiva > Ar condicionado split",
-      "top_2_pct": 0.3045,
-      "concordancia_historico": 0.6425,
+      "top_2_pct": 0.352,
+      "concordancia_historico": 0.5996,
       "risco": "ambiguidade_moderada"
     },
     {
@@ -2991,21 +2991,6 @@
       "risco": "estavel"
     },
     {
-      "modelo": "etapa1_oficial",
-      "categoria_historica": "Estrutura Predial > Esquadrias, porta, portão e janelas",
-      "suporte": 147,
-      "categorias_previstas": 11,
-      "entropia_previsoes": 1.1458,
-      "entropia_normalizada": 0.3312,
-      "categorias_efetivas": 2.2127,
-      "top_1_previsto": "Estrutura Predial > Esquadrias, porta, portão e janelas",
-      "top_1_pct": 0.8299,
-      "top_2_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-      "top_2_pct": 0.0544,
-      "concordancia_historico": 0.8299,
-      "risco": "estavel"
-    },
-    {
       "modelo": "linear_svc",
       "categoria_historica": "Manutenção Preventiva > Iluminação",
       "suporte": 132,
@@ -3021,21 +3006,6 @@
       "risco": "estavel"
     },
     {
-      "modelo": "etapa1_oficial",
-      "categoria_historica": "Elétrica > Iluminação",
-      "suporte": 193,
-      "categorias_previstas": 12,
-      "entropia_previsoes": 1.1784,
-      "entropia_normalizada": 0.3287,
-      "categorias_efetivas": 2.2632,
-      "top_1_previsto": "Elétrica > Iluminação",
-      "top_1_pct": 0.829,
-      "top_2_previsto": "Projetos e Reformas > Projeto",
-      "top_2_pct": 0.0415,
-      "concordancia_historico": 0.829,
-      "risco": "estavel"
-    },
-    {
       "modelo": "naive_bayes",
       "categoria_historica": "Manutenção Preventiva > Vistoria em Instalações",
       "suporte": 247,
@@ -3048,6 +3018,21 @@
       "top_2_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
       "top_2_pct": 0.0648,
       "concordancia_historico": 0.8664,
+      "risco": "estavel"
+    },
+    {
+      "modelo": "etapa1_oficial",
+      "categoria_historica": "Manutenção Preventiva > Quadros Elétricos",
+      "suporte": 63,
+      "categorias_previstas": 10,
+      "entropia_previsoes": 1.0445,
+      "entropia_normalizada": 0.3144,
+      "categorias_efetivas": 2.0627,
+      "top_1_previsto": "Manutenção Preventiva > Quadros Elétricos",
+      "top_1_pct": 0.8571,
+      "top_2_previsto": "Suprimentos / Apoio Técnico > Transporte",
+      "top_2_pct": 0.0159,
+      "concordancia_historico": 0.8571,
       "risco": "estavel"
     },
     {
@@ -3183,6 +3168,36 @@
       "top_2_previsto": "Elétrica > Iluminação",
       "top_2_pct": 0.0909,
       "concordancia_historico": 0.8788,
+      "risco": "estavel"
+    },
+    {
+      "modelo": "etapa1_oficial",
+      "categoria_historica": "Estrutura Predial > Esquadrias, porta, portão e janelas",
+      "suporte": 192,
+      "categorias_previstas": 11,
+      "entropia_previsoes": 1.0038,
+      "entropia_normalizada": 0.2902,
+      "categorias_efetivas": 2.0053,
+      "top_1_previsto": "Estrutura Predial > Esquadrias, porta, portão e janelas",
+      "top_1_pct": 0.8542,
+      "top_2_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
+      "top_2_pct": 0.0469,
+      "concordancia_historico": 0.8542,
+      "risco": "estavel"
+    },
+    {
+      "modelo": "etapa1_oficial",
+      "categoria_historica": "Elétrica > Iluminação",
+      "suporte": 240,
+      "categorias_previstas": 13,
+      "entropia_previsoes": 1.0592,
+      "entropia_normalizada": 0.2862,
+      "categorias_efetivas": 2.0837,
+      "top_1_previsto": "Elétrica > Iluminação",
+      "top_1_pct": 0.8542,
+      "top_2_previsto": "Projetos e Reformas > Projeto",
+      "top_2_pct": 0.0333,
+      "concordancia_historico": 0.8542,
       "risco": "estavel"
     },
     {
@@ -3786,6 +3801,21 @@
       "risco": "estavel"
     },
     {
+      "modelo": "etapa1_oficial",
+      "categoria_historica": "Manutenção Preventiva > Vistoria em Instalações",
+      "suporte": 67,
+      "categorias_previstas": 2,
+      "entropia_previsoes": 0.1936,
+      "entropia_normalizada": 0.1936,
+      "categorias_efetivas": 1.1436,
+      "top_1_previsto": "Manutenção Preventiva > Vistoria em Instalações",
+      "top_1_pct": 0.9701,
+      "top_2_previsto": "Estrutura Predial > Instalações Especiais (gás, ar comprimido, etc.)",
+      "top_2_pct": 0.0299,
+      "concordancia_historico": 0.9701,
+      "risco": "estavel"
+    },
+    {
       "modelo": "extra_trees",
       "categoria_historica": "Hidrossanitária > Hidráulica",
       "suporte": 1275,
@@ -3906,21 +3936,6 @@
       "risco": "estavel"
     },
     {
-      "modelo": "etapa1_oficial",
-      "categoria_historica": "Manutenção Preventiva > Gerador",
-      "suporte": 131,
-      "categorias_previstas": 4,
-      "entropia_previsoes": 0.3256,
-      "entropia_normalizada": 0.1628,
-      "categorias_efetivas": 1.2532,
-      "top_1_previsto": "Manutenção Preventiva > Gerador",
-      "top_1_pct": 0.9542,
-      "top_2_previsto": "Elétrica > Gerador",
-      "top_2_pct": 0.0305,
-      "concordancia_historico": 0.9542,
-      "risco": "estavel"
-    },
-    {
       "modelo": "linear_svc",
       "categoria_historica": "Manutenção Preventiva > Vistoria em Instalações",
       "suporte": 247,
@@ -4038,6 +4053,21 @@
       "top_2_previsto": "Elétrica > Instalações elétricas",
       "top_2_pct": 0.0121,
       "concordancia_historico": 0.9393,
+      "risco": "estavel"
+    },
+    {
+      "modelo": "etapa1_oficial",
+      "categoria_historica": "Manutenção Preventiva > Gerador",
+      "suporte": 284,
+      "categorias_previstas": 4,
+      "entropia_previsoes": 0.287,
+      "entropia_normalizada": 0.1435,
+      "categorias_efetivas": 1.2201,
+      "top_1_previsto": "Manutenção Preventiva > Gerador",
+      "top_1_pct": 0.9577,
+      "top_2_previsto": "Elétrica > Gerador",
+      "top_2_pct": 0.0352,
+      "concordancia_historico": 0.9577,
       "risco": "estavel"
     },
     {
@@ -4724,6 +4754,21 @@
       "entropia_normalizada": 0.0,
       "categorias_efetivas": 1.0,
       "top_1_previsto": "Manutenção Preventiva > Ar condicionado central",
+      "top_1_pct": 1.0,
+      "top_2_previsto": "",
+      "top_2_pct": 0.0,
+      "concordancia_historico": 1.0,
+      "risco": "estavel"
+    },
+    {
+      "modelo": "etapa1_oficial",
+      "categoria_historica": "Manutenção Preventiva > Ar condicionado split",
+      "suporte": 44,
+      "categorias_previstas": 1,
+      "entropia_previsoes": -0.0,
+      "entropia_normalizada": 0.0,
+      "categorias_efetivas": 1.0,
+      "top_1_previsto": "Manutenção Preventiva > Ar condicionado split",
       "top_1_pct": 1.0,
       "top_2_previsto": "",
       "top_2_pct": 0.0,
