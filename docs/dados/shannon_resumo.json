@@ -1,5 +1,5 @@
 {
-  "gerado_em": "16/07/2026 23:46",
+  "gerado_em": "17/07/2026 00:10",
   "fontes": [
     "registros.json",
     "registros_extra_trees.json",
@@ -8,7 +8,8 @@
     "registros_naive_bayes.json",
     "registros_random_forest.json",
     "registros_regressao_logistica.json",
-    "registros_sgd.json"
+    "registros_sgd.json",
+    "registros_transformer_ft.json"
   ],
   "criterios": {
     "base_log": 2,
@@ -16,13 +17,13 @@
     "max_linhas_votos": 200,
     "privacidade": "sem_id_titulo_descricao_texto_livre"
   },
-  "modelos": 8,
+  "modelos": 9,
   "categorias_historicas_base": 35,
   "leitura": "Shannon mede dispersao/ambiguidade das distribuicoes; Jensen-Shannon mede distancia entre distribuicao prevista e historico. Nao substitui acuracia nem validacao humana.",
   "principais": {
-    "modelo_maior_diversidade": "lstm",
+    "modelo_maior_diversidade": "transformer_ft",
     "modelo_menor_js_historico": "etapa1_oficial",
-    "categorias_alta_ambiguidade": 75,
-    "linhas_alta_ambiguidade_votos": 2906
+    "categorias_alta_ambiguidade": 90,
+    "linhas_alta_ambiguidade_votos": 3386
   }
 }
