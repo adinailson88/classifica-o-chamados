@@ -2,14 +2,22 @@
 """Reseta o experimento: apaga tudo que a IA gravou e volta ao ZERO.
 
 Limpa na planilha principal as colunas G:K (Classificação IA, Avaliação,
-Executor, Criticidade e a fórmula de conferência), a coluna O
-(Classificação IA - 2/reclassificação) e LIMPA o conteúdo das abas do
-experimento (EXPERIMENTO_CONFIG, LOG_TURNOS_CLASSIFICACAO, LOG_LINHA_A_LINHA,
-SNAPSHOT_ETAPA_1, LOG_TURNOS_RECLASSIFICACAO, VALIDACAO_HUMANA,
-METRICAS_EXPERIMENTO, METRICAS_POR_CATEGORIA e abas multimodelo, quando existirem).
+Executor, Criticidade e a fórmula de conferência) e N:P (CONFERÊNCIA IA,
+Classificação IA - 2/reclassificação, CONFERÊNCIA IA - 2), e LIMPA o
+conteúdo das abas do experimento (EXPERIMENTO_CONFIG,
+LOG_TURNOS_CLASSIFICACAO, LOG_LINHA_A_LINHA, SNAPSHOT_ETAPA_1,
+LOG_TURNOS_RECLASSIFICACAO, VALIDACAO_HUMANA, METRICAS_EXPERIMENTO,
+METRICAS_POR_CATEGORIA e abas multimodelo, quando existirem).
 
-NÃO mexe na coluna C (categoria original/histórica), em L (fórmula do usuário) nem
-em M/N/P (CONFERÊNCIAS manuais). Acesso via conta de serviço (gspread).
+NÃO mexe na coluna C (categoria original/histórica), em L (fórmula do
+usuário) nem em M (CONFERÊNCIA GLPI — avalia C, que nunca muda, então não
+precisa ser reconferida). N e P SÃO apagadas porque avaliam G e O
+respectivamente, que deixam de existir após o reset — decisão explícita do
+pesquisador de reconferir a classificação da IA do zero após cada reset.
+
+Antes de apagar qualquer coisa, faz um BACKUP de A (ID) + M (CONFERÊNCIA
+GLPI) numa aba nova (`BACKUP_M_<timestamp>`), como segurança extra — mesmo
+M não sendo tocada pelo reset em si.
 
 SEGURANÇA: só executa com --aplicar E --confirmar RESETAR. Sem isso, é dry-run.
 Use sempre que quiser recomeçar a classificação/reclassificação do zero.
@@ -20,9 +28,12 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from datetime import datetime
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from tempo import FUSO_BAHIA  # noqa: E402
 
 RAIZ = Path(__file__).resolve().parents[1]
 CONFIG_PADRAO = RAIZ / "config_experimento.json"
@@ -37,6 +48,29 @@ ABAS_IA_2 = [
     "CLASSIFICACAO_2_DRYRUN",
     "AUDITORIA_CLASSIFICACAO_2",
 ]
+
+
+def backup_coluna_m(sh, ws) -> str:
+    """Copia A (ID) + M (CONFERENCIA GLPI) para uma aba nova antes do reset.
+
+    Seguranca extra: M nao e tocada pelo reset, mas fica duplicada em outro
+    lugar mesmo assim, para o caso de qualquer problema durante a execucao.
+    Retorna o nome da aba de backup criada.
+    """
+    ids = ws.col_values(1)
+    conferencias_m = ws.col_values(13)  # coluna M
+    linhas = max(len(ids), len(conferencias_m))
+    ids += [""] * (linhas - len(ids))
+    conferencias_m += [""] * (linhas - len(conferencias_m))
+
+    agora = datetime.now(FUSO_BAHIA).strftime("%Y%m%d_%H%M%S")
+    nome_aba = f"BACKUP_M_{agora}"
+    aba_backup = sh.add_worksheet(title=nome_aba, rows=linhas + 1, cols=2)
+    aba_backup.update(
+        values=[["ID", "CONFERENCIA_GLPI_M"]] + list(zip(ids, conferencias_m)),
+        range_name="A1",
+    )
+    return nome_aba
 
 
 def parse_args() -> argparse.Namespace:
@@ -70,7 +104,7 @@ def main() -> int:
     abas = [a for a in dict.fromkeys(abas) if a]
 
     print("planilha=<via SPREADSHEET_ID/local>")
-    print(f"principal={aba} -> limpar G:K e O (preserva C, L, M/N/P)")
+    print(f"principal={aba} -> backup de M, depois limpar G:K e N:P (preserva C, L, M)")
     print(f"abas a limpar: {', '.join(abas)}")
 
     if not args.aplicar:
@@ -93,9 +127,12 @@ def main() -> int:
         print(f"Falha ao acessar a planilha: {type(e).__name__}: {e}", file=sys.stderr)
         return 1
 
-    ws.batch_clear([f"G2:K{ws.row_count}", f"O2:O{ws.row_count}"])
+    nome_backup = backup_coluna_m(sh, ws)
+    print(f"backup criado: {nome_backup} (coluna A+M, antes de qualquer limpeza)")
+
+    ws.batch_clear([f"G2:K{ws.row_count}", f"N2:P{ws.row_count}"])
     print(f"limpo: {aba}!G2:K{ws.row_count}")
-    print(f"limpo: {aba}!O2:O{ws.row_count}")
+    print(f"limpo: {aba}!N2:P{ws.row_count}")
 
     for nome in abas:
         try:
