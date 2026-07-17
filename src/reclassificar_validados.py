@@ -149,12 +149,25 @@ def main() -> int:
 
     com_verdade = [r for r in registros if r["acertou"] is not None]
     acertos = sum(1 for r in com_verdade if r["acertou"])
+    acertos_g = sum(1 for r in com_verdade if r["cat_G"] == r["verdade"])
+    ganho_vs_g = acertos - acertos_g
     print(f"reclassificados={len(registros)} | com_verdade={len(com_verdade)} | "
-          f"acertos_robusto={acertos}/{len(com_verdade)} | executor=Reclass_{tag}")
+          f"acertos_robusto={acertos}/{len(com_verdade)} | "
+          f"acertos_ia_original={acertos_g}/{len(com_verdade)} | "
+          f"ganho_vs_g={ganho_vs_g} | executor=Reclass_{tag}")
 
     if not args.aplicar:
         print("modo=dry-run (nada gravado).")
         return 0
+
+    if com_verdade and ganho_vs_g < 0:
+        print(
+            "ABORTADO: reclassificacao pioraria a IA original G nas linhas com verdade derivada "
+            f"({acertos}/{len(com_verdade)} vs {acertos_g}/{len(com_verdade)}). "
+            "Coluna O nao foi alterada.",
+            file=sys.stderr,
+        )
+        return 1
 
     # 1) Grava a reclassificacao na coluna O (Classificacao IA - 2), sem tocar em G/M/N.
     mapa_o = {r["linha"]: r["cat_o"] for r in registros}
