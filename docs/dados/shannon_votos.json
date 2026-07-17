@@ -1,8 +1,8 @@
 {
   "resumo": {
     "linhas_com_2_ou_mais_modelos": 13965,
-    "linhas_alta_ambiguidade": 3357,
-    "entropia_media_votos": 0.5393
+    "linhas_alta_ambiguidade": 3358,
+    "entropia_media_votos": 0.544
   },
   "linhas_mais_ambiguas": [
     {
@@ -216,20 +216,60 @@
       ]
     },
     {
-      "linha": 6903,
-      "categoria_historica": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
-      "n_modelos": 8,
-      "categorias_votadas": 2,
-      "entropia_votos": 1.0,
+      "linha": 6526,
+      "categoria_historica": "Hidrossanitária > Bomba",
+      "n_modelos": 9,
+      "categorias_votadas": 3,
+      "entropia_votos": 1.585,
       "entropia_normalizada": 1.0,
-      "categorias_efetivas": 2.0,
-      "maioria": "Elétrica > Instalações elétricas",
-      "maioria_pct": 0.5,
+      "categorias_efetivas": 3.0,
+      "maioria": "Climatização > Ar condicionado central",
+      "maioria_pct": 0.3333,
       "modelos_divergentes": [
-        "lstm",
+        "extra_trees",
+        "linear_svc",
+        "naive_bayes",
+        "random_forest",
         "regressao_logistica",
-        "sgd",
-        "transformer_ft"
+        "sgd"
+      ]
+    },
+    {
+      "linha": 6622,
+      "categoria_historica": "Manutenção Preventiva > Telhados, calhas, rufos, etc.",
+      "n_modelos": 9,
+      "categorias_votadas": 3,
+      "entropia_votos": 1.585,
+      "entropia_normalizada": 1.0,
+      "categorias_efetivas": 3.0,
+      "maioria": "Manutenção Preventiva > Telhados, calhas, rufos, etc.",
+      "maioria_pct": 0.3333,
+      "modelos_divergentes": [
+        "extra_trees",
+        "linear_svc",
+        "lstm",
+        "naive_bayes",
+        "random_forest",
+        "regressao_logistica"
+      ]
+    },
+    {
+      "linha": 6952,
+      "categoria_historica": "Estrutura Predial > Telhados, calhas, rufos, etc.",
+      "n_modelos": 9,
+      "categorias_votadas": 3,
+      "entropia_votos": 1.585,
+      "entropia_normalizada": 1.0,
+      "categorias_efetivas": 3.0,
+      "maioria": "Estrutura Predial > Telhados, calhas, rufos, etc.",
+      "maioria_pct": 0.3333,
+      "modelos_divergentes": [
+        "extra_trees",
+        "linear_svc",
+        "lstm",
+        "naive_bayes",
+        "random_forest",
+        "regressao_logistica"
       ]
     },
     {
@@ -1576,6 +1616,57 @@
       ]
     },
     {
+      "linha": 6808,
+      "categoria_historica": "Elétrica > Nobreak",
+      "n_modelos": 9,
+      "categorias_votadas": 2,
+      "entropia_votos": 0.9911,
+      "entropia_normalizada": 0.9911,
+      "categorias_efetivas": 1.9877,
+      "maioria": "Elétrica > Instalações elétricas",
+      "maioria_pct": 0.5556,
+      "modelos_divergentes": [
+        "etapa1_oficial",
+        "extra_trees",
+        "regressao_logistica",
+        "sgd"
+      ]
+    },
+    {
+      "linha": 6903,
+      "categoria_historica": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
+      "n_modelos": 9,
+      "categorias_votadas": 2,
+      "entropia_votos": 0.9911,
+      "entropia_normalizada": 0.9911,
+      "categorias_efetivas": 1.9877,
+      "maioria": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
+      "maioria_pct": 0.5556,
+      "modelos_divergentes": [
+        "extra_trees",
+        "linear_svc",
+        "naive_bayes",
+        "random_forest"
+      ]
+    },
+    {
+      "linha": 6950,
+      "categoria_historica": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
+      "n_modelos": 9,
+      "categorias_votadas": 2,
+      "entropia_votos": 0.9911,
+      "entropia_normalizada": 0.9911,
+      "categorias_efetivas": 1.9877,
+      "maioria": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
+      "maioria_pct": 0.5556,
+      "modelos_divergentes": [
+        "etapa1_oficial",
+        "lstm",
+        "regressao_logistica",
+        "transformer_ft"
+      ]
+    },
+    {
       "linha": 105,
       "categoria_historica": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
       "n_modelos": 9,
@@ -1649,96 +1740,6 @@
         "regressao_logistica",
         "sgd",
         "transformer_ft"
-      ]
-    },
-    {
-      "linha": 6490,
-      "categoria_historica": "Manutenção Preventiva > Telhados, calhas, rufos, etc.",
-      "n_modelos": 8,
-      "categorias_votadas": 3,
-      "entropia_votos": 1.5613,
-      "entropia_normalizada": 0.9851,
-      "categorias_efetivas": 2.9512,
-      "maioria": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-      "maioria_pct": 0.375,
-      "modelos_divergentes": [
-        "linear_svc",
-        "lstm",
-        "regressao_logistica",
-        "sgd",
-        "transformer_ft"
-      ]
-    },
-    {
-      "linha": 6526,
-      "categoria_historica": "Hidrossanitária > Bomba",
-      "n_modelos": 8,
-      "categorias_votadas": 3,
-      "entropia_votos": 1.5613,
-      "entropia_normalizada": 0.9851,
-      "categorias_efetivas": 2.9512,
-      "maioria": "Climatização > Ar condicionado",
-      "maioria_pct": 0.375,
-      "modelos_divergentes": [
-        "linear_svc",
-        "lstm",
-        "regressao_logistica",
-        "sgd",
-        "transformer_ft"
-      ]
-    },
-    {
-      "linha": 6622,
-      "categoria_historica": "Manutenção Preventiva > Telhados, calhas, rufos, etc.",
-      "n_modelos": 8,
-      "categorias_votadas": 3,
-      "entropia_votos": 1.5613,
-      "entropia_normalizada": 0.9851,
-      "categorias_efetivas": 2.9512,
-      "maioria": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-      "maioria_pct": 0.375,
-      "modelos_divergentes": [
-        "linear_svc",
-        "lstm",
-        "regressao_logistica",
-        "sgd",
-        "transformer_ft"
-      ]
-    },
-    {
-      "linha": 6952,
-      "categoria_historica": "Estrutura Predial > Telhados, calhas, rufos, etc.",
-      "n_modelos": 8,
-      "categorias_votadas": 3,
-      "entropia_votos": 1.5613,
-      "entropia_normalizada": 0.9851,
-      "categorias_efetivas": 2.9512,
-      "maioria": "Climatização > Ar condicionado",
-      "maioria_pct": 0.375,
-      "modelos_divergentes": [
-        "linear_svc",
-        "lstm",
-        "regressao_logistica",
-        "sgd",
-        "transformer_ft"
-      ]
-    },
-    {
-      "linha": 7130,
-      "categoria_historica": "Estrutura Predial > Esquadrias, porta, portão e janelas",
-      "n_modelos": 8,
-      "categorias_votadas": 3,
-      "entropia_votos": 1.5613,
-      "entropia_normalizada": 0.9851,
-      "categorias_efetivas": 2.9512,
-      "maioria": "Estrutura Predial > Esquadrias, porta, portão e janelas",
-      "maioria_pct": 0.375,
-      "modelos_divergentes": [
-        "extra_trees",
-        "naive_bayes",
-        "random_forest",
-        "regressao_logistica",
-        "sgd"
       ]
     },
     {
