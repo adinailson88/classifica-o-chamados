@@ -1,15 +1,29 @@
 {
-  "gerado_em": "17/07/2026 03:02",
+  "gerado_em": "17/07/2026 04:39",
   "natureza": "exploratorio_revisao_taxonomia (prioriza revisao humana; nao funde categorias)",
   "leitura": "score alto = par confundido pela IA E com vocabulario sobreposto -> candidato a fusao/desambiguacao",
-  "fonte_correlacao": "17/07/2026 03:02",
+  "fonte_correlacao": "17/07/2026 04:39",
   "candidatos_revisao": [
+    {
+      "categoria_historica": "Manutenção Preventiva > Hidráulica",
+      "categoria_ia": "Manutenção Preventiva > Reservatório",
+      "taxa_confusao": 0.5,
+      "correlacao_vocabular": 0.8104,
+      "score_revisao": 0.6366
+    },
     {
       "categoria_historica": "Manutenção Preventiva > Reservatório",
       "categoria_ia": "Manutenção Preventiva > Hidráulica",
       "taxa_confusao": 0.3333,
       "correlacao_vocabular": 0.8104,
       "score_revisao": 0.5197
+    },
+    {
+      "categoria_historica": "Climatização > Ar condicionado",
+      "categoria_ia": "Manutenção Preventiva > Ar condicionado split",
+      "taxa_confusao": 0.3534,
+      "correlacao_vocabular": 0.6456,
+      "score_revisao": 0.4777
     },
     {
       "categoria_historica": "Instalação de Acessórios e Mobiliário > Instalação/reparo de equipamentos (Suportes de TV, acessórios de banheiro e quadro branco)",
@@ -19,11 +33,18 @@
       "score_revisao": 0.4687
     },
     {
-      "categoria_historica": "Climatização > Ar condicionado",
-      "categoria_ia": "Manutenção Preventiva > Ar condicionado split",
-      "taxa_confusao": 0.3062,
-      "correlacao_vocabular": 0.6456,
-      "score_revisao": 0.4446
+      "categoria_historica": "Climatização > Ar condicionado central",
+      "categoria_ia": "Manutenção Preventiva > Ar condicionado central",
+      "taxa_confusao": 0.3,
+      "correlacao_vocabular": 0.5569,
+      "score_revisao": 0.4087
+    },
+    {
+      "categoria_historica": "Estrutura Predial > Telhados, calhas, rufos, etc.",
+      "categoria_ia": "Estrutura Predial > Forro",
+      "taxa_confusao": 0.2286,
+      "correlacao_vocabular": 0.4574,
+      "score_revisao": 0.3234
     },
     {
       "categoria_historica": "Instalação de Acessórios e Mobiliário > Instalação/reparo de equipamentos (Suportes de TV, acessórios de banheiro e quadro branco)",
@@ -33,20 +54,6 @@
       "score_revisao": 0.3208
     },
     {
-      "categoria_historica": "Estrutura Predial > Telhados, calhas, rufos, etc.",
-      "categoria_ia": "Estrutura Predial > Forro",
-      "taxa_confusao": 0.2241,
-      "correlacao_vocabular": 0.4574,
-      "score_revisao": 0.3202
-    },
-    {
-      "categoria_historica": "Estrutura Predial > Telhados, calhas, rufos, etc.",
-      "categoria_ia": "Manutenção Preventiva > Telhados, calhas, rufos, etc.",
-      "taxa_confusao": 0.1379,
-      "correlacao_vocabular": 0.5932,
-      "score_revisao": 0.286
-    },
-    {
       "categoria_historica": "Segurança contra Incêndio > Sistemas de combate a incêndio (extintores, hidrantes)",
       "categoria_ia": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
       "taxa_confusao": 0.5,
@@ -54,53 +61,39 @@
       "score_revisao": 0.2633
     },
     {
-      "categoria_historica": "Estrutura Predial > Pintura",
-      "categoria_ia": "Projetos e Reformas > Reforma",
-      "taxa_confusao": 0.25,
-      "correlacao_vocabular": 0.2634,
-      "score_revisao": 0.2566
+      "categoria_historica": "Outros > Erro de chamado",
+      "categoria_ia": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
+      "taxa_confusao": 0.1667,
+      "correlacao_vocabular": 0.411,
+      "score_revisao": 0.2618
     },
     {
-      "categoria_historica": "Outros > Erro de chamado",
-      "categoria_ia": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-      "taxa_confusao": 0.125,
-      "correlacao_vocabular": 0.4925,
-      "score_revisao": 0.2481
+      "categoria_historica": "Estrutura Predial > Telhados, calhas, rufos, etc.",
+      "categoria_ia": "Manutenção Preventiva > Telhados, calhas, rufos, etc.",
+      "taxa_confusao": 0.1143,
+      "correlacao_vocabular": 0.5932,
+      "score_revisao": 0.2604
     },
     {
       "categoria_historica": "Projetos e Reformas > Reforma",
       "categoria_ia": "Projetos e Reformas > Projeto",
-      "taxa_confusao": 0.1667,
+      "taxa_confusao": 0.1558,
       "correlacao_vocabular": 0.3405,
-      "score_revisao": 0.2382
+      "score_revisao": 0.2303
+    },
+    {
+      "categoria_historica": "Estrutura Predial > Pintura",
+      "categoria_ia": "Projetos e Reformas > Reforma",
+      "taxa_confusao": 0.2,
+      "correlacao_vocabular": 0.2634,
+      "score_revisao": 0.2295
     },
     {
       "categoria_historica": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-      "categoria_ia": "Estrutura Predial > Esquadrias, porta, portão e janelas",
-      "taxa_confusao": 0.1227,
-      "correlacao_vocabular": 0.4388,
-      "score_revisao": 0.232
-    },
-    {
-      "categoria_historica": "Outros > Erro de chamado",
-      "categoria_ia": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
-      "taxa_confusao": 0.125,
-      "correlacao_vocabular": 0.411,
-      "score_revisao": 0.2267
-    },
-    {
-      "categoria_historica": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
-      "categoria_ia": "Elétrica > Instalações elétricas",
-      "taxa_confusao": 0.1176,
-      "correlacao_vocabular": 0.4312,
-      "score_revisao": 0.2252
-    },
-    {
-      "categoria_historica": "Suprimentos / Apoio Técnico > Materiais",
-      "categoria_ia": "Elétrica > Instalações elétricas",
-      "taxa_confusao": 0.25,
-      "correlacao_vocabular": 0.2026,
-      "score_revisao": 0.2251
+      "categoria_ia": "Instalação de Acessórios e Mobiliário > Instalação/reparo de equipamentos (Suportes de TV, acessórios de banheiro e quadro branco)",
+      "taxa_confusao": 0.0691,
+      "correlacao_vocabular": 0.7587,
+      "score_revisao": 0.229
     },
     {
       "categoria_historica": "Instalação de Acessórios e Mobiliário > Instalação/reparo de equipamentos (Suportes de TV, acessórios de banheiro e quadro branco)",
@@ -112,114 +105,100 @@
     {
       "categoria_historica": "Elétrica > Instalações elétricas",
       "categoria_ia": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
-      "taxa_confusao": 0.1137,
+      "taxa_confusao": 0.1071,
       "correlacao_vocabular": 0.4312,
-      "score_revisao": 0.2214
+      "score_revisao": 0.2149
     },
     {
       "categoria_historica": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-      "categoria_ia": "Instalação de Acessórios e Mobiliário > Instalação/reparo de equipamentos (Suportes de TV, acessórios de banheiro e quadro branco)",
-      "taxa_confusao": 0.0613,
-      "correlacao_vocabular": 0.7587,
-      "score_revisao": 0.2157
-    },
-    {
-      "categoria_historica": "Hidrossanitária > Hidráulica",
-      "categoria_ia": "Manutenção Preventiva > Esgoto",
-      "taxa_confusao": 0.1103,
-      "correlacao_vocabular": 0.38,
-      "score_revisao": 0.2047
+      "categoria_ia": "Estrutura Predial > Esquadrias, porta, portão e janelas",
+      "taxa_confusao": 0.0976,
+      "correlacao_vocabular": 0.4388,
+      "score_revisao": 0.2069
     },
     {
       "categoria_historica": "Outros > Erro de chamado",
-      "categoria_ia": "Estrutura Predial > Esquadrias, porta, portão e janelas",
-      "taxa_confusao": 0.125,
-      "correlacao_vocabular": 0.2718,
-      "score_revisao": 0.1843
+      "categoria_ia": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
+      "taxa_confusao": 0.0833,
+      "correlacao_vocabular": 0.4925,
+      "score_revisao": 0.2025
     },
     {
       "categoria_historica": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
       "categoria_ia": "Projetos e Reformas > Reforma",
-      "taxa_confusao": 0.0613,
+      "taxa_confusao": 0.0772,
       "correlacao_vocabular": 0.5246,
-      "score_revisao": 0.1793
+      "score_revisao": 0.2012
+    },
+    {
+      "categoria_historica": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
+      "categoria_ia": "Elétrica > Instalações elétricas",
+      "taxa_confusao": 0.0909,
+      "correlacao_vocabular": 0.4312,
+      "score_revisao": 0.198
+    },
+    {
+      "categoria_historica": "Hidrossanitária > Hidráulica",
+      "categoria_ia": "Manutenção Preventiva > Esgoto",
+      "taxa_confusao": 0.0759,
+      "correlacao_vocabular": 0.38,
+      "score_revisao": 0.1698
     },
     {
       "categoria_historica": "Estrutura Predial > Telhados, calhas, rufos, etc.",
       "categoria_ia": "Estrutura Predial > Infiltração",
-      "taxa_confusao": 0.069,
+      "taxa_confusao": 0.0571,
       "correlacao_vocabular": 0.447,
-      "score_revisao": 0.1756
+      "score_revisao": 0.1598
     },
     {
       "categoria_historica": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
       "categoria_ia": "Projetos e Reformas > Projeto",
-      "taxa_confusao": 0.0859,
+      "taxa_confusao": 0.0691,
       "correlacao_vocabular": 0.3276,
-      "score_revisao": 0.1678
+      "score_revisao": 0.1505
+    },
+    {
+      "categoria_historica": "Outros > Erro de chamado",
+      "categoria_ia": "Estrutura Predial > Esquadrias, porta, portão e janelas",
+      "taxa_confusao": 0.0833,
+      "correlacao_vocabular": 0.2718,
+      "score_revisao": 0.1505
+    },
+    {
+      "categoria_historica": "Hidrossanitária > Hidráulica",
+      "categoria_ia": "Manutenção Preventiva > Reservatório",
+      "taxa_confusao": 0.0714,
+      "correlacao_vocabular": 0.3148,
+      "score_revisao": 0.1499
+    },
+    {
+      "categoria_historica": "Elétrica > Instalações elétricas",
+      "categoria_ia": "Elétrica > Iluminação",
+      "taxa_confusao": 0.0804,
+      "correlacao_vocabular": 0.2787,
+      "score_revisao": 0.1497
     },
     {
       "categoria_historica": "Manutenção Preventiva > Esgoto",
       "categoria_ia": "Hidrossanitária > Hidráulica",
-      "taxa_confusao": 0.0667,
-      "correlacao_vocabular": 0.38,
-      "score_revisao": 0.1592
-    },
-    {
-      "categoria_historica": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
-      "categoria_ia": "Outros > Erro de chamado",
       "taxa_confusao": 0.0588,
-      "correlacao_vocabular": 0.411,
-      "score_revisao": 0.1555
-    },
-    {
-      "categoria_historica": "Estrutura Predial > Esquadrias, porta, portão e janelas",
-      "categoria_ia": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-      "taxa_confusao": 0.0544,
-      "correlacao_vocabular": 0.4388,
-      "score_revisao": 0.1545
-    },
-    {
-      "categoria_historica": "Outros > Erro de chamado",
-      "categoria_ia": "Elétrica > Instalações elétricas",
-      "taxa_confusao": 0.0625,
-      "correlacao_vocabular": 0.3739,
-      "score_revisao": 0.1529
+      "correlacao_vocabular": 0.38,
+      "score_revisao": 0.1495
     },
     {
       "categoria_historica": "Projetos e Reformas > Reforma",
       "categoria_ia": "Estrutura Predial > Esquadrias, porta, portão e janelas",
-      "taxa_confusao": 0.0833,
+      "taxa_confusao": 0.0779,
       "correlacao_vocabular": 0.2781,
-      "score_revisao": 0.1522
+      "score_revisao": 0.1472
     },
     {
-      "categoria_historica": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
+      "categoria_historica": "Estrutura Predial > Esquadrias, porta, portão e janelas",
       "categoria_ia": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-      "taxa_confusao": 0.0588,
-      "correlacao_vocabular": 0.376,
-      "score_revisao": 0.1487
-    },
-    {
-      "categoria_historica": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-      "categoria_ia": "Estrutura Predial > Infiltração",
-      "taxa_confusao": 0.0675,
-      "correlacao_vocabular": 0.3247,
-      "score_revisao": 0.148
-    },
-    {
-      "categoria_historica": "Hidrossanitária > Hidráulica",
-      "categoria_ia": "Manutenção Preventiva > Hidráulica",
-      "taxa_confusao": 0.0414,
-      "correlacao_vocabular": 0.5044,
-      "score_revisao": 0.1445
-    },
-    {
-      "categoria_historica": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-      "categoria_ia": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
-      "taxa_confusao": 0.0552,
-      "correlacao_vocabular": 0.376,
-      "score_revisao": 0.1441
+      "taxa_confusao": 0.0469,
+      "correlacao_vocabular": 0.4388,
+      "score_revisao": 0.1435
     },
     {
       "categoria_historica": "Estrutura Predial > Forro",
@@ -229,25 +208,67 @@
       "score_revisao": 0.1411
     },
     {
-      "categoria_historica": "Estrutura Predial > Infiltração",
-      "categoria_ia": "Estrutura Predial > Telhados, calhas, rufos, etc.",
-      "taxa_confusao": 0.0435,
-      "correlacao_vocabular": 0.447,
-      "score_revisao": 0.1394
+      "categoria_historica": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
+      "categoria_ia": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
+      "taxa_confusao": 0.0528,
+      "correlacao_vocabular": 0.376,
+      "score_revisao": 0.1409
+    },
+    {
+      "categoria_historica": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
+      "categoria_ia": "Outros > Erro de chamado",
+      "taxa_confusao": 0.0455,
+      "correlacao_vocabular": 0.411,
+      "score_revisao": 0.1367
+    },
+    {
+      "categoria_historica": "Hidrossanitária > Hidráulica",
+      "categoria_ia": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
+      "taxa_confusao": 0.0446,
+      "correlacao_vocabular": 0.4177,
+      "score_revisao": 0.1365
+    },
+    {
+      "categoria_historica": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
+      "categoria_ia": "Estrutura Predial > Infiltração",
+      "taxa_confusao": 0.0569,
+      "correlacao_vocabular": 0.3247,
+      "score_revisao": 0.1359
+    },
+    {
+      "categoria_historica": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
+      "categoria_ia": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
+      "taxa_confusao": 0.0455,
+      "correlacao_vocabular": 0.376,
+      "score_revisao": 0.1308
     },
     {
       "categoria_historica": "Elétrica > Instalações elétricas",
-      "categoria_ia": "Elétrica > Iluminação",
-      "taxa_confusao": 0.0627,
-      "correlacao_vocabular": 0.2787,
-      "score_revisao": 0.1322
+      "categoria_ia": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
+      "taxa_confusao": 0.0327,
+      "correlacao_vocabular": 0.5191,
+      "score_revisao": 0.1303
+    },
+    {
+      "categoria_historica": "Suprimentos / Apoio Técnico > Materiais",
+      "categoria_ia": "Elétrica > Instalações elétricas",
+      "taxa_confusao": 0.08,
+      "correlacao_vocabular": 0.2026,
+      "score_revisao": 0.1273
+    },
+    {
+      "categoria_historica": "Estrutura Predial > Infiltração",
+      "categoria_ia": "Estrutura Predial > Telhados, calhas, rufos, etc.",
+      "taxa_confusao": 0.0357,
+      "correlacao_vocabular": 0.447,
+      "score_revisao": 0.1263
     },
     {
       "categoria_historica": "Outros > Erro de chamado",
-      "categoria_ia": "Área Externa e Ambiental > Manutenção área externa / meio ambiente",
-      "taxa_confusao": 0.0625,
-      "correlacao_vocabular": 0.2588,
-      "score_revisao": 0.1272
+      "categoria_ia": "Elétrica > Instalações elétricas",
+      "taxa_confusao": 0.0417,
+      "correlacao_vocabular": 0.3739,
+      "score_revisao": 0.1249
     },
     {
       "categoria_historica": "Instalação de Acessórios e Mobiliário > Instalação/reparo de equipamentos (Suportes de TV, acessórios de banheiro e quadro branco)",
@@ -257,32 +278,11 @@
       "score_revisao": 0.1217
     },
     {
-      "categoria_historica": "Outros > Erro de chamado",
-      "categoria_ia": "Climatização > Ar condicionado",
-      "taxa_confusao": 0.0625,
-      "correlacao_vocabular": 0.2353,
-      "score_revisao": 0.1213
-    },
-    {
       "categoria_historica": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
       "categoria_ia": "Estrutura Predial > Telhados, calhas, rufos, etc.",
-      "taxa_confusao": 0.0368,
+      "taxa_confusao": 0.0366,
       "correlacao_vocabular": 0.3903,
-      "score_revisao": 0.1198
-    },
-    {
-      "categoria_historica": "Elétrica > Instalações elétricas",
-      "categoria_ia": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-      "taxa_confusao": 0.0275,
-      "correlacao_vocabular": 0.5191,
       "score_revisao": 0.1195
-    },
-    {
-      "categoria_historica": "Estrutura Predial > Infiltração",
-      "categoria_ia": "Hidrossanitária > Hidráulica",
-      "taxa_confusao": 0.0435,
-      "correlacao_vocabular": 0.3073,
-      "score_revisao": 0.1156
     }
   ]
 }
