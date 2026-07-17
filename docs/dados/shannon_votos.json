@@ -1,8 +1,8 @@
 {
   "resumo": {
     "linhas_com_2_ou_mais_modelos": 13954,
-    "linhas_alta_ambiguidade": 3342,
-    "entropia_media_votos": 0.5211
+    "linhas_alta_ambiguidade": 3345,
+    "entropia_media_votos": 0.5252
   },
   "linhas_mais_ambiguas": [
     {
@@ -121,71 +121,22 @@
       ]
     },
     {
-      "linha": 2827,
-      "categoria_historica": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-      "n_modelos": 8,
-      "categorias_votadas": 2,
-      "entropia_votos": 1.0,
-      "entropia_normalizada": 1.0,
-      "categorias_efetivas": 2.0,
-      "maioria": "Hidrossanitária > Hidráulica",
-      "maioria_pct": 0.5,
-      "modelos_divergentes": [
-        "linear_svc",
-        "lstm",
-        "naive_bayes",
-        "transformer_ft"
-      ]
-    },
-    {
-      "linha": 3061,
-      "categoria_historica": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-      "n_modelos": 8,
-      "categorias_votadas": 2,
-      "entropia_votos": 1.0,
-      "entropia_normalizada": 1.0,
-      "categorias_efetivas": 2.0,
-      "maioria": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-      "maioria_pct": 0.5,
-      "modelos_divergentes": [
-        "lstm",
-        "regressao_logistica",
-        "sgd",
-        "transformer_ft"
-      ]
-    },
-    {
-      "linha": 3106,
-      "categoria_historica": "Projetos e Reformas > Projeto",
-      "n_modelos": 8,
-      "categorias_votadas": 2,
-      "entropia_votos": 1.0,
-      "entropia_normalizada": 1.0,
-      "categorias_efetivas": 2.0,
-      "maioria": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-      "maioria_pct": 0.5,
-      "modelos_divergentes": [
-        "linear_svc",
-        "regressao_logistica",
-        "sgd",
-        "transformer_ft"
-      ]
-    },
-    {
-      "linha": 3291,
+      "linha": 2940,
       "categoria_historica": "Hidrossanitária > Hidráulica",
-      "n_modelos": 8,
-      "categorias_votadas": 2,
-      "entropia_votos": 1.0,
+      "n_modelos": 9,
+      "categorias_votadas": 3,
+      "entropia_votos": 1.585,
       "entropia_normalizada": 1.0,
-      "categorias_efetivas": 2.0,
+      "categorias_efetivas": 3.0,
       "maioria": "Hidrossanitária > Hidráulica",
-      "maioria_pct": 0.5,
+      "maioria_pct": 0.3333,
       "modelos_divergentes": [
-        "lstm",
+        "extra_trees",
+        "linear_svc",
+        "naive_bayes",
+        "random_forest",
         "regressao_logistica",
-        "sgd",
-        "transformer_ft"
+        "sgd"
       ]
     },
     {
@@ -1379,6 +1330,57 @@
       ]
     },
     {
+      "linha": 2797,
+      "categoria_historica": "Hidrossanitária > Hidráulica",
+      "n_modelos": 9,
+      "categorias_votadas": 2,
+      "entropia_votos": 0.9911,
+      "entropia_normalizada": 0.9911,
+      "categorias_efetivas": 1.9877,
+      "maioria": "Manutenção Preventiva > Reservatório",
+      "maioria_pct": 0.5556,
+      "modelos_divergentes": [
+        "etapa1_oficial",
+        "extra_trees",
+        "linear_svc",
+        "random_forest"
+      ]
+    },
+    {
+      "linha": 2827,
+      "categoria_historica": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
+      "n_modelos": 9,
+      "categorias_votadas": 2,
+      "entropia_votos": 0.9911,
+      "entropia_normalizada": 0.9911,
+      "categorias_efetivas": 1.9877,
+      "maioria": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
+      "maioria_pct": 0.5556,
+      "modelos_divergentes": [
+        "extra_trees",
+        "random_forest",
+        "regressao_logistica",
+        "sgd"
+      ]
+    },
+    {
+      "linha": 3291,
+      "categoria_historica": "Hidrossanitária > Hidráulica",
+      "n_modelos": 9,
+      "categorias_votadas": 2,
+      "entropia_votos": 0.9911,
+      "entropia_normalizada": 0.9911,
+      "categorias_efetivas": 1.9877,
+      "maioria": "Manutenção Preventiva > Esgoto",
+      "maioria_pct": 0.5556,
+      "modelos_divergentes": [
+        "extra_trees",
+        "linear_svc",
+        "naive_bayes",
+        "random_forest"
+      ]
+    },
+    {
       "linha": 105,
       "categoria_historica": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
       "n_modelos": 9,
@@ -1449,60 +1451,6 @@
         "extra_trees",
         "lstm",
         "random_forest",
-        "regressao_logistica",
-        "sgd",
-        "transformer_ft"
-      ]
-    },
-    {
-      "linha": 2922,
-      "categoria_historica": "Estrutura Predial > Esquadrias, porta, portão e janelas",
-      "n_modelos": 8,
-      "categorias_votadas": 3,
-      "entropia_votos": 1.5613,
-      "entropia_normalizada": 0.9851,
-      "categorias_efetivas": 2.9512,
-      "maioria": "Hidrossanitária > Hidráulica",
-      "maioria_pct": 0.375,
-      "modelos_divergentes": [
-        "linear_svc",
-        "lstm",
-        "regressao_logistica",
-        "sgd",
-        "transformer_ft"
-      ]
-    },
-    {
-      "linha": 2940,
-      "categoria_historica": "Hidrossanitária > Hidráulica",
-      "n_modelos": 8,
-      "categorias_votadas": 3,
-      "entropia_votos": 1.5613,
-      "entropia_normalizada": 0.9851,
-      "categorias_efetivas": 2.9512,
-      "maioria": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-      "maioria_pct": 0.375,
-      "modelos_divergentes": [
-        "linear_svc",
-        "lstm",
-        "naive_bayes",
-        "sgd",
-        "transformer_ft"
-      ]
-    },
-    {
-      "linha": 3354,
-      "categoria_historica": "Elétrica > Iluminação",
-      "n_modelos": 8,
-      "categorias_votadas": 3,
-      "entropia_votos": 1.5613,
-      "entropia_normalizada": 0.9851,
-      "categorias_efetivas": 2.9512,
-      "maioria": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-      "maioria_pct": 0.375,
-      "modelos_divergentes": [
-        "linear_svc",
-        "lstm",
         "regressao_logistica",
         "sgd",
         "transformer_ft"
@@ -2447,6 +2395,26 @@
       ]
     },
     {
+      "linha": 2702,
+      "categoria_historica": "Estrutura Predial > Telhados, calhas, rufos, etc.",
+      "n_modelos": 9,
+      "categorias_votadas": 8,
+      "entropia_votos": 2.9477,
+      "entropia_normalizada": 0.9826,
+      "categorias_efetivas": 7.7152,
+      "maioria": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
+      "maioria_pct": 0.2222,
+      "modelos_divergentes": [
+        "etapa1_oficial",
+        "linear_svc",
+        "lstm",
+        "naive_bayes",
+        "regressao_logistica",
+        "sgd",
+        "transformer_ft"
+      ]
+    },
+    {
       "linha": 526,
       "categoria_historica": "Hidrossanitária > Hidráulica",
       "n_modelos": 9,
@@ -2478,25 +2446,6 @@
       "maioria_pct": 0.2222,
       "modelos_divergentes": [
         "extra_trees",
-        "linear_svc",
-        "lstm",
-        "naive_bayes",
-        "regressao_logistica",
-        "sgd",
-        "transformer_ft"
-      ]
-    },
-    {
-      "linha": 2702,
-      "categoria_historica": "Estrutura Predial > Telhados, calhas, rufos, etc.",
-      "n_modelos": 8,
-      "categorias_votadas": 7,
-      "entropia_votos": 2.75,
-      "entropia_normalizada": 0.9796,
-      "categorias_efetivas": 6.7272,
-      "maioria": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-      "maioria_pct": 0.25,
-      "modelos_divergentes": [
         "linear_svc",
         "lstm",
         "naive_bayes",
@@ -2802,54 +2751,17 @@
       ]
     },
     {
-      "linha": 3034,
+      "linha": 3461,
       "categoria_historica": "Elétrica > Instalações elétricas",
-      "n_modelos": 8,
-      "categorias_votadas": 5,
-      "entropia_votos": 2.25,
-      "entropia_normalizada": 0.969,
-      "categorias_efetivas": 4.7568,
-      "maioria": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-      "maioria_pct": 0.25,
+      "n_modelos": 9,
+      "categorias_votadas": 7,
+      "entropia_votos": 2.7255,
+      "entropia_normalizada": 0.9708,
+      "categorias_efetivas": 6.6138,
+      "maioria": "Hidrossanitária > Hidráulica",
+      "maioria_pct": 0.2222,
       "modelos_divergentes": [
-        "linear_svc",
-        "naive_bayes",
-        "random_forest",
-        "regressao_logistica",
-        "sgd",
-        "transformer_ft"
-      ]
-    },
-    {
-      "linha": 3171,
-      "categoria_historica": "Elétrica > Instalações elétricas",
-      "n_modelos": 8,
-      "categorias_votadas": 5,
-      "entropia_votos": 2.25,
-      "entropia_normalizada": 0.969,
-      "categorias_efetivas": 4.7568,
-      "maioria": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-      "maioria_pct": 0.25,
-      "modelos_divergentes": [
-        "linear_svc",
-        "lstm",
-        "naive_bayes",
-        "regressao_logistica",
-        "sgd",
-        "transformer_ft"
-      ]
-    },
-    {
-      "linha": 3173,
-      "categoria_historica": "Hidrossanitária > Hidráulica",
-      "n_modelos": 8,
-      "categorias_votadas": 5,
-      "entropia_votos": 2.25,
-      "entropia_normalizada": 0.969,
-      "categorias_efetivas": 4.7568,
-      "maioria": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-      "maioria_pct": 0.25,
-      "modelos_divergentes": [
+        "etapa1_oficial",
         "linear_svc",
         "lstm",
         "naive_bayes",
@@ -3614,6 +3526,106 @@
         "linear_svc",
         "lstm",
         "naive_bayes",
+        "regressao_logistica",
+        "sgd",
+        "transformer_ft"
+      ]
+    },
+    {
+      "linha": 284,
+      "categoria_historica": "Estrutura Predial > Esquadrias, porta, portão e janelas",
+      "n_modelos": 9,
+      "categorias_votadas": 6,
+      "entropia_votos": 2.5033,
+      "entropia_normalizada": 0.9684,
+      "categorias_efetivas": 5.6696,
+      "maioria": "Estrutura Predial > Esquadrias, porta, portão e janelas",
+      "maioria_pct": 0.2222,
+      "modelos_divergentes": [
+        "extra_trees",
+        "lstm",
+        "naive_bayes",
+        "random_forest",
+        "regressao_logistica",
+        "sgd",
+        "transformer_ft"
+      ]
+    },
+    {
+      "linha": 308,
+      "categoria_historica": "Elétrica > Instalações elétricas",
+      "n_modelos": 9,
+      "categorias_votadas": 6,
+      "entropia_votos": 2.5033,
+      "entropia_normalizada": 0.9684,
+      "categorias_efetivas": 5.6696,
+      "maioria": "Elétrica > Instalações elétricas",
+      "maioria_pct": 0.2222,
+      "modelos_divergentes": [
+        "extra_trees",
+        "lstm",
+        "naive_bayes",
+        "random_forest",
+        "regressao_logistica",
+        "sgd",
+        "transformer_ft"
+      ]
+    },
+    {
+      "linha": 319,
+      "categoria_historica": "Manutenção Preventiva > Reservatório",
+      "n_modelos": 9,
+      "categorias_votadas": 6,
+      "entropia_votos": 2.5033,
+      "entropia_normalizada": 0.9684,
+      "categorias_efetivas": 5.6696,
+      "maioria": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
+      "maioria_pct": 0.2222,
+      "modelos_divergentes": [
+        "etapa1_oficial",
+        "linear_svc",
+        "lstm",
+        "naive_bayes",
+        "regressao_logistica",
+        "sgd",
+        "transformer_ft"
+      ]
+    },
+    {
+      "linha": 381,
+      "categoria_historica": "Instalação de Acessórios e Mobiliário > Instalação/reparo de equipamentos (Suportes de TV, acessórios de banheiro e quadro branco)",
+      "n_modelos": 9,
+      "categorias_votadas": 6,
+      "entropia_votos": 2.5033,
+      "entropia_normalizada": 0.9684,
+      "categorias_efetivas": 5.6696,
+      "maioria": "Hidrossanitária > Hidráulica",
+      "maioria_pct": 0.2222,
+      "modelos_divergentes": [
+        "etapa1_oficial",
+        "linear_svc",
+        "lstm",
+        "naive_bayes",
+        "regressao_logistica",
+        "sgd",
+        "transformer_ft"
+      ]
+    },
+    {
+      "linha": 503,
+      "categoria_historica": "Elétrica > Iluminação",
+      "n_modelos": 9,
+      "categorias_votadas": 6,
+      "entropia_votos": 2.5033,
+      "entropia_normalizada": 0.9684,
+      "categorias_efetivas": 5.6696,
+      "maioria": "Elétrica > Iluminação",
+      "maioria_pct": 0.2222,
+      "modelos_divergentes": [
+        "extra_trees",
+        "lstm",
+        "naive_bayes",
+        "random_forest",
         "regressao_logistica",
         "sgd",
         "transformer_ft"
