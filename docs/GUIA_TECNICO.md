@@ -94,9 +94,11 @@ Avaliação %, Executor, Criticidade) e de **cada executor**.
   para medir qual acerta mais. **Requer tensorflow.** Não escreve na planilha.
 
 ### `src/resetar_experimento.py` — recomeçar do ZERO (reutilizável)
-- **O que faz:** limpa `G:K` na planilha principal (preserva C original, L e M) e o
-  conteúdo de **todas as abas do experimento**, para recomeçar a classificação/
-  reclassificação do zero.
+- **O que faz:** antes de apagar qualquer coisa, faz backup de `A`+`M` numa aba
+  nova (`BACKUP_M_<timestamp>`). Depois limpa `G:K` e `N:P` na planilha
+  principal (preserva C original, L e M — `N` e `P` são apagadas porque
+  avaliam `G` e `O`, que deixam de existir) e o conteúdo de **todas as abas do
+  experimento**, para recomeçar a classificação/reclassificação do zero.
 - **Trava de segurança:** só executa com `--aplicar` **E** `--confirmar RESETAR`.
 - **Executado:** `python src/resetar_experimento.py --aplicar --confirmar RESETAR`,
   ou pelo workflow `resetar.yml` (digitando `RESETAR` no campo de confirmação).

@@ -1,8 +1,10 @@
 name: Resetar experimento (zero)
 
-# Apaga tudo que a IA gravou (G:K na principal + abas do experimento) e volta ao
-# zero. SO roda por disparo manual e exige digitar RESETAR no campo de confirmacao.
-# Use para recomecar a classificacao/reclassificacao do zero.
+# Apaga tudo que a IA gravou (G:K e N:P na principal + abas do experimento) e
+# volta ao zero. Faz backup de A+M (CONFERENCIA GLPI) numa aba nova antes de
+# apagar, mesmo M nao sendo tocada pelo reset. SO roda por disparo manual e
+# exige digitar RESETAR no campo de confirmacao. Use para recomecar a
+# classificacao/reclassificacao do zero.
 
 on:
   workflow_dispatch:
