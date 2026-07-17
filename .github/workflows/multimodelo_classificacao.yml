@@ -3,12 +3,14 @@ name: Multimodelo - classificacao completa
 # Materializa CLASSIF__<modelo> para cada IA selecionada, com predicao
 # out-of-fold e lote dinamico.
 #
-# AUTOMATICO A CADA 15 MIN (MESMO CRON DA ETAPA 1/LSTM): os 6 modelos nao-LSTM
-# classificam os chamados novos no mesmo ritmo do LSTM. max_turnos=0 = todos os
-# pendentes. E incremental e barato: classificacao_multimodelo.py so processa as
-# linhas ainda nao feitas e encerra rapido quando nao ha pendentes (no-op). Serializado
-# com a Etapa 1 e o dashboard pelo concurrency 'escrita-planilha' (um escritor por vez).
-# LSTM/transformer/pesados continuam em seus proprios fluxos.
+# AUTOMATICO A CADA 15 MIN (MESMO CRON DA ETAPA 1/LSTM), TODOS OS 8 MODELOS
+# (leves + pesados/LSTM/transformer_ft): classificam os chamados novos no
+# mesmo ritmo do LSTM oficial. max_turnos=0 = todos os pendentes. E incremental
+# e barato depois da materializacao inicial: classificacao_multimodelo.py so
+# processa as linhas ainda nao feitas e encerra rapido quando nao ha pendentes
+# (no-op) — so fica pesado de novo apos um reset ou grande avanco da base.
+# Serializado com a Etapa 1 e o dashboard pelo concurrency 'escrita-planilha'
+# (um escritor por vez).
 
 on:
   # A cada 15 min, mas DESLOCADO 5 min da Etapa 1/LSTM (que roda em :00/:15/:30/:45)
@@ -79,7 +81,7 @@ jobs:
       - name: Dependencias leves
         run: python -m pip install --retries 5 --timeout 120 -r requirements-leves.txt
       - name: TensorFlow se LSTM estiver no escopo
-        if: ${{ contains(github.event.inputs.modelos, 'lstm') || github.event.inputs.modelos == 'pesados' || github.event.inputs.modelos == 'todos' }}
+        if: ${{ github.event_name == 'schedule' || contains(github.event.inputs.modelos, 'lstm') || github.event.inputs.modelos == 'pesados' || github.event.inputs.modelos == 'todos' }}
         run: python -m pip install --retries 5 --timeout 120 tensorflow==2.17.0
       - name: Recriar chave da conta de servico
         env:
@@ -89,10 +91,11 @@ jobs:
           printf '%s' "$GCP_SA_KEY" > credenciais_sa.json
       - name: Classificar por modelo
         env:
-          MODELOS: ${{ github.event.inputs.modelos || 'leves' }}
+          MODELOS: ${{ github.event.inputs.modelos || 'todos' }}
           MAX_TURNOS: ${{ github.event.inputs.max_turnos || '0' }}
         run: |
-          # No cron (schedule) materializa os leves; manual respeita o input 'aplicar'.
+          # No cron (schedule) materializa TODOS os 8 modelos (leves + pesados);
+          # manual respeita o input 'modelos'/'aplicar'.
           APLICAR=""
           if [ "${{ github.event.inputs.aplicar }}" = "true" ] || [ "${{ github.event_name }}" = "schedule" ]; then
             APLICAR="--aplicar"
