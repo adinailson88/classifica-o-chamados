@@ -15,6 +15,16 @@ Se existir, ler o arquivo antes de alterar qualquer coisa e perguntar ao Adinail
 
 Nao avancar para outros repositorios sem confirmacao explicita.
 
+## Trabalho no artigo/capitulo da tese
+
+Sempre que o pedido for sobre o artigo/capitulo de classificacao de chamados (redigir,
+revisar estrutura, atualizar numeros, preparar submissao), ler `PLANO_ARTIGO_CAPITULO.md`
+antes de escrever qualquer texto. Esse arquivo tem a estrutura fixa do artigo mapeada as
+fontes de dado do repo e o bloco "Estado desta rodada" com onde a redacao parou. Ao
+terminar a rodada, substituir esse bloco (nao acrescentar sem criterio) com: onde esta,
+o que foi feito, proximo passo. Nao criar arquivo novo de plano/rascunho para essa
+finalidade.
+
 ## Escopo do repositorio
 
 Este repositorio implementa um experimento independente de classificacao e reclassificacao automatica de chamados, conforme roteiro metodologico do Malha IA.
