@@ -10,8 +10,17 @@ controle de versão.
   git em 2026-07-23 (fonte: `Downloads/artigo_classificacao_chamados_v3.docx`,
   datado de 2026-07-16). Mantido como referência binária/formatação.
 - `artigo_classificacao_chamados_v3.md` — conversão via `pandoc -t markdown` do
-  docx acima, feita em 2026-07-23, para permitir diff e edição em texto puro daqui
-  em diante. Nenhum conteúdo foi reescrito na conversão.
+  docx acima, feita em 2026-07-23. Nesta mesma data, a estrutura de títulos foi
+  realinhada à estrutura fixa de `PLANO_ARTIGO_CAPITULO.md` (Seção 2 renomeada
+  para "Referencial conceitual", Seção 3 para "Método" com nova Subseção 3.9
+  "Disponibilidade de dados e scripts", nova Subseção 4.8 "Figuras" destacada do
+  texto que já existia em 4.7, Seção 6 renomeada para "Considerações finais", e
+  Apêndices A–C acrescentados ao final). **Nenhum parágrafo de conteúdo já escrito
+  foi reescrito ou teve números alterados** — só títulos, numeração e três blocos
+  novos que eram exigidos pela estrutura do plano e ainda não existiam (Apêndice A
+  é fatual, extraído de `AGENTS.md`; Apêndices B e C ficam marcados como
+  pendência explícita, sem conteúdo inventado). O `.docx` original **não foi
+  alterado** — permanece como registro de proveniência.
 
 ## Estado conhecido do rascunho v3 (herdado, não revisado nesta rodada)
 

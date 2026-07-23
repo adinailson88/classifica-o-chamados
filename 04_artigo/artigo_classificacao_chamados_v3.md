@@ -171,7 +171,7 @@ decisão operacional; e (v) transformar divergências entre IA e histórico
 em evidências para revisão taxonômica e retroalimentação da base de
 treino.
 
-**2. TRABALHOS RELACIONADOS**
+**2. REFERENCIAL CONCEITUAL**
 
 **2.1 Processamento de linguagem natural em ordens de manutenção**
 
@@ -269,7 +269,7 @@ que um modelo que demanda dezenas de minutos exige *checkpoint*,
 controle de versão de pesos e justificativa robusta de ganho marginal
 (TREVISO *et al.*, 2023).
 
-**3. MATERIAIS E MÉTODOS**
+**3. MÉTODO**
 
 **3.1 Delineamento geral**
 
@@ -452,6 +452,25 @@ entropia de votos entre os modelos identifica registros em que há
 desacordo estrutural entre arquiteturas distintas, formando uma fila de
 auditoria orientada por ambiguidade, e não apenas por baixa confiança
 isolada de um único modelo.
+
+**3.9 Disponibilidade de dados e scripts**
+
+Os artefatos que sustentam os resultados relatados neste capítulo são gerados por
+scripts versionados no repositório público
+`github.com/adinailson88/classificacao-chamados` (branch `main`), independente do
+repositório operacional Malha IA. Os números citados nas Subseções 4.1 a 4.6
+correspondem aos arquivos JSON publicados em `docs/dados/` (por exemplo,
+`estatistica.json`, `avaliacao_final.json`, `calibracao.json`,
+`reclass_resumo.json`, `shannon_resumo.json`, `jensen_shannon_modelos.json`),
+regenerados automaticamente por *workflows* do GitHub Actions a cada rodada do
+experimento e publicados também via GitHub Pages. Nenhum identificador pessoal,
+título ou texto livre de chamado é versionado nesses arquivos; a camada
+Shannon/Jensen-Shannon (Subseção 3.8) opera exclusivamente sobre agregados
+sanitizados. **Pendência explícita desta subseção**: consolidar, em rodada futura,
+a correspondência exata entre cada subseção de resultado e o script que a gera
+(por exemplo, `src/avaliacao_final.py`, `src/calibracao.py`,
+`src/analise_shannon.py`), hoje mapeada em `PLANO_ARTIGO_CAPITULO.md` mas ainda não
+transcrita para o corpo do artigo.
 
 **4. RESULTADOS**
 
@@ -656,9 +675,11 @@ protocolo e reforça o argumento operacional de que modelos lineares
 combinam o melhor desempenho validado (Subseção 4.2) com o menor custo
 de reexecução e auditoria.
 
-Nota sobre figuras: as figuras originalmente planejadas para esta seção
-(pipeline metodológico, distribuição de confiança por desfecho,
-trade-off acurácia×custo, pares de maior confusão) ainda não foram
+**4.8 Figuras**
+
+As figuras originalmente planejadas para este capítulo (Figura 1 — pipeline
+metodológico, Subseção 3.1; distribuição de confiança por desfecho; trade-off
+acurácia×custo; pares de maior confusão, Subseção 4.6) ainda não foram
 regeneradas a partir dos dados desta auditoria; os mesmos resultados são
 apresentados aqui em forma tabular e textual, com números conferidos
 diretamente nos arquivos publicados do painel. A geração das figuras
@@ -760,7 +781,7 @@ validada, e a intermitência observada na publicação automática do painel
 no GitHub Pages, discutida na auditoria técnica que acompanha este
 capítulo.
 
-**6. CONCLUSÃO**
+**6. CONSIDERAÇÕES FINAIS**
 
 O presente capítulo atualizou o protocolo de classificação automática
 multimodelo de chamados de manutenção predial universitária em português
@@ -903,3 +924,61 @@ ZHANG, H.; ZHANG, Y.; LI, J.; LIU, J.; JI, L. A survey on learning with
 noisy labels in Natural Language Processing: how to train models with
 label noise. Engineering Applications of Artificial Intelligence, v.
 146, art. 110157, 2025.
+
+**APÊNDICES**
+
+**Apêndice A — Dicionário de colunas da planilha experimental (A:M)**
+
+A aba experimental (`CHAMADOS_ESQUELETO_REDUZIDO`) segue o esquema fixo A:M,
+descrito em `AGENTS.md` do repositório:
+
+  ------------------------------------------------------------------------
+  **Coluna**   **Campo**
+  ------------ -----------------------------------------------------------
+  A            ID Chamado
+
+  B            TÍTULO
+
+  C            CATEGORIA COMPLETA (rótulo histórico)
+
+  D            DESCRIÇÃO GLPI
+
+  E            TÍTULO O.S.M.
+
+  F            DESCRIÇÃO O.S.M.
+
+  G            Classificação IA
+
+  H            Avaliação (%) — gravada como fração 0–1, formatada como %
+
+  I            Executor
+
+  J            Criticidade Atribuída por IA
+
+  K            Comparação — fórmula `=SE(G="";"";G=C)`
+
+  L            Classificado\_Confiança\_IA
+
+  M            CONFERÊNCIA (marcação humana; `TRUE` não é sobrescrito por
+               nova classificação automática)
+  ------------------------------------------------------------------------
+
+**Apêndice B — Checklist de itens reportados**
+
+*Pendência explícita*: este apêndice deve inspirar-se no checklist tipo
+PRISMA-ScR do artigo-modelo de revisão (Apêndice D de
+`artigo_revisao_preliminar`), adaptado para relato de experimento de
+aprendizado de máquina (por exemplo: fonte de dados declarada, tamanho de
+amostra por subseção, método de particionamento, testes estatísticos e
+correções aplicadas, critério de calibração, cobertura de validação humana na
+data de publicação). Ainda não foi elaborado — registrar como tarefa de rodada
+futura, condicionada ao fechamento da Seção 4 com números revalidados.
+
+**Apêndice C — Matriz de decisão M/N/P**
+
+*Pendência explícita*: apêndice ainda não preenchido. Deve tabular, para a
+amostra de conferência humana dupla, a relação entre coluna M (conferência do
+histórico), coluna N (conferência da IA) e coluna P (decisão final travada),
+com contagens por combinação de valores. Depende de extração direta da
+planilha experimental na data de fechamento da Seção 4 — não reaproveitar
+números de auditorias anteriores sem reconferência.
