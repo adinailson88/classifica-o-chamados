@@ -1,5 +1,15 @@
 # Pendência para a próxima sessão no Codex
 
+**Status: RESOLVIDA em 2026-07-23.** Verificação final feita — ver seção "Verificação
+final (2026-07-23)" em `docs/RELATORIO_MIGRACAO_CATEGORIA_EQUIPAMENTOS_ACESSORIOS.md`.
+Local, `raw/main` e GitHub Pages coerentes (só categoria nova, sem cache antigo,
+`Age: 0`). Nenhuma ação de escrita foi necessária. Este arquivo pode ser removido
+numa próxima limpeza, ou mantido como histórico — decisão do Adinailson.
+
+---
+
+## Registro original da pendência (mantido para histórico)
+
 Antes de alterar qualquer coisa, perguntar ao Adinailson:
 
 > Quer que eu faça agora a verificação final da migração da categoria de equipamentos/acessórios?
