@@ -237,3 +237,18 @@
 ## Recomendação para os próximos repositórios
 
 Repetir a mesma lógica por repositório, começando por diagnóstico de ID de categoria GLPI. Não consolidar categorias sem ID igual ou sem cenário textual seguro explicitamente registrado.
+
+## Verificação final (2026-07-23)
+
+Pendência de `docs/CODEX_PROXIMA_SESSAO.md` tratada nesta rodada. Resultado:
+
+- **Dados locais (`docs/dados/*.json`)**: 23 arquivos com a string nova (`Suportes de TV, acessórios de banheiro e quadro branco`), 0 arquivos com a string antiga remanescente — confirmado por `grep` direto, coerente com a contagem original deste relatório.
+- **`raw.githubusercontent.com/.../main/docs/dados/analise_erros.json`**: contém apenas a categoria nova. Sem ocorrência da string antiga.
+- **GitHub Pages (`adinailson88.github.io/classificacao-chamados/dados/analise_erros.json`)**: HTTP 200, `Last-Modified: 2026-07-23`, `Age: 0`, `Cache-Control: max-age=600` — conteúdo servido é o atual, não há cache antigo represado. Contém apenas a categoria nova.
+- **Local × raw/main × Pages**: as três fontes são coerentes entre si (categoria nova em todas, categoria antiga em nenhuma).
+- A frase "Modo de aplicação: dry-run ou bloqueado" / "Arquivos alterados: nenhum" registrada acima **permanece correta e não é uma inconsistência**: o texto novo já chegou pronto nos dados de origem (upstream/GLPI) antes de qualquer commit deste repositório; este script de migração nunca precisou reescrever arquivo nenhum, apenas confirmar por texto que a categoria antiga havia desaparecido dos dados operacionais.
+- Continua valendo o limite já registrado: a validação é **apenas textual**, pois `classificacao-chamados` não preserva `itilcategories_id` (nem outro ID próprio de categoria do GLPI). Não há verificação por ID nesta migração.
+
+Único resíduo da string antiga no repositório: `docs/CODEX_PROXIMA_SESSAO.md` (texto descritivo da pendência) e `scripts/migracoes/migrar_categoria_equipamentos_acessorios.py` (constante de busca do próprio script) — ambos esperados, não são dados operacionais.
+
+**Conclusão**: pendência fechada. Nada a aplicar; nenhuma ação de escrita necessária nos dados.

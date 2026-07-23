@@ -35,50 +35,41 @@ Isso substitui a necessidade de o usuário reexplicar contexto a cada nova conve
 
 ## Estado desta rodada
 
-**Data**: 2026-07-23 (America/Bahia, UTC-03:00).
+**Data**: 2026-07-23 (America/Bahia, UTC-03:00) — rodada 1, mesma data da rodada 0.
 
-**Onde está**: rodada 0 — auditoria inicial e criação deste plano. Nenhum texto do
-artigo foi escrito ou revisado nesta rodada; apenas mapeamento de estrutura e de
-lacunas.
+**Onde está**: lacuna de versionamento fechada. O rascunho vive agora em
+`04_artigo/` dentro deste repositório. Nenhum texto do artigo foi revisado ou
+reescrito nesta rodada — apenas trazido para controle de versão. Números do
+Resumo/Seção 4 do rascunho **ainda não foram revalidados** contra os JSONs vigentes.
 
 **O que foi feito nesta rodada**:
-- Auditado o repositório `classificacao-chamados` (estado técnico, git limpo, branch
-  `main`, sem WIP pendente) e comparado com `revisao-bibliografica` (estrutura de
-  pipeline `00_..05_` + `04_artigo/estrutura_texto.md` + `HANDOFF_ARTIGO_CODEX.md`) para
-  extrair um modelo análogo de organização de artigo/capítulo.
-- Lido o artigo-modelo (`artigo_revisao_preliminar (2).pdf`, MCDM/TOPSIS/ODS/ESG) como
-  referência de estrutura de seções e de rigor de relato (checklist tipo PRISMA-ScR).
-- Localizada a auditoria anterior já existente (`AUDITORIA_classificacao_chamados_
-  2026-07-16.md`, em Downloads, **não versionada no repo**) com estado de 16/07/2026:
-  13.954 chamados elegíveis, 4.737 conferências humanas (33,9% da base), 0 conflitos
-  pendentes, ranking validado com LinearSVC líder (95,5% de acerto validado), achado
-  de que o histórico administrativo acerta mais que a IA quando os dois divergem
-  (98,5% vs 95,1%, n pequeno). **Esses números têm 7 dias e não foram reconferidos
-  agora** — não citar no artigo sem antes rodar `src/avaliacao_final.py` /
-  conferir `docs/dados/avaliacao_final.json` de novo.
-- Confirmado que existe um rascunho de artigo em andamento (`artigo_classificacao_
-  chamados_v3.docx`, em Downloads) com Seções 1–3.8 (introdução/referencial/método),
-  Seção 4 com 8 subseções de resultados, Seções 5–6 (discussão/conclusão) e
-  referências — mas **esse arquivo não está no repositório `classificacao-chamados`
-  nem versionado em lugar nenhum com git**. Isso é uma lacuna real frente ao
-  `revisao-bibliografica`, que versiona tudo (`04_artigo/`, `latex-artigo/`).
-- Montada a Seção 3 abaixo com a estrutura de seções do artigo/capítulo, mapeando
-  cada seção à sua fonte de dado real no repositório.
+- Tratada a pendência separada de `docs/CODEX_PROXIMA_SESSAO.md` (migração de
+  categoria equipamentos/acessórios): confirmado que local, `raw/main` e GitHub
+  Pages estão coerentes (só categoria nova, `Age: 0` no Pages, sem cache antigo).
+  Nenhuma escrita de dado foi necessária. Detalhe em
+  `docs/RELATORIO_MIGRACAO_CATEGORIA_EQUIPAMENTOS_ACESSORIOS.md` (seção "Verificação
+  final (2026-07-23)") e status marcado como resolvido no próprio
+  `CODEX_PROXIMA_SESSAO.md`.
+- Criado `04_artigo/` neste repositório com: `artigo_classificacao_chamados_v3.docx`
+  (cópia do rascunho original de `Downloads/`, datado de 16/07/2026 — os dois
+  arquivos que existiam em Downloads eram idênticos por MD5, sem ambiguidade de
+  qual era o mais recente), `artigo_classificacao_chamados_v3.md` (conversão via
+  `pandoc -t markdown`, sem reescrita de conteúdo) e um `README.md` documentando
+  proveniência e pendências herdadas do rascunho (números não revalidados, 4
+  figuras não regeneradas, 8º modelo BERTimbau ausente, referências não
+  reconferidas).
+- **Mudanças ainda não commitadas** (aguardando confirmação do usuário): `04_artigo/`
+  novo, `docs/CODEX_PROXIMA_SESSAO.md` e
+  `docs/RELATORIO_MIGRACAO_CATEGORIA_EQUIPAMENTOS_ACESSORIOS.md` modificados.
 
-**Próximo passo (prioridade do usuário, não técnica)**: o Adinailson ainda está
-concluindo a conferência humana (M/N/P) — "ainda não acabei". **Não avançar a
-redação do artigo com números novos até essa conferência avançar mais** ou até ele
-pedir explicitamente para escrever com o que já existe. Quando ele solicitar
-continuação:
-1. Perguntar se quer (a) só atualizar números/estado do rascunho existente, ou
-   (b) trazer o `artigo_classificacao_chamados_v3.docx` para dentro deste
-   repositório sob versionamento (recomendado, replicando o padrão de
-   `revisao-bibliografica`).
-2. Re-rodar `src/avaliacao_final.py` (ou conferir o JSON já publicado) para números
-   atuais de conferência humana antes de escrever qualquer resultado.
-3. Fechar as pendências que o próprio rascunho v3 já lista como abertas: 4 figuras
-   não regeneradas, referências de Shannon/Jensen-Shannon/BERTimbau não
-   formalizadas, resultado comparativo do 8º modelo (BERTimbau) ainda não existe.
+**Próximo passo**: (1) confirmar com o Adinailson se pode commitar as mudanças
+desta rodada; (2) quando ele quiser avançar a redação, antes de escrever qualquer
+número novo, re-rodar/conferir `docs/dados/avaliacao_final.json`,
+`docs/dados/calibracao.json`, `docs/dados/reclass_resumo.json` e
+`docs/dados/shannon_resumo.json` — a conferência humana M/N/P pode ter avançado
+além dos 33,9% (4.737/13.954) registrados na auditoria de 16/07; (3) manter a regra
+já registrada: não avançar a redação com números novos até a conferência humana
+progredir mais ou até ele pedir explicitamente para escrever com o que já existe.
 
 ---
 
