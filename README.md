@@ -4,6 +4,59 @@ Repositorio experimental para avaliacao da classificacao e reclassificacao autom
 
 O objetivo e manter um experimento rastreavel, com processamento por turnos, logs, metricas, painel publico e preparacao para validacao humana.
 
+## Prompt pronto — continuar o artigo/capitulo da tese
+
+Copie o bloco abaixo e cole numa conversa nova (pode ser com esforco/raciocinio menor)
+para comecar ou continuar a construcao do artigo/capitulo de classificacao de chamados.
+O prompt aponta o repositorio, o arquivo de plano, o bloco de continuidade e as fontes
+de dado reais — a sessao nao precisa de mais contexto alem disso.
+
+```text
+Repositorio: adinailson88/classificacao-chamados (clone local em
+C:\Users\adina\repos\classificacao-chamados). Este e o experimento de classificacao/
+reclassificacao automatica de chamados de manutencao predial com IA local (LSTM
+primario, RF fallback, baseline TF-IDF+LogReg, mais 6 IAs multimodelo — linear_svc,
+extra_trees, sgd, random_forest, regressao_logistica, naive_bayes — e um 8o modelo
+BERTimbau com fine-tuning), separado do repositorio operacional malha-ia. O objetivo
+final e virar um capitulo/artigo da tese de Biossistemas Construidos (PPG UFSB), com
+ponte para o outro capitulo de revisao (adinailson88/revisao-bibliografica, MCDM/
+TOPSIS/ODS/ESG).
+
+Antes de qualquer coisa:
+1. `cd` no clone local, `git pull` e `git log --oneline -5` para confirmar o estado
+   do branch main (o historico deste repo pode ser reescrito por limpeza de
+   filter-repo — se o pull falhar por divergencia, comparar a arvore/tree do commit
+   antigo com a do novo antes de decidir qualquer coisa; nao forcar push sem
+   confirmar que o conteudo e equivalente).
+2. Ler o arquivo `PLANO_ARTIGO_CAPITULO.md` na raiz do repo INTEIRO, especialmente a
+   secao "Estado desta rodada" (onde a redacao parou, o que foi feito por ultimo, e
+   qual e o proximo passo). Esse arquivo tem a estrutura fixa do artigo (Resumo,
+   Introducao, Referencial conceitual, Metodo 3.1-3.9, Resultados 4.1-4.8, Discussao,
+   Consideracoes finais, Referencias, Apendices) mapeada as fontes reais de dado do
+   repositorio (`docs/dados/*.json`, `src/*.py`).
+3. Ler tambem `AGENTS.md` (regras gerais do repo) e, se existir, `docs/CODEX_PROXIMA_
+   SESSAO.md` (pendencia tecnica separada, nao relacionada ao artigo).
+4. Nao reaproveitar numeros de auditorias antigas sem reconferir a fonte viva —
+   `docs/dados/avaliacao_final.json` (ranking validado por conferencia humana),
+   `docs/dados/calibracao.json`, `docs/dados/reclass_resumo.json`,
+   `docs/dados/shannon_resumo.json` e correlatos mudam a cada execucao de workflow.
+   A conferencia humana (colunas M/N/P da planilha) pode ter avancado desde a ultima
+   sessao; conferir antes de citar qualquer percentual de validacao.
+5. O rascunho de texto mais recente (`artigo_classificacao_chamados_v3.docx`) ainda
+   NAO esta versionado neste repositorio — confirmar com o Adinailson se deve ser
+   trazido para dentro do repo (ex.: `04_artigo/`) antes de continuar editando fora
+   de controle de versao.
+
+Depois de executar o que for pedido nesta rodada, atualizar a secao "Estado desta
+rodada" de `PLANO_ARTIGO_CAPITULO.md` (substituir, nao acumular) com: onde parou, o
+que foi feito, e o proximo passo — para que a proxima sessao continue sem precisar
+de mais contexto do que este prompt e esse arquivo.
+
+Agora: [descreva aqui o que voce quer que a sessao faca nesta rodada — ex.: "revalide
+os numeros da secao 4.2 e escreva um rascunho da Discussao (secao 5)", ou "traga o
+v3.docx para dentro do repo em 04_artigo/ e converta para Markdown"].
+```
+
 ## Estado atual
 
 1. A planilha experimental e lida por conta de servico Google Cloud via `gspread`.
@@ -501,6 +554,7 @@ python src/analise_shannon.py
 6. `docs/RELATORIO_ESTADO_ATUAL.md`: diagnostico tecnico/metodologico desta revisao.
 7. `docs/METODOLOGIA_SHANNON.md`: calculos, fontes, interpretacao e limitacoes da camada Shannon.
 8. `docs/CONTRIBUICAO_SHANNON_ARTIGO.md`: texto tecnico para artigo e conclusao.
+9. `PLANO_ARTIGO_CAPITULO.md`: estrutura do artigo/capitulo da tese mapeada as fontes de dado do repo, com o bloco de continuidade "Estado desta rodada" (ver tambem o prompt pronto no topo deste README).
 
 ## Apps Script
 
