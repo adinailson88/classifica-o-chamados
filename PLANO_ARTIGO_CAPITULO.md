@@ -35,41 +35,52 @@ Isso substitui a necessidade de o usuário reexplicar contexto a cada nova conve
 
 ## Estado desta rodada
 
-**Data**: 2026-07-23 (America/Bahia, UTC-03:00) — rodada 1, mesma data da rodada 0.
+**Data**: 2026-07-23 (America/Bahia, UTC-03:00) — rodada 2, mesma data das rodadas
+0 e 1.
 
-**Onde está**: lacuna de versionamento fechada. O rascunho vive agora em
-`04_artigo/` dentro deste repositório. Nenhum texto do artigo foi revisado ou
-reescrito nesta rodada — apenas trazido para controle de versão. Números do
-Resumo/Seção 4 do rascunho **ainda não foram revalidados** contra os JSONs vigentes.
+**Onde está**: `04_artigo/artigo_classificacao_chamados_v3.md` já tem a estrutura
+de títulos alinhada à Seção 3 deste plano (Resumo → Introdução → Referencial
+conceitual → Método 3.1–3.9 → Resultados 4.1–4.8 → Discussão → Considerações
+finais → Referências → Apêndices A–C). **Nenhum número foi revalidado ou
+reescrito nesta rodada** — o conteúdo textual e todos os números seguem sendo os
+do rascunho de 16/07/2026, agora só reorganizados estruturalmente.
 
 **O que foi feito nesta rodada**:
-- Tratada a pendência separada de `docs/CODEX_PROXIMA_SESSAO.md` (migração de
-  categoria equipamentos/acessórios): confirmado que local, `raw/main` e GitHub
-  Pages estão coerentes (só categoria nova, `Age: 0` no Pages, sem cache antigo).
-  Nenhuma escrita de dado foi necessária. Detalhe em
-  `docs/RELATORIO_MIGRACAO_CATEGORIA_EQUIPAMENTOS_ACESSORIOS.md` (seção "Verificação
-  final (2026-07-23)") e status marcado como resolvido no próprio
-  `CODEX_PROXIMA_SESSAO.md`.
-- Criado `04_artigo/` neste repositório com: `artigo_classificacao_chamados_v3.docx`
-  (cópia do rascunho original de `Downloads/`, datado de 16/07/2026 — os dois
-  arquivos que existiam em Downloads eram idênticos por MD5, sem ambiguidade de
-  qual era o mais recente), `artigo_classificacao_chamados_v3.md` (conversão via
-  `pandoc -t markdown`, sem reescrita de conteúdo) e um `README.md` documentando
-  proveniência e pendências herdadas do rascunho (números não revalidados, 4
-  figuras não regeneradas, 8º modelo BERTimbau ausente, referências não
-  reconferidas).
-- **Mudanças ainda não commitadas** (aguardando confirmação do usuário): `04_artigo/`
-  novo, `docs/CODEX_PROXIMA_SESSAO.md` e
-  `docs/RELATORIO_MIGRACAO_CATEGORIA_EQUIPAMENTOS_ACESSORIOS.md` modificados.
+- Commit `abafb627`→(rebase)`70e41b54` enviado a `origin/main`: trouxe
+  `04_artigo/` (rascunho v3 versionado) e fechou a pendência de
+  `docs/CODEX_PROXIMA_SESSAO.md` (migração de categoria, ver rodada 1 abaixo).
+- Realinhamento estrutural de `04_artigo/artigo_classificacao_chamados_v3.md`
+  (ainda não commitado):
+  - "2. TRABALHOS RELACIONADOS" → "2. REFERENCIAL CONCEITUAL" (subseções 2.1–2.4
+    mantidas como estavam).
+  - "3. MATERIAIS E MÉTODOS" → "3. MÉTODO"; acrescentada **Subseção 3.9
+    "Disponibilidade de dados e scripts"** (texto novo, mas fatual/boilerplate —
+    aponta para `docs/dados/*.json` e workflows do repo, sem número de
+    experimento) com pendência explícita marcada para mapear cada resultado ao
+    script gerador correspondente.
+  - Nota de figuras que já existia dentro de 4.7 foi destacada como **Subseção
+    4.8 "Figuras"** própria (texto movido, não reescrito).
+  - "6. CONCLUSÃO" → "6. CONSIDERAÇÕES FINAIS".
+  - Acrescentada seção **APÊNDICES**: Apêndice A (dicionário de colunas A:M,
+    fatual, extraído de `AGENTS.md`) preenchido; Apêndices B (checklist tipo
+    PRISMA-ScR adaptado) e C (matriz de decisão M/N/P) **deixados como pendência
+    explícita, sem conteúdo inventado** — dependem de dados que ainda não foram
+    consolidados nesta rodada.
+  - `04_artigo/README.md` atualizado para descrever esse realinhamento. O
+    `.docx` original não foi tocado.
+- **Mudanças ainda não commitadas nesta rodada 2**: só `04_artigo/` (o `.md` e o
+  `README.md`). Aguardando confirmação do usuário para commitar/enviar.
 
-**Próximo passo**: (1) confirmar com o Adinailson se pode commitar as mudanças
-desta rodada; (2) quando ele quiser avançar a redação, antes de escrever qualquer
-número novo, re-rodar/conferir `docs/dados/avaliacao_final.json`,
+**Próximo passo**: (1) confirmar com o Adinailson se pode commitar e enviar este
+realinhamento estrutural; (2) preencher os Apêndices B e C quando houver dados
+consolidados; (3) antes de escrever ou alterar qualquer número do Resumo/Seção
+4, re-rodar/conferir `docs/dados/avaliacao_final.json`,
 `docs/dados/calibracao.json`, `docs/dados/reclass_resumo.json` e
 `docs/dados/shannon_resumo.json` — a conferência humana M/N/P pode ter avançado
-além dos 33,9% (4.737/13.954) registrados na auditoria de 16/07; (3) manter a regra
-já registrada: não avançar a redação com números novos até a conferência humana
-progredir mais ou até ele pedir explicitamente para escrever com o que já existe.
+além dos 33,9% (4.737/13.954) registrados na auditoria de 16/07; (4) manter a
+regra já registrada: não avançar a redação com números novos até a conferência
+humana progredir mais ou até ele pedir explicitamente para escrever com o que já
+existe.
 
 ---
 
