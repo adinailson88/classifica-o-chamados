@@ -702,80 +702,88 @@ eliminando o viés de seleção. Teste de regressão em `tests/test_calibracao.p
 
 **4.5 Reclassificação e ganho líquido**
 
-A reclassificação dos chamados já conferidos (execução de 30/06/2026,
-coluna O) produz resultados heterogêneos entre modelos, medidos contra a
-verdade validada quando travada e contra o histórico nos demais casos. O
-LinearSVC apresenta o maior ganho líquido absoluto (+30; 479 corrigidos
-e 449 prejudicados, sobre 29.794 reclassificações acumuladas, das quais
-18.719 são reaproveitamento direto de decisão humana travada), seguido
-por Naive Bayes (+9) e Regressão Logística (+8). Em contraste, SGD
-(−92), Random Forest (−80) e Extra Trees (−40) apresentam ganho líquido
-negativo nesta rodada --- a reclassificação piora mais casos do que
-corrige para esses três modelos. Esse resultado reforça a decisão
-metodológica de não aplicar reclassificação em massa de forma
-indiscriminada por modelo, tratando o ganho líquido, e não apenas a
-acurácia agregada, como critério de decisão operacional por
-classificador.
-
-*Atualização de dados (23/07/2026)*: o parágrafo acima preserva os números
-da execução de 30/06/2026. A Tabela 5 mostra o recorte mais recente
-(`reclass_resumo.json`, execução de 23/07/2026), já incluindo o LSTM (ausente
-da comparação anterior):
+A reclassificação dos chamados já conferidos produz resultados
+heterogêneos entre modelos, medidos contra a verdade validada quando
+travada e contra o histórico nos demais casos. Nesta consolidação
+(23/07/2026), o LSTM apresenta o maior ganho líquido absoluto (+89; 628
+corrigidos e 539 prejudicados), seguido por Regressão Logística (+91 em
+termos absolutos de corrigidos–prejudicados, 235 e 144) e LinearSVC
+(+69; 278 corrigidos e 209 prejudicados). Em contraste, Naive Bayes (−7)
+e Extra Trees (−2) apresentam ganho líquido negativo — a reclassificação
+piora ligeiramente mais casos do que corrige para esses dois modelos.
+Esse resultado reforça a decisão metodológica de não aplicar
+reclassificação em massa de forma indiscriminada por modelo, tratando o
+ganho líquido, e não apenas a acurácia agregada, como critério de
+decisão operacional por classificador — e de reavaliar esse critério a
+cada rodada, não como veredito permanente: a execução de 30/06/2026
+havia apontado SGD e Random Forest como negativos; ambos passaram a
+positivo nesta consolidação.
 
 **Tabela 5** Ganho líquido de reclassificação por modelo (execução de 23/07/2026)
 
 | Modelo | Total reclassificado | Corrigidos | Prejudicados | Ganho líquido | Reuso de decisão humana |
 |---|---|---|---|---|---|
 | LSTM | 13.418 | 628 | 539 | +89 | 8.805 |
-| LinearSVC | 13.451 | 278 | 209 | +69 | 8.856 |
 | Regressão Logística | 13.332 | 235 | 144 | +91 | 8.727 |
+| LinearSVC | 13.451 | 278 | 209 | +69 | 8.856 |
 | SGD | 13.379 | 186 | 157 | +29 | 8.771 |
-| Random Forest | 18.049 | 209 | 184 | +25 | 13.387 |
-| Naive Bayes | 13.226 | 125 | 132 | −7 | 8.623 |
+| Random Forest | 13.312 | 209 | 184 | +25 | 8.719 |
 | Extra Trees | 13.310 | 202 | 204 | −2 | 8.713 |
+| Naive Bayes | 13.226 | 125 | 132 | −7 | 8.623 |
 
-Fonte: `reclass_resumo.json`, gerado em 23/07/2026 21:31 (modelos executados em
-23/07/2026 07:55–07:56). Nesta consolidação, apenas Extra Trees e Naive Bayes
-mantêm ganho líquido negativo (a versão de 30/06 também apontava SGD e Random
-Forest como negativos; ambos passaram a positivo). **Observação de qualidade
-de dado, não corrigida nesta rodada**: o total reclassificado do Random Forest
-(18.049) destoa dos demais modelos (~13.200–13.450), apesar de a execução ter
-ocorrido no mesmo dia e com poucos minutos de diferença dos demais — não foi
-investigada a causa; não interpretar o ganho líquido do Random Forest como
-diretamente comparável aos demais até essa discrepância ser explicada.
+Fonte: `reclass_resumo.json`, gerado em 23/07/2026 23:04. *Nota
+metodológica*: o total reclassificado do Random Forest chegava a 18.049
+nesta mesma tabela em versão anterior deste texto, valor que excedia o
+tamanho da base (13.965) — matematicamente impossível sob a premissa de
+uma linha por chamado. Diagnóstico direto da planilha (workflow de
+diagnóstico de uso único, 23/07/2026) confirmou 4.737 linhas duplicadas
+na aba `RECLASS__random_forest` (18.049 linhas brutas para 13.312
+identificadores de linha distintos), enquanto a aba de referência
+`RECLASS__linear_svc` não apresentou nenhuma duplicata (13.451 = 13.451)
+— descartando erro de leitura genérico e localizando o problema
+especificamente na aba do Random Forest. Corrigido em
+`src/exportar_dashboard.py` (commit `a244b59b`): a agregação agora
+deduplica por identificador de linha antes de contar, mantendo a última
+ocorrência. A causa raiz da duplicação em si (suspeita: falha silenciosa
+do mecanismo de deduplicação em `src/reclassificacao_multimodelo.py`
+durante alguma execução anterior) não foi investigada e permanece como
+pendência técnica.
 
 **4.6 Diagnóstico de taxonomia e ambiguidade estrutural
 (Shannon/Jensen-Shannon)**
 
-A camada de entropia de Shannon, calculada sobre as oito fontes de
-classificação (Etapa 1 oficial e as sete IAs materializadas, incluindo o
-LSTM out-of-fold), aponta o LSTM como o modelo de maior diversidade nas
-categorias previstas, e o LinearSVC como o modelo cuja distribuição de
-predições mais se aproxima da distribuição histórica (menor divergência
-de Jensen-Shannon). No nível de chamado individual, 3.451 dos 13.954
-registros (24,7%) apresentam alta entropia de votos entre os oito
-modelos, ou seja, desacordo estrutural relevante entre arquiteturas
-distintas --- um critério de priorização de auditoria diferente e
-complementar à simples baixa confiança de um único modelo. No nível de
-categoria, a análise aponta um número relevante de ocorrências de alta
-ambiguidade nas predições (79, com suporte mínimo de 30 registros por
-categoria); a interpretação detalhada de quais categorias específicas
-concentram essa ambiguidade, e sua sobreposição com os pares de maior
-confusão recíproca já identificados na etapa de cruzamento de taxonomia
-(por exemplo, entre climatização e manutenção preventiva de
-ar-condicionado, ou entre estrutura predial, esquadrias e
-hidrossanitária), permanece como candidata a inspeção qualitativa
-dirigida. O que a camada Shannon oferece é a priorização estatística de
-onde essa inspeção deve começar, não a decisão de fusão ou desambiguação
-de categorias, que continua sendo humana.
-
-*Atualização de dados (23/07/2026)*: o parágrafo acima preserva a leitura da
-versão anterior deste rascunho, que atribuía ao LSTM a maior diversidade e ao
-LinearSVC a menor divergência frente ao histórico. Na consolidação mais
-recente (`shannon_modelos.json`, `shannon_resumo.json`), **a Etapa 1 oficial
-assume as duas posições** — maior entropia de previsões e menor divergência
-de Jensen-Shannon —, com LSTM e o transformador (BERTimbau) muito próximos
-em terceiro e segundo lugar de diversidade:
+A camada de entropia de Shannon, calculada sobre as nove fontes de
+classificação desta consolidação (Etapa 1 oficial e as oito IAs
+materializadas, incluindo LSTM *out-of-fold* e o transformador
+BERTimbau), aponta a **Etapa 1 oficial** como a fonte de maior
+diversidade nas categorias previstas e, simultaneamente, a de menor
+divergência de Jensen-Shannon frente à distribuição histórica — LSTM e
+BERTimbau ficam muito próximos atrás em diversidade (terceiro e segundo
+lugar, respectivamente). Esse duplo primeiro lugar da Etapa 1 oficial é
+consistente com sua natureza híbrida (LSTM com *fallback* de Random
+Forest, Subseção 3.4): a combinação tende a produzir uma distribuição de
+categorias mais rica do que qualquer modelo isolado, sem se afastar
+tanto do padrão histórico quanto arquiteturas mais recentes avaliadas
+isoladamente. No nível de chamado individual, 3.378 dos 13.965 registros
+(24,2%) apresentam alta entropia de votos entre as nove fontes, ou seja,
+desacordo estrutural relevante entre arquiteturas distintas — um
+critério de priorização de auditoria diferente e complementar à simples
+baixa confiança de um único modelo. No nível de categoria, a análise
+aponta 91 ocorrências de alta ambiguidade nas predições (com suporte
+mínimo de 30 registros por categoria); a interpretação detalhada de
+quais categorias específicas concentram essa ambiguidade, e sua
+sobreposição com os pares de maior confusão recíproca identificados na
+etapa de cruzamento de taxonomia, permanece como candidata a inspeção
+qualitativa dirigida — nesta consolidação, essa sobreposição não pôde
+ser detalhada com exemplos de categorias por causa da corrupção de
+acentuação identificada na Subseção 4.8. O que a camada Shannon oferece
+é a priorização estatística de onde essa inspeção deve começar, não a
+decisão de fusão ou desambiguação de categorias, que continua sendo
+humana. Naive Bayes chama atenção por combinar a menor cobertura de
+categorias (19, ante 47–53 dos demais modelos) com entropia normalizada
+relativamente alta (0,7848) — provável reflexo de concentração extrema
+em poucas categorias com alguma dispersão residual, não investigado em
+detalhe nesta rodada.
 
 **Tabela 6** Entropia de Shannon e divergência de Jensen-Shannon por fonte de classificação (23/07/2026)
 
@@ -873,15 +881,17 @@ acentuação (mojibake — caracteres substitutos no lugar de vogais acentuadas,
 por exemplo em "Instalação" e "Climatização") nos
 nomes de categoria de três arquivos-fonte (`estatistica.json`, campo
 `top_confusoes`; `cruzamento_taxonomia.json`; `confusao_historico_ia.json`).
-Rastreamento parcial (não confirmado por leitura direta da planilha):
-`src/analise_estatistica.py` lê os nomes de categoria das abas
-`CLASSIF__<modelo>` (não da aba principal nem de `registros.json`, que estão
-limpos), o que restringe a suspeita a essas abas de trabalho específicas ou a
-como esse script as lê. Publicar essa figura com texto corrompido seria pior
-do que não publicá-la — fica como `Informação insuficiente para verificar`
-até investigação com acesso à planilha real, registrada como novo achado em
-`PLANO_ARTIGO_CAPITULO.md`, separado do bug de calibração corrigido nesta
-mesma rodada (Subseções 4.3 e 4.4).
+Investigação direta da planilha (workflow de diagnóstico de uso único,
+23/07/2026) testou a hipótese inicial — de que a corrupção estaria nas
+abas de trabalho `CLASSIF__<modelo>` — e **não a confirmou**: uma amostra
+de 200 linhas de `CLASSIF__linear_svc` não apresentou nenhuma ocorrência
+de mojibake na coluna de categoria histórica. A causa permanece
+desconhecida: pode estar em linhas fora da amostra testada, em outra aba
+de trabalho, ou na etapa de agregação/serialização dos três arquivos
+afetados. Publicar essa figura com texto corrompido seria pior do que
+não publicá-la — fica como `Informação insuficiente para verificar` até
+nova investigação com amostragem mais ampla, registrada em
+`PLANO_ARTIGO_CAPITULO.md`.
 
 **5. DISCUSSÃO**
 
@@ -1090,8 +1100,10 @@ conferência, a análise comparativa mais aprofundada do desempenho do
 transformador BERTimbau frente aos classificadores lineares (por ora
 inferior, resultado que qualifica a expectativa inicial sobre ganho
 automático de arquiteturas pré-treinadas neste domínio), a investigação
-da discrepância de escala identificada na reclassificação do Random
-Forest (Subseção 4.5) e da corrupção de acentuação identificada nos
+da causa raiz da duplicação de linhas identificada e corrigida na
+agregação da reclassificação do Random Forest (Subseção 4.5 — corrigida
+na camada de exportação, mas a causa na planilha de origem permanece
+desconhecida) e da corrupção de acentuação identificada nos
 arquivos-fonte de análise de confusão entre categorias (Subseção 4.8),
 a revisão taxonômica dirigida pelos candidatos identificados na etapa de
 cruzamento de taxonomia e na entropia de Shannon, e a estabilização da
