@@ -1160,7 +1160,7 @@ tickets with language models. arXiv:2307.00108, 2023.
 
 MARTINS, R. F. B.; ESPEJO, M. M. S. B. Análise de custos de manutenção
 predial em uma universidade federal brasileira com uso do modelo de SES.
-ABCustos, São Leopoldo, v. 19, n. 1, 2024.
+ABCustos, São Leopoldo, v. 19, n. 1, p. 79--98, 2024.
 
 MCNEMAR, Q. Note on the sampling error of the difference between
 correlated proportions or percentages. Psychometrika, v. 12, n. 2, p.
@@ -1173,7 +1173,7 @@ in university facilities management: a literature review. Facilities, v.
 MORAIS, L. S. R. de; PAULA, H. M. de; REIS, R. P. A. Promoção da
 eficiência da manutenção predial em edificações públicas: abordagem
 baseada em registros de ordens de serviço. Paranoá, Brasília, v. 16, n.
-34, p. 1--18, 2023.
+34, p. 1--18, 2023. DOI: 10.18830/issn.1679-0944.n34.2023.08.
 
 PAMPANA, A. K. et al. Data-driven analysis for facility management in
 higher education institution. Buildings, v. 12, art. 2094, 2022.

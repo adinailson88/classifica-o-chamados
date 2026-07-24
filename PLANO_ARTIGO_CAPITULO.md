@@ -37,55 +37,61 @@ Isso substitui a necessidade de o usuário reexplicar contexto a cada nova conve
 
 **Data**: 2026-07-24 (America/Bahia, UTC-03:00) — rodada 7.
 
-**Onde está**: mesmo ponto da rodada 6 quanto ao texto do artigo (nenhuma
-subseção nova reescrita nesta rodada). O trabalho desta rodada foi
-exclusivamente a pendência técnica nº 2 do "Próximo passo" da rodada 6
-(causa raiz da duplicação em `RECLASS__random_forest`) — investigação
-read-only, sem escrita na planilha nem no artigo.
+**Onde está**: mesmo ponto da rodada 6 quanto ao corpo do texto do artigo
+(nenhuma subseção de Resultados/Discussão reescrita nesta rodada). Duas
+pendências técnicas do "Próximo passo" da rodada 6 foram tratadas: (1) causa
+raiz da duplicação em `RECLASS__random_forest`, corrigida e já commitada;
+(2) revisão das referências bibliográficas contra o acervo curado, feita
+parcialmente (2 de 22 referências — ver detalhe abaixo).
 
 **O que foi feito nesta rodada**:
-1. Investigação read-only (código + logs de execução do GitHub Actions via
-   `gh run view --log`, sem acesso à planilha — nenhuma credencial
-   disponível neste ambiente) sobre a causa raiz da duplicação em
-   `RECLASS__random_forest` (item 2 do próximo passo da rodada 6).
-2. **Causa raiz identificada, com evidência forte mas não 100% confirmada**:
-   `_append_resiliente()` em `src/reclassificacao_multimodelo.py:39` faz
-   retry automático em erros transitórios da API do Sheets, mas o retry
-   **não é idempotente** — se a escrita já foi commitada no servidor antes
-   do cliente receber a confirmação, o retry reenvia o mesmo lote via
-   `ws.append_rows()` (`src/planilha.py:249`), duplicando-o. Encontrado nos
-   logs do workflow `multimodelo_reclassificacao.yml` do dia 2026-07-18:
-   a rodada `--so-validados` de `random_forest` fez um único append de
-   **4.737 linhas** (`reclass=4737 | reuso_decisao_humana=4668 |
-   sem_referencia=69`) e, na mesma execução, `[append
-   RECLASS__random_forest] falha transitoria (APIError); retry 1/5 em 10s`
-   com sucesso no retry. O número bate exatamente com os 4.737 duplicados
-   confirmados na rodada 6. `RECLASS__linear_svc` (referência, 0
-   duplicatas) também teve retries em outros dias, mas em lotes menores —
-   consistente com a hipótese de que o problema só se manifesta quando o
-   retry ocorre depois do commit já ter acontecido no servidor.
-   **Não confirmado**: correspondência linha-a-linha entre o lote de
-   07-18 e os 4.737 duplicados (exigiria leitura direta da planilha, sem
-   credenciais nesta sessão). Também houve retry para `random_forest` em
-   07-14 (lote de 1.718 linhas) sem como confirmar se também duplicou.
-3. **Corrigido**: `_append_resiliente` em `src/reclassificacao_multimodelo.py`
-   agora conta as linhas da aba-alvo antes da primeira tentativa; se um erro
-   transitório ocorrer, reconta antes de cada retry e, se a aba já cresceu o
-   suficiente para ter absorvido o lote (escrita commitada no servidor apesar
-   do erro no cliente), cancela o retry em vez de reenviar. Adicionada função
-   auxiliar `_contar_linhas`. Teste de regressão novo em
-   `tests/test_append_resiliente.py` (2 casos: retry cancelado quando a
-   escrita já foi commitada; retry normal preservado quando a falha é
-   genuína). Suíte completa: 34/34 testes passando (32 anteriores + 2 novos).
-   **Ainda não commitado nem enviado** — aguardando decisão do Adinailson
-   sobre commit/push, e o disparo real do workflow em produção não foi
-   testado (só testado com fakes offline).
+1. **Duplicação em `RECLASS__random_forest` — causa raiz corrigida e
+   commitada** (commit `098c477e`, já em `origin/main`). Investigação
+   read-only nos logs do GitHub Actions (`gh run view --log`) achou, em
+   2026-07-18, um append de 4.737 linhas em `RECLASS__random_forest` que
+   sofreu erro transitório de API e foi reenviado com sucesso no retry — o
+   número bate exatamente com os 4.737 duplicados confirmados na rodada 6.
+   Causa: `_append_resiliente()` em `src/reclassificacao_multimodelo.py`
+   fazia retry não-idempotente (reenviava o lote inteiro mesmo quando a
+   escrita já tinha sido commitada no servidor antes do erro chegar ao
+   cliente). Corrigido: a função agora conta as linhas da aba-alvo antes de
+   cada retry e cancela o reenvio se a aba já cresceu o suficiente para ter
+   absorvido a tentativa anterior. Teste de regressão novo em
+   `tests/test_append_resiliente.py` (2 casos). Suíte completa: 34/34
+   passando. **Não testado em produção** (só com fakes offline) — a
+   correção só será validada de fato no próximo disparo real do workflow
+   `multimodelo_reclassificacao.yml`.
+2. **Referências bibliográficas — revisão parcial contra o acervo curado**.
+   O "acervo curado" citado nas rodadas anteriores não é uma pasta do
+   Google Drive (não localizada com esse nome) — é o arquivo local
+   `C:\Users\adina\OneDrive\Área de Trabalho\ARQUIVOS - CLAUDE\REFERENCIAS\Referencias Bibliográficas - Tese\Mapa_Referencias_Tese.md`
+   (78 referências curadas, escopo = temas amplos da tese: manutenção
+   predial, governança preditiva, biossistemas, ESG/ODS, MCDM). Desse
+   acervo, **só 2 das 22 referências do artigo têm entrada correspondente**:
+   `Martins_2024` e `Morais_2023` (as outras 20 são papers técnicos
+   internacionais de NLP/ML/estatística, fora do escopo temático do
+   acervo). Por decisão do Adinailson, revisadas só essas 2 nesta rodada.
+   Resultado: **nenhum erro de autoria ou inconsistência de ano** nas duas
+   (autoria, ano, volume e número batem exatamente com o acervo) — o "1
+   erro de autoria e 1 inconsistência de ano" da auditoria de 16/07 **não**
+   está nelas; ou já foi corrigido entre v2 e v3, ou está numa das outras
+   20 (não verificadas). Achadas e corrigidas 2 lacunas de completude (ABNT
+   NBR 6023 exige): faltava o intervalo de páginas em Martins (`p.
+   79--98`) e o DOI em Morais (`10.18830/issn.1679-0944.n34.2023.08`) —
+   ambos adicionados em `04_artigo/artigo_classificacao_chamados_v3.md`
+   (confirmado como a fonte real usada pelo workflow `artigo_pdf.yml` que
+   gera o PDF publicado, via `grep` no `.yml`). **Ainda não commitado nem
+   enviado.**
 
-**Próximo passo**: (1) revisar o diff e decidir sobre commit/push de
-`src/reclassificacao_multimodelo.py` + `tests/test_append_resiliente.py`;
-(2) nova rodada de diagnóstico read-only para o mojibake (ainda pendente da
-rodada 6); (3) gerar a Figura 4; (4) revisar referências bibliográficas;
-(5) preencher o Apêndice C.
+**Próximo passo**: (1) revisar o diff e decidir sobre commit/push das 2
+correções de referência em `04_artigo/artigo_classificacao_chamados_v3.md`;
+(2) as 20 referências técnicas (NLP/ML) seguem sem checagem — decidir se
+vale verificá-las online (DOI/Scopus/site da revista), já que não têm
+entrada no acervo local; (3) confirmar no próximo disparo real do
+`multimodelo_reclassificacao.yml` que a correção do retry não regrediu nada
+(nenhuma duplicata nova em `RECLASS__random_forest`); (4) nova rodada de
+diagnóstico read-only para o mojibake (ainda pendente da rodada 6); (5)
+gerar a Figura 4; (6) preencher o Apêndice C.
 
 ---
 
