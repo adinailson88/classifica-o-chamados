@@ -965,14 +965,67 @@ descrito em `AGENTS.md` do repositório:
 
 **Apêndice B — Checklist de itens reportados**
 
-*Pendência explícita*: este apêndice deve inspirar-se no checklist tipo
-PRISMA-ScR do artigo-modelo de revisão (Apêndice D de
-`artigo_revisao_preliminar`), adaptado para relato de experimento de
-aprendizado de máquina (por exemplo: fonte de dados declarada, tamanho de
-amostra por subseção, método de particionamento, testes estatísticos e
-correções aplicadas, critério de calibração, cobertura de validação humana na
-data de publicação). Ainda não foi elaborado — registrar como tarefa de rodada
-futura, condicionada ao fechamento da Seção 4 com números revalidados.
+Adaptado do espírito do checklist tipo PRISMA-ScR do artigo-modelo de revisão
+(MCDM/TOPSIS/ODS/ESG) para relato de experimento de classificação supervisionada
+com validação humana. Cada item indica a subseção onde é reportado e o status na
+data de publicação; **não substitui a reconferência de números antes da
+submissão** — os status "Sim" abaixo atestam que o item é reportado em algum
+lugar do texto, não que o número citado já foi revalidado contra os JSONs
+vigentes.
+
+  ------------------------------------------------------------------------------
+  **Item**                              **Subseção**   **Reportado?**
+  -------------------------------------- -------------- -----------------------
+  Fonte de dados e sistema de origem     3.1, 3.2       Sim (GLPI/UFSB)
+  declarados
+
+  Tamanho da amostra e período/corte     3.2            Sim, mas com data de
+  de consolidação                                       corte a reconferir
+
+  Critério de inclusão/exclusão de       3.2            Parcial — "chamados
+  registros                                             não vazios" declarado;
+                                                         demais critérios não
+                                                         detalhados
+
+  Pré-processamento textual              3.3            Sim
+
+  Modelos avaliados e hiperparâmetros    3.4            Sim (7 materializados +
+  principais                                            1 em extensão)
+
+  Método de particionamento              3.5            Sim (out-of-fold,
+  (out-of-fold, k-fold, seed)                           k-fold estratificado,
+                                                         seed fixa)
+
+  Métricas reportadas e justificativa    3.5            Sim (acurácia, macro-F1,
+                                                         balanced accuracy, IC95%
+                                                         bootstrap)
+
+  Testes estatísticos e correção para    3.5            Sim (Cochran Q, Friedman,
+  múltiplas comparações                                 McNemar, Nemenyi)
+
+  Critério de calibração de confiança    3.8, 4.4       Parcial — meta declarada
+  (bruta vs. calibrada) e meta de                       (≥95%/≥95%); calibração
+  desempenho                                            formal (Platt/isotônica)
+                                                         ainda não aplicada
+
+  Protocolo de validação humana          3.6            Sim
+
+  Cobertura da validação humana na       4 (abertura)   Sim, mas desatualizada —
+  data de publicação (n e % da base)                    ver nota de revalidação
+                                                         de dados
+
+  Tratamento de conflitos de             3.7            Sim (regra de veto/trava)
+  conferência
+
+  Reprodutibilidade (scripts e dados     3.9            Sim (repositório
+  versionados)                                          público, JSONs
+                                                         sanitizados)
+
+  Limitações declaradas                  5, 6           Sim
+
+  Figuras/tabelas geradas a partir de    4.8             Não — pendência
+  dados verificáveis                                    explícita registrada
+  ------------------------------------------------------------------------------
 
 **Apêndice C — Matriz de decisão M/N/P**
 
