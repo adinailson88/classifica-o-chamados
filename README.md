@@ -42,10 +42,21 @@ Antes de qualquer coisa:
    `docs/dados/shannon_resumo.json` e correlatos mudam a cada execucao de workflow.
    A conferencia humana (colunas M/N/P da planilha) pode ter avancado desde a ultima
    sessao; conferir antes de citar qualquer percentual de validacao.
-5. O rascunho de texto mais recente (`artigo_classificacao_chamados_v3.docx`) ainda
-   NAO esta versionado neste repositorio — confirmar com o Adinailson se deve ser
-   trazido para dentro do repo (ex.: `04_artigo/`) antes de continuar editando fora
-   de controle de versao.
+5. O rascunho vive em `04_artigo/artigo_classificacao_chamados_v3.md` (versionado
+   desde 23/07/2026), com estrutura de titulos ja alinhada ao plano. O `.docx`
+   original fica em `04_artigo/` so como registro de proveniencia — nao editar o
+   `.docx`, editar o `.md`.
+6. Ha um PDF gerado automaticamente a partir desse `.md` e publicado no GitHub
+   Pages junto do painel (ver `docs/PLANO_PDF_ARTIGO_PAGES.md` e a secao
+   "Publicacao em PDF" de `PLANO_ARTIGO_CAPITULO.md`) — o PDF se regenera quando
+   `04_artigo/*.md` muda, mas NAO reescreve numeros no texto sozinho; a
+   correspondencia entre resultado e JSON vigente ainda depende de revisao humana.
+7. Ha uma anomalia registrada em `docs/dados/calibracao.json` (campo `por_faixa`,
+   `acerto_validado` = 1.0 em TODAS as faixas de confianca, inclusive abaixo de
+   50%) — investigada em 23/07/2026 sem causa-raiz confirmada (ver "Estado desta
+   rodada" em `PLANO_ARTIGO_CAPITULO.md`). NAO usar esse campo no artigo ate o
+   Adinailson confirmar se e um bug de pipeline ou um padrao real de preenchimento
+   da coluna N (CONFERENCIA IA) da planilha.
 
 Depois de executar o que for pedido nesta rodada, atualizar a secao "Estado desta
 rodada" de `PLANO_ARTIGO_CAPITULO.md` (substituir, nao acumular) com: onde parou, o
