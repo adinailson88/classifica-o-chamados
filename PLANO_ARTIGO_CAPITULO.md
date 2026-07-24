@@ -35,83 +35,88 @@ Isso substitui a necessidade de o usuário reexplicar contexto a cada nova conve
 
 ## Estado desta rodada
 
-**Data**: 2026-07-23 (America/Bahia, UTC-03:00) — rodada 4, mesma data das
-rodadas 0–3.
+**Data**: 2026-07-23 (America/Bahia, UTC-03:00) — rodada 5, mesma data das
+rodadas 0–4.
 
-**Onde está**: Seção 4 inteira (4.1–4.8) agora tem tabela em toda subseção que
-pedia dado tabular (Tabelas 1–7), todas com fonte JSON citada e data.
-Apêndices A e B preenchidos; Apêndice C parcialmente preenchido (contagens
-agregadas disponíveis; cruzamento fino M×N×P declarado "Informação
-insuficiente para verificar" — não existe em nenhum JSON publicado). PDF no
-GitHub Pages no ar e sincronizado com o `.md` atual. **Não feito ainda**:
-reescrita da prosa de todas as subseções para os números de 23/07/2026 — cada
-subseção nova tem um parágrafo "Atualização de dados (23/07/2026)" logo após
-a prosa antiga (16/07), em vez de substituir o texto original.
+**Onde está**: a prosa principal do Resumo/Abstract e das Subseções 3.2,
+4.1–4.4 foi **reescrita** com os números de 23/07/2026 (não mais um parágrafo
+"Atualização de dados" separado — o número vigente já está no corpo do
+texto). Seção 5 (Discussão) e Seção 6 (Considerações finais) também
+reescritas para refletir o achado central desta rodada: o patamar de acerto
+validado caiu de ~92–96% para ~71–80% porque a amostra de conferência quase
+dobrou (4.681 → 9.096), não por mudança de código. Subseções 4.5–4.7 mantêm
+o padrão anterior (prosa de 16/07 preservada + parágrafo "Atualização de
+dados" com a Tabela 5/6/7) — não foram reintegradas nesta rodada por serem
+subseções secundárias/exploratórias, não headline. Figuras 1–3 geradas e
+publicadas (Subseção 4.8); Figura 4 permanece bloqueada por um novo achado
+técnico (ver item 3 abaixo).
+
+**Correção de rota importante desta rodada**: a rodada 4 registrou a queda de
+92–96% para 71–80% como "avanço metodológico, não regressão" — **isso estava
+errado**. Conferido via `git log --since=2026-07-16` que nem
+`src/avaliacao_final.py` nem `src/decisao_validada.py` foram alterados nesse
+intervalo; a queda é inteiramente efeito do crescimento da amostra validada
+revelando uma taxa de acerto real mais baixa e mais representativa. Corrigido
+na prosa do artigo (Seção 5) e aqui.
 
 **O que foi feito nesta rodada**:
-1. **Segundo bug corrigido, mesmo padrão do anterior**: `matriz_ia_x_glpi`
-   (dentro de `calibracao.json`) tinha o mesmo viés de seleção do
-   `acerto_validado` (corrigido na rodada 3) — exigia M e N ambas marcadas na
-   linha e comparava a marcação bruta de cada uma, resultado: 3 das 4 células
-   sempre zeradas. Corrigido no commit `617d3ac2` (comparar a classificação da
-   IA e a categoria histórica contra a mesma categoria decidida pela memória
-   M/N/P, para toda linha com decisão travada — não só as com M e N ambas
-   marcadas). Teste de regressão em `tests/test_calibracao.py` (30/30 testes
-   passam). Disparado `dashboard.yml` manualmente (run `30057415909`) para
-   regenerar `calibracao.json`; matriz pós-correção tem variância real:
-   `ia_ok_glpi_ok=8200, ia_erro_glpi_ok=577, ia_erro_glpi_erro=319,
-   ia_ok_glpi_erro=0`. A célula zerada (IA corrige o histórico) tem explicação
-   estrutural documentada no artigo (Tabela 4), não é presumida como achado.
-2. **Bug de renderização de PDF corrigido**: a 1ª tentativa de publicar o PDF
-   falhou no CI (`fontspec Error: DejaVu Serif` não existe na imagem Docker
-   `pandoc/extra`). Em vez de continuar testando fontes por tentativa e erro,
-   os símbolos Unicode `≥`/`≈` do texto foram substituídos por `>=`/`~`
-   (commit `bafd0730`), eliminando a dependência de fonte estendida. PDF agora
-   gera sem warning de caractere ausente, com a fonte padrão do LaTeX.
-3. **Tabelas 4–7 acrescentadas**, todas no padrão "prosa antiga preservada +
-   parágrafo "Atualização de dados (23/07/2026)" + tabela nova":
-   - **Tabela 4** (Subseção 4.3): matriz de confusão IA×histórico corrigida —
-     8.200 / 0 / 577 / 319 (fonte: `calibracao.json` pós-correção do item 1).
-   - **Tabela 5** (Subseção 4.5): ganho líquido de reclassificação por modelo,
-     incluindo LSTM (ausente da versão de 30/06). Observação de qualidade de
-     dado registrada e **não investigada**: `total_reclassificado` do Random
-     Forest (18.049) destoa dos demais (~13.200–13.450) no mesmo dia de
-     execução — não tratar como comparável até isso ser explicado.
-   - **Tabela 6** (Subseção 4.6): entropia de Shannon e Jensen-Shannon por
-     fonte. Achado que muda a leitura da versão anterior: agora é a **Etapa 1
-     oficial** (não o LSTM) que lidera diversidade e menor divergência do
-     histórico — LSTM e o transformador (BERTimbau, já com resultado) ficam
-     muito próximos atrás.
-   - **Tabela 7** (Subseção 4.7): custo computacional por modelo clássico
-     (fonte: `comparacao_modelos.json`, único registro disponível, datado de
-     18/07/2026 — não há dado de custo para LSTM/BERTimbau nesse arquivo).
-4. **Apêndice C parcialmente preenchido**: contagens agregadas de M/N/P
-   (`auditoria_conferencias.json` + `calibracao.json`). O cruzamento fino de 3
-   vias (contagem por combinação exata de M×N×P) continua declarado
-   "Informação insuficiente para verificar" — não existe em JSON publicado,
-   exigiria extração direta da planilha.
-5. PDF republicado automaticamente pelo workflow a cada um dos pushes acima
-   (`artigo_pdf.yml`, runs `30056925883` falha → `30057038797` sucesso, e mais
-   um após as Tabelas 4–7). Link publicado:
+1. **Reescrita de 3.2, 4.1, 4.2, 4.3, 4.4** com números de 23/07/2026 (base
+   13.965/55 categorias; 9.534 conferências, 9.096 decisões travadas, 68,3%
+   da base; Tabela 1 e 2 agora com 8 modelos, incluindo LSTM *out-of-fold* e
+   BERTimbau, que já tem resultado comparativo). Removidos os parágrafos
+   "Atualização de dados" dessas quatro subseções — o número vigente é agora
+   a própria prosa, não um adendo.
+2. **Resumo/Abstract reescritos** com os mesmos números (LinearSVC 80,34%
+   concordância / 79,89% acerto validado; LSTM 68,47% / 74,71%; BERTimbau já
+   citado como modelo com resultado, não mais "extensão planejada").
+3. **Novo achado técnico, não corrigido**: ao preparar a Figura 4 (pares de
+   maior confusão), descoberta corrupção de acentuação (mojibake) nos nomes
+   de categoria de `estatistica.json` (campo `top_confusoes`),
+   `cruzamento_taxonomia.json` e `confusao_historico_ia.json`. Rastreamento
+   parcial: `src/analise_estatistica.py` lê os nomes de categoria das abas
+   `CLASSIF__<modelo>` (não da aba principal nem de `registros.json`, que
+   estão limpos) — suspeita recai sobre essas abas de trabalho ou sobre como
+   esse script as lê. **Não corrigido, não confirmado por leitura direta da
+   planilha.** Figura 4 fica pendente por esse motivo, registrado no artigo
+   (Subseção 4.8) e aqui.
+4. **Investigação da discrepância do Random Forest (Tabela 5)**: rastreada até
+   `src/exportar_dashboard.py::exportar_reclass_resumo`, que conta
+   `total_reclassificado = len(rows)` — uma contagem simples de linhas da aba
+   `RECLASS__random_forest`. O total (18.049) excede o tamanho da base
+   (13.965), o que é matematicamente impossível sob a premissa de 1 linha por
+   chamado — indica linhas duplicadas acumuladas nessa aba especificamente.
+   Hipótese não confirmada: `linhas_ja_reclass()` (mecanismo de dedup por
+   linha) pode estar falhando silenciosamente para esse modelo (a função tem
+   um `except: return set()` que, se disparado, faria o script reprocessar e
+   reanexar linhas já feitas). **Não corrigido** — requer inspeção da
+   planilha real (contagem de valores duplicados na coluna C da aba) antes de
+   qualquer tentativa de correção de código, para não arriscar piorar dados
+   de produção sem entender a causa.
+5. **3 figuras geradas e publicadas** (`04_artigo/figuras/`, script
+   `matplotlib`): Figura 1 (pipeline metodológico, agora como diagrama real,
+   não mais placeholder), Figura 2 (confiança×desfecho, dados da Tabela 3),
+   Figura 3 (trade-off acurácia×custo). Embutidas no `.md` com caminho
+   relativo à raiz do repo (`04_artigo/figuras/...`), necessário porque o
+   `pandoc` do workflow roda a partir da raiz.
+6. **Dois novos bugs de renderização de PDF corrigidos** durante a escrita:
+   caracteres `≈`, `≥`, `⁻`, `⁶` (usados na notação científica `p ≈
+   1,99×10⁻⁶` e em `≥95%`) reintroduzidos durante a reescrita — mesma causa
+   do bug corrigido na rodada 4 (fonte padrão do LaTeX não cobre esses
+   glifos). Substituídos por notação ASCII (`~`, `>=`, `0,000002`). PDF
+   final gera sem nenhum warning de caractere ausente.
+7. PDF republicado automaticamente pelo workflow a cada push. Link:
    `https://adinailson88.github.io/classificacao-chamados/artigo_classificacao_chamados.pdf`.
-6. Aviso do PDF removido do cabeçalho do painel (`docs/index.html`, ficou só
-   um link limpo) e movido para uma seção própria no `README.md` ("PDF do
-   artigo/capitulo no GitHub Pages"), a pedido do Adinailson — avisos técnicos
-   detalhados vivem no README, não no painel público.
 
-**Próximo passo**: (1) decidir se e quando reescrever a prosa de toda a Seção
-4/Resumo para os números de 23/07/2026 em vez de manter os parágrafos
-"Atualização de dados" separados (a base de conferência cresceu de 4.737 para
-9.534 desde 16/07; o ranking de `avaliacao_final.json` mudou de faixa —
-92–96% → 71–80% de acerto validado — porque agora compara CADA modelo contra
-a verdade decidida, não só o executor oficial contra sua própria conferência:
-é avanço metodológico, não regressão, mas merece parágrafo explicando a
-mudança para o leitor não estranhar a queda aparente); (2) investigar a
-discrepância do `total_reclassificado` do Random Forest antes de citar a
-Tabela 5 como definitiva; (3) decidir se vale a pena adicionar ao pipeline uma
-rotina que extraia o cruzamento fino M×N×P direto da planilha para fechar o
-Apêndice C por completo; (4) gerar as 4 figuras ainda pendentes (Subseção
-4.8) a partir dos JSONs vigentes.
+**Próximo passo**: (1) investigar com acesso à planilha real as duas
+pendências técnicas encontradas nesta rodada (mojibake nas abas
+`CLASSIF__<modelo>`; duplicação de linhas em `RECLASS__random_forest`) —
+ambas fora do escopo do que pode ser corrigido sem leitura/escrita direta na
+planilha; (2) decidir se reintegra 4.5–4.7 no mesmo padrão de reescrita total
+usado em 4.1–4.4, ou se mantém o padrão "atualização anexada" para essas
+subseções secundárias; (3) gerar a Figura 4 assim que o mojibake for
+corrigido na fonte; (4) revisar a lista de referências bibliográficas contra
+o acervo curado (pendência antiga, ainda não tratada nesta rodada nem nas
+anteriores).
 
 ---
 

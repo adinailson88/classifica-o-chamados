@@ -51,12 +51,21 @@ Antes de qualquer coisa:
    "Publicacao em PDF" de `PLANO_ARTIGO_CAPITULO.md`) — o PDF se regenera quando
    `04_artigo/*.md` muda, mas NAO reescreve numeros no texto sozinho; a
    correspondencia entre resultado e JSON vigente ainda depende de revisao humana.
-7. Ha uma anomalia registrada em `docs/dados/calibracao.json` (campo `por_faixa`,
-   `acerto_validado` = 1.0 em TODAS as faixas de confianca, inclusive abaixo de
-   50%) — investigada em 23/07/2026 sem causa-raiz confirmada (ver "Estado desta
-   rodada" em `PLANO_ARTIGO_CAPITULO.md`). NAO usar esse campo no artigo ate o
-   Adinailson confirmar se e um bug de pipeline ou um padrao real de preenchimento
-   da coluna N (CONFERENCIA IA) da planilha.
+7. A anomalia de `calibracao.json` (`acerto_validado` = 1.0 em toda faixa de
+   confianca) foi diagnosticada e corrigida em 23/07/2026 (viés de selecao em
+   `src/calibracao.py`, commits `21258deb` e `617d3ac2`; testes em
+   `tests/test_calibracao.py`). Nao e mais pendencia.
+8. Duas pendencias tecnicas NOVAS, encontradas em 23/07/2026, ainda sem
+   correcao (exigem leitura/escrita direta na planilha, fora do alcance de
+   uma sessao sem credenciais): (a) corrupcao de acentuacao (mojibake) nos
+   nomes de categoria lidos das abas `CLASSIF__<modelo>` por
+   `src/analise_estatistica.py`, contaminando `top_confusoes` em
+   `estatistica.json`, `cruzamento_taxonomia.json` e
+   `confusao_historico_ia.json`; (b) `total_reclassificado` do Random Forest
+   em `reclass_resumo.json` excede o tamanho da base (18.049 > 13.965),
+   indicando linhas duplicadas na aba `RECLASS__random_forest` — suspeita de
+   falha silenciosa em `linhas_ja_reclass()` (`src/reclassificacao_multimodelo.py`).
+   Ver "Estado desta rodada" em `PLANO_ARTIGO_CAPITULO.md`.
 
 Depois de executar o que for pedido nesta rodada, atualizar a secao "Estado desta
 rodada" de `PLANO_ARTIGO_CAPITULO.md` (substituir, nao acumular) com: onde parou, o
