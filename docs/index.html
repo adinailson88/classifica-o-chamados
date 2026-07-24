@@ -461,7 +461,7 @@
   </section>
 
   <section id="tab-estat" class="hide">
-    <div class="alerta" id="estatAviso">As estatisticas sao calculadas sobre as 7 IAs materializadas, comparando IA x categoria historica. Como `validados=0`, estes resultados ainda nao sao acerto humano validado.</div>
+    <div class="alerta" id="estatAviso">Carregando estatísticas. A interpretação deve separar concordância com o histórico de acerto na amostra humana parcial e não aleatória.</div>
     <div class="grid">
       <div class="card">
         <h2>Acuracia com IC 95% (bootstrap)</h2>
@@ -554,7 +554,7 @@
     </div>
     <div class="card full" style="margin-bottom:12px;border-left:3px solid #2a9d8f">
       <h2>Notas metodologicas</h2>
-      <p class="muted">Sintese dos procedimentos analiticos adotados no experimento. Salvo indicacao em contrario, todas as metricas referem-se a <strong>concordancia com a categoria historica</strong>, e nao a acerto validado por revisao humana (atualmente <code>validados=0</code>).</p>
+      <p class="muted">Síntese dos procedimentos analíticos adotados no experimento. Salvo indicação em contrário, as métricas referem-se à <strong>concordância com a categoria histórica</strong>. Resultados contra a revisão humana usam uma amostra parcial e não aleatória.</p>
       <div class="definition"><strong>Relevancia de termos e mapa de correlacao</strong>: para cada categoria, identificam-se os termos caracteristicos (por exemplo, "agua", "torneira", "sanitario" para hidraulica) por meio de razao de chances logaritmica com prior de Dirichlet e do peso medio no centroide TF-IDF. A proximidade entre categorias e estimada pela similaridade do cosseno entre os centroides, representada como mapa de calor: celulas de maior intensidade indicam vocabulario sobreposto. Procedimento implementado em <code>src/relevancia_termos.py</code>. Visualizacao em <a href="mapa_correlacao.html">mapa de correlacao</a>.</div>
       <div class="definition"><strong>Cruzamento entre confusao e correlacao</strong>: a matriz de confusao entre a previsao da IA e a categoria historica e cruzada com a correlacao vocabular. Pares de categorias com valores elevados em ambas as dimensoes constituem candidatos a revisao da taxonomia &mdash; fusao, renomeacao ou criterio de desambiguacao. O procedimento e exploratorio e destina-se a priorizar a revisao humana, sem decidir a taxonomia. Implementado em <code>src/cruzamento_taxonomia.py</code>.</div>
       <div class="definition"><strong>Comparacao multimodelo</strong>: sete algoritmos (naive_bayes, regressao_logistica, linear_svc, sgd, extra_trees, random_forest e lstm) classificam toda a base com predicao <em>out-of-fold</em>, de modo que o modelo que rotula cada registro nao foi treinado nele. Resultados na aba <strong>Modelos</strong>.</div>
@@ -949,6 +949,8 @@ function destroy(id){ if(charts[id]) charts[id].destroy(); }
 function chartOpts(suf){return{responsive:true,plugins:{legend:{labels:{color:"#24303a",boxWidth:12}}},scales:{x:{ticks:{color:"#68737d"},grid:{color:"#edf0ea"}},y:{ticks:{color:"#68737d",callback:v=>v+(suf||"")},grid:{color:"#edf0ea"}}}};}
 
 let REG=[], FILTRADO=[], MODELOS_TURNOS=[], ESTAT_GLOBAL=null, CAL_GLOBAL=null;
+let MODELOS_EXCLUIDOS=new Set(), BERT_COMPARAVEL=false;
+function modeloComparavel(modelo){ return !MODELOS_EXCLUIDOS.has(String(modelo||"")); }
 let REG_ETAPA1=[], FONTE="Etapa 1/LSTM", CACHE_REG={}, MODELO_ATUAL="", MULTI_TURNOS=[];
 function TURNOS_POR_FONTE(){
   if(!MODELO_ATUAL) return TURNOS;   // Etapa 1/LSTM oficial
@@ -1087,7 +1089,7 @@ function popularSeletorModelos(){
   const sel = document.getElementById("modeloSel");
   const help = document.getElementById("modeloHelp");
   sel.innerHTML = `<option value="">Etapa 1 oficial (LSTM/RF)</option>`;
-  const nomes = [...new Set([...Object.keys(rm), ...estMods])].sort();
+  const nomes = [...new Set([...Object.keys(rm), ...estMods])].filter(modeloComparavel).sort();
   nomes.forEach(m=>{
     const o=document.createElement("option");
     o.value=m; o.textContent=`${m} (out-of-fold)`;
@@ -1330,9 +1332,9 @@ function renderReclass(rt, temMulti){
 const PALETA=["#1d4ed8","#b7791f","#2f5f9e","#b42318","#2563eb","#7c3aed","#0891b2","#a16207"];
 function modelosFallbackEstatistica(){
   const est=ESTAT_GLOBAL||{};
-  const acc=Array.isArray(est.acuracia_bootstrap)?est.acuracia_bootstrap:[];
-  const kappa=Array.isArray(est.kappa_cohen_historico)?est.kappa_cohen_historico:[];
-  const f1=Array.isArray(est.f1_macro_bootstrap)?est.f1_macro_bootstrap:[];
+  const acc=(Array.isArray(est.acuracia_bootstrap)?est.acuracia_bootstrap:[]).filter(r=>modeloComparavel(r.modelo));
+  const kappa=(Array.isArray(est.kappa_cohen_historico)?est.kappa_cohen_historico:[]).filter(r=>modeloComparavel(r.modelo));
+  const f1=(Array.isArray(est.f1_macro_bootstrap)?est.f1_macro_bootstrap:[]).filter(r=>modeloComparavel(r.modelo));
   const byK={}; kappa.forEach(r=>byK[r.modelo]=r);
   const byF={}; f1.forEach(r=>byF[r.modelo]=r);
   return acc.map(r=>({
@@ -1349,17 +1351,17 @@ function modelosFallbackEstatistica(){
 function renderModelos(piloto, mm=[], turnos=[]){
   const tb = document.querySelector("#tabModelos tbody");
   const tr = document.querySelector("#tabRankModelos tbody");
-  MODELOS_ROWS = Array.isArray(piloto) ? piloto : [];
-  MODELOS_TURNOS = Array.isArray(turnos) ? turnos : [];
+  MODELOS_ROWS = (Array.isArray(piloto) ? piloto : []).filter(r=>modeloComparavel(r.modelo));
+  MODELOS_TURNOS = (Array.isArray(turnos) ? turnos : []).filter(r=>modeloComparavel(r.modelo));
   // Fallback robusto: quando o resumo (multimodelo_metricas) vem com concordancia vazia
   // — ex.: um run de 0 pendentes —, deriva da ULTIMA linha de turnos por modelo
   // (multimodelo_turnos tem o historico completo). Evita mostrar 0,0% indevidamente.
   const _ultTurno={};
-  (Array.isArray(turnos)?turnos:[]).forEach(t=>{
+  (Array.isArray(turnos)?turnos:[]).filter(t=>modeloComparavel(t.modelo)).forEach(t=>{
     const m=t.modelo, tn=N(t.turno);
     if(!_ultTurno[m] || tn>=_ultTurno[m]._turno) _ultTurno[m]={_turno:tn, ca:N(t.concordancia_acumulada), cl:N(t.taxa_concordancia)};
   });
-  let completos = (Array.isArray(mm)?mm:[]).map(d=>{
+  let completos = (Array.isArray(mm)?mm:[]).filter(d=>modeloComparavel(d.modelo)).map(d=>{
     const fb=_ultTurno[d.modelo]||{};
     const ca=N(d.concordancia_acumulada), cl=N(d.concordancia_ultimo_lote);
     return {...d,
@@ -1390,7 +1392,7 @@ function renderModelos(piloto, mm=[], turnos=[]){
   } else renderModelosLote();
 }
 function renderModelosLote(){
-  const rows = MODELOS_TURNOS || [];
+  const rows = (MODELOS_TURNOS || []).filter(r=>modeloComparavel(r.modelo));
   const info=document.getElementById("modelosLoteInfo");
   if(!rows.length){
     destroy("cModelosLote");
@@ -1427,14 +1429,16 @@ function renderEstatistica(est){
     document.getElementById("estatAviso").innerHTML = "Estatistica ainda nao publicada. Execute `src/analise_estatistica.py`.";
     return;
   }
-  const norm = Array.isArray(est.normalidade_concordancia_turno) ? est.normalidade_concordancia_turno : [];
+  const norm = (Array.isArray(est.normalidade_concordancia_turno) ? est.normalidade_concordancia_turno : []).filter(r=>modeloComparavel(r.modelo));
   const naoNormais = norm.filter(r=>!r.normal_5pct).length;
   document.getElementById("estatAviso").innerHTML =
-    `<strong>Base estatistica:</strong> ${fmt(est.n_linhas_comuns)} linhas comuns em ${fmt(est.modelos.length)} modelos (alpha=${esc(est.alpha)}). `+
+    `<strong>Base estatistica:</strong> ${fmt(est.n_linhas_comuns)} linhas comuns; ${fmt(norm.length)} modelos comparáveis exibidos (alpha=${esc(est.alpha)}). `+
     `As distribuicoes da concordancia por turno <strong>nao sao normais</strong>`+
     (norm.length?` (Shapiro-Wilk rejeitou normalidade em ${naoNormais}/${norm.length} modelos)`:``)+
     `. Por isso a analise usa <strong>somente testes nao-parametricos</strong> (Spearman, Friedman/Nemenyi, Cochran Q, McNemar e bootstrap). `+
-    `Os resultados sao comparados contra a categoria <strong>historica</strong>, nao contra validacao humana (validados=0).`;
+    `Os resultados sao comparados contra a categoria <strong>historica</strong>. `+
+    (!BERT_COMPARAVEL ? `<strong>transformer_ft foi ocultado:</strong> o estado publicado do BERTimbau nao registra treino concluido; os testes agregados devem ser regenerados sem essa linha legada. `:``)+
+    `A validacao humana e parcial e nao aleatoria; nao representa automaticamente a base completa.`;
   // Grafico de normalidade: histograma da concordancia por turno (todos os modelos juntos).
   const taxas = MULTI_TURNOS.map(t=>N(t.taxa_concordancia)).filter(v=>v>0 && v<=1);
   destroy("cNorm");
@@ -1455,7 +1459,7 @@ function renderEstatistica(est){
       {label:"p-valor (escala bruta)",data:norm.map(r=>N(r.p)),backgroundColor:"#b7791f"}
     ]},options:chartOpts("")});
   }
-  const acc = Array.isArray(est.acuracia_bootstrap) ? est.acuracia_bootstrap : [];
+  const acc = (Array.isArray(est.acuracia_bootstrap) ? est.acuracia_bootstrap : []).filter(r=>modeloComparavel(r.modelo));
   document.querySelector("#tabEstAcc tbody").innerHTML = acc.map(r=>`<tr><td>${esc(r.modelo)}</td><td>${pct(r.acuracia)}</td><td>${pct(r.ic95_min)} a ${pct(r.ic95_max)}</td></tr>`).join("");
   destroy("cEstAcc");
   charts.cEstAcc = new Chart(cEstAcc,{type:"bar",data:{labels:acc.map(r=>r.modelo),datasets:[
@@ -1463,15 +1467,15 @@ function renderEstatistica(est){
     {label:"IC95 min (%)",data:acc.map(r=>N(r.ic95_min)*100),backgroundColor:"#d9ded7"},
     {label:"IC95 max (%)",data:acc.map(r=>N(r.ic95_max)*100),backgroundColor:"#bcd6cb"}
   ]},options:chartOpts("%")});
-  const corr = Array.isArray(est.correlacao_conf_acerto) ? est.correlacao_conf_acerto : [];
+  const corr = (Array.isArray(est.correlacao_conf_acerto) ? est.correlacao_conf_acerto : []).filter(r=>modeloComparavel(r.modelo));
   destroy("cEstCorr");
   charts.cEstCorr = new Chart(cEstCorr,{type:"bar",data:{labels:corr.map(r=>r.modelo),datasets:[
     {label:"Spearman r",data:corr.map(r=>N(r.spearman_r)),backgroundColor:"#2f5f9e"},
     {label:"Ponto-bisserial r",data:corr.map(r=>N(r.pointbiserial_r)),backgroundColor:"#b7791f"}
   ]},options:chartOpts("")});
-  const kappa = Array.isArray(est.kappa_cohen_historico) ? est.kappa_cohen_historico : [];
+  const kappa = (Array.isArray(est.kappa_cohen_historico) ? est.kappa_cohen_historico : []).filter(r=>modeloComparavel(r.modelo));
   document.querySelector("#tabEstKappa tbody").innerHTML = kappa.map(r=>`<tr><td>${esc(r.modelo)}</td><td>${N(r.kappa).toFixed(4)}</td><td>${leituraKappa(r.kappa)}</td></tr>`).join("");
-  const res = Array.isArray(est.residuos_tendencia) ? est.residuos_tendencia : [];
+  const res = (Array.isArray(est.residuos_tendencia) ? est.residuos_tendencia : []).filter(r=>modeloComparavel(r.modelo));
   const byRes={}; res.forEach(r=>byRes[r.modelo]=r);
   document.querySelector("#tabEstDiag tbody").innerHTML = norm.map(r=>{
     const d=byRes[r.modelo]||{};
@@ -1485,7 +1489,7 @@ function renderEstatistica(est){
     ["McNemar par a par", est.mcnemar?"matriz calculada no JSON":"indisponivel", "Compara dois modelos linha a linha para saber se erram/acertam de modo significativamente diferente."]
   ].map(r=>`<tr><td>${esc(r[0])}</td><td>${esc(r[1])}</td><td>${esc(r[2])}</td></tr>`).join("");
   // Macro-F1 / recall macro com IC95
-  const f1b = Array.isArray(est.f1_macro_bootstrap) ? est.f1_macro_bootstrap : [];
+  const f1b = (Array.isArray(est.f1_macro_bootstrap) ? est.f1_macro_bootstrap : []).filter(r=>modeloComparavel(r.modelo));
   const tF1=document.querySelector("#tabEstF1 tbody");
   if(tF1) tF1.innerHTML = f1b.length ? f1b.map(r=>`<tr><td>${esc(r.modelo)}</td><td>${pct(r.f1_macro)}</td><td>${pct(r.f1_ic95?.[0])} a ${pct(r.f1_ic95?.[1])}</td><td>${pct(r.recall_macro)}</td></tr>`).join("") : `<tr><td colspan="4">Indisponivel.</td></tr>`;
   // McNemar + Holm-Bonferroni
@@ -1496,7 +1500,7 @@ function renderEstatistica(est){
   if(tH) tH.innerHTML = hpares.length ? hpares.map(h=>`<tr><td>${esc((h.par||[]).join(" x "))}</td><td>${esc(h.p)}</td><td class="${h.significativo?'status-ok':'muted'}">${h.significativo?"sim":"nao"}</td></tr>`).join("") : `<tr><td colspan="3">Indisponivel.</td></tr>`;
   // Acerto contra a verdade validada (M/N)
   const vm = est.validacao_humana_modelos||{};
-  const vpm = Array.isArray(vm.por_modelo)?vm.por_modelo:[];
+  const vpm = (Array.isArray(vm.por_modelo)?vm.por_modelo:[]).filter(r=>modeloComparavel(r.modelo));
   const tVM=document.querySelector("#tabEstValMod tbody"), vmi=document.getElementById("valModInfo");
   const algum = vpm.some(r=>N(r.n)>0);
   if(vmi && N(vm.n_verdade_derivada)>0) vmi.textContent = `Verdade derivada em ${fmt(vm.n_verdade_derivada)} chamados validados (amostra possivelmente nao aleatoria; preliminar).`;
@@ -1794,9 +1798,9 @@ function renderDecisao(av, er){
     if(temAv){
       const vc=av.vale_combinar||{};
       aviso.classList.remove("bad");
-      aviso.innerHTML=`<strong>Resposta final (validada em ${fmt(av.n_avaliado)} chamados conferidos):</strong> `
+      aviso.innerHTML=`<strong>Resultado parcial na amostra conferida não aleatória (${fmt(av.n_avaliado)} chamados):</strong> `
         +`melhor IA isolada = <strong>${esc(av.melhor_ia)}</strong>; recomendacao = <strong>${esc(vc.recomendacao||"-")}</strong>. `
-        +`${esc(vc.justificativa||"")} Métrica contra a verdade conferida por humano (M/N/P), nao contra o historico.`;
+        +`${esc(vc.justificativa||"")} Métrica contra a verdade conferida por humano (M/N/P), nao contra o historico; nao representa automaticamente a base completa.`;
     } else {
       const n=(av&&av.validados)!=null?av.validados:0;
       const min=(av&&av.minimo_recomendado)||50;
@@ -1814,7 +1818,8 @@ function renderDecisao(av, er){
       +`Status atual: <strong>${esc(av&&av.status||"aguardando")}</strong>. ${esc(av&&av.mensagem||"")}`;
   }
   const tR=document.querySelector("#tabDecRank tbody");
-  if(tR) tR.innerHTML = temAv ? (av.por_modelo||[]).map((m,i)=>
+  const rankingComparavel=(av?.por_modelo||[]).filter(m=>modeloComparavel(m.modelo));
+  if(tR) tR.innerHTML = temAv ? rankingComparavel.map((m,i)=>
       `<tr><td>${i+1}</td><td>${esc(m.modelo)}</td><td>${pct(m.acerto_validado)}</td>`
       +`<td>${pct(m.ic95[0])} – ${pct(m.ic95[1])}</td><td>${esc(m.peso_log_odds)}</td><td>${esc(m.peso_normalizado)}</td></tr>`).join("")
     : `<tr><td colspan="6" class="muted">Ainda sem ranking final por IA. Dados parciais: ${fmt(av&&av.validados)} decisoes travadas; status <strong>${esc(av&&av.status||"aguardando")}</strong>. ${esc(av&&av.mensagem||"")}</td></tr>`;
@@ -1825,21 +1830,21 @@ function renderDecisao(av, er){
       +(d.p_mcnemar!=null?` (McNemar p=${Number(d.p_mcnemar).toFixed(4)}${d.p_mcnemar<0.05?", significativo":", NAO significativo"}).`:".");
   }
   const tE=document.querySelector("#tabDecEns tbody");
-  if(tE) tE.innerHTML = temAv ? (av.ensembles||[]).map(e=>
+  if(tE) tE.innerHTML = temAv && BERT_COMPARAVEL ? (av.ensembles||[]).map(e=>
       `<tr><td>${esc(e.metodo)}</td><td>${pct(e.acerto_validado)}</td>`
       +`<td>${pct(e.ic95[0])} – ${pct(e.ic95[1])}</td>`
       +`<td class="${e.delta_vs_melhor_ia>0?'status-ok':'muted'}">${(100*e.delta_vs_melhor_ia).toFixed(2)} p.p.</td>`
       +`<td>${e.p_mcnemar_vs_melhor_ia==null?"-":Number(e.p_mcnemar_vs_melhor_ia).toFixed(4)}</td></tr>`).join("")
-    : `<tr><td colspan="5" class="muted">Ainda sem ensemble validado. O veredicto sera calculado quando <code>avaliacao_final.yml</code> encontrar modelos legiveis e amostra validada suficiente.</td></tr>`;
+    : `<tr><td colspan="5" class="muted">Ensemble ocultado enquanto avaliacao_final.json incluir transformer_ft sem treino BERTimbau concluído. Regenerar a avaliação com os sete modelos comparáveis.</td></tr>`;
   const vd=document.getElementById("decVeredicto");
-  if(vd && temAv){
+  if(vd && temAv && BERT_COMPARAVEL){
     const vc=av.vale_combinar||{};
     vd.innerHTML = vc.veredicto
       ? `<strong class="status-ok">SIM</strong> — ${esc(vc.justificativa||"")}`
       : `<strong>NAO</strong> — ${esc(vc.justificativa||"")}`;
   }
-  if(vd && !temAv){
-    vd.innerHTML = `Ainda nao ha veredicto de combinacao. O painel ja registra <strong>${fmt(av&&av.validados)}</strong> decisoes travadas e aguarda predicoes/modelos legiveis ou nova rodada de <a class="workflow-link" href="https://github.com/adinailson88/classificacao-chamados/actions/workflows/avaliacao_final.yml"><code>avaliacao_final.yml</code></a>.`;
+  if(vd && (!temAv || !BERT_COMPARAVEL)){
+    vd.innerHTML = `Ainda nao ha veredicto de combinacao publicável. O painel registra <strong>${fmt(av&&av.validados)}</strong> decisoes travadas, mas a comparação precisa ser regenerada sem transformer_ft enquanto o BERTimbau estiver sem treino concluído.`;
   }
   const tErr=document.querySelector("#tabDecErr tbody");
   if(tErr) tErr.innerHTML = temEr ? (er.comparacao_erros_vs_acertos||[]).map(c=>{
@@ -1873,7 +1878,7 @@ function renderMetaAviso(cal){
   el.innerHTML = val===0
     ? `<strong>Atencao:</strong> validacao humana ainda nao iniciada (<strong>validados=0</strong>). Todas as metricas abaixo sao <strong>concordancia vs categoria historica</strong>, nao acerto validado. `
       +`Na faixa &gt;=95%, a concordancia vs historico esta em <strong>${concHist!=null?pct(concHist):"-"}</strong> (${fmt(a.n)} chamados) — status: <strong>aprovado vs historico, NAO validado humanamente, ainda NAO liberado para producao</strong>.`
-    : `Validacao humana em andamento: <strong>${fmt(val)}</strong> casos validados. A faixa &gt;=95% deve manter acerto validado ~&gt;=95%.`;
+    : `Validação humana em andamento: <strong>${fmt(val)}</strong> casos com decisão travada. A amostra não é aleatória; o acerto por faixa é diagnóstico parcial, não estimativa da base completa.`;
 }
 
 function renderCalibracao(cal){
@@ -1881,10 +1886,10 @@ function renderCalibracao(cal){
   if(!cal || !Array.isArray(cal.por_faixa) || !cal.por_faixa.length){ if(el) el.textContent="Sem dados de calibracao publicados ainda."; return; }
   const a = cal.faixa_alvo_95 || {};
   const ok = N(a.concordancia_historico) >= 0.95;
-  el.innerHTML = `Meta: na faixa <strong>&gt;=95%</strong>, o acerto deve ficar perto de &gt;=95%. `
+  el.innerHTML = `Meta operacional: na faixa <strong>&gt;=95%</strong>, acompanhar se o acerto na amostra conferida fica perto de &gt;=95%. `
     + `Hoje (vs historico): <strong class="${ok?'status-ok':'status-mid'}">${pct(a.concordancia_historico)}</strong> em ${fmt(a.n)} chamados. `
     + `ECE (erro de calibracao)=${pct(cal.ece_historico)}. Validados: ${fmt(cal.validados)} `
-    + `(o acerto VALIDADO so aparece apos a validacao humana). Acerto vs historico e preliminar.`;
+    + `(o acerto VALIDADO refere-se à amostra conferida, não aleatória). Acerto vs histórico é preliminar.`;
   const labels = cal.por_faixa.map(f=>f.faixa);
   const ds = [
     {type:"bar",label:"Acerto vs historico (%)",data:cal.por_faixa.map(f=>N(f.concordancia_historico)*100),backgroundColor:"#1d4ed8"},
@@ -2106,11 +2111,13 @@ function renderBertimbauCoreset(cs){
     getJSON("estatistica.json"),
     getJSON("correlacao_categorias.json"), getJSON("termos_relevantes.json"), getJSON("cruzamento_taxonomia.json")
   ]);
-  const [avFinal, anErros, reclassResumo, shResumo, shModelos, jsModelos, shCategorias, shVotos] = await Promise.all([
+  const [avFinal, anErros, reclassResumo, shResumo, shModelos, jsModelos, shCategorias, shVotos, bertState] = await Promise.all([
     getJSON("avaliacao_final.json"), getJSON("analise_erros.json"), getJSON("reclass_resumo.json"),
     getJSON("shannon_resumo.json"), getJSON("shannon_modelos.json"), getJSON("jensen_shannon_modelos.json"),
-    getJSON("shannon_categorias.json"), getJSON("shannon_votos.json")
+    getJSON("shannon_categorias.json"), getJSON("shannon_votos.json"), getJSON("bertimbau_training_state.json")
   ]);
+  BERT_COMPARAVEL=!!(bertState && bertState.status==="ok");
+  MODELOS_EXCLUIDOS=BERT_COMPARAVEL ? new Set() : new Set(["transformer_ft"]);
   CAT = Array.isArray(cat) ? cat : [];
   MET = Array.isArray(met) ? met : [];
   TURNOS = Array.isArray(turnos) ? turnos : [];
@@ -2119,6 +2126,9 @@ function renderBertimbauCoreset(cs){
   CAL_GLOBAL = cal || {};
   ESTAT_GLOBAL = estat || {};
   document.getElementById("meta").textContent = "Atualizado em: "+(fmtData(resumo&&resumo.gerado_em)||"sem data publicada");
+  const nValidados=N(cal&&cal.validados);
+  document.getElementById("notice").innerHTML = `<strong>Estado experimental:</strong> validação humana parcial e não aleatória (${fmt(nValidados)} decisões travadas); métricas validadas não estimam automaticamente o desempenho da base completa. `
+    +(!BERT_COMPARAVEL ? `<strong>BERTimbau:</strong> estado <code>${esc(bertState&&bertState.status||"não publicado")}</code>; `+`transformer_ft foi excluído de rankings e tabelas comparativas até existir treino concluído e métricas próprias.` : ``);
   REG = Array.isArray(registros) ? registros : [];
   REG_ETAPA1 = REG;
   MULTI_TURNOS = Array.isArray(multiTurnos) ? multiTurnos : [];
@@ -2150,7 +2160,6 @@ function renderBertimbauCoreset(cs){
   const filtroFluxo=document.getElementById("filtroFluxo");
   if(filtroFluxo) filtroFluxo.addEventListener("input", ()=>renderFluxo(filtroFluxo.value));
   renderFluxo();
-  const bertState = await getJSON("bertimbau_training_state.json");
   renderBertimbau(Array.isArray(bertState)?null:bertState);
   const bertCoreset = await getJSON("bertimbau_coreset_resumo.json");
   renderBertimbauCoreset(Array.isArray(bertCoreset)?null:bertCoreset);

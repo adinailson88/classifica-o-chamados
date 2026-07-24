@@ -28,18 +28,18 @@ predial universitária em português brasileiro, extraídos do sistema GLPI
 da Universidade Federal do Sul da Bahia. O experimento utiliza 13.965
 chamados não vazios, organizados em 55 categorias históricas, e compara
 classificadores clássicos baseados em TF-IDF (Naive Bayes, Regressão
-Logística, LinearSVC calibrado, SGD, Random Forest e Extra Trees), rede
-neural LSTM bidirecional e um transformador pré-treinado em português
-(BERTimbau, com ajuste fino), já com resultado comparativo disponível
-nesta consolidação. O diferencial metodológico reside na distinção entre
+Logística, LinearSVC, SGD, Random Forest e Extra Trees) e rede neural LSTM
+bidirecional. O BERTimbau permanece como extensão planejada, sem treino
+concluído ou métrica própria nesta consolidação. O diferencial metodológico reside na distinção entre
 concordância com o histórico administrativo e acerto validado por
 revisão humana, tratando a categoria histórica como referência
 preliminar imperfeita — distinção que se mostrou decisiva: o acerto
 validado por conferência humana (9.096 decisões travadas) revelou-se
 mais conservador do que a concordância com o histórico sugeria, à medida
-que a amostra de conferência cresceu e deixou de se concentrar apenas em
-casos de fácil confirmação. Resultados indicam superioridade do LinearSVC
-calibrado tanto na concordância com o histórico (acurácia de 80,34%,
+que a amostra de conferência cresceu. Como a seleção não é aleatória e
+prioriza divergências e casos críticos, esses resultados não estimam o
+desempenho da base completa (COCHRAN, 1977). Resultados indicam superioridade do LinearSVC
+tanto na concordância com o histórico (acurácia de 80,34%,
 IC95%: 79,69%--80,97%) quanto no acerto validado (79,89%, IC95%:
 78,99%--80,73%), enquanto o LSTM apresentou concordância de 68,47% e
 acerto validado de 74,71%. A normalidade da concordância por turno foi
@@ -67,16 +67,16 @@ classifying real university building maintenance requests in Brazilian
 Portuguese, extracted from the GLPI system at the Federal University of
 Southern Bahia. The experiment uses 13,965 non-empty records organized
 into 55 historical categories and compares TF-IDF-based classical
-classifiers (Naive Bayes, Logistic Regression, calibrated LinearSVC,
-SGD, Random Forest, and Extra Trees), a bidirectional LSTM neural
-network, and a Portuguese pre-trained transformer (BERTimbau,
-fine-tuned), already with comparative results in this consolidation. The
-methodological contribution lies in distinguishing agreement with
+classifiers (Naive Bayes, Logistic Regression, LinearSVC, SGD, Random
+Forest, and Extra Trees) and a bidirectional LSTM neural network. The
+Portuguese pre-trained transformer (BERTimbau) remains a planned
+extension, without completed training or its own metric in this
+consolidation. The methodological contribution lies in distinguishing agreement with
 administrative history from human-validated accuracy — a distinction
-that proved decisive: human-validated accuracy (9,096 locked decisions)
-turned out more conservative than agreement with history suggested, as
-the validation sample grew and stopped concentrating on easily
-confirmed cases. Results indicate calibrated LinearSVC superiority both
+that is necessary for the present protocol: human-validated accuracy
+(9,096 locked decisions) is reported only for the partial, non-random
+reviewed sample, which prioritizes divergences and critical cases.
+Results indicate LinearSVC superiority both
 in agreement with history (80.34% accuracy, 95%CI: 79.69%--80.97%) and
 in human-validated accuracy (79.89%, 95%CI: 78.99%--80.73%), while LSTM
 achieved 68.47% agreement and 74.71% validated accuracy. Normality was
@@ -164,9 +164,9 @@ campos textuais considerados agregam informações do título e da
 descrição do chamado, além de informações associadas à ordem de serviço.
 O estudo compara modelos clássicos baseados em TF-IDF (Naive Bayes,
 Regressão Logística, LinearSVC, SGD, Random Forest e Extra Trees) com
-abordagem neural LSTM bidirecional e um transformador pré-treinado em
-português (BERTimbau, com ajuste fino), já com resultado comparativo
-disponível nesta consolidação. O
+abordagem neural LSTM bidirecional. O BERTimbau é mantido como extensão
+planejada, mas não integra as comparações enquanto não houver treino
+concluído e métricas próprias rastreáveis. O
 objeto de avaliação, portanto, não é apenas o classificador isolado, mas
 o protocolo de governança preditiva que articula aprendizado de máquina,
 auditoria estatística, custo computacional e validação humana, em
@@ -357,14 +357,15 @@ manutenção predial, onde palavras como *bomba*, *split*, *disjuntor*,
 
 **3.4 Modelos avaliados**
 
-O desenho experimental considera oito modelos, todos já materializados
-nesta consolidação. Os classificadores clássicos adotam representação
+O desenho experimental compara sete modelos materializados nesta
+consolidação. Os classificadores clássicos adotam representação
 TF-IDF e algoritmos de aprendizado supervisionado amplamente
 consolidados na literatura de classificação textual (JOACHIMS, 1998;
 PEDREGOSA *et al.*, 2011): Naive Bayes Multinomial, como *baseline*
 probabilístico; Regressão Logística, com calibração natural e boa
-interpretabilidade; LinearSVC calibrado, combinando margem linear e
-calibração de confiança via Platt (PLATT, 1999); SGD, como alternativa
+interpretabilidade; LinearSVC, combinando margem linear e escores de
+decisão normalizados por *softmax* apenas para ordenação de confiança
+(sem calibrador de Platt ajustado; PLATT, 1999); SGD, como alternativa
 eficiente para matrizes esparsas de grande dimensão; Random Forest e
 Extra Trees, como representantes de métodos não lineares baseados em
 *ensemble* de árvores. A LSTM Bidirecional foi construída com camada de
@@ -374,26 +375,21 @@ bidirecional de 64 unidades (GRAVES; SCHMIDHUBER, 2005), *dropout* de
 antecipada, avaliada tanto na comparação *out-of-fold* (Subseção 4.1)
 quanto na Etapa 1 oficial de produção, com *fallback* de Random Forest.
 
-O oitavo modelo, um transformador pré-treinado em português com ajuste
-fino (BERTimbau, `neuralmind/bert-base-portuguese-cased`), foi
-incorporado como extensão contextual, com *fallback* automático para
-LSTM/RF quando as dependências de treinamento (torch/transformers) não
-estão disponíveis no ambiente de execução. Pelo custo computacional em
-CPU, o ajuste fino roda em fluxo de trabalho próprio, de baixa
-frequência, fora do ciclo padrão de 15 minutos, e é condicionado a um
-limiar mínimo de avanço da base validada (100 novos casos conferidos)
-antes de cada novo treinamento. Nesta consolidação (23/07/2026), esse
-limiar já foi atingido e o modelo tem resultado comparativo disponível e
-reportado na Seção 4 (68,06% de concordância com o histórico, 73,79% de
-acerto validado) — diferentemente de versões anteriores deste protocolo,
-em que o treinamento permanecia adiado e o modelo era tratado como
-trabalho em andamento.
+O oitavo modelo planejado é um transformador pré-treinado em português
+(BERTimbau, `neuralmind/bert-base-portuguese-cased`). Seu fluxo de ajuste
+fino é separado, condicionado ao avanço da base validada e pode recorrer a
+*fallback* técnico quando as dependências não estão disponíveis. O estado
+publicado em `bertimbau_training_state.json` nesta consolidação é
+`sem_dados`, com treino adiado; por isso o modelo não integra tabelas,
+rankings, testes inferenciais nem conclusões comparativas deste artigo.
 
 **3.5 Desenho de avaliação**
 
 A avaliação foi realizada por predições fora da amostra em protocolo
-*out-of-fold* com *k-fold* estratificado, *seed* fixa e mesma partição
-para todos os modelos, desenho que reduz viés de comparação e permite
+*out-of-fold* com *KFold* embaralhado, `random_state=42` e mesma
+partição determinística para todos os modelos. A partição não é
+estratificada; esta é uma limitação do desenho implementado. O procedimento reduz
+viés de comparação e permite
 testes pareados (SOKOLOVA; LAPALME, 2009). As métricas principais são
 acurácia, *macro*-F1, F1 ponderado, *balanced accuracy* e intervalo de
 confiança por *bootstrap* com 95% de confiança. A *macro*-F1 e a
@@ -450,7 +446,7 @@ em um evento isolado.
 
 Como dimensão complementar às métricas supervisionadas, o protocolo
 incorporou uma camada de análise informacional baseada em entropia de
-Shannon e divergência de Jensen-Shannon, calculada exclusivamente sobre
+Shannon e divergência de Jensen-Shannon (SHANNON, 1948; LIN, 1991), calculada exclusivamente sobre
 os arquivos públicos e sanitizados do painel (sem identificador, título
 ou texto livre do chamado). Essa camada não substitui acurácia,
 calibração ou validação humana; responde a uma pergunta distinta, sobre
@@ -509,22 +505,18 @@ sensivelmente mais conservador do que a amostra menor sugeria.
 
 A comparação contra a categoria histórica, sobre a base completa (n =
 13.965, com intervalo de confiança por bootstrap a 95%), mantém o
-LinearSVC calibrado na liderança, com acurácia de 0,8034 (IC95%:
+LinearSVC na liderança, com acurácia de 0,8034 (IC95%:
 0,7969--0,8097), seguido por Extra Trees (0,7898), Random Forest
 (0,7798), SGD (0,7784), Regressão Logística (0,7691), Naive Bayes
-(0,6990), LSTM (0,6847) e o transformador pré-treinado BERTimbau, já com
-resultado disponível nesta consolidação (0,6806). O teste de Cochran Q
-confirma diferença global entre os oito modelos (Q = 3.494,146; gl = 7; p
-\< 0,001). O Kappa de Cohen entre cada modelo e o histórico acompanha
+(0,6990) e LSTM (0,6847). O teste de Cochran Q confirma diferença global
+entre os sete modelos materializados; a comparação exclui o BERTimbau,
+cujo estado é `sem_dados`. O Kappa de Cohen entre cada modelo e o histórico acompanha
 ordenamento muito próximo (LinearSVC 0,7884; Extra Trees 0,7721; SGD
 0,7623; Random Forest 0,7611; Regressão Logística 0,7527; Naive Bayes
-0,6697; LSTM 0,6633; BERTimbau 0,6590), e o Kappa de Fleiss entre os oito
-modelos (0,7538) indica concordância substancial entre arquiteturas
-distintas treinadas sobre a mesma base, ainda que um pouco menor do que
-a observada entre os seis classificadores clássicos isolados na
-consolidação de 16/07/2026 (0,8068) — resultado esperado ao acrescentar
-duas arquiteturas (LSTM, BERTimbau) cujo padrão de erro diverge mais dos
-modelos lineares e de *ensemble* de árvores. A nona fonte de
+0,6697; LSTM 0,6633). A concordância entre os sete modelos materializados
+deve ser reestimada no próximo `estatistica.json`, pois o arquivo vigente
+ainda contém uma linha legada de `transformer_ft`, não elegível para a
+comparação. A oitava fonte de
 classificação, a Etapa 1 oficial (executor LSTM/RF de produção, coluna G
 da planilha), mantém concordância de 77,65% e confiança média de 71,67%
 nesta consolidação, posicionando-se entre SGD e Regressão Logística
@@ -536,53 +528,50 @@ regra de produção (Subseção 3.4), não um único modelo isolado.
 
 | Modelo | Acurácia | IC95% bootstrap | Kappa vs. histórico |
 |---|---|---|---|
-| LinearSVC calibrado | 0,8034 | 0,7969 -- 0,8097 | 0,7884 |
+| LinearSVC | 0,8034 | 0,7969 -- 0,8097 | 0,7884 |
 | Extra Trees | 0,7898 | 0,7828 -- 0,7964 | 0,7721 |
 | Random Forest | 0,7798 | 0,7729 -- 0,7864 | 0,7611 |
 | SGD | 0,7784 | 0,7719 -- 0,7851 | 0,7623 |
 | Regressão Logística | 0,7691 | 0,7624 -- 0,7757 | 0,7527 |
 | Naive Bayes | 0,6990 | 0,6914 -- 0,7064 | 0,6697 |
 | LSTM (out-of-fold) | 0,6847 | 0,6769 -- 0,6923 | 0,6633 |
-| Transformer (BERTimbau) | 0,6806 | 0,6730 -- 0,6881 | 0,6590 |
 
-Fonte: `estatistica.json`, gerado em 23/07/2026 20:45 (n = 13.965).
+Fonte: `estatistica.json`, gerado em 24/07/2026 15:55 (n = 13.965). A linha
+legada de `transformer_ft` foi deliberadamente excluída por não representar
+treino BERTimbau concluído.
 
 **4.2 Ranking validado por conferência humana**
 
 A avaliação contra a verdade validada pela memória de decisão M/N/P (n =
 9.096 decisões travadas) confirma a mesma liderança da Subseção 4.1, mas
 em patamar bem mais conservador do que o reportado na consolidação de
-16/07/2026: o LinearSVC calibrado permanece o melhor modelo isolado, com
+16/07/2026: o LinearSVC permanece o melhor modelo isolado, com
 acerto validado de 0,7989 (IC95%: 0,7899--0,8073), seguido por SGD
 (0,7909), Regressão Logística (0,7859), Extra Trees (0,7762), Random
-Forest (0,7689), LSTM (0,7471), o transformador BERTimbau (0,7379) e
-Naive Bayes (0,7114). A diferença entre o primeiro e o segundo colocado é
+Forest (0,7689), LSTM (0,7471) e Naive Bayes (0,7114). A diferença entre o primeiro e o segundo colocado é
 pequena em termos absolutos (0,8 ponto percentual), mas estatisticamente
-significativa (McNemar, p ~ 0,000002), sustentando a recomendação de uso
-do LinearSVC calibrado como IA de referência. Nenhum método de combinação
-testado supera o LinearSVC isolado: maioria ponderada com pesos
-aprendidos *out-of-fold* (0,7944), maioria simples (0,7930) e confiança
-calibrada máxima (0,7930) ficam todos **abaixo** do LinearSVC (0,7989),
-com a diferença estatisticamente significativa a favor do LinearSVC
-isolado nos três casos (McNemar p = 0,0008; p < 0,0001; p < 0,0001,
-respectivamente). Combinar modelos, portanto, não se justifica
-operacionalmente diante do custo adicional de manter um comitê.
+significativa (McNemar, p ~ 0,000002). Os resultados de combinação de
+modelos do JSON vigente ainda incluem a linha legada `transformer_ft`;
+por isso, não são interpretados nesta versão. Uma conclusão sobre
+ensembles depende da regeneração de `avaliacao_final.json` com apenas os
+sete modelos comparáveis.
 
 **Tabela 2** Acerto validado contra a verdade decidida M/N/P (n = 9.096)
 
 | Modelo | Acerto validado | IC95% |
 |---|---|---|
-| LinearSVC calibrado | 0,7989 | 0,7899 -- 0,8073 |
+| LinearSVC | 0,7989 | 0,7899 -- 0,8073 |
 | SGD | 0,7909 | 0,7819 -- 0,7994 |
 | Regressão Logística | 0,7859 | 0,7768 -- 0,7947 |
 | Extra Trees | 0,7762 | 0,7667 -- 0,7847 |
 | Random Forest | 0,7689 | 0,7598 -- 0,7777 |
 | LSTM | 0,7471 | 0,7375 -- 0,7556 |
-| Transformer (BERTimbau) | 0,7379 | 0,7287 -- 0,7471 |
 | Naive Bayes | 0,7114 | 0,7016 -- 0,7208 |
 
-Fonte: `avaliacao_final.json`, gerado em 23/07/2026 04:58, contra a
-categoria decidida pela memória M/N/P (`decisao_validada.verdade_validada`).
+Fonte: `avaliacao_final.json`, gerado em 24/07/2026 04:55, congelado no
+snapshot `docs/dados/snapshots/artigo-v3-20260724/` (manifesto com SHA-256).
+A tabela exclui a linha legada `transformer_ft`, pois
+`bertimbau_training_state.json` registra `sem_dados`.
 
 *Nota metodológica sobre a mudança de patamar (92--96% em 16/07/2026 →
 71--80% nesta consolidação)*: o código de `avaliacao_final.py` que produz
@@ -592,10 +581,10 @@ crescimento da amostra validada (4.681 → 9.096 decisões, quase o dobro).
 A leitura mais provável, retomada na Seção 5, é que a amostra menor de
 16/07 estava mais concentrada em casos já fáceis de confirmar como
 corretos, e a ampliação da cobertura revelou uma taxa de acerto real mais
-baixa e mais representativa da base como um todo. Isso reforça, e não
-enfraquece, a premissa metodológica central deste artigo: avaliar modelos
-apenas contra amostras pequenas de validação humana pode superestimar o
-desempenho real.
+baixa, mas não permite inferir representatividade da base como um todo
+(COCHRAN, 1977). Como a seleção não foi probabilística, a comparação entre consolidações
+é descritiva. Não é possível estimar, a partir dessas duas consolidações,
+o desempenho da base completa.
 
 **4.3 A classificação oficial frente ao histórico: matriz de confusão
 validada**
@@ -704,14 +693,13 @@ eliminando o viés de seleção. Teste de regressão em `tests/test_calibracao.p
 
 A reclassificação dos chamados já conferidos produz resultados
 heterogêneos entre modelos, medidos contra a verdade validada quando
-travada e contra o histórico nos demais casos. Nesta consolidação
-(23/07/2026), o LSTM apresenta o maior ganho líquido absoluto (+89; 628
-corrigidos e 539 prejudicados), seguido por Regressão Logística (+91 em
-termos absolutos de corrigidos–prejudicados, 235 e 144) e LinearSVC
-(+69; 278 corrigidos e 209 prejudicados). Em contraste, Naive Bayes (−7)
-e Extra Trees (−2) apresentam ganho líquido negativo — a reclassificação
-piora ligeiramente mais casos do que corrige para esses dois modelos.
-Esse resultado reforça a decisão metodológica de não aplicar
+travada e contra o histórico nos demais casos. Na consolidação de
+24/07/2026, o LSTM apresenta o maior ganho líquido absoluto (+99; 670
+corrigidos e 571 prejudicados), seguido por Regressão Logística (+92) e
+LinearSVC (+73). Todos os sete modelos materializados apresentam ganho
+líquido positivo nesta execução. Esse resultado não autoriza aplicação
+indiscriminada: o ganho combina parcelas comparadas contra verdade validada
+e contra histórico, e pode mudar a cada rodada. Reforça-se a decisão de não aplicar
 reclassificação em massa de forma indiscriminada por modelo, tratando o
 ganho líquido, e não apenas a acurácia agregada, como critério de
 decisão operacional por classificador — e de reavaliar esse critério a
@@ -719,19 +707,19 @@ cada rodada, não como veredito permanente: a execução de 30/06/2026
 havia apontado SGD e Random Forest como negativos; ambos passaram a
 positivo nesta consolidação.
 
-**Tabela 5** Ganho líquido de reclassificação por modelo (execução de 23/07/2026)
+**Tabela 5** Ganho líquido de reclassificação por modelo (execução de 24/07/2026)
 
 | Modelo | Total reclassificado | Corrigidos | Prejudicados | Ganho líquido | Reuso de decisão humana |
 |---|---|---|---|---|---|
-| LSTM | 13.418 | 628 | 539 | +89 | 8.805 |
-| Regressão Logística | 13.332 | 235 | 144 | +91 | 8.727 |
-| LinearSVC | 13.451 | 278 | 209 | +69 | 8.856 |
-| SGD | 13.379 | 186 | 157 | +29 | 8.771 |
-| Random Forest | 13.312 | 209 | 184 | +25 | 8.719 |
-| Extra Trees | 13.310 | 202 | 204 | −2 | 8.713 |
-| Naive Bayes | 13.226 | 125 | 132 | −7 | 8.623 |
+| LSTM | 13.905 | 670 | 571 | +99 | 8.805 |
+| Regressão Logística | 13.932 | 245 | 153 | +92 | 8.727 |
+| LinearSVC | 13.965 | 291 | 218 | +73 | 8.856 |
+| Random Forest | 13.912 | 234 | 186 | +48 | 8.719 |
+| SGD | 13.965 | 201 | 163 | +38 | 8.771 |
+| Naive Bayes | 13.826 | 158 | 132 | +26 | 8.623 |
+| Extra Trees | 13.899 | 237 | 226 | +11 | 8.713 |
 
-Fonte: `reclass_resumo.json`, gerado em 23/07/2026 23:04. *Nota
+Fonte: `reclass_resumo.json`, gerado em 24/07/2026 16:14. *Nota
 metodológica*: o total reclassificado do Random Forest chegava a 18.049
 nesta mesma tabela em versão anterior deste texto, valor que excedia o
 tamanho da base (13.965) — matematicamente impossível sob a premissa de
@@ -744,32 +732,26 @@ identificadores de linha distintos), enquanto a aba de referência
 especificamente na aba do Random Forest. Corrigido em
 `src/exportar_dashboard.py` (commit `a244b59b`): a agregação agora
 deduplica por identificador de linha antes de contar, mantendo a última
-ocorrência. A causa raiz da duplicação em si (suspeita: falha silenciosa
-do mecanismo de deduplicação em `src/reclassificacao_multimodelo.py`
-durante alguma execução anterior) não foi investigada e permanece como
-pendência técnica.
+ocorrência. A causa raiz foi identificada e corrigida no commit `098c477e`:
+`_append_resiliente()` reenviava o lote inteiro após erro transitório de API,
+sem confirmar se a escrita anterior já havia sido aceita. O JSON vigente é
+posterior à correção e registra a remoção das 4.737 linhas duplicadas históricas.
 
 **4.6 Diagnóstico de taxonomia e ambiguidade estrutural
 (Shannon/Jensen-Shannon)**
 
-A camada de entropia de Shannon, calculada sobre as nove fontes de
-classificação desta consolidação (Etapa 1 oficial e as oito IAs
-materializadas, incluindo LSTM *out-of-fold* e o transformador
-BERTimbau), aponta a **Etapa 1 oficial** como a fonte de maior
-diversidade nas categorias previstas e, simultaneamente, a de menor
-divergência de Jensen-Shannon frente à distribuição histórica — LSTM e
-BERTimbau ficam muito próximos atrás em diversidade (terceiro e segundo
-lugar, respectivamente). Esse duplo primeiro lugar da Etapa 1 oficial é
-consistente com sua natureza híbrida (LSTM com *fallback* de Random
-Forest, Subseção 3.4): a combinação tende a produzir uma distribuição de
-categorias mais rica do que qualquer modelo isolado, sem se afastar
-tanto do padrão histórico quanto arquiteturas mais recentes avaliadas
-isoladamente. No nível de chamado individual, 3.378 dos 13.965 registros
-(24,2%) apresentam alta entropia de votos entre as nove fontes, ou seja,
+O diagnóstico de Shannon foi recalculado sobre oito fontes comparáveis:
+a Etapa 1 oficial e os sete modelos materializados. O artefato legado
+`transformer_ft` foi excluído porque `bertimbau_training_state.json`
+registra `sem_dados`. A Etapa 1 oficial apresenta a maior diversidade
+de categorias previstas e a menor divergência de Jensen-Shannon frente à
+distribuição histórica. No nível de chamado individual, 3.277 dos 13.965
+registros (23,5%) apresentam alta entropia de votos entre as oito fontes,
+ou seja,
 desacordo estrutural relevante entre arquiteturas distintas — um
 critério de priorização de auditoria diferente e complementar à simples
 baixa confiança de um único modelo. No nível de categoria, a análise
-aponta 91 ocorrências de alta ambiguidade nas predições (com suporte
+aponta 76 ocorrências de alta ambiguidade nas predições (com suporte
 mínimo de 30 registros por categoria); a interpretação detalhada de
 quais categorias específicas concentram essa ambiguidade, e sua
 sobreposição com os pares de maior confusão recíproca identificados na
@@ -785,12 +767,11 @@ relativamente alta (0,7848) — provável reflexo de concentração extrema
 em poucas categorias com alguma dispersão residual, não investigado em
 detalhe nesta rodada.
 
-**Tabela 6** Entropia de Shannon e divergência de Jensen-Shannon por fonte de classificação (23/07/2026)
+**Tabela 6** Entropia de Shannon e divergência de Jensen-Shannon por fonte de classificação (24/07/2026)
 
 | Fonte | Categorias previstas | Entropia (nats) | Entropia normalizada | JS vs. histórico |
 |---|---|---|---|---|
 | Etapa 1 oficial | 53 | 4,6758 | 0,8163 | 0,0286 |
-| Transformer (BERTimbau) | 51 | 4,6288 | 0,8160 | 0,0872 |
 | LSTM | 52 | 4,6201 | 0,8105 | 0,0847 |
 | Regressão Logística | 52 | 4,4490 | 0,7805 | 0,0716 |
 | SGD | 53 | 4,4363 | 0,7745 | 0,0639 |
@@ -799,12 +780,12 @@ detalhe nesta rodada.
 | Random Forest | 47 | 3,9574 | 0,7124 | 0,0804 |
 | Naive Bayes | 19 | 3,3340 | 0,7848 | 0,1755 |
 
-Fonte: `shannon_modelos.json` e `jensen_shannon_modelos.json`, gerados em
-23/07/2026 (workflow `dashboard.yml`, via `src/analise_shannon.py`). No nível
-de categoria, a mais recente `shannon_resumo.json` aponta 91 ocorrências de
-alta ambiguidade nas predições (ante 79 na versão anterior) e 3.378 chamados
-(ante 3.451) com alta entropia de votos entre modelos — números próximos, sem
-mudança de leitura qualitativa. Naive Bayes chama atenção por combinar a
+Fonte: `shannon_modelos.json`, `jensen_shannon_modelos.json` e
+`shannon_resumo.json`, regenerados em 24/07/2026 por
+`src/analise_shannon.py`. O `transformer_ft` foi excluído explicitamente
+por não haver treino BERTimbau concluído. No nível de categoria, o resumo
+aponta 76 ocorrências de alta ambiguidade e 3.277 chamados com alta
+entropia de votos entre modelos. Naive Bayes chama atenção por combinar a
 menor cobertura de categorias (19, ante 47–53 dos demais) com entropia
 normalizada relativamente alta (0,7848) — provável reflexo de concentração
 extrema em poucas categorias com alguma dispersão residual, não investigado
@@ -812,20 +793,12 @@ em detalhe nesta rodada.
 
 **4.7 Custo computacional**
 
-Nos recortes de comparação por lote (1.000 registros cada), o tempo de
-treino mantém-se na casa de segundos para os modelos lineares e
-probabilísticos mais simples (por exemplo, Naive Bayes ~ 1,1 s) e sobe
-para modelos com mais hiperparâmetros (Regressão Logística ~ 8,7 s neste
-recorte), enquanto o LSTM, por depender de épocas de treinamento em rede
-neural, permanece a opção de maior custo computacional entre as fontes
-de classificação avaliadas, exigindo minutos e infraestrutura de
-checkpoint; o oitavo modelo (transformador com ajuste fino) tende a
-ampliar ainda mais esse custo, o que motivou seu isolamento em fluxo de
-trabalho próprio, de baixa frequência (Subseção 3.4). Essa hierarquia de
-custo é consistente com a observada em versões anteriores deste
-protocolo e reforça o argumento operacional de que modelos lineares
-combinam o melhor desempenho validado (Subseção 4.2) com o menor custo
-de reexecução e auditoria.
+Nos recortes de comparação por lote (1.000 registros cada), os seis
+modelos clássicos tiveram tempos de treino entre 1,14 s e 21,30 s.
+Não há medição comparável de custo para LSTM ou BERTimbau nesta
+consolidação; portanto, não é possível ordenar o custo desses dois
+modelos frente aos demais. A tabela informa exclusivamente as medições
+disponíveis para os modelos clássicos.
 
 **Tabela 7** Custo computacional por lote de 1.000 registros
 
@@ -839,11 +812,9 @@ de reexecução e auditoria.
 | Extra Trees | 21,30 | 0,14 | 0,610 |
 
 Fonte: `comparacao_modelos.json`, execução mais recente por modelo em
-18/07/2026 03:30 — não reexecutado em 23/07/2026; único registro de custo
-computacional disponível no painel para os modelos clássicos. LSTM e o
-transformador (BERTimbau) não constam deste arquivo; seu custo mais alto é
-descrito qualitativamente no parágrafo acima (dependência de épocas de
-treinamento em rede neural), não medido nesta mesma tabela. A acurácia
+18/07/2026 03:30 — não reexecutado nesta consolidação; único registro de
+custo computacional disponível no painel para os modelos clássicos. LSTM
+e BERTimbau não constam deste arquivo. A acurácia
 reportada aqui é sobre um lote de 1.000 registros (não a base completa) e
 serve só para contextualizar o trade-off custo×desempenho desta subseção —
 não usar como substituto das Tabelas 1 e 2.
@@ -868,9 +839,9 @@ Fonte: `calibracao.json`, gerado em 23/07/2026 21:53.
 
 **Figura 3** Trade-off entre acerto validado (conferência humana, 23/07/2026)
 e custo computacional (tempo de treino, lote de 1.000 registros, 18/07/2026),
-modelos clássicos. LSTM e o transformador (BERTimbau) não constam desta
-figura por não terem registro de tempo de treino no mesmo arquivo (Tabela 7,
-Subseção 4.7); seu custo mais alto é descrito qualitativamente no texto.
+modelos clássicos. LSTM e BERTimbau não constam desta figura por não
+terem registro de tempo de treino no mesmo arquivo (Tabela 7, Subseção
+4.7).
 
 Fonte: `comparacao_modelos.json` (custo) e `avaliacao_final.json` (acerto
 validado).
@@ -903,21 +874,12 @@ antes de qualquer outra leitura: na consolidação de 16/07/2026, sobre
 concordância com o histórico (70–80%); na consolidação vigente
 (23/07/2026), sobre 9.096 decisões — quase o dobro —, os dois patamares
 se aproximaram (concordância 68–80%, acerto validado 71–80%), com o
-LinearSVC calibrado praticamente empatado entre as duas métricas (80,34%
-concordância, 79,89% acerto validado). Como já registrado na Subseção
-4.2, essa aproximação não decorre de mudança nos scripts de avaliação
-(confirmado por conferência do histórico de commits), e sim do
-crescimento da amostra de conferência: a leitura mais provável é que a
-amostra menor de 16/07 concentrava casos mais fáceis de confirmar como
-corretos, e a ampliação revelou uma taxa de acerto real mais baixa e mais
-representativa da base como um todo. Esse é, em si, um achado
-metodológico relevante para a literatura de validação humana em PLN
-aplicado: amostras de conferência pequenas, mesmo quando maiores do que
-o convencional na área (a versão original deste protocolo já superava a
-amostra piloto de 305 casos), podem superestimar sistematicamente o
-desempenho real de um classificador se a priorização de casos a conferir
-não for depois compensada por uma amostra final ampla o bastante para
-diluir esse viés inicial.
+LinearSVC em 80,34% de concordância e 79,89% de acerto validado. A
+alteração observada entre as duas consolidações não permite estimar o
+desempenho real da base completa: a conferência humana não é aleatória e
+prioriza divergências e casos críticos. Portanto, os resultados devem
+ser lidos como descrição da amostra conferida, não como estimativa
+representativa da população de chamados (COCHRAN, 1977).
 
 Ainda assim, a distinção entre concordância e acerto validado continua
 metodologicamente necessária, e a matriz IA×histórico (Subseção 4.3)
@@ -939,19 +901,13 @@ e, como o achado acima demonstra, seria impossível também saber se uma
 amostra de validação já é grande o bastante para ser tratada como
 representativa.
 
-A manutenção da liderança do LinearSVC calibrado tanto na concordância
-histórica quanto no acerto validado (Subseções 4.1 e 4.2) reforça, com
-evidência agora validada e não apenas preliminar, a leitura já delineada
-na primeira versão deste protocolo: em textos curtos, técnicos e
-ruidosos como os chamados de manutenção predial, um classificador linear
-sobre representação TF-IDF pode superar arquiteturas neurais mais
-complexas, inclusive quando avaliado contra verdade humana, e ainda
-manter vantagem de custo computacional (Subseção 4.7). A ausência de
-ganho estatisticamente significativo de qualquer estratégia de
-combinação de modelos (Subseção 4.2) reforça a mesma leitura: neste
-domínio e neste estágio do experimento, investir engenharia em um único
-classificador linear bem calibrado tem retorno mais claro do que
-orquestrar um comitê de modelos heterogêneos.
+Na amostra conferida, o LinearSVC lidera tanto a concordância histórica
+quanto o acerto validado (Subseções 4.1 e 4.2). Isso descreve o resultado
+desta base e desta amostra, sem demonstrar superioridade generalizável
+de classificadores lineares sobre arquiteturas neurais. A comparação de
+custo também permanece restrita aos seis modelos clássicos da Tabela 7.
+Os ensembles serão reavaliados somente após a regeneração de
+`avaliacao_final.json` sem `transformer_ft`.
 
 O resultado da reclassificação (Subseção 4.5) introduz uma nuance
 operacional importante: o ganho líquido de corrigir chamados já
@@ -974,18 +930,16 @@ A camada de entropia de Shannon e divergência de Jensen-Shannon
 humana, mas amplia o repertório de governança do experimento ao separar
 três fenômenos que a acurácia isolada tende a confundir: erro de modelo,
 ambiguidade genuína da taxonomia institucional e heterogeneidade natural
-da distribuição de chamados. A identificação de 3.378 chamados (24,2% da
-base) com alto desacordo estrutural entre as nove fontes de classificação
-(Etapa 1 oficial e as oito IAs materializadas) oferece um critério de
+da distribuição de chamados. A identificação de 3.277 chamados (23,5% da
+base) com alto desacordo estrutural entre as oito fontes comparáveis
+(Etapa 1 oficial e os sete modelos materializados) oferece um critério de
 priorização de auditoria distinto do simples corte por baixa confiança
 de um único classificador, e complementa a fila já construída a partir
 da conferência M/N/P. O achado de que a Etapa 1 oficial, não o LSTM
 isolado, lidera tanto a diversidade de predições quanto a menor
-divergência frente ao histórico (Subseção 4.6) é consistente com sua
-natureza híbrida (LSTM com *fallback* de Random Forest): a combinação
-tende a produzir uma distribuição de categorias mais rica do que
-qualquer modelo isolado, sem se afastar tanto do padrão histórico quanto
-arquiteturas mais recentes (LSTM *out-of-fold*, BERTimbau).
+divergência frente ao histórico (Subseção 4.6) descreve o resultado
+desta consolidação. Esse diagnóstico não substitui acurácia ou validação
+humana.
 
 A meta de confiança calibrada igual ou superior a 95% associada a acerto
 real igual ou superior a 95% (Subseção 4.4), estabelecida como critério
@@ -994,7 +948,7 @@ alcançada com folga como sugeria a consolidação anterior: a faixa alta
 de confiança da Etapa 1 oficial chega a 96,79% de acerto validado sobre
 4.698 casos conferidos (ante 99,73% sobre 3.284 casos em 16/07/2026),
 ainda que a confiança utilizada seja bruta (softmax/decision_function),
-não formalmente calibrada por Platt ou isotônica. Essa queda de 99,73%
+não formalmente calibrada por Platt ou isotônica (PLATT, 1999; GUO *et al.*, 2017). Essa queda de 99,73%
 para 96,79% na própria faixa de mais alta confiança, à medida que a
 conferência quase dobrou de tamanho, é o mesmo padrão discutido acima
 para o acerto validado geral, e reforça a mesma cautela: a amostra
@@ -1024,14 +978,11 @@ categorias diferentes) permanecem em zero nos dados publicados
 (`conflitos = 0` em `avaliacao_final.json`), o que não elimina a
 possibilidade de novos conflitos surgirem à medida que a conferência
 avança sobre os 31,7% da base ainda sem decisão travada. Terceiro, o
-oitavo modelo (transformador BERTimbau com ajuste fino), que na versão
-anterior deste protocolo ainda não tinha resultado comparativo, passou a
-ter: seu desempenho (68,06% de concordância, 73,79% de acerto validado)
-o posiciona entre os últimos colocados do ranking, próximo ao LSTM, não
-superando os classificadores lineares clássicos nesta base — resultado
-que, mesmo preliminar, já qualifica a expectativa inicial de que um
-transformador pré-treinado traria ganho automático de desempenho neste
-domínio de texto curto e técnico. Quarto, foi identificada nesta rodada
+BERTimbau permanece pendente: o estado publicado é `sem_dados`, sem
+treino concluído nem métricas próprias. Assim, o artefato legado
+`transformer_ft` foi excluído de rankings, testes e diagnósticos
+comparativos; não há evidência suficiente para concluir sobre seu
+desempenho neste domínio. Quarto, foi identificada nesta rodada
 uma corrupção de acentuação (mojibake) nos nomes de categoria de três
 arquivos-fonte usados para análises de confusão entre categorias
 (Subseção 4.8), que impediu a geração da quarta figura planejada e
@@ -1046,12 +997,12 @@ este capítulo.
 
 O presente capítulo atualizou o protocolo de classificação automática
 multimodelo de chamados de manutenção predial universitária em português
-brasileiro com os resultados acumulados até 23 de julho de 2026,
-incorporando uma oitava fonte de classificação já com resultado
-comparativo (transformador BERTimbau com ajuste fino), uma camada de
-memória de decisão por veto e trava de categorias já conferidas, e uma
-camada de análise informacional baseada em entropia de Shannon e
-divergência de Jensen-Shannon. A contribuição central permanece
+brasileiro com os resultados acumulados até 24 de julho de 2026,
+incluindo sete modelos materializados, uma camada de memória de decisão
+por veto e trava de categorias já conferidas, e uma camada de análise
+informacional baseada em entropia de Shannon e divergência de
+Jensen-Shannon. O BERTimbau permanece como extensão planejada, sem
+treino concluído ou métricas próprias. A contribuição central permanece
 metodológica: não apenas identificar o melhor classificador, mas
 estruturar um protocolo em que aprendizado de máquina, estatística não
 paramétrica, memória de decisão e auditoria humana qualificam
@@ -1059,28 +1010,18 @@ progressivamente a base de dados e revelam inconsistências taxonômicas
 — e, como esta rodada demonstrou, também revelam e corrigem
 inconsistências no próprio pipeline de avaliação (Subseções 4.3 e 4.4).
 
-Diferentemente da versão preliminar deste texto, a conclusão atual se
-apoia em validação humana substancial e, pela primeira vez, ampla o
-bastante para revisar a magnitude dos resultados publicados
-anteriormente. Sobre 9.096 chamados com decisão travada e sem conflito,
-o LinearSVC calibrado confirma-se como a melhor IA isolada, com acerto
-validado de 79,89% (IC95%: 78,99%--80,73%), à frente de SGD (79,09%),
-Regressão Logística (78,59%), Extra Trees (77,62%), Random Forest
-(76,89%), LSTM (74,71%), o transformador BERTimbau (73,79%) e Naive
-Bayes (71,14%); nenhuma estratégia de combinação de modelos supera essa
-IA isolada com significância estatística. Esse patamar é
-substancialmente mais conservador do que os 92–96% reportados na
-consolidação de 16/07/2026 sobre uma amostra bem menor (4.681 decisões)
-— queda que, como discutido na Seção 5, reflete o crescimento da própria
-amostra de validação, não uma piora do classificador nem mudança de
-metodologia de cálculo. A matriz de confusão IA×histórico qualifica, sem
-invalidar, a premissa de rótulos ruidosos: o histórico administrativo,
-quando conferido, acerta mais do que a IA (96,49% contra 90,15%), mas
-apresenta uma taxa real e crescente de erro confirmado (3,51% dos casos
-conferidos, ante 1,2% em 16/07/2026), o que justifica manter a
-arquitetura de validação humana como componente permanente do
-protocolo, não como etapa transitória a ser eliminada quando a IA
-atingir bom desempenho médio.
+Na amostra parcial, não aleatória, de 9.096 chamados com decisão travada
+e sem conflito, o LinearSVC obteve o maior acerto validado entre os sete
+modelos comparáveis: 79,89% (IC95%: 78,99%--80,73%), seguido de SGD
+(79,09%), Regressão Logística (78,59%), Extra Trees (77,62%), Random
+Forest (76,89%), LSTM (74,71%) e Naive Bayes (71,14%). Os ensembles não
+são concluídos nesta versão porque o JSON que os calcula ainda inclui
+`transformer_ft`. Esses números não estimam o desempenho da base completa, pois
+a seleção da conferência prioriza divergências e casos críticos (COCHRAN, 1977). A matriz
+IA × histórico registra que o histórico administrativo também contém
+erros confirmados, o que mantém a validação humana como parte necessária
+do protocolo; a proporção observada nessa amostra não deve ser
+generalizada sem desenho probabilístico (COCHRAN, 1977).
 
 A meta original do experimento — confiança calibrada igual ou superior a
 95% associada a acerto validado igual ou superior a 95% — fica próxima
@@ -1096,14 +1037,8 @@ humana sobre uma fração bem mais representativa da base. Os próximos
 passos deste protocolo incluem a conclusão da conferência humana
 pendente (31,7% da base ainda sem decisão travada), a calibração formal
 por modelo (Platt/isotônica/temperatura) condicionada a essa
-conferência, a análise comparativa mais aprofundada do desempenho do
-transformador BERTimbau frente aos classificadores lineares (por ora
-inferior, resultado que qualifica a expectativa inicial sobre ganho
-automático de arquiteturas pré-treinadas neste domínio), a investigação
-da causa raiz da duplicação de linhas identificada e corrigida na
-agregação da reclassificação do Random Forest (Subseção 4.5 — corrigida
-na camada de exportação, mas a causa na planilha de origem permanece
-desconhecida) e da corrupção de acentuação identificada nos
+conferência, a realização do treino e da avaliação comparativa do
+transformador BERTimbau, a investigação da corrupção de acentuação identificada nos
 arquivos-fonte de análise de confusão entre categorias (Subseção 4.8),
 a revisão taxonômica dirigida pelos candidatos identificados na etapa de
 cruzamento de taxonomia e na entropia de Shannon, e a estabilização da
@@ -1128,6 +1063,9 @@ BOUABDALLAOUI, Y.; LAFHAJ, Z.; YIM, P.; DUCOULOMBIER, L.; BENNADJI, B.
 Natural Language Processing Model for Managing Maintenance Requests in
 Buildings. Buildings, v. 10, n. 9, art. 160, 2020.
 
+COCHRAN, W. G. Sampling techniques. 3. ed. New York: John Wiley & Sons,
+1977.
+
 GALKE, L.; SCHERP, A. Bag-of-words vs. graph vs. sequence in text
 classification: questioning the necessity of text-graphs and the
 surprising strength of a wide MLP. In: ANNUAL MEETING OF THE ASSOCIATION
@@ -1150,6 +1088,10 @@ LEARNING, 10., 1998, Chemnitz. Proceedings \[\...\]. Berlin: Springer,
 KEJRIWAL, M.; SANTOS, H.; SHEN, K.; MULVEHILL, A. M.; MCGUINNESS, D. L.
 A noise audit of human-labeled benchmarks for machine commonsense
 reasoning. Scientific Reports, v. 14, art. 8609, 2024.
+
+LIN, J. Divergence measures based on the Shannon entropy. IEEE
+Transactions on Information Theory, v. 37, n. 1, p. 145--151, 1991. DOI:
+10.1109/18.61115.
 
 LI, Y.; LIU, Y.; ZHANG, J.; CAO, L.; WANG, Q. Automated analysis and
 assignment of maintenance work orders using natural language processing.
@@ -1193,6 +1135,10 @@ retrieval. Information Processing & Management, v. 24, n. 5, p.
 SCHWARTZ, R.; DODGE, J.; SMITH, N. A.; ETZIONI, O. Green AI.
 Communications of the ACM, v. 63, n. 12, p. 54--63, 2020.
 
+SHANNON, C. E. A mathematical theory of communication. Bell System
+Technical Journal, v. 27, n. 3, p. 379--423, jul. 1948; v. 27, n. 4, p.
+623--656, out. 1948.
+
 SOKOLOVA, M.; LAPALME, G. A systematic analysis of performance measures
 for classification tasks. Information Processing & Management, v. 45, n.
 4, p. 427--437, 2009.
@@ -1213,9 +1159,9 @@ label noise. Engineering Applications of Artificial Intelligence, v.
 
 **APÊNDICES**
 
-**Apêndice A — Dicionário de colunas da planilha experimental (A:M)**
+**Apêndice A — Dicionário de colunas da planilha experimental (A:P)**
 
-A aba experimental (`CHAMADOS_ESQUELETO_REDUZIDO`) segue o esquema fixo A:M,
+A aba experimental (`CHAMADOS_ESQUELETO_REDUZIDO`) segue o esquema fixo A:P,
 descrito em `AGENTS.md` do repositório:
 
 | Coluna | Campo |
@@ -1232,7 +1178,10 @@ descrito em `AGENTS.md` do repositório:
 | J | Criticidade Atribuída por IA |
 | K | Comparação — fórmula `=SE(G="";"";G=C)` |
 | L | Classificado_Confiança_IA |
-| M | CONFERÊNCIA (marcação humana; `TRUE` não é sobrescrito por nova classificação automática) |
+| M | CONFERÊNCIA GLPI |
+| N | CONFERÊNCIA IA |
+| O | Classificação IA - 2 |
+| P | CONFERÊNCIA IA - 2 |
 
 **Apêndice B — Checklist de itens reportados**
 
@@ -1251,7 +1200,7 @@ vigentes.
 | Critério de inclusão/exclusão de registros | 3.2 | Parcial — "chamados não vazios" declarado; demais critérios não detalhados |
 | Pré-processamento textual | 3.3 | Sim |
 | Modelos avaliados e hiperparâmetros principais | 3.4 | Sim (7 materializados + 1 em extensão) |
-| Método de particionamento (out-of-fold, k-fold, seed) | 3.5 | Sim (out-of-fold, k-fold estratificado, seed fixa) |
+| Método de particionamento (out-of-fold, k-fold, seed) | 3.5 | Sim (out-of-fold, KFold embaralhado, `random_state=42`; sem estratificação) |
 | Métricas reportadas e justificativa | 3.5 | Sim (acurácia, macro-F1, balanced accuracy, IC95% bootstrap) |
 | Testes estatísticos e correção para múltiplas comparações | 3.5 | Sim (Cochran Q, Friedman, McNemar, Nemenyi) |
 | Critério de calibração de confiança (bruta vs. calibrada) e meta de desempenho | 3.8, 4.4 | Parcial — meta declarada (>= 95%/>= 95%); calibração formal (Platt/isotônica) ainda não aplicada |
