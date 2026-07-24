@@ -111,13 +111,11 @@ v3.docx para dentro do repo em 04_artigo/ e converta para Markdown"].
       isso mascara um bug que pode estar contaminando outros dados também.
       Scripts geradores: `src/analise_estatistica.py`,
       `src/cruzamento_taxonomia.py`.
-- [ ] **`transformer_ft` ainda aparece com números em
-      `docs/dados/avaliacao_final.json`** (`acerto_validado=0.7379`) mesmo com
-      `bertimbau_training_state.json` em `status=sem_dados` e com o texto do
-      artigo já afirmando exclusão desse modelo. Rodar de novo
-      `src/avaliacao_final.py` e `src/analise_estatistica.py` contra a
-      planilha viva para republicar sem esse modelo, ou documentar
-      explicitamente que a exclusão é só textual por enquanto.
+- [x] **Exclusão do `transformer_ft` republicada** em
+      `docs/dados/avaliacao_final.json` e `docs/dados/estatistica.json`, ambos
+      gerados em 24/07/2026 às 19:37. O modelo está em `modelos_excluidos`
+      porque `bertimbau_training_state.json` permanece em `status=sem_dados`;
+      os rankings públicos consideram somente sete modelos comparáveis.
 - [ ] **Tabela suplementar de métricas por categoria (55 categorias)** — o
       dado já existe em `docs/dados/metricas_por_categoria.json`, mas não
       está formatado como tabela suplementar no artigo. Falta um script
