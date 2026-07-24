@@ -35,52 +35,80 @@ Isso substitui a necessidade de o usuário reexplicar contexto a cada nova conve
 
 ## Estado desta rodada
 
-**Data**: 2026-07-23 (America/Bahia, UTC-03:00) — rodada 2, mesma data das rodadas
-0 e 1.
+**Data**: 2026-07-23 (America/Bahia, UTC-03:00) — rodada 3, mesma data das
+rodadas 0–2.
 
-**Onde está**: `04_artigo/artigo_classificacao_chamados_v3.md` já tem a estrutura
-de títulos alinhada à Seção 3 deste plano (Resumo → Introdução → Referencial
-conceitual → Método 3.1–3.9 → Resultados 4.1–4.8 → Discussão → Considerações
-finais → Referências → Apêndices A–C). **Nenhum número foi revalidado ou
-reescrito nesta rodada** — o conteúdo textual e todos os números seguem sendo os
-do rascunho de 16/07/2026, agora só reorganizados estruturalmente.
+**Onde está**: `04_artigo/artigo_classificacao_chamados_v3.md` tem a estrutura
+alinhada ao plano (rodada 2) e agora também uma primeira tabela com dados
+**revalidados e corrigidos** (Tabela 3, calibração por faixa, Subseção 4.4).
+Publicação em PDF no GitHub Pages está no ar. Apêndice B preenchido. Restam
+pendentes: Tabelas 4–7 (matriz de confusão, reclassificação, Shannon/JS, custo)
+e Apêndice C.
 
 **O que foi feito nesta rodada**:
-- Commit `abafb627`→(rebase)`70e41b54` enviado a `origin/main`: trouxe
-  `04_artigo/` (rascunho v3 versionado) e fechou a pendência de
-  `docs/CODEX_PROXIMA_SESSAO.md` (migração de categoria, ver rodada 1 abaixo).
-- Realinhamento estrutural de `04_artigo/artigo_classificacao_chamados_v3.md`
-  (ainda não commitado):
-  - "2. TRABALHOS RELACIONADOS" → "2. REFERENCIAL CONCEITUAL" (subseções 2.1–2.4
-    mantidas como estavam).
-  - "3. MATERIAIS E MÉTODOS" → "3. MÉTODO"; acrescentada **Subseção 3.9
-    "Disponibilidade de dados e scripts"** (texto novo, mas fatual/boilerplate —
-    aponta para `docs/dados/*.json` e workflows do repo, sem número de
-    experimento) com pendência explícita marcada para mapear cada resultado ao
-    script gerador correspondente.
-  - Nota de figuras que já existia dentro de 4.7 foi destacada como **Subseção
-    4.8 "Figuras"** própria (texto movido, não reescrito).
-  - "6. CONCLUSÃO" → "6. CONSIDERAÇÕES FINAIS".
-  - Acrescentada seção **APÊNDICES**: Apêndice A (dicionário de colunas A:M,
-    fatual, extraído de `AGENTS.md`) preenchido; Apêndices B (checklist tipo
-    PRISMA-ScR adaptado) e C (matriz de decisão M/N/P) **deixados como pendência
-    explícita, sem conteúdo inventado** — dependem de dados que ainda não foram
-    consolidados nesta rodada.
-  - `04_artigo/README.md` atualizado para descrever esse realinhamento. O
-    `.docx` original não foi tocado.
-- **Mudanças ainda não commitadas nesta rodada 2**: só `04_artigo/` (o `.md` e o
-  `README.md`). Aguardando confirmação do usuário para commitar/enviar.
+1. **Bug de dados corrigido**: ao tentar revalidar números para tabelar,
+   `docs/dados/calibracao.json` mostrava `acerto_validado = 1,0` em TODAS as
+   faixas de confiança (implausível). Causa: `src/calibracao.py` media acerto
+   comparando só contra a marcação bruta da coluna N (CONFERÊNCIA IA) isolada,
+   que na prática quase nunca é marcada "Errado" (o erro da IA costuma ficar
+   registrado só via M) — viés de seleção. Corrigido no commit `21258deb`
+   (comparar contra a categoria DECIDIDA pela memória M/N/P, mesma verdade de
+   `avaliacao_final.py`); teste de regressão adicionado em
+   `tests/test_calibracao.py` (29/29 testes passam). Não foi possível
+   reexecutar contra a planilha real localmente (sem credenciais) — disparado
+   manualmente o workflow `dashboard.yml` (run
+   `30056361490`, concluído com sucesso), que regenerou
+   `docs/dados/calibracao.json` já corrigido. Números pós-correção são
+   plausíveis: acerto validado por faixa cresce de 49,89% (<50% confiança) a
+   96,79% (≥95% confiança), sobre 9.096 decisões travadas.
+   **Achado colateral ainda em aberto**: `validacao_humana.matriz_ia_x_glpi`
+   dentro do mesmo JSON tem o MESMO viés estrutural (ainda compara marcação
+   bruta de M e N) e continua com variância zero — não corrigido nesta rodada;
+   não usar esse campo para a Tabela 4.3 (matriz de confusão IA×GLPI) até nova
+   correção. Detalhe completo em `docs/PLANO_PDF_ARTIGO_PAGES.md`.
+2. **Tabela 3 acrescentada** à Subseção 4.4 do artigo, com os números
+   corrigidos de hoje (fonte: `calibracao.json`, gerado 23/07/2026 21:31),
+   sem apagar o parágrafo de prosa com os números de 16/07/2026 — inserida
+   como "Atualização de dados (23/07/2026)" logo abaixo, para preservar
+   rastreabilidade. Prosa antiga ainda não foi reescrita/substituída (fica
+   para quando o restante da Seção 4 for revalidado, para não deixar o texto
+   com números de datas misturadas sem aviso).
+3. **Nota metodológica acrescentada à Subseção 4.3** avisando que a matriz de
+   confusão IA×GLPI de 16/07/2026 (4.454/45/186/13) não pôde ser reconfirmada
+   nesta rodada pelo motivo do item 1.
+4. **Apêndice B preenchido**: checklist de itens reportados (adaptado do
+   espírito PRISMA-ScR) mapeando cada item à subseção e ao status de
+   reconferência — commit `0e8dda56`.
+5. **Publicação em PDF no GitHub Pages**: novo workflow
+   `.github/workflows/artigo_pdf.yml` (pandoc + xelatex via imagem Docker
+   `pandoc/extra`) converte `04_artigo/artigo_classificacao_chamados_v3.md`
+   para `docs/artigo_classificacao_chamados.pdf` a cada push que altere esse
+   `.md`, ou por disparo manual; `docs/index.html` agora linka o PDF no
+   cabeçalho do painel. Testado localmente (xelatex via MiKTeX) antes de
+   commitar — renderiza corretamente (acentuação, tabelas, sumário). Registro
+   completo do desenho e das limitações em `docs/PLANO_PDF_ARTIGO_PAGES.md` —
+   em particular: o PDF acompanha o `.md` automaticamente, mas **não reescreve
+   números sozinho** quando só os JSONs de `docs/dados/` mudam; isso continua
+   exigindo edição manual do `.md` após revalidação.
+6. `README.md` (bloco "prompt pronto") e este arquivo atualizados para refletir
+   tudo isso.
 
-**Próximo passo**: (1) confirmar com o Adinailson se pode commitar e enviar este
-realinhamento estrutural; (2) preencher os Apêndices B e C quando houver dados
-consolidados; (3) antes de escrever ou alterar qualquer número do Resumo/Seção
-4, re-rodar/conferir `docs/dados/avaliacao_final.json`,
-`docs/dados/calibracao.json`, `docs/dados/reclass_resumo.json` e
-`docs/dados/shannon_resumo.json` — a conferência humana M/N/P pode ter avançado
-além dos 33,9% (4.737/13.954) registrados na auditoria de 16/07; (4) manter a
-regra já registrada: não avançar a redação com números novos até a conferência
-humana progredir mais ou até ele pedir explicitamente para escrever com o que já
-existe.
+**Próximo passo**: (1) construir as Tabelas 4–7 restantes (reclassificação —
+`reclass_resumo.json`; Shannon/JS — `shannon_modelos.json` e
+`jensen_shannon_modelos.json`; custo computacional — verificar se há JSON
+dedicado ou declarar "Informação insuficiente para verificar") com os dados
+vivos de hoje, seguindo o mesmo padrão desta rodada (tabela nova + nota de
+atualização, sem apagar a prosa antiga sem revisão); (2) decidir se e quando
+reescrever a prosa de toda a Seção 4/Resumo para os números de 23/07/2026 —
+a base de conferência humana cresceu muito desde 16/07 (4.737 → 9.534
+conferências) e o ranking de `avaliacao_final.json` mudou de faixa (92–96% →
+71–80% de acerto validado, porque agora compara CADA modelo contra a verdade
+decidida, não só o executor oficial contra sua própria conferência — é
+avanço metodológico, não regressão, mas precisa de parágrafo explicando a
+mudança de metodologia para o leitor não estranhar a queda aparente); (3)
+aplicar correção equivalente à de `calibracao.py` no campo
+`matriz_ia_x_glpi` antes de reconstruir a Tabela 4.3; (4) preencher o
+Apêndice C (matriz M/N/P) quando houver extração direta da planilha.
 
 ---
 
