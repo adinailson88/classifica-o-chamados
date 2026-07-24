@@ -511,24 +511,14 @@ nesta métrica.
 **Tabela 1** Concordância com a categoria histórica, base completa (n =
 13.954)
 
-  -----------------------------------------------------------------------
-     **Modelo**       **Acurácia**         **IC95%         **Kappa vs.
-                                         bootstrap**       histórico**
-  ----------------- ----------------- ----------------- -----------------
-      LinearSVC          0,7996       0,7927 -- 0,8063       0,7843
-      calibrado                                         
-
-     Extra Trees         0,7859       0,7789 -- 0,7929       0,7679
-
-    Random Forest        0,7792       0,7722 -- 0,7862       0,7604
-
-         SGD             0,7745       0,7678 -- 0,7812       0,7581
-
-      Regressão          0,7640       0,7570 -- 0,7709       0,7473
-      Logística                                         
-
-     Naive Bayes         0,6984       0,6909 -- 0,7058       0,6689
-  -----------------------------------------------------------------------
+| Modelo | Acurácia | IC95% bootstrap | Kappa vs. histórico |
+|---|---|---|---|
+| LinearSVC calibrado | 0,7996 | 0,7927 -- 0,8063 | 0,7843 |
+| Extra Trees | 0,7859 | 0,7789 -- 0,7929 | 0,7679 |
+| Random Forest | 0,7792 | 0,7722 -- 0,7862 | 0,7604 |
+| SGD | 0,7745 | 0,7678 -- 0,7812 | 0,7581 |
+| Regressão Logística | 0,7640 | 0,7570 -- 0,7709 | 0,7473 |
+| Naive Bayes | 0,6984 | 0,6909 -- 0,7058 | 0,6689 |
 
 Fonte: estatistica.json, gerado em 16/07/2026 (n = 13.954).
 
@@ -554,21 +544,14 @@ operacionalmente diante do custo adicional de manter um comitê.
 
 **Tabela 2** Acerto validado por conferência humana dupla (n = 4.681)
 
-  -----------------------------------------------------------------------
-        **Modelo**          **Acerto validado**          **IC95%**
-  ----------------------- ----------------------- -----------------------
-    LinearSVC calibrado           0,9549             0,9489 -- 0,9603
-
-            SGD                   0,9500             0,9436 -- 0,9562
-
-       Random Forest              0,9477             0,9413 -- 0,9539
-
-        Extra Trees               0,9470             0,9406 -- 0,9530
-
-    Regressão Logística           0,9442             0,9374 -- 0,9509
-
-        Naive Bayes               0,9203             0,9122 -- 0,9280
-  -----------------------------------------------------------------------
+| Modelo | Acerto validado | IC95% |
+|---|---|---|
+| LinearSVC calibrado | 0,9549 | 0,9489 -- 0,9603 |
+| SGD | 0,9500 | 0,9436 -- 0,9562 |
+| Random Forest | 0,9477 | 0,9413 -- 0,9539 |
+| Extra Trees | 0,9470 | 0,9406 -- 0,9530 |
+| Regressão Logística | 0,9442 | 0,9374 -- 0,9509 |
+| Naive Bayes | 0,9203 | 0,9122 -- 0,9280 |
 
 Fonte: avaliacao_final.json, gerado em 16/07/2026, conferência dupla
 M/N/P.
@@ -595,6 +578,19 @@ nesta amostra. A implicação prática é que a IA deve ser tratada como
 instrumento de triagem e auditoria complementar ao histórico, não como
 substituto ou árbitro superior a ele.
 
+*Nota metodológica (23/07/2026)*: o campo do painel que sustentaria uma nova
+versão desta matriz (`calibracao.json`, `validacao_humana.matriz_ia_x_glpi`)
+apresenta, na consolidação mais recente, variância nula entre as quatro
+células — resultado do mesmo viés de seleção identificado e corrigido na
+Subseção 4.4 (a coluna N de conferência bruta raramente registra "Errado" na
+prática). Diferentemente da Subseção 4.4, este campo específico **ainda não
+foi corrigido**; os números de 16/07/2026 citados acima permanecem como
+único registro disponível desta matriz e **não devem ser tratados como
+reconfirmados** até uma nova rotina de cálculo (comparando a decisão
+travada M/N/P, não a marcação bruta de uma única coluna) ser implementada e
+reexecutada. Ver `docs/PLANO_PDF_ARTIGO_PAGES.md` para o registro técnico
+completo.
+
 **4.4 Confiança, calibração e faixas de decisão**
 
 A calibração bruta da Etapa 1 oficial mantém ECE histórico de 0,0536.
@@ -615,6 +611,43 @@ o executor LSTM de alta confiança (n = 4.739) atinge 99,73% de acerto
 validado, enquanto o executor de baixa confiança (n = 9.215) atinge
 84,30% (n = 1.414 validados) --- diferença que justifica represar apenas
 os casos de baixa confiança para revisão manual.
+
+*Atualização de dados (23/07/2026)*: o parágrafo acima preserva os números de
+16/07/2026 citados na versão anterior deste rascunho. Nesta data, ao
+revalidar a fonte viva (`docs/dados/calibracao.json`), foi corrigido um viés
+de seleção em `src/calibracao.py` que fazia o acerto validado por faixa sair
+artificialmente igual a 100% em toda faixa de confiança, inclusive abaixo de
+50% (a coluna N de conferência bruta isolada raramente registra "Errado" no
+uso real; a correção passou a comparar a classificação do executor contra a
+categoria **decidida** pela memória M/N/P — a mesma verdade usada na Subseção
+4.2 — em vez da marcação bruta de uma única coluna). A Tabela 3 mostra os
+números corrigidos, já sobre uma base de conferência bem maior (9.096
+decisões travadas, ante 4.681 em 16/07):
+
+**Tabela 3** Acerto validado por faixa de confiança bruta, executor oficial
+(Etapa 1), pós-correção do viés de seleção (n = 9.096 decisões travadas)
+
+| Faixa | n total | Concord. histórico | n validados | Acerto validado |
+|---|---|---|---|---|
+| < 50% | 3.972 | 42,35% | 876 | 49,89% |
+| 50–70% | 1.504 | 73,40% | 741 | 83,94% |
+| 70–80% | 972 | 87,45% | 654 | 94,95% |
+| 80–90% | 1.499 | 87,99% | 1.118 | 93,92% |
+| 90–95% | 1.210 | 92,98% | 1.009 | 91,48% |
+| ≥ 95% | 4.808 | 99,08% | 4.698 | 96,79% |
+
+Fonte: `calibracao.json`, gerado em 23/07/2026 21:31 (America/Bahia), já com a
+correção de `src/calibracao.py` aplicada. ECE histórico nesta consolidação:
+0,0598. A meta do experimento (confiança calibrada ≥95% associada a acerto
+real ≥95%) fica muito próxima de ser atingida na faixa mais alta (96,79%),
+mas — como já registrado na versão anterior deste texto — a confiança
+utilizada aqui ainda é bruta (softmax/*decision_function*), não formalmente
+calibrada por Platt ou isotônica, e a amostra de conferência prioriza
+divergências, não é aleatória. Note-se também que a faixa 80–90% (93,92%)
+supera ligeiramente a faixa 90–95% (91,48%) — pequena inversão de monotonia
+plausível em dados reais com amostras desse tamanho, mas que merece
+acompanhamento nas próximas consolidações antes de ser tratada como padrão
+estável.
 
 **4.5 Reclassificação e ganho líquido**
 
@@ -932,36 +965,21 @@ label noise. Engineering Applications of Artificial Intelligence, v.
 A aba experimental (`CHAMADOS_ESQUELETO_REDUZIDO`) segue o esquema fixo A:M,
 descrito em `AGENTS.md` do repositório:
 
-  ------------------------------------------------------------------------
-  **Coluna**   **Campo**
-  ------------ -----------------------------------------------------------
-  A            ID Chamado
-
-  B            TÍTULO
-
-  C            CATEGORIA COMPLETA (rótulo histórico)
-
-  D            DESCRIÇÃO GLPI
-
-  E            TÍTULO O.S.M.
-
-  F            DESCRIÇÃO O.S.M.
-
-  G            Classificação IA
-
-  H            Avaliação (%) — gravada como fração 0–1, formatada como %
-
-  I            Executor
-
-  J            Criticidade Atribuída por IA
-
-  K            Comparação — fórmula `=SE(G="";"";G=C)`
-
-  L            Classificado\_Confiança\_IA
-
-  M            CONFERÊNCIA (marcação humana; `TRUE` não é sobrescrito por
-               nova classificação automática)
-  ------------------------------------------------------------------------
+| Coluna | Campo |
+|---|---|
+| A | ID Chamado |
+| B | TÍTULO |
+| C | CATEGORIA COMPLETA (rótulo histórico) |
+| D | DESCRIÇÃO GLPI |
+| E | TÍTULO O.S.M. |
+| F | DESCRIÇÃO O.S.M. |
+| G | Classificação IA |
+| H | Avaliação (%) — gravada como fração 0–1, formatada como % |
+| I | Executor |
+| J | Criticidade Atribuída por IA |
+| K | Comparação — fórmula `=SE(G="";"";G=C)` |
+| L | Classificado_Confiança_IA |
+| M | CONFERÊNCIA (marcação humana; `TRUE` não é sobrescrito por nova classificação automática) |
 
 **Apêndice B — Checklist de itens reportados**
 
@@ -973,59 +991,23 @@ submissão** — os status "Sim" abaixo atestam que o item é reportado em algum
 lugar do texto, não que o número citado já foi revalidado contra os JSONs
 vigentes.
 
-  ------------------------------------------------------------------------------
-  **Item**                              **Subseção**   **Reportado?**
-  -------------------------------------- -------------- -----------------------
-  Fonte de dados e sistema de origem     3.1, 3.2       Sim (GLPI/UFSB)
-  declarados
-
-  Tamanho da amostra e período/corte     3.2            Sim, mas com data de
-  de consolidação                                       corte a reconferir
-
-  Critério de inclusão/exclusão de       3.2            Parcial — "chamados
-  registros                                             não vazios" declarado;
-                                                         demais critérios não
-                                                         detalhados
-
-  Pré-processamento textual              3.3            Sim
-
-  Modelos avaliados e hiperparâmetros    3.4            Sim (7 materializados +
-  principais                                            1 em extensão)
-
-  Método de particionamento              3.5            Sim (out-of-fold,
-  (out-of-fold, k-fold, seed)                           k-fold estratificado,
-                                                         seed fixa)
-
-  Métricas reportadas e justificativa    3.5            Sim (acurácia, macro-F1,
-                                                         balanced accuracy, IC95%
-                                                         bootstrap)
-
-  Testes estatísticos e correção para    3.5            Sim (Cochran Q, Friedman,
-  múltiplas comparações                                 McNemar, Nemenyi)
-
-  Critério de calibração de confiança    3.8, 4.4       Parcial — meta declarada
-  (bruta vs. calibrada) e meta de                       (≥95%/≥95%); calibração
-  desempenho                                            formal (Platt/isotônica)
-                                                         ainda não aplicada
-
-  Protocolo de validação humana          3.6            Sim
-
-  Cobertura da validação humana na       4 (abertura)   Sim, mas desatualizada —
-  data de publicação (n e % da base)                    ver nota de revalidação
-                                                         de dados
-
-  Tratamento de conflitos de             3.7            Sim (regra de veto/trava)
-  conferência
-
-  Reprodutibilidade (scripts e dados     3.9            Sim (repositório
-  versionados)                                          público, JSONs
-                                                         sanitizados)
-
-  Limitações declaradas                  5, 6           Sim
-
-  Figuras/tabelas geradas a partir de    4.8             Não — pendência
-  dados verificáveis                                    explícita registrada
-  ------------------------------------------------------------------------------
+| Item | Subseção | Reportado? |
+|---|---|---|
+| Fonte de dados e sistema de origem declarados | 3.1, 3.2 | Sim (GLPI/UFSB) |
+| Tamanho da amostra e período/corte de consolidação | 3.2 | Sim, mas com data de corte a reconferir |
+| Critério de inclusão/exclusão de registros | 3.2 | Parcial — "chamados não vazios" declarado; demais critérios não detalhados |
+| Pré-processamento textual | 3.3 | Sim |
+| Modelos avaliados e hiperparâmetros principais | 3.4 | Sim (7 materializados + 1 em extensão) |
+| Método de particionamento (out-of-fold, k-fold, seed) | 3.5 | Sim (out-of-fold, k-fold estratificado, seed fixa) |
+| Métricas reportadas e justificativa | 3.5 | Sim (acurácia, macro-F1, balanced accuracy, IC95% bootstrap) |
+| Testes estatísticos e correção para múltiplas comparações | 3.5 | Sim (Cochran Q, Friedman, McNemar, Nemenyi) |
+| Critério de calibração de confiança (bruta vs. calibrada) e meta de desempenho | 3.8, 4.4 | Parcial — meta declarada (≥95%/≥95%); calibração formal (Platt/isotônica) ainda não aplicada |
+| Protocolo de validação humana | 3.6 | Sim |
+| Cobertura da validação humana na data de publicação (n e % da base) | 4 (abertura) | Sim, mas desatualizada — ver nota de revalidação de dados |
+| Tratamento de conflitos de conferência | 3.7 | Sim (regra de veto/trava) |
+| Reprodutibilidade (scripts e dados versionados) | 3.9 | Sim (repositório público, JSONs sanitizados) |
+| Limitações declaradas | 5, 6 | Sim |
+| Figuras/tabelas geradas a partir de dados verificáveis | 4.8 | Não — pendência explícita registrada |
 
 **Apêndice C — Matriz de decisão M/N/P**
 
