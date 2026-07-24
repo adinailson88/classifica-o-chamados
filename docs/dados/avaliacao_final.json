@@ -1,5 +1,12 @@
 {
-  "gerado_em": "24/07/2026 17:53",
+  "gerado_em": "24/07/2026 19:37",
+  "schema_version": "1.0",
+  "run_id": "EXP_CLASSIFICACAO_CHAMADOS_2026_06_001",
+  "script_origem": "src/avaliacao_final.py",
+  "commit_origem": null,
+  "fonte_dados": "CHAMADOS_ESQUELETO_REDUZIDO",
+  "escopo_validacao": "amostra parcial, não aleatória; prioriza divergências e casos críticos",
+  "estado_bertimbau": "sem_dados",
   "natureza": "acerto contra a VERDADE VALIDADA pela conferencia humana (M/N/P); NAO e concordancia com o historico",
   "validados": 9096,
   "minimo_recomendado": 50,
@@ -9,6 +16,9 @@
     "restritos": 438,
     "conflitos": 0
   },
+  "modelos_excluidos": [
+    "transformer_ft"
+  ],
   "n_avaliado": 9096,
   "status": "ok",
   "por_modelo": [
@@ -21,7 +31,7 @@
         0.8073
       ],
       "peso_log_odds": 1.3796,
-      "peso_normalizado": 0.1306
+      "peso_normalizado": 0.1485
     },
     {
       "modelo": "sgd",
@@ -32,7 +42,7 @@
         0.7994
       ],
       "peso_log_odds": 1.3303,
-      "peso_normalizado": 0.1293
+      "peso_normalizado": 0.147
     },
     {
       "modelo": "regressao_logistica",
@@ -43,7 +53,7 @@
         0.7947
       ],
       "peso_log_odds": 1.3007,
-      "peso_normalizado": 0.1285
+      "peso_normalizado": 0.1461
     },
     {
       "modelo": "extra_trees",
@@ -54,7 +64,7 @@
         0.7847
       ],
       "peso_log_odds": 1.2435,
-      "peso_normalizado": 0.1269
+      "peso_normalizado": 0.1443
     },
     {
       "modelo": "random_forest",
@@ -65,7 +75,7 @@
         0.7777
       ],
       "peso_log_odds": 1.2022,
-      "peso_normalizado": 0.1257
+      "peso_normalizado": 0.1429
     },
     {
       "modelo": "lstm",
@@ -76,18 +86,7 @@
         0.7556
       ],
       "peso_log_odds": 1.0834,
-      "peso_normalizado": 0.1221
-    },
-    {
-      "modelo": "transformer_ft",
-      "n": 9096,
-      "acerto_validado": 0.7379,
-      "ic95": [
-        0.7287,
-        0.7471
-      ],
-      "peso_log_odds": 1.0351,
-      "peso_normalizado": 0.1206
+      "peso_normalizado": 0.1389
     },
     {
       "modelo": "naive_bayes",
@@ -98,7 +97,7 @@
         0.7208
       ],
       "peso_log_odds": 0.9022,
-      "peso_normalizado": 0.1163
+      "peso_normalizado": 0.1322
     }
   ],
   "melhor_ia": "linear_svc",
@@ -109,34 +108,34 @@
   },
   "ensembles": [
     {
-      "metodo": "maioria_ponderada",
-      "acerto_validado": 0.7944,
+      "metodo": "confianca_calibrada_max",
+      "acerto_validado": 0.7938,
       "ic95": [
-        0.7863,
-        0.8022
+        0.7856,
+        0.8013
       ],
-      "delta_vs_melhor_ia": -0.0045,
-      "p_mcnemar_vs_melhor_ia": 0.000833214955476781
+      "delta_vs_melhor_ia": -0.0051,
+      "p_mcnemar_vs_melhor_ia": 0.0003424066712364659
+    },
+    {
+      "metodo": "maioria_ponderada",
+      "acerto_validado": 0.7933,
+      "ic95": [
+        0.7852,
+        0.8012
+      ],
+      "delta_vs_melhor_ia": -0.0056,
+      "p_mcnemar_vs_melhor_ia": 3.56711566194444e-05
     },
     {
       "metodo": "maioria_simples",
-      "acerto_validado": 0.793,
+      "acerto_validado": 0.7911,
       "ic95": [
-        0.7847,
-        0.8008
+        0.7828,
+        0.7989
       ],
-      "delta_vs_melhor_ia": -0.0059,
-      "p_mcnemar_vs_melhor_ia": 2.9946595084083448e-05
-    },
-    {
-      "metodo": "confianca_calibrada_max",
-      "acerto_validado": 0.793,
-      "ic95": [
-        0.7849,
-        0.8008
-      ],
-      "delta_vs_melhor_ia": -0.0059,
-      "p_mcnemar_vs_melhor_ia": 6.950540596854496e-05
+      "delta_vs_melhor_ia": -0.0078,
+      "p_mcnemar_vs_melhor_ia": 5.636664667131664e-08
     }
   ],
   "vale_combinar": {
