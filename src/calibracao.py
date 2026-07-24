@@ -5,7 +5,12 @@ Mede a relação CONFIANÇA × ACERTO: quando o modelo diz ">=95%", ele realment
 acerta ~>=95%? (não basta softmax alto). Calcula, a partir do SNAPSHOT_ETAPA_1:
 - acerto por FAIXA de confiança (bins), por EXECUTOR;
 - acerto vs classificação HISTÓRICA (col C) — disponível já;
-- acerto vs categoria VALIDADA (VALIDACAO_HUMANA) — quando houver revisão humana;
+- acerto vs categoria DECIDIDA pela memória de conferência M/N/P (mesma verdade de
+  avaliacao_final.py, via decisao_validada.verdade_validada) — quando houver decisão
+  travada. NÃO usa a marcação bruta de uma única coluna de conferência isolada: na
+  prática, a coluna N (CONFERÊNCIA IA) isolada quase não recebe "Errado", o que
+  produzia acerto_validado artificialmente igual a 1,0 em toda faixa de confiança
+  (corrigido em 23/07/2026);
 - ECE (erro de calibração esperado) e o destaque da faixa >=95%.
 
 Read-only: não escreve na planilha. Gera docs/dados/calibracao.json (agregado,
@@ -19,6 +24,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import decisao_validada as dv  # noqa: E402
 import planilha as pl  # noqa: E402
 from tempo import agora_bahia  # noqa: E402
 
@@ -96,9 +102,20 @@ def calcular(sh, config: dict) -> dict:
             "A:J", value_render_option="UNFORMATTED_VALUE")
     except Exception:  # noqa: BLE001
         vals = []
-    # Modo de validacao atual: conferencia humana DUPLA na aba principal.
-    # M (CONFERENCIA GLPI): a classificacao historica esta "Correto"/"Errado";
-    # N (CONFERENCIA IA): a classificacao da IA esta "Correto"/"Errado".
+    # Verdade validada: a MESMA memoria de decisao M/N/P usada em avaliacao_final.py
+    # (decisao_validada.verdade_validada), nao a marcacao bruta da coluna N isolada.
+    # Motivo (achado de 2026-07-23): a coluna N (CONFERENCIA IA) isolada, na pratica,
+    # so acumula marcacoes "Correto" (o fluxo humano atual raramente marca N como
+    # "Errado" — o erro da IA tende a ser registrado via M ou via a reclassificacao),
+    # o que fazia "acerto_validado" por faixa de confianca sair sempre 1.0, inclusive
+    # em faixas de confianca baixa — resultado estatisticamente implausivel e
+    # inconsistente com avaliacao_final.py. Comparar contra a categoria DECIDIDA
+    # (travada por M, N ou P, qualquer uma que tenha confirmado) corrige a metrica e
+    # a torna consistente com o restante do pipeline.
+    decisoes = dv.carregar_decisoes(sh, config["aba_principal"])
+    verdade = dv.verdade_validada(decisoes)
+    # Conferencias brutas (M/N/P), mantidas so para os diagnosticos auxiliares
+    # (cobertura por coluna, matriz IA x GLPI) — nao usadas mais para "acerto_validado".
     conferencias = pl.ler_conferencias(sh, config["aba_principal"])
 
     por_faixa = {rot: _agrega() for _, _, rot in FAIXAS}
@@ -113,6 +130,10 @@ def calcular(sh, config: dict) -> dict:
         if len(r) < 6:
             continue
         ln = str(r[1]).strip()
+        try:
+            ln_int = int(float(ln)) if ln else None
+        except ValueError:
+            ln_int = None
         orig = str(r[3]).strip()
         cat_ia = str(r[4]).strip()
         if not cat_ia:
@@ -120,13 +141,16 @@ def calcular(sh, config: dict) -> dict:
         conf = parse_conf(r[5])
         execu = str(r[6]).strip() if len(r) > 6 else ""
         ok_hist = int(cat_ia == orig)
-        # Conferencia humana: M => acerto da IA; N => acerto do historico (GLPI).
+        # Acerto validado: a classificacao deste executor (col G) bate com a
+        # categoria decidida pela memoria de conferencia (M/N/P, o que travou).
+        decidida = verdade.get(ln_int) if ln_int is not None else None
+        tem_val = decidida is not None
+        ok_val = int(cat_ia == decidida) if tem_val else 0
+        # Conferencia humana bruta: M => acerto do historico (GLPI); N => acerto da IA.
         conf_row = conferencias.get(ln, {})
-        v_ia = conf_row.get("ia")
         v_glpi = conf_row.get("glpi")
+        v_ia = conf_row.get("ia")
         v_reclass = conf_row.get("reclass")
-        tem_val = v_ia is not None
-        ok_val = int(v_ia == "Correto") if tem_val else 0
         if v_glpi is not None:
             glpi["n"] += 1
             glpi["ok"] += int(v_glpi == "Correto")
@@ -164,7 +188,14 @@ def calcular(sh, config: dict) -> dict:
         "total": n_tot,
         "validados": geral["n_val"],
         "validacao_humana": {
-            "modo": "conferencia dupla (M=CONFERENCIA GLPI, N=CONFERENCIA IA)",
+            "modo": ("acerto_ia_validado (e todo o acerto_validado de geral/por_faixa/"
+                     "por_executor abaixo) = classificacao do executor (col G) comparada "
+                     "a categoria DECIDIDA pela memoria M/N/P (decisao_validada."
+                     "verdade_validada), a mesma verdade usada em avaliacao_final.json — "
+                     "corrigido em 2026-07-23 (antes comparava so contra a marcacao bruta "
+                     "da coluna N, que na pratica so registra 'Correto'). "
+                     "acerto_glpi_validado/acerto_reclass_validado abaixo usam a marcacao "
+                     "bruta de M/P, so como diagnostico de cobertura por coluna."),
             "n_conferencia_ia": geral["n_val"],
             "acerto_ia_validado": round(geral["ok_val"] / geral["n_val"], 4) if geral["n_val"] else None,
             "n_conferencia_glpi": glpi["n"],
@@ -188,9 +219,13 @@ def calcular(sh, config: dict) -> dict:
         "plano_calibracao": "PLANO_CALIBRACAO.md",
         "observacao": ("Acerto vs histórico é preliminar (a classificação histórica pode "
                        "ter erros). A confiança é bruta (softmax alto NÃO é confiança calibrada). "
-                       "A validação humana usa conferência dupla: coluna M (CONFERÊNCIA GLPI) e "
-                       "coluna N (CONFERÊNCIA IA), permitindo medir acerto da IA, acerto do "
-                       "histórico e a matriz IA×GLPI (falsos positivos/negativos)."),
+                       "acerto_validado (geral, faixa_alvo_95, por_faixa, por_executor) compara "
+                       "a classificação do executor à categoria DECIDIDA pela memória M/N/P "
+                       "(mesma verdade de avaliacao_final.json), não à marcação bruta isolada de "
+                       "uma única coluna de conferência — corrigido em 23/07/2026 porque a coluna "
+                       "N (CONFERÊNCIA IA) isolada, no uso real, quase não recebe marcação "
+                       "'Errado', o que produzia acerto_validado artificialmente igual a 1.0 em "
+                       "todas as faixas de confiança, inclusive nas mais baixas."),
     }
 
 
