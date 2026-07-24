@@ -35,76 +35,23 @@ Isso substitui a necessidade de o usuário reexplicar contexto a cada nova conve
 
 ## Estado desta rodada
 
-**Data**: 2026-07-24 (America/Bahia, UTC-03:00) — rodada 8 em execução.
+**Data**: 2026-07-24 (America/Bahia, UTC-03:00) — rodada 8 concluída.
 
-**Onde está**: correção técnica e rastreabilidade do texto concluídas antes da
-regeneração final do PDF. O artigo e o painel distinguem o BERTimbau pendente
-dos sete modelos comparáveis; os JSONs de avaliação final e estatística ainda
-precisam ser republicados por execução real da planilha.
+**Onde está**: fontes de resultado das Seções 4.1 e 4.2 foram republicadas a
+partir da planilha viva. O BERTimbau permanece pendente e está corretamente
+fora das comparações; o artigo aguarda a atualização do snapshot, a validação
+visual do painel e a regeneração final do PDF.
 
-**O que foi feito nesta rodada**: além do registro histórico a seguir, foram
-aplicadas correções locais ainda não commitadas: (1) Tabela 5 atualizada do
-`reclass_resumo.json` de 24/07; (2) causa raiz do retry não idempotente do
-Random Forest atualizada para o commit `098c477e`; (3) BERTimbau removido das
-alegações comparativas no artigo, com `transformer_ft` excluído também de
-`src/analise_shannon.py` e dos diagnósticos Shannon regenerados; (4) método
-corrigido para `KFold` embaralhado e confiança do LinearSVC descrita sem Platt;
-(5) painel marcado como amostra humana parcial e não aleatória, com
-`transformer_ft` ocultado enquanto `bertimbau_training_state.json` não for
-`ok`; (6) `avaliacao_final.py` e `analise_estatistica.py` passam a excluir esse
-modelo em novas publicações; (7) criado `src/gerar_manifesto_snapshot_artigo.py`
-e executado o snapshot `docs/dados/snapshots/artigo-v3-20260724/`, com manifesto,
-hashes SHA-256, scripts de origem e observação de validação. O histórico da rodada
-7 permanece abaixo. Nesta continuação, a planilha experimental foi lida diretamente
-por conector, sem alterações: `CHAMADOS_ESQUELETO_REDUZIDO` tem 13.965 linhas
-processadas; `MEMORIA_VALIDADA_CLASSIFICACAO` e `CALIBRACAO_VALIDADA` confirmam
-9.096 decisões/observações de validação. A leitura também confirmou defasagem de
-metadados: `EXPERIMENTO_CONFIG` registra execução de 16--17/07, enquanto
-`MULTIMODELO_METRICAS` está em 24/07. Foram corrigidos o dicionário A:P e o
-checklist de particionamento no artigo, e `avaliacao_final.py` e
-`analise_estatistica.py` passam a emitir metadados mínimos nas próximas execuções.
-1. **Duplicação em `RECLASS__random_forest` — causa raiz corrigida e
-   commitada** (commit `098c477e`, já em `origin/main`). Investigação
-   read-only nos logs do GitHub Actions (`gh run view --log`) achou, em
-   2026-07-18, um append de 4.737 linhas em `RECLASS__random_forest` que
-   sofreu erro transitório de API e foi reenviado com sucesso no retry — o
-   número bate exatamente com os 4.737 duplicados confirmados na rodada 6.
-   Causa: `_append_resiliente()` em `src/reclassificacao_multimodelo.py`
-   fazia retry não-idempotente (reenviava o lote inteiro mesmo quando a
-   escrita já tinha sido commitada no servidor antes do erro chegar ao
-   cliente). Corrigido: a função agora conta as linhas da aba-alvo antes de
-   cada retry e cancela o reenvio se a aba já cresceu o suficiente para ter
-   absorvido a tentativa anterior. Teste de regressão novo em
-   `tests/test_append_resiliente.py` (2 casos). Suíte completa: 34/34
-   passando. **Não testado em produção** (só com fakes offline) — a
-   correção só será validada de fato no próximo disparo real do workflow
-   `multimodelo_reclassificacao.yml`.
-2. **Referências bibliográficas — revisão parcial contra o acervo curado**.
-   O "acervo curado" citado nas rodadas anteriores não é uma pasta do
-   Google Drive (não localizada com esse nome) — é o arquivo local
-   `C:\Users\adina\OneDrive\Área de Trabalho\ARQUIVOS - CLAUDE\REFERENCIAS\Referencias Bibliográficas - Tese\Mapa_Referencias_Tese.md`
-   (78 referências curadas, escopo = temas amplos da tese: manutenção
-   predial, governança preditiva, biossistemas, ESG/ODS, MCDM). Desse
-   acervo, **só 2 das 22 referências do artigo têm entrada correspondente**:
-   `Martins_2024` e `Morais_2023` (as outras 20 são papers técnicos
-   internacionais de NLP/ML/estatística, fora do escopo temático do
-   acervo). Por decisão do Adinailson, revisadas só essas 2 nesta rodada.
-   Resultado: **nenhum erro de autoria ou inconsistência de ano** nas duas
-   (autoria, ano, volume e número batem exatamente com o acervo) — o "1
-   erro de autoria e 1 inconsistência de ano" da auditoria de 16/07 **não**
-   está nelas; ou já foi corrigido entre v2 e v3, ou está numa das outras
-   20 (não verificadas). Achadas e corrigidas 2 lacunas de completude (ABNT
-   NBR 6023 exige): faltava o intervalo de páginas em Martins (`p.
-   79--98`) e o DOI em Morais (`10.18830/issn.1679-0944.n34.2023.08`) —
-   ambos adicionados em `04_artigo/artigo_classificacao_chamados_v3.md`
-   (confirmado como a fonte real usada pelo workflow `artigo_pdf.yml` que
-   gera o PDF publicado, via `grep` no `.yml`). **Ainda não commitado nem
-   enviado.**
+**O que foi feito nesta rodada**: os workflows de avaliação final e estatística
+concluíram a publicação em 24/07/2026 às 19:37. `avaliacao_final.json` confirma
+9.096 registros avaliados e exclui `transformer_ft`; `estatistica.json` também
+lista sete modelos e registra o mesmo modelo em `modelos_excluidos`. A exclusão
+é consistente com `bertimbau_training_state.json` em `status=sem_dados`. O
+checklist de submissão no README foi atualizado para refletir a execução real.
 
-**Próximo passo**: executar `avaliacao_final.py` e `analise_estatistica.py`
-contra a planilha com credenciais no workflow, para publicar JSONs sem
-`transformer_ft`; gerar um novo snapshot com esses artefatos, validar o painel
-e só então regenerar o PDF e repetir a auditoria número a número.
+**Próximo passo**: gerar novo snapshot imutável com os JSONs publicados, validar
+as abas Decisão e Modelos do painel e, se não houver referência visível ao
+`transformer_ft`, regenerar o PDF antes da auditoria final número a número.
 
 ---
 
