@@ -96,6 +96,19 @@ class TestCalibracaoAcertoValidado(unittest.TestCase):
         self.assertEqual(faixa["n_validados"], 4)
         self.assertAlmostEqual(faixa["acerto_validado"], 0.5)
 
+    def test_matriz_ia_x_glpi_usa_verdade_decidida(self):
+        # Mesma correcao aplicada a matriz_ia_x_glpi (2026-07-23): linhas 2 e 5
+        # tem decisao travada via M (glpi_ok), mas a IA diverge (ia_erro) --
+        # antes da correcao essas linhas eram ignoradas por N estar em branco,
+        # e a matriz so contava linhas com M E N ambas marcadas.
+        dados = cb.calcular(self.sh, self.config)
+        matriz = dados["validacao_humana"]["matriz_ia_x_glpi"]
+        self.assertEqual(matriz["ia_ok_glpi_ok"], 2)     # linhas 3 e 4
+        self.assertEqual(matriz["ia_erro_glpi_ok"], 2)   # linhas 2 e 5
+        self.assertEqual(matriz["ia_ok_glpi_erro"], 0)
+        self.assertEqual(matriz["ia_erro_glpi_erro"], 0)
+        self.assertEqual(sum(matriz.values()), 4)
+
     def test_acerto_bruto_da_coluna_n_isolada_seria_1_0(self):
         # Reproduz o comportamento ANTIGO (bug) para provar que a diferenca e
         # real: usando so a marcacao bruta da coluna N, so as linhas 3 e 4 "
