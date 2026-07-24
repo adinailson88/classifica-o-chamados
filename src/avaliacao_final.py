@@ -41,8 +41,27 @@ from tempo import agora_bahia  # noqa: E402
 RAIZ = Path(__file__).resolve().parents[1]
 CONFIG_PADRAO = RAIZ / "config_experimento.json"
 SAIDA = RAIZ / "docs" / "dados" / "avaliacao_final.json"
+ESTADO_BERTIMBAU = RAIZ / "docs" / "dados" / "bertimbau_training_state.json"
 NATUREZA = ("acerto contra a VERDADE VALIDADA pela conferencia humana (M/N/P); "
             "NAO e concordancia com o historico")
+
+
+def metadados_saida(config: dict, estado_bertimbau: dict | None) -> dict:
+    """Metadados mínimos para auditoria de artefatos publicados.
+
+    A seleção de casos conferidos é operacional, não probabilística. Esse
+    escopo precisa acompanhar o JSON para impedir que consumidores do painel
+    interpretem a métrica como estimativa da base completa.
+    """
+    return {
+        "schema_version": "1.0",
+        "run_id": config.get("run_id"),
+        "script_origem": "src/avaliacao_final.py",
+        "commit_origem": config.get("commit"),
+        "fonte_dados": config.get("aba_principal"),
+        "escopo_validacao": "amostra parcial, não aleatória; prioriza divergências e casos críticos",
+        "estado_bertimbau": (estado_bertimbau or {}).get("status", "nao_publicado"),
+    }
 
 
 def parse_conf(v) -> float:
@@ -56,6 +75,24 @@ def parse_conf(v) -> float:
 def carregar_config(caminho: Path) -> dict:
     with caminho.open("r", encoding="utf-8") as f:
         return json.load(f)
+
+
+def modelos_comparaveis(config: dict) -> tuple[list[str], dict | None]:
+    """Exclui transformer_ft enquanto não houver treino BERTimbau concluído.
+
+    A implementação do transformer tem fallback técnico; portanto, arquivos de
+    predição não são evidência suficiente de fine-tuning. O estado operacional
+    publicado é a fonte de controle para incluí-lo em ranking/ensemble.
+    """
+    mm = config.get("multimodelo", {})
+    modelos = list(mm.get("modelos_leves", [])) + list(mm.get("modelos_pesados", []))
+    try:
+        estado = json.loads(ESTADO_BERTIMBAU.read_text(encoding="utf-8"))
+    except Exception:  # noqa: BLE001
+        estado = None
+    if "transformer_ft" in modelos and (estado or {}).get("status") != "ok":
+        modelos.remove("transformer_ft")
+    return modelos, estado
 
 
 def carregar_predicoes(sh, config, modelos) -> dict[str, dict[int, dict]]:
@@ -221,8 +258,7 @@ def parse_args() -> argparse.Namespace:
 def main() -> int:
     args = parse_args()
     config = carregar_config(args.config)
-    mm = config.get("multimodelo", {})
-    modelos = list(mm.get("modelos_leves", [])) + list(mm.get("modelos_pesados", []))
+    modelos, estado_bertimbau = modelos_comparaveis(config)
     gerado = agora_bahia()
 
     try:
@@ -244,10 +280,13 @@ def main() -> int:
 
     saida = {
         "gerado_em": gerado,
+        **metadados_saida(config, estado_bertimbau),
         "natureza": NATUREZA,
         "validados": validados,
         "minimo_recomendado": args.min_validados,
         "conferencias": res_dec,
+        "modelos_excluidos": (["transformer_ft"] if (estado_bertimbau or {}).get("status") != "ok" else []),
+        "estado_bertimbau": (estado_bertimbau or {}).get("status", "nao_publicado"),
     }
 
     if validados < args.min_validados:

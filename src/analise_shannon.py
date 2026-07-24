@@ -9,6 +9,7 @@ from pathlib import Path
 
 RAIZ = Path(__file__).resolve().parents[1]
 DADOS = RAIZ / "docs" / "dados"
+ESTADO_BERTIMBAU = DADOS / "bertimbau_training_state.json"
 MIN_SUPORTE_CATEGORIA = 30
 MAX_LINHAS_VOTOS = 200
 
@@ -96,6 +97,15 @@ def arquivos_modelo() -> dict[str, Path]:
         if modelo:
             arquivos[modelo] = caminho
     return {m: p for m, p in arquivos.items() if p.exists()}
+
+
+def estado_bertimbau() -> dict:
+    """Retorna o estado publicado sem inferir treino por arquivos legados."""
+    try:
+        dados = json.loads(ESTADO_BERTIMBAU.read_text(encoding="utf-8"))
+    except (FileNotFoundError, json.JSONDecodeError):
+        return {}
+    return dados if isinstance(dados, dict) else {}
 
 
 def resumo_modelo(modelo: str, registros: list[dict], hist_global: Counter) -> tuple[dict, list[dict]]:
@@ -205,6 +215,12 @@ def resumo_votos(registros_por_modelo: dict[str, list[dict]]) -> dict:
 
 def main() -> int:
     arquivos = arquivos_modelo()
+    estado_bert = estado_bertimbau()
+    modelos_excluidos = []
+    if estado_bert.get("status") != "ok" and "transformer_ft" in arquivos:
+        arquivos.pop("transformer_ft")
+        modelos_excluidos.append("transformer_ft")
+        print("transformer_ft excluido: BERTimbau sem treino concluido.")
     registros_por_modelo = {
         modelo: ler_json(caminho.name)
         for modelo, caminho in arquivos.items()
@@ -267,6 +283,8 @@ def main() -> int:
             "privacidade": "sem_id_titulo_descricao_texto_livre",
         },
         "modelos": len(modelos),
+        "modelos_excluidos": modelos_excluidos,
+        "estado_bertimbau": estado_bert.get("status", "nao_publicado"),
         "categorias_historicas_base": len(historico_global),
         "leitura": (
             "Shannon mede dispersao/ambiguidade das distribuicoes; "

@@ -35,16 +35,34 @@ Isso substitui a necessidade de o usuário reexplicar contexto a cada nova conve
 
 ## Estado desta rodada
 
-**Data**: 2026-07-24 (America/Bahia, UTC-03:00) — rodada 7.
+**Data**: 2026-07-24 (America/Bahia, UTC-03:00) — rodada 8 em execução.
 
-**Onde está**: mesmo ponto da rodada 6 quanto ao corpo do texto do artigo
-(nenhuma subseção de Resultados/Discussão reescrita nesta rodada). Duas
-pendências técnicas do "Próximo passo" da rodada 6 foram tratadas: (1) causa
-raiz da duplicação em `RECLASS__random_forest`, corrigida e já commitada;
-(2) revisão das referências bibliográficas contra o acervo curado, feita
-parcialmente (2 de 22 referências — ver detalhe abaixo).
+**Onde está**: correção técnica e rastreabilidade do texto concluídas antes da
+regeneração final do PDF. O artigo e o painel distinguem o BERTimbau pendente
+dos sete modelos comparáveis; os JSONs de avaliação final e estatística ainda
+precisam ser republicados por execução real da planilha.
 
-**O que foi feito nesta rodada**:
+**O que foi feito nesta rodada**: além do registro histórico a seguir, foram
+aplicadas correções locais ainda não commitadas: (1) Tabela 5 atualizada do
+`reclass_resumo.json` de 24/07; (2) causa raiz do retry não idempotente do
+Random Forest atualizada para o commit `098c477e`; (3) BERTimbau removido das
+alegações comparativas no artigo, com `transformer_ft` excluído também de
+`src/analise_shannon.py` e dos diagnósticos Shannon regenerados; (4) método
+corrigido para `KFold` embaralhado e confiança do LinearSVC descrita sem Platt;
+(5) painel marcado como amostra humana parcial e não aleatória, com
+`transformer_ft` ocultado enquanto `bertimbau_training_state.json` não for
+`ok`; (6) `avaliacao_final.py` e `analise_estatistica.py` passam a excluir esse
+modelo em novas publicações; (7) criado `src/gerar_manifesto_snapshot_artigo.py`
+e executado o snapshot `docs/dados/snapshots/artigo-v3-20260724/`, com manifesto,
+hashes SHA-256, scripts de origem e observação de validação. O histórico da rodada
+7 permanece abaixo. Nesta continuação, a planilha experimental foi lida diretamente
+por conector, sem alterações: `CHAMADOS_ESQUELETO_REDUZIDO` tem 13.965 linhas
+processadas; `MEMORIA_VALIDADA_CLASSIFICACAO` e `CALIBRACAO_VALIDADA` confirmam
+9.096 decisões/observações de validação. A leitura também confirmou defasagem de
+metadados: `EXPERIMENTO_CONFIG` registra execução de 16--17/07, enquanto
+`MULTIMODELO_METRICAS` está em 24/07. Foram corrigidos o dicionário A:P e o
+checklist de particionamento no artigo, e `avaliacao_final.py` e
+`analise_estatistica.py` passam a emitir metadados mínimos nas próximas execuções.
 1. **Duplicação em `RECLASS__random_forest` — causa raiz corrigida e
    commitada** (commit `098c477e`, já em `origin/main`). Investigação
    read-only nos logs do GitHub Actions (`gh run view --log`) achou, em
@@ -83,15 +101,10 @@ parcialmente (2 de 22 referências — ver detalhe abaixo).
    gera o PDF publicado, via `grep` no `.yml`). **Ainda não commitado nem
    enviado.**
 
-**Próximo passo**: (1) revisar o diff e decidir sobre commit/push das 2
-correções de referência em `04_artigo/artigo_classificacao_chamados_v3.md`;
-(2) as 20 referências técnicas (NLP/ML) seguem sem checagem — decidir se
-vale verificá-las online (DOI/Scopus/site da revista), já que não têm
-entrada no acervo local; (3) confirmar no próximo disparo real do
-`multimodelo_reclassificacao.yml` que a correção do retry não regrediu nada
-(nenhuma duplicata nova em `RECLASS__random_forest`); (4) nova rodada de
-diagnóstico read-only para o mojibake (ainda pendente da rodada 6); (5)
-gerar a Figura 4; (6) preencher o Apêndice C.
+**Próximo passo**: executar `avaliacao_final.py` e `analise_estatistica.py`
+contra a planilha com credenciais no workflow, para publicar JSONs sem
+`transformer_ft`; gerar um novo snapshot com esses artefatos, validar o painel
+e só então regenerar o PDF e repetir a auditoria número a número.
 
 ---
 
@@ -156,7 +169,7 @@ padrão-ouro; "rótulos ruidosos" no histórico administrativo como problema de 
 | Subseção | Conteúdo | Fonte no repo |
 |---|---|---|
 | 3.1 | Desenho do experimento, fonte de verdade (roteiro 50 etapas) | `CONTEXTO.md`, roteiro PDF do usuário |
-| 3.2 | Base de dados/planilha experimental (aba, colunas A:M, tamanho, período) | `AGENTS.md`, `README.md` |
+| 3.2 | Base de dados/planilha experimental (aba, colunas A:P, tamanho, período) | `AGENTS.md`, `README.md` |
 | 3.3 | Modelos (LSTM primário, RF fallback, baseline, 7 IAs multimodelo, 8º BERTimbau) | `src/modelo_lstm.py`, `src/modelos_zoo.py`, `src/bertimbau_coreset.py` |
 | 3.4 | Pipeline por turnos (Etapa 1 progressiva, Etapa 2 reclassificação) | `src/executar_etapa1.py`, `src/executar_etapa2.py`, `.github/workflows/etapa1_turnos.yml` |
 | 3.5 | Métricas (concordância vs. histórico, acerto validado, calibração ECE, Kappa) | `src/calibracao.py`, `src/analise_estatistica.py` |
@@ -187,7 +200,8 @@ como entrada um modelo multicritério futuro).
 
 ### 6. Considerações finais
 Limitações (amostra validada prioriza divergências, não é aleatória; 8º modelo
-pendente; reclassificação só ganha em 3 dos modelos). Não afirmar validação empírica
+pendente; reclassificação tem resultado dependente da rodada e mistura bases de
+comparação). Não afirmar validação empírica
 completa enquanto a conferência humana não terminar.
 
 ### Referências
@@ -197,7 +211,7 @@ como correta — a auditoria anterior já achou 1 erro de autoria e 1 inconsist�
 ano nesse rascunho.
 
 ### Apêndices
-Dicionário de colunas da planilha (A:M); checklist de itens reportados (inspirar-se
+Dicionário de colunas da planilha (A:P); checklist de itens reportados (inspirar-se
 no Apêndice D/checklist PRISMA-ScR do artigo-modelo, adaptado para relato de
 experimento de ML, não de revisão bibliográfica); matriz de decisão M/N/P.
 

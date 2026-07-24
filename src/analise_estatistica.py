@@ -39,10 +39,24 @@ from tempo import agora_bahia  # noqa: E402
 RAIZ = Path(__file__).resolve().parents[1]
 CONFIG_PADRAO = RAIZ / "config_experimento.json"
 SAIDA = RAIZ / "docs" / "dados" / "estatistica.json"
+ESTADO_BERTIMBAU = RAIZ / "docs" / "dados" / "bertimbau_training_state.json"
 
 # q_alpha (alpha=0.05) da distribuição do range studentizado / sqrt(2), por k (=nº modelos).
 # Usado na diferença crítica de Nemenyi. Fonte: Demšar (2006), tabela de q.
 Q_NEMENYI_005 = {2: 1.960, 3: 2.343, 4: 2.569, 5: 2.728, 6: 2.850, 7: 2.949, 8: 3.031}
+
+
+def metadados_saida(config: dict, estado_bertimbau: dict) -> dict:
+    """Campos mínimos de proveniência dos agregados estatísticos publicados."""
+    return {
+        "schema_version": "1.0",
+        "run_id": config.get("run_id"),
+        "script_origem": "src/analise_estatistica.py",
+        "commit_origem": config.get("commit"),
+        "fonte_dados": config.get("multimodelo", {}).get("aba_classificacao"),
+        "escopo_validacao": "concordância contra categoria histórica; não equivale a validação humana",
+        "estado_bertimbau": estado_bertimbau.get("status", "nao_publicado"),
+    }
 
 
 def _retry(rotulo, func, tentativas=5, espera=20):
@@ -184,6 +198,13 @@ def main() -> int:
         config = json.load(f)
     mm = config["multimodelo"]
     modelos = list(mm["modelos_leves"]) + list(mm.get("modelos_pesados", []))
+    try:
+        estado_bertimbau = json.loads(ESTADO_BERTIMBAU.read_text(encoding="utf-8"))
+    except Exception:  # noqa: BLE001
+        estado_bertimbau = {}
+    if "transformer_ft" in modelos and estado_bertimbau.get("status") != "ok":
+        modelos.remove("transformer_ft")
+        print("transformer_ft excluido: BERTimbau sem treino concluido.")
 
     try:
         sh = _retry("abrir planilha", lambda: pl.abrir_planilha(pl.id_planilha(config)))
@@ -207,7 +228,8 @@ def main() -> int:
         print("Menos de 2 modelos materializados; estatística comparativa indisponível.")
         if not SAIDA.exists():
             SAIDA.parent.mkdir(parents=True, exist_ok=True)
-            stub = {"gerado_em": agora_bahia(), "status": "indisponivel",
+            stub = {"gerado_em": agora_bahia(), **metadados_saida(config, estado_bertimbau),
+                    "status": "indisponivel",
                     "motivo": "Menos de 2 modelos materializados; estatistica comparativa "
                     "indisponivel ate o multimodelo materializar >=2 abas CLASSIF__<modelo>.",
                     "modelos_materializados": modelos, "n_linhas_comuns": 0}
@@ -225,7 +247,10 @@ def main() -> int:
     orig = [dados[modelos[0]][ln]["orig"] for ln in linhas_comuns]
     pred = {m: [dados[m][ln]["ia"] for ln in linhas_comuns] for m in modelos}
 
-    out = {"gerado_em": agora_bahia(), "n_linhas_comuns": n, "modelos": modelos,
+    out = {"gerado_em": agora_bahia(), **metadados_saida(config, estado_bertimbau),
+           "n_linhas_comuns": n, "modelos": modelos,
+           "modelos_excluidos": (["transformer_ft"] if estado_bertimbau.get("status") != "ok" else []),
+           "estado_bertimbau": estado_bertimbau.get("status", "nao_publicado"),
            "alpha": 0.05, "observacao": "Acerto = IA x categoria historica (preliminar; "
            "a validacao humana qualifica). Sem texto de chamado. Normalidade rejeitada "
            "(Shapiro) nos modelos avaliados: a analise assume pressupostos NAO "
