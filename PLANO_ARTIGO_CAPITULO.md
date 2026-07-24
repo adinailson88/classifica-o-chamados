@@ -35,80 +35,83 @@ Isso substitui a necessidade de o usuário reexplicar contexto a cada nova conve
 
 ## Estado desta rodada
 
-**Data**: 2026-07-23 (America/Bahia, UTC-03:00) — rodada 3, mesma data das
-rodadas 0–2.
+**Data**: 2026-07-23 (America/Bahia, UTC-03:00) — rodada 4, mesma data das
+rodadas 0–3.
 
-**Onde está**: `04_artigo/artigo_classificacao_chamados_v3.md` tem a estrutura
-alinhada ao plano (rodada 2) e agora também uma primeira tabela com dados
-**revalidados e corrigidos** (Tabela 3, calibração por faixa, Subseção 4.4).
-Publicação em PDF no GitHub Pages está no ar. Apêndice B preenchido. Restam
-pendentes: Tabelas 4–7 (matriz de confusão, reclassificação, Shannon/JS, custo)
-e Apêndice C.
+**Onde está**: Seção 4 inteira (4.1–4.8) agora tem tabela em toda subseção que
+pedia dado tabular (Tabelas 1–7), todas com fonte JSON citada e data.
+Apêndices A e B preenchidos; Apêndice C parcialmente preenchido (contagens
+agregadas disponíveis; cruzamento fino M×N×P declarado "Informação
+insuficiente para verificar" — não existe em nenhum JSON publicado). PDF no
+GitHub Pages no ar e sincronizado com o `.md` atual. **Não feito ainda**:
+reescrita da prosa de todas as subseções para os números de 23/07/2026 — cada
+subseção nova tem um parágrafo "Atualização de dados (23/07/2026)" logo após
+a prosa antiga (16/07), em vez de substituir o texto original.
 
 **O que foi feito nesta rodada**:
-1. **Bug de dados corrigido**: ao tentar revalidar números para tabelar,
-   `docs/dados/calibracao.json` mostrava `acerto_validado = 1,0` em TODAS as
-   faixas de confiança (implausível). Causa: `src/calibracao.py` media acerto
-   comparando só contra a marcação bruta da coluna N (CONFERÊNCIA IA) isolada,
-   que na prática quase nunca é marcada "Errado" (o erro da IA costuma ficar
-   registrado só via M) — viés de seleção. Corrigido no commit `21258deb`
-   (comparar contra a categoria DECIDIDA pela memória M/N/P, mesma verdade de
-   `avaliacao_final.py`); teste de regressão adicionado em
-   `tests/test_calibracao.py` (29/29 testes passam). Não foi possível
-   reexecutar contra a planilha real localmente (sem credenciais) — disparado
-   manualmente o workflow `dashboard.yml` (run
-   `30056361490`, concluído com sucesso), que regenerou
-   `docs/dados/calibracao.json` já corrigido. Números pós-correção são
-   plausíveis: acerto validado por faixa cresce de 49,89% (<50% confiança) a
-   96,79% (≥95% confiança), sobre 9.096 decisões travadas.
-   **Achado colateral ainda em aberto**: `validacao_humana.matriz_ia_x_glpi`
-   dentro do mesmo JSON tem o MESMO viés estrutural (ainda compara marcação
-   bruta de M e N) e continua com variância zero — não corrigido nesta rodada;
-   não usar esse campo para a Tabela 4.3 (matriz de confusão IA×GLPI) até nova
-   correção. Detalhe completo em `docs/PLANO_PDF_ARTIGO_PAGES.md`.
-2. **Tabela 3 acrescentada** à Subseção 4.4 do artigo, com os números
-   corrigidos de hoje (fonte: `calibracao.json`, gerado 23/07/2026 21:31),
-   sem apagar o parágrafo de prosa com os números de 16/07/2026 — inserida
-   como "Atualização de dados (23/07/2026)" logo abaixo, para preservar
-   rastreabilidade. Prosa antiga ainda não foi reescrita/substituída (fica
-   para quando o restante da Seção 4 for revalidado, para não deixar o texto
-   com números de datas misturadas sem aviso).
-3. **Nota metodológica acrescentada à Subseção 4.3** avisando que a matriz de
-   confusão IA×GLPI de 16/07/2026 (4.454/45/186/13) não pôde ser reconfirmada
-   nesta rodada pelo motivo do item 1.
-4. **Apêndice B preenchido**: checklist de itens reportados (adaptado do
-   espírito PRISMA-ScR) mapeando cada item à subseção e ao status de
-   reconferência — commit `0e8dda56`.
-5. **Publicação em PDF no GitHub Pages**: novo workflow
-   `.github/workflows/artigo_pdf.yml` (pandoc + xelatex via imagem Docker
-   `pandoc/extra`) converte `04_artigo/artigo_classificacao_chamados_v3.md`
-   para `docs/artigo_classificacao_chamados.pdf` a cada push que altere esse
-   `.md`, ou por disparo manual; `docs/index.html` agora linka o PDF no
-   cabeçalho do painel. Testado localmente (xelatex via MiKTeX) antes de
-   commitar — renderiza corretamente (acentuação, tabelas, sumário). Registro
-   completo do desenho e das limitações em `docs/PLANO_PDF_ARTIGO_PAGES.md` —
-   em particular: o PDF acompanha o `.md` automaticamente, mas **não reescreve
-   números sozinho** quando só os JSONs de `docs/dados/` mudam; isso continua
-   exigindo edição manual do `.md` após revalidação.
-6. `README.md` (bloco "prompt pronto") e este arquivo atualizados para refletir
-   tudo isso.
+1. **Segundo bug corrigido, mesmo padrão do anterior**: `matriz_ia_x_glpi`
+   (dentro de `calibracao.json`) tinha o mesmo viés de seleção do
+   `acerto_validado` (corrigido na rodada 3) — exigia M e N ambas marcadas na
+   linha e comparava a marcação bruta de cada uma, resultado: 3 das 4 células
+   sempre zeradas. Corrigido no commit `617d3ac2` (comparar a classificação da
+   IA e a categoria histórica contra a mesma categoria decidida pela memória
+   M/N/P, para toda linha com decisão travada — não só as com M e N ambas
+   marcadas). Teste de regressão em `tests/test_calibracao.py` (30/30 testes
+   passam). Disparado `dashboard.yml` manualmente (run `30057415909`) para
+   regenerar `calibracao.json`; matriz pós-correção tem variância real:
+   `ia_ok_glpi_ok=8200, ia_erro_glpi_ok=577, ia_erro_glpi_erro=319,
+   ia_ok_glpi_erro=0`. A célula zerada (IA corrige o histórico) tem explicação
+   estrutural documentada no artigo (Tabela 4), não é presumida como achado.
+2. **Bug de renderização de PDF corrigido**: a 1ª tentativa de publicar o PDF
+   falhou no CI (`fontspec Error: DejaVu Serif` não existe na imagem Docker
+   `pandoc/extra`). Em vez de continuar testando fontes por tentativa e erro,
+   os símbolos Unicode `≥`/`≈` do texto foram substituídos por `>=`/`~`
+   (commit `bafd0730`), eliminando a dependência de fonte estendida. PDF agora
+   gera sem warning de caractere ausente, com a fonte padrão do LaTeX.
+3. **Tabelas 4–7 acrescentadas**, todas no padrão "prosa antiga preservada +
+   parágrafo "Atualização de dados (23/07/2026)" + tabela nova":
+   - **Tabela 4** (Subseção 4.3): matriz de confusão IA×histórico corrigida —
+     8.200 / 0 / 577 / 319 (fonte: `calibracao.json` pós-correção do item 1).
+   - **Tabela 5** (Subseção 4.5): ganho líquido de reclassificação por modelo,
+     incluindo LSTM (ausente da versão de 30/06). Observação de qualidade de
+     dado registrada e **não investigada**: `total_reclassificado` do Random
+     Forest (18.049) destoa dos demais (~13.200–13.450) no mesmo dia de
+     execução — não tratar como comparável até isso ser explicado.
+   - **Tabela 6** (Subseção 4.6): entropia de Shannon e Jensen-Shannon por
+     fonte. Achado que muda a leitura da versão anterior: agora é a **Etapa 1
+     oficial** (não o LSTM) que lidera diversidade e menor divergência do
+     histórico — LSTM e o transformador (BERTimbau, já com resultado) ficam
+     muito próximos atrás.
+   - **Tabela 7** (Subseção 4.7): custo computacional por modelo clássico
+     (fonte: `comparacao_modelos.json`, único registro disponível, datado de
+     18/07/2026 — não há dado de custo para LSTM/BERTimbau nesse arquivo).
+4. **Apêndice C parcialmente preenchido**: contagens agregadas de M/N/P
+   (`auditoria_conferencias.json` + `calibracao.json`). O cruzamento fino de 3
+   vias (contagem por combinação exata de M×N×P) continua declarado
+   "Informação insuficiente para verificar" — não existe em JSON publicado,
+   exigiria extração direta da planilha.
+5. PDF republicado automaticamente pelo workflow a cada um dos pushes acima
+   (`artigo_pdf.yml`, runs `30056925883` falha → `30057038797` sucesso, e mais
+   um após as Tabelas 4–7). Link publicado:
+   `https://adinailson88.github.io/classificacao-chamados/artigo_classificacao_chamados.pdf`.
+6. Aviso do PDF removido do cabeçalho do painel (`docs/index.html`, ficou só
+   um link limpo) e movido para uma seção própria no `README.md` ("PDF do
+   artigo/capitulo no GitHub Pages"), a pedido do Adinailson — avisos técnicos
+   detalhados vivem no README, não no painel público.
 
-**Próximo passo**: (1) construir as Tabelas 4–7 restantes (reclassificação —
-`reclass_resumo.json`; Shannon/JS — `shannon_modelos.json` e
-`jensen_shannon_modelos.json`; custo computacional — verificar se há JSON
-dedicado ou declarar "Informação insuficiente para verificar") com os dados
-vivos de hoje, seguindo o mesmo padrão desta rodada (tabela nova + nota de
-atualização, sem apagar a prosa antiga sem revisão); (2) decidir se e quando
-reescrever a prosa de toda a Seção 4/Resumo para os números de 23/07/2026 —
-a base de conferência humana cresceu muito desde 16/07 (4.737 → 9.534
-conferências) e o ranking de `avaliacao_final.json` mudou de faixa (92–96% →
-71–80% de acerto validado, porque agora compara CADA modelo contra a verdade
-decidida, não só o executor oficial contra sua própria conferência — é
-avanço metodológico, não regressão, mas precisa de parágrafo explicando a
-mudança de metodologia para o leitor não estranhar a queda aparente); (3)
-aplicar correção equivalente à de `calibracao.py` no campo
-`matriz_ia_x_glpi` antes de reconstruir a Tabela 4.3; (4) preencher o
-Apêndice C (matriz M/N/P) quando houver extração direta da planilha.
+**Próximo passo**: (1) decidir se e quando reescrever a prosa de toda a Seção
+4/Resumo para os números de 23/07/2026 em vez de manter os parágrafos
+"Atualização de dados" separados (a base de conferência cresceu de 4.737 para
+9.534 desde 16/07; o ranking de `avaliacao_final.json` mudou de faixa —
+92–96% → 71–80% de acerto validado — porque agora compara CADA modelo contra
+a verdade decidida, não só o executor oficial contra sua própria conferência:
+é avanço metodológico, não regressão, mas merece parágrafo explicando a
+mudança para o leitor não estranhar a queda aparente); (2) investigar a
+discrepância do `total_reclassificado` do Random Forest antes de citar a
+Tabela 5 como definitiva; (3) decidir se vale a pena adicionar ao pipeline uma
+rotina que extraia o cruzamento fino M×N×P direto da planilha para fechar o
+Apêndice C por completo; (4) gerar as 4 figuras ainda pendentes (Subseção
+4.8) a partir dos JSONs vigentes.
 
 ---
 

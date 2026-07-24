@@ -578,18 +578,38 @@ nesta amostra. A implicação prática é que a IA deve ser tratada como
 instrumento de triagem e auditoria complementar ao histórico, não como
 substituto ou árbitro superior a ele.
 
-*Nota metodológica (23/07/2026)*: o campo do painel que sustentaria uma nova
-versão desta matriz (`calibracao.json`, `validacao_humana.matriz_ia_x_glpi`)
-apresenta, na consolidação mais recente, variância nula entre as quatro
-células — resultado do mesmo viés de seleção identificado e corrigido na
-Subseção 4.4 (a coluna N de conferência bruta raramente registra "Errado" na
-prática). Diferentemente da Subseção 4.4, este campo específico **ainda não
-foi corrigido**; os números de 16/07/2026 citados acima permanecem como
-único registro disponível desta matriz e **não devem ser tratados como
-reconfirmados** até uma nova rotina de cálculo (comparando a decisão
-travada M/N/P, não a marcação bruta de uma única coluna) ser implementada e
-reexecutada. Ver `docs/PLANO_PDF_ARTIGO_PAGES.md` para o registro técnico
-completo.
+*Atualização de dados (23/07/2026)*: o parágrafo acima preserva os números de
+16/07/2026. Nesta data, foi corrigido em `src/calibracao.py` o mesmo viés de
+seleção identificado na Subseção 4.4, agora também no campo
+`validacao_humana.matriz_ia_x_glpi` (antes exigia as colunas M e N ambas
+marcadas na linha e comparava a marcação bruta de cada uma; passou a
+comparar a classificação da IA e a categoria histórica contra a mesma
+categoria **decidida** pela memória M/N/P, para toda linha com decisão
+travada). A Tabela 4 mostra a matriz recalculada, já sobre 9.096 decisões
+travadas:
+
+**Tabela 4** Matriz de confusão IA×histórico contra a verdade decidida (M/N/P), pós-correção (n = 9.096)
+
+| | Histórico correto | Histórico incorreto |
+|---|---|---|
+| **IA correta** | 8.200 | 0 |
+| **IA incorreta** | 577 | 319 |
+
+Fonte: `calibracao.json`, gerado em 23/07/2026 21:53. Leitura: 8.200 casos em
+que ambos (IA e histórico) coincidem com a categoria decidida; 319 em que
+nenhum dos dois coincide; 577 em que o histórico acerta e a IA erra; e **zero**
+casos em que a IA acerta e o histórico erra. A ausência total de casos na
+célula "IA correta / histórico incorreto" chama atenção e tem explicação
+estrutural, não é necessariamente evidência de que a IA nunca corrige o
+histórico: quando a categoria decidida vem de confirmação da própria
+categoria histórica (fonte `conferencia_glpi`), a célula "histórico
+incorreto" fica automaticamente descartada para aquela linha; a memória de
+decisão (Subseção 3.7) também reaproveita categorias já travadas em rodadas
+anteriores, o que tende a alinhar a classificação vigente da IA (coluna G no
+momento do snapshot) com decisões já confirmadas. Antes de tratar essa
+célula-zero como achado substantivo (ex.: "a IA nunca corrige o histórico"),
+recomenda-se auditoria dirigida da fonte de decisão (`fonte_decisao`) por
+linha — não realizada nesta rodada.
 
 **4.4 Confiança, calibração e faixas de decisão**
 
@@ -666,6 +686,33 @@ indiscriminada por modelo, tratando o ganho líquido, e não apenas a
 acurácia agregada, como critério de decisão operacional por
 classificador.
 
+*Atualização de dados (23/07/2026)*: o parágrafo acima preserva os números
+da execução de 30/06/2026. A Tabela 5 mostra o recorte mais recente
+(`reclass_resumo.json`, execução de 23/07/2026), já incluindo o LSTM (ausente
+da comparação anterior):
+
+**Tabela 5** Ganho líquido de reclassificação por modelo (execução de 23/07/2026)
+
+| Modelo | Total reclassificado | Corrigidos | Prejudicados | Ganho líquido | Reuso de decisão humana |
+|---|---|---|---|---|---|
+| LSTM | 13.418 | 628 | 539 | +89 | 8.805 |
+| LinearSVC | 13.451 | 278 | 209 | +69 | 8.856 |
+| Regressão Logística | 13.332 | 235 | 144 | +91 | 8.727 |
+| SGD | 13.379 | 186 | 157 | +29 | 8.771 |
+| Random Forest | 18.049 | 209 | 184 | +25 | 13.387 |
+| Naive Bayes | 13.226 | 125 | 132 | −7 | 8.623 |
+| Extra Trees | 13.310 | 202 | 204 | −2 | 8.713 |
+
+Fonte: `reclass_resumo.json`, gerado em 23/07/2026 21:31 (modelos executados em
+23/07/2026 07:55–07:56). Nesta consolidação, apenas Extra Trees e Naive Bayes
+mantêm ganho líquido negativo (a versão de 30/06 também apontava SGD e Random
+Forest como negativos; ambos passaram a positivo). **Observação de qualidade
+de dado, não corrigida nesta rodada**: o total reclassificado do Random Forest
+(18.049) destoa dos demais modelos (~13.200–13.450), apesar de a execução ter
+ocorrido no mesmo dia e com poucos minutos de diferença dos demais — não foi
+investigada a causa; não interpretar o ganho líquido do Random Forest como
+diretamente comparável aos demais até essa discrepância ser explicada.
+
 **4.6 Diagnóstico de taxonomia e ambiguidade estrutural
 (Shannon/Jensen-Shannon)**
 
@@ -691,6 +738,39 @@ dirigida. O que a camada Shannon oferece é a priorização estatística de
 onde essa inspeção deve começar, não a decisão de fusão ou desambiguação
 de categorias, que continua sendo humana.
 
+*Atualização de dados (23/07/2026)*: o parágrafo acima preserva a leitura da
+versão anterior deste rascunho, que atribuía ao LSTM a maior diversidade e ao
+LinearSVC a menor divergência frente ao histórico. Na consolidação mais
+recente (`shannon_modelos.json`, `shannon_resumo.json`), **a Etapa 1 oficial
+assume as duas posições** — maior entropia de previsões e menor divergência
+de Jensen-Shannon —, com LSTM e o transformador (BERTimbau) muito próximos
+em terceiro e segundo lugar de diversidade:
+
+**Tabela 6** Entropia de Shannon e divergência de Jensen-Shannon por fonte de classificação (23/07/2026)
+
+| Fonte | Categorias previstas | Entropia (nats) | Entropia normalizada | JS vs. histórico |
+|---|---|---|---|---|
+| Etapa 1 oficial | 53 | 4,6758 | 0,8163 | 0,0286 |
+| Transformer (BERTimbau) | 51 | 4,6288 | 0,8160 | 0,0872 |
+| LSTM | 52 | 4,6201 | 0,8105 | 0,0847 |
+| Regressão Logística | 52 | 4,4490 | 0,7805 | 0,0716 |
+| SGD | 53 | 4,4363 | 0,7745 | 0,0639 |
+| LinearSVC | 53 | 4,3356 | 0,7569 | 0,0575 |
+| Extra Trees | 47 | 3,9955 | 0,7193 | 0,0761 |
+| Random Forest | 47 | 3,9574 | 0,7124 | 0,0804 |
+| Naive Bayes | 19 | 3,3340 | 0,7848 | 0,1755 |
+
+Fonte: `shannon_modelos.json` e `jensen_shannon_modelos.json`, gerados em
+23/07/2026 (workflow `dashboard.yml`, via `src/analise_shannon.py`). No nível
+de categoria, a mais recente `shannon_resumo.json` aponta 91 ocorrências de
+alta ambiguidade nas predições (ante 79 na versão anterior) e 3.378 chamados
+(ante 3.451) com alta entropia de votos entre modelos — números próximos, sem
+mudança de leitura qualitativa. Naive Bayes chama atenção por combinar a
+menor cobertura de categorias (19, ante 47–53 dos demais) com entropia
+normalizada relativamente alta (0,7848) — provável reflexo de concentração
+extrema em poucas categorias com alguma dispersão residual, não investigado
+em detalhe nesta rodada.
+
 **4.7 Custo computacional**
 
 Nos recortes de comparação por lote (1.000 registros cada), o tempo de
@@ -707,6 +787,27 @@ custo é consistente com a observada em versões anteriores deste
 protocolo e reforça o argumento operacional de que modelos lineares
 combinam o melhor desempenho validado (Subseção 4.2) com o menor custo
 de reexecução e auditoria.
+
+**Tabela 7** Custo computacional por lote de 1.000 registros
+
+| Modelo | Tempo de treino (s) | Tempo de inferência (s) | Acurácia neste lote |
+|---|---|---|---|
+| Naive Bayes | 1,14 | 0,07 | 0,539 |
+| LinearSVC | 2,55 | 0,06 | 0,655 |
+| SGD | 2,60 | 0,09 | 0,624 |
+| Regressão Logística | 9,43 | 0,09 | 0,624 |
+| Random Forest | 19,45 | 0,13 | 0,597 |
+| Extra Trees | 21,30 | 0,14 | 0,610 |
+
+Fonte: `comparacao_modelos.json`, execução mais recente por modelo em
+18/07/2026 03:30 — não reexecutado em 23/07/2026; único registro de custo
+computacional disponível no painel para os modelos clássicos. LSTM e o
+transformador (BERTimbau) não constam deste arquivo; seu custo mais alto é
+descrito qualitativamente no parágrafo acima (dependência de épocas de
+treinamento em rede neural), não medido nesta mesma tabela. A acurácia
+reportada aqui é sobre um lote de 1.000 registros (não a base completa) e
+serve só para contextualizar o trade-off custo×desempenho desta subseção —
+não usar como substituto das Tabelas 1 e 2.
 
 **4.8 Figuras**
 
@@ -1011,9 +1112,29 @@ vigentes.
 
 **Apêndice C — Matriz de decisão M/N/P**
 
-*Pendência explícita*: apêndice ainda não preenchido. Deve tabular, para a
-amostra de conferência humana dupla, a relação entre coluna M (conferência do
-histórico), coluna N (conferência da IA) e coluna P (decisão final travada),
-com contagens por combinação de valores. Depende de extração direta da
-planilha experimental na data de fechamento da Seção 4 — não reaproveitar
-números de auditorias anteriores sem reconferência.
+Contagens agregadas disponíveis nos JSONs públicos do painel (23/07/2026):
+
+| Métrica | n |
+|---|---|
+| Chamados com ao menos uma conferência (M, N ou P) | 9.534 |
+| Decisões travadas (categoria decidida sem conflito) | 9.096 |
+| Casos restritos (categoria eliminada, sem decisão travada) | 438 |
+| Conflitos (M e N confirmam categorias diferentes) | 0 |
+| Conferências da coluna N (CONFERÊNCIA IA) preenchidas | 9.096 |
+| Conferências da coluna M (CONFERÊNCIA GLPI) preenchidas | 9.534 |
+| Conferências da coluna P (CONFERÊNCIA IA - 2) preenchidas | 0 |
+
+Fonte: `auditoria_conferencias.json` e `calibracao.json`, gerados em
+23/07/2026. A coluna P (reclassificação conferida) está zerada nesta
+consolidação — nenhuma reclassificação foi conferida via essa coluna
+especificamente até esta data.
+
+*Pendência explícita*: o cruzamento fino de 3 vias (contagem por combinação
+exata de valores de M × N × P — ex.: quantos casos têm M=Correto e N=Errado
+simultaneamente) **não está disponível em nenhum JSON público atual** e exige
+extração direta da planilha experimental (`Informação insuficiente para
+verificar` com os dados hoje publicados). O que se aproxima disso é a matriz
+2×2 IA×histórico da Tabela 4 (Subseção 4.3), que cruza acerto da IA e do
+histórico contra a verdade decidida — não é o mesmo cruzamento M×N×P bruto,
+mas cobre a mesma pergunta de fundo (quando IA e histórico concordam ou
+divergem da decisão final).
