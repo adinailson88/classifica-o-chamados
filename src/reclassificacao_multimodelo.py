@@ -36,12 +36,36 @@ CONFIG_PADRAO = RAIZ / "config_experimento.json"
 DADOS = RAIZ / "dados"
 
 
+def _contar_linhas(sh, nome) -> int | None:
+    """Numero de linhas ja gravadas na aba (coluna A), ou None se indisponivel
+    (aba ainda nao existe ou falha de leitura) — nesse caso o chamador nao
+    pode confirmar se uma escrita anterior foi commitada."""
+    try:
+        ws = sh.worksheet(nome)
+    except Exception:  # noqa: BLE001
+        return None
+    try:
+        return len(ws.get_values("A:A", value_render_option="UNFORMATTED_VALUE"))
+    except Exception:  # noqa: BLE001
+        return None
+
+
 def _append_resiliente(sh, nome, cab, linhas, colunas_percentuais=None, tentativas=5, espera=10):
     """append_aba com retry para erros transitorios (rede/quota da API do Sheets).
 
     Evita perder gravacao de estatistica por ConnectionError/RemoteDisconnected/429,
     que deixava a linha de turno (ou ate as linhas por chamado) sem registrar.
+
+    O retry NAO E IDEMPOTENTE por padrao: se o erro transitorio ocorrer depois
+    de o Sheets ja ter commitado a escrita no servidor (o cliente so nao viu a
+    confirmacao), reenviar duplica as linhas. Achado real em 2026-07-18: um
+    append de 4.737 linhas em RECLASS__random_forest sofreu esse erro e foi
+    reenviado, duplicando exatamente 4.737 linhas (confirmado por auditoria).
+    Por isso, antes de cada retry, confere se a contagem de linhas da aba ja
+    cresceu o suficiente para ter absorvido a tentativa anterior; se sim, nao
+    reenvia.
     """
+    linhas_antes = _contar_linhas(sh, nome)
     for t in range(1, tentativas + 1):
         try:
             return pl.append_aba(sh, nome, cab, linhas, colunas_percentuais=colunas_percentuais)
@@ -52,6 +76,13 @@ def _append_resiliente(sh, nome, cab, linhas, colunas_percentuais=None, tentativ
                 "429", "quota", "rate limit", "timed out", "timeout", "temporarily"))
             if t >= tentativas or not transitorio:
                 raise
+            if linhas_antes is not None:
+                linhas_depois = _contar_linhas(sh, nome)
+                if linhas_depois is not None and linhas_depois >= linhas_antes + len(linhas):
+                    print(f"[append {nome}] falha transitoria ({type(e).__name__}) mas a "
+                          "escrita ja foi commitada no servidor; retry cancelado para "
+                          "evitar duplicacao.", file=sys.stderr)
+                    return len(linhas)
             print(f"[append {nome}] falha transitoria ({type(e).__name__}); "
                   f"retry {t}/{tentativas} em {espera * t}s", file=sys.stderr)
             time.sleep(espera * t)

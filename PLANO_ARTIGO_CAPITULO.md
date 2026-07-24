@@ -35,82 +35,57 @@ Isso substitui a necessidade de o usuário reexplicar contexto a cada nova conve
 
 ## Estado desta rodada
 
-**Data**: 2026-07-23 (America/Bahia, UTC-03:00) — rodada 6, mesma data das
-rodadas 0–5.
+**Data**: 2026-07-24 (America/Bahia, UTC-03:00) — rodada 7.
 
-**Onde está**: todas as subseções de Resultados (3.2, 4.1–4.7), o Resumo,
-o Abstract, a Discussão e as Considerações finais foram **reescritas** com
-os números de 23/07/2026 — nenhuma subseção do corpo principal do artigo
-mantém mais o padrão "atualização anexada". Apêndices A e B preenchidos;
-Apêndice C parcial (cruzamento fino M×N×P segue "Informação insuficiente
-para verificar"). 3 das 4 figuras publicadas; Figura 4 segue bloqueada, mas
-agora por causa **não confirmada** (a hipótese inicial foi testada e
-descartada — ver item 3). Um dos dois achados técnicos novos desta rodada
-(duplicação de linhas no Random Forest) foi **investigado, confirmado e
-corrigido** com dados reais da planilha, via workflow de diagnóstico
-read-only de uso único (já removido do repositório após o uso).
-
-**Correção de rota importante, herdada da rodada 5**: a rodada 4 havia
-registrado a queda de acerto validado de 92–96% para 71–80% como "avanço
-metodológico, não regressão" — isso estava errado. Confirmado via `git log`
-que nem `avaliacao_final.py` nem `decisao_validada.py` mudaram no período; a
-queda é efeito do crescimento da amostra validada (4.681 → 9.096) revelando
-uma taxa de acerto real mais baixa. Corrigido na prosa do artigo (Seção 5).
+**Onde está**: mesmo ponto da rodada 6 quanto ao texto do artigo (nenhuma
+subseção nova reescrita nesta rodada). O trabalho desta rodada foi
+exclusivamente a pendência técnica nº 2 do "Próximo passo" da rodada 6
+(causa raiz da duplicação em `RECLASS__random_forest`) — investigação
+read-only, sem escrita na planilha nem no artigo.
 
 **O que foi feito nesta rodada**:
-1. **Diagnóstico read-only contra a planilha real**, via workflow de uso
-   único (`.github/workflows/diagnostico_sessao_20260723.yml` +
-   `src/diagnostico_sessao_20260723.py`, ambos removidos do repositório após
-   a execução, commit `88a2ff3a` → removidos em `a244b59b`). Resultado:
-   - **Mojibake em `CLASSIF__<modelo>`: hipótese testada e NÃO confirmada.**
-     Amostra de 200 linhas de `CLASSIF__linear_svc` não teve nenhuma
-     ocorrência de caractere corrompido. A causa da corrupção em
-     `estatistica.json`/`top_confusoes`, `cruzamento_taxonomia.json` e
-     `confusao_historico_ia.json` **permanece desconhecida** — pode estar
-     fora da amostra testada, em outra aba, ou na etapa de
-     agregação/serialização. Corrigido o texto do artigo, que antes
-     apontava essas abas como suspeita principal sem tê-las testado.
-   - **Duplicação em `RECLASS__random_forest`: CONFIRMADA.** 18.049 linhas
-     brutas para apenas 13.312 identificadores de linha distintos (4.737
-     duplicados). `RECLASS__linear_svc`, usado como referência, não teve
-     nenhuma duplicata (13.451 = 13.451) — descarta erro de leitura
-     genérico, localiza o problema especificamente na aba do Random Forest.
-2. **Corrigido**: `src/exportar_dashboard.py::exportar_reclass_resumo` agora
-   deduplica por `linha_planilha` antes de agregar (commit `a244b59b`,
-   mantém a última ocorrência). Teste de regressão em
-   `tests/test_exportar_reclass_resumo.py` (32/32 testes do repo passam).
-   Disparado `dashboard.yml` manualmente para regenerar `reclass_resumo.json`
-   — Random Forest agora em 13.312 registros, no mesmo patamar dos demais
-   modelos (13.226–13.451). A causa raiz da duplicação em si (por que a aba
-   acumulou linhas repetidas) não foi investigada — suspeita não confirmada
-   de falha silenciosa em `linhas_ja_reclass()` — e permanece pendência.
-3. **Reescrita completa de 3.2, 4.1–4.7, Resumo, Abstract, Discussão e
-   Considerações finais** com os números de 23/07/2026 (base 13.965/55
-   categorias; 9.534 conferências, 9.096 decisões travadas, 68,3% da base; 8
-   modelos incluindo LSTM *out-of-fold* e BERTimbau; Tabela 5 com os números
-   corrigidos do item 2). Corrigida também a Subseção 3.4 (Método), que
-   ainda descrevia o BERTimbau como "treinamento adiado" — já tem resultado
-   comparativo nesta consolidação.
-4. **3 figuras geradas e publicadas** (`04_artigo/figuras/`, script
-   `matplotlib`, rodada 5): Figura 1 (pipeline metodológico), Figura 2
-   (confiança×desfecho), Figura 3 (trade-off acurácia×custo).
-5. Dois bugs de renderização de PDF (caracteres Unicode sem suporte na fonte
-   padrão do LaTeX, reintroduzidos durante a reescrita) corrigidos antes de
-   cada push. PDF final sem nenhum warning de caractere ausente.
-6. PDF republicado automaticamente pelo workflow a cada push. Link:
-   `https://adinailson88.github.io/classificacao-chamados/artigo_classificacao_chamados.pdf`.
+1. Investigação read-only (código + logs de execução do GitHub Actions via
+   `gh run view --log`, sem acesso à planilha — nenhuma credencial
+   disponível neste ambiente) sobre a causa raiz da duplicação em
+   `RECLASS__random_forest` (item 2 do próximo passo da rodada 6).
+2. **Causa raiz identificada, com evidência forte mas não 100% confirmada**:
+   `_append_resiliente()` em `src/reclassificacao_multimodelo.py:39` faz
+   retry automático em erros transitórios da API do Sheets, mas o retry
+   **não é idempotente** — se a escrita já foi commitada no servidor antes
+   do cliente receber a confirmação, o retry reenvia o mesmo lote via
+   `ws.append_rows()` (`src/planilha.py:249`), duplicando-o. Encontrado nos
+   logs do workflow `multimodelo_reclassificacao.yml` do dia 2026-07-18:
+   a rodada `--so-validados` de `random_forest` fez um único append de
+   **4.737 linhas** (`reclass=4737 | reuso_decisao_humana=4668 |
+   sem_referencia=69`) e, na mesma execução, `[append
+   RECLASS__random_forest] falha transitoria (APIError); retry 1/5 em 10s`
+   com sucesso no retry. O número bate exatamente com os 4.737 duplicados
+   confirmados na rodada 6. `RECLASS__linear_svc` (referência, 0
+   duplicatas) também teve retries em outros dias, mas em lotes menores —
+   consistente com a hipótese de que o problema só se manifesta quando o
+   retry ocorre depois do commit já ter acontecido no servidor.
+   **Não confirmado**: correspondência linha-a-linha entre o lote de
+   07-18 e os 4.737 duplicados (exigiria leitura direta da planilha, sem
+   credenciais nesta sessão). Também houve retry para `random_forest` em
+   07-14 (lote de 1.718 linhas) sem como confirmar se também duplicou.
+3. **Corrigido**: `_append_resiliente` em `src/reclassificacao_multimodelo.py`
+   agora conta as linhas da aba-alvo antes da primeira tentativa; se um erro
+   transitório ocorrer, reconta antes de cada retry e, se a aba já cresceu o
+   suficiente para ter absorvido o lote (escrita commitada no servidor apesar
+   do erro no cliente), cancela o retry em vez de reenviar. Adicionada função
+   auxiliar `_contar_linhas`. Teste de regressão novo em
+   `tests/test_append_resiliente.py` (2 casos: retry cancelado quando a
+   escrita já foi commitada; retry normal preservado quando a falha é
+   genuína). Suíte completa: 34/34 testes passando (32 anteriores + 2 novos).
+   **Ainda não commitado nem enviado** — aguardando decisão do Adinailson
+   sobre commit/push, e o disparo real do workflow em produção não foi
+   testado (só testado com fakes offline).
 
-**Próximo passo**: (1) nova rodada de diagnóstico read-only para o mojibake,
-com amostragem mais ampla (todas as linhas, não só 200) e testando outras
-abas de trabalho além de `CLASSIF__linear_svc`, antes de tentar qualquer
-correção; (2) investigar a causa raiz da duplicação em
-`RECLASS__random_forest` (por que a aba acumulou linhas repetidas —
-`linhas_ja_reclass()` é a suspeita, não confirmada); (3) gerar a Figura 4
-assim que o mojibake for corrigido na fonte; (4) revisar a lista de
-referências bibliográficas contra o acervo curado (pendência antiga, ainda
-não tratada em nenhuma rodada); (5) preencher o Apêndice C por completo
-(cruzamento fino M×N×P), quando houver rotina de extração direta da
-planilha para isso.
+**Próximo passo**: (1) revisar o diff e decidir sobre commit/push de
+`src/reclassificacao_multimodelo.py` + `tests/test_append_resiliente.py`;
+(2) nova rodada de diagnóstico read-only para o mojibake (ainda pendente da
+rodada 6); (3) gerar a Figura 4; (4) revisar referências bibliográficas;
+(5) preencher o Apêndice C.
 
 ---
 
