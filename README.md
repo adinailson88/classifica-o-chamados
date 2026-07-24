@@ -513,6 +513,23 @@ busca os JSON via `fetch("./dados/...")`. Checagem rapida de que tudo renderiza:
    python -c "import json,glob; [json.load(open(p,encoding='utf-8')) for p in glob.glob('docs/dados/*.json')]" && echo OK
    ```
 
+## PDF do artigo/capitulo no GitHub Pages
+
+O rascunho do artigo/capitulo da tese (`04_artigo/artigo_classificacao_chamados_v3.md`)
+e publicado automaticamente em PDF, ao lado do painel:
+
+```text
+https://adinailson88.github.io/classificacao-chamados/artigo_classificacao_chamados.pdf
+```
+
+Tambem ha um link direto no cabecalho do painel (`docs/index.html`). Gerado pelo
+workflow `.github/workflows/artigo_pdf.yml` (pandoc + xelatex) a cada push que
+altere esse `.md`, ou por disparo manual. **Limitacao deliberada**: o PDF sempre
+acompanha o texto do `.md` fielmente, mas nao reescreve numeros sozinho quando so
+os JSONs de `docs/dados/` mudam — a revalidacao de numeros continua manual. Ver
+`docs/PLANO_PDF_ARTIGO_PAGES.md` para o desenho completo e o historico de achados
+tecnicos (ex.: correcao de vies em `calibracao.py`, 2026-07-23).
+
 ## Relevancia de termos + mapa de correlacao (exploratorio)
 
 `src/relevancia_termos.py` calcula, por categoria, os **termos caracteristicos**
