@@ -121,7 +121,8 @@ def calcular(sh, config: dict) -> dict:
     por_faixa = {rot: _agrega() for _, _, rot in FAIXAS}
     por_exec = {}
     geral = _agrega()
-    # Matriz 2x2 IA(M) x GLPI(N) sobre as linhas com AMBAS conferencias preenchidas.
+    # Matriz 2x2 IA x GLPI: cat_ia e orig comparados contra a categoria DECIDIDA
+    # (M/N/P), para toda linha com decisao travada -- ver correcao abaixo.
     matriz = {"ia_ok_glpi_ok": 0, "ia_ok_glpi_erro": 0, "ia_erro_glpi_ok": 0, "ia_erro_glpi_erro": 0}
     glpi = {"n": 0, "ok": 0}      # acerto validado da classificacao historica (coluna M)
     reclass = {"n": 0, "ok": 0}   # acerto validado da reclassificacao IA-2 (coluna P)
@@ -157,9 +158,18 @@ def calcular(sh, config: dict) -> dict:
         if v_reclass is not None:
             reclass["n"] += 1
             reclass["ok"] += int(v_reclass == "Correto")
-        if v_ia is not None and v_glpi is not None:
-            chave = ("ia_ok" if v_ia == "Correto" else "ia_erro") + \
-                    ("_glpi_ok" if v_glpi == "Correto" else "_glpi_erro")
+        # Matriz IA x GLPI: mesma correcao do acerto_validado (achado de 2026-07-23).
+        # A versao anterior exigia AMBAS as colunas M e N marcadas na linha, e
+        # comparava a marcacao bruta de cada uma -- herdava o mesmo vies de selecao
+        # (N raramente marcada "Errado"), o que zerava 3 das 4 celulas. Em vez
+        # disso, compara a classificacao da IA (cat_ia) e a categoria historica
+        # (orig) contra a mesma categoria DECIDIDA pela memoria M/N/P, para toda
+        # linha com decisao travada (nao so as que tem M e N ambas marcadas).
+        if tem_val:
+            ia_ok = cat_ia == decidida
+            glpi_ok = orig == decidida
+            chave = ("ia_ok" if ia_ok else "ia_erro") + \
+                    ("_glpi_ok" if glpi_ok else "_glpi_erro")
             matriz[chave] += 1
 
         for alvo in (geral, por_faixa[faixa_de(conf)], por_exec.setdefault(execu or "(sem)", _agrega())):
@@ -202,8 +212,12 @@ def calcular(sh, config: dict) -> dict:
             "acerto_glpi_validado": round(glpi["ok"] / glpi["n"], 4) if glpi["n"] else None,
             "n_conferencia_reclass": reclass["n"],
             "acerto_reclass_validado": round(reclass["ok"] / reclass["n"], 4) if reclass["n"] else None,
-            # Matriz 2x2 (apenas linhas com M e N preenchidas). ia_ok_glpi_erro = IA
-            # corrige o historico; ia_erro_glpi_ok = IA piora o historico.
+            # Matriz 2x2: cat_ia e orig comparados contra a categoria decidida
+            # (M/N/P), para toda linha com decisao travada -- corrigido em
+            # 2026-07-23 (antes exigia M e N ambas marcadas e comparava a
+            # marcacao bruta, com o mesmo vies de selecao do acerto_validado).
+            # ia_ok_glpi_erro = IA corrige o historico; ia_erro_glpi_ok = IA
+            # piora o historico.
             "matriz_ia_x_glpi": matriz,
         },
         "ece_historico": round(ece, 4),
