@@ -133,15 +133,30 @@ def exportar_reclass_resumo(sh, config):
     prejudicado, mantido_correto, mantido_errado, decidido_humano,
     sem_referencia), por base de comparacao (validada/historico) e quantos
     mudaram de categoria. Alimenta a aba Reclassificacao do painel.
+
+    Deduplica por linha_planilha antes de agregar (achado de 2026-07-23:
+    RECLASS__random_forest acumulou 4.737 linhas duplicadas -- 18.049 linhas
+    brutas para 13.312 linha_planilha distintas -- provavelmente por falha
+    silenciosa do mecanismo de dedup em reclassificacao_multimodelo.py
+    (linhas_ja_reclass), nao investigada em profundidade; a deduplicacao
+    aqui e defensiva, mantendo a ULTIMA linha de cada linha_planilha
+    (assume-se que reflete o estado mais recente da reclassificacao),
+    e nao corrige a causa raiz na planilha.
     """
     mm = config.get("multimodelo", {}) or {}
     template = mm.get("aba_reclassificacao", "RECLASS__{modelo}")
     modelos = list(mm.get("modelos_leves", [])) + list(mm.get("modelos_pesados", []))
     por_modelo = []
     for m in modelos:
-        rows = aba_para_objetos(sh, template.replace("{modelo}", m))
-        if not rows:
+        rows_brutas = aba_para_objetos(sh, template.replace("{modelo}", m))
+        if not rows_brutas:
             continue
+        dedup = {}
+        for r in rows_brutas:
+            chave = str(r.get("linha_planilha", "")).strip()
+            dedup[chave or id(r)] = r  # sem linha_planilha: nao deduplica (chave unica por objeto)
+        rows = list(dedup.values())
+        duplicadas = len(rows_brutas) - len(rows)
         res = {}
         base = {}
         mudou = 0
@@ -164,11 +179,13 @@ def exportar_reclass_resumo(sh, config):
             "reuso_decisao_humana": res.get("decidido_humano", 0),
             "sem_referencia": res.get("sem_referencia", 0),
             "ultima_execucao": ultima,
+            "linhas_duplicadas_removidas": duplicadas,
         })
     return {"gerado_em": agora_bahia(),
             "natureza": ("reclassificacao por modelo; corrigidos/prejudicados medidos contra a "
                          "verdade VALIDADA quando travada (base_comparacao=validada), senao contra "
-                         "o historico (preliminar)"),
+                         "o historico (preliminar); deduplicado por linha_planilha (mantida a ultima "
+                         "ocorrencia) -- ver linhas_duplicadas_removidas por modelo"),
             "por_modelo": por_modelo}
 
 
