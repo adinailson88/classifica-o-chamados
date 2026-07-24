@@ -77,6 +77,76 @@ os numeros da secao 4.2 e escreva um rascunho da Discussao (secao 5)", ou "traga
 v3.docx para dentro do repo em 04_artigo/ e converta para Markdown"].
 ```
 
+## Checklist do artigo (submissão) — verificar aqui antes de qualquer rodada
+
+> Resumo vivo, gerado por auditoria cruzada entre um plano de revisão externo
+> (DeepSeek, rodada de 24/07/2026) e o estado real do repositório/artigo. O
+> detalhe narrativo completo (o quê, quando, por quê) mora em
+> `PLANO_ARTIGO_CAPITULO.md`, seção "Estado desta rodada" — **não duplicar
+> aqui**, só apontar. Atualizar este bloco (substituir, não acumular) sempre
+> que um item mudar de estado.
+
+### Confirmado feito — não repetir em nova rodada
+- [x] Aviso de viés de amostra não aleatória no Resumo/Abstract (COCHRAN, 1977)
+- [x] Discussão da inferioridade do LSTM frente aos modelos lineares
+      (GALKE; SCHERP, 2022)
+- [x] Referências completas de *Green AI*/eficiência computacional
+      (SCHWARTZ *et al.*, 2020; TREVISO *et al.*, 2023)
+- [x] Limitações substantivas já cobertas em prosa (amostra não aleatória,
+      dependência de uma instituição, BERTimbau pendente, mojibake,
+      intermitência do Pages) — falta só decidir se formata como subseção
+      numerada "5.4" separada (cosmético, não substantivo)
+- [x] Snapshot imutável com hash SHA-256 das fontes quantitativas do artigo
+      (`docs/dados/snapshots/artigo-v3-20260724/`, via
+      `src/gerar_manifesto_snapshot_artigo.py`) — cobre a necessidade de
+      "commit estável para reprodutibilidade" sem precisar de tag Git
+
+### Pendente confirmado — com o arquivo exato a mexer
+- [ ] **Mojibake em nomes de categoria** (ex.: `Instala��o`) em
+      `docs/dados/estatistica.json` (campo `top_confusoes`),
+      `cruzamento_taxonomia.json` e `confusao_historico_ia.json` — bloqueia a
+      Figura 4. Causa-raiz **não confirmada** (amostra de 200 linhas de
+      `CLASSIF__linear_svc` não reproduziu o problema). Não "resolver" só
+      forçando UTF-8 ou trocando por códigos numéricos sem achar a causa —
+      isso mascara um bug que pode estar contaminando outros dados também.
+      Scripts geradores: `src/analise_estatistica.py`,
+      `src/cruzamento_taxonomia.py`.
+- [ ] **`transformer_ft` ainda aparece com números em
+      `docs/dados/avaliacao_final.json`** (`acerto_validado=0.7379`) mesmo com
+      `bertimbau_training_state.json` em `status=sem_dados` e com o texto do
+      artigo já afirmando exclusão desse modelo. Rodar de novo
+      `src/avaliacao_final.py` e `src/analise_estatistica.py` contra a
+      planilha viva para republicar sem esse modelo, ou documentar
+      explicitamente que a exclusão é só textual por enquanto.
+- [ ] **Tabela suplementar de métricas por categoria (55 categorias)** — o
+      dado já existe em `docs/dados/metricas_por_categoria.json`, mas não
+      está formatado como tabela suplementar no artigo. Falta um script
+      pequeno que gere CSV/Markdown a partir desse JSON.
+- [ ] **Holdout fixo de treino/teste** — o pipeline usa out-of-fold KFold
+      (sem vazamento) avaliado contra a verdade validada humana (9.096
+      decisões), o que é metodologicamente mais forte que um holdout clássico
+      avaliado só contra rótulo histórico. Decisão do pesquisador: (a)
+      documentar essa justificativa no Método para antecipar objeção de
+      revisor, ou (b) acrescentar holdout como checagem de robustez
+      complementar — não como substituição do desenho atual.
+- [ ] Seções de metadados estilo MDPI (Author Contributions, Funding, Data
+      Availability Statement, Conflicts of Interest) — ainda não existem em
+      `04_artigo/artigo_classificacao_chamados_v3.md`; só fazem sentido ao
+      preparar a versão de submissão a um periódico (hoje o texto é
+      capítulo de tese).
+- [ ] `analise_R/analise_estatistica.R` está **desconectado do pipeline
+      automático** — seu `dados_modelos.txt` precisa ser regerado
+      manualmente a partir da planilha atual (9.096 validados) antes de
+      usá-lo para conferência cruzada dos números citados no artigo.
+
+### Dashboard (`docs/index.html` + `docs/dados/*.json`)
+- [ ] Aba **Taxonomia** herda o mesmo mojibake de
+      `cruzamento_taxonomia.json`/`confusao_historico_ia.json` — corrigir na
+      fonte beneficia painel e artigo ao mesmo tempo.
+- [ ] Quando `avaliacao_final.json`/`estatistica.json` forem republicados sem
+      `transformer_ft`, conferir que as abas `Decisão`/`Modelos` não
+      referenciam mais esse modelo em rankings visíveis.
+
 ## Estado atual
 
 1. A planilha experimental e lida por conta de servico Google Cloud via `gspread`.
