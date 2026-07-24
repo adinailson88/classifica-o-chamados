@@ -538,7 +538,7 @@ absolutos (0,49 ponto percentual), mas estatisticamente significativa
 com calibração como IA de referência. Nenhum método de combinação
 testado --- confiança calibrada máxima (0,9562), maioria ponderada com
 pesos aprendidos out-of-fold (0,9554) ou maioria simples (0,9547) ---
-supera o LinearSVC isolado com significância estatística (McNemar p ≥
+supera o LinearSVC isolado com significância estatística (McNemar p >= 
 0,05 nos três casos), de modo que combinar modelos não se justifica
 operacionalmente diante do custo adicional de manter um comitê.
 
@@ -599,8 +599,8 @@ humana, a faixa igual ou superior a 95% de confiança (n = 4.739; cerca
 de 34% da base) apresenta concordância de 99,35% com o histórico e, mais
 relevante, acerto validado de 99,73% sobre os 3.284 casos já conferidos
 nessa faixa --- resultado que atinge e supera, nessa faixa específica, a
-meta de referência do experimento (confiança calibrada ≥95% associada a
-acerto real ≥95%). Nas faixas inferiores, a degradação de desempenho
+meta de referência do experimento (confiança calibrada >= 95% associada a
+acerto real >= 95%). Nas faixas inferiores, a degradação de desempenho
 acompanha a queda de confiança de forma consistente (90--95%: acerto
 validado 96,83%; 80--90%: 94,32%; 70--80%: 87,59%; 50--70%: 61,40%;
 inferior a 50%: 38,10%), o que corrobora a correlação positiva entre
@@ -634,12 +634,12 @@ decisões travadas, ante 4.681 em 16/07):
 | 70–80% | 972 | 87,45% | 654 | 94,95% |
 | 80–90% | 1.499 | 87,99% | 1.118 | 93,92% |
 | 90–95% | 1.210 | 92,98% | 1.009 | 91,48% |
-| ≥ 95% | 4.808 | 99,08% | 4.698 | 96,79% |
+| >= 95% | 4.808 | 99,08% | 4.698 | 96,79% |
 
 Fonte: `calibracao.json`, gerado em 23/07/2026 21:31 (America/Bahia), já com a
 correção de `src/calibracao.py` aplicada. ECE histórico nesta consolidação:
-0,0598. A meta do experimento (confiança calibrada ≥95% associada a acerto
-real ≥95%) fica muito próxima de ser atingida na faixa mais alta (96,79%),
+0,0598. A meta do experimento (confiança calibrada >= 95% associada a acerto
+real >= 95%) fica muito próxima de ser atingida na faixa mais alta (96,79%),
 mas — como já registrado na versão anterior deste texto — a confiança
 utilizada aqui ainda é bruta (softmax/*decision_function*), não formalmente
 calibrada por Platt ou isotônica, e a amostra de conferência prioriza
@@ -695,8 +695,8 @@ de categorias, que continua sendo humana.
 
 Nos recortes de comparação por lote (1.000 registros cada), o tempo de
 treino mantém-se na casa de segundos para os modelos lineares e
-probabilísticos mais simples (por exemplo, Naive Bayes ≈ 1,1 s) e sobe
-para modelos com mais hiperparâmetros (Regressão Logística ≈ 8,7 s neste
+probabilísticos mais simples (por exemplo, Naive Bayes ~ 1,1 s) e sobe
+para modelos com mais hiperparâmetros (Regressão Logística ~ 8,7 s neste
 recorte), enquanto o LSTM, por depender de épocas de treinamento em rede
 neural, permanece a opção de maior custo computacional entre as fontes
 de classificação avaliadas, exigindo minutos e infraestrutura de
@@ -726,8 +726,8 @@ A comparação entre concordância histórica (Subseção 4.1) e desempenho
 validado (Subseção 4.2) revela um padrão que a literatura sobre rótulos
 ruidosos ajuda a interpretar, mas que a amostra validada desta pesquisa
 qualifica com maior precisão do que hipóteses genéricas permitiriam: a
-distância entre concordância com o histórico (≈70--80%) e acerto
-validado (≈92--96%) não decorre apenas de erro do histórico, mas também
+distância entre concordância com o histórico (~70--80%) e acerto
+validado (~92--96%) não decorre apenas de erro do histórico, mas também
 do fato de que boa parte das divergências entre IA e histórico
 corresponde a erro da própria IA, não do registro original. A matriz
 IA×GLPI (Subseção 4.3) mostra que, quando os dois discordam, o histórico
@@ -1001,7 +1001,7 @@ vigentes.
 | Método de particionamento (out-of-fold, k-fold, seed) | 3.5 | Sim (out-of-fold, k-fold estratificado, seed fixa) |
 | Métricas reportadas e justificativa | 3.5 | Sim (acurácia, macro-F1, balanced accuracy, IC95% bootstrap) |
 | Testes estatísticos e correção para múltiplas comparações | 3.5 | Sim (Cochran Q, Friedman, McNemar, Nemenyi) |
-| Critério de calibração de confiança (bruta vs. calibrada) e meta de desempenho | 3.8, 4.4 | Parcial — meta declarada (≥95%/≥95%); calibração formal (Platt/isotônica) ainda não aplicada |
+| Critério de calibração de confiança (bruta vs. calibrada) e meta de desempenho | 3.8, 4.4 | Parcial — meta declarada (>= 95%/>= 95%); calibração formal (Platt/isotônica) ainda não aplicada |
 | Protocolo de validação humana | 3.6 | Sim |
 | Cobertura da validação humana na data de publicação (n e % da base) | 4 (abertura) | Sim, mas desatualizada — ver nota de revalidação de dados |
 | Tratamento de conflitos de conferência | 3.7 | Sim (regra de veto/trava) |
