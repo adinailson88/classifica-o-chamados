@@ -80,7 +80,8 @@ v3.docx para dentro do repo em 04_artigo/ e converta para Markdown"].
 ## Checklist do artigo (submissão) — verificar aqui antes de qualquer rodada
 
 > Resumo vivo, gerado por auditoria cruzada entre um plano de revisão externo
-> (DeepSeek, rodada de 24/07/2026) e o estado real do repositório/artigo. O
+> de 20 passos (DeepSeek, rodadas de 24/07/2026) e o estado real do
+> repositório/artigo, item por item, com evidência (não suposição). O
 > detalhe narrativo completo (o quê, quando, por quê) mora em
 > `PLANO_ARTIGO_CAPITULO.md`, seção "Estado desta rodada" — **não duplicar
 > aqui**, só apontar. Atualizar este bloco (substituir, não acumular) sempre
@@ -91,7 +92,13 @@ v3.docx para dentro do repo em 04_artigo/ e converta para Markdown"].
 - [x] Discussão da inferioridade do LSTM frente aos modelos lineares
       (GALKE; SCHERP, 2022)
 - [x] Referências completas de *Green AI*/eficiência computacional
-      (SCHWARTZ *et al.*, 2020; TREVISO *et al.*, 2023)
+      (SCHWARTZ *et al.*, 2020; TREVISO *et al.*, 2023), com entradas
+      completas na lista de referências
+- [x] Legendas das Figuras 1–3 já autoexplicativas (fonte citada, contexto
+      metodológico no texto da legenda)
+- [x] Cruzamento amostral de citações × lista de referências sem lacuna
+      (COCHRAN 1977; GALKE; SCHERP 2022; GUO *et al.* 2017; PLATT 1999;
+      SALTON; BUCKLEY 1988 — todos presentes no corpo E na lista)
 - [x] Limitações substantivas já cobertas em prosa (amostra não aleatória,
       dependência de uma instituição, BERTimbau pendente, mojibake,
       intermitência do Pages) — falta só decidir se formata como subseção
@@ -100,6 +107,24 @@ v3.docx para dentro do repo em 04_artigo/ e converta para Markdown"].
       (`docs/dados/snapshots/artigo-v3-20260724/`, via
       `src/gerar_manifesto_snapshot_artigo.py`) — cobre a necessidade de
       "commit estável para reprodutibilidade" sem precisar de tag Git
+- [x] **Exclusão do `transformer_ft` republicada** em
+      `docs/dados/avaliacao_final.json` e `docs/dados/estatistica.json`, ambos
+      gerados em 24/07/2026 às 19:37. O modelo está em `modelos_excluidos`
+      porque `bertimbau_training_state.json` permanece em `status=sem_dados`;
+      os rankings públicos consideram somente sete modelos comparáveis.
+
+### Bug confirmado nesta auditoria
+- [ ] **Número de chamados desatualizado na linha 315** de
+      `04_artigo/artigo_classificacao_chamados_v3.md`: ainda diz "13.825
+      chamados" enquanto o resto do texto usa 13.965 consistentemente.
+      Corrigir na próxima rodada de escrita (reconferir a contagem viva
+      antes de fixar o número, não copiar 13.965 às cegas).
+- [ ] O bloco "7 IAs materializadas" mais abaixo neste README (seção
+      "Estado atual") também ficou desatualizado: ainda mostra "13.825
+      chamados por modelo" e "`validados=0`" — hoje são 13.965 e 9.096
+      validados. Números de concordância % dessa tabela não foram
+      reconferidos nesta auditoria; reconferir contra os JSONs vigentes
+      antes de citar.
 
 ### Pendente confirmado — com o arquivo exato a mexer
 - [ ] **Mojibake em nomes de categoria** (ex.: `Instala��o`) em
@@ -111,22 +136,30 @@ v3.docx para dentro do repo em 04_artigo/ e converta para Markdown"].
       isso mascara um bug que pode estar contaminando outros dados também.
       Scripts geradores: `src/analise_estatistica.py`,
       `src/cruzamento_taxonomia.py`.
-- [x] **Exclusão do `transformer_ft` republicada** em
-      `docs/dados/avaliacao_final.json` e `docs/dados/estatistica.json`, ambos
-      gerados em 24/07/2026 às 19:37. O modelo está em `modelos_excluidos`
-      porque `bertimbau_training_state.json` permanece em `status=sem_dados`;
-      os rankings públicos consideram somente sete modelos comparáveis.
 - [ ] **Tabela suplementar de métricas por categoria (55 categorias)** — o
       dado já existe em `docs/dados/metricas_por_categoria.json`, mas não
       está formatado como tabela suplementar no artigo. Falta um script
-      pequeno que gere CSV/Markdown a partir desse JSON.
-- [ ] **Holdout fixo de treino/teste** — o pipeline usa out-of-fold KFold
-      (sem vazamento) avaliado contra a verdade validada humana (9.096
-      decisões), o que é metodologicamente mais forte que um holdout clássico
-      avaliado só contra rótulo histórico. Decisão do pesquisador: (a)
-      documentar essa justificativa no Método para antecipar objeção de
-      revisor, ou (b) acrescentar holdout como checagem de robustez
-      complementar — não como substituição do desenho atual.
+      pequeno (ex.: novo `src/exportar_tabela_por_categoria.py`) que gere
+      CSV/Markdown a partir desse JSON.
+- [ ] **Curvas de aprendizado do LSTM (loss/accuracy por época)** — a infra
+      já existe (`EarlyStopping(monitor="val_loss")` em `src/modelo_lstm.py`,
+      Keras `history` disponível a cada `fit()`), só falta exportar o
+      histórico para JSON e plotar.
+- [ ] **Ablation study do LSTM** (unidades=64 vs 128, dropout=0.5 vs 0.3) —
+      confirmado inexistente. É treino de verdade (custo computacional), não
+      é tarefa de texto. Script novo, ex. `src/ablation_lstm.py`.
+- [ ] **Duas direções de trabalhos futuros ainda ausentes** na Conclusão:
+      validação externa em outras IFES e integração com forecasting/MCDM —
+      esse último é exatamente a ponte com o capítulo de revisão já
+      planejada em `PLANO_ARTIGO_CAPITULO.md` §5. A Conclusão atual já tem
+      uma lista de próximos passos mais bem fundamentada que a pedida pelo
+      plano externo (conferência humana pendente, calibração formal,
+      BERTimbau, mojibake, taxonomia, estabilização do Pages); só faltam
+      essas duas.
+- [ ] Tabelas suplementares S1 (métricas por categoria) e S2 (mapeamento
+      código↔categoria para a Fig. 4) como arquivos CSV — confirmado
+      inexistente (só há 3 PNGs em `04_artigo/figuras/`); depende dos dois
+      itens acima.
 - [ ] Seções de metadados estilo MDPI (Author Contributions, Funding, Data
       Availability Statement, Conflicts of Interest) — ainda não existem em
       `04_artigo/artigo_classificacao_chamados_v3.md`; só fazem sentido ao
@@ -137,13 +170,31 @@ v3.docx para dentro do repo em 04_artigo/ e converta para Markdown"].
       manualmente a partir da planilha atual (9.096 validados) antes de
       usá-lo para conferência cruzada dos números citados no artigo.
 
+### Decisão do pesquisador antes de virar tarefa (não são prompts soltos)
+- [ ] **Holdout fixo de treino/teste** — o pipeline usa out-of-fold KFold
+      (sem vazamento) avaliado contra a verdade validada humana (9.096
+      decisões), o que é metodologicamente mais forte que um holdout clássico
+      avaliado só contra rótulo histórico. Implementar um holdout de
+      verdade exigiria retreinar os 7 modelos fora do desenho atual e
+      redesenhar `etapa1_turnos.yml`/`classificacao_multimodelo.yml`/
+      `reclassificacao_multimodelo.yml` — não é uma tarefa de um prompt.
+      Escolher entre: (a) documentar a justificativa metodológica atual no
+      Método, ou (b) encomendar o redesenho como projeto à parte.
+- [ ] **Referências em formato MDPI numérico** — hoje o artigo usa ABNT
+      (autor-data), porque é primariamente capítulo de tese. Reformatar
+      ~25 referências só faz sentido se decidir formalmente submeter à
+      MDPI Computation (ou periódico equivalente) agora.
+
 ### Dashboard (`docs/index.html` + `docs/dados/*.json`)
 - [ ] Aba **Taxonomia** herda o mesmo mojibake de
       `cruzamento_taxonomia.json`/`confusao_historico_ia.json` — corrigir na
       fonte beneficia painel e artigo ao mesmo tempo.
-- [ ] Quando `avaliacao_final.json`/`estatistica.json` forem republicados sem
-      `transformer_ft`, conferir que as abas `Decisão`/`Modelos` não
-      referenciam mais esse modelo em rankings visíveis.
+- [ ] Quando a tabela por categoria existir (item acima), avaliar se também
+      entra nas abas `Categorias`/`Métricas`, não só no artigo.
+- [x] `avaliacao_final.json`/`estatistica.json` já republicados sem
+      `transformer_ft` em rankings — conferir visualmente que as abas
+      `Decisão`/`Modelos` não voltaram a referenciá-lo (verificação visual
+      ainda não feita nesta auditoria).
 
 ## Estado atual
 
