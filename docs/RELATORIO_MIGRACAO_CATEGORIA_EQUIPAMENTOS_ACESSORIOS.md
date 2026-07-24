@@ -252,3 +252,17 @@ Pendência de `docs/CODEX_PROXIMA_SESSAO.md` tratada nesta rodada. Resultado:
 Único resíduo da string antiga no repositório: `docs/CODEX_PROXIMA_SESSAO.md` (texto descritivo da pendência) e `scripts/migracoes/migrar_categoria_equipamentos_acessorios.py` (constante de busca do próprio script) — ambos esperados, não são dados operacionais.
 
 **Conclusão**: pendência fechada. Nada a aplicar; nenhuma ação de escrita necessária nos dados.
+
+
+## Verificação final complementar (2026-07-24)
+
+Validação repetida sobre o `main` remoto e a publicação do GitHub Pages:
+
+- **`docs/dados/`**: 0 ocorrências do nome antigo e 4.518 ocorrências do nome novo, distribuídas em 24 arquivos.
+- **`dados/bertimbau_coreset_ids.json`**: 0 ocorrências do nome antigo e 253 do nome novo.
+- **`metricas_por_categoria.json` no raw GitHub e no GitHub Pages**: ambas as fontes responderam HTTP 200 e apresentam a categoria nova, sem ocorrência do nome antigo.
+- **Dados operacionais e publicação**: coerentes quanto à substituição textual da categoria.
+
+A limitação metodológica permanece: não há `itilcategories_id` nem outro identificador próprio da categoria GLPI nos artefatos deste repositório. Portanto, a conclusão é de migração textual consistente, não de equivalência confirmada por ID.
+
+**Conclusão atualizada**: verificação final concluída; não há alteração a aplicar nos dados ou nos workflows.
