@@ -1,0 +1,119 @@
+{
+  "gerado_em": "25/07/2026 00:52",
+  "script_origem": "src/ablation_lstm.py",
+  "natureza": "materializacao oficial nova em memoria; read-only; nao escreve em CLASSIF__lstm",
+  "metodo_materializacao_nova": "kfold_5",
+  "config_multimodelo": {
+    "k_folds": 5,
+    "min_base_treino": 200,
+    "fracao_topup": 0.25,
+    "memoria_validada": 0,
+    "peso_memoria_validada": 3
+  },
+  "parametros_lstm_resolvidos": {
+    "env_LSTM_PERFIL": null,
+    "config_modelo_ia_lstm": {
+      "perfil": "padrao",
+      "perfil_robusto_disponivel": true,
+      "usar_class_weight": true,
+      "_nota_perfil": "padrao e o perfil seguro global. O perfil robusto permanece disponivel para execucoes lentas por LSTM_PERFIL=robusto ou workflows especificos."
+    },
+    "ablation_resolve_com_config": {
+      "vocab_size": 8000,
+      "max_len": 120,
+      "embed_dim": 128,
+      "units": 64,
+      "dense_units": 64,
+      "dropout": 0.5,
+      "layers": 1,
+      "epochs": 15,
+      "batch_size": 128,
+      "paciencia": 3,
+      "usar_class_weight": true
+    },
+    "producao_resolve_sem_config": {
+      "vocab_size": 8000,
+      "max_len": 120,
+      "embed_dim": 128,
+      "units": 64,
+      "dense_units": 64,
+      "dropout": 0.5,
+      "layers": 1,
+      "epochs": 15,
+      "batch_size": 128,
+      "paciencia": 3
+    },
+    "ablation_init_model": {
+      "vocab_size": 8000,
+      "max_len": 120,
+      "embed_dim": 128,
+      "units": 64,
+      "dense_units": 64,
+      "dropout": 0.5,
+      "layers": 1
+    },
+    "producao_init_model": {
+      "vocab_size": 8000,
+      "max_len": 120,
+      "embed_dim": 128,
+      "units": 64,
+      "dense_units": 64,
+      "dropout": 0.5,
+      "layers": 1
+    },
+    "ablation_fit_efetivo": {
+      "epochs": 15,
+      "batch_size": 128,
+      "paciencia": 3,
+      "validation_split": 0.1,
+      "usar_class_weight": true
+    },
+    "producao_fit_efetivo": {
+      "epochs": 15,
+      "batch_size": 128,
+      "paciencia": 3,
+      "validation_split": 0.1,
+      "usar_class_weight": true
+    },
+    "parametros_efetivos_iguais_no_ambiente_atual": true,
+    "observacao": "modelos_zoo._ModeloLSTM chama classificador_producao.treinar_classificador sem repassar config_experimento['modelo_ia']['lstm']; no ambiente atual, os parametros efetivos ainda podem coincidir se o perfil efetivo for padrao e os defaults de fit forem os mesmos."
+  },
+  "escopo": {
+    "n_linhas_elegiveis": 13965,
+    "n_validadas_com_verdade": 9096,
+    "n_predicoes_novas": 13965,
+    "n_predicoes_antigas": 13965,
+    "n_intersecao_nova_antiga_validada": 9096
+  },
+  "materializacao_nova_vs_verdade": {
+    "n_avaliado": 9096,
+    "acertos": 7964,
+    "erros": 1132,
+    "taxa_acerto": 0.87555,
+    "confianca": {
+      "n": 9096,
+      "media": 0.827015,
+      "min": 0.088899,
+      "max": 0.999828
+    }
+  },
+  "materializacao_antiga_vs_verdade": {
+    "n_avaliado": 9096,
+    "acertos": 6796,
+    "erros": 2300,
+    "taxa_acerto": 0.747142,
+    "confianca": {
+      "n": 9096,
+      "media": 0.819979,
+      "min": 0.0686,
+      "max": 0.9994
+    }
+  },
+  "comparacao_nova_antiga": {
+    "predicoes_diferentes": 2542,
+    "taxa_predicoes_diferentes": 0.279464,
+    "nova_acerta_antiga_erra": 1572,
+    "antiga_acerta_nova_erra": 404,
+    "saldo_acertos_nova_menos_antiga": 1168
+  }
+}
