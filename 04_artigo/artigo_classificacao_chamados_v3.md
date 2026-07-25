@@ -597,22 +597,64 @@ isolado com significância (McNemar p < 0,05 em favor do LinearSVC nos
 três casos). Conclusão: **não vale combinar modelos nesta consolidação**;
 usar LinearSVC isolado, com calibração.
 
-**Tabela 2** Acerto validado contra a verdade decidida M/N/P (n = 9.096)
+*Vies estrutural da seleção da amostra validada (achado de 25/07/2026)*:
+o número pontual de acerto validado acima é o **limite superior** de um
+intervalo, não uma estimativa isenta de viés. A "verdade validada" usada
+neste cálculo (`decisao_validada.py`) só existe para um chamado quando
+pelo menos uma conferência (M, N ou P) marca "Correto" — ou seja, quando
+o histórico, a IA oficial ou a reclassificação está confirmadamente
+certa. Dos 9.534 chamados com alguma conferência preenchida, 438 (4,6%)
+caem no status "restrito": o avaliador julgou **todas** as fontes
+conferidas erradas para aquele chamado (344 casos só com o histórico
+marcado errado; 94 com histórico e IA oficial marcados errados
+simultaneamente), sem indicar qual seria a categoria certa. Esses 438
+casos são **excluídos do denominador** de qualquer acerto validado por
+modelo, porque não existe categoria de referência contra a qual comparar
+a predição. Isso torna a amostra de 9.096 decisões, por construção, um
+subconjunto em que pelo menos uma fonte (histórico ou IA) estava correta
+— o que infla mecanicamente o acerto validado de qualquer modelo que
+tenda a concordar com o histórico ou com a IA oficial, independentemente
+da qualidade real do modelo nos casos mais difíceis (exatamente os que
+ficaram de fora).
 
-| Modelo | Acerto validado | IC95% |
-|---|---|---|
-| LinearSVC | 0,9494 | 0,9447 -- 0,9539 |
-| SGD | 0,9391 | 0,9340 -- 0,9439 |
-| Regressão Logística | 0,9349 | 0,9295 -- 0,9399 |
-| Extra Trees | 0,9265 | 0,9211 -- 0,9316 |
-| Random Forest | 0,9210 | 0,9153 -- 0,9262 |
-| LSTM | 0,8869 | 0,8805 -- 0,8929 |
-| Naive Bayes | 0,8607 | 0,8531 -- 0,8676 |
+Para tornar esse viés visível sem descartar a métrica, calculamos um
+**limite inferior** de sensibilidade: o acerto de cada modelo caso os 438
+restritos fossem incluídos no denominador e contados como erro para
+**todos** os modelos (pior caso possível, já que não sabemos a categoria
+certa desses casos — nenhum modelo pode receber crédito neles). O
+intervalo `[limite inferior, limite superior]` substitui o número
+pontual como leitura honesta do acerto validado: LinearSVC 0,9050--0,9485
+(amplitude 4,36 p.p.), SGD 0,8951--0,9382 (4,31 p.p.), Regressão
+Logística 0,8911--0,9340 (4,29 p.p.), Extra Trees 0,8832--0,9257 (4,25
+p.p.), Random Forest 0,8780--0,9203 (4,23 p.p.), LSTM 0,8457--0,8864
+(4,07 p.p.) e Naive Bayes 0,8212--0,8607 (3,95 p.p.). O achado
+metodologicamente mais importante desta análise de sensibilidade é que o
+**ranking relativo entre os sete modelos não muda em nenhum ponto do
+intervalo** — mesmo no pior caso, o LinearSVC permanece à frente e o
+Naive Bayes permanece atrás de todos. Isso significa que a conclusão
+qualitativa (qual modelo usar) é robusta ao viés identificado, mas o
+valor absoluto do acerto validado não deve ser citado como um número
+único sem essa ressalva.
 
-Fonte: `avaliacao_final.json`, gerado em 25/07/2026 01:52, a partir da
-rematerialização completa dos sete modelos no mesmo dia. A tabela exclui a
-linha legada `transformer_ft`, pois `bertimbau_training_state.json`
-registra `sem_dados`.
+**Tabela 2** Acerto validado contra a verdade decidida M/N/P (n = 9.096) e
+intervalo de sensibilidade ao viés de seleção (n = 9.096 a 9.534)
+
+| Modelo | Acerto validado (limite superior) | IC95% | Limite inferior (pior caso) |
+|---|---|---|---|
+| LinearSVC | 0,9494 | 0,9447 -- 0,9539 | 0,9050 |
+| SGD | 0,9391 | 0,9340 -- 0,9439 | 0,8951 |
+| Regressão Logística | 0,9349 | 0,9295 -- 0,9399 | 0,8911 |
+| Extra Trees | 0,9265 | 0,9211 -- 0,9316 | 0,8832 |
+| Random Forest | 0,9210 | 0,9153 -- 0,9262 | 0,8780 |
+| LSTM | 0,8869 | 0,8805 -- 0,8929 | 0,8457 |
+| Naive Bayes | 0,8607 | 0,8531 -- 0,8676 | 0,8212 |
+
+Fonte: `avaliacao_final.json` (limite superior e IC95%), gerado em
+25/07/2026 01:52, e `04_artigo/figuras/sensibilidade_vies_validacao.json`
+(limite inferior e composição dos restritos), gerado em 25/07/2026
+11:14, ambos a partir da rematerialização completa dos sete modelos no
+mesmo dia. A tabela exclui a linha legada `transformer_ft`, pois
+`bertimbau_training_state.json` registra `sem_dados`.
 
 *Nota metodológica sobre a resolução da discrepância do LSTM (ver Figura
 6/Subseção 4.9)*: a Subseção 4.9 havia sinalizado que o ablation study do
@@ -999,6 +1041,34 @@ prioriza divergências e casos críticos. Portanto, os resultados devem
 ser lidos como descrição da amostra conferida, não como estimativa
 representativa da população de chamados (COCHRAN, 1977).
 
+Além da não aleatoriedade da amostra, identificamos nesta rodada um
+segundo mecanismo de viés, estrutural e mais específico: a própria regra
+de decisão da verdade validada (Subseção 3.7) exclui do denominador de
+qualquer acerto validado os chamados em que o avaliador humano julgou
+todas as fontes conferidas erradas ("restritos"). Dos 9.534 chamados com
+alguma conferência preenchida nesta consolidação, 438 (4,6%) estão nessa
+condição e ficam fora dos 9.096 usados na Subseção 4.2. Como não existe,
+para esses 438 casos, uma categoria de referência contra a qual comparar
+a predição de cada modelo, o acerto validado reportado como número
+pontual é, na verdade, um limite superior: mede o desempenho apenas nos
+casos em que pelo menos uma fonte (histórico ou IA) já estava certa, por
+construção. A análise de sensibilidade publicada em
+`04_artigo/figuras/sensibilidade_vies_validacao.json` recalcula um limite
+inferior (pior caso, contando os 438 restritos como erro de todos os
+modelos) e mostra que a amplitude do intervalo é de 3,95 a 4,36 pontos
+percentuais conforme o modelo — relevante em termos absolutos, mas sem
+alterar o ranking relativo entre os sete modelos em nenhum ponto do
+intervalo. A implicação para a leitura deste capítulo é dupla: a
+conclusão qualitativa (qual modelo priorizar) é robusta a esse viés, mas
+o valor pontual de acerto validado não deveria ser citado isoladamente,
+nem comparado a benchmarks externos, sem a ressalva do intervalo. Esse
+mecanismo também ajuda a explicar por que a célula "IA correta / histórico
+incorreto" da matriz de confusão (Subseção 4.3) permanece em zero: casos
+em que o avaliador não confirma nenhuma fonte como correta — justamente
+onde a IA teria mais chance de estar certa sozinha, sem confirmação do
+histórico — são os que ficam de fora da amostra decidida por construção,
+não porque a IA de fato nunca acerte quando o histórico erra.
+
 Ainda assim, a distinção entre concordância e acerto validado continua
 metodologicamente necessária, e a matriz IA×histórico (Subseção 4.3)
 mostra por quê: quando os dois discordam da decisão final, o histórico
@@ -1082,7 +1152,7 @@ atingida" só seja aceita quando essa conferência estiver
 substancialmente mais completa, não a cada consolidação intermediária.
 
 As limitações do estudo foram atualizadas em relação à versão anterior,
-com quatro ajustes relevantes. Primeiro, a amostra validada deixou de
+com seis ajustes relevantes. Primeiro, a amostra validada deixou de
 ser uma amostra piloto de 305 casos (2,2% da base) e passou a cobrir
 9.534 conferências (68,3% da base, 9.096 decisões travadas sem
 conflito), o que aumenta substancialmente a robustez estatística das
@@ -1119,9 +1189,21 @@ pelo valor atual (88,69%), muito mais próximo do ablation corrigido
 (86,35%). O ablation deixa de ser tratado como diagnóstico isolado e passa
 a ser lido como evidência preliminar de baixa sensibilidade do LSTM aos
 hiperparâmetros testados, consistente com a nova avaliação oficial.
-Persistem também como limitações a dependência de uma única instituição como
-caso empírico e a intermitência observada na publicação automática do painel no
-GitHub Pages, discutida na auditoria técnica que acompanha este capítulo.
+Sexto, identificamos e quantificamos um viés estrutural de seleção na
+própria amostra validada, discutido em detalhe na Seção 5: a regra de
+decisão da verdade validada exclui do denominador de acerto validado os
+438 chamados (4,6% dos 9.534 conferidos) em que nenhuma fonte conferida
+foi confirmada como correta, o que infla mecanicamente o número pontual
+reportado na Subseção 4.2. Publicamos um intervalo de sensibilidade
+(`04_artigo/figuras/sensibilidade_vies_validacao.json`) com amplitude de
+3,95 a 4,36 pontos percentuais conforme o modelo; o ranking relativo
+entre os sete modelos permanece estável em todo o intervalo, mas o valor
+absoluto de acerto validado não deve ser interpretado como uma estimativa
+isenta desse viés, nem comparado ponto a ponto com benchmarks externos
+sem essa ressalva. Persistem também como limitações a dependência de uma
+única instituição como caso empírico e a intermitência observada na
+publicação automática do painel no GitHub Pages, discutida na auditoria
+técnica que acompanha este capítulo.
 
 **6. CONSIDERAÇÕES FINAIS**
 
