@@ -542,30 +542,25 @@ treino BERTimbau concluído.
 
 A concordância com o histórico não é uniforme entre as 55 categorias. A
 Tabela Suplementar S1 (`04_artigo/figuras/tabela_S1_metricas_por_categoria.csv`,
-gerada por `src/exportar_tabela_por_categoria.py`) reporta, para cada
-categoria, suporte e concordância com o histórico. *Nota de rastreabilidade
-(24/07/2026)*: o script foi reescrito para priorizar a leitura direta da
-aba de métricas por categoria identificada por `gid=1862157493` na
-planilha experimental (mencionada pelo pesquisador, schema ainda não
-confirmado por uma sessão com credencial — pode conter precision/recall/F1
-por categoria, o que o JSON público não tem); na ausência de credencial, o
-script cai automaticamente para `docs/dados/metricas_por_categoria.json`
-(concordância vs. histórico apenas) e registra a fonte usada em cada linha
-da tabela exportada. Os números abaixo refletem a execução em modo
-*fallback*; devem ser regerados a partir da aba viva antes da versão final.
-As cinco categorias com menor concordância
-são Elétrica > Sistema Fotovoltaico (FV) (0,00%, n = 7), Manutenção
-Preventiva sem subcategoria (0,00%, n = 2), Manutenção Preventiva >
-Sistemas de incêndio (11,11%, n = 9), Instalação de Acessórios e
-Mobiliário > Instalação/reparo de equipamentos (14,89%, n = 262) e Outros
-> Outros (24,24%, n = 33) — em geral categorias de baixo suporte ou de
-natureza residual/ambígua na taxonomia. As de maior concordância (100%)
-têm suporte igualmente baixo (n entre 1 e 13), o que recomenda cautela ao
-interpretar concordância perfeita como desempenho robusto nessas
-categorias. Nota metodológica: este indicador é concordância da IA
-oficial contra a categoria histórica, não precisão/revocação/F1 no
-sentido *scikit-learn* — o esquema publicado em `metricas_por_categoria.json`
-não contém essas métricas por categoria.
+gerada por `src/exportar_tabela_por_categoria.py`) passou a refletir a aba
+viva `TABELA_S1_METRICAS` (`gid=1862157493`), cujos cabeçalhos reais são
+`Categoria`, `Support`, `Precision`, `Recall` e `F1-Score`. Portanto, nesta
+tabela suplementar o indicador por categoria já é precision/recall/F1 real,
+não apenas concordância vs. histórico do JSON público. As cinco categorias
+com menor F1 são Elétrica > Sistema Fotovoltaico (FV) (F1 = 0,0000; suporte
+= 7), Manutenção Preventiva sem subcategoria (F1 = 0,0000; suporte = 2),
+Estrutura Predial > Instalações Especiais (gás, ar comprimido, etc.) (F1 =
+0,0732; suporte = 3), Suprimentos / Apoio Técnico > Transporte (F1 = 0,1053;
+suporte = 1) e Área Externa e Ambiental > Drenagem (F1 = 0,1333; suporte =
+3). As cinco categorias com maior F1 são Manutenção Preventiva > Extintor
+(F1 = 1,0000; suporte = 14), Manutenção Preventiva > Gerador (F1 = 0,9908;
+suporte = 1.211), Manutenção Preventiva > Sistemas de combate a incêndio
+(extintores, hidrantes) (F1 = 0,9890; suporte = 45), Manutenção Preventiva >
+Quadros Elétricos (F1 = 0,9869; suporte = 576) e Manutenção Preventiva > Ar
+condicionado central (F1 = 0,9849; suporte = 165). A leitura das categorias
+de menor F1 deve ser cautelosa porque quatro das cinco têm suporte menor ou
+igual a sete registros; nesses casos, uma pequena variação absoluta altera
+fortemente a métrica.
 
 **4.2 Ranking validado por conferência humana**
 
