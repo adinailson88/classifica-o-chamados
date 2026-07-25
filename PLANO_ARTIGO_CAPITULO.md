@@ -35,66 +35,41 @@ Isso substitui a necessidade de o usuário reexplicar contexto a cada nova conve
 
 ## Estado desta rodada
 
-**Data**: 2026-07-24 (America/Bahia, UTC-03:00) — rodada 10 (auditoria da
-rodada 9).
+**Data**: 2026-07-25 (America/Bahia, UTC-03:00) - rodada 14 (decisao
+conservadora aplicada ao texto do artigo sobre a discrepancia residual do LSTM).
 
-**Onde está**: rodada 9 (S1 viva, Figura 4, S2, curva de aprendizado,
-ablation) foi auditada nesta rodada, sem credencial de planilha — só
-leitura de arquivos já publicados e do código-fonte. Quatro dos cinco
-itens da rodada 9 se confirmaram corretos. **O quinto (ablation study do
-LSTM) tem uma contradição interna grave e foi sinalizado como BLOQUEADOR**
-no artigo, no README e aqui — não deve ser citado como resultado válido
-até ser investigado.
+**Onde esta**: PR #53 aberto no branch fix/ablation-groupkfold-diagnostico.
+O bloqueador do ablation permanece ativo: o resultado corrigido por GroupKFold
+ainda nao deve ser promovido a achado substantivo do artigo. A versao atual do
+texto preserva a avaliacao oficial historica do LSTM em 74,71% na Subsecao 4.2
+e registra a materializacao oficial nova read-only apenas como diagnostico
+metodologico.
 
 **O que foi feito nesta rodada**:
-1. **Ablation study do LSTM sinalizado como suspeito.**
-   `docs/dados/avaliacao_final.json` reporta acerto validado do LSTM
-   (`units=64, dropout=0,5`, avaliação oficial *out-of-fold*, Subseção 4.2)
-   em 74,71%. `04_artigo/figuras/ablation_lstm_resultados.json`
-   (`src/ablation_lstm.py`, rodada 9) reporta a MESMA arquitetura em
-   87,68% — diferença de ~13 pontos percentuais, sem nenhuma ressalva no
-   texto publicado anteriormente. Li `src/ablation_lstm.py`: a função
-   `avaliar_variante` treina um LSTM do zero a cada fold de um `KFold(
-   n_splits=3, shuffle=True)` sobre os índices validados, com
-   `treino_idx = todos_indices - teste_idx` — ou seja, cada fold treina
-   sobre ~79% do corpus vivo (13.965 linhas menos o fold de teste),
-   incluindo a maioria das linhas validadas de outros folds, rotuladas
-   pela categoria histórica. Isso é uma metodologia diferente da avaliação
-   oficial (modelo já materializado por *out-of-fold k=5* antes da
-   validação humana existir). Hipótese mais provável para a inflação: os
-   textos de chamados de manutenção são curtos e frequentemente
-   quase-duplicados (ex.: várias OS "ar condicionado não gela" na mesma
-   categoria); um `KFold` aleatório por linha, sem agrupar textos
-   quase-duplicados no mesmo fold, é um cenário plausível de vazamento
-   treino/teste que infla acurácia. **Não confirmei a causa raiz
-   (precisaria inspecionar duplicatas de texto entre folds, o que não fiz
-   nesta rodada)** — só confirmei que a contradição numérica é real e não
-   estava sinalizada. Corrigido: Subseção 4.9 (Figura 6) e o parágrafo da
-   Discussão que citava o ablation como evidência de sensibilidade do
-   LSTM, ambos com ressalva explícita. README atualizado com bloco
-   "BLOQUEADOR" no topo do checklist.
-2. **Demais itens da rodada 9 verificados e confirmados corretos**: S1 viva
-   (cabeçalhos reais batem com o que estava documentado, valores com
-   distribuição plausível, não fixos); Figura 4 e S2 existem e foram
-   geradas a partir de dado já confirmado limpo (sem mojibake); curva de
-   aprendizado do LSTM (`lstm_history.json`) tem 11 épocas reais, e os
-   números citados no texto (menor `val_loss` na época 8 = 1,4374; maior
-   `val_accuracy` na época 10 = 0,6722) batem exatamente com o JSON.
-3. **Lacuna de cobertura de teste identificada**: nenhum teste novo foi
-   escrito para `exportar_tabela_por_categoria.py`,
-   `gerar_figura4_confusoes.py`, `ablation_lstm.py`, nem para
-   `salvar_history()`/CLI de `modelo_lstm.py` — a suíte
-   (`tests/`) continua em 34 testes, mesmo número de antes da rodada 9.
-   Não bloqueante, mas registrado como dívida técnica.
+1. Em `04_artigo/artigo_classificacao_chamados_v3.md`, a Subsecao 4.2 recebeu
+   uma nota metodologica sobre o LSTM: o valor oficial preservado continua sendo
+   0,7471, oriundo da materializacao historica em `CLASSIF__lstm`, enquanto a
+   reexecucao diagnostica read-only (`diagnostico_materializacao_lstm_nova.json`)
+   fica registrada como evidencia de instabilidade da materializacao.
+2. A ressalva da Figura 6/Subsecao 4.9 foi atualizada para incluir a evidencia
+   nova: a materializacao oficial read-only em memoria atingiu 7.964/9.096
+   acertos (87,555%), contra 6.796/9.096 (74,714%) da aba historica, com 2.542
+   predicoes divergentes. A conclusao textual e que a diferenca residual esta
+   concentrada na materializacao historica antiga frente a re-treinos novos, nao
+   em escopo de linhas, verdade humana posterior ou hiperparametros efetivos.
+3. A secao de limitacoes e as consideracoes finais tambem foram ajustadas para
+   impedir uma leitura indevida do ablation: a Figura 6 permanece diagnostica e
+   nao sustenta conclusao sobre sensibilidade do LSTM a unidades/dropout nesta
+   versao.
+4. O BLOQUEADOR do `README.md` foi substituido para refletir a decisao aplicada:
+   preservar 74,71% na Subsecao 4.2, registrar 87,56% apenas como diagnostico e
+   manter o ablation sem promocao a achado substantivo.
 
-**Antes de confiar no ablation**: (1) checar duplicatas/quase-duplicatas de
-texto entre os folds de treino e teste de `src/ablation_lstm.py`; (2) se
-confirmado vazamento, refazer com `GroupKFold` por hash de texto
-normalizado, ou restringir cada fold ao mesmo conjunto de treino da
-avaliação oficial da Subseção 4.2; (3) só então decidir se `units=128,
-dropout=0,3` é ganho real ou artefato do viés — a diferença de +0,50 p.p.
-entre as variantes do próprio ablation é pequena demais para concluir
-qualquer coisa enquanto a base de 87-88% não for explicada.
+**Proximo passo**: validar localmente, commitar e pushar esta decisao textual no
+branch do PR #53. Depois disso, a proxima decisao metodologica fica fora desta
+rodada: recalcular oficialmente ou nao o LSTM em uma nova materializacao
+controlada. Nao alterar holdout fixo nem referencias MDPI enquanto esses pontos
+permanecerem pendentes.
 
 ---
 
