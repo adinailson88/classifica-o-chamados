@@ -120,15 +120,22 @@ item a item contra o estado real do repositório (não presumido):
     integração MCDM/TOPSIS); não estão em formato de 3 bullets separados,
     mas o conteúdo já existe — reformatação é puramente estética, baixa
     prioridade.
-- **Gap real, ainda não escrito**: Passo 1 (subseção 3.4.1 — diferenças
-  conceituais entre as famílias de classificadores: por que LinearSVC
-  supera Naive Bayes/árvores/LSTM neste corpus). Não existe hoje entre as
-  Seções 3.4 e 3.5. É conteúdo novo genuíno, não um ajuste — precisa ser
-  escrito (o rascunho do parecer é um bom ponto de partida, mas cita
-  "10-20x mais tempo de treino" para RF/ExtraTrees sem fonte no repo;
-  qualquer número de custo computacional usado deve vir de
-  `docs/dados/comparacao_modelos.json`, não do parecer, antes de entrar
-  no texto).
+- **RESOLVIDO nesta mesma rodada**: Passo 1 (subseção 3.4.1 — diferenças
+  conceituais entre as famílias de classificadores). Escrita e inserida
+  entre 3.4 e 3.5 em `04_artigo/artigo_classificacao_chamados_v3.md`. Não
+  reaproveitei os números do parecer sem verificar: o custo computacional
+  citado (RF/Extra Trees entre 7,6–8,4× o LinearSVC e 17,1–18,7× o Naive
+  Bayes) vem de `Tabela 7` (`comparacao_modelos.json`), não da estimativa
+  solta "10-20x" do parecer. Também corrigi uma imprecisão do próprio
+  parecer: o mecanismo de produção não troca de modelo por confiança
+  abaixo de 70% por chamado — `src/classificador_producao.py` mostra que
+  a escolha LSTM-vs-RF é feita uma vez, no nível da base de treino
+  (`MIN_BASE_LSTM=200`); os limiares 0,70/0,95 só rotulam a faixa de
+  confiança para métricas, não trocam de modelo. A ausência de
+  *embeddings* pré-treinados em português no LSTM foi confirmada
+  diretamente em `src/modelo_lstm.py` (camada `Embedding` sem `weights=`)
+  antes de entrar como argumento no texto. Suíte completa (85 testes)
+  seguiu passando após a edição (mudança é só de texto/markdown).
 - **Bloqueado por decisão já registrada do Adinailson, não uma pendência
   nova**: Passo 2 (holdout fixo de 15%). Este repositório já tem uma
   decisão explícita da rodada 9 (linha "Não mexer no holdout fixo de
@@ -142,15 +149,12 @@ item a item contra o estado real do repositório (não presumido):
   pendente (Tabela 2/4/calibração recalculadas quando a conferência M/N/P
   terminar). Nenhuma ação necessária agora.
 
-**Próximo passo**: (1) perguntar ao Adinailson se quer que eu escreva a
-Subseção 3.4.1 agora (único gap de conteúdo real do parecer) — usando
-`docs/dados/comparacao_modelos.json` para qualquer número de custo
-computacional citado, não os números não verificados do parecer; (2) se
-ele quiser avançar no holdout fixo (Passo 2), tratar como mudança
-metodológica nova, com dry-run e discussão antes de reprocessar; (3)
-gerar novo snapshot imutável (`gerar_manifesto_snapshot_artigo.py`),
-pendência recorrente desde a rodada 12; (4) verificar se o dashboard
-público (`docs/index.html`) precisa de refresh dos JSONs novos; (5)
+**Próximo passo**: (1) se o Adinailson quiser avançar no holdout fixo
+(Passo 2 do parecer), tratar como mudança metodológica nova, com dry-run
+e discussão antes de reprocessar os 8 modelos; (2) gerar novo snapshot
+imutável (`gerar_manifesto_snapshot_artigo.py`), pendência recorrente
+desde a rodada 12; (3) verificar se o dashboard
+público (`docs/index.html`) precisa de refresh dos JSONs novos; (4)
 quando o Codex retomar em 29/07 (ou antes, se decidido), continuar os
 Passos 3–6 do prompt original de 6 passos — cuidado para não
 duplicar/conflitar com o que ele já tinha preparado.
