@@ -843,11 +843,12 @@ não usar como substituto das Tabelas 1 e 2.
 
 **4.8 Figuras**
 
-*Atualização de dados (24/07/2026)*: as quatro figuras originalmente
-planejadas para este capítulo foram geradas a partir dos JSONs vigentes do
-painel (scripts `matplotlib`, ver `04_artigo/figuras/`). A Figura 4 usa
-códigos de categoria para preservar a legibilidade; o mapeamento completo
-código-categoria está na Tabela Suplementar S2.
+*Atualização de dados (24/07/2026)*: as figuras foram geradas a partir dos
+JSONs vigentes do painel, da aba viva de métricas por categoria e dos treinos
+executados por workflow com credencial (scripts `matplotlib`, ver
+`04_artigo/figuras/`). A Figura 4 usa códigos de categoria para preservar a
+legibilidade; o mapeamento completo código-categoria está na Tabela
+Suplementar S2.
 
 ![Figura 2 — Confiança bruta × concordância com o histórico × acerto validado, por faixa de confiança (executor oficial, Etapa 1, 23/07/2026).](04_artigo/figuras/fig2_confianca_desfecho.png)
 
@@ -883,6 +884,31 @@ C01-C10 usados no eixo vertical são descritos na Tabela Suplementar S2
 
 Fonte: `estatistica.json`, campo `top_confusoes`, gerado em 24/07/2026 20:52;
 figura gerada por `src/gerar_figura4_confusoes.py`.
+
+![Figura 5 — Curva de aprendizado do LSTM por época.](04_artigo/figuras/fig5_curva_aprendizado_lstm.png)
+
+**Figura 5** Curva real de aprendizado do LSTM gerada pelo workflow
+`30137383907`, com 13.965 exemplos e 53 categorias. O treino foi interrompido
+por `EarlyStopping` após 11 épocas. O menor `val_loss` ocorreu na época 8
+(`val_loss = 1,4374`; `accuracy = 0,7073`; `val_accuracy = 0,6492`), enquanto o
+maior `val_accuracy` ocorreu na época 10 (`val_accuracy = 0,6722`;
+`val_loss = 1,4767`).
+
+Fonte: `04_artigo/figuras/lstm_history.json`, gerado por `src/modelo_lstm.py`.
+
+![Figura 6 — Ablation study do LSTM: unidades recorrentes e dropout.](04_artigo/figuras/fig6_ablation_lstm.png)
+
+**Figura 6** Ablation study real do LSTM, executado por workflow com 3-fold
+KFold sobre 9.096 linhas validadas. A configuração atual do artigo
+(`units = 64`, `dropout = 0,5`) obteve 87,68% de acerto validado
+(7.975/9.096). A melhor variação foi `units = 128`, `dropout = 0,3`, com
+88,18% (8.021/9.096), diferença de +0,50 ponto percentual e 46 acertos a mais.
+As demais variações ficaram em 87,74% (`units = 128`, `dropout = 0,5`) e
+87,43% (`units = 64`, `dropout = 0,3`).
+
+Fonte: `04_artigo/figuras/ablation_lstm_resultados.json` e
+`04_artigo/figuras/tabela_S3_ablation_lstm.csv`, gerados por
+`src/ablation_lstm.py`.
 
 **5. DISCUSSÃO**
 
@@ -1056,18 +1082,20 @@ já registrada na versão anterior deste texto: a trajetória entre 16/07 e
 quando a amostra de conferência cresce, o que reforça — e não apenas
 repete — a recomendação de não tratar a meta como cumprida para fins de
 liberação em produção sem revisão antes da conclusão da conferência
-humana sobre uma fração bem mais representativa da base. Os próximos
-passos deste protocolo incluem a conclusão da conferência humana
-pendente (31,7% da base ainda sem decisão travada), a calibração formal
-por modelo (Platt/isotônica/temperatura) condicionada a essa
-conferência, a realização do treino e da avaliação comparativa do
-transformador BERTimbau, a geração da Figura 4 (pares de maior confusão
-entre categorias), agora não mais bloqueada por suspeita de corrupção de
-dado (Subseção 4.8), a revisão taxonômica dirigida pelos candidatos
-identificados na etapa de cruzamento de taxonomia e na entropia de
-Shannon, e a estabilização da publicação automática do painel, cuja
-intermitência técnica está documentada na auditoria que acompanha este
-capítulo. Como direções de trabalho futuro mais amplas, este protocolo
+humana sobre uma fração bem mais representativa da base. A curva real de
+aprendizado e o ablation study do LSTM indicam que o aumento de 64 para 128
+unidades, combinado à redução do dropout de 0,5 para 0,3, produziu ganho
+pequeno no acerto validado (+0,50 ponto percentual), insuficiente para alterar
+sozinho a hierarquia metodológica do estudo, mas útil como evidência de
+sensibilidade do modelo. Os próximos passos deste protocolo incluem a conclusão
+da conferência humana pendente (31,7% da base ainda sem decisão travada), a
+calibração formal por modelo (Platt/isotônica/temperatura) condicionada a essa
+conferência, a realização do treino e da avaliação comparativa do transformador
+BERTimbau, a revisão taxonômica dirigida pelos candidatos identificados na
+etapa de cruzamento de taxonomia e na entropia de Shannon, e a estabilização da
+publicação automática do painel, cuja intermitência técnica está documentada na
+auditoria que acompanha este capítulo. Como direções de trabalho futuro mais
+amplas, este protocolo
 também aponta para (i) a validação externa do modelo em outras
 instituições federais de ensino superior, testando se o padrão de
 desempenho observado na UFSB se mantém sob taxonomias e volumes de
