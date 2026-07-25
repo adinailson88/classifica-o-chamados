@@ -128,7 +128,7 @@ def prever_out_of_fold(nome, lote, base_textos, base_cats, k_folds, min_base, fr
     """Predicao honesta (sem vazamento) das linhas do `lote`.
 
     base_* = linhas ja classificadas (rotulo historico) + memoria validada, que
-    entram SEMPRE no treino. Retorna (preds, scores) alinhados ao `lote`.
+    entram SEMPRE no treino. Retorna (preds, scores, metodo, usou_fallback).
 
     - Top-up: se a base e grande e o lote e pequeno em relacao a ela, treina 1 vez
       na base e preve o lote (lote fora do treino -> out-of-fold).
@@ -137,18 +137,27 @@ def prever_out_of_fold(nome, lote, base_textos, base_cats, k_folds, min_base, fr
     - `vetos` (opcional): lista alinhada ao lote com o conjunto de categorias que a
       conferencia humana marcou como erradas para cada chamado; a predicao escolhe
       a melhor classe fora do veto (regra: nao repetir erro ja conferido).
+    - `usou_fallback`: True quando ALGUMA instancia do modelo (pode haver varias,
+      uma por fold) caiu para LSTM/RF por dependencia pesada indisponivel (ver
+      `modelos_zoo._ModeloTransformerFT.usou_fallback`) — quem chama NAO deve
+      publicar o resultado como se fosse do modelo pedido quando isto for True
+      (achado de 2026-07-25: o cron automatico do transformer_ft nunca instala
+      torch/transformers e sempre cai nesse caminho, silenciosamente).
     """
     textos_lote = [e["texto"] for e in lote]
     cats_lote = [e["categoria_original"] for e in lote]
     n = len(lote)
     vetos = list(vetos) if vetos else [set()] * n
 
+    def _fallback(modelo) -> bool:
+        return bool(getattr(modelo, "usou_fallback", False))
+
     base_n = len(base_textos)
     if base_n >= min_base and n <= max(50, int(fracao_topup * base_n)):
         m = zoo.criar_modelo(nome)
         m.fit(base_textos, base_cats)
         preds, scores = _prever_com_veto(m, textos_lote, vetos)
-        return preds, scores, "topup"
+        return preds, scores, "topup", _fallback(m)
 
     # K-fold OOF sobre o lote.
     from sklearn.model_selection import KFold
@@ -156,25 +165,27 @@ def prever_out_of_fold(nome, lote, base_textos, base_cats, k_folds, min_base, fr
     if kk < 2:
         # 1 linha so: precisa de alguma base para treinar.
         if base_n == 0:
-            return [None], [0.0], "sem_base"
+            return [None], [0.0], "sem_base", False
         m = zoo.criar_modelo(nome)
         m.fit(base_textos, base_cats)
         preds, scores = _prever_com_veto(m, textos_lote, vetos)
-        return preds, scores, "base_unica"
+        return preds, scores, "base_unica", _fallback(m)
 
     preds = [None] * n
     scores = [0.0] * n
+    usou_fallback = False
     kf = KFold(n_splits=kk, shuffle=True, random_state=42)
     for tr_idx, te_idx in kf.split(range(n)):
         x_tr = [textos_lote[i] for i in tr_idx] + list(base_textos)
         y_tr = [cats_lote[i] for i in tr_idx] + list(base_cats)
         m = zoo.criar_modelo(nome)
         m.fit(x_tr, y_tr)
+        usou_fallback = usou_fallback or _fallback(m)
         p, s = _prever_com_veto(m, [textos_lote[i] for i in te_idx], [vetos[i] for i in te_idx])
         for j, i in enumerate(te_idx):
             preds[i] = None if p[j] is None else str(p[j])
             scores[i] = float(s[j])
-    return preds, scores, f"kfold_{kk}"
+    return preds, scores, f"kfold_{kk}", usou_fallback
 
 
 def gravar_classificacao(sh, aba, run_id, lote, gerado) -> int:
@@ -256,10 +267,24 @@ def classificar_modelo(sh, config, modelo, elegiveis, cap, base_extra, args) -> 
     print(f"[{modelo}] elegiveis={len(elegiveis)} | ja_feitos={len(feitas)} | "
           f"pendentes={len(pendentes)} | lote_agora={len(lote)} | base_treino_fixa={len(base_textos)}")
 
-    preds, scores, metodo = prever_out_of_fold(
+    preds, scores, metodo, usou_fallback = prever_out_of_fold(
         modelo, lote, base_textos, base_cats,
         k_folds=int(mm.get("k_folds", 5)), min_base=int(mm.get("min_base_treino", 200)),
         fracao_topup=float(mm.get("fracao_topup", 0.25)))
+
+    if usou_fallback:
+        # Achado de 2026-07-25: o cron automatico (multimodelo_classificacao.yml)
+        # nunca instala torch/transformers, entao _ModeloTransformerFT.fit() cai
+        # SEMPRE para LSTM/RF. Publicar esse resultado como se fosse 'transformer_ft'
+        # e enganoso (o artigo/dashboard leriam como fine-tuning real do BERTimbau).
+        # Recusa explicita: nao grava nada em CLASSIF__<modelo>/MULTIMODELO_TURNOS.
+        print(f"[{modelo}] RECUSADO: dependencias pesadas (torch/transformers) "
+              "indisponiveis neste ambiente -- a predicao caiu para LSTM/RF disfarcado. "
+              "Nada publicado sob o nome do modelo pedido. Rode um workflow com as "
+              "dependencias reais instaladas (ver .github/workflows/transformer_ft.yml) "
+              "para classificar de verdade.", file=sys.stderr)
+        return {"modelo": modelo, "processados": 0, "pendentes": len(pendentes),
+                "feitos_total": len(feitas), "pulado_fallback": True}
 
     aproveitados = []
     for e, p, s in zip(lote, preds, scores):

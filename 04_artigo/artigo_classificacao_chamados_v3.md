@@ -1100,7 +1100,21 @@ BERTimbau permanece pendente: o estado publicado é `sem_dados`, sem
 treino concluído nem métricas próprias. Assim, o artefato legado
 `transformer_ft` foi excluído de rankings, testes e diagnósticos
 comparativos; não há evidência suficiente para concluir sobre seu
-desempenho neste domínio. Quarto, uma suspeita de corrupção de
+desempenho neste domínio. Investigação nesta rodada (25/07/2026)
+identificou a causa raiz: o fluxo automático de classificação (executado a
+cada 15 minutos) nunca instala as dependências pesadas (`torch`,
+`transformers`) necessárias para o fine-tuning real, e o código, ao não
+encontrá-las, cai silenciosamente para o mesmo classificador LSTM usado em
+outra parte do experimento — sem registrar esse desvio em nenhum artefato
+publicado. Confirmado em log de execução real (17/07/2026): a
+materialização inteira então publicada sob o rótulo `transformer_ft`
+(13.954 dos 13.965 chamados) foi produzida por esse caminho de contingência,
+não por fine-tuning do BERTimbau. Essa causa já foi corrigida no código
+(o fluxo agora recusa publicar resultados sob o nome de um modelo quando
+suas dependências de fato não estão disponíveis, em vez de substituí-los
+silenciosamente); os artefatos publicados anteriormente sob `transformer_ft`
+continuam a ser tratados como não confiáveis e devem ser desconsiderados até
+uma rematerialização real com as dependências corretas instaladas. Quarto, uma suspeita de corrupção de
 acentuação (mojibake) nos nomes de categoria de arquivos-fonte usados
 para análises de confusão entre categorias (Subseção 4.8), registrada em
 rodada anterior como pendência técnica, foi investigada nesta rodada e

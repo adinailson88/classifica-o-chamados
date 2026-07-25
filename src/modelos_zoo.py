@@ -148,6 +148,16 @@ class _ModeloTransformerFT:
         # Resumo do ultimo treino (consumido pelo estado/dashboard do BERTimbau).
         self.train_info = {}
 
+    @property
+    def usou_fallback(self) -> bool:
+        """True quando o ultimo fit() nao conseguiu fazer fine-tuning real
+        (torch/transformers indisponivel) e caiu para LSTM/RF. Quem chama
+        fit()+predict() DEVE checar isto antes de publicar o resultado como
+        'transformer_ft' — achado de 2026-07-25: o cron automatico nunca
+        instala torch/transformers, entao toda predicao rotulada
+        'transformer_ft' nele e na verdade LSTM disfarcado."""
+        return self.train_info.get("status") == "fallback_lstm"
+
     def _subamostra_estratificada(self, textos, y, limite):
         """Reduz o conjunto de treino para 'limite' linhas preservando, na medida
         do possivel, a proporcao por categoria (estratificada). Retorna (textos, y)."""

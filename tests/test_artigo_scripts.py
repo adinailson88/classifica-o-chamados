@@ -164,7 +164,7 @@ class TestAblationLSTM(unittest.TestCase):
             "abas_experimento": {"validacao_humana": "VALIDACAO_HUMANA"},
         }
 
-        with mock.patch.object(ablation.cm, "prever_out_of_fold", return_value=(["A", "B"], [0.9, 0.7], "kfold_5")) as prever:
+        with mock.patch.object(ablation.cm, "prever_out_of_fold", return_value=(["A", "B"], [0.9, 0.7], "kfold_5", False)) as prever:
             diag = ablation.diagnosticar_materializacao_oficial_nova(FakeSheet(), config, linhas, verdade)
 
         prever.assert_called_once()
