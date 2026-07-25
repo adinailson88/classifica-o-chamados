@@ -35,66 +35,37 @@ Isso substitui a necessidade de o usuário reexplicar contexto a cada nova conve
 
 ## Estado desta rodada
 
-**Data**: 2026-07-24 (America/Bahia, UTC-03:00) — rodada 10 (auditoria da
-rodada 9).
+**Data**: 2026-07-24 (America/Bahia, UTC-03:00) — rodada 10 (diagnóstico
+do ablation LSTM).
 
-**Onde está**: rodada 9 (S1 viva, Figura 4, S2, curva de aprendizado,
-ablation) foi auditada nesta rodada, sem credencial de planilha — só
-leitura de arquivos já publicados e do código-fonte. Quatro dos cinco
-itens da rodada 9 se confirmaram corretos. **O quinto (ablation study do
-LSTM) tem uma contradição interna grave e foi sinalizado como BLOQUEADOR**
-no artigo, no README e aqui — não deve ser citado como resultado válido
-até ser investigado.
+**Onde está**: item 1 da rodada 10 em preparação para PR. O bloqueador do
+ablation permanece ativo: o resultado de 87,68%–88,18% ainda não está
+reconciliado com a avaliação oficial do LSTM em 74,71% na Subseção 4.2.
+Não remover a ressalva do artigo enquanto o diagnóstico com credencial não
+for executado e analisado.
 
 **O que foi feito nesta rodada**:
-1. **Ablation study do LSTM sinalizado como suspeito.**
-   `docs/dados/avaliacao_final.json` reporta acerto validado do LSTM
-   (`units=64, dropout=0,5`, avaliação oficial *out-of-fold*, Subseção 4.2)
-   em 74,71%. `04_artigo/figuras/ablation_lstm_resultados.json`
-   (`src/ablation_lstm.py`, rodada 9) reporta a MESMA arquitetura em
-   87,68% — diferença de ~13 pontos percentuais, sem nenhuma ressalva no
-   texto publicado anteriormente. Li `src/ablation_lstm.py`: a função
-   `avaliar_variante` treina um LSTM do zero a cada fold de um `KFold(
-   n_splits=3, shuffle=True)` sobre os índices validados, com
-   `treino_idx = todos_indices - teste_idx` — ou seja, cada fold treina
-   sobre ~79% do corpus vivo (13.965 linhas menos o fold de teste),
-   incluindo a maioria das linhas validadas de outros folds, rotuladas
-   pela categoria histórica. Isso é uma metodologia diferente da avaliação
-   oficial (modelo já materializado por *out-of-fold k=5* antes da
-   validação humana existir). Hipótese mais provável para a inflação: os
-   textos de chamados de manutenção são curtos e frequentemente
-   quase-duplicados (ex.: várias OS "ar condicionado não gela" na mesma
-   categoria); um `KFold` aleatório por linha, sem agrupar textos
-   quase-duplicados no mesmo fold, é um cenário plausível de vazamento
-   treino/teste que infla acurácia. **Não confirmei a causa raiz
-   (precisaria inspecionar duplicatas de texto entre folds, o que não fiz
-   nesta rodada)** — só confirmei que a contradição numérica é real e não
-   estava sinalizada. Corrigido: Subseção 4.9 (Figura 6) e o parágrafo da
-   Discussão que citava o ablation como evidência de sensibilidade do
-   LSTM, ambos com ressalva explícita. README atualizado com bloco
-   "BLOQUEADOR" no topo do checklist.
-2. **Demais itens da rodada 9 verificados e confirmados corretos**: S1 viva
-   (cabeçalhos reais batem com o que estava documentado, valores com
-   distribuição plausível, não fixos); Figura 4 e S2 existem e foram
-   geradas a partir de dado já confirmado limpo (sem mojibake); curva de
-   aprendizado do LSTM (`lstm_history.json`) tem 11 épocas reais, e os
-   números citados no texto (menor `val_loss` na época 8 = 1,4374; maior
-   `val_accuracy` na época 10 = 0,6722) batem exatamente com o JSON.
-3. **Lacuna de cobertura de teste identificada**: nenhum teste novo foi
-   escrito para `exportar_tabela_por_categoria.py`,
-   `gerar_figura4_confusoes.py`, `ablation_lstm.py`, nem para
-   `salvar_history()`/CLI de `modelo_lstm.py` — a suíte
-   (`tests/`) continua em 34 testes, mesmo número de antes da rodada 9.
-   Não bloqueante, mas registrado como dívida técnica.
+1. O commit local citado no pedido (`958f46f`) não foi encontrado neste
+   clone nem nas refs remotas consultadas. O `main` local foi atualizado
+   por fast-forward de `e5e269c0` para `93ff79ce`, sem push para `main`.
+2. Foi criado o branch `fix/ablation-groupkfold-diagnostico` para publicar
+   uma reconstrução verificável da alteração descrita: `src/ablation_lstm.py`
+   passou a ter normalização/hash de texto, diagnóstico de duplicatas entre
+   folds no KFold antigo e `GroupKFold` por hash de texto normalizado para
+   futura reexecução do ablation.
+3. O workflow `Pendencias artigo com credencial` (`.github/workflows/lstm_artigo.yml`)
+   passou a aceitar `tarefa=diagnostico_ablation`, que grava somente
+   `04_artigo/figuras/diagnostico_ablation_lstm_duplicatas.json`; esse modo
+   não treina o LSTM nem altera os resultados suspeitos.
+4. O README foi atualizado para indicar que o bloqueador agora aguarda a
+   execução do diagnóstico com credencial antes de qualquer decisão sobre
+   regenerar Figura 6/Subseção 4.9/Discussão.
 
-**Antes de confiar no ablation**: (1) checar duplicatas/quase-duplicatas de
-texto entre os folds de treino e teste de `src/ablation_lstm.py`; (2) se
-confirmado vazamento, refazer com `GroupKFold` por hash de texto
-normalizado, ou restringir cada fold ao mesmo conjunto de treino da
-avaliação oficial da Subseção 4.2; (3) só então decidir se `units=128,
-dropout=0,3` é ganho real ou artefato do viés — a diferença de +0,50 p.p.
-entre as variantes do próprio ablation é pequena demais para concluir
-qualquer coisa enquanto a base de 87-88% não for explicada.
+**Próximo passo**: após o PR do item 1 estar aberto, disparar o workflow
+`Pendencias artigo com credencial` no branch do PR com `tarefa=diagnostico_ablation`
+e `k_folds=3`, analisar o JSON publicado e só então decidir entre rodar
+`tarefa=ablation` com `GroupKFold` ou documentar que a duplicação não explica
+a discrepância.
 
 ---
 

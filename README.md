@@ -87,23 +87,22 @@ v3.docx para dentro do repo em 04_artigo/ e converta para Markdown"].
 > aqui**, só apontar. Atualizar este bloco (substituir, não acumular) sempre
 > que um item mudar de estado.
 
-### 🔴 BLOQUEADOR — resultado suspeito, não citar sem verificar (sinalizado 24/07/2026)
+### 🔴 BLOQUEADOR — diagnóstico em PR, aguardando execução com credencial (atualizado 24/07/2026)
 **Ablation study do LSTM (`src/ablation_lstm.py`, Figura 6/Subseção 4.9)
-reporta 87,68%–88,18% de acerto validado para configurações do LSTM cuja
-avaliação OFICIAL (Subseção 4.2, mesma base de verdade M/N/P) é 74,71% —
-diferença de ~13 pontos percentuais para a MESMA arquitetura
-(`units=64`, `dropout=0,5`), não explicada nem reconciliada.** Hipótese
-mais provável: o ablation treina do zero a cada fold sobre quase todo o
-corpus vivo (~79% dos dados) com particionamento aleatório por linha, sem
-agrupar textos quase-duplicados (comum em chamados de manutenção) no
-mesmo fold — cenário plausível de vazamento treino/teste. Texto do artigo
-já marcado com ressalva explícita (Subseção 4.9 e Discussão). **Antes de
-qualquer versão de submissão**: (1) checar duplicatas/quase-duplicatas de
-texto entre folds; (2) se confirmado, refazer com `GroupKFold` por hash de
-texto normalizado, ou restringir cada fold ao mesmo conjunto de treino da
-avaliação oficial; (3) só então decidir se `units=128, dropout=0,3` é
-ganho real ou artefato do viés. Não promover este resultado a "achado do
-capítulo" enquanto isso não for feito.
+continua suspeito até o workflow com credencial publicar
+`04_artigo/figuras/diagnostico_ablation_lstm_duplicatas.json`.** O
+resultado atual reporta 87,68%–88,18% de acerto validado para configurações
+do LSTM cuja avaliação OFICIAL (Subseção 4.2, mesma base de verdade M/N/P)
+é 74,71%, diferença de ~13 pontos percentuais para a mesma arquitetura
+(`units=64`, `dropout=0,5`). Nesta rodada foi preparado branch/PR com:
+(1) diagnóstico de duplicatas por fold no particionamento antigo por linha;
+(2) normalização/hash de texto; (3) `GroupKFold` por hash de texto
+normalizado para uma futura reexecução do ablation. O commit local citado
+no pedido (`958f46f`) não existia neste clone nem nas refs remotas
+consultadas, então a alteração foi reconstruída no branch da rodada. Não
+remover a ressalva do artigo nem promover o ablation a achado do capítulo
+antes de analisar o JSON de diagnóstico e, se cabível, regenerar os
+resultados corrigidos.
 
 ### Confirmado feito — não repetir em nova rodada
 - [x] Aviso de viés de amostra não aleatória no Resumo/Abstract (COCHRAN, 1977)

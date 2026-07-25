@@ -4,13 +4,14 @@ on:
   workflow_dispatch:
     inputs:
       tarefa:
-        description: "tabela_s1, history ou ablation"
+        description: "tabela_s1, history, diagnostico_ablation ou ablation"
         required: true
         default: "tabela_s1"
         type: choice
         options:
           - tabela_s1
           - history
+          - diagnostico_ablation
           - ablation
       epochs:
         description: "Epocas de treino"
@@ -75,6 +76,14 @@ jobs:
           GOOGLE_APPLICATION_CREDENTIALS: credenciais_sa.json
         run: |
           python src/ablation_lstm.py --epochs "${{ github.event.inputs.epochs }}" --k-folds "${{ github.event.inputs.k_folds }}"
+
+      - name: Diagnosticar duplicatas entre folds do ablation
+        if: ${{ github.event.inputs.tarefa == 'diagnostico_ablation' }}
+        env:
+          SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
+          GOOGLE_APPLICATION_CREDENTIALS: credenciais_sa.json
+        run: |
+          python src/ablation_lstm.py --diagnostico-only --k-folds "${{ github.event.inputs.k_folds }}"
 
       - name: Commitar resultados
         run: |
