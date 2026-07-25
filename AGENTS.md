@@ -72,7 +72,7 @@ CATEGORIA CORRETA MANUAL   <- nova (2026-07-25), preenchida pelo avaliador
 Validar sintaxe Python com:
 
 ```bash
-python -m py_compile src/validar_planilha_experimento.py
+python -m py_compile src/planilha.py
 ```
 
 Nao declarar acesso a Google Sheets como validado sem execucao real com credenciais.

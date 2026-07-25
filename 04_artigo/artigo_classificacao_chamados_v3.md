@@ -385,10 +385,85 @@ publicado em `bertimbau_training_state.json` nesta consolidação é
 `sem_dados`, com treino adiado; por isso o modelo não integra tabelas,
 rankings, testes inferenciais nem conclusões comparativas deste artigo.
 
-**3.5 Desenho de avaliação**
+**3.4.1 Diferenças conceituais e operacionais entre os classificadores**
+
+Os sete modelos comparáveis desta consolidação cobrem quatro famílias
+com suposições distintas sobre os dados: um gerador probabilístico
+(Naive Bayes), discriminadores lineares (LinearSVC, Regressão Logística,
+SGD), *ensembles* não lineares baseados em árvores (Random Forest, Extra
+Trees) e uma rede neural sequencial (LSTM). Cada família responde de
+forma diferente a um corpus de texto curto, ruidoso e com forte
+desbalanceamento entre categorias (Subseção 3.2; Tabela S1), o que ajuda
+a explicar por que o desempenho não é uniforme entre elas nas Tabelas 1
+e 2.
+
+O **LinearSVC** otimiza uma fronteira de decisão linear por margem
+máxima sobre a representação TF-IDF esparsa de até 5.000 atributos
+(Subseção 3.3). Em espaços esparsos de alta dimensionalidade, classificadores
+lineares tendem a separar bem as classes quando o vocabulário carrega
+forte poder discriminativo (JOACHIMS, 1998; SALTON; BUCKLEY, 1988) — como
+ocorre aqui, em que termos técnicos do domínio (*bomba*, *split*,
+*disjuntor*, *vazamento*, *infiltração*, *ar-condicionado*; Subseção 3.3)
+funcionam como âncoras semânticas de categoria. Essa combinação é
+consistente com o LinearSVC liderando tanto a concordância com o
+histórico (0,8029; Tabela 1) quanto o acerto validado (0,9493; Tabela 2).
+
+O **Naive Bayes** assume independência condicional entre atributos dado
+a classe — suposição estrutural que tende a ser violada em texto de
+manutenção predial, onde termos técnicos co-ocorrem de forma sistemática
+dentro de uma mesma categoria. Essa divergência entre a suposição do
+modelo e a estrutura real dos dados é uma explicação plausível para o
+Naive Bayes ocupar a última posição tanto na concordância com o
+histórico (0,6996; Tabela 1) quanto no acerto validado (0,8609; Tabela
+2), sem que isso indique um problema de implementação — é o
+comportamento esperado do modelo mais simples da comparação.
+
+**Random Forest** e **Extra Trees** capturam interações não lineares
+entre atributos por meio da estrutura de árvores, mas em espaços
+esparsos de alta dimensionalidade como o TF-IDF tendem a ajustar-se
+demais às co-ocorrências mais frequentes, o que se reflete no desempenho
+intermediário de ambos nas Tabelas 1 e 2 (entre o LinearSVC e o Naive
+Bayes). O custo computacional dessa família também é o mais alto entre
+os modelos clássicos medidos: 19,45 s (Random Forest) e 21,30 s (Extra
+Trees) de treino por lote de 1.000 registros, entre 7,6 e 8,4 vezes o
+tempo do LinearSVC (2,55 s) e entre 17,1 e 18,7 vezes o do Naive Bayes
+(1,14 s) no mesmo lote (Tabela 7) — um custo que só se justifica se
+revertido em ganho de acerto validado, o que não se confirma nesta
+consolidação (SCHWARTZ *et al.*, 2020; TREVISO *et al.*, 2023).
+
+A **LSTM Bidirecional** foi projetada para modelar dependências
+sequenciais no texto, mas nesta consolidação seus *embeddings* são
+inicializados aleatoriamente e treinados do zero — não há incorporação
+de vetores pré-treinados em português no código de treino
+(`src/modelo_lstm.py`). A camada de *embedding* (8.000 termos × 128
+dimensões) concentra sozinha cerca de 1,02 milhão de parâmetros, uma
+ordem de grandeza próxima do número de exemplos disponíveis por
+partição de treino nesta consolidação (13.965 chamados, dos quais cerca
+de 11.172 compõem cada partição de treino em `k=5` *folds*; Subseção
+3.5) — um cenário consistente com a hipótese de que modelos lineares
+tendem a igualar ou superar redes neurais em corpora de porte médio e
+ruidosos quando não há *embeddings* pré-treinados disponíveis no idioma
+(GALKE; SCHERP, 2022), sem que isso configure uma falha da arquitetura
+em si (Subseção 4.9 detalha a investigação da discrepância do *ablation*
+do LSTM).
+
+Na Etapa 1 oficial de produção — distinta da comparação *out-of-fold*
+desta seção —, o mecanismo de *fallback* opera no nível da base de
+treino, não por chamado individual: a LSTM só é treinada quando a base
+rotulada disponível atinge um mínimo de 200 exemplos (`MIN_BASE_LSTM`,
+`src/classificador_producao.py`); abaixo desse limiar, um classificador
+Random Forest sobre TF-IDF é treinado e usado no lugar da rede neural
+para toda a base naquele momento. Um segundo par de limiares
+(`LIMIAR_BAIXA = 0,70`; `LIMIAR_ALTA = 0,95`) não troca de modelo, mas
+rotula a confiança de cada predição em três faixas (abaixo de 70%, entre
+70% e 95%, acima de 95%) usadas para priorização de conferência humana e
+para as métricas de calibração da Subseção 4.4 — distinção relevante
+porque uma leitura apressada do código poderia confundir os dois
+mecanismos.
 
 A avaliação foi realizada por predições fora da amostra em protocolo
-*out-of-fold* com *KFold* embaralhado, `random_state=42` e mesma
+*out-of-fold* com *KFold* embaralhado (`k = 5` partições,
+`src/classificacao_multimodelo.py`), `random_state=42` e mesma
 partição determinística para todos os modelos. A partição não é
 estratificada; esta é uma limitação do desenho implementado. O procedimento reduz
 viés de comparação e permite
@@ -1467,6 +1542,7 @@ vigentes.
 | Critério de inclusão/exclusão de registros | 3.2 | Parcial — "chamados não vazios" declarado; demais critérios não detalhados |
 | Pré-processamento textual | 3.3 | Sim |
 | Modelos avaliados e hiperparâmetros principais | 3.4 | Sim (7 materializados + 1 em extensão) |
+| Justificativa conceitual das diferenças de desempenho entre modelos | 3.4.1 | Sim |
 | Método de particionamento (out-of-fold, k-fold, seed) | 3.5 | Sim (out-of-fold, KFold embaralhado, `random_state=42`; sem estratificação) |
 | Métricas reportadas e justificativa | 3.5 | Sim (acurácia, macro-F1, balanced accuracy, IC95% bootstrap) |
 | Testes estatísticos e correção para múltiplas comparações | 3.5 | Sim (Cochran Q, Friedman, McNemar, Nemenyi) |

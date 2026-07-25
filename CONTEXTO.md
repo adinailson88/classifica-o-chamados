@@ -222,17 +222,17 @@ export: **13.801 linhas gravadas em G2:J13802 numa única escrita em lote**, 0 p
 > no `.gitignore` (repo público). Não versionar.
 
 ## Arquivos do repositório
-- `src/validar_planilha_experimento.py` — validação de cabeçalho/linhas (offline e via Web App).
-- `src/preparar_abas_experimento.py` — cria abas experimentais (`--aplicar`).
-- `src/registrar_config_experimento.py` — grava EXPERIMENTO_CONFIG (`--aplicar`).
 - `src/planilha.py` — acesso à planilha via conta de serviço (abrir, ler, exportar lote).
 - `src/registrar_snapshot_inicial.py` — lê a planilha (gspread) e gera `dados/snapshot_etapa_1.json`.
-- `src/classificar_lote_inicial.py` — seleção de lote em dry-run (legado, via Apps Script).
-- `src/classificar_lote_baseline.py` — baseline TF-IDF+LogReg em dry-run (legado, via Apps Script).
 - `src/classificar_etapa.py` — classificação github-first (lê snapshot, grava JSON); modos full/incremental/reclassificacao.
 - `src/exportar_etapa.py` — exportação em lote G:J via gspread + manifest.
 - `apps_script/Code.gs` — Web App (LEGADO; inclui `exportar_lote`, não usado pelo fluxo atual).
 - `credenciais_sa.json` — chave da conta de serviço (gitignored, NUNCA versionar).
+
+(Removidos em 2026-07-25, limpeza de arquivos órfãos: `src/validar_planilha_experimento.py`,
+`src/preparar_abas_experimento.py`, `src/registrar_config_experimento.py`,
+`src/classificar_lote_inicial.py`, `src/classificar_lote_baseline.py` — era do Web
+App por token, sem referência funcional viva. Ver `docs/GUIA_TECNICO.md`.)
 - `dados/README.md` — schemas dos 6 arquivos JSON.
 - `tests/test_github_first.py` — testes sem rede.
 - `config_experimento.json`, `requirements.txt`, `AGENTS.md`, `README.md`.
@@ -1412,9 +1412,8 @@ erros e estatistica usando o cache, remove credenciais/cache bruto e commita ape
 `docs/dados`. O desenho evita versionar o arquivo bruto da planilha em repo publicado e
 reduz tanto consumo de cota quanto conflitos de commits entre workflows independentes.
 
-Documentacao tecnica curta: `docs/CACHE_PLANILHA_WORKFLOWS.md`. Backup operacional:
-verificacao agendada para 09:00 deve conferir o run noturno e disparar o workflow manual
-se o lote ainda estiver falho, cancelado ou incompleto.
+Backup operacional: verificacao agendada para 09:00 deve conferir o run noturno e
+disparar o workflow manual se o lote ainda estiver falho, cancelado ou incompleto.
 
 ## Atualizacao Codex - camada Shannon/Jensen-Shannon para ambiguidade e artigo (2026-06-20)
 

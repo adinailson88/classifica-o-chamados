@@ -181,11 +181,13 @@ Avaliação %, Executor, Criticidade) e de **cada executor**.
 - `classificacao_incremental.yml` — operacional incremental (manual; agendamento desativado).
 - Todos os que escrevem na planilha usam a concorrência `escrita-planilha` (não rodam em paralelo).
 
-## Legados (era do Apps Script — não usados no fluxo atual)
+## Legados (era do Apps Script — removidos do repo)
 - `src/validar_planilha_experimento.py`, `preparar_abas_experimento.py`,
   `registrar_config_experimento.py`, `classificar_lote_inicial.py`,
-  `classificar_lote_baseline.py` — usavam o Web App por token.
-- `apps_script/Code.gs` — Web App (token); substituído pela conta de serviço.
+  `classificar_lote_baseline.py` — usavam o Web App por token; removidos em
+  2026-07-25 (limpeza de arquivos órfãos), sem referência funcional viva.
+- `apps_script/Code.gs` — Web App (token); substituído pela conta de serviço,
+  mantido apenas como registro histórico.
 
 ## Configuração, dados e infraestrutura
 - `config_experimento.json` — `run_id`, `spreadsheet_id`, `aba_principal`,
