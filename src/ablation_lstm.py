@@ -156,8 +156,10 @@ def main() -> int:
     config = json.loads(args.config.read_text(encoding="utf-8"))
     lstm_cfg = dict((config.get("modelo_ia", {}) or {}).get("lstm", {}) or {})
     params = modelo_lstm.resolver_parametros_lstm(lstm_cfg)
-    epochs = int(args.epochs or params.pop("epochs", 15))
-    batch_size = int(args.batch_size or params.pop("batch_size", 128))
+    epochs_padrao = params.pop("epochs", 15)
+    batch_size_padrao = params.pop("batch_size", 128)
+    epochs = int(args.epochs or epochs_padrao)
+    batch_size = int(args.batch_size or batch_size_padrao)
     paciencia = int(params.pop("paciencia", 3))
     usar_class_weight = bool(params.pop("usar_class_weight", True))
 
