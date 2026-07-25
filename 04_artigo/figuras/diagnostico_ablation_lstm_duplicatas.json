@@ -1,0 +1,35 @@
+{
+  "gerado_em": "24/07/2026 23:19",
+  "script_origem": "src/ablation_lstm.py",
+  "metodo_avaliado": "KFold aleatorio por linha usado anteriormente no ablation",
+  "normalizacao": "NFKD sem acentos, casefold, espacos colapsados",
+  "k_folds": 3,
+  "n_linhas_elegiveis": 13965,
+  "n_validado": 9096,
+  "grupos_texto_elegiveis": 9714,
+  "grupos_texto_validados": 5109,
+  "grupos_duplicados_elegiveis": 311,
+  "grupos_duplicados_validados": 288,
+  "teste_com_duplicata_no_treino": 4250,
+  "taxa_vazamento": 0.467238,
+  "folds": [
+    {
+      "fold": 1,
+      "n_teste": 3032,
+      "teste_com_duplicata_no_treino": 1406,
+      "taxa_vazamento": 0.46372
+    },
+    {
+      "fold": 2,
+      "n_teste": 3032,
+      "teste_com_duplicata_no_treino": 1441,
+      "taxa_vazamento": 0.475264
+    },
+    {
+      "fold": 3,
+      "n_teste": 3032,
+      "teste_com_duplicata_no_treino": 1403,
+      "taxa_vazamento": 0.462731
+    }
+  ]
+}
