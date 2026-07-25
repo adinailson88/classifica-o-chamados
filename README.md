@@ -100,9 +100,9 @@ v3.docx para dentro do repo em 04_artigo/ e converta para Markdown"].
       (COCHRAN 1977; GALKE; SCHERP 2022; GUO *et al.* 2017; PLATT 1999;
       SALTON; BUCKLEY 1988 — todos presentes no corpo E na lista)
 - [x] Limitações substantivas já cobertas em prosa (amostra não aleatória,
-      dependência de uma instituição, BERTimbau pendente, mojibake,
-      intermitência do Pages) — falta só decidir se formata como subseção
-      numerada "5.4" separada (cosmético, não substantivo)
+      dependência de uma instituição, BERTimbau pendente, intermitência do
+      Pages) — falta só decidir se formata como subseção numerada "5.4"
+      separada (cosmético, não substantivo)
 - [x] Snapshot imutável com hash SHA-256 das fontes quantitativas do artigo
       (`docs/dados/snapshots/artigo-v3-20260724/`, via
       `src/gerar_manifesto_snapshot_artigo.py`) — cobre a necessidade de
@@ -112,54 +112,50 @@ v3.docx para dentro do repo em 04_artigo/ e converta para Markdown"].
       gerados em 24/07/2026 às 19:37. O modelo está em `modelos_excluidos`
       porque `bertimbau_training_state.json` permanece em `status=sem_dados`;
       os rankings públicos consideram somente sete modelos comparáveis.
-
-### Bug confirmado nesta auditoria
-- [ ] **Número de chamados desatualizado na linha 315** de
-      `04_artigo/artigo_classificacao_chamados_v3.md`: ainda diz "13.825
-      chamados" enquanto o resto do texto usa 13.965 consistentemente.
-      Corrigir na próxima rodada de escrita (reconferir a contagem viva
-      antes de fixar o número, não copiar 13.965 às cegas).
-- [ ] O bloco "7 IAs materializadas" mais abaixo neste README (seção
-      "Estado atual") também ficou desatualizado: ainda mostra "13.825
-      chamados por modelo" e "`validados=0`" — hoje são 13.965 e 9.096
-      validados. Números de concordância % dessa tabela não foram
-      reconferidos nesta auditoria; reconferir contra os JSONs vigentes
-      antes de citar.
+- [x] **Número de chamados corrigido** na linha 315 de
+      `04_artigo/artigo_classificacao_chamados_v3.md` (13.825 → 13.965,
+      54 → 55 categorias), reconferido contra `docs/dados/resumo.json`
+      (`registros: 13965`, `gerado_em: 24/07/2026 20:51`) antes de fixar o
+      número — 24/07/2026, rodada 9.
+- [x] **"Mojibake" investigado e descartado como alarme falso** — 24/07/2026,
+      rodada 9. Verificação byte a byte (não confiar em `print`/terminal:
+      Windows renderiza UTF-8 mal por padrão) de `estatistica.json`,
+      `cruzamento_taxonomia.json`, `confusao_historico_ia.json` e
+      `metricas_por_categoria.json` confirmou os quatro arquivos como
+      **UTF-8 válido em sua totalidade**, sem nenhuma ocorrência do
+      caractere de substituição Unicode (U+FFFD). O que parecia corrupção
+      em rodadas anteriores era artefato de exibição de terminal, não do
+      dado publicado. Texto do artigo corrigido (Figura 4 e Limitações);
+      a Figura 4 deixa de estar bloqueada por qualidade de dado.
+- [x] **Tabela suplementar de métricas por categoria (55 categorias)** —
+      script `src/exportar_tabela_por_categoria.py` (novo), gera
+      `04_artigo/figuras/tabela_S1_metricas_por_categoria.csv` a partir de
+      `docs/dados/metricas_por_categoria.json`. Citada no artigo, Subseção
+      4.1, com as 5 categorias de menor e maior concordância. **Atenção**:
+      esse JSON reporta concordância vs. histórico, não precision/recall/F1
+      no sentido scikit-learn — o schema não tem essas métricas por
+      categoria; não afirmar "F1 por categoria" sem gerar esse dado à parte.
+- [x] **Duas direções de trabalho futuro acrescentadas** na Conclusão:
+      validação externa em outras IFES e integração com um modelo
+      MCDM/TOPSIS de priorização de manutenção (ponte com o capítulo de
+      revisão, `PLANO_ARTIGO_CAPITULO.md` §5) — 24/07/2026, rodada 9.
+- [x] **Infra de curvas de aprendizado do LSTM** — `src/modelo_lstm.py`
+      agora guarda `self.history_` (loss/val_loss/accuracy/val_accuracy por
+      época) a cada `fit()` e expõe `salvar_history(caminho)`. Testado só
+      com `py_compile`/suíte offline (34/34 passando); **ainda não rodado
+      contra treino real** — precisa de credencial da planilha ou disparo
+      de workflow para gerar o JSON de verdade e o gráfico da curva.
 
 ### Pendente confirmado — com o arquivo exato a mexer
-- [ ] **Mojibake em nomes de categoria** (ex.: `Instala��o`) em
-      `docs/dados/estatistica.json` (campo `top_confusoes`),
-      `cruzamento_taxonomia.json` e `confusao_historico_ia.json` — bloqueia a
-      Figura 4. Causa-raiz **não confirmada** (amostra de 200 linhas de
-      `CLASSIF__linear_svc` não reproduziu o problema). Não "resolver" só
-      forçando UTF-8 ou trocando por códigos numéricos sem achar a causa —
-      isso mascara um bug que pode estar contaminando outros dados também.
-      Scripts geradores: `src/analise_estatistica.py`,
-      `src/cruzamento_taxonomia.py`.
-- [ ] **Tabela suplementar de métricas por categoria (55 categorias)** — o
-      dado já existe em `docs/dados/metricas_por_categoria.json`, mas não
-      está formatado como tabela suplementar no artigo. Falta um script
-      pequeno (ex.: novo `src/exportar_tabela_por_categoria.py`) que gere
-      CSV/Markdown a partir desse JSON.
-- [ ] **Curvas de aprendizado do LSTM (loss/accuracy por época)** — a infra
-      já existe (`EarlyStopping(monitor="val_loss")` em `src/modelo_lstm.py`,
-      Keras `history` disponível a cada `fit()`), só falta exportar o
-      histórico para JSON e plotar.
 - [ ] **Ablation study do LSTM** (unidades=64 vs 128, dropout=0.5 vs 0.3) —
       confirmado inexistente. É treino de verdade (custo computacional), não
       é tarefa de texto. Script novo, ex. `src/ablation_lstm.py`.
-- [ ] **Duas direções de trabalhos futuros ainda ausentes** na Conclusão:
-      validação externa em outras IFES e integração com forecasting/MCDM —
-      esse último é exatamente a ponte com o capítulo de revisão já
-      planejada em `PLANO_ARTIGO_CAPITULO.md` §5. A Conclusão atual já tem
-      uma lista de próximos passos mais bem fundamentada que a pedida pelo
-      plano externo (conferência humana pendente, calibração formal,
-      BERTimbau, mojibake, taxonomia, estabilização do Pages); só faltam
-      essas duas.
-- [ ] Tabelas suplementares S1 (métricas por categoria) e S2 (mapeamento
-      código↔categoria para a Fig. 4) como arquivos CSV — confirmado
-      inexistente (só há 3 PNGs em `04_artigo/figuras/`); depende dos dois
-      itens acima.
+- [ ] **Gerar a Figura 4 de fato** (pares de maior confusão entre
+      categorias) — dado limpo confirmado (ver acima), só falta o script
+      `matplotlib` a partir de `estatistica.json.top_confusoes`.
+- [ ] Tabela suplementar S2 (mapeamento código↔categoria para a Fig. 4) —
+      só necessária se a Fig. 4 usar códigos numéricos em vez do nome
+      completo da categoria; decisão de design ainda em aberto.
 - [ ] Seções de metadados estilo MDPI (Author Contributions, Funding, Data
       Availability Statement, Conflicts of Interest) — ainda não existem em
       `04_artigo/artigo_classificacao_chamados_v3.md`; só fazem sentido ao
@@ -169,6 +165,9 @@ v3.docx para dentro do repo em 04_artigo/ e converta para Markdown"].
       automático** — seu `dados_modelos.txt` precisa ser regerado
       manualmente a partir da planilha atual (9.096 validados) antes de
       usá-lo para conferência cruzada dos números citados no artigo.
+- [ ] Rodar `src/modelo_lstm.py` (via workflow, com credencial) para gerar
+      o JSON real de `history_` e o gráfico de curva de aprendizado — o
+      código já existe (ver acima), falta a execução real.
 
 ### Decisão do pesquisador antes de virar tarefa (não são prompts soltos)
 - [ ] **Holdout fixo de treino/teste** — o pipeline usa out-of-fold KFold
@@ -209,18 +208,25 @@ v3.docx para dentro do repo em 04_artigo/ e converta para Markdown"].
 
 ### 7 IAs materializadas (multimodelo)
 
-As **7 IAs estao completas**, com 13.825 chamados por modelo, 0 pendentes e predicao
-**out-of-fold** (`kfold_5`, sem vazamento). Concordancia contra a categoria historica:
+> Tabela atualizada em 24/07/2026 (rodada 9), a partir de
+> `docs/dados/estatistica.json` (gerado 24/07/2026 15:55) e
+> `docs/dados/avaliacao_final.json` (gerado 24/07/2026 19:37, 9.096
+> validados). Nao copiar estes numeros sem reconferir a fonte viva —
+> ambos os JSONs mudam a cada execucao de workflow.
 
-| Modelo | Concordancia vs historico |
-|---|---|
-| `linear_svc` | 80,26% |
-| `extra_trees` | 78,47% |
-| `sgd` | 77,51% |
-| `random_forest` | 76,80% |
-| `regressao_logistica` | 76,59% |
-| `naive_bayes` | 70,07% |
-| `lstm` | 67,57% |
+As **7 IAs estao completas** (transformer_ft/BERTimbau excluido por
+`status=sem_dados`), com 13.965 chamados por modelo, 0 pendentes e predicao
+**out-of-fold** (`kfold_5`, sem vazamento).
+
+| Modelo | Concordancia vs historico | Acerto validado (n=9.096) |
+|---|---|---|
+| `linear_svc` | 80,34% | 79,89% |
+| `extra_trees` | 78,98% | 77,62% |
+| `random_forest` | 77,98% | 76,89% |
+| `sgd` | 77,84% | 79,09% |
+| `regressao_logistica` | 76,91% | 78,59% |
+| `naive_bayes` | 69,90% | 71,14% |
+| `lstm` | 68,47% | 74,71% |
 
 Onde cada coisa aparece no painel:
 
@@ -231,8 +237,10 @@ Onde cada coisa aparece no painel:
 
 A analise estatistica assume **pressupostos nao parametricos**: Shapiro rejeitou
 normalidade nos 7 modelos. Por isso o foco e Spearman, Friedman/Nemenyi, Cochran Q,
-McNemar e bootstrap. Todos os numeros sao **contra o historico**, nao contra validacao
-humana (`validados=0`).
+McNemar e bootstrap. Esta tabela e a secao "Colunas da aba principal" abaixo mostram
+numeros **contra o historico**; o acerto **validado por conferencia humana** (M/N/P)
+ja existe e cobre 9.096 decisoes travadas sem conflito (68,3% da base) — ver
+`docs/dados/avaliacao_final.json` e a tabela do checklist acima.
 
 ## Colunas da aba principal
 

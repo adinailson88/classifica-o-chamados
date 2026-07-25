@@ -35,23 +35,71 @@ Isso substitui a necessidade de o usuário reexplicar contexto a cada nova conve
 
 ## Estado desta rodada
 
-**Data**: 2026-07-24 (America/Bahia, UTC-03:00) — rodada 8 concluída.
+**Data**: 2026-07-24 (America/Bahia, UTC-03:00) — rodada 9 concluída.
 
-**Onde está**: fontes de resultado das Seções 4.1 e 4.2 foram republicadas a
-partir da planilha viva. O BERTimbau permanece pendente e está corretamente
-fora das comparações; o artigo aguarda a atualização do snapshot, a validação
-visual do painel e a regeneração final do PDF.
+**Onde está**: correção de rastreabilidade textual concluída (número de
+chamados, mojibake, tabela por categoria, trabalhos futuros). O artigo ainda
+aguarda: geração real da Figura 4 (dado confirmado limpo, falta só o script
+`matplotlib`), execução real do treino do LSTM para gerar a curva de
+aprendizado (código pronto, falta credencial/workflow), novo snapshot
+imutável, validação visual do painel e regeneração final do PDF.
 
-**O que foi feito nesta rodada**: os workflows de avaliação final e estatística
-concluíram a publicação em 24/07/2026 às 19:37. `avaliacao_final.json` confirma
-9.096 registros avaliados e exclui `transformer_ft`; `estatistica.json` também
-lista sete modelos e registra o mesmo modelo em `modelos_excluidos`. A exclusão
-é consistente com `bertimbau_training_state.json` em `status=sem_dados`. O
-checklist de submissão no README foi atualizado para refletir a execução real.
+**O que foi feito nesta rodada**:
+1. **Corrigido número de chamados desatualizado** (linha 315 de
+   `04_artigo/artigo_classificacao_chamados_v3.md`): "13.825 chamados... 54
+   categorias" → "13.965 chamados... 55 categorias", reconferido contra
+   `docs/dados/resumo.json` (`registros: 13965`, gerado 24/07/2026 20:51)
+   antes de fixar o número.
+2. **"Mojibake" investigado e descartado como alarme falso.** As rodadas 6–8
+   registraram suspeita de corrupção de acentuação em `estatistica.json`
+   (campo `top_confusoes`), `cruzamento_taxonomia.json` e
+   `confusao_historico_ia.json`, bloqueando a Figura 4. Nesta rodada, os
+   três arquivos MAIS `metricas_por_categoria.json` (que também usa nomes de
+   categoria e não tinha sido testado antes) foram verificados byte a byte
+   (leitura binária + `bytes.decode('utf-8')` + busca pela sequência
+   codificada de U+FFFD, `b'\xef\xbf\xbd'`) — os quatro são **UTF-8 válido
+   em sua totalidade**, sem nenhuma ocorrência real do caractere de
+   substituição. A "corrupção" observada em inspeções anteriores (incluindo
+   a minha própria, ao ler esses arquivos via `python -c "print(...)"` no
+   Bash tool) era artefato do console do Windows renderizando mal
+   caracteres UTF-8 multi-byte — não um problema no dado publicado. Corrigi
+   o texto do artigo (bloco da Figura 4, Subseção 4.8, e a quarta limitação
+   da Discussão) para refletir essa conclusão; a Figura 4 deixa de estar
+   bloqueada por qualidade de dado.
+3. **Tabela suplementar de métricas por categoria criada**: script novo
+   `src/exportar_tabela_por_categoria.py` lê
+   `docs/dados/metricas_por_categoria.json` (schema real: concordância vs.
+   histórico por categoria — `qtd_classificados`, `taxa_concordancia`,
+   `confianca_media`, faixas de confiança; **não** é
+   precision/recall/F1 scikit-learn, esse schema não existe nesse JSON) e
+   gera `04_artigo/figuras/tabela_S1_metricas_por_categoria.csv` (55
+   categorias). Citada na Subseção 4.1 com as 5 categorias de menor e maior
+   concordância.
+4. **Duas direções de trabalho futuro acrescentadas** na seção 6
+   (Considerações Finais): validação externa em outras IFES e integração
+   dos dados tratados como entrada para um modelo MCDM/TOPSIS de
+   priorização de manutenção — a ponte com o capítulo de revisão já
+   descrita na Seção 5 deste documento.
+5. **Infra de curva de aprendizado do LSTM adicionada** em
+   `src/modelo_lstm.py`: `fit()` agora guarda `self.history_`
+   (loss/val_loss/accuracy/val_accuracy por época do Keras) e um novo
+   método `salvar_history(caminho)` grava esse dicionário em JSON. Validado
+   só com `python -m py_compile` e a suíte offline (34/34 passando) —
+   **não rodei contra treino real** (esta sessão não tem a credencial da
+   planilha); só o código está pronto.
+6. Corrigidos dois blocos desatualizados no `README.md` fora do checklist
+   (tabela "7 IAs materializadas" ainda mostrava 13.825/`validados=0`).
 
-**Próximo passo**: gerar novo snapshot imutável com os JSONs publicados, validar
-as abas Decisão e Modelos do painel e, se não houver referência visível ao
-`transformer_ft`, regenerar o PDF antes da auditoria final número a número.
+Todas as mudanças de texto/código foram feitas SEM acesso à planilha viva —
+nenhum dado novo foi lido do Google Sheets nesta rodada, só reformatação e
+correção de arquivos já publicados em `docs/dados/`.
+
+**Próximo passo**: (1) gerar a Figura 4 de fato (script `matplotlib` a partir
+de `estatistica.json.top_confusoes` — dado já confirmado limpo); (2) rodar
+`src/modelo_lstm.py` via workflow com credencial para gerar o JSON real de
+`history_` e o gráfico da curva de aprendizado; (3) ablation study do LSTM
+(unidades/dropout); (4) gerar novo snapshot imutável e regenerar o PDF; (5)
+validação visual das abas Decisão/Modelos do painel.
 
 ---
 
