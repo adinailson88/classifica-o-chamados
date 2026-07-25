@@ -245,10 +245,21 @@ def reclassificar_modelo(sh, config, modelo, elegiveis, por_linha, cap, base_ext
     metodo = "memoria"
     if lote:
         print(f"[{modelo}] candidatos_baixa={len(cand_linhas)} | lote_agora={len(lote)} | base={len(base_textos)}")
-        preds, scores, metodo = clf.prever_out_of_fold(
+        preds, scores, metodo, usou_fallback = clf.prever_out_of_fold(
             modelo, lote, base_textos, base_cats,
             k_folds=int(mm.get("k_folds", 5)), min_base=int(mm.get("min_base_treino", 200)),
             fracao_topup=float(mm.get("fracao_topup", 0.25)), vetos=vetos)
+
+        if usou_fallback:
+            # Mesma recusa explicita de classificacao_multimodelo.py (achado de
+            # 2026-07-25): dependencias pesadas indisponiveis -- a predicao caiu
+            # para LSTM/RF disfarcado. Nao publicar reclassificacao sob o nome
+            # do modelo pedido; os 'decididos' (memoria travada) sao gravados
+            # normalmente abaixo, so o lote reclassificado agora e descartado.
+            print(f"[{modelo}] RECUSADO: dependencias pesadas indisponiveis -- "
+                  "reclassificacao do lote nao publicada (seria LSTM disfarcado).",
+                  file=sys.stderr)
+            lote = []
 
         for e, p, s in zip(lote, preds, scores):
             if p is None:

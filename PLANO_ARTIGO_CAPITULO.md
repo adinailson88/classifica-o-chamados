@@ -35,8 +35,67 @@ Isso substitui a necessidade de o usuário reexplicar contexto a cada nova conve
 
 ## Estado desta rodada
 
-**Data**: 2026-07-25 (America/Bahia, UTC-03:00) - rodada 12 (rematerializacao
-completa dos 7 modelos comparaveis; discrepancia do LSTM resolvida).
+> **AVISO PARA QUEM FOR MERGEAR**: esta rodada (13, Passo 2) foi escrita no
+> branch `fix/transformer-ft-fallback-explicito`, ramificado do mesmo commit
+> de main que os branches `fix/vies-amostra-validada` (PR #54) e
+> `feat/categoria-correta-manual` (PR #55) — cada um TAMBEM reescreveu esta
+> secao "Estado desta rodada" com seu proprio conteudo de rodada 13. Os 3
+> PRs vao conflitar aqui. Ao mergear, NAO pegar so o "ultimo que mergear
+> por acaso" — ler os 3 blocos e escrever manualmente uma secao final que
+> cubra os 3 (viés da amostra validada, coluna de categoria manual,
+> transformer_ft com fallback explicito), com a rodada seguinte (14) em
+> diante.
+
+**Data**: 2026-07-25 (America/Bahia, UTC-03:00) - rodada 13 (Passo 2 do
+prompt de 6 passos: transformer_ft com fallback silencioso para LSTM).
+
+**Onde está**: Passo 2 (crítico) do prompt de revisão de 6 passos que a
+outra sessão (Codex, bloqueada por limite de uso até 29/07) começou a
+executar. Passo 1 já tratado em paralelo (PR #54 + #55, branches
+diferentes). Corrigido em branch + PR, não mergeado ainda.
+
+**O que foi feito nesta rodada**:
+1. Confirmado em código (`src/modelos_zoo.py:181-186`,
+   `.github/workflows/multimodelo_classificacao.yml`) e em log real de
+   produção (run `29550863840`, 17/07/2026) que o cron automático de
+   classificação nunca instala `torch`/`transformers`, e que a
+   materialização inteira publicada como `transformer_ft`
+   (13.954/13.965 linhas, `kfold_5`) foi feita via fallback silencioso
+   para LSTM — sem nenhum registro desse desvio em artefato publicado.
+2. `modelos_zoo._ModeloTransformerFT` ganhou a propriedade `usou_fallback`.
+3. `classificacao_multimodelo.prever_out_of_fold()` agora retorna um 4º
+   valor (`usou_fallback`); os 4 chamadores (`classificacao_multimodelo.py`,
+   `reclassificacao_multimodelo.py`, `ablation_lstm.py`,
+   `tests/test_decisao_memoria.py`) atualizados.
+4. `classificar_modelo()`/`reclassificar_modelo()` recusam publicar
+   quando `usou_fallback=True` — nada gravado em
+   `CLASSIF__<modelo>`/`MULTIMODELO_TURNOS`/`RECLASS__<modelo>`, aviso
+   explícito no log. O cron automático vira no-op para `transformer_ft`
+   até rodar com as dependências reais instaladas.
+5. 4 testes novos (`tests/test_transformer_fallback_explicito.py`),
+   rodando no mesmo ambiente sem torch/transformers real (não mockado).
+   Suíte completa: 71/71.
+6. Artigo (Limitações) e README atualizados com a causa raiz e a
+   confirmação de que os artefatos `transformer_ft` publicados antes
+   desta correção não são confiáveis.
+
+**Não feito nesta rodada (Passo 2, itens (c)/(d) parcial — aguardando
+decisão do Adinailson)**: os artefatos JÁ publicados sob `transformer_ft`
+(aba `CLASSIF__transformer_ft`, 13.954 linhas contaminadas;
+`docs/dados/registros_transformer_ft.json`; linha `transformer_ft` em
+`multimodelo_metricas.json`) ainda não foram limpos/marcados — decidir se
+apaga a aba ou só documenta como contaminada.
+
+**Próximo passo**: (1) decidir com o Adinailson se limpa os artefatos
+`transformer_ft` já publicados (item acima); (2) revisar/mergear os PRs
+#54, #55 e este; reconciliar manualmente a seção "Estado desta rodada"
+(ver aviso no topo); (3) Passos 3–6 do prompt de 6 passos seguem
+pendentes, aguardando o Codex (29/07) ou nova decisão de prosseguir sem
+ele.
+
+---
+
+### Histórico da rodada 12 (rematerialização completa dos 7 modelos; discrepância do LSTM resolvida)
 
 **Onde esta**: a discrepancia do ablation do LSTM (sinalizada na rodada 10,
 investigada nas rodadas 11-14) esta **resolvida**. O Adinailson confirmou
