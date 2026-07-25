@@ -11,9 +11,11 @@ import argparse
 import csv
 import hashlib
 import json
+import os
 import re
 import sys
 import unicodedata
+from collections import Counter
 from pathlib import Path
 
 import numpy as np
@@ -204,16 +206,67 @@ def carregar_predicoes_oficiais_lstm(sh, config: dict) -> dict[int, dict]:
         if not pred:
             continue
         out[linha] = {
+            "run_id": str(r[0] or "").strip() if len(r) > 0 else "",
             "pred": pred,
             "conf": r[5],
+            "faixa": str(r[6] or "").strip() if len(r) > 6 else "",
             "executor": str(r[7] or "").strip() if len(r) > 7 else "",
             "acerto_historico": str(r[8] or "").strip() if len(r) > 8 else "",
+            "data": str(r[10] or "").strip() if len(r) > 10 else "",
         }
     return out
 
 
 def _taxa(numerador: int, denominador: int) -> float | None:
     return round(numerador / denominador, 6) if denominador else None
+
+
+def _parse_float(valor) -> float | None:
+    try:
+        return float(str(valor).replace("%", "").replace(",", ".").strip())
+    except (TypeError, ValueError):
+        return None
+
+
+def _resumo_counter(valores, limite: int = 12) -> dict:
+    return {str(k): int(v) for k, v in Counter(v for v in valores if str(v or "").strip()).most_common(limite)}
+
+
+def resumir_predicoes_oficiais(predicoes: dict[int, dict]) -> dict:
+    confs = [v for v in (_parse_float(p.get("conf")) for p in predicoes.values()) if v is not None]
+    acerto_hist = [str(p.get("acerto_historico") or "").strip().casefold() for p in predicoes.values()]
+    return {
+        "run_ids": _resumo_counter(p.get("run_id") for p in predicoes.values()),
+        "datas_gravacao": _resumo_counter((p.get("data") for p in predicoes.values()), limite=20),
+        "executores": _resumo_counter(p.get("executor") for p in predicoes.values()),
+        "faixas": _resumo_counter(p.get("faixa") for p in predicoes.values()),
+        "acerto_historico_true": sum(1 for v in acerto_hist if v == "true"),
+        "acerto_historico_false": sum(1 for v in acerto_hist if v == "false"),
+        "confianca": {
+            "n": len(confs),
+            "media": round(float(np.mean(confs)), 6) if confs else None,
+            "min": round(float(np.min(confs)), 6) if confs else None,
+            "max": round(float(np.max(confs)), 6) if confs else None,
+        },
+    }
+
+
+def diagnosticar_parametros_lstm(config: dict) -> dict:
+    lstm_cfg = dict((config.get("modelo_ia", {}) or {}).get("lstm", {}) or {})
+    params_ablation = modelo_lstm.resolver_parametros_lstm(lstm_cfg)
+    params_producao_sem_config = modelo_lstm.resolver_parametros_lstm(None)
+    return {
+        "env_LSTM_PERFIL": os.getenv("LSTM_PERFIL"),
+        "config_modelo_ia_lstm": lstm_cfg,
+        "ablation_resolve_com_config": params_ablation,
+        "producao_resolve_sem_config": params_producao_sem_config,
+        "parametros_iguais_no_ambiente_atual": params_ablation == params_producao_sem_config,
+        "observacao": (
+            "modelos_zoo._ModeloLSTM chama classificador_producao.treinar_classificador "
+            "sem repassar config_experimento['modelo_ia']['lstm']; no ambiente atual, "
+            "os parametros ainda podem coincidir se o perfil efetivo for padrao."
+        ),
+    }
 
 
 def diagnosticar_protocolos_lstm(sh, config: dict, linhas: list[dict], verdade: dict[int, str],
@@ -231,6 +284,7 @@ def diagnosticar_protocolos_lstm(sh, config: dict, linhas: list[dict], verdade: 
     historico_diferente = [ln for ln in validadas if por_linha[ln]["historico"] != verdade[ln]]
 
     predicoes = carregar_predicoes_oficiais_lstm(sh, config)
+    resumo_predicoes = resumir_predicoes_oficiais(predicoes)
     comuns = [ln for ln in validadas if ln in predicoes]
     acertos_oficial = [ln for ln in comuns if predicoes[ln]["pred"] == verdade[ln]]
     oficial_acerta_historico_igual = [
@@ -264,12 +318,14 @@ def diagnosticar_protocolos_lstm(sh, config: dict, linhas: list[dict], verdade: 
             "particionamento": "GroupKFold por hash de texto normalizado nos validados; treino usa todos os demais grupos elegiveis",
             "rotulo_treino": "CATEGORIA COMPLETA historica",
         },
+        "parametros_lstm_resolvidos": diagnosticar_parametros_lstm(config),
         "escopo": {
             "n_linhas_elegiveis_ablation": len(linhas),
             "n_validadas_com_verdade": len(validadas),
             "n_predicoes_oficiais_lstm": len(predicoes),
             "n_intersecao_validada_oficial": len(comuns),
         },
+        "materializacao_oficial_lstm": resumo_predicoes,
         "historico_vs_verdade": {
             "historico_igual_verdade": len(historico_igual),
             "historico_diferente_verdade": len(historico_diferente),
