@@ -35,8 +35,8 @@ Isso substitui a necessidade de o usuário reexplicar contexto a cada nova conve
 
 ## Estado desta rodada
 
-**Data**: 2026-07-25 (America/Bahia, UTC-03:00) - rodada 11 (investigacao
-da discrepancia residual do ablation LSTM).
+**Data**: 2026-07-25 (America/Bahia, UTC-03:00) - rodada 12 (isolamento do
+caminho oficial LSTM materializado versus re-treino novo do ablation).
 
 **Onde esta**: PR #53 aberto no branch fix/ablation-groupkfold-diagnostico.
 O bloqueador do ablation permanece ativo: o resultado corrigido por GroupKFold
@@ -44,42 +44,30 @@ ainda nao esta reconciliado com a avaliacao oficial do LSTM em 74,71% na
 Subsecao 4.2.
 
 **O que foi feito nesta rodada**:
-1. A leitura do codigo confirmou que docs/dados/avaliacao_final.json e
-gerado por src/avaliacao_final.py avaliando predicoes ja materializadas em
-CLASSIF__<modelo>, sem re-treinar o LSTM. O ablation, em contraste, treina
-modelo_lstm.ClassificadorLSTM novo por fold em src/ablation_lstm.py, usando
-CATEGORIA COMPLETA historica como rotulo de treino e a verdade M/N/P apenas
-como metrica de teste.
-2. A leitura do caminho oficial mostrou que CLASSIF__lstm e produzido por
-src/classificacao_multimodelo.py via modelos_zoo._ModeloLSTM, que delega
-para classificador_producao.treinar_classificador; esse caminho usa o
-k_folds do config_experimento.json (5), pode incluir memoria validada como
-base fixa e pode cair para fallback RF se TensorFlow nao estiver disponivel
-no ambiente de geracao.
-3. Foi acrescentado em src/ablation_lstm.py o modo
---diagnostico-protocolo-only, que gera
-04_artigo/figuras/diagnostico_ablation_lstm_protocolo.json sem re-treinar
-modelos nem escrever na planilha. O diagnostico mede a taxa de coincidencia
-entre historico e verdade humana, a cobertura/acerto da aba oficial
-CLASSIF__lstm na mesma intersecao validada e registra as diferencas de
-protocolo verificaveis no codigo.
-4. O workflow .github/workflows/lstm_artigo.yml passou a aceitar
-tarefa=diagnostico_protocolo_ablation, para executar o diagnostico com
-secrets da planilha no PR #53. Tambem foi adicionada cobertura offline em
-tests/test_artigo_scripts.py para o novo diagnostico.
-5. O workflow 30142012194 executou com sucesso e publicou
-04_artigo/figuras/diagnostico_ablation_lstm_protocolo.json pelo commit
-167fe838. Resultado: a verdade humana M/N/P coincide com o historico em
-9.096/9.096 linhas validadas (100%); a aba oficial CLASSIF__lstm cobre as
-mesmas 9.096 linhas e acerta 6.796 (74,714%). Portanto, a discrepancia
-residual nao decorre de escopo de linhas nem de validacao humana posterior
-divergente do historico; ela permanece concentrada na diferenca entre
-predicao oficial ja materializada e re-treino novo por fold do ablation.
+1. O diagnostico de protocolo foi ampliado em src/ablation_lstm.py para ler,
+   sem re-treino e sem escrita na planilha, metadados da aba oficial
+   CLASSIF__lstm: run_id, datas de gravacao, executor/faixa, acerto historico
+   e confianca. tests/test_artigo_scripts.py passou a cobrir esse resumo.
+2. O primeiro JSON ampliado (workflow 30142260906) mostrou que CLASSIF__lstm
+   foi materializado quase todo antes da rodada atual do artigo: 13.954 linhas
+   em 16/07/2026 23:50 e 11 linhas em 17/07/2026 06:20. A aba tem 9.868/13.965
+   predicoes como lstm_BAIXA_CONF, 6.029 abaixo de 70%, 3.839 entre 70-95% e
+   4.097 acima de 95%; a confianca media e 0,685495.
+3. Um ajuste posterior (workflow 30142341760) separou parametros de construcao
+   do modelo e parametros efetivos de fit. Resultado: no ambiente atual, o
+   caminho direto do ablation e o caminho de producao resolvem os mesmos
+   parametros efetivos (units=64, dropout=0,5, epochs=15, batch_size=128,
+   paciencia=3, validation_split=0,1 e usar_class_weight=true).
+4. Com isso, a discrepancia residual ficou melhor delimitada: nao e explicada
+   por escopo de linhas, por verdade humana divergente do historico, nem por
+   hiperparametros efetivos atuais. A diferenca verificavel que resta e que a
+   avaliacao oficial usa predicoes antigas ja materializadas em CLASSIF__lstm,
+   enquanto o ablation re-treina modelos novos por fold sobre a base viva.
 
-**Proximo passo**: isolar a diferenca entre (a) o caminho oficial
-modelos_zoo._ModeloLSTM/classificador_producao usado em CLASSIF__lstm e
-(b) o caminho direto modelo_lstm.ClassificadorLSTM usado no ablation, antes
-de remover qualquer ressalva da Subsecao 4.9.
+**Proximo passo**: manter a ressalva da Subsecao 4.9 e, se for necessario
+remover o bloqueador, executar uma nova materializacao oficial controlada do
+LSTM em branch/workflow diagnostico, sem sobrescrever a aba operacional, para
+comparar diretamente CLASSIF__lstm novo versus ablation novo.
 
 ---
 
