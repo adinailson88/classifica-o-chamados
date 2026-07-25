@@ -1,5 +1,5 @@
 {
-  "gerado_em": "25/07/2026 00:27",
+  "gerado_em": "25/07/2026 00:30",
   "script_origem": "src/ablation_lstm.py",
   "natureza": "diagnostico de protocolo; nao re-treina modelos e nao escreve na planilha",
   "hipoteses_testadas": [
@@ -52,8 +52,40 @@
       "batch_size": 128,
       "paciencia": 3
     },
-    "parametros_iguais_no_ambiente_atual": false,
-    "observacao": "modelos_zoo._ModeloLSTM chama classificador_producao.treinar_classificador sem repassar config_experimento['modelo_ia']['lstm']; no ambiente atual, os parametros ainda podem coincidir se o perfil efetivo for padrao."
+    "ablation_init_model": {
+      "vocab_size": 8000,
+      "max_len": 120,
+      "embed_dim": 128,
+      "units": 64,
+      "dense_units": 64,
+      "dropout": 0.5,
+      "layers": 1
+    },
+    "producao_init_model": {
+      "vocab_size": 8000,
+      "max_len": 120,
+      "embed_dim": 128,
+      "units": 64,
+      "dense_units": 64,
+      "dropout": 0.5,
+      "layers": 1
+    },
+    "ablation_fit_efetivo": {
+      "epochs": 15,
+      "batch_size": 128,
+      "paciencia": 3,
+      "validation_split": 0.1,
+      "usar_class_weight": true
+    },
+    "producao_fit_efetivo": {
+      "epochs": 15,
+      "batch_size": 128,
+      "paciencia": 3,
+      "validation_split": 0.1,
+      "usar_class_weight": true
+    },
+    "parametros_efetivos_iguais_no_ambiente_atual": true,
+    "observacao": "modelos_zoo._ModeloLSTM chama classificador_producao.treinar_classificador sem repassar config_experimento['modelo_ia']['lstm']; no ambiente atual, os parametros efetivos ainda podem coincidir se o perfil efetivo for padrao e os defaults de fit forem os mesmos."
   },
   "escopo": {
     "n_linhas_elegiveis_ablation": 13965,
