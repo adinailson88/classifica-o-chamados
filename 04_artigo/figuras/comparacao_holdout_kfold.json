@@ -1,0 +1,250 @@
+{
+  "gerado_em": "25/07/2026 14:50",
+  "script_origem": "src/comparacao_holdout_kfold.py",
+  "natureza": "comparacao metodologica holdout fixo (85/15) vs referencia k-fold ja publicada (Tabela 1/S1, k=5); alvo = categoria historica; leitura apenas",
+  "n_total": 13965,
+  "n_categorias": 52,
+  "holdout": {
+    "test_size": 0.15,
+    "random_state": 42,
+    "estratificado": false,
+    "erro_estratificacao": "The least populated class in y has only 1 member, which is too few. The minimum number of groups for any class cannot be less than 2.",
+    "n_treino": 11870,
+    "n_teste": 2095
+  },
+  "categorias_sem_exemplo_treino_holdout": [],
+  "categorias_sem_exemplo_teste_holdout": [
+    "Manutenção Preventiva",
+    "Manutenção Preventiva > Aplicação cupinicida",
+    "Suprimentos / Apoio Técnico > Limpeza de equipamentos, ambiente e mobiliário",
+    "Suprimentos / Apoio Técnico > Transporte"
+  ],
+  "n_categorias_sem_exemplo_teste_holdout": 4,
+  "kfold_referencia": {
+    "fonte": "docs/dados/estatistica.json#acuracia_bootstrap",
+    "gerado_em_origem": "25/07/2026 13:42"
+  },
+  "por_modelo": [
+    {
+      "modelo": "naive_bayes",
+      "acuracia_holdout": 0.6959,
+      "macro_f1_holdout": 0.2577,
+      "balanced_accuracy_holdout": 0.2838,
+      "kfold_referencia": {
+        "acuracia": 0.6997,
+        "ic95_min": 0.6923,
+        "ic95_max": 0.7071
+      },
+      "delta_acuracia_holdout_menos_kfold": -0.0038
+    },
+    {
+      "modelo": "regressao_logistica",
+      "acuracia_holdout": 0.7661,
+      "macro_f1_holdout": 0.5644,
+      "balanced_accuracy_holdout": 0.6581,
+      "kfold_referencia": {
+        "acuracia": 0.7682,
+        "ic95_min": 0.7613,
+        "ic95_max": 0.7751
+      },
+      "delta_acuracia_holdout_menos_kfold": -0.0021
+    },
+    {
+      "modelo": "linear_svc",
+      "acuracia_holdout": 0.8024,
+      "macro_f1_holdout": 0.5685,
+      "balanced_accuracy_holdout": 0.6428,
+      "kfold_referencia": {
+        "acuracia": 0.8031,
+        "ic95_min": 0.7963,
+        "ic95_max": 0.8097
+      },
+      "delta_acuracia_holdout_menos_kfold": -0.0007
+    },
+    {
+      "modelo": "sgd",
+      "acuracia_holdout": 0.778,
+      "macro_f1_holdout": 0.5614,
+      "balanced_accuracy_holdout": 0.665,
+      "kfold_referencia": {
+        "acuracia": 0.7767,
+        "ic95_min": 0.77,
+        "ic95_max": 0.7835
+      },
+      "delta_acuracia_holdout_menos_kfold": 0.0013
+    },
+    {
+      "modelo": "extra_trees",
+      "acuracia_holdout": 0.7967,
+      "macro_f1_holdout": 0.5321,
+      "balanced_accuracy_holdout": 0.5541,
+      "kfold_referencia": {
+        "acuracia": 0.7894,
+        "ic95_min": 0.7825,
+        "ic95_max": 0.7961
+      },
+      "delta_acuracia_holdout_menos_kfold": 0.0073
+    },
+    {
+      "modelo": "random_forest",
+      "acuracia_holdout": 0.778,
+      "macro_f1_holdout": 0.4945,
+      "balanced_accuracy_holdout": 0.525,
+      "kfold_referencia": {
+        "acuracia": 0.7816,
+        "ic95_min": 0.7749,
+        "ic95_max": 0.7881
+      },
+      "delta_acuracia_holdout_menos_kfold": -0.0036
+    },
+    {
+      "modelo": "lstm",
+      "acuracia_holdout": 0.6525,
+      "macro_f1_holdout": 0.4316,
+      "balanced_accuracy_holdout": 0.5068,
+      "kfold_referencia": {
+        "acuracia": 0.6718,
+        "ic95_min": 0.6637,
+        "ic95_max": 0.6796
+      },
+      "delta_acuracia_holdout_menos_kfold": -0.0193
+    }
+  ],
+  "piores_categorias_ordenadas_por_suporte_teste_holdout": [
+    {
+      "categoria": "Suprimentos / Apoio Técnico > Transporte",
+      "suporte_total": 1,
+      "suporte_teste_holdout": 0,
+      "suporte_treino_holdout": 1,
+      "f1_holdout_linear_svc": 0.0,
+      "suporte_kfold_completo": 1,
+      "f1_kfold_linear_svc_aprox": 0.1053
+    },
+    {
+      "categoria": "Manutenção Preventiva",
+      "suporte_total": 2,
+      "suporte_teste_holdout": 0,
+      "suporte_treino_holdout": 2,
+      "f1_holdout_linear_svc": 0.0,
+      "suporte_kfold_completo": 2,
+      "f1_kfold_linear_svc_aprox": 0.0
+    },
+    {
+      "categoria": "Manutenção Preventiva > Aplicação cupinicida",
+      "suporte_total": 3,
+      "suporte_teste_holdout": 0,
+      "suporte_treino_holdout": 3,
+      "f1_holdout_linear_svc": 0.0,
+      "suporte_kfold_completo": 3,
+      "f1_kfold_linear_svc_aprox": 0.1579
+    },
+    {
+      "categoria": "Suprimentos / Apoio Técnico > Limpeza de equipamentos, ambiente e mobiliário",
+      "suporte_total": 14,
+      "suporte_teste_holdout": 0,
+      "suporte_treino_holdout": 14,
+      "f1_holdout_linear_svc": 0.0,
+      "suporte_kfold_completo": 14,
+      "f1_kfold_linear_svc_aprox": 0.3667
+    },
+    {
+      "categoria": "Estrutura Predial > Instalações Especiais (gás, ar comprimido, etc.)",
+      "suporte_total": 3,
+      "suporte_teste_holdout": 1,
+      "suporte_treino_holdout": 2,
+      "f1_holdout_linear_svc": 0.0,
+      "suporte_kfold_completo": 3,
+      "f1_kfold_linear_svc_aprox": 0.0732
+    },
+    {
+      "categoria": "Manutenção Preventiva > Bomba",
+      "suporte_total": 3,
+      "suporte_teste_holdout": 1,
+      "suporte_treino_holdout": 2,
+      "f1_holdout_linear_svc": 0.0,
+      "suporte_kfold_completo": 3,
+      "f1_kfold_linear_svc_aprox": 0.1765
+    },
+    {
+      "categoria": "Área Externa e Ambiental > Drenagem",
+      "suporte_total": 3,
+      "suporte_teste_holdout": 1,
+      "suporte_treino_holdout": 2,
+      "f1_holdout_linear_svc": 0.0,
+      "suporte_kfold_completo": 3,
+      "f1_kfold_linear_svc_aprox": 0.1333
+    },
+    {
+      "categoria": "Manutenção Preventiva > Nobreak",
+      "suporte_total": 10,
+      "suporte_teste_holdout": 1,
+      "suporte_treino_holdout": 9,
+      "f1_holdout_linear_svc": 0.0,
+      "suporte_kfold_completo": 10,
+      "f1_kfold_linear_svc_aprox": 0.6
+    },
+    {
+      "categoria": "Manutenção Preventiva > Poços artesianos",
+      "suporte_total": 13,
+      "suporte_teste_holdout": 1,
+      "suporte_treino_holdout": 12,
+      "f1_holdout_linear_svc": 1.0,
+      "suporte_kfold_completo": 13,
+      "f1_kfold_linear_svc_aprox": 0.9286
+    },
+    {
+      "categoria": "Elétrica > Subestação",
+      "suporte_total": 18,
+      "suporte_teste_holdout": 1,
+      "suporte_treino_holdout": 17,
+      "f1_holdout_linear_svc": 0.6667,
+      "suporte_kfold_completo": 18,
+      "f1_kfold_linear_svc_aprox": 0.619
+    },
+    {
+      "categoria": "Segurança contra Incêndio > Sistemas de combate a incêndio (extintores, hidrantes)",
+      "suporte_total": 27,
+      "suporte_teste_holdout": 1,
+      "suporte_treino_holdout": 26,
+      "f1_holdout_linear_svc": 0.5,
+      "suporte_kfold_completo": 27,
+      "f1_kfold_linear_svc_aprox": 0.6032
+    },
+    {
+      "categoria": "Manutenção Preventiva > Hidráulica",
+      "suporte_total": 32,
+      "suporte_teste_holdout": 1,
+      "suporte_treino_holdout": 31,
+      "f1_holdout_linear_svc": 0.0,
+      "suporte_kfold_completo": 32,
+      "f1_kfold_linear_svc_aprox": 0.3934
+    },
+    {
+      "categoria": "Hidrossanitária > ETA / ETE",
+      "suporte_total": 16,
+      "suporte_teste_holdout": 2,
+      "suporte_treino_holdout": 14,
+      "f1_holdout_linear_svc": 0.5,
+      "suporte_kfold_completo": 16,
+      "f1_kfold_linear_svc_aprox": 0.5085
+    },
+    {
+      "categoria": "Elétrica > Sistema Fotovoltaico (FV)",
+      "suporte_total": 7,
+      "suporte_teste_holdout": 3,
+      "suporte_treino_holdout": 4,
+      "f1_holdout_linear_svc": 1.0,
+      "suporte_kfold_completo": 7,
+      "f1_kfold_linear_svc_aprox": 0.0
+    },
+    {
+      "categoria": "Área Externa e Ambiental > Poda de Árvore / Roçagem",
+      "suporte_total": 9,
+      "suporte_teste_holdout": 3,
+      "suporte_treino_holdout": 6,
+      "f1_holdout_linear_svc": 0.0,
+      "suporte_kfold_completo": 9,
+      "f1_kfold_linear_svc_aprox": 0.3721
+    }
+  ]
+}
