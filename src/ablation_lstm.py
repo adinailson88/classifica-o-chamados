@@ -31,6 +31,7 @@ SAIDA_JSON = RAIZ / "04_artigo" / "figuras" / "ablation_lstm_resultados.json"
 SAIDA_CSV = RAIZ / "04_artigo" / "figuras" / "tabela_S3_ablation_lstm.csv"
 SAIDA_FIG = RAIZ / "04_artigo" / "figuras" / "fig6_ablation_lstm.png"
 SAIDA_DIAG = RAIZ / "04_artigo" / "figuras" / "diagnostico_ablation_lstm_duplicatas.json"
+SAIDA_DIAG_PROTOCOLO = RAIZ / "04_artigo" / "figuras" / "diagnostico_ablation_lstm_protocolo.json"
 
 
 def _cel(linha, idx) -> str:
@@ -183,6 +184,115 @@ def diagnosticar_duplicatas_folds(linhas: list[dict], verdade: dict[int, str], k
     }
 
 
+def carregar_predicoes_oficiais_lstm(sh, config: dict) -> dict[int, dict]:
+    """Le a aba CLASSIF__lstm materializada pelo protocolo oficial."""
+    template = config["multimodelo"]["aba_classificacao"]
+    aba = template.replace("{modelo}", "lstm")
+    try:
+        vals = sh.worksheet(aba).get_values("A:K", value_render_option="UNFORMATTED_VALUE")
+    except Exception:  # noqa: BLE001
+        return {}
+    out = {}
+    for r in vals[1:]:
+        if len(r) < 6:
+            continue
+        try:
+            linha = int(r[1])
+        except (ValueError, TypeError):
+            continue
+        pred = str(r[4] or "").strip()
+        if not pred:
+            continue
+        out[linha] = {
+            "pred": pred,
+            "conf": r[5],
+            "executor": str(r[7] or "").strip() if len(r) > 7 else "",
+            "acerto_historico": str(r[8] or "").strip() if len(r) > 8 else "",
+        }
+    return out
+
+
+def _taxa(numerador: int, denominador: int) -> float | None:
+    return round(numerador / denominador, 6) if denominador else None
+
+
+def diagnosticar_protocolos_lstm(sh, config: dict, linhas: list[dict], verdade: dict[int, str],
+                                 k_folds_ablation: int) -> dict:
+    """Compara o ablation com a avaliacao oficial sem re-treinar modelos.
+
+    O objetivo e quantificar hipoteses metodologicas residuais com dados vivos:
+    se a verdade humana coincide com o historico, como a aba oficial CLASSIF__lstm
+    performa na mesma intersecao e quais diferencas de protocolo sao observaveis
+    no codigo/configuracao.
+    """
+    por_linha = {item["linha"]: item for item in linhas}
+    validadas = sorted(ln for ln in verdade if ln in por_linha)
+    historico_igual = [ln for ln in validadas if por_linha[ln]["historico"] == verdade[ln]]
+    historico_diferente = [ln for ln in validadas if por_linha[ln]["historico"] != verdade[ln]]
+
+    predicoes = carregar_predicoes_oficiais_lstm(sh, config)
+    comuns = [ln for ln in validadas if ln in predicoes]
+    acertos_oficial = [ln for ln in comuns if predicoes[ln]["pred"] == verdade[ln]]
+    oficial_acerta_historico_igual = [
+        ln for ln in comuns
+        if por_linha[ln]["historico"] == verdade[ln] and predicoes[ln]["pred"] == verdade[ln]
+    ]
+    oficial_acerta_historico_diferente = [
+        ln for ln in comuns
+        if por_linha[ln]["historico"] != verdade[ln] and predicoes[ln]["pred"] == verdade[ln]
+    ]
+
+    mm = config.get("multimodelo", {}) or {}
+    return {
+        "gerado_em": agora_bahia(),
+        "script_origem": "src/ablation_lstm.py",
+        "natureza": "diagnostico de protocolo; nao re-treina modelos e nao escreve na planilha",
+        "hipoteses_testadas": [
+            "avaliacao oficial usa predicoes ja materializadas em CLASSIF__lstm",
+            "ablation treina LSTM novo por fold contra rotulo historico e mede contra verdade humana",
+            "verdade humana pode coincidir com o historico em grande parte dos validados",
+            "protocolo oficial multimodelo usa k-fold configurado separadamente do ablation",
+        ],
+        "config_multimodelo": {
+            "k_folds_oficial": mm.get("k_folds"),
+            "aba_classificacao": mm.get("aba_classificacao"),
+            "memoria_validada_habilitada": bool((config.get("memoria_validada") or {}).get("habilitada", True)),
+            "peso_memoria_validada": (config.get("memoria_validada") or {}).get("peso_treino"),
+        },
+        "config_ablation": {
+            "k_folds_ablation": k_folds_ablation,
+            "particionamento": "GroupKFold por hash de texto normalizado nos validados; treino usa todos os demais grupos elegiveis",
+            "rotulo_treino": "CATEGORIA COMPLETA historica",
+        },
+        "escopo": {
+            "n_linhas_elegiveis_ablation": len(linhas),
+            "n_validadas_com_verdade": len(validadas),
+            "n_predicoes_oficiais_lstm": len(predicoes),
+            "n_intersecao_validada_oficial": len(comuns),
+        },
+        "historico_vs_verdade": {
+            "historico_igual_verdade": len(historico_igual),
+            "historico_diferente_verdade": len(historico_diferente),
+            "taxa_historico_igual_verdade": _taxa(len(historico_igual), len(validadas)),
+        },
+        "oficial_lstm_vs_verdade": {
+            "acertos": len(acertos_oficial),
+            "erros": len(comuns) - len(acertos_oficial),
+            "taxa_acerto": _taxa(len(acertos_oficial), len(comuns)),
+            "acertos_quando_historico_igual_verdade": len(oficial_acerta_historico_igual),
+            "taxa_quando_historico_igual_verdade": _taxa(len(oficial_acerta_historico_igual), len([ln for ln in comuns if por_linha[ln]["historico"] == verdade[ln]])),
+            "acertos_quando_historico_diferente_verdade": len(oficial_acerta_historico_diferente),
+            "taxa_quando_historico_diferente_verdade": _taxa(len(oficial_acerta_historico_diferente), len([ln for ln in comuns if por_linha[ln]["historico"] != verdade[ln]])),
+        },
+        "diferencas_de_protocolo_verificadas_no_codigo": [
+            "src/avaliacao_final.py avalia predicoes ja gravadas em CLASSIF__<modelo>; nao instancia nem treina o LSTM.",
+            "src/classificacao_multimodelo.py gera CLASSIF__lstm com k-fold configurado em config_experimento.json e pode usar memoria validada como base fixa.",
+            "src/ablation_lstm.py treina modelo_lstm.ClassificadorLSTM diretamente em cada fold e usa categoria historica como y de treino.",
+            "src/ablation_lstm.py usa GroupKFold por hash de texto normalizado; o protocolo oficial multimodelo usa KFold por linha no lote.",
+        ],
+    }
+
+
 def salvar_csv(resultados: list[dict]) -> None:
     SAIDA_CSV.parent.mkdir(parents=True, exist_ok=True)
     campos = ["variante", "units", "dropout", "n_validado", "acerto_validado", "acertos", "erros"]
@@ -222,6 +332,7 @@ def parse_args():
     p.add_argument("--batch-size", type=int, default=None)
     p.add_argument("--validation-split", type=float, default=0.1)
     p.add_argument("--diagnostico-only", action="store_true")
+    p.add_argument("--diagnostico-protocolo-only", action="store_true")
     p.add_argument("--verbose", type=int, default=2)
     return p.parse_args()
 
@@ -256,6 +367,13 @@ def main() -> int:
         SAIDA_DIAG.parent.mkdir(parents=True, exist_ok=True)
         SAIDA_DIAG.write_text(json.dumps(diagnostico, ensure_ascii=False, indent=2), encoding="utf-8")
         print(f"diagnostico_json={SAIDA_DIAG}")
+        return 0
+
+    if args.diagnostico_protocolo_only:
+        diagnostico = diagnosticar_protocolos_lstm(sh, config, linhas, verdade, args.k_folds)
+        SAIDA_DIAG_PROTOCOLO.parent.mkdir(parents=True, exist_ok=True)
+        SAIDA_DIAG_PROTOCOLO.write_text(json.dumps(diagnostico, ensure_ascii=False, indent=2), encoding="utf-8")
+        print(f"diagnostico_protocolo_json={SAIDA_DIAG_PROTOCOLO}")
         return 0
 
     resultados = []

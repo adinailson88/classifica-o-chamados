@@ -35,50 +35,45 @@ Isso substitui a necessidade de o usuário reexplicar contexto a cada nova conve
 
 ## Estado desta rodada
 
-**Data**: 2026-07-24 (America/Bahia, UTC-03:00) — rodada 10 (diagnóstico
-do ablation LSTM e cobertura de testes, itens 1-4 executados).
+**Data**: 2026-07-25 (America/Bahia, UTC-03:00) - rodada 11 (investigacao
+da discrepancia residual do ablation LSTM).
 
-**Onde está**: PR `#53` aberto no branch
-`fix/ablation-groupkfold-diagnostico`. O bloqueador do ablation permanece
-ativo: o resultado corrigido por `GroupKFold` ainda não está reconciliado
-com a avaliação oficial do LSTM em 74,71% na Subseção 4.2.
+**Onde esta**: PR #53 aberto no branch fix/ablation-groupkfold-diagnostico.
+O bloqueador do ablation permanece ativo: o resultado corrigido por GroupKFold
+ainda nao esta reconciliado com a avaliacao oficial do LSTM em 74,71% na
+Subsecao 4.2.
 
 **O que foi feito nesta rodada**:
-1. O commit local citado no pedido (`958f46f`) não foi encontrado neste
-   clone nem nas refs remotas consultadas. O `main` local foi atualizado
-   por fast-forward de `e5e269c0` para `93ff79ce`, sem push para `main`.
-   Como o hash não existia no ambiente atual, a alteração foi reconstruída
-   e publicada no PR `#53`.
-2. `src/ablation_lstm.py` passou a ter normalização/hash de texto, modo
-   `--diagnostico-only` e `GroupKFold` por hash de texto normalizado para
-   o ablation. O workflow `Pendencias artigo com credencial`
-   (`.github/workflows/lstm_artigo.yml`) passou a aceitar
-   `tarefa=diagnostico_ablation`. A primeira execução (`30140095443`)
-   gerou o JSON, mas falhou ao publicar por `git pull --rebase origin main`
-   dentro do branch do PR; isso foi corrigido no commit `7590a0aa`.
-3. O diagnóstico reexecutado com sucesso (`30140175041`) publicou
-   `04_artigo/figuras/diagnostico_ablation_lstm_duplicatas.json`: 4.250 de
-   9.096 linhas validadas de teste (46,72%) tinham duplicata textual
-   normalizada no treino no particionamento antigo por linha.
-4. O ablation corrigido com `GroupKFold` foi executado com sucesso
-   (`30140226747`) e publicou `ablation_lstm_resultados.json`,
-   `tabela_S3_ablation_lstm.csv` e `fig6_ablation_lstm.png`. Resultado:
-   `units64_dropout05_atual` = 86,35% (7.854/9.096), ainda 11,64 p.p.
-   acima da avaliação oficial de 74,71%. Portanto, as duplicatas explicam
-   parte do problema, mas não resolvem a discrepância; a ressalva foi
-   mantida e atualizada na Subseção 4.9/Figura 6 e na Discussão.
-5. A lacuna de testes da rodada 9 foi tratada em `tests/test_artigo_scripts.py`,
-   com cobertura offline para `src/exportar_tabela_por_categoria.py`,
-   `src/gerar_figura4_confusoes.py`, `src/ablation_lstm.py` e
-   `salvar_history()`/CLI de `src/modelo_lstm.py`. A suíte passou de 34 para
-   42 testes.
+1. A leitura do codigo confirmou que docs/dados/avaliacao_final.json e
+gerado por src/avaliacao_final.py avaliando predicoes ja materializadas em
+CLASSIF__<modelo>, sem re-treinar o LSTM. O ablation, em contraste, treina
+modelo_lstm.ClassificadorLSTM novo por fold em src/ablation_lstm.py, usando
+CATEGORIA COMPLETA historica como rotulo de treino e a verdade M/N/P apenas
+como metrica de teste.
+2. A leitura do caminho oficial mostrou que CLASSIF__lstm e produzido por
+src/classificacao_multimodelo.py via modelos_zoo._ModeloLSTM, que delega
+para classificador_producao.treinar_classificador; esse caminho usa o
+k_folds do config_experimento.json (5), pode incluir memoria validada como
+base fixa e pode cair para fallback RF se TensorFlow nao estiver disponivel
+no ambiente de geracao.
+3. Foi acrescentado em src/ablation_lstm.py o modo
+--diagnostico-protocolo-only, que gera
+04_artigo/figuras/diagnostico_ablation_lstm_protocolo.json sem re-treinar
+modelos nem escrever na planilha. O diagnostico mede a taxa de coincidencia
+entre historico e verdade humana, a cobertura/acerto da aba oficial
+CLASSIF__lstm na mesma intersecao validada e registra as diferencas de
+protocolo verificaveis no codigo.
+4. O workflow .github/workflows/lstm_artigo.yml passou a aceitar
+tarefa=diagnostico_protocolo_ablation, para executar o diagnostico com
+secrets da planilha no PR #53. Tambem foi adicionada cobertura offline em
+tests/test_artigo_scripts.py para o novo diagnostico.
 
-**Próximo passo**: continuar a investigação da diferença residual do ablation
-antes de qualquer remoção da ressalva no artigo; hipóteses prioritárias:
-diferença entre treino novo por fold e predição oficial já materializada,
-uso de categoria histórica como rótulo em grande parte do treino, escopo de
-linhas usado em cada avaliação e eventual diferença entre validação humana
-posterior e o estado da base no momento em que a avaliação oficial foi gerada.
+**Proximo passo**: executar no GitHub Actions o workflow Pendencias artigo com
+credencial no branch fix/ablation-groupkfold-diagnostico, com
+tarefa=diagnostico_protocolo_ablation e k_folds=3, publicar o JSON gerado e so
+entao decidir se a discrepancia residual decorre principalmente da coincidencia
+historico-verdade, do protocolo oficial materializado ou de outra diferenca
+ainda nao mensurada.
 
 ---
 

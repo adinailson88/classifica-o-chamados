@@ -87,24 +87,30 @@ v3.docx para dentro do repo em 04_artigo/ e converta para Markdown"].
 > aqui**, só apontar. Atualizar este bloco (substituir, não acumular) sempre
 > que um item mudar de estado.
 
-### 🔴 BLOQUEADOR — ablation LSTM ainda não reconciliado (atualizado 24/07/2026)
-**Ablation study do LSTM (`src/ablation_lstm.py`, Figura 6/Subseção 4.9)
-continua suspeito.** O diagnóstico com credencial confirmou vazamento por
+### BLOQUEADOR - ablation LSTM ainda nao reconciliado (atualizado 25/07/2026)
+**Ablation study do LSTM (src/ablation_lstm.py, Figura 6/Subsecao 4.9)
+continua suspeito.** O diagnostico com credencial confirmou vazamento por
 duplicatas no particionamento antigo: 4.250 de 9.096 linhas validadas de
 teste (46,72%) tinham duplicata textual normalizada no treino. O ablation
-foi refeito com `GroupKFold` por hash de texto normalizado, mas a
-configuração atual (`units=64`, `dropout=0,5`) ficou em 86,35%, ainda
-11,64 pontos percentuais acima da avaliação OFICIAL da mesma arquitetura
-na Subseção 4.2 (74,71%, mesma base de verdade M/N/P). Portanto, as
-duplicatas explicam parte do problema, mas **não resolvem a discrepância**.
-Não remover a ressalva do artigo nem promover o ablation a achado do
-capítulo enquanto a diferença residual não for explicada por outra causa
-metodológica ou experimental. A lacuna de cobertura da rodada 9 foi tratada
-em `tests/test_artigo_scripts.py`, cobrindo `exportar_tabela_por_categoria.py`,
-`gerar_figura4_confusoes.py`, `ablation_lstm.py` e `salvar_history()`/CLI de
-`modelo_lstm.py`; isso não remove o bloqueador metodológico do ablation.
+foi refeito com GroupKFold por hash de texto normalizado, mas a
+configuracao atual (units=64, dropout=0,5) ficou em 86,35%, ainda
+11,64 pontos percentuais acima da avaliacao OFICIAL da mesma arquitetura
+na Subsecao 4.2 (74,71%, mesma base de verdade M/N/P). Portanto, as
+duplicatas explicam parte do problema, mas **nao resolvem a discrepancia**.
+Foi acrescentado no PR #53 um diagnostico de protocolo separado
+(diagnostico_ablation_lstm_protocolo.json) para medir, com credencial,
+a aderencia da verdade humana ao historico e a intersecao com a aba
+CLASSIF__lstm; executar o workflow Pendencias artigo com credencial
+com tarefa=diagnostico_protocolo_ablation e k_folds=3 antes de concluir
+qualquer reconciliacao residual.
+Nao remover a ressalva do artigo nem promover o ablation a achado do
+capitulo enquanto a diferenca residual nao for explicada por outra causa
+metodologica ou experimental. A lacuna de cobertura da rodada 9 foi tratada
+em tests/test_artigo_scripts.py, cobrindo exportar_tabela_por_categoria.py,
+gerar_figura4_confusoes.py, ablation_lstm.py e salvar_history()/CLI de
+modelo_lstm.py; isso nao remove o bloqueador metodologico do ablation.
 
-### Confirmado feito — não repetir em nova rodada
+### Confirmado feito
 - [x] Aviso de viés de amostra não aleatória no Resumo/Abstract (COCHRAN, 1977)
 - [x] Discussão da inferioridade do LSTM frente aos modelos lineares
       (GALKE; SCHERP, 2022)
