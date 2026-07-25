@@ -93,14 +93,67 @@ feita); rigor formal de submissão MDPI (metadados, figuras 300dpi,
 subseção 5.4 dedicada); holdout fixo de treino/teste; referências em
 formato MDPI numérico.
 
-**Próximo passo**: (1) gerar novo snapshot imutável
-(`gerar_manifesto_snapshot_artigo.py`) refletindo os números de
-25/07/2026 12:52 (pendência recorrente desde a rodada 12); (2) verificar
-se o dashboard público (`docs/index.html`) precisa de refresh dos JSONs
-novos; (3) quando o Codex retomar em 29/07 (ou antes, se decidido),
-continuar os Passos 3–6 — cuidado para não duplicar/conflitar com o que
-ele já tinha preparado (Passo 3 em modo seguro, nunca enviado ao
-GitHub).
+**Revisão externa recebida (PARECER FINAL, 25/07/2026, mesmo dia)**: o
+Adinailson trouxe um parecer de outra IA avaliando o PDF do artigo, nota
+9,0/10, com plano bifásico de 12 passos (Fase A — 7 itens executáveis já;
+Fase B — 5 itens só após a conferência humana terminar). Verificação
+item a item contra o estado real do repositório (não presumido):
+
+- **Já resolvido, sem necessidade de ação** (o parecer foi escrito a
+  partir de um PDF gerado ANTES da resincronização final desta mesma
+  rodada, por isso cita números defasados — 94,94%/88,69% em vez dos
+  94,93%/87,90% atuais):
+  - Passo 3 (Abstract com números corretos) — já resincronizado (ver
+    RESUMO/ABSTRACT do artigo).
+  - Passo 4 (Tabela S1 descrita em prosa na Subseção 4.1) — já existe,
+    com mais rigor que o texto sugerido pelo parecer (nossa versão liga
+    o F1 baixo ao suporte pequeno das categorias, não a uma hipótese de
+    proximidade semântica não verificada).
+  - Passo 5 (padronizar 13.965 em todo o texto) — já não há ocorrência de
+    13.825/13.618 no artigo (`git grep` confirmou).
+  - Passo 6 (legendas autoexplicativas das Figuras 2-6) — já mais
+    detalhadas que a sugestão do parecer (incluem fonte, data de geração
+    e números; a sugestão do parecer inclusive cita o número desatualizado
+    88,69% na legenda da Figura 6).
+  - Passo 7 (3 direções de trabalho futuro) — já presentes em prosa nas
+    Considerações Finais (BERTimbau, validação externa noutras IFES,
+    integração MCDM/TOPSIS); não estão em formato de 3 bullets separados,
+    mas o conteúdo já existe — reformatação é puramente estética, baixa
+    prioridade.
+- **Gap real, ainda não escrito**: Passo 1 (subseção 3.4.1 — diferenças
+  conceituais entre as famílias de classificadores: por que LinearSVC
+  supera Naive Bayes/árvores/LSTM neste corpus). Não existe hoje entre as
+  Seções 3.4 e 3.5. É conteúdo novo genuíno, não um ajuste — precisa ser
+  escrito (o rascunho do parecer é um bom ponto de partida, mas cita
+  "10-20x mais tempo de treino" para RF/ExtraTrees sem fonte no repo;
+  qualquer número de custo computacional usado deve vir de
+  `docs/dados/comparacao_modelos.json`, não do parecer, antes de entrar
+  no texto).
+- **Bloqueado por decisão já registrada do Adinailson, não uma pendência
+  nova**: Passo 2 (holdout fixo de 15%). Este repositório já tem uma
+  decisão explícita da rodada 9 (linha "Não mexer no holdout fixo de
+  treino/teste... sem decisão explícita do Adinailson", ver Histórico da
+  rodada 9 abaixo) — o desenho atual usa out-of-fold KFold
+  deliberadamente, e mudar para holdout fixo implicaria reprocessar os 8
+  modelos de novo. Não vou implementar isso sem confirmação explícita
+  dele nesta rodada, mesmo com o parecer recomendando.
+- **Fase B (Passos 8-12, pós-conferência humana)**: não traz nada novo —
+  já é exatamente o que este arquivo e o `README.md` já rastreiam como
+  pendente (Tabela 2/4/calibração recalculadas quando a conferência M/N/P
+  terminar). Nenhuma ação necessária agora.
+
+**Próximo passo**: (1) perguntar ao Adinailson se quer que eu escreva a
+Subseção 3.4.1 agora (único gap de conteúdo real do parecer) — usando
+`docs/dados/comparacao_modelos.json` para qualquer número de custo
+computacional citado, não os números não verificados do parecer; (2) se
+ele quiser avançar no holdout fixo (Passo 2), tratar como mudança
+metodológica nova, com dry-run e discussão antes de reprocessar; (3)
+gerar novo snapshot imutável (`gerar_manifesto_snapshot_artigo.py`),
+pendência recorrente desde a rodada 12; (4) verificar se o dashboard
+público (`docs/index.html`) precisa de refresh dos JSONs novos; (5)
+quando o Codex retomar em 29/07 (ou antes, se decidido), continuar os
+Passos 3–6 do prompt original de 6 passos — cuidado para não
+duplicar/conflitar com o que ele já tinha preparado.
 
 ---
 
