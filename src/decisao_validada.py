@@ -124,7 +124,7 @@ def carregar_decisoes(sh, aba_principal: str,
         v_reclass = _norm_veredito(cel(linha, col_conf_reclass))
         if v_glpi is None and v_ia is None and v_reclass is None:
             continue
-        out[pos] = decidir(cel(linha, col_historico), cel(linha, col_ia1),
+        out[pos] = decidir(pl.normalizar_categoria(cel(linha, col_historico)), cel(linha, col_ia1),
                            cel(linha, col_reclass), v_glpi, v_ia, v_reclass)
     return out
 

@@ -320,6 +320,38 @@ def mapa_cabecalhos(cabecalho: list[Any]) -> dict[str, int]:
     return {normalizar_cabecalho(nome): i for i, nome in enumerate(cabecalho, start=1)}
 
 
+_CATEGORIAS_CANONICAS_CACHE: dict[str, str] | None = None
+CONFIG_CATEGORIAS_CANONICAS = RAIZ / "config_categorias_canonicas.json"
+
+
+def _carregar_mapa_categorias_canonicas() -> dict[str, str]:
+    global _CATEGORIAS_CANONICAS_CACHE
+    if _CATEGORIAS_CANONICAS_CACHE is None:
+        try:
+            dados = json.loads(CONFIG_CATEGORIAS_CANONICAS.read_text(encoding="utf-8"))
+            _CATEGORIAS_CANONICAS_CACHE = dict(dados.get("mapa", {}))
+        except Exception:  # noqa: BLE001
+            _CATEGORIAS_CANONICAS_CACHE = {}
+    return _CATEGORIAS_CANONICAS_CACHE
+
+
+def normalizar_categoria(categoria: str) -> str:
+    """Converte um nome de categoria obsoleto (renomeado no GLPI) para o nome
+    atual, usando o mapa de-para em config_categorias_canonicas.json.
+
+    Aplicar SEMPRE que uma categoria da coluna 'CATEGORIA COMPLETA' (rotulo
+    historico/verdade do GLPI) for usada como rotulo de treino, referencia de
+    comparacao (decisao/veto) ou saida de diagnostico — para que o pipeline
+    inteiro (classificacao, reclassificacao, decisao validada, cruzamento de
+    taxonomia) veja sempre a nomenclatura atual, mesmo quando o historico da
+    planilha ainda tem o nome antigo. Categorias fora do mapa retornam
+    inalteradas. Novos casos de renomeacao do GLPI devem ser adicionados ao
+    JSON, nao hardcoded em scripts individuais.
+    """
+    mapa = _carregar_mapa_categorias_canonicas()
+    return mapa.get(categoria, categoria)
+
+
 def localizar_coluna(cabecalho: list[Any], nomes: list[str] | tuple[str, ...],
                      default_1based: int) -> int:
     """Localiza a primeira coluna por cabecalho normalizado; usa fallback posicional."""

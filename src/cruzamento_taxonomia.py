@@ -61,7 +61,7 @@ def carregar_chamados(ws, range_a1: str) -> list[dict[str, Any]]:
 
     chamados: list[dict[str, Any]] = []
     for pos, linha in enumerate(valores[1:], start=2):
-        categoria = rt.cel(linha, i_cat)
+        categoria = pl.normalizar_categoria(rt.cel(linha, i_cat))
         partes = [rt.cel(linha, idx.get(rt.norm(c))) for c in campos_texto]
         texto = "\n".join(p for p in partes if p)
         if not categoria or not texto:
