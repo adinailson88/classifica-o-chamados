@@ -1,0 +1,89 @@
+name: Pendencias artigo com credencial
+
+on:
+  workflow_dispatch:
+    inputs:
+      tarefa:
+        description: "tabela_s1, history ou ablation"
+        required: true
+        default: "tabela_s1"
+        type: choice
+        options:
+          - tabela_s1
+          - history
+          - ablation
+      epochs:
+        description: "Epocas de treino"
+        required: false
+        default: "15"
+      k_folds:
+        description: "Folds para ablation"
+        required: false
+        default: "3"
+
+permissions:
+  contents: write
+
+jobs:
+  lstm-artigo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Instalar dependencias
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+          python -m pip install matplotlib tensorflow scikit-learn
+
+      - name: Preparar credencial da planilha
+        env:
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+        run: |
+          test -n "$GCP_SA_KEY"
+          printf '%s' "$GCP_SA_KEY" > credenciais_sa.json
+
+      - name: Validar sintaxe e testes
+        run: |
+          python -m py_compile src/exportar_tabela_por_categoria.py src/modelo_lstm.py src/ablation_lstm.py
+          python -m unittest discover -s tests
+
+      - name: Exportar tabela S1 da aba viva
+        if: ${{ github.event.inputs.tarefa == 'tabela_s1' }}
+        env:
+          SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
+          GOOGLE_APPLICATION_CREDENTIALS: credenciais_sa.json
+        run: |
+          python src/exportar_tabela_por_categoria.py
+
+      - name: Gerar history real do LSTM
+        if: ${{ github.event.inputs.tarefa == 'history' }}
+        env:
+          SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
+          GOOGLE_APPLICATION_CREDENTIALS: credenciais_sa.json
+        run: |
+          python src/modelo_lstm.py --epochs "${{ github.event.inputs.epochs }}"
+
+      - name: Rodar ablation real do LSTM
+        if: ${{ github.event.inputs.tarefa == 'ablation' }}
+        env:
+          SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
+          GOOGLE_APPLICATION_CREDENTIALS: credenciais_sa.json
+        run: |
+          python src/ablation_lstm.py --epochs "${{ github.event.inputs.epochs }}" --k-folds "${{ github.event.inputs.k_folds }}"
+
+      - name: Commitar resultados
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add 04_artigo/figuras
+          if git diff --cached --quiet; then
+            echo "Sem resultados novos para commitar."
+          else
+            git commit -m "Atualiza resultados LSTM do artigo"
+            git push
+          fi
