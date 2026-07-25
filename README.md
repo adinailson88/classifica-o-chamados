@@ -98,7 +98,7 @@ como `transformer_ft` (13.954/13.965 linhas, metodo `kfold_5`) foi
 produzida por esse caminho de fallback -- ou seja, e LSTM disfarcado, nao
 fine-tuning do BERTimbau.
 
-**Corrigido** (branch `fix/transformer-ft-fallback-explicito`, PR aberto):
+**Corrigido** (mergeado em `main` via PR #56):
 1. `modelos_zoo._ModeloTransformerFT` ganhou a propriedade `usou_fallback`
    (ja existia `train_info.status='fallback_lstm'`, mas nada consumia).
 2. `classificacao_multimodelo.prever_out_of_fold()` agora retorna
@@ -118,13 +118,25 @@ fine-tuning do BERTimbau.
    atualizado com a causa raiz e a confirmação de que os artefatos
    `transformer_ft` publicados antes desta correção não são confiáveis.
 
-**Pendente, aguardando decisao do Adinailson**: os artefatos JA publicados
-sob `transformer_ft` (aba `CLASSIF__transformer_ft` com 13.954 linhas
-contaminadas, `docs/dados/registros_transformer_ft.json`, linha
-`transformer_ft` em `multimodelo_metricas.json`) ainda NAO foram
-limpos/marcados -- decidir se apaga a aba (o pipeline reprocessaria do
-zero, mas so passa mesmo a classificar de verdade quando rodar com torch
-instalado) ou so marca como contaminado sem apagar.
+**RESOLVIDO tambem — dados contaminados limpos (25/07/2026, rodada 15)**:
+a pedido explicito do Adinailson ("corrija tudo, so nao apague o que fiz
+manualmente [M/N/P/Q]"), `src/limpar_classif_multimodelo.py --modelos
+"naive_bayes,regressao_logistica,linear_svc,sgd,extra_trees,random_forest,lstm,transformer_ft"
+--aplicar` limpou os 13.954 registros contaminados de `CLASSIF__transformer_ft`
+(e as 13.965 linhas de cada um dos outros 7 modelos, junto com
+`MULTIMODELO_TURNOS`/`MULTIMODELO_METRICAS`), sem tocar a aba principal
+(confirmado por leitura pos-limpeza, sem `#REF!`). Rematerializacao
+completa disparada em seguida
+(`multimodelo_classificacao.yml --modelos=todos --aplicar=true`,
+run `30163521690`): `transformer_ft` foi corretamente **RECUSADO** (o
+fix funcionou, nada publicado sob esse nome); os 7 modelos comparaveis
+rematerializaram 13.965/13.965 cada. `avaliacao_final.json` regenerado
+(25/07/2026 12:52) com numeros praticamente identicos aos da rodada 12
+(linear_svc 0,9493; sgd 0,9392; regressao_logistica 0,9355; extra_trees
+0,9274; random_forest 0,9227; lstm 0,879; naive_bayes 0,8609) --
+diferenca de ~0,01-0,04 p.p. por modelo, atribuivel a aleatoriedade do
+k-fold entre execucoes, nao a regressao. `transformer_ft` continua em
+`modelos_excluidos`.
 
 ### RESOLVIDO - ablation LSTM reconciliado via rematerializacao completa (25/07/2026)
 **A discrepancia do ablation LSTM foi investigada e resolvida.** Historico

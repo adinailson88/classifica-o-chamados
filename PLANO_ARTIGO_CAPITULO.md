@@ -35,80 +35,93 @@ Isso substitui a necessidade de o usuário reexplicar contexto a cada nova conve
 
 ## Estado desta rodada
 
-**Data**: 2026-07-25 (America/Bahia, UTC-03:00) — rodada 14 (consolidação
-dos Passos 1 e 2 do prompt de 6 passos; reconciliação de 3 branches
-paralelos).
+**Data**: 2026-07-25 (America/Bahia, UTC-03:00) — rodada 15 (fechamento:
+limpeza total + rematerialização dos 8 modelos, pós Passos 1 e 2).
 
 **Contexto**: o Adinailson enviou a outra sessão (Codex, via conector
 GitHub) um prompt com 6 passos para revisar o artigo com rigor de
-submissão A1/A2 (viés da amostra, `transformer_ft` com fallback
-silencioso para LSTM, Etapa 1 oficial desatualizada, bug no dashboard,
-snapshot desatualizado, rigor formal MDPI). Essa sessão concluiu os
-Passos 1–2 e preparou o Passo 3 em modo seguro, mas ficou **bloqueada
-pelo limite de uso do Codex até 2026-07-29 11:49**, com 3 commits
-**locais no sandbox dele, nunca enviados ao GitHub**. O Adinailson pediu
-para eu tratar os Passos 1 e 2 nesta sessão, sem esperar o Codex.
+submissão A1/A2. Essa sessão concluiu os Passos 1–2 e preparou o Passo 3
+em modo seguro, mas ficou **bloqueada pelo limite de uso do Codex até
+2026-07-29 11:49**, com 3 commits locais no sandbox dele, nunca enviados
+ao GitHub. O Adinailson pediu para eu tratar os Passos 1 e 2 nesta
+sessão. Na rodada 14, os Passos 1 e 2 foram concluídos e mergeados
+(PR #54, #55, #56). Nesta rodada (15), o Adinailson pediu explicitamente
+para "reexecutar tudo" ("corrija tudo, só não apague o que fiz
+manualmente [M/N/P/Q], pode apagar e refazer todos os dados de todas as
+outras abas, NÃO POSSO usar dados falsos") — fechando o ciclo iniciado
+com o achado do transformer_ft.
 
-**Onde está**: Passos 1 e 2 (ambos críticos) **concluídos e mergeados em
-`main`** nesta rodada, em 3 branches/PRs paralelos:
-- **PR #54** (`fix/vies-amostra-validada`) — quantifica o viés estrutural
-  da amostra validada (Passo 1a-d): 438 dos 9.534 conferidos (4,6%) são
-  "restritos" (avaliador julgou todas as fontes erradas, sem verdade
-  conhecida) e ficam fora do denominador de `acerto_validado` — inflando
-  mecanicamente o número de qualquer modelo. Publicado intervalo
-  `[limite_inferior, limite_superior]` por modelo em
-  `04_artigo/figuras/sensibilidade_vies_validacao.json` (amplitude real:
-  3,95 a 4,36 p.p.; ranking relativo entre os 7 modelos idêntico em
-  qualquer ponto do intervalo). Subseção 4.2, Discussão e Limitações do
-  artigo reescritas para reportar o intervalo em vez de um número
-  pontual.
-- **PR #55** (`feat/categoria-correta-manual`) — elimina esse viés **na
-  raiz** (não só delimita): nova coluna Q "CATEGORIA CORRETA MANUAL" na
-  aba principal, preenchida pelo avaliador só quando M/N/P não têm nenhum
-  "Correto". `decisao_validada.py::decidir()` ganhou o parâmetro
-  `categoria_manual`; um "restrito" com essa coluna preenchida vira
-  `status='decidido'`, `fonte_decisao='manual'`. Cabeçalho já criado pelo
-  Adinailson na planilha viva (confirmado por leitura, sem `#REF!`); ele
-  vai preencher aos poucos.
-- **PR #56** (`fix/transformer-ft-fallback-explicito`) — Passo 2: o cron
-  automático `multimodelo_classificacao.yml` nunca instala
-  `torch`/`transformers`, então `_ModeloTransformerFT.fit()` caía
-  SILENCIOSAMENTE para LSTM/RF. Confirmado em log real (run
-  `29550863840`, 17/07/2026): a materialização inteira publicada como
-  `transformer_ft` (13.954/13.965 linhas) foi produzida por esse
-  fallback — é LSTM disfarçado, não fine-tuning do BERTimbau. Corrigido:
-  `classificar_modelo()`/`reclassificar_modelo()` agora recusam publicar
-  quando isso acontece (nada é gravado sob o nome do modelo pedido).
+**Onde está**: ciclo completo, **concluído nesta rodada**:
+1. `src/limpar_classif_multimodelo.py --modelos "naive_bayes,regressao_logistica,linear_svc,sgd,extra_trees,random_forest,lstm,transformer_ft" --aplicar`
+   (via `lstm_artigo.yml`, tarefa `limpar_multimodelo`) — dry-run
+   reportado antes, depois aplicado: limpou 13.965 linhas × 8 modelos em
+   `CLASSIF__<modelo>`, 7.449 linhas de `MULTIMODELO_TURNOS`, 8 linhas de
+   `MULTIMODELO_METRICAS` (tudo, `linhas_mantidas: 0`). Confirmado por
+   leitura pós-limpeza que a aba principal (M/N/P/Q) não foi tocada (sem
+   `#REF!`, header Q intacto).
+2. `multimodelo_classificacao.yml --modelos=todos --max_turnos=0 --aplicar=true`
+   (run `30163521690`) rematerializou do zero. Resultado, confirmado em
+   log: `transformer_ft` → `RECUSADO` (o fix da rodada 14 funcionou —
+   nada publicado sob esse nome); os 7 modelos comparáveis →
+   `previstos=13965` cada, `metodo=kfold_5`.
+3. `avaliacao_final.yml` (run `30164458083`) e `estatistica.yml` (run
+   `30164458982`) regeneraram os JSONs. Números finais (n=9.096,
+   `avaliacao_final.json` gerado 25/07/2026 12:52,
+   `modelos_excluidos: ["transformer_ft"]`): linear_svc 0,9493; sgd
+   0,9392; regressao_logistica 0,9355; extra_trees 0,9274; random_forest
+   0,9227; lstm 0,879; naive_bayes 0,8609. **Praticamente idênticos aos
+   da rodada 12** (diferença de ~0,01-0,04 p.p. por modelo, atribuível à
+   aleatoriedade do k-fold entre execuções distintas — não indica
+   regressão). `vale_combinar=False` (nenhum ensemble supera linear_svc
+   isolado), mesma conclusão da rodada 12. Ranking relativo idêntico.
 
-**Reconciliação desta rodada**: os 3 PRs partiram do mesmo commit de main
-e todos reescreviam esta seção — conflito resolvido manualmente ao
-mergear #56 por último (merge de `origin/main` no branch do PR, resolvido
-aqui). Ordem de merge: #54 → #55 → #56, todos limpos exceto o conflito
-nesta seção.
-
-**Em andamento, mesma rodada**: a pedido do Adinailson ("reexecute tudo,
-só não apague o que fiz manualmente [M/N/P/Q], pode apagar e refazer
-todos os dados de todas as outras abas"), limpando
-`CLASSIF__<modelo>`/`MULTIMODELO_TURNOS`/`MULTIMODELO_METRICAS` de TODOS
-os modelos (incluindo `transformer_ft`, que nunca tinha sido limpo antes)
-e rematerializando do zero agora que o código já recusa publicar
-fallback disfarçado — ver próxima entrada nesta mesma seção após a
-execução, ou o histórico de rodada seguinte se já foi substituída.
+**Interpretação**: os números não mudaram de forma relevante porque os 7
+modelos comparáveis já estavam corretos desde a rodada 12 (a rodada 15
+só limpou e reprocessou, não mudou lógica de treino deles). O que mudou
+de fato é que `transformer_ft` agora **nunca mais** vai poluir
+silenciosamente `CLASSIF__transformer_ft`/`MULTIMODELO_TURNOS`/
+`MULTIMODELO_METRICAS` — o cron automático de 15 em 15 min vira no-op
+para esse modelo até alguém rodar com `torch`/`transformers` instalados
+de verdade.
 
 **Não tratado (fora de escopo, aguardando o Codex ou nova decisão)**:
 Passos 3–6 do prompt original — rematerialização da Etapa 1 oficial
 (coluna G, dashboard público); bug no dashboard que esconde a tabela de
 ensembles com mensagem desatualizada; snapshot imutável novo
-pós-rematerialização; rigor formal de submissão MDPI (metadados, figuras
-300dpi, subseção 5.4 dedicada); holdout fixo de treino/teste; referências
-em formato MDPI numérico.
+pós-rematerialização (pendência recorrente desde a rodada 12, ainda não
+feita); rigor formal de submissão MDPI (metadados, figuras 300dpi,
+subseção 5.4 dedicada); holdout fixo de treino/teste; referências em
+formato MDPI numérico.
 
-**Próximo passo**: (1) terminar a rematerialização completa em
-andamento (item acima) e reportar números finais; (2) regenerar
-`avaliacao_final.json`/`estatistica.json`/dashboard após a
-rematerialização; (3) gerar novo snapshot imutável (pendência recorrente
-desde a rodada 12); (4) quando o Codex retomar em 29/07 (ou antes, se
-decidido), continuar os Passos 3–6.
+**Próximo passo**: (1) gerar novo snapshot imutável
+(`gerar_manifesto_snapshot_artigo.py`) refletindo os números de
+25/07/2026 12:52 (pendência recorrente desde a rodada 12); (2) verificar
+se o dashboard público (`docs/index.html`) precisa de refresh dos JSONs
+novos; (3) quando o Codex retomar em 29/07 (ou antes, se decidido),
+continuar os Passos 3–6 — cuidado para não duplicar/conflitar com o que
+ele já tinha preparado (Passo 3 em modo seguro, nunca enviado ao
+GitHub).
+
+---
+
+### Histórico da rodada 14 (Passos 1 e 2 do prompt de 6 passos, mergeados)
+Passos 1 e 2 (ambos críticos) concluídos e mergeados em `main`, em 3
+PRs: **#54** (`fix/vies-amostra-validada`) quantificou o viés estrutural
+da amostra validada — 438 dos 9.534 conferidos (4,6%) são "restritos"
+(avaliador julgou todas as fontes erradas, sem verdade conhecida) e
+ficam fora do denominador de `acerto_validado`; publicado intervalo
+`[limite_inferior, limite_superior]` por modelo em
+`04_artigo/figuras/sensibilidade_vies_validacao.json` (amplitude
+3,95-4,36 p.p.; ranking relativo estável em todo o intervalo). **#55**
+(`feat/categoria-correta-manual`) elimina esse viés na raiz: nova coluna
+Q "CATEGORIA CORRETA MANUAL" na aba principal; `decisao_validada.py::decidir()`
+ganhou o parâmetro `categoria_manual`. **#56**
+(`fix/transformer-ft-fallback-explicito`) — Passo 2: confirmado em log
+real (run `29550863840`, 17/07/2026) que a materialização inteira
+publicada como `transformer_ft` (13.954/13.965 linhas) era fallback
+silencioso para LSTM; corrigido para recusar publicar quando isso
+acontece. Os 3 PRs partiram do mesmo commit e reescreviam esta seção —
+conflito resolvido manualmente ao mergear #56 por último.
 
 ---
 
