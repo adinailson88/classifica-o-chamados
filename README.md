@@ -87,6 +87,45 @@ v3.docx para dentro do repo em 04_artigo/ e converta para Markdown"].
 > aqui**, só apontar. Atualizar este bloco (substituir, não acumular) sempre
 > que um item mudar de estado.
 
+### RESOLVIDO - transformer_ft com fallback silencioso identificado e corrigido (25/07/2026)
+**Achado**: o cron automatico `multimodelo_classificacao.yml` (a cada 15 min,
+"todos os 8 modelos") nunca instala `torch`/`transformers` -- so
+`requirements-leves.txt` + `tensorflow`. `src/modelos_zoo.py::_ModeloTransformerFT.fit()`,
+ao nao encontrar essas dependencias, cai SILENCIOSAMENTE para LSTM/RF, sem
+registrar isso em nenhum artefato publicado. **Confirmado em log real**
+(run `29550863840`, 17/07/2026): a materializacao inteira entao publicada
+como `transformer_ft` (13.954/13.965 linhas, metodo `kfold_5`) foi
+produzida por esse caminho de fallback -- ou seja, e LSTM disfarcado, nao
+fine-tuning do BERTimbau.
+
+**Corrigido** (branch `fix/transformer-ft-fallback-explicito`, PR aberto):
+1. `modelos_zoo._ModeloTransformerFT` ganhou a propriedade `usou_fallback`
+   (ja existia `train_info.status='fallback_lstm'`, mas nada consumia).
+2. `classificacao_multimodelo.prever_out_of_fold()` agora retorna
+   `(preds, scores, metodo, usou_fallback)` -- propaga o sinal por todas as
+   instancias do modelo (inclusive em k-fold, onde ha uma por fold).
+3. `classificar_modelo()` e `reclassificar_modelo()` **recusam publicar**
+   quando `usou_fallback=True`: nao gravam nada em `CLASSIF__<modelo>`,
+   `MULTIMODELO_TURNOS` nem `RECLASS__<modelo>`, e logam um aviso explicito
+   em vez de silenciar o desvio. Na pratica, isso faz o cron automatico
+   virar no-op para `transformer_ft` ate alguem rodar com as dependencias
+   reais instaladas (`.github/workflows/transformer_ft.yml`).
+4. 4 testes novos em `tests/test_transformer_fallback_explicito.py`,
+   rodando no MESMO ambiente sem torch/transformers (nao mockado) --
+   valida o comportamento real, nao um cenario hipotetico. Suite completa:
+   71/71.
+5. Artigo (`04_artigo/artigo_classificacao_chamados_v3.md`, Limitações)
+   atualizado com a causa raiz e a confirmação de que os artefatos
+   `transformer_ft` publicados antes desta correção não são confiáveis.
+
+**Pendente, aguardando decisao do Adinailson**: os artefatos JA publicados
+sob `transformer_ft` (aba `CLASSIF__transformer_ft` com 13.954 linhas
+contaminadas, `docs/dados/registros_transformer_ft.json`, linha
+`transformer_ft` em `multimodelo_metricas.json`) ainda NAO foram
+limpos/marcados -- decidir se apaga a aba (o pipeline reprocessaria do
+zero, mas so passa mesmo a classificar de verdade quando rodar com torch
+instalado) ou so marca como contaminado sem apagar.
+
 ### RESOLVIDO - ablation LSTM reconciliado via rematerializacao completa (25/07/2026)
 **A discrepancia do ablation LSTM foi investigada e resolvida.** Historico
 da investigacao: (1) o diagnostico com credencial confirmou vazamento por
