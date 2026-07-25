@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       tarefa:
-        description: "tabela_s1, history, diagnostico_ablation, diagnostico_protocolo_ablation ou ablation"
+        description: "tabela_s1, history, diagnostico_ablation, diagnostico_protocolo_ablation, diagnostico_materializacao_lstm ou ablation"
         required: true
         default: "tabela_s1"
         type: choice
@@ -13,6 +13,7 @@ on:
           - history
           - diagnostico_ablation
           - diagnostico_protocolo_ablation
+          - diagnostico_materializacao_lstm
           - ablation
       epochs:
         description: "Epocas de treino"
@@ -93,6 +94,14 @@ jobs:
           GOOGLE_APPLICATION_CREDENTIALS: credenciais_sa.json
         run: |
           python src/ablation_lstm.py --diagnostico-protocolo-only --k-folds "${{ github.event.inputs.k_folds }}"
+
+      - name: Diagnosticar materializacao oficial nova do LSTM
+        if: ${{ github.event.inputs.tarefa == 'diagnostico_materializacao_lstm' }}
+        env:
+          SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
+          GOOGLE_APPLICATION_CREDENTIALS: credenciais_sa.json
+        run: |
+          python src/ablation_lstm.py --diagnostico-materializacao-oficial-only
 
       - name: Commitar resultados
         run: |

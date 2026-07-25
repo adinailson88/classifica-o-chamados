@@ -133,6 +133,45 @@ class TestAblationLSTM(unittest.TestCase):
         self.assertEqual(diag["oficial_lstm_vs_verdade"]["acertos"], 1)
         self.assertEqual(diag["oficial_lstm_vs_verdade"]["taxa_acerto"], 0.5)
 
+    def test_diagnosticar_materializacao_oficial_nova_nao_escreve_planilha(self):
+        class FakeSheet:
+            def worksheet(self, nome):
+                class FakeWorksheet:
+                    def get_values(self, *_args, **_kwargs):
+                        if nome == "CLASSIF__lstm":
+                            return [
+                                ["run_id", "linha_planilha", "id", "historico", "categoria_ia", "confianca"],
+                                ["r", 2, "1", "A", "B", 0.2],
+                                ["r", 3, "2", "B", "B", 0.8],
+                            ]
+                        return [[]]
+                return FakeWorksheet()
+
+        linhas = [
+            {"linha": 2, "texto": "x", "historico": "A"},
+            {"linha": 3, "texto": "y", "historico": "B"},
+        ]
+        verdade = {2: "A", 3: "B"}
+        config = {
+            "multimodelo": {
+                "aba_classificacao": "CLASSIF__{modelo}",
+                "k_folds": 5,
+                "min_base_treino": 200,
+                "fracao_topup": 0.25,
+            },
+            "modelo_ia": {"lstm": {"perfil": "padrao", "usar_class_weight": True}},
+            "memoria_validada": {"habilitada": False, "peso_treino": 3},
+            "abas_experimento": {"validacao_humana": "VALIDACAO_HUMANA"},
+        }
+
+        with mock.patch.object(ablation.cm, "prever_out_of_fold", return_value=(["A", "B"], [0.9, 0.7], "kfold_5")) as prever:
+            diag = ablation.diagnosticar_materializacao_oficial_nova(FakeSheet(), config, linhas, verdade)
+
+        prever.assert_called_once()
+        self.assertEqual(diag["materializacao_nova_vs_verdade"]["taxa_acerto"], 1.0)
+        self.assertEqual(diag["materializacao_antiga_vs_verdade"]["taxa_acerto"], 0.5)
+        self.assertEqual(diag["comparacao_nova_antiga"]["nova_acerta_antiga_erra"], 1)
+
 
 class TestModeloLSTMHistoryCLI(unittest.TestCase):
     def test_salvar_history_exige_fit_e_grava_json(self):
