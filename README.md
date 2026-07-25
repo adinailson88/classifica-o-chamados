@@ -87,6 +87,24 @@ v3.docx para dentro do repo em 04_artigo/ e converta para Markdown"].
 > aqui**, só apontar. Atualizar este bloco (substituir, não acumular) sempre
 > que um item mudar de estado.
 
+### 🔴 BLOQUEADOR — resultado suspeito, não citar sem verificar (sinalizado 24/07/2026)
+**Ablation study do LSTM (`src/ablation_lstm.py`, Figura 6/Subseção 4.9)
+reporta 87,68%–88,18% de acerto validado para configurações do LSTM cuja
+avaliação OFICIAL (Subseção 4.2, mesma base de verdade M/N/P) é 74,71% —
+diferença de ~13 pontos percentuais para a MESMA arquitetura
+(`units=64`, `dropout=0,5`), não explicada nem reconciliada.** Hipótese
+mais provável: o ablation treina do zero a cada fold sobre quase todo o
+corpus vivo (~79% dos dados) com particionamento aleatório por linha, sem
+agrupar textos quase-duplicados (comum em chamados de manutenção) no
+mesmo fold — cenário plausível de vazamento treino/teste. Texto do artigo
+já marcado com ressalva explícita (Subseção 4.9 e Discussão). **Antes de
+qualquer versão de submissão**: (1) checar duplicatas/quase-duplicatas de
+texto entre folds; (2) se confirmado, refazer com `GroupKFold` por hash de
+texto normalizado, ou restringir cada fold ao mesmo conjunto de treino da
+avaliação oficial; (3) só então decidir se `units=128, dropout=0,3` é
+ganho real ou artefato do viés. Não promover este resultado a "achado do
+capítulo" enquanto isso não for feito.
+
 ### Confirmado feito — não repetir em nova rodada
 - [x] Aviso de viés de amostra não aleatória no Resumo/Abstract (COCHRAN, 1977)
 - [x] Discussão da inferioridade do LSTM frente aos modelos lineares
@@ -163,14 +181,12 @@ v3.docx para dentro do repo em 04_artigo/ e converta para Markdown"].
 - [x] **Tabela Suplementar S2 gerada** —
       `04_artigo/figuras/tabela_S2_codigos_categorias_fig4.csv`, mapeando
       código → categoria para a Figura 4.
-- [x] **Ablation study real do LSTM executado** — `src/ablation_lstm.py`
-      avaliou unidades 64/128 × dropout 0,5/0,3 por 3-fold KFold sobre 9.096
-      linhas validadas (`run 30137529732`, commit `fcf39887`). Arquivos
-      publicados: `04_artigo/figuras/ablation_lstm_resultados.json`,
-      `04_artigo/figuras/tabela_S3_ablation_lstm.csv` e
-      `04_artigo/figuras/fig6_ablation_lstm.png`. Resultado: configuração
-      atual 64/0,5 = 87,68%; melhor variação 128/0,3 = 88,18% (+0,50 p.p.,
-      46 acertos a mais).
+- [~] **Ablation study do LSTM executado, mas SINALIZADO COMO SUSPEITO** —
+      `src/ablation_lstm.py` rodou de verdade (`run 30137529732`, commit
+      `fcf39887`), arquivos existem e compilam, mas os números (64/0,5 =
+      87,68%; 128/0,3 = 88,18%) **contradizem a avaliação oficial da mesma
+      arquitetura (74,71%, Subseção 4.2)** — ver bloco "BLOQUEADOR" no topo
+      deste checklist. Não marcar como concluído até investigar.
 
 ### Pendente confirmado — com o arquivo exato a mexer
 - [ ] Seções de metadados estilo MDPI (Author Contributions, Funding, Data
