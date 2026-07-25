@@ -67,13 +67,19 @@ protocolo verificaveis no codigo.
 tarefa=diagnostico_protocolo_ablation, para executar o diagnostico com
 secrets da planilha no PR #53. Tambem foi adicionada cobertura offline em
 tests/test_artigo_scripts.py para o novo diagnostico.
+5. O workflow 30142012194 executou com sucesso e publicou
+04_artigo/figuras/diagnostico_ablation_lstm_protocolo.json pelo commit
+167fe838. Resultado: a verdade humana M/N/P coincide com o historico em
+9.096/9.096 linhas validadas (100%); a aba oficial CLASSIF__lstm cobre as
+mesmas 9.096 linhas e acerta 6.796 (74,714%). Portanto, a discrepancia
+residual nao decorre de escopo de linhas nem de validacao humana posterior
+divergente do historico; ela permanece concentrada na diferenca entre
+predicao oficial ja materializada e re-treino novo por fold do ablation.
 
-**Proximo passo**: executar no GitHub Actions o workflow Pendencias artigo com
-credencial no branch fix/ablation-groupkfold-diagnostico, com
-tarefa=diagnostico_protocolo_ablation e k_folds=3, publicar o JSON gerado e so
-entao decidir se a discrepancia residual decorre principalmente da coincidencia
-historico-verdade, do protocolo oficial materializado ou de outra diferenca
-ainda nao mensurada.
+**Proximo passo**: isolar a diferenca entre (a) o caminho oficial
+modelos_zoo._ModeloLSTM/classificador_producao usado em CLASSIF__lstm e
+(b) o caminho direto modelo_lstm.ClassificadorLSTM usado no ablation, antes
+de remover qualquer ressalva da Subsecao 4.9.
 
 ---
 
