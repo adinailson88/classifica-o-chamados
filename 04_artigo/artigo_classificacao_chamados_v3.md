@@ -898,31 +898,27 @@ Fonte: `04_artigo/figuras/lstm_history.json`, gerado por `src/modelo_lstm.py`.
 
 ![Figura 6 — Ablation study do LSTM: unidades recorrentes e dropout.](04_artigo/figuras/fig6_ablation_lstm.png)
 
-**Figura 6 — RESULTADO SUSPEITO, NÃO CITAR SEM VERIFICAÇÃO (sinalizado em
-24/07/2026)**: o ablation study relatou, para a configuração atual
-(`units = 64`, `dropout = 0,5`), 87,68% de acerto validado (7.975/9.096) —
-um valor **~13 pontos percentuais acima** do acerto validado dessa mesma
-arquitetura reportado na Subseção 4.2 (74,71%, mesma base de verdade
-validada M/N/P). Essa discrepância não foi explicada nem reconciliada e
-**não deve ser tratada como resultado confiável**. Hipótese metodológica
-mais provável: `src/ablation_lstm.py` treina um LSTM do zero a cada fold
-sobre quase todo o corpus vivo (13.965 menos o fold de teste, ~79% dos
-dados) usando a categoria histórica como rótulo, em vez de reaproveitar a
-predição *out-of-fold* já materializada da Subseção 4.2 — como os textos
-de chamados de manutenção são curtos e frequentemente quase-duplicados
-entre si (ex.: múltiplas OS "ar condicionado não gela"), um particionamento
-aleatório por linha, sem agrupar textos quase-duplicados no mesmo fold,
-é um cenário plausível de vazamento entre treino e teste, inflando a
-acurácia. Antes de qualquer versão de submissão: (i) confirmar se há
-duplicatas/quase-duplicatas de texto entre os folds de treino e teste do
-ablation; (ii) se confirmado, refazer o ablation com particionamento por
-grupo de texto (ex.: `GroupKFold` sobre um hash do texto normalizado) ou
-restringir o treino de cada fold aos mesmos dados de treino usados na
-avaliação oficial da Subseção 4.2; (iii) só então decidir se a variação
-`units = 128`, `dropout = 0,3` (a melhor nesta rodada, 88,18%,
-8.021/9.096, +0,50 p.p.) é uma diferença real ou artefato do mesmo viés.
+**Figura 6 — RESULTADO AINDA SUSPEITO, NÃO CITAR COMO ACHADO CONSOLIDADO
+(atualizado em 24/07/2026)**: a auditoria da rodada 10 confirmou vazamento
+metodológico relevante no particionamento anterior: no `KFold` aleatório por
+linha usado originalmente, 4.250 de 9.096 linhas validadas de teste (46,72%)
+tinham duplicata textual normalizada no treino
+(`diagnostico_ablation_lstm_duplicatas.json`). O ablation foi refeito com
+`GroupKFold` por hash de texto normalizado, excluindo do treino grupos
+textuais presentes no teste. A correção reduziu a configuração atual
+(`units = 64`, `dropout = 0,5`) de 87,68% para 86,35% (7.854/9.096), mas o
+valor permanece **11,64 pontos percentuais acima** do acerto validado dessa
+mesma arquitetura reportado na Subseção 4.2 (74,71%, mesma base de verdade
+validada M/N/P). Portanto, as duplicatas explicam parte do problema, mas
+não resolvem a discrepância. O resultado da Figura 6 deve ser tratado como
+diagnóstico metodológico em aberto, não como evidência substantiva de
+sensibilidade do LSTM a unidades ou dropout. Nesta reexecução, a configuração
+atual 64/0,5 ficou numericamente acima das variações testadas, mas essa
+ordenação não deve ser interpretada até que a diferença residual em relação
+à avaliação oficial seja explicada.
 
-Fonte: `04_artigo/figuras/ablation_lstm_resultados.json` e
+Fonte: `04_artigo/figuras/diagnostico_ablation_lstm_duplicatas.json`,
+`04_artigo/figuras/ablation_lstm_resultados.json` e
 `04_artigo/figuras/tabela_S3_ablation_lstm.csv`, gerados por
 `src/ablation_lstm.py`. Ver `PLANO_ARTIGO_CAPITULO.md`, "Estado desta
 rodada", para o registro completo da investigação.
@@ -1101,12 +1097,15 @@ repete — a recomendação de não tratar a meta como cumprida para fins de
 liberação em produção sem revisão antes da conclusão da conferência
 humana sobre uma fração bem mais representativa da base. A curva real de
 aprendizado do LSTM (Subseção 4.9, Figura 5) é consistente com o restante do
-capítulo. O ablation study do mesmo modelo (Figura 6), no entanto, reportou
-acerto validado ~13 pontos percentuais acima do valor oficial da mesma
-arquitetura (Subseção 4.2) e está sinalizado como resultado suspeito, não
-verificado — nenhuma conclusão sobre a sensibilidade do LSTM a unidades ou
-dropout deve ser extraída dele até a discrepância ser investigada e
-reconciliada (ver ressalva completa na Subseção 4.9). Os próximos passos deste protocolo incluem a conclusão
+capítulo. O ablation study do mesmo modelo (Figura 6), no entanto, permanece
+sinalizado como resultado suspeito: a rodada 10 confirmou vazamento por
+duplicatas textuais entre folds no particionamento original (46,72% das linhas
+validadas de teste), mas a reexecução com `GroupKFold` ainda deixou a
+configuração atual em 86,35%, contra 74,71% na avaliação oficial da mesma
+arquitetura (Subseção 4.2). Assim, nenhuma conclusão sobre a sensibilidade do
+LSTM a unidades ou dropout deve ser extraída desse ablation até que a diferença
+residual seja explicada e reconciliada (ver ressalva completa na Subseção 4.9).
+Os próximos passos deste protocolo incluem a conclusão
 da conferência humana pendente (31,7% da base ainda sem decisão travada), a
 calibração formal por modelo (Platt/isotônica/temperatura) condicionada a essa
 conferência, a realização do treino e da avaliação comparativa do transformador
