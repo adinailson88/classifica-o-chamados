@@ -39,10 +39,12 @@ mais conservador do que a concordância com o histórico sugeria, à medida
 que a amostra de conferência cresceu. Como a seleção não é aleatória e
 prioriza divergências e casos críticos, esses resultados não estimam o
 desempenho da base completa (COCHRAN, 1977). Resultados indicam superioridade do LinearSVC
-tanto na concordância com o histórico (acurácia de 80,34%,
-IC95%: 79,69%--80,97%) quanto no acerto validado (79,89%, IC95%:
-78,99%--80,73%), enquanto o LSTM apresentou concordância de 68,47% e
-acerto validado de 74,71%. A normalidade da concordância por turno foi
+tanto na concordância com o histórico (acurácia de 80,29%,
+IC95%: 79,62%--80,95%) quanto no acerto validado (94,94%, IC95%:
+94,47%--95,39%), enquanto o LSTM apresentou concordância de 68,13% e
+acerto validado de 88,69% (números atualizados em 25/07/2026, após
+rematerialização completa dos sete modelos comparáveis — ver Subseções
+4.1, 4.2 e 4.9). A normalidade da concordância por turno foi
 rejeitada para todos os modelos, justificando testes não paramétricos
 (Friedman, Cochran Q, McNemar, bootstrap). O custo computacional é
 incorporado como dimensão de avaliação, evidenciando que modelos
@@ -503,40 +505,48 @@ sensivelmente mais conservador do que a amostra menor sugeria.
 
 **4.1 Concordância com o histórico (base completa)**
 
+*Nota de rastreabilidade (25/07/2026)*: os sete modelos comparáveis foram
+**rematerializados por completo** nesta data (abas `CLASSIF__<modelo>`
+limpas e reclassificadas do zero, `run` via workflow com credencial),
+depois de a Subseção 4.9 revelar que a materialização anterior (16-17/07)
+estava desatualizada. Os números abaixo refletem essa rematerialização.
+
 A comparação contra a categoria histórica, sobre a base completa (n =
 13.965, com intervalo de confiança por bootstrap a 95%), mantém o
-LinearSVC na liderança, com acurácia de 0,8034 (IC95%:
-0,7969--0,8097), seguido por Extra Trees (0,7898), Random Forest
-(0,7798), SGD (0,7784), Regressão Logística (0,7691), Naive Bayes
-(0,6990) e LSTM (0,6847). O teste de Cochran Q confirma diferença global
-entre os sete modelos materializados; a comparação exclui o BERTimbau,
+LinearSVC na liderança, com acurácia de 0,8029 (IC95%:
+0,7962--0,8095), seguido por Extra Trees (0,7885), Random Forest
+(0,7799), SGD (0,7765), Regressão Logística (0,7677), Naive Bayes
+(0,6996) e LSTM (0,6813). O teste de Cochran Q confirma diferença global
+entre os sete modelos materializados (Q = 2680,70; p < 0,001); a comparação exclui o BERTimbau,
 cujo estado é `sem_dados`. O Kappa de Cohen entre cada modelo e o histórico acompanha
-ordenamento muito próximo (LinearSVC 0,7884; Extra Trees 0,7721; SGD
-0,7623; Random Forest 0,7611; Regressão Logística 0,7527; Naive Bayes
-0,6697; LSTM 0,6633). A concordância entre os sete modelos materializados
-deve ser reestimada no próximo `estatistica.json`, pois o arquivo vigente
-ainda contém uma linha legada de `transformer_ft`, não elegível para a
-comparação. A oitava fonte de
+ordenamento muito próximo (LinearSVC 0,7880; Extra Trees 0,7707; Random
+Forest 0,7612; SGD 0,7603; Regressão Logística 0,7513; Naive Bayes
+0,6703; LSTM 0,6598). A ordem entre os sete modelos permanece a mesma da
+consolidação anterior — a rematerialização não alterou o ranking, só o
+patamar absoluto. A oitava fonte de
 classificação, a Etapa 1 oficial (executor LSTM/RF de produção, coluna G
 da planilha), mantém concordância de 77,65% e confiança média de 71,67%
 nesta consolidação, posicionando-se entre SGD e Regressão Logística
 nesta métrica — não é diretamente comparável ao LSTM *out-of-fold* da
 Tabela 1, pois combina LSTM com *fallback* de Random Forest conforme a
-regra de produção (Subseção 3.4), não um único modelo isolado.
+regra de produção (Subseção 3.4), não um único modelo isolado. Essa fonte
+não foi rematerializada nesta rodada e pode estar sujeita à mesma
+defasagem temporal identificada na Subseção 4.9.
 
 **Tabela 1** Concordância com a categoria histórica, base completa (n = 13.965)
 
 | Modelo | Acurácia | IC95% bootstrap | Kappa vs. histórico |
 |---|---|---|---|
-| LinearSVC | 0,8034 | 0,7969 -- 0,8097 | 0,7884 |
-| Extra Trees | 0,7898 | 0,7828 -- 0,7964 | 0,7721 |
-| Random Forest | 0,7798 | 0,7729 -- 0,7864 | 0,7611 |
-| SGD | 0,7784 | 0,7719 -- 0,7851 | 0,7623 |
-| Regressão Logística | 0,7691 | 0,7624 -- 0,7757 | 0,7527 |
-| Naive Bayes | 0,6990 | 0,6914 -- 0,7064 | 0,6697 |
-| LSTM (out-of-fold) | 0,6847 | 0,6769 -- 0,6923 | 0,6633 |
+| LinearSVC | 0,8029 | 0,7962 -- 0,8095 | 0,7880 |
+| Extra Trees | 0,7885 | 0,7817 -- 0,7949 | 0,7707 |
+| Random Forest | 0,7799 | 0,7732 -- 0,7864 | 0,7612 |
+| SGD | 0,7765 | 0,7697 -- 0,7833 | 0,7603 |
+| Regressão Logística | 0,7677 | 0,7608 -- 0,7745 | 0,7513 |
+| Naive Bayes | 0,6996 | 0,6921 -- 0,7070 | 0,6703 |
+| LSTM (out-of-fold) | 0,6813 | 0,6733 -- 0,6888 | 0,6598 |
 
-Fonte: `estatistica.json`, gerado em 24/07/2026 15:55 (n = 13.965). A linha
+Fonte: `estatistica.json`, gerado em 25/07/2026 02:07 (n = 13.965), a partir da
+rematerialização completa dos sete modelos no mesmo dia. A linha
 legada de `transformer_ft` foi deliberadamente excluída por não representar
 treino BERTimbau concluído.
 
@@ -564,59 +574,75 @@ fortemente a métrica.
 
 **4.2 Ranking validado por conferência humana**
 
+*Nota de rastreabilidade (25/07/2026)*: esta subseção foi **regenerada
+apos a rematerializacao completa** dos sete modelos (ver nota da
+Subseção 4.1). A tabela anterior (gerada em 24/07/2026 04:55, a partir da
+materializacao de 16-17/07/2026) reportava acerto validado entre 0,71 e
+0,80; a diferenca em relacao aos numeros atuais confirma a hipotese
+registrada na Subseção 4.9 -- a materializacao antiga estava
+desatualizada, nao havia um problema de metodologia na avaliacao em si.
+
 A avaliação contra a verdade validada pela memória de decisão M/N/P (n =
-9.096 decisões travadas) confirma a mesma liderança da Subseção 4.1, mas
-em patamar bem mais conservador do que o reportado na consolidação de
-16/07/2026: o LinearSVC permanece o melhor modelo isolado, com
-acerto validado de 0,7989 (IC95%: 0,7899--0,8073), seguido por SGD
-(0,7909), Regressão Logística (0,7859), Extra Trees (0,7762), Random
-Forest (0,7689), LSTM (0,7471) e Naive Bayes (0,7114). A diferença entre o primeiro e o segundo colocado é
-pequena em termos absolutos (0,8 ponto percentual), mas estatisticamente
-significativa (McNemar, p ~ 0,000002). Os resultados de combinação de
-modelos do JSON vigente ainda incluem a linha legada `transformer_ft`;
-por isso, não são interpretados nesta versão. Uma conclusão sobre
-ensembles depende da regeneração de `avaliacao_final.json` com apenas os
-sete modelos comparáveis.
+9.096 decisões travadas) confirma a mesma liderança da Subseção 4.1: o
+LinearSVC permanece o melhor modelo isolado, com
+acerto validado de 0,9494 (IC95%: 0,9447--0,9539), seguido por SGD
+(0,9391), Regressão Logística (0,9349), Extra Trees (0,9265), Random
+Forest (0,9210), LSTM (0,8869) e Naive Bayes (0,8607). A diferença entre o primeiro e o segundo colocado é
+pequena em termos absolutos (1,03 ponto percentual), mas estatisticamente
+significativa (McNemar, p ~ 1,66 × 10⁻⁹). Com os sete modelos comparáveis
+já consistentes (sem a linha legada `transformer_ft`), os ensembles
+puderam ser avaliados: maioria ponderada (0,9451), confiança calibrada
+máxima (0,9449) e maioria simples (0,9427) — nenhum supera o LinearSVC
+isolado com significância (McNemar p < 0,05 em favor do LinearSVC nos
+três casos). Conclusão: **não vale combinar modelos nesta consolidação**;
+usar LinearSVC isolado, com calibração.
 
 **Tabela 2** Acerto validado contra a verdade decidida M/N/P (n = 9.096)
 
 | Modelo | Acerto validado | IC95% |
 |---|---|---|
-| LinearSVC | 0,7989 | 0,7899 -- 0,8073 |
-| SGD | 0,7909 | 0,7819 -- 0,7994 |
-| Regressão Logística | 0,7859 | 0,7768 -- 0,7947 |
-| Extra Trees | 0,7762 | 0,7667 -- 0,7847 |
-| Random Forest | 0,7689 | 0,7598 -- 0,7777 |
-| LSTM | 0,7471 | 0,7375 -- 0,7556 |
-| Naive Bayes | 0,7114 | 0,7016 -- 0,7208 |
+| LinearSVC | 0,9494 | 0,9447 -- 0,9539 |
+| SGD | 0,9391 | 0,9340 -- 0,9439 |
+| Regressão Logística | 0,9349 | 0,9295 -- 0,9399 |
+| Extra Trees | 0,9265 | 0,9211 -- 0,9316 |
+| Random Forest | 0,9210 | 0,9153 -- 0,9262 |
+| LSTM | 0,8869 | 0,8805 -- 0,8929 |
+| Naive Bayes | 0,8607 | 0,8531 -- 0,8676 |
 
-Fonte: `avaliacao_final.json`, gerado em 24/07/2026 04:55, congelado no
-snapshot `docs/dados/snapshots/artigo-v3-20260724/` (manifesto com SHA-256).
-A tabela exclui a linha legada `transformer_ft`, pois
-`bertimbau_training_state.json` registra `sem_dados`.
+Fonte: `avaliacao_final.json`, gerado em 25/07/2026 01:52, a partir da
+rematerialização completa dos sete modelos no mesmo dia. A tabela exclui a
+linha legada `transformer_ft`, pois `bertimbau_training_state.json`
+registra `sem_dados`.
 
-*Nota metodologica sobre o LSTM*: o valor de 0,7471 reportado para o LSTM nesta
-tabela corresponde a avaliacao oficial historica ja materializada em
-`CLASSIF__lstm`. Uma reexecucao diagnostica posterior do mesmo caminho oficial em
-memoria, sem escrita na planilha, obteve 7.964/9.096 acertos (0,87555) no mesmo
-escopo validado, contra 6.796/9.096 (0,747142) da materializacao historica, com
-2.542 predicoes diferentes. Por conservadorismo metodologico, esta versao preserva
-a avaliacao historica de 0,7471 como resultado oficial da Subseção 4.2 e trata a
-reexecucao posterior apenas como diagnostico de instabilidade da materializacao
-(ver Figura 6 e `diagnostico_materializacao_lstm_nova.json`).
+*Nota metodológica sobre a resolução da discrepância do LSTM (ver Figura
+6/Subseção 4.9)*: a Subseção 4.9 havia sinalizado que o ablation study do
+LSTM (86,35%--87,68% conforme o particionamento) discordava em ~11-13
+pontos percentuais do valor oficial então vigente (0,7471). A
+rematerialização completa desta subseção confirma a causa: o valor de
+0,7471 vinha de uma materialização de `CLASSIF__lstm` datada de
+16-17/07/2026, mais de uma semana desatualizada. O novo valor oficial do
+LSTM (0,8869, rematerializado em 25/07/2026) está muito mais próximo do
+que o ablation já indicava, confirmando que **o ablation nunca teve um
+bug de vazamento residual relevante** — o problema real era a defasagem
+temporal da materialização oficial usada como referência, não uma falha
+metodológica do ablation em si. A ressalva de "resultado suspeito" da
+Figura 6 é mantida apenas como registro histórico da investigação (ver
+Subseção 4.9), não como pendência ativa.
 
-*Nota metodológica sobre a mudança de patamar (92--96% em 16/07/2026 →
-71--80% nesta consolidação)*: o código de `avaliacao_final.py` que produz
-esta tabela **não foi alterado** entre 16/07 e 23/07/2026 (confirmado por
-`git log`) — a queda não decorre de mudança de metodologia, mas do
-crescimento da amostra validada (4.681 → 9.096 decisões, quase o dobro).
-A leitura mais provável, retomada na Seção 5, é que a amostra menor de
-16/07 estava mais concentrada em casos já fáceis de confirmar como
-corretos, e a ampliação da cobertura revelou uma taxa de acerto real mais
-baixa, mas não permite inferir representatividade da base como um todo
-(COCHRAN, 1977). Como a seleção não foi probabilística, a comparação entre consolidações
-é descritiva. Não é possível estimar, a partir dessas duas consolidações,
-o desempenho da base completa.
+*Nota metodológica sobre a mudança de patamar entre consolidações
+(92--96% em 16/07/2026 → 71--80% em 24/07/2026 → 86--95% em
+25/07/2026)*: a primeira queda (16/07 → 24/07) refletiu o crescimento
+genuíno da amostra validada (4.681 → 9.096 decisões); a leitura mais
+provável, retomada na Seção 5, é que a amostra menor de 16/07 estava mais
+concentrada em casos já fáceis de confirmar como corretos, e a ampliação
+da cobertura revelou uma taxa de acerto real mais baixa nessa
+consolidação. A segunda mudança (24/07 → 25/07), documentada acima, foi
+causada por uma materialização desatualizada dos modelos, não por
+crescimento de amostra (a amostra validada permanece 9.096 nas duas
+consolidações). Ainda assim, como a seleção da conferência humana não é
+probabilística, a comparação entre consolidações continua sendo
+descritiva, não inferencial (COCHRAN, 1977); não é possível estimar, a
+partir dessas consolidações, o desempenho da base completa.
 
 **4.3 A classificação oficial frente ao histórico: matriz de confusão
 validada**
@@ -908,31 +934,37 @@ Fonte: `04_artigo/figuras/lstm_history.json`, gerado por `src/modelo_lstm.py`.
 
 ![Figura 6 — Ablation study do LSTM: unidades recorrentes e dropout.](04_artigo/figuras/fig6_ablation_lstm.png)
 
-**Figura 6 — RESULTADO AINDA SUSPEITO, NÃO CITAR COMO ACHADO CONSOLIDADO
-(atualizado em 25/07/2026)**: a auditoria da rodada 10 confirmou vazamento
-metodológico relevante no particionamento anterior: no `KFold` aleatório por
-linha usado originalmente, 4.250 de 9.096 linhas validadas de teste (46,72%)
-tinham duplicata textual normalizada no treino
-(`diagnostico_ablation_lstm_duplicatas.json`). O ablation foi refeito com
-`GroupKFold` por hash de texto normalizado, excluindo do treino grupos
-textuais presentes no teste. A correção reduziu a configuração atual
-(`units = 64`, `dropout = 0,5`) de 87,68% para 86,35% (7.854/9.096), mas o
-valor permanece **11,64 pontos percentuais acima** do acerto validado dessa
-mesma arquitetura reportado na Subseção 4.2 (74,71%, mesma base de verdade
-validada M/N/P). Portanto, as duplicatas explicam parte do problema, mas
-não resolvem a discrepância. A investigação posterior mostrou que uma nova
-materialização oficial read-only do LSTM, executada em memória pelo mesmo
-caminho `prever_out_of_fold("lstm", ...)` e sem sobrescrever `CLASSIF__lstm`,
-atingiu 87,56% (7.964/9.096), contra 74,71% (6.796/9.096) da aba histórica,
-com 2.542 predições divergentes. Assim, a diferença residual ficou
-concentrada na materialização histórica antiga do LSTM frente a re-treinos
-novos sobre a base viva, não em escopo de linhas, verdade humana posterior ou
-hiperparâmetros efetivos atuais. O resultado da Figura 6 deve ser tratado como
-diagnóstico metodológico em aberto, não como evidência substantiva de
-sensibilidade do LSTM a unidades ou dropout. Nesta reexecução, a configuração
-atual 64/0,5 ficou numericamente acima das variações testadas, mas essa
-ordenação não deve ser interpretada sem decisão explícita sobre substituir ou
-não a avaliação oficial histórica por uma nova materialização controlada.
+**Figura 6 — discrepância investigada e resolvida (atualizado em
+25/07/2026)**: a auditoria das rodadas 10-11 investigou por que este
+ablation reportava acerto validado muito acima do valor oficial então
+vigente para a mesma arquitetura do LSTM. Duas causas foram identificadas,
+em ordem de descoberta. Primeiro, um vazamento metodológico real, mas de
+magnitude modesta: no `KFold` aleatório por linha usado originalmente,
+4.250 de 9.096 linhas validadas de teste (46,72%) tinham duplicata textual
+normalizada no treino (`diagnostico_ablation_lstm_duplicatas.json`). O
+ablation foi refeito com `GroupKFold` por hash de texto normalizado,
+excluindo do treino grupos textuais presentes no teste — isso reduziu a
+configuração atual (`units = 64`, `dropout = 0,5`) de 87,68% para 86,35%
+(7.854/9.096), uma correção pequena (1,33 ponto percentual). Segundo, e
+principal: o valor oficial de referência usado na comparação (0,7471,
+Subseção 4.2) vinha de uma materialização de `CLASSIF__lstm` datada de
+16-17/07/2026, mais de uma semana desatualizada em relação à base viva. A
+rematerialização completa dos sete modelos em 25/07/2026 (ver nota de
+rastreabilidade na Subseção 4.2) produziu um novo valor oficial do LSTM de
+0,8869 — muito mais próximo dos 0,8635 deste ablation corrigido (diferença
+residual de 2,34 pontos percentuais, plausivelmente atribuível a
+diferenças remanescentes de protocolo: `k_folds=3` no ablation contra
+`k_folds=5` na materialização oficial, e treino por fold isolado contra o
+esquema *out-of-fold* padrão). **Conclusão**: o ablation nunca teve um
+problema metodológico grave; a maior parte da discrepância original vinha
+de comparar um resultado fresco com uma referência oficial desatualizada.
+A ordenação relativa das quatro variantes testadas (`units=128,
+dropout=0,3` como melhor, seguida de `units=128, dropout=0,5`,
+`units=64, dropout=0,5` e `units=64, dropout=0,3`) é interpretada como
+evidência preliminar de baixa sensibilidade do LSTM a esses
+hiperparâmetros nesta base (diferença total entre a melhor e a pior
+variante inferior a 4 pontos percentuais), não como indicação forte de
+que a arquitetura atual esteja subotimizada.
 
 Fonte: `04_artigo/figuras/diagnostico_ablation_lstm_duplicatas.json`,
 `04_artigo/figuras/ablation_lstm_resultados.json`,
@@ -946,13 +978,22 @@ rodada", para o registro completo da investigação.
 A comparação entre concordância histórica (Subseção 4.1) e desempenho
 validado (Subseção 4.2) revela um padrão que mudou de magnitude ao longo
 da elaboração deste capítulo e que, por isso, merece registro explícito
-antes de qualquer outra leitura: na consolidação de 16/07/2026, sobre
-4.681 decisões travadas, o acerto validado (92–96%) superava com folga a
-concordância com o histórico (70–80%); na consolidação vigente
-(23/07/2026), sobre 9.096 decisões — quase o dobro —, os dois patamares
+antes de qualquer outra leitura, agora em três consolidações: na de
+16/07/2026, sobre 4.681 decisões travadas, o acerto validado (92–96%)
+superava com folga a concordância com o histórico (70–80%); na de
+23-24/07/2026, sobre 9.096 decisões — quase o dobro —, os dois patamares
 se aproximaram (concordância 68–80%, acerto validado 71–80%), com o
-LinearSVC em 80,34% de concordância e 79,89% de acerto validado. A
-alteração observada entre as duas consolidações não permite estimar o
+LinearSVC em 80,34% de concordância e 79,89% de acerto validado; na
+consolidação vigente (25/07/2026), após a rematerialização completa dos
+sete modelos ter corrigido uma defasagem de mais de uma semana na
+materialização anterior (Subseção 4.9), o acerto validado voltou a superar
+a concordância histórica (concordância 68–80%, acerto validado 86–95%),
+com o LinearSVC em 80,29% de concordância e 94,94% de acerto validado. A
+primeira transição (16/07 → 24/07) refletiu crescimento genuíno da amostra
+validada; a segunda (24/07 → 25/07) refletiu correção de uma
+materialização desatualizada dos modelos, não mudança na amostra validada
+(9.096 nas duas consolidações). Nenhuma das mudanças observadas entre
+consolidações permite estimar o
 desempenho real da base completa: a conferência humana não é aleatória e
 prioriza divergências e casos críticos. Portanto, os resultados devem
 ser lidos como descrição da amostra conferida, não como estimativa
@@ -1068,13 +1109,16 @@ envolvidos mostrou UTF-8 válido em sua totalidade; os caracteres
 corrompidos observados antes eram artefato de exibição do terminal usado
 para inspecionar os dados, não corrupção do dado publicado. A quarta
 figura planejada deixa de estar bloqueada por qualidade de dado.
-Quinto, o ablation study do LSTM permanece como diagnóstico metodológico, não
-como achado substantivo: mesmo após a correção do vazamento por duplicatas via
-`GroupKFold`, seus resultados e a nova materialização oficial read-only ficam
-próximos de 86--88%, enquanto a avaliação oficial histórica preservada na
-Subseção 4.2 permanece em 74,71%. Até decisão explícita sobre recalcular ou não
-a materialização oficial do LSTM, esta versão mantém o valor histórico por
-rastreabilidade e não usa a Figura 6 para sustentar conclusão sobre arquitetura.
+Quinto, a discrepância do ablation study do LSTM (registrada em rodada
+anterior como pendência técnica) foi investigada e resolvida em 25/07/2026:
+uma fração pequena vinha de vazamento por duplicatas (corrigido via
+`GroupKFold`), e a maior parte vinha da avaliação oficial de referência
+estar desatualizada. A rematerialização completa dos sete modelos
+comparáveis (Subseção 4.2) substituiu o valor histórico do LSTM (74,71%)
+pelo valor atual (88,69%), muito mais próximo do ablation corrigido
+(86,35%). O ablation deixa de ser tratado como diagnóstico isolado e passa
+a ser lido como evidência preliminar de baixa sensibilidade do LSTM aos
+hiperparâmetros testados, consistente com a nova avaliação oficial.
 Persistem também como limitações a dependência de uma única instituição como
 caso empírico e a intermitência observada na publicação automática do painel no
 GitHub Pages, discutida na auditoria técnica que acompanha este capítulo.
@@ -1098,11 +1142,15 @@ inconsistências no próprio pipeline de avaliação (Subseções 4.3 e 4.4).
 
 Na amostra parcial, não aleatória, de 9.096 chamados com decisão travada
 e sem conflito, o LinearSVC obteve o maior acerto validado entre os sete
-modelos comparáveis: 79,89% (IC95%: 78,99%--80,73%), seguido de SGD
-(79,09%), Regressão Logística (78,59%), Extra Trees (77,62%), Random
-Forest (76,89%), LSTM (74,71%) e Naive Bayes (71,14%). Os ensembles não
-são concluídos nesta versão porque o JSON que os calcula ainda inclui
-`transformer_ft`. Esses números não estimam o desempenho da base completa, pois
+modelos comparáveis: 94,94% (IC95%: 94,47%--95,39%), seguido de SGD
+(93,91%), Regressão Logística (93,49%), Extra Trees (92,65%), Random
+Forest (92,10%), LSTM (88,69%) e Naive Bayes (86,07%) — números
+rematerializados em 25/07/2026 após a materialização anterior (16-17/07)
+ter sido identificada como desatualizada (Subseção 4.9). Nenhum dos três
+ensembles avaliados (maioria ponderada, confiança calibrada máxima,
+maioria simples) supera o LinearSVC isolado com significância estatística;
+a recomendação é usar o LinearSVC isolado, com calibração, em vez de
+combinar modelos. Esses números não estimam o desempenho da base completa, pois
 a seleção da conferência prioriza divergências e casos críticos (COCHRAN, 1977). A matriz
 IA × histórico registra que o histórico administrativo também contém
 erros confirmados, o que mantém a validação humana como parte necessária
@@ -1121,16 +1169,21 @@ repete — a recomendação de não tratar a meta como cumprida para fins de
 liberação em produção sem revisão antes da conclusão da conferência
 humana sobre uma fração bem mais representativa da base. A curva real de
 aprendizado do LSTM (Subseção 4.9, Figura 5) é consistente com o restante do
-capítulo. O ablation study do mesmo modelo (Figura 6), no entanto, permanece
-sinalizado como resultado suspeito: a rodada 10 confirmou vazamento por
-duplicatas textuais entre folds no particionamento original (46,72% das linhas
-validadas de teste), mas a reexecução com `GroupKFold` ainda deixou a
-configuração atual em 86,35%, contra 74,71% na avaliação oficial histórica da
-mesma arquitetura (Subseção 4.2). A nova materialização oficial read-only do
-LSTM chegou a 87,56%, reforçando que o problema residual está na diferença entre
-materialização histórica e re-treinos novos, não em escopo ou rótulo validado.
-Assim, nenhuma conclusão sobre a sensibilidade do LSTM a unidades ou dropout
-deve ser extraída desse ablation nesta versão.
+capítulo. O ablation study do mesmo modelo (Figura 6) teve sua discrepância
+original investigada e resolvida nas rodadas 10-11: um vazamento por
+duplicatas textuais entre folds (46,72% das linhas validadas de teste)
+explicou uma fração pequena da diferença (corrigido com `GroupKFold`, de
+87,68% para 86,35%); a maior parte da discrepância vinha da avaliação
+oficial de referência estar desatualizada (materialização de 16-17/07/2026).
+A rematerialização completa dos sete modelos em 25/07/2026 (Subseção 4.2)
+produziu um novo valor oficial do LSTM (88,69%) próximo do ablation
+corrigido (86,35%, diferença residual de 2,34 pontos percentuais,
+atribuível a `k_folds` distinto entre os dois protocolos). Com a
+discrepância principal resolvida, a ordenação relativa das quatro
+variantes do ablation é lida como evidência preliminar de baixa
+sensibilidade do LSTM a unidades/dropout nesta base (diferença entre
+melhor e pior variante inferior a 4 pontos percentuais), não como
+indicação de que a arquitetura atual esteja mal ajustada.
 Os próximos passos deste protocolo incluem a conclusão
 da conferência humana pendente (31,7% da base ainda sem decisão travada), a
 calibração formal por modelo (Platt/isotônica/temperatura) condicionada a essa

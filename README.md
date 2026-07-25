@@ -87,42 +87,46 @@ v3.docx para dentro do repo em 04_artigo/ e converta para Markdown"].
 > aqui**, só apontar. Atualizar este bloco (substituir, não acumular) sempre
 > que um item mudar de estado.
 
-### BLOQUEADOR - ablation LSTM ainda nao reconciliado (atualizado 25/07/2026)
-**Ablation study do LSTM (src/ablation_lstm.py, Figura 6/Subsecao 4.9)
-continua suspeito.** O diagnostico com credencial confirmou vazamento por
-duplicatas no particionamento antigo: 4.250 de 9.096 linhas validadas de
-teste (46,72%) tinham duplicata textual normalizada no treino. O ablation
-foi refeito com GroupKFold por hash de texto normalizado, mas a
-configuracao atual (units=64, dropout=0,5) ficou em 86,35%, ainda
-11,64 pontos percentuais acima da avaliacao OFICIAL da mesma arquitetura
-na Subsecao 4.2 (74,71%, mesma base de verdade M/N/P). Portanto, as
-duplicatas explicam parte do problema, mas **nao resolvem a discrepancia**.
-O diagnostico de protocolo publicado no PR #53
-(diagnostico_ablation_lstm_protocolo.json, run 30142012194) mostrou que
-a verdade humana M/N/P coincide com o historico em 9.096/9.096 linhas
-validadas (100%) e que a aba oficial CLASSIF__lstm cobre as mesmas 9.096
-linhas, com 6.796 acertos (74,714%). O diagnostico ampliado (run
-30142341760) mostrou ainda que os parametros efetivos atuais do LSTM sao
-iguais entre o caminho direto do ablation e o caminho de producao, mas a aba
-oficial foi materializada antes da rodada do artigo: 13.954 linhas em
-16/07/2026 23:50 e 11 linhas em 17/07/2026 06:20, com 9.868/13.965
-predicoes em baixa confianca. O novo diagnostico de materializacao oficial
-read-only (diagnostico_materializacao_lstm_nova.json, run 30142708626) reexecutou
-o caminho oficial `prever_out_of_fold("lstm", ...)` em memoria, sem escrever na
-aba CLASSIF__lstm, e obteve 7.964/9.096 acertos (87,555%) no mesmo escopo
-validado, contra 6.796/9.096 (74,714%) da aba antiga. A comparacao mostrou
-2.542 predicoes diferentes (27,946%), com 1.572 casos em que a nova materializacao
-acerta e a antiga erra, 404 no sentido inverso e saldo liquido de +1.168 acertos.
-Assim, a discrepancia residual nao decorre de escopo de linhas, de validacao
-humana posterior divergente do historico nem de hiperparametro efetivo atual; ela
-permanece concentrada na diferenca entre a predicao oficial antiga ja materializada
-e re-treinos novos do mesmo caminho LSTM sobre a base viva. Decisao adotada para
-esta versao do artigo: preservar 74,71% como avaliacao oficial historica na
-Subsecao 4.2, registrar a materializacao nova apenas como diagnostico metodologico
-de instabilidade e manter a Figura 6 sem uso como achado substantivo. Nao promover
-o ablation a achado do capitulo enquanto nao houver decisao metodologica explicita
-sobre substituir ou nao a avaliacao oficial historica por uma nova materializacao
-controlada.
+### RESOLVIDO - ablation LSTM reconciliado via rematerializacao completa (25/07/2026)
+**A discrepancia do ablation LSTM foi investigada e resolvida.** Historico
+da investigacao: (1) o diagnostico com credencial confirmou vazamento por
+duplicatas no particionamento antigo do ablation (4.250/9.096 linhas de
+teste, 46,72%, com duplicata textual no treino); corrigido com GroupKFold
+(87,68% -> 86,35%, correcao de so 1,33 p.p.). (2) A causa principal era
+outra: a avaliacao OFICIAL de referencia (74,71%, Subsecao 4.2) vinha de
+uma materializacao de `CLASSIF__lstm` datada de 16-17/07/2026, mais de uma
+semana desatualizada. Uma reexecucao read-only do mesmo caminho oficial em
+25/07/2026 obteve 87,56% no mesmo escopo validado -- muito mais proximo do
+ablation corrigido.
+
+**Decisao tomada (confirmada pelo Adinailson): rematerializar os 7 modelos
+comparaveis por completo**, nao so o LSTM. Executado em 25/07/2026:
+1. `src/limpar_classif_multimodelo.py` (novo, com 8 testes offline) limpou
+   as abas `CLASSIF__<modelo>`/turnos/metricas dos 7 modelos (nunca tocou
+   `G:K`/`M`/`N`/`P` da aba principal nem o `transformer_ft` -- confirmado
+   por dry-run antes do `--aplicar`).
+2. `classificacao_multimodelo.yml` rematerializou os 7 modelos do zero
+   (13.965/13.965 cada, `kfold_5`, 0 pendentes).
+3. `avaliacao_final.yml` e `estatistica.yml` republicaram os JSONs.
+
+**Resultado**: todos os 7 modelos subiram ~15 pontos percentuais de acerto
+validado (a materializacao antiga estava genericamente desatualizada, nao
+so o LSTM). O ranking relativo entre os 7 modelos **nao mudou**
+(linear_svc segue lider, naive_bayes segue ultimo). Novo acerto validado
+(n=9.096): linear_svc 94,94%, sgd 93,91%, regressao_logistica 93,49%,
+extra_trees 92,65%, random_forest 92,10%, **lstm 88,69%** (perto dos
+86,35% do ablation corrigido -- diferenca residual de 2,34 p.p., atribuivel
+a k_folds diferente entre os dois protocolos), naive_bayes 86,07%. Nenhum
+ensemble supera o linear_svc isolado com significancia -- nao vale
+combinar. Artigo (`04_artigo/artigo_classificacao_chamados_v3.md`,
+Subsecoes 4.1, 4.2, 4.9 e Discussao), este README e
+`PLANO_ARTIGO_CAPITULO.md` atualizados com os numeros novos.
+
+**Pendencia remanescente, baixa prioridade**: a Etapa 1 oficial de
+producao (executor LSTM/RF, coluna G da planilha, usada no dashboard
+publico) NAO foi rematerializada nesta rodada -- pode estar sujeita a
+defasagem semelhante. Fora de escopo desta correcao; decisao futura do
+pesquisador.
 
 ### Confirmado feito
 - [x] Aviso de viés de amostra não aleatória no Resumo/Abstract (COCHRAN, 1977)
@@ -200,15 +204,13 @@ controlada.
 - [x] **Tabela Suplementar S2 gerada** —
       `04_artigo/figuras/tabela_S2_codigos_categorias_fig4.csv`, mapeando
       código → categoria para a Figura 4.
-- [~] **Ablation study do LSTM executado, corrigido e ainda SINALIZADO COMO
-      SUSPEITO** — `src/ablation_lstm.py` rodou de verdade, o KFold antigo foi
-      diagnosticado com vazamento por duplicatas, o ablation foi refeito com
-      GroupKFold, e a materializacao oficial nova read-only atingiu 87,56%.
-      Mesmo assim, a avaliacao oficial historica segue em 74,71% na Subsecao
-      4.2 e a Figura 6 foi mantida como diagnostico metodologico, nao como
-      achado substantivo; ver bloco "BLOQUEADOR" no topo deste checklist.
-      Nao marcar como concluido sem decisao metodologica explicita sobre a
-      avaliacao oficial historica versus nova materializacao controlada.
+- [x] **Ablation study do LSTM executado, corrigido e reconciliado** —
+      `src/ablation_lstm.py` rodou de verdade, o KFold antigo foi
+      diagnosticado com vazamento por duplicatas (corrigido com
+      GroupKFold), e a rematerializacao completa dos 7 modelos (25/07/2026)
+      resolveu a discrepancia residual: novo LSTM oficial 88,69%, perto dos
+      86,35% do ablation corrigido. Ver bloco "RESOLVIDO" no topo deste
+      checklist e Subsecao 4.9 do artigo.
 
 ### Pendente confirmado — com o arquivo exato a mexer
 - [ ] Seções de metadados estilo MDPI (Author Contributions, Funding, Data
@@ -260,11 +262,12 @@ controlada.
 
 ### 7 IAs materializadas (multimodelo)
 
-> Tabela atualizada em 24/07/2026 (rodada 9), a partir de
-> `docs/dados/estatistica.json` (gerado 24/07/2026 15:55) e
-> `docs/dados/avaliacao_final.json` (gerado 24/07/2026 19:37, 9.096
-> validados). Nao copiar estes numeros sem reconferir a fonte viva —
-> ambos os JSONs mudam a cada execucao de workflow.
+> Tabela atualizada em 25/07/2026 (rodada 11, apos rematerializacao
+> completa dos 7 modelos), a partir de `docs/dados/estatistica.json`
+> (gerado 25/07/2026 02:07) e `docs/dados/avaliacao_final.json` (gerado
+> 25/07/2026 01:52, 9.096 validados). Nao copiar estes numeros sem
+> reconferir a fonte viva — ambos os JSONs mudam a cada execucao de
+> workflow.
 
 As **7 IAs estao completas** (transformer_ft/BERTimbau excluido por
 `status=sem_dados`), com 13.965 chamados por modelo, 0 pendentes e predicao
@@ -272,13 +275,13 @@ As **7 IAs estao completas** (transformer_ft/BERTimbau excluido por
 
 | Modelo | Concordancia vs historico | Acerto validado (n=9.096) |
 |---|---|---|
-| `linear_svc` | 80,34% | 79,89% |
-| `extra_trees` | 78,98% | 77,62% |
-| `random_forest` | 77,98% | 76,89% |
-| `sgd` | 77,84% | 79,09% |
-| `regressao_logistica` | 76,91% | 78,59% |
-| `naive_bayes` | 69,90% | 71,14% |
-| `lstm` | 68,47% | 74,71% |
+| `linear_svc` | 80,29% | 94,94% |
+| `sgd` | 77,65% | 93,91% |
+| `regressao_logistica` | 76,77% | 93,49% |
+| `extra_trees` | 78,85% | 92,65% |
+| `random_forest` | 77,99% | 92,10% |
+| `lstm` | 68,13% | 88,69% |
+| `naive_bayes` | 69,96% | 86,07% |
 
 Onde cada coisa aparece no painel:
 

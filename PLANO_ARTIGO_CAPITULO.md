@@ -35,41 +35,82 @@ Isso substitui a necessidade de o usuário reexplicar contexto a cada nova conve
 
 ## Estado desta rodada
 
-**Data**: 2026-07-25 (America/Bahia, UTC-03:00) - rodada 14 (decisao
-conservadora aplicada ao texto do artigo sobre a discrepancia residual do LSTM).
+**Data**: 2026-07-25 (America/Bahia, UTC-03:00) - rodada 12 (rematerializacao
+completa dos 7 modelos comparaveis; discrepancia do LSTM resolvida).
 
-**Onde esta**: PR #53 aberto no branch fix/ablation-groupkfold-diagnostico.
-O bloqueador do ablation permanece ativo: o resultado corrigido por GroupKFold
-ainda nao deve ser promovido a achado substantivo do artigo. A versao atual do
-texto preserva a avaliacao oficial historica do LSTM em 74,71% na Subsecao 4.2
-e registra a materializacao oficial nova read-only apenas como diagnostico
-metodologico.
+**Onde esta**: a discrepancia do ablation do LSTM (sinalizada na rodada 10,
+investigada nas rodadas 11-14) esta **resolvida**. O Adinailson confirmou
+explicitamente a decisao de rematerializar os 7 modelos comparaveis por
+completo (nao so o LSTM), em vez de preservar o valor oficial historico como
+as rodadas anteriores haviam decidido conservadoramente. Executado e
+verificado nesta rodada, com credencial, via GitHub Actions (nao localmente
+-- esta sessao segue sem `credenciais_sa.json`/`SPREADSHEET_ID` local).
 
 **O que foi feito nesta rodada**:
-1. Em `04_artigo/artigo_classificacao_chamados_v3.md`, a Subsecao 4.2 recebeu
-   uma nota metodologica sobre o LSTM: o valor oficial preservado continua sendo
-   0,7471, oriundo da materializacao historica em `CLASSIF__lstm`, enquanto a
-   reexecucao diagnostica read-only (`diagnostico_materializacao_lstm_nova.json`)
-   fica registrada como evidencia de instabilidade da materializacao.
-2. A ressalva da Figura 6/Subsecao 4.9 foi atualizada para incluir a evidencia
-   nova: a materializacao oficial read-only em memoria atingiu 7.964/9.096
-   acertos (87,555%), contra 6.796/9.096 (74,714%) da aba historica, com 2.542
-   predicoes divergentes. A conclusao textual e que a diferenca residual esta
-   concentrada na materializacao historica antiga frente a re-treinos novos, nao
-   em escopo de linhas, verdade humana posterior ou hiperparametros efetivos.
-3. A secao de limitacoes e as consideracoes finais tambem foram ajustadas para
-   impedir uma leitura indevida do ablation: a Figura 6 permanece diagnostica e
-   nao sustenta conclusao sobre sensibilidade do LSTM a unidades/dropout nesta
-   versao.
-4. O BLOQUEADOR do `README.md` foi substituido para refletir a decisao aplicada:
-   preservar 74,71% na Subsecao 4.2, registrar 87,56% apenas como diagnostico e
-   manter o ablation sem promocao a achado substantivo.
+1. Investiguei `src/classificacao_multimodelo.py`: o fluxo e incremental
+   (so processa linhas pendentes) e nunca abre a aba principal para
+   escrita -- so le `CHAMADOS_ESQUELETO_REDUZIDO` e escreve em
+   `CLASSIF__<modelo>`/`MULTIMODELO_TURNOS`/`MULTIMODELO_METRICAS`.
+2. Criei `src/limpar_classif_multimodelo.py` (novo): limpa SOMENTE essas
+   tres abas, restrito aos modelos passados (`comparaveis` = 7, nunca
+   `transformer_ft` por padrao). Confirmado por teste que o codigo-fonte
+   nao contem a string `aba_principal`. Dry-run por padrao. 8 testes
+   offline novos (fake worksheet/spreadsheet) em
+   `tests/test_limpar_classif_multimodelo.py`. Suite completa: 50/50.
+3. Adicionei a tarefa `limpar_multimodelo` ao workflow "Pendencias artigo
+   com credencial" (`.github/workflows/lstm_artigo.yml`), com
+   `aplicar_limpeza` boolean (default false).
+4. Rodei o dry-run via `gh workflow run` (run `30144116442`): confirmou
+   13.965 linhas por modelo em `CLASSIF__<modelo>` x7, 6.524 linhas de
+   `MULTIMODELO_TURNOS` (932 do `transformer_ft` preservadas), 7 linhas de
+   `MULTIMODELO_METRICAS` (1 do `transformer_ft` preservada). Reportei ao
+   Adinailson antes de aplicar; ele confirmou explicitamente.
+5. Apliquei de verdade (run `30144225377`): numeros identicos ao dry-run,
+   sucesso.
+6. Disparei `classificacao_multimodelo.yml` com os 7 modelos, `max_turnos=0`,
+   `aplicar=true` (run `30144280472`): rematerializou 13.965/13.965 por
+   modelo, 0 pendentes, `kfold_5`. Concordancia vs. historico ficou
+   praticamente igual a antes (ex.: LSTM 68,13% vs. ~68% anterior) -- essa
+   metrica nunca foi onde a anomalia aparecia.
+7. Disparei `avaliacao_final.yml` (run `30144740084`, sucesso) e
+   `estatistica.yml` (primeira tentativa `30144742053` cancelada por
+   concorrencia; redisparada com sucesso, run `30144847227`).
+8. **Resultado**: todos os 7 modelos subiram ~15 pontos percentuais de
+   acerto validado -- a materializacao de 16-17/07 estava genericamente
+   desatualizada, nao so para o LSTM. Ranking relativo **inalterado**.
+   Acerto validado novo (n=9.096, `avaliacao_final.json` gerado
+   25/07/2026 01:52): linear_svc 0,9494; sgd 0,9391; regressao_logistica
+   0,9349; extra_trees 0,9265; random_forest 0,9210; **lstm 0,8869** (perto
+   dos 0,8635 do ablation corrigido por GroupKFold -- diferenca residual de
+   2,34 p.p., atribuivel a `k_folds` diferente entre os dois protocolos:
+   3 no ablation, 5 na materializacao oficial); naive_bayes 0,8607. Nenhum
+   ensemble supera linear_svc isolado com significancia (McNemar p<0,05
+   em favor do linear_svc nos tres).
+9. Atualizei `04_artigo/artigo_classificacao_chamados_v3.md`: Tabela 1
+   (Subsecao 4.1, concordancia vs. historico), Tabela 2 (Subsecao 4.2,
+   acerto validado + ensembles), a ressalva da Figura 6 (Subsecao 4.9,
+   de "suspeito" para "investigado e resolvido"), o paragrafo da
+   Discussao com a serie historica de 3 consolidacoes (16/07 -> 24/07 ->
+   25/07), a quinta limitacao (ablation), e os numeros do Resumo/Abstract
+   e das Considerações Finais que citavam os valores antigos do LSTM
+   (0,7471) e do LinearSVC (0,7989). Varredura final confirmou zero
+   ocorrencia residual dos numeros antigos fora de contexto historico
+   intencional.
+10. Atualizei o bloco do `README.md` de "BLOQUEADOR" para "RESOLVIDO", com
+    o historico completo da investigacao e o resultado final, e a tabela
+    "7 IAs materializadas" com os numeros de 25/07/2026.
 
-**Proximo passo**: validar localmente, commitar e pushar esta decisao textual no
-branch do PR #53. Depois disso, a proxima decisao metodologica fica fora desta
-rodada: recalcular oficialmente ou nao o LSTM em uma nova materializacao
-controlada. Nao alterar holdout fixo nem referencias MDPI enquanto esses pontos
-permanecerem pendentes.
+**Nao rematerializado nesta rodada (fora de escopo, decisao futura)**: a
+Etapa 1 oficial de producao (executor LSTM/RF, coluna G da planilha, usada
+no dashboard publico `Classificacao`) pode estar sujeita a defasagem
+semelhante -- nao foi tocada.
+
+**Proximo passo**: gerar novo snapshot imutavel (`gerar_manifesto_
+snapshot_artigo.py`) refletindo os numeros de 25/07/2026, regenerar o PDF,
+e revisar visualmente as abas `Decisao`/`Modelos` do painel publico contra
+os novos JSONs. Continuam fora de escopo, aguardando decisao do
+Adinailson: holdout fixo de treino/teste e reformatacao das referencias
+para o padrao MDPI numerico.
 
 ---
 
