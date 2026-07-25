@@ -595,6 +595,16 @@ snapshot `docs/dados/snapshots/artigo-v3-20260724/` (manifesto com SHA-256).
 A tabela exclui a linha legada `transformer_ft`, pois
 `bertimbau_training_state.json` registra `sem_dados`.
 
+*Nota metodologica sobre o LSTM*: o valor de 0,7471 reportado para o LSTM nesta
+tabela corresponde a avaliacao oficial historica ja materializada em
+`CLASSIF__lstm`. Uma reexecucao diagnostica posterior do mesmo caminho oficial em
+memoria, sem escrita na planilha, obteve 7.964/9.096 acertos (0,87555) no mesmo
+escopo validado, contra 6.796/9.096 (0,747142) da materializacao historica, com
+2.542 predicoes diferentes. Por conservadorismo metodologico, esta versao preserva
+a avaliacao historica de 0,7471 como resultado oficial da Subseção 4.2 e trata a
+reexecucao posterior apenas como diagnostico de instabilidade da materializacao
+(ver Figura 6 e `diagnostico_materializacao_lstm_nova.json`).
+
 *Nota metodológica sobre a mudança de patamar (92--96% em 16/07/2026 →
 71--80% nesta consolidação)*: o código de `avaliacao_final.py` que produz
 esta tabela **não foi alterado** entre 16/07 e 23/07/2026 (confirmado por
@@ -899,7 +909,7 @@ Fonte: `04_artigo/figuras/lstm_history.json`, gerado por `src/modelo_lstm.py`.
 ![Figura 6 — Ablation study do LSTM: unidades recorrentes e dropout.](04_artigo/figuras/fig6_ablation_lstm.png)
 
 **Figura 6 — RESULTADO AINDA SUSPEITO, NÃO CITAR COMO ACHADO CONSOLIDADO
-(atualizado em 24/07/2026)**: a auditoria da rodada 10 confirmou vazamento
+(atualizado em 25/07/2026)**: a auditoria da rodada 10 confirmou vazamento
 metodológico relevante no particionamento anterior: no `KFold` aleatório por
 linha usado originalmente, 4.250 de 9.096 linhas validadas de teste (46,72%)
 tinham duplicata textual normalizada no treino
@@ -910,15 +920,23 @@ textuais presentes no teste. A correção reduziu a configuração atual
 valor permanece **11,64 pontos percentuais acima** do acerto validado dessa
 mesma arquitetura reportado na Subseção 4.2 (74,71%, mesma base de verdade
 validada M/N/P). Portanto, as duplicatas explicam parte do problema, mas
-não resolvem a discrepância. O resultado da Figura 6 deve ser tratado como
+não resolvem a discrepância. A investigação posterior mostrou que uma nova
+materialização oficial read-only do LSTM, executada em memória pelo mesmo
+caminho `prever_out_of_fold("lstm", ...)` e sem sobrescrever `CLASSIF__lstm`,
+atingiu 87,56% (7.964/9.096), contra 74,71% (6.796/9.096) da aba histórica,
+com 2.542 predições divergentes. Assim, a diferença residual ficou
+concentrada na materialização histórica antiga do LSTM frente a re-treinos
+novos sobre a base viva, não em escopo de linhas, verdade humana posterior ou
+hiperparâmetros efetivos atuais. O resultado da Figura 6 deve ser tratado como
 diagnóstico metodológico em aberto, não como evidência substantiva de
 sensibilidade do LSTM a unidades ou dropout. Nesta reexecução, a configuração
 atual 64/0,5 ficou numericamente acima das variações testadas, mas essa
-ordenação não deve ser interpretada até que a diferença residual em relação
-à avaliação oficial seja explicada.
+ordenação não deve ser interpretada sem decisão explícita sobre substituir ou
+não a avaliação oficial histórica por uma nova materialização controlada.
 
 Fonte: `04_artigo/figuras/diagnostico_ablation_lstm_duplicatas.json`,
-`04_artigo/figuras/ablation_lstm_resultados.json` e
+`04_artigo/figuras/ablation_lstm_resultados.json`,
+`04_artigo/figuras/diagnostico_materializacao_lstm_nova.json` e
 `04_artigo/figuras/tabela_S3_ablation_lstm.csv`, gerados por
 `src/ablation_lstm.py`. Ver `PLANO_ARTIGO_CAPITULO.md`, "Estado desta
 rodada", para o registro completo da investigação.
@@ -1050,10 +1068,16 @@ envolvidos mostrou UTF-8 válido em sua totalidade; os caracteres
 corrompidos observados antes eram artefato de exibição do terminal usado
 para inspecionar os dados, não corrupção do dado publicado. A quarta
 figura planejada deixa de estar bloqueada por qualidade de dado.
-Persistem como limitações a dependência de uma única instituição como
-caso empírico e a intermitência observada na publicação automática do
-painel no GitHub Pages, discutida na auditoria técnica que acompanha
-este capítulo.
+Quinto, o ablation study do LSTM permanece como diagnóstico metodológico, não
+como achado substantivo: mesmo após a correção do vazamento por duplicatas via
+`GroupKFold`, seus resultados e a nova materialização oficial read-only ficam
+próximos de 86--88%, enquanto a avaliação oficial histórica preservada na
+Subseção 4.2 permanece em 74,71%. Até decisão explícita sobre recalcular ou não
+a materialização oficial do LSTM, esta versão mantém o valor histórico por
+rastreabilidade e não usa a Figura 6 para sustentar conclusão sobre arquitetura.
+Persistem também como limitações a dependência de uma única instituição como
+caso empírico e a intermitência observada na publicação automática do painel no
+GitHub Pages, discutida na auditoria técnica que acompanha este capítulo.
 
 **6. CONSIDERAÇÕES FINAIS**
 
@@ -1101,10 +1125,12 @@ capítulo. O ablation study do mesmo modelo (Figura 6), no entanto, permanece
 sinalizado como resultado suspeito: a rodada 10 confirmou vazamento por
 duplicatas textuais entre folds no particionamento original (46,72% das linhas
 validadas de teste), mas a reexecução com `GroupKFold` ainda deixou a
-configuração atual em 86,35%, contra 74,71% na avaliação oficial da mesma
-arquitetura (Subseção 4.2). Assim, nenhuma conclusão sobre a sensibilidade do
-LSTM a unidades ou dropout deve ser extraída desse ablation até que a diferença
-residual seja explicada e reconciliada (ver ressalva completa na Subseção 4.9).
+configuração atual em 86,35%, contra 74,71% na avaliação oficial histórica da
+mesma arquitetura (Subseção 4.2). A nova materialização oficial read-only do
+LSTM chegou a 87,56%, reforçando que o problema residual está na diferença entre
+materialização histórica e re-treinos novos, não em escopo ou rótulo validado.
+Assim, nenhuma conclusão sobre a sensibilidade do LSTM a unidades ou dropout
+deve ser extraída desse ablation nesta versão.
 Os próximos passos deste protocolo incluem a conclusão
 da conferência humana pendente (31,7% da base ainda sem decisão travada), a
 calibração formal por modelo (Platt/isotônica/temperatura) condicionada a essa
