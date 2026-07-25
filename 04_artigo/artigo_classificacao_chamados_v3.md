@@ -312,8 +312,8 @@ subseção (`04_artigo/figuras/fig1_pipeline_governanca.png`).
 
 **3.2 Corpus e variáveis**
 
-O corpus experimental é composto por 13.825 chamados de manutenção
-predial não vazios, organizados em 54 categorias históricas, extraídos
+O corpus experimental é composto por 13.965 chamados de manutenção
+predial não vazios, organizados em 55 categorias históricas, extraídos
 do ambiente institucional da UFSB. Os campos textuais previstos no
 protocolo incluem título do chamado, descrição GLPI, título da ordem de
 serviço e descrição da ordem de serviço, concatenados em uma única
@@ -539,6 +539,25 @@ regra de produção (Subseção 3.4), não um único modelo isolado.
 Fonte: `estatistica.json`, gerado em 24/07/2026 15:55 (n = 13.965). A linha
 legada de `transformer_ft` foi deliberadamente excluída por não representar
 treino BERTimbau concluído.
+
+A concordância com o histórico não é uniforme entre as 55 categorias. A
+Tabela Suplementar S1 (`04_artigo/figuras/tabela_S1_metricas_por_categoria.csv`,
+gerada por `src/exportar_tabela_por_categoria.py` a partir de
+`metricas_por_categoria.json`) reporta, para cada categoria, quantidade
+classificada, concordância com o histórico e distribuição por faixa de
+confiança da Etapa 1 oficial. As cinco categorias com menor concordância
+são Elétrica > Sistema Fotovoltaico (FV) (0,00%, n = 7), Manutenção
+Preventiva sem subcategoria (0,00%, n = 2), Manutenção Preventiva >
+Sistemas de incêndio (11,11%, n = 9), Instalação de Acessórios e
+Mobiliário > Instalação/reparo de equipamentos (14,89%, n = 262) e Outros
+> Outros (24,24%, n = 33) — em geral categorias de baixo suporte ou de
+natureza residual/ambígua na taxonomia. As de maior concordância (100%)
+têm suporte igualmente baixo (n entre 1 e 13), o que recomenda cautela ao
+interpretar concordância perfeita como desempenho robusto nessas
+categorias. Nota metodológica: este indicador é concordância da IA
+oficial contra a categoria histórica, não precisão/revocação/F1 no
+sentido *scikit-learn* — o esquema publicado em `metricas_por_categoria.json`
+não contém essas métricas por categoria.
 
 **4.2 Ranking validado por conferência humana**
 
@@ -846,23 +865,23 @@ terem registro de tempo de treino no mesmo arquivo (Tabela 7, Subseção
 Fonte: `comparacao_modelos.json` (custo) e `avaliacao_final.json` (acerto
 validado).
 
-**Figura 4 (pares de maior confusão entre categorias) — pendência explícita,
-motivo novo**: ao preparar esta figura, foi descoberta corrupção de
-acentuação (mojibake — caracteres substitutos no lugar de vogais acentuadas,
-por exemplo em "Instalação" e "Climatização") nos
+**Figura 4 (pares de maior confusão entre categorias) — pendência
+reclassificada em 24/07/2026**: em rodadas anteriores, suspeitou-se de
+corrupção de acentuação (mojibake — caracteres substitutos no lugar de
+vogais acentuadas, por exemplo em "Instalação" e "Climatização") nos
 nomes de categoria de três arquivos-fonte (`estatistica.json`, campo
-`top_confusoes`; `cruzamento_taxonomia.json`; `confusao_historico_ia.json`).
-Investigação direta da planilha (workflow de diagnóstico de uso único,
-23/07/2026) testou a hipótese inicial — de que a corrupção estaria nas
-abas de trabalho `CLASSIF__<modelo>` — e **não a confirmou**: uma amostra
-de 200 linhas de `CLASSIF__linear_svc` não apresentou nenhuma ocorrência
-de mojibake na coluna de categoria histórica. A causa permanece
-desconhecida: pode estar em linhas fora da amostra testada, em outra aba
-de trabalho, ou na etapa de agregação/serialização dos três arquivos
-afetados. Publicar essa figura com texto corrompido seria pior do que
-não publicá-la — fica como `Informação insuficiente para verificar` até
-nova investigação com amostragem mais ampla, registrada em
-`PLANO_ARTIGO_CAPITULO.md`.
+`top_confusoes`; `cruzamento_taxonomia.json`; `confusao_historico_ia.json`),
+o que impediu a geração desta figura. Uma verificação byte a byte desses
+três arquivos, mais `metricas_por_categoria.json`, confirmou que os
+quatro são UTF-8 válido em sua totalidade, sem nenhuma ocorrência real do
+caractere de substituição Unicode (U+FFFD); os caracteres corrompidos
+observados anteriormente eram artefato de exibição no terminal usado
+para inspecionar os dados (codificação do console, não dos arquivos),
+não corrupção do dado publicado. A suspeita de corrupção está portanto
+descartada, e a geração da Figura 4 deixa de estar bloqueada por
+qualidade de dado — pendência técnica agora é apenas de esforço de
+geração (script `matplotlib` a partir de `top_confusoes`), não de
+diagnóstico. Registrado em `PLANO_ARTIGO_CAPITULO.md`.
 
 **5. DISCUSSÃO**
 
@@ -982,12 +1001,15 @@ BERTimbau permanece pendente: o estado publicado é `sem_dados`, sem
 treino concluído nem métricas próprias. Assim, o artefato legado
 `transformer_ft` foi excluído de rankings, testes e diagnósticos
 comparativos; não há evidência suficiente para concluir sobre seu
-desempenho neste domínio. Quarto, foi identificada nesta rodada
-uma corrupção de acentuação (mojibake) nos nomes de categoria de três
-arquivos-fonte usados para análises de confusão entre categorias
-(Subseção 4.8), que impediu a geração da quarta figura planejada e
-permanece sem causa-raiz confirmada — registrada como pendência técnica
-em `PLANO_ARTIGO_CAPITULO.md`, não como resultado do experimento em si.
+desempenho neste domínio. Quarto, uma suspeita de corrupção de
+acentuação (mojibake) nos nomes de categoria de arquivos-fonte usados
+para análises de confusão entre categorias (Subseção 4.8), registrada em
+rodada anterior como pendência técnica, foi investigada nesta rodada e
+**não se confirmou**: verificação byte a byte dos quatro arquivos
+envolvidos mostrou UTF-8 válido em sua totalidade; os caracteres
+corrompidos observados antes eram artefato de exibição do terminal usado
+para inspecionar os dados, não corrupção do dado publicado. A quarta
+figura planejada deixa de estar bloqueada por qualidade de dado.
 Persistem como limitações a dependência de uma única instituição como
 caso empírico e a intermitência observada na publicação automática do
 painel no GitHub Pages, discutida na auditoria técnica que acompanha
@@ -1038,12 +1060,21 @@ passos deste protocolo incluem a conclusão da conferência humana
 pendente (31,7% da base ainda sem decisão travada), a calibração formal
 por modelo (Platt/isotônica/temperatura) condicionada a essa
 conferência, a realização do treino e da avaliação comparativa do
-transformador BERTimbau, a investigação da corrupção de acentuação identificada nos
-arquivos-fonte de análise de confusão entre categorias (Subseção 4.8),
-a revisão taxonômica dirigida pelos candidatos identificados na etapa de
-cruzamento de taxonomia e na entropia de Shannon, e a estabilização da
-publicação automática do painel, cuja intermitência técnica está
-documentada na auditoria que acompanha este capítulo. Com isso, o
+transformador BERTimbau, a geração da Figura 4 (pares de maior confusão
+entre categorias), agora não mais bloqueada por suspeita de corrupção de
+dado (Subseção 4.8), a revisão taxonômica dirigida pelos candidatos
+identificados na etapa de cruzamento de taxonomia e na entropia de
+Shannon, e a estabilização da publicação automática do painel, cuja
+intermitência técnica está documentada na auditoria que acompanha este
+capítulo. Como direções de trabalho futuro mais amplas, este protocolo
+também aponta para (i) a validação externa do modelo em outras
+instituições federais de ensino superior, testando se o padrão de
+desempenho observado na UFSB se mantém sob taxonomias e volumes de
+chamados distintos, e (ii) a integração dos dados de chamados tratados e
+validados como entrada para um modelo multicritério (MCDM/TOPSIS) de
+priorização de manutenção, conectando este capítulo empírico à lacuna
+identificada no capítulo de revisão integrativa sobre o uso raro de
+dados operacionais de chamados nesse tipo de modelo. Com isso, o
 protocolo pretende seguir contribuindo tanto para a literatura de
 *facility management* e processamento de linguagem natural aplicado
 quanto para a melhoria concreta e continuamente auditável da gestão de
