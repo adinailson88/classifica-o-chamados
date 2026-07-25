@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       tarefa:
-        description: "tabela_s1, history, diagnostico_ablation, diagnostico_protocolo_ablation, diagnostico_materializacao_lstm, ablation, limpar_multimodelo ou sensibilidade_vies"
+        description: "tabela_s1, history, diagnostico_ablation, diagnostico_protocolo_ablation, diagnostico_materializacao_lstm, ablation, limpar_multimodelo, sensibilidade_vies ou holdout_vs_kfold"
         required: true
         default: "tabela_s1"
         type: choice
@@ -17,6 +17,7 @@ on:
           - ablation
           - limpar_multimodelo
           - sensibilidade_vies
+          - holdout_vs_kfold
       epochs:
         description: "Epocas de treino"
         required: false
@@ -63,7 +64,7 @@ jobs:
 
       - name: Validar sintaxe e testes
         run: |
-          python -m py_compile src/exportar_tabela_por_categoria.py src/modelo_lstm.py src/ablation_lstm.py src/limpar_classif_multimodelo.py src/analise_sensibilidade_vies_validacao.py
+          python -m py_compile src/exportar_tabela_por_categoria.py src/modelo_lstm.py src/ablation_lstm.py src/limpar_classif_multimodelo.py src/analise_sensibilidade_vies_validacao.py src/comparacao_holdout_kfold.py
           python -m unittest discover -s tests
 
       - name: Exportar tabela S1 da aba viva
@@ -133,6 +134,14 @@ jobs:
           GOOGLE_APPLICATION_CREDENTIALS: credenciais_sa.json
         run: |
           python src/analise_sensibilidade_vies_validacao.py
+
+      - name: Comparar holdout fixo (85/15) com a referencia k-fold
+        if: ${{ github.event.inputs.tarefa == 'holdout_vs_kfold' }}
+        env:
+          SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
+          GOOGLE_APPLICATION_CREDENTIALS: credenciais_sa.json
+        run: |
+          python src/comparacao_holdout_kfold.py
 
       - name: Commitar resultados
         run: |
