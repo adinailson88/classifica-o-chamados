@@ -480,6 +480,48 @@ Cochran Q e Friedman; comparações pareadas são avaliadas por McNemar
 múltiplas comparações são realizadas, aplica-se correção de Nemenyi no
 contexto de *ranks*.
 
+**Escolha entre validação cruzada e *holdout* fixo**: optou-se
+deliberadamente por *k-fold out-of-fold* em vez de um conjunto de teste
+fixo separado antes do treino. A literatura de avaliação de modelos
+indica que a validação cruzada tende a produzir estimativas de menor
+variância que um único *holdout*, sobretudo em bases pequenas ou
+desbalanceadas, precisamente por avaliar cada exemplo em algum fold em
+vez de descartar uma fração fixa dos dados do treino (KOHAVI, 1995) — e
+esta base é desbalanceada por natureza (55 categorias históricas, várias
+com suporte de dígito único; Tabela Suplementar S1). Para não apenas
+invocar essa recomendação em abstrato, comparou-se empiricamente o
+protocolo atual (*k*-fold, `k = 5`) com um *holdout* fixo de 15% dos
+dados (`random_state = 42`), reproduzido em
+`src/comparacao_holdout_kfold.py` sobre os sete modelos comparáveis e a
+mesma base completa (n = 13.965; a comparação usa 52 das 55 categorias
+da Tabela Suplementar S1 — três categorias raras da consolidação de
+24/07/2026 não reapareceram na leitura de 25/07/2026, provavelmente por
+renomeação/consolidação de categoria concorrente com este experimento).
+A tentativa de estratificar esse *holdout* por categoria — o que a
+maioria dos protocolos faz por padrão — **falhou explicitamente** no
+*scikit-learn*, com o erro "*the least populated class in y has only 1
+member, which is too few*", confirmando que a base tem pelo menos uma
+categoria com um único exemplo. No *holdout* aleatório simples que
+substituiu a tentativa de estratificação, quatro categorias inteiras
+ficaram sem nenhum exemplo de teste — "Manutenção Preventiva",
+"Manutenção Preventiva \> Aplicação cupinicida", "Suprimentos / Apoio
+Técnico \> Limpeza de equipamentos, ambiente e mobiliário" e
+"Suprimentos / Apoio Técnico \> Transporte" —, tornando sua métrica de
+desempenho indefinida nesse desenho, ainda que o *k*-fold as avalie
+integralmente (Tabela Suplementar S1). A acurácia global variou pouco
+entre os dois protocolos (média de −0,30 ponto percentual no *holdout*
+frente ao *k*-fold entre os sete modelos, variando de −1,93 a +0,73 p.p.
+por modelo), mas a *macro*-F1 — que pondera todas as categorias
+igualmente, e não apenas as mais frequentes — piorou no *holdout* em
+seis dos sete modelos, com queda média de 1,24 ponto percentual e um
+pior caso de −3,98 p.p. no LinearSVC (0,6083 no *k*-fold contra 0,5685
+no *holdout*; Tabela Suplementar S4). Em suma: um *holdout* fixo não
+melhora a estimativa de desempenho global de forma relevante nesta base
+e piora sistematicamente a avaliação das categorias raras — exatamente o
+padrão que a literatura antecipa para corpora pequenos e desbalanceados
+como este (KOHAVI, 1995), o que confirma o protocolo *k*-fold como a
+escolha mais adequada e não apenas a mais conveniente.
+
 **3.6 Validação humana**
 
 A validação humana constitui a etapa que diferencia o presente estudo de
@@ -1431,6 +1473,11 @@ KEJRIWAL, M.; SANTOS, H.; SHEN, K.; MULVEHILL, A. M.; MCGUINNESS, D. L.
 A noise audit of human-labeled benchmarks for machine commonsense
 reasoning. Scientific Reports, v. 14, art. 8609, 2024.
 
+KOHAVI, R. A study of cross-validation and bootstrap for accuracy
+estimation and model selection. In: INTERNATIONAL JOINT CONFERENCE ON
+ARTIFICIAL INTELLIGENCE, 14., 1995, Montreal. Proceedings \[\...\]. San
+Francisco: Morgan Kaufmann, 1995. p. 1137--1143.
+
 LIN, J. Divergence measures based on the Shannon entropy. IEEE
 Transactions on Information Theory, v. 37, n. 1, p. 145--151, 1991. DOI:
 10.1109/18.61115.
@@ -1544,6 +1591,7 @@ vigentes.
 | Modelos avaliados e hiperparâmetros principais | 3.4 | Sim (7 materializados + 1 em extensão) |
 | Justificativa conceitual das diferenças de desempenho entre modelos | 3.4.1 | Sim |
 | Método de particionamento (out-of-fold, k-fold, seed) | 3.5 | Sim (out-of-fold, KFold embaralhado, `random_state=42`; sem estratificação) |
+| Justificativa da escolha k-fold vs. holdout fixo, com comparação empírica | 3.5 | Sim (KOHAVI, 1995; Tabela Suplementar S4) |
 | Métricas reportadas e justificativa | 3.5 | Sim (acurácia, macro-F1, balanced accuracy, IC95% bootstrap) |
 | Testes estatísticos e correção para múltiplas comparações | 3.5 | Sim (Cochran Q, Friedman, McNemar, Nemenyi) |
 | Critério de calibração de confiança (bruta vs. calibrada) e meta de desempenho | 3.8, 4.4 | Parcial — meta declarada (>= 95%/>= 95%); calibração formal (Platt/isotônica) ainda não aplicada |

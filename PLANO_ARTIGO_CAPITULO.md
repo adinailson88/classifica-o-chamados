@@ -35,8 +35,69 @@ Isso substitui a necessidade de o usuário reexplicar contexto a cada nova conve
 
 ## Estado desta rodada
 
-**Data**: 2026-07-25 (America/Bahia, UTC-03:00) — rodada 15 (fechamento:
-limpeza total + rematerialização dos 8 modelos, pós Passos 1 e 2).
+**Data**: 2026-07-25 (America/Bahia, UTC-03:00) — rodada 16 (justificativa
+empírica k-fold vs. holdout na Subseção 3.5, PR #58).
+
+**Contexto**: após a rodada 15 (verificação do parecer externo), o
+Adinailson decidiu sobre o Passo 2 do parecer (holdout fixo de 15%): não
+trocar o protocolo, mas reforçar a escolha atual (k-fold) com referência
+bibliográfica e uma comparação empírica mostrando os casos em que um
+holdout pioraria, para demonstrar que a troca não traria ganho relevante
+nesta base (55 categorias históricas, muitas raras).
+
+**Onde está**: concluído, PR #58 (`feat/comparacao-holdout-vs-kfold`),
+ainda não mergeado.
+1. Criado `src/comparacao_holdout_kfold.py`: treina os 7 modelos
+   comparáveis num *holdout* fixo 85/15 (`random_state=42`) sobre a base
+   completa, tentando primeiro estratificar por categoria (como a
+   maioria dos protocolos faz por padrão) e comparando contra a
+   referência k-fold já publicada (`docs/dados/estatistica.json`). 5
+   testes offline (sem credenciais) em
+   `tests/test_comparacao_holdout_kfold.py` confirmam o mecanismo com
+   corpus sintético antes de rodar com dados reais. Nova tarefa
+   `holdout_vs_kfold` em `.github/workflows/lstm_artigo.yml`.
+2. Disparado com credencial real (run `30168314623`, sucesso). Resultado
+   real, não hipotético:
+   - **Estratificação falhou explicitamente** no scikit-learn: "the least
+     populated class in y has only 1 member, which is too few" —
+     confirma que a base tem categoria(s) com um único exemplo.
+   - No *holdout* aleatório simples que substituiu a tentativa, **4
+     categorias inteiras ficaram sem nenhum exemplo de teste**
+     (Manutenção Preventiva; Manutenção Preventiva > Aplicação
+     cupinicida; Suprimentos/Apoio Técnico > Limpeza de equipamentos,
+     ambiente e mobiliário; Suprimentos/Apoio Técnico > Transporte) — o
+     k-fold as avalia integralmente (Tabela S1).
+   - Acurácia global quase não muda entre os dois protocolos (média
+     −0,30 p.p., variando de −1,93 a +0,73 p.p. por modelo) — a troca
+     não traria ganho relevante.
+   - *Macro*-F1 (métrica que pondera todas as 52-55 categorias
+     igualmente) **piora no holdout em 6 dos 7 modelos**, média −1,24
+     p.p., pior caso −3,98 p.p. no LinearSVC (0,6083 → 0,5685) —
+     exatamente o efeito esperado quando categorias raras perdem
+     cobertura de teste.
+   - Resultados em `04_artigo/figuras/comparacao_holdout_kfold.json` e
+     `tabela_S4_holdout_vs_kfold.csv` (commitados pelo workflow).
+3. Subseção 3.5 do artigo ganhou um parágrafo com a justificativa
+   (citando KOHAVI, 1995 — referência clássica que recomenda validação
+   cruzada sobre holdout único em bases pequenas/desbalanceadas) seguida
+   dos números reais acima. Referência adicionada em ordem alfabética.
+   Apêndice B (checklist) atualizado. Suíte completa: 90/90.
+4. **Caveat registrado no texto**: a comparação usa 52 das 55 categorias
+   da Tabela S1 — 3 categorias da consolidação de 24/07/2026 não
+   reapareceram na leitura de 25/07/2026 (base dinâmica; provável
+   renomeação/consolidação concorrente, não investigado a fundo por não
+   ser o foco desta rodada).
+
+**Próximo passo**: (1) revisar/mergear PR #58; (2) gerar novo snapshot
+imutável (`gerar_manifesto_snapshot_artigo.py`), pendência recorrente
+desde a rodada 12; (3) verificar se o dashboard público
+(`docs/index.html`) precisa de refresh dos JSONs novos; (4) quando o
+Codex retomar em 29/07 (ou antes, se decidido), continuar os Passos 3–6
+do prompt original de 6 passos.
+
+---
+
+### Histórico da rodada 15 (fechamento: limpeza total + rematerialização dos 8 modelos; verificação do parecer externo)
 
 **Contexto**: o Adinailson enviou a outra sessão (Codex, via conector
 GitHub) um prompt com 6 passos para revisar o artigo com rigor de
