@@ -22,6 +22,8 @@ import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import decisao_validada as dv  # noqa: E402
+import classificacao_multimodelo as cm  # noqa: E402
+import memoria_validada as mv  # noqa: E402
 import modelo_lstm  # noqa: E402
 import planilha as pl  # noqa: E402
 from tempo import agora_bahia  # noqa: E402
@@ -34,6 +36,7 @@ SAIDA_CSV = RAIZ / "04_artigo" / "figuras" / "tabela_S3_ablation_lstm.csv"
 SAIDA_FIG = RAIZ / "04_artigo" / "figuras" / "fig6_ablation_lstm.png"
 SAIDA_DIAG = RAIZ / "04_artigo" / "figuras" / "diagnostico_ablation_lstm_duplicatas.json"
 SAIDA_DIAG_PROTOCOLO = RAIZ / "04_artigo" / "figuras" / "diagnostico_ablation_lstm_protocolo.json"
+SAIDA_DIAG_MATERIALIZACAO = RAIZ / "04_artigo" / "figuras" / "diagnostico_materializacao_lstm_nova.json"
 
 
 def _cel(linha, idx) -> str:
@@ -367,6 +370,109 @@ def diagnosticar_protocolos_lstm(sh, config: dict, linhas: list[dict], verdade: 
     }
 
 
+def _avaliar_predicoes_por_linha(linhas: list[dict], verdade: dict[int, str], pred_por_linha: dict[int, dict]) -> dict:
+    validadas = sorted(ln for ln in verdade if ln in pred_por_linha)
+    acertos = [ln for ln in validadas if pred_por_linha[ln]["pred"] == verdade[ln]]
+    confs = [v for v in (_parse_float(pred_por_linha[ln].get("conf")) for ln in validadas) if v is not None]
+    return {
+        "n_avaliado": len(validadas),
+        "acertos": len(acertos),
+        "erros": len(validadas) - len(acertos),
+        "taxa_acerto": _taxa(len(acertos), len(validadas)),
+        "confianca": {
+            "n": len(confs),
+            "media": round(float(np.mean(confs)), 6) if confs else None,
+            "min": round(float(np.min(confs)), 6) if confs else None,
+            "max": round(float(np.max(confs)), 6) if confs else None,
+        },
+    }
+
+
+def diagnosticar_materializacao_oficial_nova(sh, config: dict, linhas: list[dict],
+                                             verdade: dict[int, str]) -> dict:
+    """Reexecuta o caminho oficial do LSTM em memoria, sem escrever na planilha.
+
+    Usa o mesmo helper de classificacao_multimodelo que materializa CLASSIF__lstm,
+    mas nao chama gravar_classificacao(), append_aba() nem atualizar_metricas().
+    """
+    mm = config["multimodelo"]
+    lote = [
+        {
+            "linha": item["linha"],
+            "id": "",
+            "titulo": "",
+            "categoria_original": item["historico"],
+            "texto": item["texto"],
+        }
+        for item in linhas
+    ]
+
+    memoria_cfg = config.get("memoria_validada", {})
+    memoria = []
+    if memoria_cfg.get("habilitada", True):
+        memoria = mv.carregar_memoria_validada(sh, config["abas_experimento"]["validacao_humana"])
+    peso_mem = int(memoria_cfg.get("peso_treino", 3))
+    mem_textos, mem_cats = mv.expandir_treino_com_memoria([], [], memoria, peso=peso_mem)
+
+    preds, scores, metodo = cm.prever_out_of_fold(
+        "lstm",
+        lote,
+        mem_textos,
+        mem_cats,
+        k_folds=int(mm.get("k_folds", 5)),
+        min_base=int(mm.get("min_base_treino", 200)),
+        fracao_topup=float(mm.get("fracao_topup", 0.25)),
+    )
+    pred_nova = {
+        item["linha"]: {"pred": str(pred), "conf": float(score)}
+        for item, pred, score in zip(lote, preds, scores)
+        if pred is not None
+    }
+    pred_antiga = carregar_predicoes_oficiais_lstm(sh, config)
+    avaliacao_nova = _avaliar_predicoes_por_linha(linhas, verdade, pred_nova)
+    avaliacao_antiga = _avaliar_predicoes_por_linha(linhas, verdade, pred_antiga)
+    comuns = sorted(ln for ln in pred_nova if ln in pred_antiga and ln in verdade)
+    mudou_pred = [ln for ln in comuns if pred_nova[ln]["pred"] != pred_antiga[ln]["pred"]]
+    nova_acerta_antiga_erra = [
+        ln for ln in comuns
+        if pred_nova[ln]["pred"] == verdade[ln] and pred_antiga[ln]["pred"] != verdade[ln]
+    ]
+    antiga_acerta_nova_erra = [
+        ln for ln in comuns
+        if pred_antiga[ln]["pred"] == verdade[ln] and pred_nova[ln]["pred"] != verdade[ln]
+    ]
+    return {
+        "gerado_em": agora_bahia(),
+        "script_origem": "src/ablation_lstm.py",
+        "natureza": "materializacao oficial nova em memoria; read-only; nao escreve em CLASSIF__lstm",
+        "metodo_materializacao_nova": metodo,
+        "config_multimodelo": {
+            "k_folds": int(mm.get("k_folds", 5)),
+            "min_base_treino": int(mm.get("min_base_treino", 200)),
+            "fracao_topup": float(mm.get("fracao_topup", 0.25)),
+            "memoria_validada": len(memoria),
+            "peso_memoria_validada": peso_mem,
+        },
+        "parametros_lstm_resolvidos": diagnosticar_parametros_lstm(config),
+        "escopo": {
+            "n_linhas_elegiveis": len(linhas),
+            "n_validadas_com_verdade": len(verdade),
+            "n_predicoes_novas": len(pred_nova),
+            "n_predicoes_antigas": len(pred_antiga),
+            "n_intersecao_nova_antiga_validada": len(comuns),
+        },
+        "materializacao_nova_vs_verdade": avaliacao_nova,
+        "materializacao_antiga_vs_verdade": avaliacao_antiga,
+        "comparacao_nova_antiga": {
+            "predicoes_diferentes": len(mudou_pred),
+            "taxa_predicoes_diferentes": _taxa(len(mudou_pred), len(comuns)),
+            "nova_acerta_antiga_erra": len(nova_acerta_antiga_erra),
+            "antiga_acerta_nova_erra": len(antiga_acerta_nova_erra),
+            "saldo_acertos_nova_menos_antiga": len(nova_acerta_antiga_erra) - len(antiga_acerta_nova_erra),
+        },
+    }
+
+
 def salvar_csv(resultados: list[dict]) -> None:
     SAIDA_CSV.parent.mkdir(parents=True, exist_ok=True)
     campos = ["variante", "units", "dropout", "n_validado", "acerto_validado", "acertos", "erros"]
@@ -407,6 +513,7 @@ def parse_args():
     p.add_argument("--validation-split", type=float, default=0.1)
     p.add_argument("--diagnostico-only", action="store_true")
     p.add_argument("--diagnostico-protocolo-only", action="store_true")
+    p.add_argument("--diagnostico-materializacao-oficial-only", action="store_true")
     p.add_argument("--verbose", type=int, default=2)
     return p.parse_args()
 
@@ -448,6 +555,13 @@ def main() -> int:
         SAIDA_DIAG_PROTOCOLO.parent.mkdir(parents=True, exist_ok=True)
         SAIDA_DIAG_PROTOCOLO.write_text(json.dumps(diagnostico, ensure_ascii=False, indent=2), encoding="utf-8")
         print(f"diagnostico_protocolo_json={SAIDA_DIAG_PROTOCOLO}")
+        return 0
+
+    if args.diagnostico_materializacao_oficial_only:
+        diagnostico = diagnosticar_materializacao_oficial_nova(sh, config, linhas, verdade)
+        SAIDA_DIAG_MATERIALIZACAO.parent.mkdir(parents=True, exist_ok=True)
+        SAIDA_DIAG_MATERIALIZACAO.write_text(json.dumps(diagnostico, ensure_ascii=False, indent=2), encoding="utf-8")
+        print(f"diagnostico_materializacao_json={SAIDA_DIAG_MATERIALIZACAO}")
         return 0
 
     resultados = []
