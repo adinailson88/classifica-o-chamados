@@ -40,11 +40,11 @@ que a amostra de conferência cresceu. Como a seleção não é aleatória e
 prioriza divergências e casos críticos, esses resultados não estimam o
 desempenho da base completa (COCHRAN, 1977). Resultados indicam superioridade do LinearSVC
 tanto na concordância com o histórico (acurácia de 80,29%,
-IC95%: 79,62%--80,95%) quanto no acerto validado (94,94%, IC95%:
-94,47%--95,39%), enquanto o LSTM apresentou concordância de 68,13% e
-acerto validado de 88,69% (números atualizados em 25/07/2026, após
-rematerialização completa dos sete modelos comparáveis — ver Subseções
-4.1, 4.2 e 4.9). A normalidade da concordância por turno foi
+IC95%: 79,62%--80,95%) quanto no acerto validado (94,93%, IC95%:
+94,47%--95,38%), enquanto o LSTM apresentou concordância de 68,13% e
+acerto validado de 87,90% (números atualizados em 25/07/2026, após
+limpeza completa e rematerialização dos sete modelos comparáveis a
+partir do zero — ver Subseções 4.1, 4.2 e 4.9). A normalidade da concordância por turno foi
 rejeitada para todos os modelos, justificando testes não paramétricos
 (Friedman, Cochran Q, McNemar, bootstrap). O custo computacional é
 incorporado como dimensão de avaliação, evidenciando que modelos
@@ -585,14 +585,14 @@ desatualizada, nao havia um problema de metodologia na avaliacao em si.
 A avaliação contra a verdade validada pela memória de decisão M/N/P (n =
 9.096 decisões travadas) confirma a mesma liderança da Subseção 4.1: o
 LinearSVC permanece o melhor modelo isolado, com
-acerto validado de 0,9494 (IC95%: 0,9447--0,9539), seguido por SGD
-(0,9391), Regressão Logística (0,9349), Extra Trees (0,9265), Random
-Forest (0,9210), LSTM (0,8869) e Naive Bayes (0,8607). A diferença entre o primeiro e o segundo colocado é
-pequena em termos absolutos (1,03 ponto percentual), mas estatisticamente
-significativa (McNemar, p ~ 1,66 × 10⁻⁹). Com os sete modelos comparáveis
+acerto validado de 0,9493 (IC95%: 0,9447--0,9538), seguido por SGD
+(0,9392), Regressão Logística (0,9355), Extra Trees (0,9274), Random
+Forest (0,9227), LSTM (0,8790) e Naive Bayes (0,8609). A diferença entre o primeiro e o segundo colocado é
+pequena em termos absolutos (1,01 ponto percentual), mas estatisticamente
+significativa (McNemar, p ~ 3,21 × 10⁻⁹). Com os sete modelos comparáveis
 já consistentes (sem a linha legada `transformer_ft`), os ensembles
-puderam ser avaliados: maioria ponderada (0,9451), confiança calibrada
-máxima (0,9449) e maioria simples (0,9427) — nenhum supera o LinearSVC
+puderam ser avaliados: maioria ponderada (0,9445), confiança calibrada
+máxima (0,9436) e maioria simples (0,9422) — nenhum supera o LinearSVC
 isolado com significância (McNemar p < 0,05 em favor do LinearSVC nos
 três casos). Conclusão: **não vale combinar modelos nesta consolidação**;
 usar LinearSVC isolado, com calibração.
@@ -623,11 +623,11 @@ restritos fossem incluídos no denominador e contados como erro para
 **todos** os modelos (pior caso possível, já que não sabemos a categoria
 certa desses casos — nenhum modelo pode receber crédito neles). O
 intervalo `[limite inferior, limite superior]` substitui o número
-pontual como leitura honesta do acerto validado: LinearSVC 0,9050--0,9485
-(amplitude 4,36 p.p.), SGD 0,8951--0,9382 (4,31 p.p.), Regressão
-Logística 0,8911--0,9340 (4,29 p.p.), Extra Trees 0,8832--0,9257 (4,25
-p.p.), Random Forest 0,8780--0,9203 (4,23 p.p.), LSTM 0,8457--0,8864
-(4,07 p.p.) e Naive Bayes 0,8212--0,8607 (3,95 p.p.). O achado
+pontual como leitura honesta do acerto validado: LinearSVC 0,9057--0,9493
+(amplitude 4,36 p.p.), SGD 0,8961--0,9392 (4,31 p.p.), Regressão
+Logística 0,8925--0,9355 (4,30 p.p.), Extra Trees 0,8848--0,9274 (4,26
+p.p.), Random Forest 0,8803--0,9227 (4,24 p.p.), LSTM 0,8386--0,8790
+(4,04 p.p.) e Naive Bayes 0,8214--0,8609 (3,96 p.p.). O achado
 metodologicamente mais importante desta análise de sensibilidade é que o
 **ranking relativo entre os sete modelos não muda em nenhum ponto do
 intervalo** — mesmo no pior caso, o LinearSVC permanece à frente e o
@@ -641,20 +641,28 @@ intervalo de sensibilidade ao viés de seleção (n = 9.096 a 9.534)
 
 | Modelo | Acerto validado (limite superior) | IC95% | Limite inferior (pior caso) |
 |---|---|---|---|
-| LinearSVC | 0,9494 | 0,9447 -- 0,9539 | 0,9050 |
-| SGD | 0,9391 | 0,9340 -- 0,9439 | 0,8951 |
-| Regressão Logística | 0,9349 | 0,9295 -- 0,9399 | 0,8911 |
-| Extra Trees | 0,9265 | 0,9211 -- 0,9316 | 0,8832 |
-| Random Forest | 0,9210 | 0,9153 -- 0,9262 | 0,8780 |
-| LSTM | 0,8869 | 0,8805 -- 0,8929 | 0,8457 |
-| Naive Bayes | 0,8607 | 0,8531 -- 0,8676 | 0,8212 |
+| LinearSVC | 0,9493 | 0,9447 -- 0,9538 | 0,9057 |
+| SGD | 0,9392 | 0,9343 -- 0,9440 | 0,8961 |
+| Regressão Logística | 0,9355 | 0,9302 -- 0,9404 | 0,8925 |
+| Extra Trees | 0,9274 | 0,9222 -- 0,9325 | 0,8848 |
+| Random Forest | 0,9227 | 0,9171 -- 0,9280 | 0,8803 |
+| LSTM | 0,8790 | 0,8724 -- 0,8857 | 0,8386 |
+| Naive Bayes | 0,8609 | 0,8533 -- 0,8680 | 0,8214 |
 
-Fonte: `avaliacao_final.json` (limite superior e IC95%), gerado em
-25/07/2026 01:52, e `04_artigo/figuras/sensibilidade_vies_validacao.json`
-(limite inferior e composição dos restritos), gerado em 25/07/2026
-11:14, ambos a partir da rematerialização completa dos sete modelos no
-mesmo dia. A tabela exclui a linha legada `transformer_ft`, pois
-`bertimbau_training_state.json` registra `sem_dados`.
+Fonte: `avaliacao_final.json`, gerado em 25/07/2026 12:52, após limpeza
+completa e rematerialização dos 8 modelos a partir do zero (rodada 15).
+O limite inferior foi recalculado por derivação matemática direta a
+partir do novo `acerto_validado` (mesma fórmula do script
+`analise_sensibilidade_vies_validacao.py`: corretos / (n_decididas +
+n_restritas), com n_restritas = 438 — inalterado, pois depende só das
+conferências M/N/P, não da rematerialização dos modelos), não por nova
+execução do workflow `sensibilidade_vies`; a composição dos restritos
+(344 só histórico errado, 94 histórico+IA errados) permanece a publicada
+em `04_artigo/figuras/sensibilidade_vies_validacao.json`, gerado em
+25/07/2026 11:14. A tabela exclui a linha legada `transformer_ft`: além
+de `bertimbau_training_state.json` registrar `sem_dados`, a rodada 15
+confirmou e corrigiu a causa raiz (fallback silencioso para LSTM — ver
+Limitações).
 
 *Nota metodológica sobre a resolução da discrepância do LSTM (ver Figura
 6/Subseção 4.9)*: a Subseção 4.9 havia sinalizado que o ablation study do
@@ -663,7 +671,7 @@ pontos percentuais do valor oficial então vigente (0,7471). A
 rematerialização completa desta subseção confirma a causa: o valor de
 0,7471 vinha de uma materialização de `CLASSIF__lstm` datada de
 16-17/07/2026, mais de uma semana desatualizada. O novo valor oficial do
-LSTM (0,8869, rematerializado em 25/07/2026) está muito mais próximo do
+LSTM (0,8790, rematerializado em 25/07/2026) está muito mais próximo do
 que o ablation já indicava, confirmando que **o ablation nunca teve um
 bug de vazamento residual relevante** — o problema real era a defasagem
 temporal da materialização oficial usada como referência, não uma falha
@@ -993,8 +1001,10 @@ Subseção 4.2) vinha de uma materialização de `CLASSIF__lstm` datada de
 16-17/07/2026, mais de uma semana desatualizada em relação à base viva. A
 rematerialização completa dos sete modelos em 25/07/2026 (ver nota de
 rastreabilidade na Subseção 4.2) produziu um novo valor oficial do LSTM de
-0,8869 — muito mais próximo dos 0,8635 deste ablation corrigido (diferença
-residual de 2,34 pontos percentuais, plausivelmente atribuível a
+0,8790 (confirmado após limpeza completa e rematerialização de todos os 8
+modelos na rodada 15, 25/07/2026) — muito mais próximo dos 0,8635 deste
+ablation corrigido (diferença residual de 1,55 pontos percentuais,
+plausivelmente atribuível a
 diferenças remanescentes de protocolo: `k_folds=3` no ablation contra
 `k_folds=5` na materialização oficial, e treino por fold isolado contra o
 esquema *out-of-fold* padrão). **Conclusão**: o ablation nunca teve um
@@ -1030,7 +1040,7 @@ consolidação vigente (25/07/2026), após a rematerialização completa dos
 sete modelos ter corrigido uma defasagem de mais de uma semana na
 materialização anterior (Subseção 4.9), o acerto validado voltou a superar
 a concordância histórica (concordância 68–80%, acerto validado 86–95%),
-com o LinearSVC em 80,29% de concordância e 94,94% de acerto validado. A
+com o LinearSVC em 80,29% de concordância e 94,93% de acerto validado. A
 primeira transição (16/07 → 24/07) refletiu crescimento genuíno da amostra
 validada; a segunda (24/07 → 25/07) refletiu correção de uma
 materialização desatualizada dos modelos, não mudança na amostra validada
@@ -1199,7 +1209,8 @@ uma fração pequena vinha de vazamento por duplicatas (corrigido via
 `GroupKFold`), e a maior parte vinha da avaliação oficial de referência
 estar desatualizada. A rematerialização completa dos sete modelos
 comparáveis (Subseção 4.2) substituiu o valor histórico do LSTM (74,71%)
-pelo valor atual (88,69%), muito mais próximo do ablation corrigido
+pelo valor atual (87,90%, reconfirmado após limpeza completa e nova
+rematerialização na rodada 15), muito mais próximo do ablation corrigido
 (86,35%). O ablation deixa de ser tratado como diagnóstico isolado e passa
 a ser lido como evidência preliminar de baixa sensibilidade do LSTM aos
 hiperparâmetros testados, consistente com a nova avaliação oficial.
@@ -1238,11 +1249,13 @@ inconsistências no próprio pipeline de avaliação (Subseções 4.3 e 4.4).
 
 Na amostra parcial, não aleatória, de 9.096 chamados com decisão travada
 e sem conflito, o LinearSVC obteve o maior acerto validado entre os sete
-modelos comparáveis: 94,94% (IC95%: 94,47%--95,39%), seguido de SGD
-(93,91%), Regressão Logística (93,49%), Extra Trees (92,65%), Random
-Forest (92,10%), LSTM (88,69%) e Naive Bayes (86,07%) — números
-rematerializados em 25/07/2026 após a materialização anterior (16-17/07)
-ter sido identificada como desatualizada (Subseção 4.9). Nenhum dos três
+modelos comparáveis: 94,93% (IC95%: 94,47%--95,38%), seguido de SGD
+(93,92%), Regressão Logística (93,55%), Extra Trees (92,74%), Random
+Forest (92,27%), LSTM (87,90%) e Naive Bayes (86,09%) — números
+rematerializados em 25/07/2026, incluindo uma limpeza completa e
+reprocessamento do zero dos oito modelos na rodada 15 (a materialização
+anterior, de 16-17/07, havia sido identificada como desatualizada;
+Subseção 4.9). Nenhum dos três
 ensembles avaliados (maioria ponderada, confiança calibrada máxima,
 maioria simples) supera o LinearSVC isolado com significância estatística;
 a recomendação é usar o LinearSVC isolado, com calibração, em vez de
@@ -1271,9 +1284,10 @@ duplicatas textuais entre folds (46,72% das linhas validadas de teste)
 explicou uma fração pequena da diferença (corrigido com `GroupKFold`, de
 87,68% para 86,35%); a maior parte da discrepância vinha da avaliação
 oficial de referência estar desatualizada (materialização de 16-17/07/2026).
-A rematerialização completa dos sete modelos em 25/07/2026 (Subseção 4.2)
-produziu um novo valor oficial do LSTM (88,69%) próximo do ablation
-corrigido (86,35%, diferença residual de 2,34 pontos percentuais,
+A rematerialização completa dos sete modelos em 25/07/2026 (Subseção 4.2,
+reconfirmada após limpeza completa e reprocessamento do zero na rodada
+15) produziu um novo valor oficial do LSTM (87,90%) próximo do ablation
+corrigido (86,35%, diferença residual de 1,55 pontos percentuais,
 atribuível a `k_folds` distinto entre os dois protocolos). Com a
 discrepância principal resolvida, a ordenação relativa das quatro
 variantes do ablation é lida como evidência preliminar de baixa
