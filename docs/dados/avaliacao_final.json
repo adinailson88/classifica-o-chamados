@@ -1,5 +1,5 @@
 {
-  "gerado_em": "25/07/2026 01:52",
+  "gerado_em": "25/07/2026 04:33",
   "schema_version": "1.0",
   "run_id": "EXP_CLASSIFICACAO_CHAMADOS_2026_06_001",
   "script_origem": "src/avaliacao_final.py",
@@ -108,6 +108,16 @@
   },
   "ensembles": [
     {
+      "metodo": "confianca_calibrada_max",
+      "acerto_validado": 0.9457,
+      "ic95": [
+        0.9406,
+        0.9502
+      ],
+      "delta_vs_melhor_ia": -0.0037,
+      "p_mcnemar_vs_melhor_ia": 0.009756084718005738
+    },
+    {
       "metodo": "maioria_ponderada",
       "acerto_validado": 0.9451,
       "ic95": [
@@ -116,16 +126,6 @@
       ],
       "delta_vs_melhor_ia": -0.0043,
       "p_mcnemar_vs_melhor_ia": 0.002802729240437866
-    },
-    {
-      "metodo": "confianca_calibrada_max",
-      "acerto_validado": 0.9449,
-      "ic95": [
-        0.9399,
-        0.9495
-      ],
-      "delta_vs_melhor_ia": -0.0045,
-      "p_mcnemar_vs_melhor_ia": 0.002400072302527052
     },
     {
       "metodo": "maioria_simples",
