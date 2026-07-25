@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       tarefa:
-        description: "tabela_s1, history, diagnostico_ablation, diagnostico_protocolo_ablation, diagnostico_materializacao_lstm ou ablation"
+        description: "tabela_s1, history, diagnostico_ablation, diagnostico_protocolo_ablation, diagnostico_materializacao_lstm, ablation ou limpar_multimodelo"
         required: true
         default: "tabela_s1"
         type: choice
@@ -15,6 +15,7 @@ on:
           - diagnostico_protocolo_ablation
           - diagnostico_materializacao_lstm
           - ablation
+          - limpar_multimodelo
       epochs:
         description: "Epocas de treino"
         required: false
@@ -23,6 +24,15 @@ on:
         description: "Folds para ablation"
         required: false
         default: "3"
+      modelos_limpeza:
+        description: "Modelos para limpar_multimodelo ('comparaveis' = 7, sem transformer_ft, ou lista separada por virgula)"
+        required: false
+        default: "comparaveis"
+      aplicar_limpeza:
+        description: "limpar_multimodelo: false = so conta (dry-run); true = apaga de verdade"
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: write
@@ -52,7 +62,7 @@ jobs:
 
       - name: Validar sintaxe e testes
         run: |
-          python -m py_compile src/exportar_tabela_por_categoria.py src/modelo_lstm.py src/ablation_lstm.py
+          python -m py_compile src/exportar_tabela_por_categoria.py src/modelo_lstm.py src/ablation_lstm.py src/limpar_classif_multimodelo.py
           python -m unittest discover -s tests
 
       - name: Exportar tabela S1 da aba viva
@@ -102,6 +112,18 @@ jobs:
           GOOGLE_APPLICATION_CREDENTIALS: credenciais_sa.json
         run: |
           python src/ablation_lstm.py --diagnostico-materializacao-oficial-only
+
+      - name: Limpar CLASSIF__/turnos/metricas para forcar rematerializacao
+        if: ${{ github.event.inputs.tarefa == 'limpar_multimodelo' }}
+        env:
+          SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
+          GOOGLE_APPLICATION_CREDENTIALS: credenciais_sa.json
+        run: |
+          if [ "${{ github.event.inputs.aplicar_limpeza }}" = "true" ]; then
+            python src/limpar_classif_multimodelo.py --modelos "${{ github.event.inputs.modelos_limpeza }}" --aplicar
+          else
+            python src/limpar_classif_multimodelo.py --modelos "${{ github.event.inputs.modelos_limpeza }}"
+          fi
 
       - name: Commitar resultados
         run: |
