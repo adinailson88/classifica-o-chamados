@@ -35,8 +35,71 @@ Isso substitui a necessidade de o usuário reexplicar contexto a cada nova conve
 
 ## Estado desta rodada
 
-**Data**: 2026-07-25 (America/Bahia, UTC-03:00) — rodada 15 (fechamento:
-limpeza total + rematerialização dos 8 modelos, pós Passos 1 e 2).
+**Data**: 2026-07-25 (America/Bahia, UTC-03:00) — rodada 17 (Subseção
+4.10 de robustez estatística; recuperação de conteúdo perdido em merge
+concorrente).
+
+**Contexto**: nesta mesma jornada de trabalho, mais de uma sessão/processo
+esteve operando neste clone local em paralelo (já detectado e contornado
+nas rodadas 15-16 — ver histórico). Ao retomar o trabalho nesta rodada,
+detectei que o merge da rodada 16 (PR #58, justificativa k-fold vs.
+holdout) **perdeu conteúdo real** no processo: a própria Subseção 3.5
+("Desenho de avaliação") ficou sem cabeçalho (erro meu, de uma rodada
+anterior) e, mais grave, o parágrafo inteiro de justificativa
+(KOHAVI, 1995 + comparação empírica holdout vs. k-fold), a referência
+bibliográfica e a linha de checklist correspondente **desapareceram do
+artigo publicado em `main`**, embora o PR estivesse marcado como
+mergeado. Comparação byte a byte (`comm` após normalizar CRLF/LF, não
+diff ingênuo) confirmou que essa foi a ÚNICA perda real; todo o resto
+(README.md, 3.4.1, etc.) estava intacto.
+
+**Onde está**: tudo recuperado e ampliado nesta rodada, branch
+`docs/robustez-estatistica-artigo`:
+1. **Recuperação**: cabeçalho "**3.5 Desenho de avaliação**" restaurado;
+   parágrafo "Escolha entre validação cruzada e *holdout* fixo" (com
+   KOHAVI, 1995 e os números reais de `comparacao_holdout_kfold.json`)
+   restaurado a partir do commit `8ddf6c67` (ainda íntegro no histórico
+   git, só não presente em `main`); referência KOHAVI e linha de
+   checklist reinseridas.
+2. **Novo, a pedido do Adinailson** ("gostaria que tivesse uma seção que
+   desse a robustez estatística mostrando os pressupostos e os resultados
+   dos testes"): criada Subseção **4.10 Robustez estatística: pressupostos
+   e testes de sensibilidade**, com números reais de
+   `docs/dados/estatistica.json` (gerado 25/07/2026 15:45, n = 13.965) —
+   protocolo de Zuur, Ieno e Elphick (2010, adaptado de resposta contínua
+   ecológica para resposta categórica), cobrindo outliers, homogeneidade
+   de variância, normalidade (Shapiro-Wilk, Tabela 8), excesso de
+   categorias raras, colinearidade entre modelos (VIF), relação
+   confiança×acerto (Tabela 9), interações e independência das
+   observações (ACF/Durbin-Watson). Testes globais com números completos:
+   Cochran Q, Friedman+Nemenyi (só 5 de 15 pares significativos — bem
+   menos que o McNemar-Holm, por diferença de poder estatístico entre os
+   dois testes, explicitado no texto), McNemar-Holm (20/21 pares
+   significativos; única exceção SGD vs. Random Forest), Kappa de Fleiss
+   entre as 7 IAs (0,7719). Verifiquei cada número manualmente antes de
+   publicar — encontrei e corrigi uma alegação minha própria incorreta
+   sobre o Nemenyi antes do commit (tinha escrito "quase todos os pares
+   significativos", o cálculo real mostrou 5 de 15).
+3. **Correção de referência cruzada pré-existente, achada de graça**: 9
+   menções a "Subseção 4.9" no artigo apontavam para uma subseção que
+   nunca existia formalmente (o conteúdo da investigação do *ablation*
+   do LSTM estava só dentro da legenda da Figura 6, em 4.8). Formalizei
+   como **4.9 Investigação da discrepância do *ablation* do LSTM**,
+   resolvendo as 9 referências cruzadas quebradas de uma vez.
+4. Referência ZUUR (2010) adicionada; Apêndice B e tabela de estrutura
+   deste arquivo (Seção 3, acima) atualizados com 4.9/4.10. Suíte
+   completa: 90/90 (mudança é só em Markdown).
+
+**Próximo passo**: (1) revisar/mergear o PR desta rodada — **checar com
+cuidado extra o resultado do merge**, dado o incidente de perda de
+conteúdo; (2) considerar novo snapshot imutável pós-merge, já que o
+`artigo-v3-20260725` (rodada anterior) não inclui 4.9/4.10; (3) quando o
+Codex retomar em 29/07 (ou antes, se decidido), continuar os Passos 3–6
+do prompt original de 6 passos.
+
+---
+
+### Histórico da rodada 15 (fechamento: limpeza total + rematerialização dos 8 modelos; verificação do parecer externo; rodada 16 recuperada acima)
 
 **Contexto**: o Adinailson enviou a outra sessão (Codex, via conector
 GitHub) um prompt com 6 passos para revisar o artigo com rigor de
@@ -333,6 +396,8 @@ padrão-ouro; "rótulos ruidosos" no histórico administrativo como problema de 
 | 4.6 | Diagnóstico Shannon/Jensen-Shannon | `docs/dados/shannon_resumo.json`, `shannon_modelos.json`, `jensen_shannon_modelos.json` |
 | 4.7 | Custo computacional | a confirmar se já medido — se não, marcar "Informação insuficiente para verificar" |
 | 4.8 | Figuras | pendência conhecida: regenerar a partir dos JSONs atuais |
+| 4.9 | Investigação da discrepância do ablation do LSTM (rodadas 10-11) | `04_artigo/figuras/ablation_lstm_resultados.json`, `diagnostico_*_lstm*.json` |
+| 4.10 | Robustez estatística: pressupostos (Zuur et al. 2010, adaptado) e testes de sensibilidade completos (Shapiro-Wilk, Friedman/Nemenyi, McNemar-Holm, Fleiss Kappa, correlação confiança×acerto) | `docs/dados/estatistica.json` (campos `pressupostos`, `protocolo_zuur`, `cochran_q`, `friedman`, `mcnemar_holm`, `fleiss_kappa_entre_ias`, `residuos_tendencia`) |
 
 ### 5. Discussão
 Rótulos ruidosos no histórico vs. erro da IA; quando confiar na IA e quando confiar
