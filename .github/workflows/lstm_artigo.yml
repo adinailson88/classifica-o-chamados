@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       tarefa:
-        description: "tabela_s1, history, diagnostico_ablation ou ablation"
+        description: "tabela_s1, history, diagnostico_ablation, diagnostico_protocolo_ablation ou ablation"
         required: true
         default: "tabela_s1"
         type: choice
@@ -12,6 +12,7 @@ on:
           - tabela_s1
           - history
           - diagnostico_ablation
+          - diagnostico_protocolo_ablation
           - ablation
       epochs:
         description: "Epocas de treino"
@@ -84,6 +85,14 @@ jobs:
           GOOGLE_APPLICATION_CREDENTIALS: credenciais_sa.json
         run: |
           python src/ablation_lstm.py --diagnostico-only --k-folds "${{ github.event.inputs.k_folds }}"
+
+      - name: Diagnosticar protocolo residual do ablation
+        if: ${{ github.event.inputs.tarefa == 'diagnostico_protocolo_ablation' }}
+        env:
+          SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
+          GOOGLE_APPLICATION_CREDENTIALS: credenciais_sa.json
+        run: |
+          python src/ablation_lstm.py --diagnostico-protocolo-only --k-folds "${{ github.event.inputs.k_folds }}"
 
       - name: Commitar resultados
         run: |

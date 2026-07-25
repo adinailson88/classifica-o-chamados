@@ -96,6 +96,40 @@ class TestAblationLSTM(unittest.TestCase):
         self.assertEqual(diag["taxa_vazamento"], 1.0)
         self.assertEqual([f["n_teste"] for f in diag["folds"]], [2, 2, 2])
 
+    def test_diagnosticar_protocolos_lstm_compara_historico_e_aba_oficial(self):
+        class FakeWorksheet:
+            def get_values(self, *_args, **_kwargs):
+                return [
+                    ["run_id", "linha_planilha", "id", "historico", "categoria_ia", "confianca", "faixa", "executor", "acerto"],
+                    ["r", 2, "1", "A", "A", 0.9, "", "lstm", "TRUE"],
+                    ["r", 3, "2", "A", "A", 0.8, "", "lstm", "TRUE"],
+                ]
+
+        class FakeSheet:
+            def worksheet(self, nome):
+                self.nome = nome
+                return FakeWorksheet()
+
+        linhas = [
+            {"linha": 2, "texto": "x", "historico": "A"},
+            {"linha": 3, "texto": "y", "historico": "A"},
+            {"linha": 4, "texto": "z", "historico": "B"},
+        ]
+        verdade = {2: "A", 3: "B", 4: "B"}
+        config = {
+            "multimodelo": {"aba_classificacao": "CLASSIF__{modelo}", "k_folds": 5},
+            "memoria_validada": {"habilitada": True, "peso_treino": 3},
+        }
+
+        diag = ablation.diagnosticar_protocolos_lstm(FakeSheet(), config, linhas, verdade, 3)
+
+        self.assertEqual(diag["escopo"]["n_validadas_com_verdade"], 3)
+        self.assertEqual(diag["escopo"]["n_intersecao_validada_oficial"], 2)
+        self.assertEqual(diag["historico_vs_verdade"]["historico_igual_verdade"], 2)
+        self.assertEqual(diag["historico_vs_verdade"]["taxa_historico_igual_verdade"], 0.666667)
+        self.assertEqual(diag["oficial_lstm_vs_verdade"]["acertos"], 1)
+        self.assertEqual(diag["oficial_lstm_vs_verdade"]["taxa_acerto"], 0.5)
+
 
 class TestModeloLSTMHistoryCLI(unittest.TestCase):
     def test_salvar_history_exige_fit_e_grava_json(self):
