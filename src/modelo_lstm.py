@@ -148,14 +148,35 @@ class ClassificadorLSTM:
         )
         early = EarlyStopping(monitor="val_loss", patience=paciencia,
                               restore_best_weights=True)
-        self.model.fit(
+        historico = self.model.fit(
             X, y,
             epochs=epochs, batch_size=batch_size,
             validation_split=validation_split,
             callbacks=[early], verbose=verbose,
             class_weight=class_weight,
         )
+        # loss/val_loss/accuracy/val_accuracy por epoca (curvas de
+        # aprendizado); nao afeta o comportamento existente do fit().
+        self.history_ = {
+            metrica: [float(v) for v in valores]
+            for metrica, valores in historico.history.items()
+        }
         return self
+
+    def salvar_history(self, caminho) -> None:
+        """Grava self.history_ (loss/val_loss/accuracy/val_accuracy por
+        epoca) em JSON para diagnostico de overfitting/underfitting.
+        Sem custo de treino extra: reaproveita o History ja retornado pelo
+        Keras em fit(). Requer que fit() ja tenha sido chamado.
+        """
+        if not hasattr(self, "history_"):
+            raise RuntimeError("Chame fit() antes de salvar_history().")
+        caminho = Path(caminho)
+        caminho.parent.mkdir(parents=True, exist_ok=True)
+        caminho.write_text(
+            json.dumps(self.history_, ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
 
     def predict_com_conf(self, textos):
         X = self._vetorizar(textos)
