@@ -1,0 +1,46 @@
+{
+  "gerado_em": "24/07/2026 22:33",
+  "script_origem": "src/ablation_lstm.py",
+  "natureza": "acerto contra verdade validada humana; KFold sobre linhas validadas",
+  "k_folds": 3,
+  "epochs": 15,
+  "batch_size": 128,
+  "resultados": [
+    {
+      "variante": "units128_dropout03",
+      "units": 128,
+      "dropout": 0.3,
+      "n_validado": 9096,
+      "acerto_validado": 0.8818,
+      "acertos": 8021,
+      "erros": 1075
+    },
+    {
+      "variante": "units128_dropout05",
+      "units": 128,
+      "dropout": 0.5,
+      "n_validado": 9096,
+      "acerto_validado": 0.8774,
+      "acertos": 7981,
+      "erros": 1115
+    },
+    {
+      "variante": "units64_dropout05_atual",
+      "units": 64,
+      "dropout": 0.5,
+      "n_validado": 9096,
+      "acerto_validado": 0.8768,
+      "acertos": 7975,
+      "erros": 1121
+    },
+    {
+      "variante": "units64_dropout03",
+      "units": 64,
+      "dropout": 0.3,
+      "n_validado": 9096,
+      "acerto_validado": 0.8743,
+      "acertos": 7953,
+      "erros": 1143
+    }
+  ]
+}
