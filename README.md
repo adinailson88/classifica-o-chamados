@@ -167,7 +167,32 @@ publico) NAO foi rematerializada nesta rodada -- pode estar sujeita a
 defasagem semelhante. Fora de escopo desta correcao; decisao futura do
 pesquisador.
 
+### RESOLVIDO - vies estrutural da amostra validada quantificado (25/07/2026, PR #54)
+**Achado do Adinailson**: a "verdade validada" (`decisao_validada.py`) so
+existe quando M, N ou P marca "Correto". Chamados em que o avaliador
+julgou TODAS as fontes conferidas erradas ficam `status='restrito'` e
+sao excluidos do denominador de qualquer acerto validado -- inflando
+mecanicamente o numero de qualquer modelo que concorde com o historico
+ou a IA oficial. **Quantificado**: 438 dos 9.534 conferidos (4,6%) sao
+restritos (344 so historico errado; 94 historico+IA errados). Novo
+script `src/analise_sensibilidade_vies_validacao.py` (read-only, 7
+testes) publica um intervalo `[limite_inferior, limite_superior]` por
+modelo em `04_artigo/figuras/sensibilidade_vies_validacao.json`;
+amplitude real de 3,95 a 4,36 p.p. conforme o modelo, **ranking relativo
+entre os 7 modelos estavel em todo o intervalo**. Subsecao 4.2,
+Discussao e Limitacoes do artigo reescritas para reportar o intervalo em
+vez do numero pontual. Trabalho feito em branch `fix/vies-amostra-
+validada` + PR #54 (nao mergeado ainda), seguindo as regras de execucao
+que o Adinailson definiu para esta rodada (branch+PR, nunca push direto
+em main). Passos 2-6 de um prompt maior (transformer_ft com fallback
+silencioso, rematerializacao da Etapa 1 oficial, bug do dashboard,
+snapshot novo, rigor formal MDPI) ficam pendentes -- a sessao do Codex
+que os estava executando ficou bloqueada por limite de uso ate
+29/07/2026, com 3 commits locais nunca enviados ao GitHub.
+
 ### Confirmado feito
+- [x] **Viés estrutural da amostra validada quantificado** — ver bloco
+      "RESOLVIDO" acima (PR #54, branch `fix/vies-amostra-validada`)
 - [x] Aviso de viés de amostra não aleatória no Resumo/Abstract (COCHRAN, 1977)
 - [x] Discussão da inferioridade do LSTM frente aos modelos lineares
       (GALKE; SCHERP, 2022)
