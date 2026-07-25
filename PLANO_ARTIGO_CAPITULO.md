@@ -35,82 +35,96 @@ Isso substitui a necessidade de o usuário reexplicar contexto a cada nova conve
 
 ## Estado desta rodada
 
-**Data**: 2026-07-25 (America/Bahia, UTC-03:00) - rodada 12 (rematerializacao
-completa dos 7 modelos comparaveis; discrepancia do LSTM resolvida).
+**Data**: 2026-07-25 (America/Bahia, UTC-03:00) — rodada 13 (viés
+estrutural da amostra validada, Passo 1 de um prompt maior de 6 passos).
 
-**Onde esta**: a discrepancia do ablation do LSTM (sinalizada na rodada 10,
-investigada nas rodadas 11-14) esta **resolvida**. O Adinailson confirmou
-explicitamente a decisao de rematerializar os 7 modelos comparaveis por
-completo (nao so o LSTM), em vez de preservar o valor oficial historico como
-as rodadas anteriores haviam decidido conservadoramente. Executado e
-verificado nesta rodada, com credencial, via GitHub Actions (nao localmente
--- esta sessao segue sem `credenciais_sa.json`/`SPREADSHEET_ID` local).
+**Contexto desta rodada**: o Adinailson enviou a outra sessão (Codex, via
+conector GitHub) um prompt com 6 passos para revisar o artigo com rigor
+de submissão A1/A2 (viés da amostra, `transformer_ft` com fallback
+silencioso para LSTM, Etapa 1 oficial desatualizada, bug no dashboard,
+snapshot desatualizado, rigor formal MDPI). Essa sessão concluiu os
+Passos 1–2 e preparou o Passo 3 em modo seguro, mas ficou **bloqueada
+pelo limite de uso do Codex até 2026-07-29 11:49**, com 3 commits
+**locais no sandbox dele, nunca enviados ao GitHub** (branch remota
+criada mas ainda aponta pro commit-base). O Adinailson pediu para eu
+tratar só o Passo 1 agora, sem esperar o Codex — Passos 2–6 ficam
+pendentes até ele retomar (ou até nova decisão).
+
+**Onde está**: Passo 1 (viés estrutural da amostra validada) **concluído
+nesta rodada**, em branch + PR (não mergeado ainda — regra desta rodada:
+nunca push direto em `main`). PR: `fix/vies-amostra-validada` → #54.
 
 **O que foi feito nesta rodada**:
-1. Investiguei `src/classificacao_multimodelo.py`: o fluxo e incremental
-   (so processa linhas pendentes) e nunca abre a aba principal para
-   escrita -- so le `CHAMADOS_ESQUELETO_REDUZIDO` e escreve em
-   `CLASSIF__<modelo>`/`MULTIMODELO_TURNOS`/`MULTIMODELO_METRICAS`.
-2. Criei `src/limpar_classif_multimodelo.py` (novo): limpa SOMENTE essas
-   tres abas, restrito aos modelos passados (`comparaveis` = 7, nunca
-   `transformer_ft` por padrao). Confirmado por teste que o codigo-fonte
-   nao contem a string `aba_principal`. Dry-run por padrao. 8 testes
-   offline novos (fake worksheet/spreadsheet) em
-   `tests/test_limpar_classif_multimodelo.py`. Suite completa: 50/50.
-3. Adicionei a tarefa `limpar_multimodelo` ao workflow "Pendencias artigo
-   com credencial" (`.github/workflows/lstm_artigo.yml`), com
-   `aplicar_limpeza` boolean (default false).
-4. Rodei o dry-run via `gh workflow run` (run `30144116442`): confirmou
-   13.965 linhas por modelo em `CLASSIF__<modelo>` x7, 6.524 linhas de
-   `MULTIMODELO_TURNOS` (932 do `transformer_ft` preservadas), 7 linhas de
-   `MULTIMODELO_METRICAS` (1 do `transformer_ft` preservada). Reportei ao
-   Adinailson antes de aplicar; ele confirmou explicitamente.
-5. Apliquei de verdade (run `30144225377`): numeros identicos ao dry-run,
-   sucesso.
-6. Disparei `classificacao_multimodelo.yml` com os 7 modelos, `max_turnos=0`,
-   `aplicar=true` (run `30144280472`): rematerializou 13.965/13.965 por
-   modelo, 0 pendentes, `kfold_5`. Concordancia vs. historico ficou
-   praticamente igual a antes (ex.: LSTM 68,13% vs. ~68% anterior) -- essa
-   metrica nunca foi onde a anomalia aparecia.
-7. Disparei `avaliacao_final.yml` (run `30144740084`, sucesso) e
-   `estatistica.yml` (primeira tentativa `30144742053` cancelada por
-   concorrencia; redisparada com sucesso, run `30144847227`).
-8. **Resultado**: todos os 7 modelos subiram ~15 pontos percentuais de
-   acerto validado -- a materializacao de 16-17/07 estava genericamente
-   desatualizada, nao so para o LSTM. Ranking relativo **inalterado**.
-   Acerto validado novo (n=9.096, `avaliacao_final.json` gerado
-   25/07/2026 01:52): linear_svc 0,9494; sgd 0,9391; regressao_logistica
-   0,9349; extra_trees 0,9265; random_forest 0,9210; **lstm 0,8869** (perto
-   dos 0,8635 do ablation corrigido por GroupKFold -- diferenca residual de
-   2,34 p.p., atribuivel a `k_folds` diferente entre os dois protocolos:
-   3 no ablation, 5 na materializacao oficial); naive_bayes 0,8607. Nenhum
-   ensemble supera linear_svc isolado com significancia (McNemar p<0,05
-   em favor do linear_svc nos tres).
-9. Atualizei `04_artigo/artigo_classificacao_chamados_v3.md`: Tabela 1
-   (Subsecao 4.1, concordancia vs. historico), Tabela 2 (Subsecao 4.2,
-   acerto validado + ensembles), a ressalva da Figura 6 (Subsecao 4.9,
-   de "suspeito" para "investigado e resolvido"), o paragrafo da
-   Discussao com a serie historica de 3 consolidacoes (16/07 -> 24/07 ->
-   25/07), a quinta limitacao (ablation), e os numeros do Resumo/Abstract
-   e das Considerações Finais que citavam os valores antigos do LSTM
-   (0,7471) e do LinearSVC (0,7989). Varredura final confirmou zero
-   ocorrencia residual dos numeros antigos fora de contexto historico
-   intencional.
-10. Atualizei o bloco do `README.md` de "BLOQUEADOR" para "RESOLVIDO", com
-    o historico completo da investigacao e o resultado final, e a tabela
-    "7 IAs materializadas" com os numeros de 25/07/2026.
+1. Investiguei `src/decisao_validada.py`/`src/avaliacao_final.py`:
+   confirmado o mecanismo — a verdade validada só existe quando M, N ou P
+   marca "Correto"; chamados em que o avaliador julgou TODAS as fontes
+   conferidas erradas ficam `status='restrito'` e são excluídos do
+   denominador de `acerto_validado` para todos os modelos.
+2. Criei `src/analise_sensibilidade_vies_validacao.py` (novo, read-only):
+   quantifica os restritos, caracteriza a composição (qual conferência
+   marcou Errado) e calcula, por modelo, um intervalo
+   `[limite_inferior, limite_superior]` em vez de um número pontual.
+   7 testes offline novos. Suíte completa: 74/74.
+3. Estendi `.github/workflows/lstm_artigo.yml` com a tarefa
+   `sensibilidade_vies` (reaproveita o padrão existente: checkout do
+   branch que disparou, credencial via secret, commit automático de
+   `04_artigo/figuras/*` de volta no mesmo branch).
+4. Rodei via `gh workflow run --ref fix/vies-amostra-validada` (run
+   `30161214893`, sucesso): **438 dos 9.534 conferidos (4,6%) são
+   restritos** (344 só histórico errado; 94 histórico+IA errados; 0
+   conflitos). Publicado em
+   `04_artigo/figuras/sensibilidade_vies_validacao.json`. Amplitude real
+   por modelo: linear_svc 0,9050–0,9485 (4,36 p.p.), sgd 0,8951–0,9382
+   (4,31 p.p.), regressao_logistica 0,8911–0,9340 (4,29 p.p.),
+   extra_trees 0,8832–0,9257 (4,25 p.p.), random_forest 0,8780–0,9203
+   (4,23 p.p.), lstm 0,8457–0,8864 (4,07 p.p.), naive_bayes 0,8212–0,8607
+   (3,95 p.p.). **Ranking relativo entre os 7 modelos idêntico em
+   qualquer ponto do intervalo.**
+5. Reescrevi `04_artigo/artigo_classificacao_chamados_v3.md`: Subseção
+   4.2 (novo parágrafo + Tabela 2 com coluna de limite inferior),
+   Discussão (novo parágrafo explicando por que a célula "IA correta /
+   histórico incorreto" da matriz de confusão, Subseção 4.3, fica em
+   zero por construção — não porque a IA nunca corrija o histórico), e
+   Limitações (sexto item; corrigida também a incongruência pré-existente
+   "quatro ajustes" → lista já tinha 5 itens, agora 6).
+6. Atualizei `README.md` (novo bloco RESOLVIDO + item no checklist) e
+   este arquivo.
 
-**Nao rematerializado nesta rodada (fora de escopo, decisao futura)**: a
-Etapa 1 oficial de producao (executor LSTM/RF, coluna G da planilha, usada
-no dashboard publico `Classificacao`) pode estar sujeita a defasagem
-semelhante -- nao foi tocada.
+**Não tratado nesta rodada (fora de escopo, aguardando o Codex ou nova
+decisão)**: Passos 2–6 do prompt original — `transformer_ft` com
+fallback silencioso para LSTM sem aviso explícito; rematerialização da
+Etapa 1 oficial (coluna G, dashboard público — pode ter a mesma
+defasagem já corrigida nos 7 modelos comparáveis na rodada 12); bug no
+dashboard que esconde a tabela de ensembles com mensagem desatualizada;
+snapshot imutável novo pós-rematerialização; rigor formal de submissão
+MDPI (metadados, figuras 300dpi, subseção 5.4 dedicada).
 
-**Proximo passo**: gerar novo snapshot imutavel (`gerar_manifesto_
-snapshot_artigo.py`) refletindo os numeros de 25/07/2026, regenerar o PDF,
-e revisar visualmente as abas `Decisao`/`Modelos` do painel publico contra
-os novos JSONs. Continuam fora de escopo, aguardando decisao do
-Adinailson: holdout fixo de treino/teste e reformatacao das referencias
-para o padrao MDPI numerico.
+**Próximo passo**: (1) revisar e mergear o PR #54 (ou pedir ajustes);
+(2) quando o Codex retomar em 29/07 (ou antes, se decidido), continuar
+os Passos 2–6 — cuidado para não duplicar/conflitar com os commits locais
+dele (branch remota `fix/vies-amostra-validada` do Codex existe mas está
+vazia; os commits reais só existem no sandbox dele); (3) gerar novo
+snapshot imutável pós-rematerialização da rodada 12 (pendência já
+registrada na rodada 12, ainda não feita); (4) seguem fora de escopo,
+aguardando decisão do Adinailson: holdout fixo de treino/teste e
+reformatação das referências para o padrão MDPI numérico.
+
+---
+
+### Histórico da rodada 12 (rematerialização completa dos 7 modelos; discrepância do LSTM resolvida)
+A discrepância do ablation do LSTM (sinalizada na rodada 10, investigada
+nas rodadas 11–14) foi **resolvida**. Decisão do Adinailson: rematerializar
+os 7 modelos comparáveis por completo (não só o LSTM). Resultado: todos
+os 7 modelos subiram ~15 p.p. de acerto validado (materialização de
+16-17/07 estava genericamente desatualizada); ranking relativo
+inalterado. Acerto validado (n=9.096, `avaliacao_final.json` de
+25/07/2026 01:52): linear_svc 0,9494; sgd 0,9391; regressao_logistica
+0,9349; extra_trees 0,9265; random_forest 0,9210; lstm 0,8869 (perto dos
+0,8635 do ablation corrigido por GroupKFold); naive_bayes 0,8607. Criado
+`src/limpar_classif_multimodelo.py` (8 testes) para permitir a
+rematerialização com segurança. Ferramental: novo script
+`src/analise_sensibilidade_vies_validacao.py` (rodada 13, acima) já usa
+esses mesmos dados como base do intervalo de sensibilidade.
 
 ---
 
