@@ -101,10 +101,15 @@ O diagnostico de protocolo publicado no PR #53
 (diagnostico_ablation_lstm_protocolo.json, run 30142012194) mostrou que
 a verdade humana M/N/P coincide com o historico em 9.096/9.096 linhas
 validadas (100%) e que a aba oficial CLASSIF__lstm cobre as mesmas 9.096
-linhas, com 6.796 acertos (74,714%). Assim, a discrepancia residual nao
-decorre de escopo de linhas nem de validacao humana posterior divergente do
-historico; ela permanece concentrada na diferenca entre predicao oficial ja
-materializada e re-treino novo por fold do ablation.
+linhas, com 6.796 acertos (74,714%). O diagnostico ampliado (run
+30142341760) mostrou ainda que os parametros efetivos atuais do LSTM sao
+iguais entre o caminho direto do ablation e o caminho de producao, mas a aba
+oficial foi materializada antes da rodada do artigo: 13.954 linhas em
+16/07/2026 23:50 e 11 linhas em 17/07/2026 06:20, com 9.868/13.965
+predicoes em baixa confianca. Assim, a discrepancia residual nao decorre de
+escopo de linhas, de validacao humana posterior divergente do historico nem
+de hiperparametro efetivo atual; ela permanece concentrada na diferenca entre
+predicao oficial antiga ja materializada e re-treino novo por fold do ablation.
 Nao remover a ressalva do artigo nem promover o ablation a achado do
 capitulo enquanto a diferenca residual nao for explicada por outra causa
 metodologica ou experimental. A lacuna de cobertura da rodada 9 foi tratada
