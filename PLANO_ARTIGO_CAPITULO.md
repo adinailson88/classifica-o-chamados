@@ -36,7 +36,7 @@ Isso substitui a necessidade de o usuário reexplicar contexto a cada nova conve
 ## Estado desta rodada
 
 **Data**: 2026-07-24 (America/Bahia, UTC-03:00) — rodada 10 (diagnóstico
-do ablation LSTM, itens 1-3 executados).
+do ablation LSTM e cobertura de testes, itens 1-4 executados).
 
 **Onde está**: PR `#53` aberto no branch
 `fix/ablation-groupkfold-diagnostico`. O bloqueador do ablation permanece
@@ -67,12 +67,18 @@ com a avaliação oficial do LSTM em 74,71% na Subseção 4.2.
    acima da avaliação oficial de 74,71%. Portanto, as duplicatas explicam
    parte do problema, mas não resolvem a discrepância; a ressalva foi
    mantida e atualizada na Subseção 4.9/Figura 6 e na Discussão.
+5. A lacuna de testes da rodada 9 foi tratada em `tests/test_artigo_scripts.py`,
+   com cobertura offline para `src/exportar_tabela_por_categoria.py`,
+   `src/gerar_figura4_confusoes.py`, `src/ablation_lstm.py` e
+   `salvar_history()`/CLI de `src/modelo_lstm.py`. A suíte passou de 34 para
+   42 testes.
 
-**Próximo passo**: escrever os testes pendentes da rodada 9 para
-`src/exportar_tabela_por_categoria.py`, `src/gerar_figura4_confusoes.py`,
-`src/ablation_lstm.py` e `salvar_history()`/CLI de `src/modelo_lstm.py`;
-depois continuar a investigação da diferença residual do ablation antes de
-qualquer remoção da ressalva no artigo.
+**Próximo passo**: continuar a investigação da diferença residual do ablation
+antes de qualquer remoção da ressalva no artigo; hipóteses prioritárias:
+diferença entre treino novo por fold e predição oficial já materializada,
+uso de categoria histórica como rótulo em grande parte do treino, escopo de
+linhas usado em cada avaliação e eventual diferença entre validação humana
+posterior e o estado da base no momento em que a avaliação oficial foi gerada.
 
 ---
 

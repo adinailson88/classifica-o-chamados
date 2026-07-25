@@ -99,7 +99,10 @@ na Subseção 4.2 (74,71%, mesma base de verdade M/N/P). Portanto, as
 duplicatas explicam parte do problema, mas **não resolvem a discrepância**.
 Não remover a ressalva do artigo nem promover o ablation a achado do
 capítulo enquanto a diferença residual não for explicada por outra causa
-metodológica ou experimental.
+metodológica ou experimental. A lacuna de cobertura da rodada 9 foi tratada
+em `tests/test_artigo_scripts.py`, cobrindo `exportar_tabela_por_categoria.py`,
+`gerar_figura4_confusoes.py`, `ablation_lstm.py` e `salvar_history()`/CLI de
+`modelo_lstm.py`; isso não remove o bloqueador metodológico do ablation.
 
 ### Confirmado feito — não repetir em nova rodada
 - [x] Aviso de viés de amostra não aleatória no Resumo/Abstract (COCHRAN, 1977)
