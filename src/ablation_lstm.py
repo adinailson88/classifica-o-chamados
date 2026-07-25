@@ -414,7 +414,7 @@ def diagnosticar_materializacao_oficial_nova(sh, config: dict, linhas: list[dict
     peso_mem = int(memoria_cfg.get("peso_treino", 3))
     mem_textos, mem_cats = mv.expandir_treino_com_memoria([], [], memoria, peso=peso_mem)
 
-    preds, scores, metodo = cm.prever_out_of_fold(
+    preds, scores, metodo, _usou_fallback = cm.prever_out_of_fold(
         "lstm",
         lote,
         mem_textos,

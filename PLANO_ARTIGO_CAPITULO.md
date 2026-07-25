@@ -35,79 +35,80 @@ Isso substitui a necessidade de o usuário reexplicar contexto a cada nova conve
 
 ## Estado desta rodada
 
-**Data**: 2026-07-25 (America/Bahia, UTC-03:00) — rodada 13 (viés
-estrutural da amostra validada, Passo 1 de um prompt maior de 6 passos).
+**Data**: 2026-07-25 (America/Bahia, UTC-03:00) — rodada 14 (consolidação
+dos Passos 1 e 2 do prompt de 6 passos; reconciliação de 3 branches
+paralelos).
 
-**Contexto desta rodada**: o Adinailson enviou a outra sessão (Codex, via
-conector GitHub) um prompt com 6 passos para revisar o artigo com rigor
-de submissão A1/A2 (viés da amostra, `transformer_ft` com fallback
+**Contexto**: o Adinailson enviou a outra sessão (Codex, via conector
+GitHub) um prompt com 6 passos para revisar o artigo com rigor de
+submissão A1/A2 (viés da amostra, `transformer_ft` com fallback
 silencioso para LSTM, Etapa 1 oficial desatualizada, bug no dashboard,
 snapshot desatualizado, rigor formal MDPI). Essa sessão concluiu os
 Passos 1–2 e preparou o Passo 3 em modo seguro, mas ficou **bloqueada
 pelo limite de uso do Codex até 2026-07-29 11:49**, com 3 commits
-**locais no sandbox dele, nunca enviados ao GitHub** (branch remota
-criada mas ainda aponta pro commit-base). O Adinailson pediu para eu
-tratar só o Passo 1 agora, sem esperar o Codex — Passos 2–6 ficam
-pendentes até ele retomar (ou até nova decisão).
+**locais no sandbox dele, nunca enviados ao GitHub**. O Adinailson pediu
+para eu tratar os Passos 1 e 2 nesta sessão, sem esperar o Codex.
 
-**Onde está**: Passo 1 (viés estrutural da amostra validada) **concluído
-nesta rodada**, em branch + PR (não mergeado ainda — regra desta rodada:
-nunca push direto em `main`). PR: `fix/vies-amostra-validada` → #54.
+**Onde está**: Passos 1 e 2 (ambos críticos) **concluídos e mergeados em
+`main`** nesta rodada, em 3 branches/PRs paralelos:
+- **PR #54** (`fix/vies-amostra-validada`) — quantifica o viés estrutural
+  da amostra validada (Passo 1a-d): 438 dos 9.534 conferidos (4,6%) são
+  "restritos" (avaliador julgou todas as fontes erradas, sem verdade
+  conhecida) e ficam fora do denominador de `acerto_validado` — inflando
+  mecanicamente o número de qualquer modelo. Publicado intervalo
+  `[limite_inferior, limite_superior]` por modelo em
+  `04_artigo/figuras/sensibilidade_vies_validacao.json` (amplitude real:
+  3,95 a 4,36 p.p.; ranking relativo entre os 7 modelos idêntico em
+  qualquer ponto do intervalo). Subseção 4.2, Discussão e Limitações do
+  artigo reescritas para reportar o intervalo em vez de um número
+  pontual.
+- **PR #55** (`feat/categoria-correta-manual`) — elimina esse viés **na
+  raiz** (não só delimita): nova coluna Q "CATEGORIA CORRETA MANUAL" na
+  aba principal, preenchida pelo avaliador só quando M/N/P não têm nenhum
+  "Correto". `decisao_validada.py::decidir()` ganhou o parâmetro
+  `categoria_manual`; um "restrito" com essa coluna preenchida vira
+  `status='decidido'`, `fonte_decisao='manual'`. Cabeçalho já criado pelo
+  Adinailson na planilha viva (confirmado por leitura, sem `#REF!`); ele
+  vai preencher aos poucos.
+- **PR #56** (`fix/transformer-ft-fallback-explicito`) — Passo 2: o cron
+  automático `multimodelo_classificacao.yml` nunca instala
+  `torch`/`transformers`, então `_ModeloTransformerFT.fit()` caía
+  SILENCIOSAMENTE para LSTM/RF. Confirmado em log real (run
+  `29550863840`, 17/07/2026): a materialização inteira publicada como
+  `transformer_ft` (13.954/13.965 linhas) foi produzida por esse
+  fallback — é LSTM disfarçado, não fine-tuning do BERTimbau. Corrigido:
+  `classificar_modelo()`/`reclassificar_modelo()` agora recusam publicar
+  quando isso acontece (nada é gravado sob o nome do modelo pedido).
 
-**O que foi feito nesta rodada**:
-1. Investiguei `src/decisao_validada.py`/`src/avaliacao_final.py`:
-   confirmado o mecanismo — a verdade validada só existe quando M, N ou P
-   marca "Correto"; chamados em que o avaliador julgou TODAS as fontes
-   conferidas erradas ficam `status='restrito'` e são excluídos do
-   denominador de `acerto_validado` para todos os modelos.
-2. Criei `src/analise_sensibilidade_vies_validacao.py` (novo, read-only):
-   quantifica os restritos, caracteriza a composição (qual conferência
-   marcou Errado) e calcula, por modelo, um intervalo
-   `[limite_inferior, limite_superior]` em vez de um número pontual.
-   7 testes offline novos. Suíte completa: 74/74.
-3. Estendi `.github/workflows/lstm_artigo.yml` com a tarefa
-   `sensibilidade_vies` (reaproveita o padrão existente: checkout do
-   branch que disparou, credencial via secret, commit automático de
-   `04_artigo/figuras/*` de volta no mesmo branch).
-4. Rodei via `gh workflow run --ref fix/vies-amostra-validada` (run
-   `30161214893`, sucesso): **438 dos 9.534 conferidos (4,6%) são
-   restritos** (344 só histórico errado; 94 histórico+IA errados; 0
-   conflitos). Publicado em
-   `04_artigo/figuras/sensibilidade_vies_validacao.json`. Amplitude real
-   por modelo: linear_svc 0,9050–0,9485 (4,36 p.p.), sgd 0,8951–0,9382
-   (4,31 p.p.), regressao_logistica 0,8911–0,9340 (4,29 p.p.),
-   extra_trees 0,8832–0,9257 (4,25 p.p.), random_forest 0,8780–0,9203
-   (4,23 p.p.), lstm 0,8457–0,8864 (4,07 p.p.), naive_bayes 0,8212–0,8607
-   (3,95 p.p.). **Ranking relativo entre os 7 modelos idêntico em
-   qualquer ponto do intervalo.**
-5. Reescrevi `04_artigo/artigo_classificacao_chamados_v3.md`: Subseção
-   4.2 (novo parágrafo + Tabela 2 com coluna de limite inferior),
-   Discussão (novo parágrafo explicando por que a célula "IA correta /
-   histórico incorreto" da matriz de confusão, Subseção 4.3, fica em
-   zero por construção — não porque a IA nunca corrija o histórico), e
-   Limitações (sexto item; corrigida também a incongruência pré-existente
-   "quatro ajustes" → lista já tinha 5 itens, agora 6).
-6. Atualizei `README.md` (novo bloco RESOLVIDO + item no checklist) e
-   este arquivo.
+**Reconciliação desta rodada**: os 3 PRs partiram do mesmo commit de main
+e todos reescreviam esta seção — conflito resolvido manualmente ao
+mergear #56 por último (merge de `origin/main` no branch do PR, resolvido
+aqui). Ordem de merge: #54 → #55 → #56, todos limpos exceto o conflito
+nesta seção.
 
-**Não tratado nesta rodada (fora de escopo, aguardando o Codex ou nova
-decisão)**: Passos 2–6 do prompt original — `transformer_ft` com
-fallback silencioso para LSTM sem aviso explícito; rematerialização da
-Etapa 1 oficial (coluna G, dashboard público — pode ter a mesma
-defasagem já corrigida nos 7 modelos comparáveis na rodada 12); bug no
-dashboard que esconde a tabela de ensembles com mensagem desatualizada;
-snapshot imutável novo pós-rematerialização; rigor formal de submissão
-MDPI (metadados, figuras 300dpi, subseção 5.4 dedicada).
+**Em andamento, mesma rodada**: a pedido do Adinailson ("reexecute tudo,
+só não apague o que fiz manualmente [M/N/P/Q], pode apagar e refazer
+todos os dados de todas as outras abas"), limpando
+`CLASSIF__<modelo>`/`MULTIMODELO_TURNOS`/`MULTIMODELO_METRICAS` de TODOS
+os modelos (incluindo `transformer_ft`, que nunca tinha sido limpo antes)
+e rematerializando do zero agora que o código já recusa publicar
+fallback disfarçado — ver próxima entrada nesta mesma seção após a
+execução, ou o histórico de rodada seguinte se já foi substituída.
 
-**Próximo passo**: (1) revisar e mergear o PR #54 (ou pedir ajustes);
-(2) quando o Codex retomar em 29/07 (ou antes, se decidido), continuar
-os Passos 2–6 — cuidado para não duplicar/conflitar com os commits locais
-dele (branch remota `fix/vies-amostra-validada` do Codex existe mas está
-vazia; os commits reais só existem no sandbox dele); (3) gerar novo
-snapshot imutável pós-rematerialização da rodada 12 (pendência já
-registrada na rodada 12, ainda não feita); (4) seguem fora de escopo,
-aguardando decisão do Adinailson: holdout fixo de treino/teste e
-reformatação das referências para o padrão MDPI numérico.
+**Não tratado (fora de escopo, aguardando o Codex ou nova decisão)**:
+Passos 3–6 do prompt original — rematerialização da Etapa 1 oficial
+(coluna G, dashboard público); bug no dashboard que esconde a tabela de
+ensembles com mensagem desatualizada; snapshot imutável novo
+pós-rematerialização; rigor formal de submissão MDPI (metadados, figuras
+300dpi, subseção 5.4 dedicada); holdout fixo de treino/teste; referências
+em formato MDPI numérico.
+
+**Próximo passo**: (1) terminar a rematerialização completa em
+andamento (item acima) e reportar números finais; (2) regenerar
+`avaliacao_final.json`/`estatistica.json`/dashboard após a
+rematerialização; (3) gerar novo snapshot imutável (pendência recorrente
+desde a rodada 12); (4) quando o Codex retomar em 29/07 (ou antes, se
+decidido), continuar os Passos 3–6.
 
 ---
 

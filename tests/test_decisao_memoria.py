@@ -171,7 +171,7 @@ class TestVeto(unittest.TestCase):
         base_t = [f"agua vazamento torneira pia {i}" for i in range(30)] + \
                  [f"energia tomada disjuntor luz {i}" for i in range(30)]
         base_c = ["HID"] * 30 + ["ELE"] * 30
-        preds, _, _ = prever_out_of_fold(
+        preds, _, _, _ = prever_out_of_fold(
             "naive_bayes", lote, base_t, base_c, k_folds=5, min_base=10,
             fracao_topup=0.9, vetos=[{"HID"}] * len(lote))
         self.assertTrue(all(p != "HID" for p in preds))
