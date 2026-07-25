@@ -97,12 +97,14 @@ configuracao atual (units=64, dropout=0,5) ficou em 86,35%, ainda
 11,64 pontos percentuais acima da avaliacao OFICIAL da mesma arquitetura
 na Subsecao 4.2 (74,71%, mesma base de verdade M/N/P). Portanto, as
 duplicatas explicam parte do problema, mas **nao resolvem a discrepancia**.
-Foi acrescentado no PR #53 um diagnostico de protocolo separado
-(diagnostico_ablation_lstm_protocolo.json) para medir, com credencial,
-a aderencia da verdade humana ao historico e a intersecao com a aba
-CLASSIF__lstm; executar o workflow Pendencias artigo com credencial
-com tarefa=diagnostico_protocolo_ablation e k_folds=3 antes de concluir
-qualquer reconciliacao residual.
+O diagnostico de protocolo publicado no PR #53
+(diagnostico_ablation_lstm_protocolo.json, run 30142012194) mostrou que
+a verdade humana M/N/P coincide com o historico em 9.096/9.096 linhas
+validadas (100%) e que a aba oficial CLASSIF__lstm cobre as mesmas 9.096
+linhas, com 6.796 acertos (74,714%). Assim, a discrepancia residual nao
+decorre de escopo de linhas nem de validacao humana posterior divergente do
+historico; ela permanece concentrada na diferenca entre predicao oficial ja
+materializada e re-treino novo por fold do ablation.
 Nao remover a ressalva do artigo nem promover o ablation a achado do
 capitulo enquanto a diferenca residual nao for explicada por outra causa
 metodologica ou experimental. A lacuna de cobertura da rodada 9 foi tratada
