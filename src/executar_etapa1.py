@@ -201,7 +201,7 @@ def main() -> int:
 
     elegiveis, pendentes = [], []
     for pos, linha in enumerate(valores[1:], start=2):
-        cat = cel(linha, i_cat)
+        cat = pl.normalizar_categoria(cel(linha, i_cat))
         texto = "\n".join(c for c in [cel(linha, i_tit), cel(linha, i_dg),
                                       cel(linha, i_to), cel(linha, i_do)] if c)
         if not (cat and texto):

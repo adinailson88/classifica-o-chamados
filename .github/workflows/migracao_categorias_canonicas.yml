@@ -1,0 +1,53 @@
+name: Migracao categorias canonicas (de-para GLPI)
+
+# Aplica o mapa de-para de config_categorias_canonicas.json na coluna
+# CATEGORIA COMPLETA (C) da planilha experimental principal — corrige nomes
+# de categoria que o GLPI renomeou mas que ficaram presos no historico
+# (ex.: "Climatização > Ar condicionado" -> "... > Ar condicionado split").
+# So a coluna C da aba principal; nao toca em CLASSIF__/RECLASS__/dados
+# derivados. Sem --aplicar = dry-run (so relata quantas linhas mudariam).
+
+on:
+  workflow_dispatch:
+    inputs:
+      aplicar:
+        description: "Gravar as correcoes na planilha (sem isso, so relata em dry-run)"
+        type: boolean
+        default: false
+
+concurrency:
+  group: escrita-planilha
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  migrar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: requirements-leves.txt
+      - name: Dependencias
+        run: python -m pip install --retries 5 --timeout 120 -r requirements-leves.txt
+      - name: Recriar chave da conta de servico
+        env:
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+        run: |
+          if [ -z "$GCP_SA_KEY" ]; then echo "Secret GCP_SA_KEY ausente." >&2; exit 1; fi
+          printf '%s' "$GCP_SA_KEY" > credenciais_sa.json
+      - name: Rodar migracao
+        run: |
+          FLAGS=""
+          if [ "${{ github.event.inputs.aplicar }}" = "true" ]; then FLAGS="--aplicar"; fi
+          python scripts/migracoes/migrar_categorias_canonicas.py $FLAGS
+      - name: Remover credenciais
+        if: always()
+        run: rm -f credenciais_sa.json

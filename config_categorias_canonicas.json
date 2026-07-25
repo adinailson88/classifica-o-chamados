@@ -1,0 +1,13 @@
+{
+  "_descricao": "Mapa de-para de categorias GLPI renomeadas desde o inicio do experimento. Toda vez que o GLPI renomear uma categoria (a coluna C 'CATEGORIA COMPLETA' passa a usar um nome diferente do usado ate entao), o nome ANTIGO fica 'preso' no historico da planilha e o pipeline de IA (treino/classificacao/reclassificacao/decisao validada) continuaria aprendendo e reproduzindo o nome antigo para sempre, ja que nao existe taxonomia externa no repositorio — as classes do classificador sao literalmente o conjunto de strings distintas vistas na coluna C. Este arquivo e a fonte unica de verdade para corrigir isso: 'antigo' -> 'atual'. Consumido por src/planilha.py::normalizar_categoria(), chamada em todo ponto do pipeline que le a coluna C como rotulo de treino ou referencia de comparacao. Adicionar novos casos aqui (nao hardcodar em scripts individuais) sempre que uma renomeacao do GLPI for confirmada com o Adinailson.",
+  "_uso": "python scripts/migracoes/migrar_categorias_canonicas.py aplica este mapa na coluna C da planilha viva (dry-run por padrao; --aplicar para gravar). src/planilha.py::normalizar_categoria() aplica o mesmo mapa em memoria, em toda execucao de classificacao/reclassificacao, para que classes novas nunca mais sejam aprendidas com nome antigo mesmo que a planilha ainda nao tenha sido migrada.",
+  "mapa": {
+    "Climatização > Ar condicionado": "Climatização > Ar condicionado split",
+    "Manutenção Preventiva > Sistemas de incêndio": "Manutenção Preventiva > Sistemas de combate a incêndio (extintores, hidrantes)"
+  },
+  "_confirmado_por_adinailson_em": "2026-07-25",
+  "_notas_por_caso": {
+    "Climatização > Ar condicionado": "517 chamados historicos com esse nome bare, taxa de concordancia IA x historico de 59,96% (baixa). Migrado para 'split' porque essa e a variante dominante entre as nomeadas (1117 split vs 36 central) — usuario confirmou que nao ha necessidade de conferir caso a caso.",
+    "Manutenção Preventiva > Sistemas de incêndio": "9 chamados historicos com esse nome bare, taxa de concordancia 11,1% (muito baixa). Migrado para o nome completo sob o MESMO pai 'Manutenção Preventiva' (45 registros, 100% concordancia). NAO migrar para 'Segurança contra Incêndio > Sistemas de combate a incêndio (extintores, hidrantes)' (27 registros, 70,4% concordancia) — usuario confirmou que 'Segurança contra Incêndio' e um pai legitimo e diferente no GLPI, nao um nome obsoleto; nao mexer nesses 27 registros."
+  }
+}

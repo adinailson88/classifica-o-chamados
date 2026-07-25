@@ -95,7 +95,7 @@ def carregar_base_planilha(config: dict, credenciais: str | Path | None = None) 
     textos: list[str] = []
     categorias: list[str] = []
     for linha in valores[1:]:
-        cat = _cel(linha, i_cat)
+        cat = pl.normalizar_categoria(_cel(linha, i_cat))
         texto = "\n".join(
             c for c in [
                 _cel(linha, i_tit),
