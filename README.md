@@ -148,13 +148,13 @@ v3.docx para dentro do repo em 04_artigo/ e converta para Markdown"].
       validação externa em outras IFES e integração com um modelo
       MCDM/TOPSIS de priorização de manutenção (ponte com o capítulo de
       revisão, `PLANO_ARTIGO_CAPITULO.md` §5) — 24/07/2026, rodada 9.
-- [x] **Infra de curvas de aprendizado do LSTM** — `src/modelo_lstm.py`
-      agora guarda `self.history_` (loss/val_loss/accuracy/val_accuracy por
-      época) a cada `fit()`, expõe `salvar_history(caminho)` e tem CLI para
-      gerar `04_artigo/figuras/lstm_history.json` e
-      `04_artigo/figuras/fig5_curva_aprendizado_lstm.png`. Testado só com
-      `py_compile`/suíte offline (34/34 passando); **ainda não rodado contra
-      treino real** — precisa disparar o workflow manual com credencial.
+- [x] **Curva real de aprendizado do LSTM gerada** — `src/modelo_lstm.py`
+      treinou via workflow com credencial (`run 30137383907`, commit
+      `e66b4a40`) e gerou `04_artigo/figuras/lstm_history.json` e
+      `04_artigo/figuras/fig5_curva_aprendizado_lstm.png`. Treino com 13.965
+      exemplos e 53 categorias; `EarlyStopping` interrompeu após 11 épocas.
+      Menor `val_loss`: 1,4374 na época 8; maior `val_accuracy`: 0,6722 na
+      época 10.
 - [x] **Figura 4 gerada de fato** — `src/gerar_figura4_confusoes.py` lê
       `docs/dados/estatistica.json.top_confusoes` e gera
       `04_artigo/figuras/fig4_top_confusoes.png`. O gráfico usa códigos
@@ -163,18 +163,16 @@ v3.docx para dentro do repo em 04_artigo/ e converta para Markdown"].
 - [x] **Tabela Suplementar S2 gerada** —
       `04_artigo/figuras/tabela_S2_codigos_categorias_fig4.csv`, mapeando
       código → categoria para a Figura 4.
-- [x] **Infra do ablation study do LSTM criada** —
-      `src/ablation_lstm.py` avalia unidades 64/128 × dropout 0,5/0,3 por
-      KFold sobre linhas validadas e mede acerto contra verdade humana.
-      **Ainda não há resultado real publicado**, pois a execução local não
-      tem credencial da planilha; usar o workflow manual criado.
+- [x] **Ablation study real do LSTM executado** — `src/ablation_lstm.py`
+      avaliou unidades 64/128 × dropout 0,5/0,3 por 3-fold KFold sobre 9.096
+      linhas validadas (`run 30137529732`, commit `fcf39887`). Arquivos
+      publicados: `04_artigo/figuras/ablation_lstm_resultados.json`,
+      `04_artigo/figuras/tabela_S3_ablation_lstm.csv` e
+      `04_artigo/figuras/fig6_ablation_lstm.png`. Resultado: configuração
+      atual 64/0,5 = 87,68%; melhor variação 128/0,3 = 88,18% (+0,50 p.p.,
+      46 acertos a mais).
 
 ### Pendente confirmado — com o arquivo exato a mexer
-- [ ] **Rodar `src/modelo_lstm.py` via workflow com credencial** para gerar
-      o JSON real de `history_` e o gráfico de curva de aprendizado.
-- [ ] **Rodar `src/ablation_lstm.py` via workflow com credencial** para
-      medir o impacto real de unidades/dropout no acerto validado; documentar
-      o resultado mesmo se não houver melhora.
 - [ ] Seções de metadados estilo MDPI (Author Contributions, Funding, Data
       Availability Statement, Conflicts of Interest) — ainda não existem em
       `04_artigo/artigo_classificacao_chamados_v3.md`; só fazem sentido ao

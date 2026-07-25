@@ -35,13 +35,14 @@ Isso substitui a necessidade de o usuário reexplicar contexto a cada nova conve
 
 ## Estado desta rodada
 
-**Data**: 2026-07-24 (America/Bahia, UTC-03:00) — continuação da rodada 9.
+**Data**: 2026-07-24 (America/Bahia, UTC-03:00) — fechamento da rodada 9.
 
-**Onde está**: Figura 4, Tabela Suplementar S2 e S1 viva foram geradas e
-citadas no artigo. A curva real de aprendizado do LSTM e o ablation study ainda
-dependem de execução em workflow com secrets (`GCP_SA_KEY` e
-`SPREADSHEET_ID`), porque a sessão local não tem `spreadsheet_id.local`,
-`credenciais_sa.json` nem variáveis equivalentes.
+**Onde está**: S1 viva, Figura 4, Tabela Suplementar S2, curva real de
+aprendizado do LSTM e ablation study do LSTM foram gerados, publicados e
+citados no artigo. A execução local continuou sem `spreadsheet_id.local`,
+`credenciais_sa.json` ou variáveis equivalentes; por isso, os itens que exigiam
+credencial foram executados pelos workflows manuais com secrets do GitHub
+(`GCP_SA_KEY` e `SPREADSHEET_ID`).
 
 **O que foi feito nesta rodada**:
 1. **S1 viva confirmada e publicada**: a execução local de
@@ -66,25 +67,33 @@ dependem de execução em workflow com secrets (`GCP_SA_KEY` e
 4. **CLI de treino real do LSTM preparada**: `src/modelo_lstm.py` agora pode ser
    executado diretamente para treinar o LSTM, chamar `salvar_history()` e gerar
    `04_artigo/figuras/lstm_history.json` e
-   `04_artigo/figuras/fig5_curva_aprendizado_lstm.png`. A execução local foi
-   testada com `--epochs 1` e bloqueou antes do treino por falta de credencial.
-5. **Ablation study preparado, mas não executado com dados vivos**:
-   `src/ablation_lstm.py` implementa o comparativo real 64/128 unidades ×
-   dropout 0,5/0,3, medindo acerto contra verdade validada humana por KFold nas
-   linhas validadas. A execução local também bloqueou antes do treino por falta
-   de credencial.
+   `04_artigo/figuras/fig5_curva_aprendizado_lstm.png`. O workflow
+   `30137383907` executou o treino real com 13.965 exemplos e 53 categorias;
+   `EarlyStopping` interrompeu após 11 épocas. Menor `val_loss`: 1,4374 na
+   época 8; maior `val_accuracy`: 0,6722 na época 10. Arquivos publicados pelo
+   commit `e66b4a40`.
+5. **Ablation study executado com dados vivos**: `src/ablation_lstm.py`
+   comparou 64/128 unidades × dropout 0,5/0,3 por 3-fold KFold sobre 9.096
+   linhas validadas, medindo acerto contra verdade validada humana. O workflow
+   `30137529732` publicou `04_artigo/figuras/ablation_lstm_resultados.json`,
+   `04_artigo/figuras/tabela_S3_ablation_lstm.csv` e
+   `04_artigo/figuras/fig6_ablation_lstm.png` pelo commit `fcf39887`.
+   Resultado: configuração atual 64/0,5 = 87,68%; melhor variação 128/0,3 =
+   88,18% (+0,50 ponto percentual; 46 acertos a mais).
 6. **Workflow manual criado**:
    `.github/workflows/lstm_artigo.yml` permite rodar com secrets do GitHub as
    tarefas `tabela_s1`, `history` e `ablation`.
 
 Commits desta continuação: `52eb3612` (Figura 4/S2), `667189d4` (CLI da curva
 LSTM), `9ff80ce2` (ablation + workflow manual), `7ffe9af8` (correção de push
-do workflow) e `ca081648` (S1 real publicada pelo workflow).
+do workflow), `ca081648` (S1 real publicada pelo workflow), `07383e21`
+(correção dos parâmetros do treino LSTM), `e66b4a40` (curva real do LSTM) e
+`fcf39887` (ablation real do LSTM).
 
-**Próximo passo**: disparar manualmente os workflows com credencial, nesta
-ordem: `history`, depois `ablation`. Só depois documentar a curva do LSTM,
-documentar o resultado do ablation, gerar novo snapshot imutável e regenerar o
-PDF.
+**Próximo passo**: gerar novo snapshot imutável do artigo, regenerar o PDF e
+revisar visualmente as figuras no artefato final. Não mexer no holdout fixo de
+treino/teste nem na reformatação numérica MDPI sem decisão explícita do
+Adinailson.
 
 ---
 
