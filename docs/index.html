@@ -1830,21 +1830,21 @@ function renderDecisao(av, er){
       +(d.p_mcnemar!=null?` (McNemar p=${Number(d.p_mcnemar).toFixed(4)}${d.p_mcnemar<0.05?", significativo":", NAO significativo"}).`:".");
   }
   const tE=document.querySelector("#tabDecEns tbody");
-  if(tE) tE.innerHTML = temAv && BERT_COMPARAVEL ? (av.ensembles||[]).map(e=>
+  if(tE) tE.innerHTML = temAv && (av.ensembles||[]).length ? (av.ensembles||[]).map(e=>
       `<tr><td>${esc(e.metodo)}</td><td>${pct(e.acerto_validado)}</td>`
       +`<td>${pct(e.ic95[0])} – ${pct(e.ic95[1])}</td>`
       +`<td class="${e.delta_vs_melhor_ia>0?'status-ok':'muted'}">${(100*e.delta_vs_melhor_ia).toFixed(2)} p.p.</td>`
       +`<td>${e.p_mcnemar_vs_melhor_ia==null?"-":Number(e.p_mcnemar_vs_melhor_ia).toFixed(4)}</td></tr>`).join("")
-    : `<tr><td colspan="5" class="muted">Ensemble ocultado enquanto avaliacao_final.json incluir transformer_ft sem treino BERTimbau concluído. Regenerar a avaliação com os sete modelos comparáveis.</td></tr>`;
+    : `<tr><td colspan="5" class="muted">Ainda sem ensembles publicados em avaliacao_final.json (aguardando ranking validado com os modelos comparaveis).</td></tr>`;
   const vd=document.getElementById("decVeredicto");
-  if(vd && temAv && BERT_COMPARAVEL){
+  if(vd && temAv && av.vale_combinar){
     const vc=av.vale_combinar||{};
     vd.innerHTML = vc.veredicto
       ? `<strong class="status-ok">SIM</strong> — ${esc(vc.justificativa||"")}`
       : `<strong>NAO</strong> — ${esc(vc.justificativa||"")}`;
   }
-  if(vd && (!temAv || !BERT_COMPARAVEL)){
-    vd.innerHTML = `Ainda nao ha veredicto de combinacao publicável. O painel registra <strong>${fmt(av&&av.validados)}</strong> decisoes travadas, mas a comparação precisa ser regenerada sem transformer_ft enquanto o BERTimbau estiver sem treino concluído.`;
+  if(vd && !(temAv && av.vale_combinar)){
+    vd.innerHTML = `Ainda nao ha veredicto de combinacao publicável. O painel registra <strong>${fmt(av&&av.validados)}</strong> decisoes travadas; o veredicto de combinacao aparece quando <code>avaliacao_final.json</code> publicar <code>vale_combinar</code> com os modelos comparaveis.`;
   }
   const tErr=document.querySelector("#tabDecErr tbody");
   if(tErr) tErr.innerHTML = temEr ? (er.comparacao_erros_vs_acertos||[]).map(c=>{
