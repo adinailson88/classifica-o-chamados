@@ -94,6 +94,5 @@ jobs:
             echo "Sem resultados novos para commitar."
           else
             git commit -m "Atualiza resultados LSTM do artigo"
-            git pull --rebase origin main
-            git push
+            git push origin "HEAD:${GITHUB_REF_NAME}"
           fi
