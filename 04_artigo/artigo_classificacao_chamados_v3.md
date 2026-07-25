@@ -542,10 +542,18 @@ treino BERTimbau concluído.
 
 A concordância com o histórico não é uniforme entre as 55 categorias. A
 Tabela Suplementar S1 (`04_artigo/figuras/tabela_S1_metricas_por_categoria.csv`,
-gerada por `src/exportar_tabela_por_categoria.py` a partir de
-`metricas_por_categoria.json`) reporta, para cada categoria, quantidade
-classificada, concordância com o histórico e distribuição por faixa de
-confiança da Etapa 1 oficial. As cinco categorias com menor concordância
+gerada por `src/exportar_tabela_por_categoria.py`) reporta, para cada
+categoria, suporte e concordância com o histórico. *Nota de rastreabilidade
+(24/07/2026)*: o script foi reescrito para priorizar a leitura direta da
+aba de métricas por categoria identificada por `gid=1862157493` na
+planilha experimental (mencionada pelo pesquisador, schema ainda não
+confirmado por uma sessão com credencial — pode conter precision/recall/F1
+por categoria, o que o JSON público não tem); na ausência de credencial, o
+script cai automaticamente para `docs/dados/metricas_por_categoria.json`
+(concordância vs. histórico apenas) e registra a fonte usada em cada linha
+da tabela exportada. Os números abaixo refletem a execução em modo
+*fallback*; devem ser regerados a partir da aba viva antes da versão final.
+As cinco categorias com menor concordância
 são Elétrica > Sistema Fotovoltaico (FV) (0,00%, n = 7), Manutenção
 Preventiva sem subcategoria (0,00%, n = 2), Manutenção Preventiva >
 Sistemas de incêndio (11,11%, n = 9), Instalação de Acessórios e
