@@ -36,36 +36,43 @@ Isso substitui a necessidade de o usuário reexplicar contexto a cada nova conve
 ## Estado desta rodada
 
 **Data**: 2026-07-24 (America/Bahia, UTC-03:00) — rodada 10 (diagnóstico
-do ablation LSTM).
+do ablation LSTM, itens 1-3 executados).
 
-**Onde está**: item 1 da rodada 10 em preparação para PR. O bloqueador do
-ablation permanece ativo: o resultado de 87,68%–88,18% ainda não está
-reconciliado com a avaliação oficial do LSTM em 74,71% na Subseção 4.2.
-Não remover a ressalva do artigo enquanto o diagnóstico com credencial não
-for executado e analisado.
+**Onde está**: PR `#53` aberto no branch
+`fix/ablation-groupkfold-diagnostico`. O bloqueador do ablation permanece
+ativo: o resultado corrigido por `GroupKFold` ainda não está reconciliado
+com a avaliação oficial do LSTM em 74,71% na Subseção 4.2.
 
 **O que foi feito nesta rodada**:
 1. O commit local citado no pedido (`958f46f`) não foi encontrado neste
    clone nem nas refs remotas consultadas. O `main` local foi atualizado
    por fast-forward de `e5e269c0` para `93ff79ce`, sem push para `main`.
-2. Foi criado o branch `fix/ablation-groupkfold-diagnostico` para publicar
-   uma reconstrução verificável da alteração descrita: `src/ablation_lstm.py`
-   passou a ter normalização/hash de texto, diagnóstico de duplicatas entre
-   folds no KFold antigo e `GroupKFold` por hash de texto normalizado para
-   futura reexecução do ablation.
-3. O workflow `Pendencias artigo com credencial` (`.github/workflows/lstm_artigo.yml`)
-   passou a aceitar `tarefa=diagnostico_ablation`, que grava somente
-   `04_artigo/figuras/diagnostico_ablation_lstm_duplicatas.json`; esse modo
-   não treina o LSTM nem altera os resultados suspeitos.
-4. O README foi atualizado para indicar que o bloqueador agora aguarda a
-   execução do diagnóstico com credencial antes de qualquer decisão sobre
-   regenerar Figura 6/Subseção 4.9/Discussão.
+   Como o hash não existia no ambiente atual, a alteração foi reconstruída
+   e publicada no PR `#53`.
+2. `src/ablation_lstm.py` passou a ter normalização/hash de texto, modo
+   `--diagnostico-only` e `GroupKFold` por hash de texto normalizado para
+   o ablation. O workflow `Pendencias artigo com credencial`
+   (`.github/workflows/lstm_artigo.yml`) passou a aceitar
+   `tarefa=diagnostico_ablation`. A primeira execução (`30140095443`)
+   gerou o JSON, mas falhou ao publicar por `git pull --rebase origin main`
+   dentro do branch do PR; isso foi corrigido no commit `7590a0aa`.
+3. O diagnóstico reexecutado com sucesso (`30140175041`) publicou
+   `04_artigo/figuras/diagnostico_ablation_lstm_duplicatas.json`: 4.250 de
+   9.096 linhas validadas de teste (46,72%) tinham duplicata textual
+   normalizada no treino no particionamento antigo por linha.
+4. O ablation corrigido com `GroupKFold` foi executado com sucesso
+   (`30140226747`) e publicou `ablation_lstm_resultados.json`,
+   `tabela_S3_ablation_lstm.csv` e `fig6_ablation_lstm.png`. Resultado:
+   `units64_dropout05_atual` = 86,35% (7.854/9.096), ainda 11,64 p.p.
+   acima da avaliação oficial de 74,71%. Portanto, as duplicatas explicam
+   parte do problema, mas não resolvem a discrepância; a ressalva foi
+   mantida e atualizada na Subseção 4.9/Figura 6 e na Discussão.
 
-**Próximo passo**: após o PR do item 1 estar aberto, disparar o workflow
-`Pendencias artigo com credencial` no branch do PR com `tarefa=diagnostico_ablation`
-e `k_folds=3`, analisar o JSON publicado e só então decidir entre rodar
-`tarefa=ablation` com `GroupKFold` ou documentar que a duplicação não explica
-a discrepância.
+**Próximo passo**: escrever os testes pendentes da rodada 9 para
+`src/exportar_tabela_por_categoria.py`, `src/gerar_figura4_confusoes.py`,
+`src/ablation_lstm.py` e `salvar_history()`/CLI de `src/modelo_lstm.py`;
+depois continuar a investigação da diferença residual do ablation antes de
+qualquer remoção da ressalva no artigo.
 
 ---
 
