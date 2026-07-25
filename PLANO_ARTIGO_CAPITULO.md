@@ -35,44 +35,41 @@ Isso substitui a necessidade de o usuário reexplicar contexto a cada nova conve
 
 ## Estado desta rodada
 
-**Data**: 2026-07-25 (America/Bahia, UTC-03:00) - rodada 13 (materializacao
-oficial nova do LSTM em memoria, sem sobrescrever CLASSIF__lstm).
+**Data**: 2026-07-25 (America/Bahia, UTC-03:00) - rodada 14 (decisao
+conservadora aplicada ao texto do artigo sobre a discrepancia residual do LSTM).
 
 **Onde esta**: PR #53 aberto no branch fix/ablation-groupkfold-diagnostico.
 O bloqueador do ablation permanece ativo: o resultado corrigido por GroupKFold
-ainda nao deve ser promovido a achado do artigo sem decisao metodologica sobre
-a avaliacao oficial historica do LSTM em 74,71% na Subsecao 4.2.
+ainda nao deve ser promovido a achado substantivo do artigo. A versao atual do
+texto preserva a avaliacao oficial historica do LSTM em 74,71% na Subsecao 4.2
+e registra a materializacao oficial nova read-only apenas como diagnostico
+metodologico.
 
 **O que foi feito nesta rodada**:
-1. `src/ablation_lstm.py` recebeu o modo `--diagnostico-materializacao-oficial-only`,
-   que chama o caminho oficial `classificacao_multimodelo.prever_out_of_fold("lstm", ...)`
-   em memoria, sem `--aplicar`, sem `gravar_classificacao()`, sem `append_aba()` e
-   sem sobrescrever a aba operacional CLASSIF__lstm. O workflow
-   `.github/workflows/lstm_artigo.yml` recebeu a tarefa
-   `diagnostico_materializacao_lstm`, e `tests/test_artigo_scripts.py` cobre que
-   o diagnostico usa a materializacao em memoria e compara contra a aba antiga.
-2. As validacoes locais antes do commit passaram: `python -m unittest discover -s tests`
-   executou 44 testes OK, e `python -m py_compile` em `src/*.py` passou. O commit
-   humano foi `944b0be7` (`Diagnostica materializacao oficial nova do LSTM`).
-3. O workflow com credencial `30142708626` concluiu com sucesso e publicou
-   `04_artigo/figuras/diagnostico_materializacao_lstm_nova.json` pelo commit
-   `c76a939c`. O JSON confirma natureza read-only: "materializacao oficial nova
-   em memoria; read-only; nao escreve em CLASSIF__lstm".
-4. Resultado verificado no mesmo escopo validado de 9.096 linhas: a materializacao
-   oficial nova (`kfold_5`) acertou 7.964/9.096 (87,555%), enquanto a aba oficial
-   antiga manteve 6.796/9.096 (74,714%). As duas materializacoes cobrem as mesmas
-   9.096 linhas validadas e 13.965 predicoes totais.
-5. A comparacao nova versus antiga mostrou 2.542 predicoes diferentes (27,946%),
-   com 1.572 casos em que a nova materializacao acerta e a antiga erra, 404 casos
-   no sentido inverso e saldo liquido de +1.168 acertos. Isso reforca que a
-   discrepancia residual esta concentrada na materializacao historica antiga do
-   LSTM, nao em escopo de linhas, verdade humana posterior, nem hiperparametros
-   efetivos atuais.
+1. Em `04_artigo/artigo_classificacao_chamados_v3.md`, a Subsecao 4.2 recebeu
+   uma nota metodologica sobre o LSTM: o valor oficial preservado continua sendo
+   0,7471, oriundo da materializacao historica em `CLASSIF__lstm`, enquanto a
+   reexecucao diagnostica read-only (`diagnostico_materializacao_lstm_nova.json`)
+   fica registrada como evidencia de instabilidade da materializacao.
+2. A ressalva da Figura 6/Subsecao 4.9 foi atualizada para incluir a evidencia
+   nova: a materializacao oficial read-only em memoria atingiu 7.964/9.096
+   acertos (87,555%), contra 6.796/9.096 (74,714%) da aba historica, com 2.542
+   predicoes divergentes. A conclusao textual e que a diferenca residual esta
+   concentrada na materializacao historica antiga frente a re-treinos novos, nao
+   em escopo de linhas, verdade humana posterior ou hiperparametros efetivos.
+3. A secao de limitacoes e as consideracoes finais tambem foram ajustadas para
+   impedir uma leitura indevida do ablation: a Figura 6 permanece diagnostica e
+   nao sustenta conclusao sobre sensibilidade do LSTM a unidades/dropout nesta
+   versao.
+4. O BLOQUEADOR do `README.md` foi substituido para refletir a decisao aplicada:
+   preservar 74,71% na Subsecao 4.2, registrar 87,56% apenas como diagnostico e
+   manter o ablation sem promocao a achado substantivo.
 
-**Proximo passo**: manter a ressalva da Subsecao 4.9 e decidir, com Adinailson,
-se o artigo deve preservar a avaliacao oficial historica de 74,71% ou recalcular
-oficialmente o LSTM a partir de uma nova materializacao controlada. Nao alterar
-holdout fixo nem referencias MDPI enquanto esses pontos permanecerem pendentes.
+**Proximo passo**: validar localmente, commitar e pushar esta decisao textual no
+branch do PR #53. Depois disso, a proxima decisao metodologica fica fora desta
+rodada: recalcular oficialmente ou nao o LSTM em uma nova materializacao
+controlada. Nao alterar holdout fixo nem referencias MDPI enquanto esses pontos
+permanecerem pendentes.
 
 ---
 

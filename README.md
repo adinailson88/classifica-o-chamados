@@ -116,10 +116,13 @@ acerta e a antiga erra, 404 no sentido inverso e saldo liquido de +1.168 acertos
 Assim, a discrepancia residual nao decorre de escopo de linhas, de validacao
 humana posterior divergente do historico nem de hiperparametro efetivo atual; ela
 permanece concentrada na diferenca entre a predicao oficial antiga ja materializada
-e re-treinos novos do mesmo caminho LSTM sobre a base viva. Nao remover a ressalva
-do artigo nem promover o ablation a achado do capitulo enquanto nao houver decisao
-metodologica explicita sobre substituir ou nao a avaliacao oficial historica por
-uma nova materializacao controlada.
+e re-treinos novos do mesmo caminho LSTM sobre a base viva. Decisao adotada para
+esta versao do artigo: preservar 74,71% como avaliacao oficial historica na
+Subsecao 4.2, registrar a materializacao nova apenas como diagnostico metodologico
+de instabilidade e manter a Figura 6 sem uso como achado substantivo. Nao promover
+o ablation a achado do capitulo enquanto nao houver decisao metodologica explicita
+sobre substituir ou nao a avaliacao oficial historica por uma nova materializacao
+controlada.
 
 ### Confirmado feito
 - [x] Aviso de viés de amostra não aleatória no Resumo/Abstract (COCHRAN, 1977)
@@ -202,9 +205,10 @@ uma nova materializacao controlada.
       diagnosticado com vazamento por duplicatas, o ablation foi refeito com
       GroupKFold, e a materializacao oficial nova read-only atingiu 87,56%.
       Mesmo assim, a avaliacao oficial historica segue em 74,71% na Subsecao
-      4.2; ver bloco "BLOQUEADOR" no topo deste checklist. Nao marcar como
-      concluido sem decisao metodologica explicita sobre a avaliacao oficial
-      historica versus nova materializacao controlada.
+      4.2 e a Figura 6 foi mantida como diagnostico metodologico, nao como
+      achado substantivo; ver bloco "BLOQUEADOR" no topo deste checklist.
+      Nao marcar como concluido sem decisao metodologica explicita sobre a
+      avaliacao oficial historica versus nova materializacao controlada.
 
 ### Pendente confirmado — com o arquivo exato a mexer
 - [ ] Seções de metadados estilo MDPI (Author Contributions, Funding, Data
