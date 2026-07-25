@@ -4,13 +4,16 @@ on:
   workflow_dispatch:
     inputs:
       tarefa:
-        description: "tabela_s1, history ou ablation"
+        description: "tabela_s1, history, diagnostico_ablation, diagnostico_protocolo_ablation, diagnostico_materializacao_lstm ou ablation"
         required: true
         default: "tabela_s1"
         type: choice
         options:
           - tabela_s1
           - history
+          - diagnostico_ablation
+          - diagnostico_protocolo_ablation
+          - diagnostico_materializacao_lstm
           - ablation
       epochs:
         description: "Epocas de treino"
@@ -76,6 +79,30 @@ jobs:
         run: |
           python src/ablation_lstm.py --epochs "${{ github.event.inputs.epochs }}" --k-folds "${{ github.event.inputs.k_folds }}"
 
+      - name: Diagnosticar duplicatas entre folds do ablation
+        if: ${{ github.event.inputs.tarefa == 'diagnostico_ablation' }}
+        env:
+          SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
+          GOOGLE_APPLICATION_CREDENTIALS: credenciais_sa.json
+        run: |
+          python src/ablation_lstm.py --diagnostico-only --k-folds "${{ github.event.inputs.k_folds }}"
+
+      - name: Diagnosticar protocolo residual do ablation
+        if: ${{ github.event.inputs.tarefa == 'diagnostico_protocolo_ablation' }}
+        env:
+          SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
+          GOOGLE_APPLICATION_CREDENTIALS: credenciais_sa.json
+        run: |
+          python src/ablation_lstm.py --diagnostico-protocolo-only --k-folds "${{ github.event.inputs.k_folds }}"
+
+      - name: Diagnosticar materializacao oficial nova do LSTM
+        if: ${{ github.event.inputs.tarefa == 'diagnostico_materializacao_lstm' }}
+        env:
+          SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
+          GOOGLE_APPLICATION_CREDENTIALS: credenciais_sa.json
+        run: |
+          python src/ablation_lstm.py --diagnostico-materializacao-oficial-only
+
       - name: Commitar resultados
         run: |
           git config user.name "github-actions[bot]"
@@ -85,6 +112,5 @@ jobs:
             echo "Sem resultados novos para commitar."
           else
             git commit -m "Atualiza resultados LSTM do artigo"
-            git pull --rebase origin main
-            git push
+            git push origin "HEAD:${GITHUB_REF_NAME}"
           fi

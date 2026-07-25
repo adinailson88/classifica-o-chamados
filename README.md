@@ -87,25 +87,44 @@ v3.docx para dentro do repo em 04_artigo/ e converta para Markdown"].
 > aqui**, só apontar. Atualizar este bloco (substituir, não acumular) sempre
 > que um item mudar de estado.
 
-### 🔴 BLOQUEADOR — resultado suspeito, não citar sem verificar (sinalizado 24/07/2026)
-**Ablation study do LSTM (`src/ablation_lstm.py`, Figura 6/Subseção 4.9)
-reporta 87,68%–88,18% de acerto validado para configurações do LSTM cuja
-avaliação OFICIAL (Subseção 4.2, mesma base de verdade M/N/P) é 74,71% —
-diferença de ~13 pontos percentuais para a MESMA arquitetura
-(`units=64`, `dropout=0,5`), não explicada nem reconciliada.** Hipótese
-mais provável: o ablation treina do zero a cada fold sobre quase todo o
-corpus vivo (~79% dos dados) com particionamento aleatório por linha, sem
-agrupar textos quase-duplicados (comum em chamados de manutenção) no
-mesmo fold — cenário plausível de vazamento treino/teste. Texto do artigo
-já marcado com ressalva explícita (Subseção 4.9 e Discussão). **Antes de
-qualquer versão de submissão**: (1) checar duplicatas/quase-duplicatas de
-texto entre folds; (2) se confirmado, refazer com `GroupKFold` por hash de
-texto normalizado, ou restringir cada fold ao mesmo conjunto de treino da
-avaliação oficial; (3) só então decidir se `units=128, dropout=0,3` é
-ganho real ou artefato do viés. Não promover este resultado a "achado do
-capítulo" enquanto isso não for feito.
+### BLOQUEADOR - ablation LSTM ainda nao reconciliado (atualizado 25/07/2026)
+**Ablation study do LSTM (src/ablation_lstm.py, Figura 6/Subsecao 4.9)
+continua suspeito.** O diagnostico com credencial confirmou vazamento por
+duplicatas no particionamento antigo: 4.250 de 9.096 linhas validadas de
+teste (46,72%) tinham duplicata textual normalizada no treino. O ablation
+foi refeito com GroupKFold por hash de texto normalizado, mas a
+configuracao atual (units=64, dropout=0,5) ficou em 86,35%, ainda
+11,64 pontos percentuais acima da avaliacao OFICIAL da mesma arquitetura
+na Subsecao 4.2 (74,71%, mesma base de verdade M/N/P). Portanto, as
+duplicatas explicam parte do problema, mas **nao resolvem a discrepancia**.
+O diagnostico de protocolo publicado no PR #53
+(diagnostico_ablation_lstm_protocolo.json, run 30142012194) mostrou que
+a verdade humana M/N/P coincide com o historico em 9.096/9.096 linhas
+validadas (100%) e que a aba oficial CLASSIF__lstm cobre as mesmas 9.096
+linhas, com 6.796 acertos (74,714%). O diagnostico ampliado (run
+30142341760) mostrou ainda que os parametros efetivos atuais do LSTM sao
+iguais entre o caminho direto do ablation e o caminho de producao, mas a aba
+oficial foi materializada antes da rodada do artigo: 13.954 linhas em
+16/07/2026 23:50 e 11 linhas em 17/07/2026 06:20, com 9.868/13.965
+predicoes em baixa confianca. O novo diagnostico de materializacao oficial
+read-only (diagnostico_materializacao_lstm_nova.json, run 30142708626) reexecutou
+o caminho oficial `prever_out_of_fold("lstm", ...)` em memoria, sem escrever na
+aba CLASSIF__lstm, e obteve 7.964/9.096 acertos (87,555%) no mesmo escopo
+validado, contra 6.796/9.096 (74,714%) da aba antiga. A comparacao mostrou
+2.542 predicoes diferentes (27,946%), com 1.572 casos em que a nova materializacao
+acerta e a antiga erra, 404 no sentido inverso e saldo liquido de +1.168 acertos.
+Assim, a discrepancia residual nao decorre de escopo de linhas, de validacao
+humana posterior divergente do historico nem de hiperparametro efetivo atual; ela
+permanece concentrada na diferenca entre a predicao oficial antiga ja materializada
+e re-treinos novos do mesmo caminho LSTM sobre a base viva. Decisao adotada para
+esta versao do artigo: preservar 74,71% como avaliacao oficial historica na
+Subsecao 4.2, registrar a materializacao nova apenas como diagnostico metodologico
+de instabilidade e manter a Figura 6 sem uso como achado substantivo. Nao promover
+o ablation a achado do capitulo enquanto nao houver decisao metodologica explicita
+sobre substituir ou nao a avaliacao oficial historica por uma nova materializacao
+controlada.
 
-### Confirmado feito — não repetir em nova rodada
+### Confirmado feito
 - [x] Aviso de viés de amostra não aleatória no Resumo/Abstract (COCHRAN, 1977)
 - [x] Discussão da inferioridade do LSTM frente aos modelos lineares
       (GALKE; SCHERP, 2022)
@@ -181,12 +200,15 @@ capítulo" enquanto isso não for feito.
 - [x] **Tabela Suplementar S2 gerada** —
       `04_artigo/figuras/tabela_S2_codigos_categorias_fig4.csv`, mapeando
       código → categoria para a Figura 4.
-- [~] **Ablation study do LSTM executado, mas SINALIZADO COMO SUSPEITO** —
-      `src/ablation_lstm.py` rodou de verdade (`run 30137529732`, commit
-      `fcf39887`), arquivos existem e compilam, mas os números (64/0,5 =
-      87,68%; 128/0,3 = 88,18%) **contradizem a avaliação oficial da mesma
-      arquitetura (74,71%, Subseção 4.2)** — ver bloco "BLOQUEADOR" no topo
-      deste checklist. Não marcar como concluído até investigar.
+- [~] **Ablation study do LSTM executado, corrigido e ainda SINALIZADO COMO
+      SUSPEITO** — `src/ablation_lstm.py` rodou de verdade, o KFold antigo foi
+      diagnosticado com vazamento por duplicatas, o ablation foi refeito com
+      GroupKFold, e a materializacao oficial nova read-only atingiu 87,56%.
+      Mesmo assim, a avaliacao oficial historica segue em 74,71% na Subsecao
+      4.2 e a Figura 6 foi mantida como diagnostico metodologico, nao como
+      achado substantivo; ver bloco "BLOQUEADOR" no topo deste checklist.
+      Nao marcar como concluido sem decisao metodologica explicita sobre a
+      avaliacao oficial historica versus nova materializacao controlada.
 
 ### Pendente confirmado — com o arquivo exato a mexer
 - [ ] Seções de metadados estilo MDPI (Author Contributions, Funding, Data
