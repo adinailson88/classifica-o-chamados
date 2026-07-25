@@ -35,39 +35,44 @@ Isso substitui a necessidade de o usuário reexplicar contexto a cada nova conve
 
 ## Estado desta rodada
 
-**Data**: 2026-07-25 (America/Bahia, UTC-03:00) - rodada 12 (isolamento do
-caminho oficial LSTM materializado versus re-treino novo do ablation).
+**Data**: 2026-07-25 (America/Bahia, UTC-03:00) - rodada 13 (materializacao
+oficial nova do LSTM em memoria, sem sobrescrever CLASSIF__lstm).
 
 **Onde esta**: PR #53 aberto no branch fix/ablation-groupkfold-diagnostico.
 O bloqueador do ablation permanece ativo: o resultado corrigido por GroupKFold
-ainda nao esta reconciliado com a avaliacao oficial do LSTM em 74,71% na
-Subsecao 4.2.
+ainda nao deve ser promovido a achado do artigo sem decisao metodologica sobre
+a avaliacao oficial historica do LSTM em 74,71% na Subsecao 4.2.
 
 **O que foi feito nesta rodada**:
-1. O diagnostico de protocolo foi ampliado em src/ablation_lstm.py para ler,
-   sem re-treino e sem escrita na planilha, metadados da aba oficial
-   CLASSIF__lstm: run_id, datas de gravacao, executor/faixa, acerto historico
-   e confianca. tests/test_artigo_scripts.py passou a cobrir esse resumo.
-2. O primeiro JSON ampliado (workflow 30142260906) mostrou que CLASSIF__lstm
-   foi materializado quase todo antes da rodada atual do artigo: 13.954 linhas
-   em 16/07/2026 23:50 e 11 linhas em 17/07/2026 06:20. A aba tem 9.868/13.965
-   predicoes como lstm_BAIXA_CONF, 6.029 abaixo de 70%, 3.839 entre 70-95% e
-   4.097 acima de 95%; a confianca media e 0,685495.
-3. Um ajuste posterior (workflow 30142341760) separou parametros de construcao
-   do modelo e parametros efetivos de fit. Resultado: no ambiente atual, o
-   caminho direto do ablation e o caminho de producao resolvem os mesmos
-   parametros efetivos (units=64, dropout=0,5, epochs=15, batch_size=128,
-   paciencia=3, validation_split=0,1 e usar_class_weight=true).
-4. Com isso, a discrepancia residual ficou melhor delimitada: nao e explicada
-   por escopo de linhas, por verdade humana divergente do historico, nem por
-   hiperparametros efetivos atuais. A diferenca verificavel que resta e que a
-   avaliacao oficial usa predicoes antigas ja materializadas em CLASSIF__lstm,
-   enquanto o ablation re-treina modelos novos por fold sobre a base viva.
+1. `src/ablation_lstm.py` recebeu o modo `--diagnostico-materializacao-oficial-only`,
+   que chama o caminho oficial `classificacao_multimodelo.prever_out_of_fold("lstm", ...)`
+   em memoria, sem `--aplicar`, sem `gravar_classificacao()`, sem `append_aba()` e
+   sem sobrescrever a aba operacional CLASSIF__lstm. O workflow
+   `.github/workflows/lstm_artigo.yml` recebeu a tarefa
+   `diagnostico_materializacao_lstm`, e `tests/test_artigo_scripts.py` cobre que
+   o diagnostico usa a materializacao em memoria e compara contra a aba antiga.
+2. As validacoes locais antes do commit passaram: `python -m unittest discover -s tests`
+   executou 44 testes OK, e `python -m py_compile` em `src/*.py` passou. O commit
+   humano foi `944b0be7` (`Diagnostica materializacao oficial nova do LSTM`).
+3. O workflow com credencial `30142708626` concluiu com sucesso e publicou
+   `04_artigo/figuras/diagnostico_materializacao_lstm_nova.json` pelo commit
+   `c76a939c`. O JSON confirma natureza read-only: "materializacao oficial nova
+   em memoria; read-only; nao escreve em CLASSIF__lstm".
+4. Resultado verificado no mesmo escopo validado de 9.096 linhas: a materializacao
+   oficial nova (`kfold_5`) acertou 7.964/9.096 (87,555%), enquanto a aba oficial
+   antiga manteve 6.796/9.096 (74,714%). As duas materializacoes cobrem as mesmas
+   9.096 linhas validadas e 13.965 predicoes totais.
+5. A comparacao nova versus antiga mostrou 2.542 predicoes diferentes (27,946%),
+   com 1.572 casos em que a nova materializacao acerta e a antiga erra, 404 casos
+   no sentido inverso e saldo liquido de +1.168 acertos. Isso reforca que a
+   discrepancia residual esta concentrada na materializacao historica antiga do
+   LSTM, nao em escopo de linhas, verdade humana posterior, nem hiperparametros
+   efetivos atuais.
 
-**Proximo passo**: manter a ressalva da Subsecao 4.9 e, se for necessario
-remover o bloqueador, executar uma nova materializacao oficial controlada do
-LSTM em branch/workflow diagnostico, sem sobrescrever a aba operacional, para
-comparar diretamente CLASSIF__lstm novo versus ablation novo.
+**Proximo passo**: manter a ressalva da Subsecao 4.9 e decidir, com Adinailson,
+se o artigo deve preservar a avaliacao oficial historica de 74,71% ou recalcular
+oficialmente o LSTM a partir de uma nova materializacao controlada. Nao alterar
+holdout fixo nem referencias MDPI enquanto esses pontos permanecerem pendentes.
 
 ---
 
