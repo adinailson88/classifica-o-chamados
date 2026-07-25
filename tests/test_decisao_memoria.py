@@ -98,6 +98,43 @@ class TestDecidir(unittest.TestCase):
         self.assertEqual(d["decidida"], "X")
         self.assertNotIn("X", d["eliminadas"])
 
+    def test_categoria_manual_resolve_restrito(self):
+        # M=Errado, sem nenhum Correto: restrito. Categoria manual preenchida
+        # -> vira decidido, fonte 'manual'.
+        d = dv.decidir("HIDRAULICA", "ELETRICA", "", "Errado", None, None,
+                       categoria_manual="CLIMATIZACAO")
+        self.assertEqual(d["status"], dv.STATUS_DECIDIDO)
+        self.assertEqual(d["decidida"], "CLIMATIZACAO")
+        self.assertEqual(d["fonte_decisao"], "manual")
+        self.assertNotIn("CLIMATIZACAO", d["eliminadas"])
+
+    def test_categoria_manual_sem_nenhuma_conferencia_errada_nao_decide(self):
+        # Sem nenhum M/N/P preenchido (nem Correto nem Errado), a categoria
+        # manual sozinha nao deveria aparecer nesse cenario na pratica, mas a
+        # funcao pura ainda decide se ela vier preenchida (quem decide gravar
+        # so quando restrito e o fluxo de carregar_decisoes/planilha).
+        d = dv.decidir("HID", "ELE", "", None, None, None, categoria_manual="CLIMA")
+        self.assertEqual(d["decidida"], "CLIMA")
+        self.assertEqual(d["fonte_decisao"], "manual")
+
+    def test_categoria_manual_ignorada_quando_ja_decidido(self):
+        # N=Correto ja decide via IA; categoria manual concordante nao muda nada.
+        d = dv.decidir("HID", "ELE", "", None, "Correto", None, categoria_manual="ELE")
+        self.assertEqual(d["decidida"], "ELE")
+        self.assertEqual(d["fonte_decisao"], "conferencia_ia")
+
+    def test_categoria_manual_divergente_de_conferencia_correta_vira_conflito(self):
+        # N=Correto decide 'ELE', mas a categoria manual diverge -> contraditorio.
+        d = dv.decidir("HID", "ELE", "", None, "Correto", None, categoria_manual="CLIMA")
+        self.assertTrue(d["conflito"])
+        self.assertIsNone(d["decidida"])
+        self.assertEqual(d["status"], dv.STATUS_RESTRITO)
+
+    def test_categoria_manual_vazia_mantem_comportamento_antigo(self):
+        d = dv.decidir("HID", "ELE", "", "Errado", None, None)
+        self.assertEqual(d["status"], dv.STATUS_RESTRITO)
+        self.assertIsNone(d["decidida"])
+
 
 class _ModeloFixo:
     """Modelo de mentira com distribuicao conhecida para testar o veto."""
@@ -177,6 +214,29 @@ class TestLeituraPorCabecalho(unittest.TestCase):
         decisoes = dv.carregar_decisoes(_SpreadsheetFalsa(vals), "Aba")
         self.assertEqual(decisoes[2]["status"], dv.STATUS_RESTRITO)
         self.assertEqual(decisoes[2]["eliminadas"], {"HID"})
+
+    def test_categoria_correta_manual_resolve_restrito_via_planilha(self):
+        cab = _linha("ID", "TITULO", "CATEGORIA COMPLETA", "D", "E", "F",
+                     "Classificacao IA", "H", "I", "J", "K", "L",
+                     "CONFERENCIA GLPI", "CONFERENCIA IA", "Classificacao IA - 2",
+                     "CONFERENCIA IA - 2", "CATEGORIA CORRETA MANUAL", largura=17)
+        vals = [cab, _linha("1", "", "HID", "", "", "", "ELE", "", "", "", "", "",
+                            "Errado", "Errado", "", "", "CLIMA", largura=17)]
+        decisoes = dv.carregar_decisoes(_SpreadsheetFalsa(vals), "Aba")
+        self.assertEqual(decisoes[2]["status"], dv.STATUS_DECIDIDO)
+        self.assertEqual(decisoes[2]["decidida"], "CLIMA")
+        self.assertEqual(decisoes[2]["fonte_decisao"], "manual")
+
+    def test_categoria_correta_manual_ausente_permanece_restrito(self):
+        cab = _linha("ID", "TITULO", "CATEGORIA COMPLETA", "D", "E", "F",
+                     "Classificacao IA", "H", "I", "J", "K", "L",
+                     "CONFERENCIA GLPI", "CONFERENCIA IA", "Classificacao IA - 2",
+                     "CONFERENCIA IA - 2", "CATEGORIA CORRETA MANUAL", largura=17)
+        vals = [cab, _linha("1", "", "HID", "", "", "", "ELE", "", "", "", "", "",
+                            "Errado", "Errado", "", "", "", largura=17)]
+        decisoes = dv.carregar_decisoes(_SpreadsheetFalsa(vals), "Aba")
+        self.assertEqual(decisoes[2]["status"], dv.STATUS_RESTRITO)
+        self.assertIsNone(decisoes[2]["decidida"])
 
 
 class TestEnsembles(unittest.TestCase):

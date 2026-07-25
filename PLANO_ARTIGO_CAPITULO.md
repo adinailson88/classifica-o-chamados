@@ -35,141 +35,97 @@ Isso substitui a necessidade de o usuário reexplicar contexto a cada nova conve
 
 ## Estado desta rodada
 
-> **AVISO PARA QUEM FOR MERGEAR**: esta rodada (13, Passo 2) foi escrita no
-> branch `fix/transformer-ft-fallback-explicito`, ramificado do mesmo commit
-> de main que os branches `fix/vies-amostra-validada` (PR #54) e
-> `feat/categoria-correta-manual` (PR #55) — cada um TAMBEM reescreveu esta
-> secao "Estado desta rodada" com seu proprio conteudo de rodada 13. Os 3
-> PRs vao conflitar aqui. Ao mergear, NAO pegar so o "ultimo que mergear
-> por acaso" — ler os 3 blocos e escrever manualmente uma secao final que
-> cubra os 3 (viés da amostra validada, coluna de categoria manual,
-> transformer_ft com fallback explicito), com a rodada seguinte (14) em
-> diante.
+**Data**: 2026-07-25 (America/Bahia, UTC-03:00) — rodada 14 (consolidação
+dos Passos 1 e 2 do prompt de 6 passos; reconciliação de 3 branches
+paralelos).
 
-**Data**: 2026-07-25 (America/Bahia, UTC-03:00) - rodada 13 (Passo 2 do
-prompt de 6 passos: transformer_ft com fallback silencioso para LSTM).
+**Contexto**: o Adinailson enviou a outra sessão (Codex, via conector
+GitHub) um prompt com 6 passos para revisar o artigo com rigor de
+submissão A1/A2 (viés da amostra, `transformer_ft` com fallback
+silencioso para LSTM, Etapa 1 oficial desatualizada, bug no dashboard,
+snapshot desatualizado, rigor formal MDPI). Essa sessão concluiu os
+Passos 1–2 e preparou o Passo 3 em modo seguro, mas ficou **bloqueada
+pelo limite de uso do Codex até 2026-07-29 11:49**, com 3 commits
+**locais no sandbox dele, nunca enviados ao GitHub**. O Adinailson pediu
+para eu tratar os Passos 1 e 2 nesta sessão, sem esperar o Codex.
 
-**Onde está**: Passo 2 (crítico) do prompt de revisão de 6 passos que a
-outra sessão (Codex, bloqueada por limite de uso até 29/07) começou a
-executar. Passo 1 já tratado em paralelo (PR #54 + #55, branches
-diferentes). Corrigido em branch + PR, não mergeado ainda.
+**Onde está**: Passos 1 e 2 (ambos críticos) **concluídos e mergeados em
+`main`** nesta rodada, em 3 branches/PRs paralelos:
+- **PR #54** (`fix/vies-amostra-validada`) — quantifica o viés estrutural
+  da amostra validada (Passo 1a-d): 438 dos 9.534 conferidos (4,6%) são
+  "restritos" (avaliador julgou todas as fontes erradas, sem verdade
+  conhecida) e ficam fora do denominador de `acerto_validado` — inflando
+  mecanicamente o número de qualquer modelo. Publicado intervalo
+  `[limite_inferior, limite_superior]` por modelo em
+  `04_artigo/figuras/sensibilidade_vies_validacao.json` (amplitude real:
+  3,95 a 4,36 p.p.; ranking relativo entre os 7 modelos idêntico em
+  qualquer ponto do intervalo). Subseção 4.2, Discussão e Limitações do
+  artigo reescritas para reportar o intervalo em vez de um número
+  pontual.
+- **PR #55** (`feat/categoria-correta-manual`) — elimina esse viés **na
+  raiz** (não só delimita): nova coluna Q "CATEGORIA CORRETA MANUAL" na
+  aba principal, preenchida pelo avaliador só quando M/N/P não têm nenhum
+  "Correto". `decisao_validada.py::decidir()` ganhou o parâmetro
+  `categoria_manual`; um "restrito" com essa coluna preenchida vira
+  `status='decidido'`, `fonte_decisao='manual'`. Cabeçalho já criado pelo
+  Adinailson na planilha viva (confirmado por leitura, sem `#REF!`); ele
+  vai preencher aos poucos.
+- **PR #56** (`fix/transformer-ft-fallback-explicito`) — Passo 2: o cron
+  automático `multimodelo_classificacao.yml` nunca instala
+  `torch`/`transformers`, então `_ModeloTransformerFT.fit()` caía
+  SILENCIOSAMENTE para LSTM/RF. Confirmado em log real (run
+  `29550863840`, 17/07/2026): a materialização inteira publicada como
+  `transformer_ft` (13.954/13.965 linhas) foi produzida por esse
+  fallback — é LSTM disfarçado, não fine-tuning do BERTimbau. Corrigido:
+  `classificar_modelo()`/`reclassificar_modelo()` agora recusam publicar
+  quando isso acontece (nada é gravado sob o nome do modelo pedido).
 
-**O que foi feito nesta rodada**:
-1. Confirmado em código (`src/modelos_zoo.py:181-186`,
-   `.github/workflows/multimodelo_classificacao.yml`) e em log real de
-   produção (run `29550863840`, 17/07/2026) que o cron automático de
-   classificação nunca instala `torch`/`transformers`, e que a
-   materialização inteira publicada como `transformer_ft`
-   (13.954/13.965 linhas, `kfold_5`) foi feita via fallback silencioso
-   para LSTM — sem nenhum registro desse desvio em artefato publicado.
-2. `modelos_zoo._ModeloTransformerFT` ganhou a propriedade `usou_fallback`.
-3. `classificacao_multimodelo.prever_out_of_fold()` agora retorna um 4º
-   valor (`usou_fallback`); os 4 chamadores (`classificacao_multimodelo.py`,
-   `reclassificacao_multimodelo.py`, `ablation_lstm.py`,
-   `tests/test_decisao_memoria.py`) atualizados.
-4. `classificar_modelo()`/`reclassificar_modelo()` recusam publicar
-   quando `usou_fallback=True` — nada gravado em
-   `CLASSIF__<modelo>`/`MULTIMODELO_TURNOS`/`RECLASS__<modelo>`, aviso
-   explícito no log. O cron automático vira no-op para `transformer_ft`
-   até rodar com as dependências reais instaladas.
-5. 4 testes novos (`tests/test_transformer_fallback_explicito.py`),
-   rodando no mesmo ambiente sem torch/transformers real (não mockado).
-   Suíte completa: 71/71.
-6. Artigo (Limitações) e README atualizados com a causa raiz e a
-   confirmação de que os artefatos `transformer_ft` publicados antes
-   desta correção não são confiáveis.
+**Reconciliação desta rodada**: os 3 PRs partiram do mesmo commit de main
+e todos reescreviam esta seção — conflito resolvido manualmente ao
+mergear #56 por último (merge de `origin/main` no branch do PR, resolvido
+aqui). Ordem de merge: #54 → #55 → #56, todos limpos exceto o conflito
+nesta seção.
 
-**Não feito nesta rodada (Passo 2, itens (c)/(d) parcial — aguardando
-decisão do Adinailson)**: os artefatos JÁ publicados sob `transformer_ft`
-(aba `CLASSIF__transformer_ft`, 13.954 linhas contaminadas;
-`docs/dados/registros_transformer_ft.json`; linha `transformer_ft` em
-`multimodelo_metricas.json`) ainda não foram limpos/marcados — decidir se
-apaga a aba ou só documenta como contaminada.
+**Em andamento, mesma rodada**: a pedido do Adinailson ("reexecute tudo,
+só não apague o que fiz manualmente [M/N/P/Q], pode apagar e refazer
+todos os dados de todas as outras abas"), limpando
+`CLASSIF__<modelo>`/`MULTIMODELO_TURNOS`/`MULTIMODELO_METRICAS` de TODOS
+os modelos (incluindo `transformer_ft`, que nunca tinha sido limpo antes)
+e rematerializando do zero agora que o código já recusa publicar
+fallback disfarçado — ver próxima entrada nesta mesma seção após a
+execução, ou o histórico de rodada seguinte se já foi substituída.
 
-**Próximo passo**: (1) decidir com o Adinailson se limpa os artefatos
-`transformer_ft` já publicados (item acima); (2) revisar/mergear os PRs
-#54, #55 e este; reconciliar manualmente a seção "Estado desta rodada"
-(ver aviso no topo); (3) Passos 3–6 do prompt de 6 passos seguem
-pendentes, aguardando o Codex (29/07) ou nova decisão de prosseguir sem
-ele.
+**Não tratado (fora de escopo, aguardando o Codex ou nova decisão)**:
+Passos 3–6 do prompt original — rematerialização da Etapa 1 oficial
+(coluna G, dashboard público); bug no dashboard que esconde a tabela de
+ensembles com mensagem desatualizada; snapshot imutável novo
+pós-rematerialização; rigor formal de submissão MDPI (metadados, figuras
+300dpi, subseção 5.4 dedicada); holdout fixo de treino/teste; referências
+em formato MDPI numérico.
+
+**Próximo passo**: (1) terminar a rematerialização completa em
+andamento (item acima) e reportar números finais; (2) regenerar
+`avaliacao_final.json`/`estatistica.json`/dashboard após a
+rematerialização; (3) gerar novo snapshot imutável (pendência recorrente
+desde a rodada 12); (4) quando o Codex retomar em 29/07 (ou antes, se
+decidido), continuar os Passos 3–6.
 
 ---
 
 ### Histórico da rodada 12 (rematerialização completa dos 7 modelos; discrepância do LSTM resolvida)
-
-**Onde esta**: a discrepancia do ablation do LSTM (sinalizada na rodada 10,
-investigada nas rodadas 11-14) esta **resolvida**. O Adinailson confirmou
-explicitamente a decisao de rematerializar os 7 modelos comparaveis por
-completo (nao so o LSTM), em vez de preservar o valor oficial historico como
-as rodadas anteriores haviam decidido conservadoramente. Executado e
-verificado nesta rodada, com credencial, via GitHub Actions (nao localmente
--- esta sessao segue sem `credenciais_sa.json`/`SPREADSHEET_ID` local).
-
-**O que foi feito nesta rodada**:
-1. Investiguei `src/classificacao_multimodelo.py`: o fluxo e incremental
-   (so processa linhas pendentes) e nunca abre a aba principal para
-   escrita -- so le `CHAMADOS_ESQUELETO_REDUZIDO` e escreve em
-   `CLASSIF__<modelo>`/`MULTIMODELO_TURNOS`/`MULTIMODELO_METRICAS`.
-2. Criei `src/limpar_classif_multimodelo.py` (novo): limpa SOMENTE essas
-   tres abas, restrito aos modelos passados (`comparaveis` = 7, nunca
-   `transformer_ft` por padrao). Confirmado por teste que o codigo-fonte
-   nao contem a string `aba_principal`. Dry-run por padrao. 8 testes
-   offline novos (fake worksheet/spreadsheet) em
-   `tests/test_limpar_classif_multimodelo.py`. Suite completa: 50/50.
-3. Adicionei a tarefa `limpar_multimodelo` ao workflow "Pendencias artigo
-   com credencial" (`.github/workflows/lstm_artigo.yml`), com
-   `aplicar_limpeza` boolean (default false).
-4. Rodei o dry-run via `gh workflow run` (run `30144116442`): confirmou
-   13.965 linhas por modelo em `CLASSIF__<modelo>` x7, 6.524 linhas de
-   `MULTIMODELO_TURNOS` (932 do `transformer_ft` preservadas), 7 linhas de
-   `MULTIMODELO_METRICAS` (1 do `transformer_ft` preservada). Reportei ao
-   Adinailson antes de aplicar; ele confirmou explicitamente.
-5. Apliquei de verdade (run `30144225377`): numeros identicos ao dry-run,
-   sucesso.
-6. Disparei `classificacao_multimodelo.yml` com os 7 modelos, `max_turnos=0`,
-   `aplicar=true` (run `30144280472`): rematerializou 13.965/13.965 por
-   modelo, 0 pendentes, `kfold_5`. Concordancia vs. historico ficou
-   praticamente igual a antes (ex.: LSTM 68,13% vs. ~68% anterior) -- essa
-   metrica nunca foi onde a anomalia aparecia.
-7. Disparei `avaliacao_final.yml` (run `30144740084`, sucesso) e
-   `estatistica.yml` (primeira tentativa `30144742053` cancelada por
-   concorrencia; redisparada com sucesso, run `30144847227`).
-8. **Resultado**: todos os 7 modelos subiram ~15 pontos percentuais de
-   acerto validado -- a materializacao de 16-17/07 estava genericamente
-   desatualizada, nao so para o LSTM. Ranking relativo **inalterado**.
-   Acerto validado novo (n=9.096, `avaliacao_final.json` gerado
-   25/07/2026 01:52): linear_svc 0,9494; sgd 0,9391; regressao_logistica
-   0,9349; extra_trees 0,9265; random_forest 0,9210; **lstm 0,8869** (perto
-   dos 0,8635 do ablation corrigido por GroupKFold -- diferenca residual de
-   2,34 p.p., atribuivel a `k_folds` diferente entre os dois protocolos:
-   3 no ablation, 5 na materializacao oficial); naive_bayes 0,8607. Nenhum
-   ensemble supera linear_svc isolado com significancia (McNemar p<0,05
-   em favor do linear_svc nos tres).
-9. Atualizei `04_artigo/artigo_classificacao_chamados_v3.md`: Tabela 1
-   (Subsecao 4.1, concordancia vs. historico), Tabela 2 (Subsecao 4.2,
-   acerto validado + ensembles), a ressalva da Figura 6 (Subsecao 4.9,
-   de "suspeito" para "investigado e resolvido"), o paragrafo da
-   Discussao com a serie historica de 3 consolidacoes (16/07 -> 24/07 ->
-   25/07), a quinta limitacao (ablation), e os numeros do Resumo/Abstract
-   e das Considerações Finais que citavam os valores antigos do LSTM
-   (0,7471) e do LinearSVC (0,7989). Varredura final confirmou zero
-   ocorrencia residual dos numeros antigos fora de contexto historico
-   intencional.
-10. Atualizei o bloco do `README.md` de "BLOQUEADOR" para "RESOLVIDO", com
-    o historico completo da investigacao e o resultado final, e a tabela
-    "7 IAs materializadas" com os numeros de 25/07/2026.
-
-**Nao rematerializado nesta rodada (fora de escopo, decisao futura)**: a
-Etapa 1 oficial de producao (executor LSTM/RF, coluna G da planilha, usada
-no dashboard publico `Classificacao`) pode estar sujeita a defasagem
-semelhante -- nao foi tocada.
-
-**Proximo passo**: gerar novo snapshot imutavel (`gerar_manifesto_
-snapshot_artigo.py`) refletindo os numeros de 25/07/2026, regenerar o PDF,
-e revisar visualmente as abas `Decisao`/`Modelos` do painel publico contra
-os novos JSONs. Continuam fora de escopo, aguardando decisao do
-Adinailson: holdout fixo de treino/teste e reformatacao das referencias
-para o padrao MDPI numerico.
+A discrepância do ablation do LSTM (sinalizada na rodada 10, investigada
+nas rodadas 11–14) foi **resolvida**. Decisão do Adinailson: rematerializar
+os 7 modelos comparáveis por completo (não só o LSTM). Resultado: todos
+os 7 modelos subiram ~15 p.p. de acerto validado (materialização de
+16-17/07 estava genericamente desatualizada); ranking relativo
+inalterado. Acerto validado (n=9.096, `avaliacao_final.json` de
+25/07/2026 01:52): linear_svc 0,9494; sgd 0,9391; regressao_logistica
+0,9349; extra_trees 0,9265; random_forest 0,9210; lstm 0,8869 (perto dos
+0,8635 do ablation corrigido por GroupKFold); naive_bayes 0,8607. Criado
+`src/limpar_classif_multimodelo.py` (8 testes) para permitir a
+rematerialização com segurança. Ferramental: novo script
+`src/analise_sensibilidade_vies_validacao.py` (rodada 13, acima) já usa
+esses mesmos dados como base do intervalo de sensibilidade.
 
 ---
 

@@ -42,6 +42,9 @@ O projeto nao deve alterar o repositorio operacional `malha-ia` nem seus workflo
 
 ## Colunas esperadas
 
+Lista original (parcial, desatualizada — a planilha real já vai até Q, ver
+`src/decisao_validada.py` para a lista completa em uso):
+
 ```text
 ID Chamado
 TÍTULO
@@ -55,7 +58,13 @@ Executor
 Criticidade Atribuída por IA
 Comparação
 Classificado_Confiança_IA
-CONFERÊNCIA
+CONFERÊNCIA GLPI
+CONFERÊNCIA IA
+Classificação IA - 2
+CONFERÊNCIA IA - 2
+CATEGORIA CORRETA MANUAL   <- nova (2026-07-25), preenchida pelo avaliador
+                              SÓ quando M, N e P não têm nenhum "Correto"
+                              (ver src/decisao_validada.py)
 ```
 
 ## Validacao
