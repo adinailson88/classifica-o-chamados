@@ -1,5 +1,5 @@
 {
-  "gerado_em": "25/07/2026 00:19",
+  "gerado_em": "25/07/2026 00:27",
   "script_origem": "src/ablation_lstm.py",
   "natureza": "diagnostico de protocolo; nao re-treina modelos e nao escreve na planilha",
   "hipoteses_testadas": [
@@ -19,11 +19,73 @@
     "particionamento": "GroupKFold por hash de texto normalizado nos validados; treino usa todos os demais grupos elegiveis",
     "rotulo_treino": "CATEGORIA COMPLETA historica"
   },
+  "parametros_lstm_resolvidos": {
+    "env_LSTM_PERFIL": null,
+    "config_modelo_ia_lstm": {
+      "perfil": "padrao",
+      "perfil_robusto_disponivel": true,
+      "usar_class_weight": true,
+      "_nota_perfil": "padrao e o perfil seguro global. O perfil robusto permanece disponivel para execucoes lentas por LSTM_PERFIL=robusto ou workflows especificos."
+    },
+    "ablation_resolve_com_config": {
+      "vocab_size": 8000,
+      "max_len": 120,
+      "embed_dim": 128,
+      "units": 64,
+      "dense_units": 64,
+      "dropout": 0.5,
+      "layers": 1,
+      "epochs": 15,
+      "batch_size": 128,
+      "paciencia": 3,
+      "usar_class_weight": true
+    },
+    "producao_resolve_sem_config": {
+      "vocab_size": 8000,
+      "max_len": 120,
+      "embed_dim": 128,
+      "units": 64,
+      "dense_units": 64,
+      "dropout": 0.5,
+      "layers": 1,
+      "epochs": 15,
+      "batch_size": 128,
+      "paciencia": 3
+    },
+    "parametros_iguais_no_ambiente_atual": false,
+    "observacao": "modelos_zoo._ModeloLSTM chama classificador_producao.treinar_classificador sem repassar config_experimento['modelo_ia']['lstm']; no ambiente atual, os parametros ainda podem coincidir se o perfil efetivo for padrao."
+  },
   "escopo": {
     "n_linhas_elegiveis_ablation": 13965,
     "n_validadas_com_verdade": 9096,
     "n_predicoes_oficiais_lstm": 13965,
     "n_intersecao_validada_oficial": 9096
+  },
+  "materializacao_oficial_lstm": {
+    "run_ids": {
+      "EXP_CLASSIFICACAO_CHAMADOS_2026_06_001": 13965
+    },
+    "datas_gravacao": {
+      "16/07/2026 23:50": 13954,
+      "17/07/2026 06:20": 11
+    },
+    "executores": {
+      "lstm_BAIXA_CONF": 9868,
+      "lstm": 4097
+    },
+    "faixas": {
+      "abaixo_70": 6029,
+      "acima_95": 4097,
+      "entre_70_95": 3839
+    },
+    "acerto_historico_true": 9562,
+    "acerto_historico_false": 4403,
+    "confianca": {
+      "n": 13965,
+      "media": 0.685495,
+      "min": 0.068,
+      "max": 0.9994
+    }
   },
   "historico_vs_verdade": {
     "historico_igual_verdade": 9096,
