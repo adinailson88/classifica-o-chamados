@@ -1,7 +1,7 @@
 {
-  "gerado_em": "25/07/2026 04:33",
+  "gerado_em": "25/07/2026 12:52",
   "natureza": "analise exploratoria de erros da IA contra a conferencia humana; orienta a qualidade da ABERTURA do chamado, nao e metrica de producao",
-  "n_conferidos_ia": 8175,
+  "n_conferidos_ia": 8583,
   "minimo_recomendado": 30,
   "campos_formulario_sugeridos": [
     {
@@ -22,9 +22,46 @@
     }
   ],
   "status": "ok",
-  "n_erros_ia": 0,
-  "n_acertos_ia": 8175,
-  "comparacao_erros_vs_acertos": [],
+  "n_erros_ia": 94,
+  "n_acertos_ia": 8489,
+  "comparacao_erros_vs_acertos": [
+    {
+      "caracteristica": "comprimento_titulo",
+      "n_erros": 94,
+      "n_acertos": 8489,
+      "mediana_erros": 41.5,
+      "mediana_acertos": 58.0,
+      "p_mann_whitney": 7.521336398498327e-05,
+      "delta_cliff": -0.237
+    },
+    {
+      "caracteristica": "comprimento_descricao",
+      "n_erros": 94,
+      "n_acertos": 8489,
+      "mediana_erros": 173.0,
+      "mediana_acertos": 186.0,
+      "p_mann_whitney": 0.008779844205749569,
+      "delta_cliff": -0.1566
+    },
+    {
+      "caracteristica": "n_tokens",
+      "n_erros": 94,
+      "n_acertos": 8489,
+      "mediana_erros": 38.0,
+      "mediana_acertos": 39.0,
+      "p_mann_whitney": 0.0054035690115883835,
+      "delta_cliff": -0.1665
+    },
+    {
+      "caracteristica": "campos_preenchidos",
+      "n_erros": 94,
+      "n_acertos": 8489,
+      "mediana_erros": 1.0,
+      "mediana_acertos": 1.0,
+      "p_mann_whitney": 0.002607167029743796,
+      "delta_cliff": -0.1085
+    }
+  ],
   "leitura": "Se 'cobertura_termos_categoria' e comprimentos forem significativamente menores nos ERROS (p<0,05 e |delta de Cliff|>=0,147), a hipotese se confirma: texto pobre -> erro de categoria. O checklist por categoria lista os termos discriminativos ausentes nos erros — e a informacao que o formulario deve induzir o solicitante a fornecer, sem nunca pedir a categoria em si.",
   "por_categoria": [
     {
@@ -38,6 +75,14 @@
     {
       "categoria": "Elétrica > Iluminação",
       "n_conferidos": 631,
+      "erros_ia": 0,
+      "taxa_erro_ia": 0.0,
+      "termos_que_faltaram_nos_erros": [],
+      "informacao_a_solicitar": null
+    },
+    {
+      "categoria": "Climatização > Ar condicionado split",
+      "n_conferidos": 1282,
       "erros_ia": 0,
       "taxa_erro_ia": 0.0,
       "termos_que_faltaram_nos_erros": [],
@@ -276,6 +321,14 @@
       "informacao_a_solicitar": null
     },
     {
+      "categoria": "TI / Dados / Rede > Coleta de dados",
+      "n_conferidos": 25,
+      "erros_ia": 0,
+      "taxa_erro_ia": 0.0,
+      "termos_que_faltaram_nos_erros": [],
+      "informacao_a_solicitar": null
+    },
+    {
       "categoria": "Climatização > Ar condicionado central",
       "n_conferidos": 28,
       "erros_ia": 0,
@@ -292,16 +345,8 @@
       "informacao_a_solicitar": null
     },
     {
-      "categoria": "Climatização > Ar condicionado split",
-      "n_conferidos": 993,
-      "erros_ia": 0,
-      "taxa_erro_ia": 0.0,
-      "termos_que_faltaram_nos_erros": [],
-      "informacao_a_solicitar": null
-    },
-    {
       "categoria": "Manutenção Preventiva > Sistemas de combate a incêndio (extintores, hidrantes)",
-      "n_conferidos": 45,
+      "n_conferidos": 46,
       "erros_ia": 0,
       "taxa_erro_ia": 0.0,
       "termos_que_faltaram_nos_erros": [],
@@ -358,14 +403,6 @@
     {
       "categoria": "Manutenção Preventiva > Poços artesianos",
       "n_conferidos": 13,
-      "erros_ia": 0,
-      "taxa_erro_ia": 0.0,
-      "termos_que_faltaram_nos_erros": [],
-      "informacao_a_solicitar": null
-    },
-    {
-      "categoria": "Manutenção Preventiva > Sistemas de incêndio",
-      "n_conferidos": 1,
       "erros_ia": 0,
       "taxa_erro_ia": 0.0,
       "termos_que_faltaram_nos_erros": [],
