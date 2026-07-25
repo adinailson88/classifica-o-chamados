@@ -127,7 +127,7 @@ class TestAblationLSTM(unittest.TestCase):
         self.assertEqual(diag["escopo"]["n_intersecao_validada_oficial"], 2)
         self.assertEqual(diag["materializacao_oficial_lstm"]["run_ids"], {"r": 2})
         self.assertEqual(diag["materializacao_oficial_lstm"]["executores"], {"lstm": 2})
-        self.assertEqual(diag["parametros_lstm_resolvidos"]["parametros_iguais_no_ambiente_atual"], True)
+        self.assertEqual(diag["parametros_lstm_resolvidos"]["parametros_efetivos_iguais_no_ambiente_atual"], True)
         self.assertEqual(diag["historico_vs_verdade"]["historico_igual_verdade"], 2)
         self.assertEqual(diag["historico_vs_verdade"]["taxa_historico_igual_verdade"], 0.666667)
         self.assertEqual(diag["oficial_lstm_vs_verdade"]["acertos"], 1)

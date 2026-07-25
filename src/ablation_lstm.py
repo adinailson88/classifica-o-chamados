@@ -255,16 +255,34 @@ def diagnosticar_parametros_lstm(config: dict) -> dict:
     lstm_cfg = dict((config.get("modelo_ia", {}) or {}).get("lstm", {}) or {})
     params_ablation = modelo_lstm.resolver_parametros_lstm(lstm_cfg)
     params_producao_sem_config = modelo_lstm.resolver_parametros_lstm(None)
+    def _separar(params: dict) -> tuple[dict, dict]:
+        p = dict(params)
+        fit = {
+            "epochs": int(p.pop("epochs", 15)),
+            "batch_size": int(p.pop("batch_size", 128)),
+            "paciencia": int(p.pop("paciencia", 3)),
+            "validation_split": float(p.pop("validation_split", 0.1)),
+            "usar_class_weight": bool(p.pop("usar_class_weight", True)),
+        }
+        return p, fit
+
+    init_ablation, fit_ablation = _separar(params_ablation)
+    init_producao, fit_producao = _separar(params_producao_sem_config)
     return {
         "env_LSTM_PERFIL": os.getenv("LSTM_PERFIL"),
         "config_modelo_ia_lstm": lstm_cfg,
         "ablation_resolve_com_config": params_ablation,
         "producao_resolve_sem_config": params_producao_sem_config,
-        "parametros_iguais_no_ambiente_atual": params_ablation == params_producao_sem_config,
+        "ablation_init_model": init_ablation,
+        "producao_init_model": init_producao,
+        "ablation_fit_efetivo": fit_ablation,
+        "producao_fit_efetivo": fit_producao,
+        "parametros_efetivos_iguais_no_ambiente_atual": init_ablation == init_producao and fit_ablation == fit_producao,
         "observacao": (
             "modelos_zoo._ModeloLSTM chama classificador_producao.treinar_classificador "
             "sem repassar config_experimento['modelo_ia']['lstm']; no ambiente atual, "
-            "os parametros ainda podem coincidir se o perfil efetivo for padrao."
+            "os parametros efetivos ainda podem coincidir se o perfil efetivo for padrao "
+            "e os defaults de fit forem os mesmos."
         ),
     }
 
