@@ -106,16 +106,20 @@ linhas, com 6.796 acertos (74,714%). O diagnostico ampliado (run
 iguais entre o caminho direto do ablation e o caminho de producao, mas a aba
 oficial foi materializada antes da rodada do artigo: 13.954 linhas em
 16/07/2026 23:50 e 11 linhas em 17/07/2026 06:20, com 9.868/13.965
-predicoes em baixa confianca. Assim, a discrepancia residual nao decorre de
-escopo de linhas, de validacao humana posterior divergente do historico nem
-de hiperparametro efetivo atual; ela permanece concentrada na diferenca entre
-predicao oficial antiga ja materializada e re-treino novo por fold do ablation.
-Nao remover a ressalva do artigo nem promover o ablation a achado do
-capitulo enquanto a diferenca residual nao for explicada por outra causa
-metodologica ou experimental. A lacuna de cobertura da rodada 9 foi tratada
-em tests/test_artigo_scripts.py, cobrindo exportar_tabela_por_categoria.py,
-gerar_figura4_confusoes.py, ablation_lstm.py e salvar_history()/CLI de
-modelo_lstm.py; isso nao remove o bloqueador metodologico do ablation.
+predicoes em baixa confianca. O novo diagnostico de materializacao oficial
+read-only (diagnostico_materializacao_lstm_nova.json, run 30142708626) reexecutou
+o caminho oficial `prever_out_of_fold("lstm", ...)` em memoria, sem escrever na
+aba CLASSIF__lstm, e obteve 7.964/9.096 acertos (87,555%) no mesmo escopo
+validado, contra 6.796/9.096 (74,714%) da aba antiga. A comparacao mostrou
+2.542 predicoes diferentes (27,946%), com 1.572 casos em que a nova materializacao
+acerta e a antiga erra, 404 no sentido inverso e saldo liquido de +1.168 acertos.
+Assim, a discrepancia residual nao decorre de escopo de linhas, de validacao
+humana posterior divergente do historico nem de hiperparametro efetivo atual; ela
+permanece concentrada na diferenca entre a predicao oficial antiga ja materializada
+e re-treinos novos do mesmo caminho LSTM sobre a base viva. Nao remover a ressalva
+do artigo nem promover o ablation a achado do capitulo enquanto nao houver decisao
+metodologica explicita sobre substituir ou nao a avaliacao oficial historica por
+uma nova materializacao controlada.
 
 ### Confirmado feito
 - [x] Aviso de viés de amostra não aleatória no Resumo/Abstract (COCHRAN, 1977)
@@ -193,12 +197,14 @@ modelo_lstm.py; isso nao remove o bloqueador metodologico do ablation.
 - [x] **Tabela Suplementar S2 gerada** —
       `04_artigo/figuras/tabela_S2_codigos_categorias_fig4.csv`, mapeando
       código → categoria para a Figura 4.
-- [~] **Ablation study do LSTM executado, mas SINALIZADO COMO SUSPEITO** —
-      `src/ablation_lstm.py` rodou de verdade (`run 30137529732`, commit
-      `fcf39887`), arquivos existem e compilam, mas os números (64/0,5 =
-      87,68%; 128/0,3 = 88,18%) **contradizem a avaliação oficial da mesma
-      arquitetura (74,71%, Subseção 4.2)** — ver bloco "BLOQUEADOR" no topo
-      deste checklist. Não marcar como concluído até investigar.
+- [~] **Ablation study do LSTM executado, corrigido e ainda SINALIZADO COMO
+      SUSPEITO** — `src/ablation_lstm.py` rodou de verdade, o KFold antigo foi
+      diagnosticado com vazamento por duplicatas, o ablation foi refeito com
+      GroupKFold, e a materializacao oficial nova read-only atingiu 87,56%.
+      Mesmo assim, a avaliacao oficial historica segue em 74,71% na Subsecao
+      4.2; ver bloco "BLOQUEADOR" no topo deste checklist. Nao marcar como
+      concluido sem decisao metodologica explicita sobre a avaliacao oficial
+      historica versus nova materializacao controlada.
 
 ### Pendente confirmado — com o arquivo exato a mexer
 - [ ] Seções de metadados estilo MDPI (Author Contributions, Funding, Data
