@@ -128,13 +128,20 @@ v3.docx para dentro do repo em 04_artigo/ e converta para Markdown"].
       dado publicado. Texto do artigo corrigido (Figura 4 e Limitações);
       a Figura 4 deixa de estar bloqueada por qualidade de dado.
 - [x] **Tabela suplementar de métricas por categoria (55 categorias)** —
-      script `src/exportar_tabela_por_categoria.py` (novo), gera
-      `04_artigo/figuras/tabela_S1_metricas_por_categoria.csv` a partir de
-      `docs/dados/metricas_por_categoria.json`. Citada no artigo, Subseção
-      4.1, com as 5 categorias de menor e maior concordância. **Atenção**:
-      esse JSON reporta concordância vs. histórico, não precision/recall/F1
-      no sentido scikit-learn — o schema não tem essas métricas por
-      categoria; não afirmar "F1 por categoria" sem gerar esse dado à parte.
+      script `src/exportar_tabela_por_categoria.py`, gera
+      `04_artigo/figuras/tabela_S1_metricas_por_categoria.csv`. Citada no
+      artigo, Subseção 4.1, com as 5 categorias de menor e maior
+      concordância. **Reescrito em 24/07/2026 (2ª parte da rodada 9)**: o
+      Adinailson informou que as métricas por categoria foram movidas para
+      uma aba da planilha experimental (`gid=1862157493`, URL
+      compartilhada). O script agora tenta ler essa aba viva primeiro
+      (via `gspread`/`src/planilha.py`, colunas por cabeçalho normalizado,
+      não por posição), e só cai para o JSON público quando não há
+      credencial — registrando a fonte usada em cada linha exportada.
+      **Não testado contra a aba viva** (sem credencial nesta sessão); o
+      CSV publicado agora reflete o modo *fallback* (concordância vs.
+      histórico, sem precision/recall/F1 — esse schema não existe no
+      JSON público, só possivelmente na aba viva, ainda não confirmada).
 - [x] **Duas direções de trabalho futuro acrescentadas** na Conclusão:
       validação externa em outras IFES e integração com um modelo
       MCDM/TOPSIS de priorização de manutenção (ponte com o capítulo de
