@@ -1,0 +1,48 @@
+{
+  "gerado_em": "25/07/2026 00:19",
+  "script_origem": "src/ablation_lstm.py",
+  "natureza": "diagnostico de protocolo; nao re-treina modelos e nao escreve na planilha",
+  "hipoteses_testadas": [
+    "avaliacao oficial usa predicoes ja materializadas em CLASSIF__lstm",
+    "ablation treina LSTM novo por fold contra rotulo historico e mede contra verdade humana",
+    "verdade humana pode coincidir com o historico em grande parte dos validados",
+    "protocolo oficial multimodelo usa k-fold configurado separadamente do ablation"
+  ],
+  "config_multimodelo": {
+    "k_folds_oficial": 5,
+    "aba_classificacao": "CLASSIF__{modelo}",
+    "memoria_validada_habilitada": true,
+    "peso_memoria_validada": 3
+  },
+  "config_ablation": {
+    "k_folds_ablation": 3,
+    "particionamento": "GroupKFold por hash de texto normalizado nos validados; treino usa todos os demais grupos elegiveis",
+    "rotulo_treino": "CATEGORIA COMPLETA historica"
+  },
+  "escopo": {
+    "n_linhas_elegiveis_ablation": 13965,
+    "n_validadas_com_verdade": 9096,
+    "n_predicoes_oficiais_lstm": 13965,
+    "n_intersecao_validada_oficial": 9096
+  },
+  "historico_vs_verdade": {
+    "historico_igual_verdade": 9096,
+    "historico_diferente_verdade": 0,
+    "taxa_historico_igual_verdade": 1.0
+  },
+  "oficial_lstm_vs_verdade": {
+    "acertos": 6796,
+    "erros": 2300,
+    "taxa_acerto": 0.747142,
+    "acertos_quando_historico_igual_verdade": 6796,
+    "taxa_quando_historico_igual_verdade": 0.747142,
+    "acertos_quando_historico_diferente_verdade": 0,
+    "taxa_quando_historico_diferente_verdade": null
+  },
+  "diferencas_de_protocolo_verificadas_no_codigo": [
+    "src/avaliacao_final.py avalia predicoes ja gravadas em CLASSIF__<modelo>; nao instancia nem treina o LSTM.",
+    "src/classificacao_multimodelo.py gera CLASSIF__lstm com k-fold configurado em config_experimento.json e pode usar memoria validada como base fixa.",
+    "src/ablation_lstm.py treina modelo_lstm.ClassificadorLSTM diretamente em cada fold e usa categoria historica como y de treino.",
+    "src/ablation_lstm.py usa GroupKFold por hash de texto normalizado; o protocolo oficial multimodelo usa KFold por linha no lote."
+  ]
+}
