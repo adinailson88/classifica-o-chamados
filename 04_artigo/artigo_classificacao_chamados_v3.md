@@ -848,11 +848,11 @@ não usar como substituto das Tabelas 1 e 2.
 
 **4.8 Figuras**
 
-*Atualização de dados (23/07/2026)*: das quatro figuras originalmente
-planejadas para este capítulo, três foram geradas nesta rodada a partir dos
-JSONs vigentes do painel (script `matplotlib`, ver
-`04_artigo/figuras/`). A quarta permanece pendente por um motivo de
-qualidade de dado, não de esforço de geração.
+*Atualização de dados (24/07/2026)*: as quatro figuras originalmente
+planejadas para este capítulo foram geradas a partir dos JSONs vigentes do
+painel (scripts `matplotlib`, ver `04_artigo/figuras/`). A Figura 4 usa
+códigos de categoria para preservar a legibilidade; o mapeamento completo
+código-categoria está na Tabela Suplementar S2.
 
 ![Figura 2 — Confiança bruta × concordância com o histórico × acerto validado, por faixa de confiança (executor oficial, Etapa 1, 23/07/2026).](04_artigo/figuras/fig2_confianca_desfecho.png)
 
@@ -873,23 +873,21 @@ terem registro de tempo de treino no mesmo arquivo (Tabela 7, Subseção
 Fonte: `comparacao_modelos.json` (custo) e `avaliacao_final.json` (acerto
 validado).
 
-**Figura 4 (pares de maior confusão entre categorias) — pendência
-reclassificada em 24/07/2026**: em rodadas anteriores, suspeitou-se de
-corrupção de acentuação (mojibake — caracteres substitutos no lugar de
-vogais acentuadas, por exemplo em "Instalação" e "Climatização") nos
-nomes de categoria de três arquivos-fonte (`estatistica.json`, campo
-`top_confusoes`; `cruzamento_taxonomia.json`; `confusao_historico_ia.json`),
-o que impediu a geração desta figura. Uma verificação byte a byte desses
-três arquivos, mais `metricas_por_categoria.json`, confirmou que os
-quatro são UTF-8 válido em sua totalidade, sem nenhuma ocorrência real do
-caractere de substituição Unicode (U+FFFD); os caracteres corrompidos
-observados anteriormente eram artefato de exibição no terminal usado
-para inspecionar os dados (codificação do console, não dos arquivos),
-não corrupção do dado publicado. A suspeita de corrupção está portanto
-descartada, e a geração da Figura 4 deixa de estar bloqueada por
-qualidade de dado — pendência técnica agora é apenas de esforço de
-geração (script `matplotlib` a partir de `top_confusoes`), não de
-diagnóstico. Registrado em `PLANO_ARTIGO_CAPITULO.md`.
+![Figura 4 — Top 15 pares de maior confusão entre categorias, agregados a partir dos top pares por modelo.](04_artigo/figuras/fig4_top_confusoes.png)
+
+**Figura 4** Top 15 pares de maior confusão entre categorias, agregados a
+partir do campo `top_confusoes` de `estatistica.json`. O par mais recorrente
+foi `Climatização > Ar condicionado` → `Manutenção Preventiva > Ar
+condicionado split` (1.310 ocorrências agregadas), seguido por `Instalação de
+Acessórios e Mobiliário > Instalação/reparo de equipamentos (Suportes de TV,
+acessórios de banheiro e quadro branco)` → `Estrutura Predial > Alvenaria /
+Pisos / Estrutura` (799) e `Estrutura Predial > Alvenaria / Pisos / Estrutura`
+→ `Estrutura Predial > Esquadrias, porta, portão e janelas` (726). Os códigos
+C01-C10 usados no eixo vertical são descritos na Tabela Suplementar S2
+(`04_artigo/figuras/tabela_S2_codigos_categorias_fig4.csv`).
+
+Fonte: `estatistica.json`, campo `top_confusoes`, gerado em 24/07/2026 20:52;
+figura gerada por `src/gerar_figura4_confusoes.py`.
 
 **5. DISCUSSÃO**
 
