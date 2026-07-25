@@ -1,5 +1,5 @@
 {
-  "gerado_em": "24/07/2026 19:37",
+  "gerado_em": "25/07/2026 01:52",
   "schema_version": "1.0",
   "run_id": "EXP_CLASSIFICACAO_CHAMADOS_2026_06_001",
   "script_origem": "src/avaliacao_final.py",
@@ -25,117 +25,117 @@
     {
       "modelo": "linear_svc",
       "n": 9096,
-      "acerto_validado": 0.7989,
+      "acerto_validado": 0.9494,
       "ic95": [
-        0.7899,
-        0.8073
+        0.9447,
+        0.9539
       ],
-      "peso_log_odds": 1.3796,
-      "peso_normalizado": 0.1485
+      "peso_log_odds": 2.9325,
+      "peso_normalizado": 0.1479
     },
     {
       "modelo": "sgd",
       "n": 9096,
-      "acerto_validado": 0.7909,
+      "acerto_validado": 0.9391,
       "ic95": [
-        0.7819,
-        0.7994
+        0.934,
+        0.9439
       ],
-      "peso_log_odds": 1.3303,
-      "peso_normalizado": 0.147
+      "peso_log_odds": 2.7356,
+      "peso_normalizado": 0.1463
     },
     {
       "modelo": "regressao_logistica",
       "n": 9096,
-      "acerto_validado": 0.7859,
+      "acerto_validado": 0.9349,
       "ic95": [
-        0.7768,
-        0.7947
+        0.9295,
+        0.9399
       ],
-      "peso_log_odds": 1.3007,
-      "peso_normalizado": 0.1461
+      "peso_log_odds": 2.6648,
+      "peso_normalizado": 0.1457
     },
     {
       "modelo": "extra_trees",
       "n": 9096,
-      "acerto_validado": 0.7762,
+      "acerto_validado": 0.9265,
       "ic95": [
-        0.7667,
-        0.7847
+        0.9211,
+        0.9316
       ],
-      "peso_log_odds": 1.2435,
+      "peso_log_odds": 2.5334,
       "peso_normalizado": 0.1443
     },
     {
       "modelo": "random_forest",
       "n": 9096,
-      "acerto_validado": 0.7689,
+      "acerto_validado": 0.921,
       "ic95": [
-        0.7598,
-        0.7777
+        0.9153,
+        0.9262
       ],
-      "peso_log_odds": 1.2022,
-      "peso_normalizado": 0.1429
+      "peso_log_odds": 2.4554,
+      "peso_normalizado": 0.1435
     },
     {
       "modelo": "lstm",
       "n": 9096,
-      "acerto_validado": 0.7471,
+      "acerto_validado": 0.8869,
       "ic95": [
-        0.7375,
-        0.7556
+        0.8805,
+        0.8929
       ],
-      "peso_log_odds": 1.0834,
-      "peso_normalizado": 0.1389
+      "peso_log_odds": 2.0592,
+      "peso_normalizado": 0.1382
     },
     {
       "modelo": "naive_bayes",
       "n": 9096,
-      "acerto_validado": 0.7114,
+      "acerto_validado": 0.8607,
       "ic95": [
-        0.7016,
-        0.7208
+        0.8531,
+        0.8676
       ],
-      "peso_log_odds": 0.9022,
-      "peso_normalizado": 0.1322
+      "peso_log_odds": 1.8212,
+      "peso_normalizado": 0.1341
     }
   ],
   "melhor_ia": "linear_svc",
   "melhor_vs_segundo": {
     "segundo": "sgd",
-    "delta": 0.008,
-    "p_mcnemar": 1.994069179590714e-06
+    "delta": 0.0103,
+    "p_mcnemar": 1.6627853844433858e-09
   },
   "ensembles": [
     {
-      "metodo": "confianca_calibrada_max",
-      "acerto_validado": 0.7938,
+      "metodo": "maioria_ponderada",
+      "acerto_validado": 0.9451,
       "ic95": [
-        0.7856,
-        0.8013
+        0.9403,
+        0.9498
       ],
-      "delta_vs_melhor_ia": -0.0051,
-      "p_mcnemar_vs_melhor_ia": 0.0003424066712364659
+      "delta_vs_melhor_ia": -0.0043,
+      "p_mcnemar_vs_melhor_ia": 0.002802729240437866
     },
     {
-      "metodo": "maioria_ponderada",
-      "acerto_validado": 0.7933,
+      "metodo": "confianca_calibrada_max",
+      "acerto_validado": 0.9449,
       "ic95": [
-        0.7852,
-        0.8012
+        0.9399,
+        0.9495
       ],
-      "delta_vs_melhor_ia": -0.0056,
-      "p_mcnemar_vs_melhor_ia": 3.56711566194444e-05
+      "delta_vs_melhor_ia": -0.0045,
+      "p_mcnemar_vs_melhor_ia": 0.002400072302527052
     },
     {
       "metodo": "maioria_simples",
-      "acerto_validado": 0.7911,
+      "acerto_validado": 0.9427,
       "ic95": [
-        0.7828,
-        0.7989
+        0.9377,
+        0.9476
       ],
-      "delta_vs_melhor_ia": -0.0078,
-      "p_mcnemar_vs_melhor_ia": 5.636664667131664e-08
+      "delta_vs_melhor_ia": -0.0067,
+      "p_mcnemar_vs_melhor_ia": 1.4917430081533766e-05
     }
   ],
   "vale_combinar": {
