@@ -37,21 +37,21 @@ Isso substitui a necessidade de o usuário reexplicar contexto a cada nova conve
 
 **Data**: 2026-07-24 (America/Bahia, UTC-03:00) — continuação da rodada 9.
 
-**Onde está**: Figura 4 e Tabela Suplementar S2 agora foram geradas e citadas
-no artigo. A tabela S1 contra a aba viva, a curva real de aprendizado do LSTM e
-o ablation study ainda dependem de execução em workflow com secrets
-(`GCP_SA_KEY` e `SPREADSHEET_ID`), porque a sessão local não tem
-`spreadsheet_id.local`, `credenciais_sa.json` nem variáveis equivalentes.
+**Onde está**: Figura 4, Tabela Suplementar S2 e S1 viva foram geradas e
+citadas no artigo. A curva real de aprendizado do LSTM e o ablation study ainda
+dependem de execução em workflow com secrets (`GCP_SA_KEY` e
+`SPREADSHEET_ID`), porque a sessão local não tem `spreadsheet_id.local`,
+`credenciais_sa.json` nem variáveis equivalentes.
 
 **O que foi feito nesta rodada**:
-1. **Tentativa real de leitura da aba viva de métricas por categoria**:
-   `python src/exportar_tabela_por_categoria.py` foi executado sem `--so-json`,
-   mas falhou ao abrir a planilha por ausência local de `SPREADSHEET_ID`. O
-   script caiu corretamente para `docs/dados/metricas_por_categoria.json`, cuja
-   fonte contém apenas concordância vs. histórico (`qtd_classificados`,
-   `taxa_concordancia`, `confianca_media`, faixas de confiança). Portanto, até o
-   workflow rodar com credencial, a Subseção 4.1 **não pode afirmar**
-   precision/recall/F1 por categoria.
+1. **S1 viva confirmada e publicada**: a execução local de
+   `python src/exportar_tabela_por_categoria.py` bloqueou por ausência local de
+   `SPREADSHEET_ID`, mas o workflow manual foi disparado com secrets do GitHub
+   (`run 30137147380`) e leu a aba `TABELA_S1_METRICAS` (`gid=1862157493`).
+   Cabeçalhos reais impressos no log: `Categoria`, `Support`, `Precision`,
+   `Recall`, `F1-Score`. O CSV real foi publicado em
+   `04_artigo/figuras/tabela_S1_metricas_por_categoria.csv` pelo commit
+   `ca081648`, e a Subseção 4.1 foi atualizada para usar F1 por categoria.
 2. **Figura 4 gerada de fato**: novo script
    `src/gerar_figura4_confusoes.py` lê `docs/dados/estatistica.json`, campo
    `top_confusoes` (gerado em 24/07/2026 20:52), agrega os pares direcionais
@@ -78,13 +78,13 @@ o ablation study ainda dependem de execução em workflow com secrets
    tarefas `tabela_s1`, `history` e `ablation`.
 
 Commits desta continuação: `52eb3612` (Figura 4/S2), `667189d4` (CLI da curva
-LSTM) e `9ff80ce2` (ablation + workflow manual).
+LSTM), `9ff80ce2` (ablation + workflow manual), `7ffe9af8` (correção de push
+do workflow) e `ca081648` (S1 real publicada pelo workflow).
 
 **Próximo passo**: disparar manualmente os workflows com credencial, nesta
-ordem: `tabela_s1`, depois `history`, depois `ablation`. Só depois atualizar a
-Subseção 4.1 com cabeçalhos reais/precision-recall-F1 se a aba viva contiver
-essas métricas, documentar a curva do LSTM, documentar o resultado do ablation,
-gerar novo snapshot imutável e regenerar o PDF.
+ordem: `history`, depois `ablation`. Só depois documentar a curva do LSTM,
+documentar o resultado do ablation, gerar novo snapshot imutável e regenerar o
+PDF.
 
 ---
 

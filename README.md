@@ -138,12 +138,12 @@ v3.docx para dentro do repo em 04_artigo/ e converta para Markdown"].
       (via `gspread`/`src/planilha.py`, colunas por cabeçalho normalizado,
       não por posição), e só cai para o JSON público quando não há
       credencial — registrando a fonte usada em cada linha exportada.
-      **Execução local tentada em 24/07/2026, mas bloqueada por falta de
-      `SPREADSHEET_ID`/credencial local**; o CSV publicado segue refletindo
-      o modo *fallback* (concordância vs. histórico, sem precision/recall/F1
-      — esse schema não existe no JSON público, só possivelmente na aba viva,
-      ainda não confirmada). Foi criado workflow manual com secrets do GitHub
-      para a conferência real da aba viva.
+      **Conferido contra a aba viva em 24/07/2026 via GitHub Actions**
+      (`run 30137147380`, commit `ca081648`): aba
+      `TABELA_S1_METRICAS`, cabeçalhos reais `Categoria`, `Support`,
+      `Precision`, `Recall`, `F1-Score`. Portanto, a S1 publicada agora
+      contém precision/recall/F1 real por categoria, não apenas fallback de
+      concordância vs. histórico.
 - [x] **Duas direções de trabalho futuro acrescentadas** na Conclusão:
       validação externa em outras IFES e integração com um modelo
       MCDM/TOPSIS de priorização de manutenção (ponte com o capítulo de
@@ -170,10 +170,6 @@ v3.docx para dentro do repo em 04_artigo/ e converta para Markdown"].
       tem credencial da planilha; usar o workflow manual criado.
 
 ### Pendente confirmado — com o arquivo exato a mexer
-- [ ] **Conferir S1 contra a aba viva da planilha** (`gid=1862157493`) —
-      disparar `.github/workflows/lstm_artigo.yml` com `tarefa=tabela_s1`.
-      Enquanto isso não rodar com sucesso, a Subseção 4.1 só pode afirmar
-      concordância vs. histórico, não precision/recall/F1 por categoria.
 - [ ] **Rodar `src/modelo_lstm.py` via workflow com credencial** para gerar
       o JSON real de `history_` e o gráfico de curva de aprendizado.
 - [ ] **Rodar `src/ablation_lstm.py` via workflow com credencial** para
