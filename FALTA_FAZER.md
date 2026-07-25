@@ -277,8 +277,6 @@ Resultados são **contra o histórico**, não contra validação humana.
 - [x] **LSTM** (7ª IA) materializado — a aba `Multimodelo` já mostra as 7.
 - [x] As 7 IAs lado a lado (`Multimodelo` + `Modelos`) e P5 (estatística) rodado sobre elas.
 
-> 📄 **Mapa completo do estado das 50 etapas do roteiro**: ver `ESTADO_DO_ROTEIRO.md`.
-
 ## P7 — RELEVÂNCIA DE TERMOS + MAPA DE CORRELAÇÃO (solicitado 2026-06-10) ✅ implementado
 Ideia do usuário: clusters de palavras-chave por categoria (ex.: água/torneira/sanitário →
 hidráulica) + "mapa de correlação" entre categorias (analogia geoprocessamento: célula

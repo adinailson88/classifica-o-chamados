@@ -322,24 +322,6 @@
       "condicao": "Cron diario (leve; aplicar=false no automatico)"
     },
     {
-      "workflow": "Migracao categoria equipamentos e acessorios",
-      "arquivo": "migracao_categoria_equipamentos_acessorios.yml",
-      "gatilho": "manual",
-      "faz": "Diagnostica e, quando seguro, normaliza a renomeacao canonica da categoria de instalacao/reparo de equipamentos e acessorios.",
-      "entrada": "Arquivos textuais, JSONs, CSVs e artefatos publicados do repositorio; opcionalmente dados atualizados pelos scripts locais antes do diagnostico.",
-      "saida": "Relatorio de migracao em docs/RELATORIO_MIGRACAO_CATEGORIA_EQUIPAMENTOS_ACESSORIOS.md e, se aplicar=true e o cenario permitir, artefatos textuais/JSONs normalizados.",
-      "abas": [
-        "Fluxo de atualizacao",
-        "Taxonomia",
-        "Classificacao"
-      ],
-      "quando": "Manual, apenas durante a transicao da categoria ja renomeada no Helpdesk/GLPI.",
-      "obs": "Nao tem cron. O criterio preferencial e ID da categoria GLPI; sem ID, registra limitacao e usa validacao textual apenas quando autorizada.",
-      "tipo": "Migracao manual",
-      "automacao": "Manual",
-      "condicao": "Uso excepcional; nao transformar em workflow periodico."
-    },
-    {
       "workflow": "Transformer fine-tuning (BERTimbau)",
       "arquivo": "transformer_ft.yml",
       "gatilho": "cron noturno 05:17 UTC (~02:17 BRT) + manual (condicionado)",
