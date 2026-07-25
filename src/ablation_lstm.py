@@ -9,8 +9,11 @@ from __future__ import annotations
 
 import argparse
 import csv
+import hashlib
 import json
+import re
 import sys
+import unicodedata
 from pathlib import Path
 
 import numpy as np
@@ -27,10 +30,21 @@ CONFIG_PADRAO = RAIZ / "config_experimento.json"
 SAIDA_JSON = RAIZ / "04_artigo" / "figuras" / "ablation_lstm_resultados.json"
 SAIDA_CSV = RAIZ / "04_artigo" / "figuras" / "tabela_S3_ablation_lstm.csv"
 SAIDA_FIG = RAIZ / "04_artigo" / "figuras" / "fig6_ablation_lstm.png"
+SAIDA_DIAG = RAIZ / "04_artigo" / "figuras" / "diagnostico_ablation_lstm_duplicatas.json"
 
 
 def _cel(linha, idx) -> str:
     return str(linha[idx] or "").strip() if idx is not None and idx < len(linha) else ""
+
+
+def normalizar_texto(texto: str) -> str:
+    sem_acento = unicodedata.normalize("NFKD", str(texto or ""))
+    sem_acento = "".join(c for c in sem_acento if not unicodedata.combining(c))
+    return re.sub(r"\s+", " ", sem_acento.casefold()).strip()
+
+
+def hash_texto_normalizado(texto: str) -> str:
+    return hashlib.sha256(normalizar_texto(texto).encode("utf-8")).hexdigest()
 
 
 def carregar_elegiveis(config: dict, credenciais=None):
@@ -69,18 +83,24 @@ def variantes(base_params: dict) -> list[dict]:
 def avaliar_variante(nome: str, params: dict, linhas: list[dict], verdade: dict[int, str],
                      k_folds: int, epochs: int, batch_size: int, validation_split: float,
                      paciencia: int, usar_class_weight: bool, verbose: int) -> dict:
-    from sklearn.model_selection import KFold
+    from sklearn.model_selection import GroupKFold
 
     idx_validados = [i for i, item in enumerate(linhas) if item["linha"] in verdade]
     if len(idx_validados) < 2:
         raise RuntimeError("Informação insuficiente para verificar.")
-    kk = max(2, min(int(k_folds), len(idx_validados)))
+    grupos_por_indice = [hash_texto_normalizado(item["texto"]) for item in linhas]
+    grupos_validados = [grupos_por_indice[i] for i in idx_validados]
+    n_grupos = len(set(grupos_validados))
+    if n_grupos < 2:
+        raise RuntimeError("Informação insuficiente para verificar.")
+    kk = max(2, min(int(k_folds), n_grupos))
     acertos = []
-    kf = KFold(n_splits=kk, shuffle=True, random_state=42)
-    todos_indices = set(range(len(linhas)))
-    for fold, (tr_rel, te_rel) in enumerate(kf.split(idx_validados), start=1):
+    kf = GroupKFold(n_splits=kk)
+    todos_indices = range(len(linhas))
+    for fold, (_tr_rel, te_rel) in enumerate(kf.split(idx_validados, groups=grupos_validados), start=1):
         teste_idx = [idx_validados[i] for i in te_rel]
-        treino_idx = sorted(todos_indices - set(teste_idx))
+        grupos_teste = {grupos_por_indice[i] for i in teste_idx}
+        treino_idx = [i for i in todos_indices if grupos_por_indice[i] not in grupos_teste]
         clf_params = {k: v for k, v in params.items() if k != "nome"}
         clf = modelo_lstm.ClassificadorLSTM(**clf_params)
         clf.fit(
@@ -106,6 +126,60 @@ def avaliar_variante(nome: str, params: dict, linhas: list[dict], verdade: dict[
         "acerto_validado": round(float(arr.mean()), 4),
         "acertos": int(arr.sum()),
         "erros": int(len(arr) - arr.sum()),
+    }
+
+
+def diagnosticar_duplicatas_folds(linhas: list[dict], verdade: dict[int, str], k_folds: int) -> dict:
+    from sklearn.model_selection import KFold
+
+    idx_validados = [i for i, item in enumerate(linhas) if item["linha"] in verdade]
+    if len(idx_validados) < 2:
+        raise RuntimeError("Informação insuficiente para verificar.")
+
+    kk = max(2, min(int(k_folds), len(idx_validados)))
+    grupos_por_indice = [hash_texto_normalizado(item["texto"]) for item in linhas]
+    grupos_validados = [grupos_por_indice[i] for i in idx_validados]
+    grupos_corpus = {}
+    for grupo in grupos_por_indice:
+        grupos_corpus[grupo] = grupos_corpus.get(grupo, 0) + 1
+    grupos_validado = {}
+    for grupo in grupos_validados:
+        grupos_validado[grupo] = grupos_validado.get(grupo, 0) + 1
+
+    folds = []
+    total_teste = 0
+    total_vazado = 0
+    kf = KFold(n_splits=kk, shuffle=True, random_state=42)
+    todos_indices = set(range(len(linhas)))
+    for fold, (_tr_rel, te_rel) in enumerate(kf.split(idx_validados), start=1):
+        teste_idx = [idx_validados[i] for i in te_rel]
+        treino_idx = sorted(todos_indices - set(teste_idx))
+        grupos_treino = {grupos_por_indice[i] for i in treino_idx}
+        vazados = [i for i in teste_idx if grupos_por_indice[i] in grupos_treino]
+        total_teste += len(teste_idx)
+        total_vazado += len(vazados)
+        folds.append({
+            "fold": fold,
+            "n_teste": len(teste_idx),
+            "teste_com_duplicata_no_treino": len(vazados),
+            "taxa_vazamento": round(len(vazados) / len(teste_idx), 6) if teste_idx else 0.0,
+        })
+
+    return {
+        "gerado_em": agora_bahia(),
+        "script_origem": "src/ablation_lstm.py",
+        "metodo_avaliado": "KFold aleatorio por linha usado anteriormente no ablation",
+        "normalizacao": "NFKD sem acentos, casefold, espacos colapsados",
+        "k_folds": kk,
+        "n_linhas_elegiveis": len(linhas),
+        "n_validado": len(idx_validados),
+        "grupos_texto_elegiveis": len(grupos_corpus),
+        "grupos_texto_validados": len(grupos_validado),
+        "grupos_duplicados_elegiveis": sum(1 for n in grupos_corpus.values() if n > 1),
+        "grupos_duplicados_validados": sum(1 for n in grupos_validado.values() if n > 1),
+        "teste_com_duplicata_no_treino": total_vazado,
+        "taxa_vazamento": round(total_vazado / total_teste, 6) if total_teste else 0.0,
+        "folds": folds,
     }
 
 
@@ -147,6 +221,7 @@ def parse_args():
     p.add_argument("--epochs", type=int, default=None)
     p.add_argument("--batch-size", type=int, default=None)
     p.add_argument("--validation-split", type=float, default=0.1)
+    p.add_argument("--diagnostico-only", action="store_true")
     p.add_argument("--verbose", type=int, default=2)
     return p.parse_args()
 
@@ -176,6 +251,13 @@ def main() -> int:
         print("Informação insuficiente para verificar.")
         return 1
 
+    if args.diagnostico_only:
+        diagnostico = diagnosticar_duplicatas_folds(linhas, verdade, args.k_folds)
+        SAIDA_DIAG.parent.mkdir(parents=True, exist_ok=True)
+        SAIDA_DIAG.write_text(json.dumps(diagnostico, ensure_ascii=False, indent=2), encoding="utf-8")
+        print(f"diagnostico_json={SAIDA_DIAG}")
+        return 0
+
     resultados = []
     for var in variantes(params):
         resultados.append(
@@ -187,7 +269,7 @@ def main() -> int:
     payload = {
         "gerado_em": agora_bahia(),
         "script_origem": "src/ablation_lstm.py",
-        "natureza": "acerto contra verdade validada humana; KFold sobre linhas validadas",
+        "natureza": "acerto contra verdade validada humana; GroupKFold por hash de texto normalizado",
         "k_folds": args.k_folds,
         "epochs": epochs,
         "batch_size": batch_size,
