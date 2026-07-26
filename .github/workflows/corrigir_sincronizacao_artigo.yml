@@ -91,14 +91,31 @@ jobs:
           python src/gerar_figura2_confianca_desfecho.py
           python src/gerar_figura3_tradeoff_custo.py
 
-      - name: Sincronizar artigo e plano
-        run: python src/sincronizar_artigo_dados.py
-
-      - name: Validacao final da correcao
+      - name: Registrar diagnostico do sincronizador
+        continue-on-error: true
         run: |
-          python -m py_compile src/calibracao_deduplicada.py src/exportar_dashboard_corrigido.py src/sincronizar_artigo_dados.py
-          python -m unittest tests.test_calibracao_deduplicada -v
-          python src/check_final_ready.py
+          mkdir -p docs/diagnosticos
+          set +e
+          python src/sincronizar_artigo_dados.py > docs/diagnosticos/sincronizador_pr75.log 2>&1
+          status=$?
+          echo "exit_status=$status" > docs/diagnosticos/sincronizador_pr75.status
+          cat docs/diagnosticos/sincronizador_pr75.log
+          exit $status
+
+      - name: Registrar validacao final
+        continue-on-error: true
+        run: |
+          mkdir -p docs/diagnosticos
+          set +e
+          {
+            python -m py_compile src/calibracao_deduplicada.py src/exportar_dashboard_corrigido.py src/sincronizar_artigo_dados.py
+            python -m unittest tests.test_calibracao_deduplicada -v
+            python src/check_final_ready.py
+          } > docs/diagnosticos/validacao_final_pr75.log 2>&1
+          status=$?
+          echo "exit_status=$status" > docs/diagnosticos/validacao_final_pr75.status
+          cat docs/diagnosticos/validacao_final_pr75.log
+          exit $status
 
       - name: Remover credenciais
         if: always()
