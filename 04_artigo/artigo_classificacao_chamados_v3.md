@@ -486,14 +486,21 @@ em três ou mais condições (COCHRAN, 1950), e por Friedman, teste baseado
 em postos que dispensa o pressuposto de normalidade da ANOVA
 (FRIEDMAN, 1937); comparações pareadas são avaliadas por McNemar
 (MCNEMAR, 1947); e incerteza de acurácia é estimada por *bootstrap*
-(EFRON, 1979). Quando múltiplas comparações são realizadas, aplica-se o
-teste de Nemenyi sobre os postos médios (NEMENYI, 1963), seguindo o
-protocolo consolidado por Demšar (2006) para comparação estatística de
-classificadores em múltiplos conjuntos de dados; comparações pareadas
-adicionais entre os sete modelos são corrigidas pelo método sequencial
-de Holm-Bonferroni, que controla a taxa de erro familiar sem o
-conservadorismo excessivo da correção de Bonferroni simples
-(HOLM, 1979).
+(EFRON, 1979), abordagem cuja utilidade para intervalos de confiança de
+métricas de modelos preditivos continua sendo estudada e refinada
+recentemente (NOMA *et al.*, 2021). Quando múltiplas comparações são
+realizadas, aplica-se o teste de Nemenyi sobre os postos médios
+(NEMENYI, 1963), seguindo o protocolo consolidado por Demšar (2006) para
+comparação estatística de classificadores em múltiplos conjuntos de
+dados — protocolo cujas limitações já foram apontadas por trabalho mais
+recente: Benavoli, Corani e Mangili (2016) mostram que o teste de
+postos médios (base do Nemenyi) pode ser inconsistente e recomendam
+testes pareados diretos como complemento, razão pela qual este trabalho
+também reporta o McNemar par a par (Subseção 4.10) em vez de depender
+apenas do Nemenyi; comparações pareadas adicionais entre os sete modelos
+são corrigidas pelo método sequencial de Holm-Bonferroni, que controla a
+taxa de erro familiar sem o conservadorismo excessivo da correção de
+Bonferroni simples (HOLM, 1979).
 
 **Escolha entre validação cruzada e *holdout* fixo**: optou-se
 deliberadamente por *k-fold out-of-fold* em vez de um conjunto de teste
@@ -1197,11 +1204,14 @@ e não paramétricos.
 *3) Normalidade*: o teste de Shapiro-Wilk (SHAPIRO; WILK, 1965), apontado
 por estudos comparativos de poder estatístico como um dos mais sensíveis
 entre os testes de normalidade usuais para amostras pequenas e moderadas
-(RAZALI; WAH, 2011) — situação mais próxima dos 931 turnos por modelo
-aqui analisados do que dos 13.965 chamados individuais —, aplicado sobre
-a concordância por turno rejeita a normalidade a 5% para os sete modelos
-(Tabela 8), confirmando com números — e não apenas por afirmação — a
-justificativa não paramétrica já usada na Subseção 3.5.
+(RAZALI; WAH, 2011), achado reproduzido por comparações mais recentes com
+outras alternativas, como Anderson-Darling, Qui-quadrado e
+Kolmogorov-Smirnov (OGUNLEYE; OYEJOLA; OBISESAN, 2018) — situação mais
+próxima dos 931 turnos por modelo aqui analisados do que dos 13.965
+chamados individuais —, aplicado sobre a concordância por turno rejeita a
+normalidade a 5% para os sete modelos (Tabela 8), confirmando com
+números — e não apenas por afirmação — a justificativa não paramétrica já
+usada na Subseção 3.5.
 
 **Tabela 8** Teste de normalidade de Shapiro-Wilk sobre a concordância por
 turno (n = 931 turnos por modelo)
@@ -1234,7 +1244,9 @@ limiar de preocupação (VIF > 3; ZUUR; IENO; ELPHICK, 2010) — limiar mais
 conservador que a regra de bolso mais difundida (VIF > 10), cuja
 adequação geral é questionada por O'Brien (2007), que recomenda avaliar o
 impacto real da colinearidade caso a caso em vez de aplicar um corte
-único —, contra valores baixos para LinearSVC (3,64), Naive Bayes (3,74)
+único, ressalva reforçada por revisões recentes sobre mitigação de
+multicolinearidade em modelos de aprendizado de máquina
+(CHAN *et al.*, 2022) —, contra valores baixos para LinearSVC (3,64), Naive Bayes (3,74)
 e LSTM (3,04). Essa colinearidade alta entre quatro dos sete modelos é
 consistente com — e ajuda a explicar — o achado da Subseção 4.2 de que
 nenhum ensemble supera o LinearSVC isolado: modelos com confiança
@@ -1251,7 +1263,9 @@ estatisticamente significativa (*p* < 0,001) em todos os sete modelos —
 da mais fraca (LinearSVC, ρ = 0,479) à mais forte (LSTM, ρ = 0,637) —,
 confirmando que a confiança carrega sinal genuíno sobre o acerto em todos
 os modelos, pré-requisito para a calibração da Subseção 4.4
-(GUO *et al.*, 2017).
+(GUO *et al.*, 2017), cuja relação entre confiança e acurácia real em
+redes neurais modernas segue sendo revisitada e refinada na literatura
+recente (MINDERER *et al.*, 2021).
 
 **Tabela 9** Correlação entre confiança bruta e acerto contra o histórico
 
@@ -1637,12 +1651,21 @@ ASSOCIAÇÃO BRASILEIRA DE NORMAS TÉCNICAS. ABNT NBR 5674: Manutenção de
 edificações: Requisitos para o sistema de gestão de manutenção. Rio de
 Janeiro: ABNT, 2012.
 
+BENAVOLI, A.; CORANI, G.; MANGILI, F. Should we really use post-hoc
+tests based on mean-ranks? Journal of Machine Learning Research, v. 17,
+n. 5, p. 1--10, 2016.
+
 BOUABDALLAOUI, Y.; LAFHAJ, Z.; YIM, P.; DUCOULOMBIER, L.; BENNADJI, B.
 Natural Language Processing Model for Managing Maintenance Requests in
 Buildings. Buildings, v. 10, n. 9, art. 160, 2020.
 
 BOX, G. E. P.; JENKINS, G. M. Time series analysis: forecasting and
 control. San Francisco: Holden-Day, 1970.
+
+CHAN, J. Y.-L.; LEOW, S. M. H.; BEA, K. T.; CHENG, W. K.; PHOONG, S. W.;
+HONG, Z.-W.; CHEN, Y.-L. Mitigating the multicollinearity problem and
+its machine learning approach: a review. Mathematics, v. 10, n. 8, art.
+1283, 2022.
 
 COCHRAN, W. G. The comparison of percentages in matched samples.
 Biometrika, v. 37, n. 3-4, p. 256--266, 1950.
@@ -1731,6 +1754,12 @@ MCNEMAR, Q. Note on the sampling error of the difference between
 correlated proportions or percentages. Psychometrika, v. 12, n. 2, p.
 153--157, 1947.
 
+MINDERER, M.; DJOLONGA, J.; ROMIJNDERS, R.; HUBIS, F.; ZHAI, X.;
+HOULSBY, N.; TRAN, D.; LUCIC, M. Revisiting the calibration of modern
+neural networks. In: CONFERENCE ON NEURAL INFORMATION PROCESSING
+SYSTEMS, 35., 2021. Advances in Neural Information Processing Systems,
+v. 34, 2021.
+
 MOHAMMED, A. S.; AMOAH, C. Integration of technology in decision-making
 in university facilities management: a literature review. Facilities, v.
 43, n. 13/14, p. 1018--1052, 2025.
@@ -1743,8 +1772,17 @@ baseada em registros de ordens de serviço. Paranoá, Brasília, v. 16, n.
 NEMENYI, P. B. Distribution-free multiple comparisons. 1963. Tese
 (Doutorado em Estatística) — Princeton University, Princeton, 1963.
 
+NOMA, H.; SHINOZAKI, T.; IBA, K.; TERAMUKAI, S.; FURUKAWA, T. A.
+Confidence intervals of prediction accuracy measures for multivariable
+prediction models based on the bootstrap-based optimism correction
+methods. Statistics in Medicine, v. 40, n. 26, p. 5691--5701, 2021.
+
 O'BRIEN, R. M. A caution regarding rules of thumb for variance inflation
 factors. Quality & Quantity, v. 41, n. 5, p. 673--690, 2007.
+
+OGUNLEYE, L. I.; OYEJOLA, B. A.; OBISESAN, K. O. Comparison of some
+common tests for normality. International Journal of Probability and
+Statistics, v. 7, n. 5, p. 130--137, 2018.
 
 PAMPANA, A. K. et al. Data-driven analysis for facility management in
 higher education institution. Buildings, v. 12, art. 2094, 2022.
