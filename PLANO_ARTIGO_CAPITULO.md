@@ -74,10 +74,8 @@ Seis tarefas do plano (ordem de execução, não a ordem em que foram dadas):
    "na interpretação do autor" e hedging repetitivo, checar duplicidade de
    citação (ex.: Deng et al.), manter ABNT (não mexe no formato de citação).
 
-**Onde está**: as 6 etapas do plano estão concluídas (branch
-`docs/reformulacao-editorial-governanca-preditiva`, PR #73, ainda sem
-merge — mudança de conteúdo grande, revisão em fatias pelo Adinailson
-antes de mesclar).
+**Onde está**: as seis etapas foram incorporadas à `main` pelas PRs #73 e
+#74. A sincronização numérica posterior está sendo concluída na PR #75.
 
 **O que foi feito (histórico completo)**:
 1. Apêndice A (dicionário de colunas A:P) removido; substituído por uma
@@ -147,17 +145,8 @@ antes de mesclar).
 
 Suíte completa: 94/94 em todas as etapas.
 
-**Próximo passo**: (1) o Adinailson revisar/mesclar a PR #73; (2)
-revalidar contra `docs/dados/*.json` os números citados nas seções
-reescritas antes do merge (regra de revalidação de dado vivo — nenhum
-número foi alterado nesta reformulação, só a prosa ao redor, mas vale
-conferir); (3) depois do merge, gerar novo PDF (`artigo_pdf.yml`) e
-revisar visualmente (a reformulação alterou bastante a estrutura de
-parágrafos — checar quebra de página e formatação); (4) só então
-considerar o plano de reformulação editorial desta rodada fechado e
-voltar à pendência represada da rodada 22: regerar Figuras 2-3 e
-Tabelas 3/7 quando o cron de rematerialização da Etapa 1 (G:K, iniciado
-em 26/07/2026 16:13) terminar de reprocessar as 13.965 linhas.
+**Próximo passo**: revisar o PDF regenerado após o merge da PR #75 e, se a
+formatação estiver íntegra, encerrar formalmente a rodada editorial.
 
 ---
 

@@ -413,7 +413,7 @@ ocorre aqui, em que termos técnicos do domínio (*bomba*, *split*,
 *disjuntor*, *vazamento*, *infiltração*, *ar-condicionado*; Subseção 3.3)
 funcionam como âncoras semânticas de categoria. Essa combinação é
 consistente com o LinearSVC liderando tanto a concordância com o
-histórico (0,8029; Tabela 1) quanto o acerto validado (0,9493; Tabela 2).
+histórico (0,8031; Tabela 1) quanto o acerto validado (0,9502; Tabela 2).
 
 O **Naive Bayes** assume independência condicional entre atributos dado
 a classe — suposição estrutural que tende a ser violada em texto de
@@ -421,7 +421,7 @@ manutenção predial, onde termos técnicos co-ocorrem de forma sistemática
 dentro de uma mesma categoria. Essa divergência entre a suposição do
 modelo e a estrutura real dos dados é uma explicação plausível para o
 Naive Bayes ocupar a última posição tanto na concordância com o
-histórico (0,6996; Tabela 1) quanto no acerto validado (0,8609; Tabela
+histórico (0,6997; Tabela 1) quanto no acerto validado (0,8627; Tabela
 2), sem que isso indique um problema de implementação — é o
 comportamento esperado do modelo mais simples da comparação.
 
@@ -633,7 +633,7 @@ probabilística.
 
 **4.1 Concordância com o histórico (base completa)**
 
-A comparação contra a categoria histórica, sobre a base completa (n = 13.965), mantém o LinearSVC na liderança, com acurácia de 0,8031 (IC95%: 0,7963--0,8097), seguido por Extra Trees (0,7894), Random Forest (0,7816), SGD (0,7767), Regressão Logística (0,7682), Naive Bayes (0,6997) e LSTM (0,6718), O teste de Cochran Q confirma diferença global entre os sete modelos (Q = 2984,066; p < 0,001). O BERTimbau permanece excluído por não possuir treino concluído.
+A comparação contra a categoria histórica, sobre a base completa (n = 13.965), mantém o LinearSVC na liderança, com acurácia de 0,8031 (IC95%: 0,7963--0,8097), seguido por Extra Trees (0,7894), Random Forest (0,7816), SGD (0,7767), Regressão Logística (0,7682), Naive Bayes (0,6997) e LSTM (0,6718). O teste de Cochran Q confirma diferença global entre os sete modelos (Q = 2984,066; p < 0,001). O BERTimbau permanece excluído por não possuir treino concluído.
 
 **Tabela 1** Concordância com a categoria histórica, base completa (n = 13.965)
 
@@ -673,11 +673,7 @@ A avaliação contra a verdade validada pela memória de decisão M/N/P
 (n = 9.044) mantém a liderança do LinearSVC,
 com acerto validado de 0,9502 (IC95%:
 0,9458--0,9546). A ordenação completa é
-LinearSVC (95,02%), SGD (94,11%), Regressão Logística (93,71%), Extra Trees (92,86%), Random Forest (92,41%), LSTM (88,11%) e Naive Bayes (86,27%). A diferença entre o primeiro e o segundo
-colocado é de 0,91%, com McNemar p =
-5.696e-08. Os ensembles avaliados foram maioria ponderada (0,9467), confianca calibrada max (0,9458), maioria simples (0,9445); nenhum
-supera o LinearSVC isolado. A recomendação permanece utilizar o LinearSVC com
-calibração, sem combinar modelos nesta consolidação.
+LinearSVC (95,02%), SGD (94,11%), Regressão Logística (93,71%), Extra Trees (92,86%), Random Forest (92,41%), LSTM (88,11%) e Naive Bayes (86,27%). A diferença entre o primeiro e o segundo colocado é de 0,91 ponto percentual, com McNemar *p* ≈ 5,70 × 10⁻⁸. Os *ensembles* avaliados foram maioria ponderada (0,9467), confiança calibrada máxima (0,9458) e maioria simples (0,9445); nenhum supera o LinearSVC isolado. A recomendação permanece utilizar o LinearSVC com calibração, sem combinar modelos nesta consolidação.
 
 **Viés estrutural da seleção da amostra validada**: a verdade validada só
 existe quando ao menos uma fonte conferida é confirmada como correta. Dos
@@ -709,7 +705,7 @@ A rematerialização completa também resolveu uma discrepância antes
 registrada entre o *ablation study* do LSTM (Subseção 4.9,
 86,35%--87,68% conforme o particionamento) e o valor oficial então
 vigente: o valor antigo vinha de uma materialização desatualizada; o
-valor oficial atual do LSTM (0,8790) está muito mais próximo do que o
+valor oficial atual do LSTM (0,8811) está muito mais próximo do que o
 *ablation* já indicava. Isso confirma que o *ablation* nunca teve um
 problema metodológico de vazamento residual relevante — a discrepância
 vinha da defasagem temporal da materialização de referência, não de uma
@@ -964,12 +960,14 @@ treino. O *ablation* foi refeito com *GroupKFold* por hash de texto
 normalizado, excluindo do treino grupos textuais presentes no teste —
 isso reduziu a configuração atual (64 unidades, *dropout* de 0,5) de
 87,68% para 86,35% (7.854/9.096), uma correção pequena (1,33 ponto
-percentual). Segundo, e principal: o valor oficial de referência usado na comparação
+percentual). Esses denominadores pertencem à coorte congelada do estudo
+de ablação e não devem ser confundidos com a contagem corrente de decisões
+travadas. Segundo, e principal: o valor oficial de referência usado na comparação
 (0,7471, Subseção 4.2) vinha de uma materialização desatualizada em
 relação à base viva. A rematerialização completa dos sete modelos (ver
-Subseção 4.2) produziu um novo valor oficial do LSTM de 0,8790 — muito
+Subseção 4.2) produziu um novo valor oficial do LSTM de 0,8811 — muito
 mais próximo dos 0,8635 deste *ablation* corrigido (diferença residual
-de 1,55 pontos percentuais, plausivelmente atribuível a diferenças
+de 1,76 pontos percentuais, plausivelmente atribuível a diferenças
 remanescentes de protocolo entre o número de *folds* e o esquema de
 treino usados em cada avaliação).
 
@@ -1035,25 +1033,14 @@ ranking dos sete modelos, mas mostra que o valor pontual de acerto validado é
 um limite superior e não deve ser comparado isoladamente a benchmarks externos.
 
 Ainda assim, a distinção entre concordância e acerto validado continua
-metodologicamente necessária, e a matriz IA×histórico (Subseção 4.3)
-mostra por quê: quando os dois discordam da decisão final, o histórico
-está correto com frequência muito maior (577 casos) do que a IA corrige
-um erro genuíno do histórico (0 casos nesta consolidação — com a ressalva
-estrutural já registrada na Subseção 4.3 sobre essa célula específica).
-Esse achado não invalida a premissa metodológica de que a categoria
-histórica não deve ser tratada como verdade absoluta — ainda existe uma
-taxa real de erro confirmado no registro original (3,51% dos casos
-conferidos nesta consolidação, bem acima do observado em consolidações
-anteriores com amostra menor, o que por si só recomenda cautela contra
-tratar mesmo esse número como estabilizado) —, mas recomenda cautela
-contra a leitura
-oposta e igualmente equivocada, de que baixa concordância com o
-histórico implica automaticamente acerto da IA. A validação humana,
-portanto, cumpre função insubstituível: sem ela, seria impossível
-distinguir as duas situações apenas observando a taxa de concordância —
-e, como o achado acima demonstra, seria impossível também saber se uma
-amostra de validação já é grande o bastante para ser tratada como
-representativa.
+metodologicamente necessária. Na matriz IA × histórico da Subseção 4.3,
+o histórico acerta e a IA erra em 559 casos, enquanto a IA corrige o
+histórico em 0 casos. Há ainda 9 casos em que ambos divergem
+da decisão, correspondentes a 0,10% de erro confirmado no rótulo histórico
+entre as decisões válidas. Essa proporção descreve a amostra conferida e
+não deve ser generalizada para a base completa. A validação humana permanece
+indispensável para distinguir erro do modelo, erro histórico e conflito
+taxonômico.
 
 Na amostra conferida, o LinearSVC lidera tanto a concordância histórica
 quanto o acerto validado (Subseções 4.1 e 4.2). Isso descreve o resultado
@@ -1150,7 +1137,7 @@ dado estruturado e auditável para a governança preditiva, distinguindo
 concordância com o histórico de acerto contra decisões humanas.
 
 Na amostra parcial e não probabilística de 9.044 decisões
-travadas, LinearSVC (95,02%), SGD (94,11%), Regressão Logística (93,71%), Extra Trees (92,86%), Random Forest (92,41%), LSTM (88,11%) e Naive Bayes (86,27%). Nenhum dos três ensembles supera
+travadas, o LinearSVC obteve 95,02%, seguido por SGD (94,11%), Regressão Logística (93,71%), Extra Trees (92,86%), Random Forest (92,41%), LSTM (88,11%) e Naive Bayes (86,27%). Nenhum dos três ensembles supera
 o LinearSVC isolado; a recomendação é utilizar o LinearSVC com calibração. Os
 52 conflitos permanecem fora da verdade validada até revisão
 humana específica.
