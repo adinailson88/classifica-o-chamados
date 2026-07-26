@@ -492,7 +492,6 @@ def salvar_figura(resultados: list[dict]) -> None:
     vals = [100 * r["acerto_validado"] for r in ordenados]
     ax.bar(labels, vals, color="#6b8f2f")
     ax.set_ylabel("Acerto validado (%)")
-    ax.set_title("Ablation LSTM: unidades e dropout")
     ax.grid(axis="y", linestyle="--", linewidth=0.6, alpha=0.35)
     ax.spines[["top", "right"]].set_visible(False)
     for i, v in enumerate(vals):

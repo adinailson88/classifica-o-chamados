@@ -48,7 +48,6 @@ def gerar(entrada: Path, saida: Path) -> None:
     ax.set_xticklabels(faixas)
     ax.set_ylabel("%")
     ax.set_ylim(0, 108)
-    ax.set_title(f"Figura 2 - Confianca bruta x concordancia x acerto validado, por faixa\n(executor oficial, Etapa 1 - {gerado_em.split(' ')[0]})")
     ax.grid(axis="y", linestyle="--", linewidth=0.6, alpha=0.35)
     ax.spines[["top", "right"]].set_visible(False)
     ax.legend(loc="lower right", frameon=False)

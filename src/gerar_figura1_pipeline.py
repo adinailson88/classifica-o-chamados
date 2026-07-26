@@ -73,7 +73,6 @@ def gerar() -> None:
 
     ax.set_xlim(-0.15, (n - 1) * passo + largura + 0.15)
     ax.set_ylim(y_baixo - 0.55, 1.55)
-    ax.set_title("Figura 1 - Pipeline de governanca preditiva: fluxo metodologico completo", fontsize=15, pad=10)
     ax.axis("off")
 
     fig.tight_layout()
