@@ -8,6 +8,7 @@ on:
       - "src/calibracao_deduplicada.py"
       - "src/exportar_dashboard_corrigido.py"
       - "src/sincronizar_artigo_dados.py"
+      - "src/corrigir_sintaxe_sincronizador.py"
       - "tests/test_calibracao_deduplicada.py"
       - ".github/workflows/dashboard.yml"
       - ".github/workflows/corrigir_sincronizacao_artigo.yml"
@@ -44,6 +45,9 @@ jobs:
 
       - name: Instalar dependencias
         run: python -m pip install --retries 5 --timeout 120 -r requirements-leves.txt
+
+      - name: Aplicar correcao idempotente de sintaxe
+        run: python src/corrigir_sintaxe_sincronizador.py
 
       - name: Validar codigo antes de acessar dados vivos
         run: |
@@ -95,7 +99,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add docs/dados 04_artigo/artigo_classificacao_chamados_v3.md 04_artigo/figuras PLANO_ARTIGO_CAPITULO.md
+          git add src/sincronizar_artigo_dados.py docs/dados 04_artigo/artigo_classificacao_chamados_v3.md 04_artigo/figuras PLANO_ARTIGO_CAPITULO.md
           if git diff --cached --quiet; then
             echo "Nenhum artefato foi alterado."
             exit 0
