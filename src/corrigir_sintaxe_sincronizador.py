@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""Corrige duas expressões incompatíveis com f-strings do Python 3.11.
+"""Aplica correções idempotentes ao sincronizador do artigo.
 
-Arquivo transitório e idempotente: pode ser executado mais de uma vez sem
-alterar novamente o sincronizador depois da primeira correção.
+Corrige as expressões incompatíveis com f-strings do Python 3.11 e aponta a
+análise de sensibilidade para o artefato efetivamente produzido em
+``04_artigo/figuras``.
 """
 
 from pathlib import Path
@@ -32,12 +33,17 @@ def main() -> int:
     )
     texto = texto.replace('{"\\n".join(linhas_t3)}', '{tabela_t3}')
 
+    texto = texto.replace(
+        '    sensibilidade_json = ler_json("sensibilidade_vies_validacao.json")',
+        '    sensibilidade_json = json.loads((RAIZ / "04_artigo" / "figuras" / "sensibilidade_vies_validacao.json").read_text(encoding="utf-8"))',
+    )
+
     if texto == original:
         print("sincronizador já estava corrigido")
         return 0
 
     CAMINHO.write_text(texto, encoding="utf-8")
-    print(f"sintaxe corrigida: {CAMINHO}")
+    print(f"sincronizador corrigido: {CAMINHO}")
     return 0
 
 
