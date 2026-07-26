@@ -56,7 +56,12 @@ jobs:
         run: python -m unittest tests.test_calibracao_deduplicada -v
 
       - name: Executar suite completa antes dos dados vivos
-        run: python -m unittest discover -s tests
+        run: |
+          set +e
+          python -m unittest discover -s tests > /tmp/testes.log 2>&1
+          status=$?
+          tail -n 120 /tmp/testes.log
+          exit $status
 
       - name: Recriar chave da conta de servico
         env:
