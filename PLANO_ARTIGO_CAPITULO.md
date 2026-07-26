@@ -67,43 +67,90 @@ Seis tarefas do plano (ordem de execução, não a ordem em que foram dadas):
    "na interpretação do autor" e hedging repetitivo, checar duplicidade de
    citação (ex.: Deng et al.), manter ABNT (não mexe no formato de citação).
 
-**Onde está**: Etapa 1-3 concluídas nesta rodada, direto em
-`04_artigo/artigo_classificacao_chamados_v3.md` (branch `main`, sem PR —
-mudança de conteúdo, não de dado/código). Etapas 4-6 pendentes, para as
-próximas rodadas.
+**Onde está**: as 6 etapas do plano estão concluídas (branch
+`docs/reformulacao-editorial-governanca-preditiva`, PR #73, ainda sem
+merge — mudança de conteúdo grande, revisão em fatias pelo Adinailson
+antes de mesclar).
 
-**O que foi feito nesta rodada**:
+**O que foi feito (histórico completo)**:
 1. Apêndice A (dicionário de colunas A:P) removido; substituído por uma
    frase apontando para o repositório público. Apêndice B (checklist) e C
-   (matriz M/N/P) renumerados para A e B — conferido que não há referência
-   cruzada a "Apêndice B/C" em nenhum outro ponto do corpo antes de
-   renumerar.
-2. Limitações (dentro da Seção 5, Discussão) reescritas: os 6 parágrafos
-   antigos com datas de rodada (16/07, 23/07, 24/07, 25/07/2026) e nomes
-   de mecanismo interno (mojibake, ablation, viés estrutural) foram
-   condensados em 3 parágrafos — cobertura (instituição única/PT-BR),
-   validação (amostra não probabilística + regra de exclusão dos
-   "restritos", intervalo de sensibilidade sem detalhar o número exato de
-   antes) e modelo (BERTimbau sem treino concluído, penalidade estrutural
-   de neurais sem embedding pré-treinado em base de porte médio).
-3. Nova subseção **"Papel no modelo de governança preditiva"** adicionada
-   ao final da Seção 5 (Discussão), antes das Considerações Finais — liga
-   explicitamente os dados de saída (categoria, criticidade, confiança) aos
-   três eixos seguintes da tese (séries temporais ARIMA/SES, matriz
-   MCDM/ESG/ODS, geoprocessamento via Google Earth Engine) e afirma que
-   este capítulo entrega a "fundação de dados" do modelo de governança.
+   (matriz M/N/P) renumerados para A e B.
+2. Limitações (dentro da Seção 5, Discussão) condensadas de 6 parágrafos
+   com datas de rodada para 3 parágrafos — cobertura, validação, modelo.
+3. Nova subseção **"Papel no modelo de governança preditiva"** ao final
+   da Seção 5 (Discussão) — liga os dados de saída (categoria,
+   criticidade, confiança) aos três eixos seguintes da tese (séries
+   temporais ARIMA/SES, matriz MCDM/ESG/ODS, geoprocessamento via Google
+   Earth Engine); afirma que este capítulo entrega a "fundação de dados"
+   do modelo de governança.
+4. **Introdução reformulada**: abre pela tensão de governança em
+   biossistemas construídos (CAPRA, 1996; ODUM, 1971; GRIMM *et al.*,
+   2008 — três referências novas, inseridas em ordem alfabética na lista
+   ABNT) em vez de partir direto da lacuna técnica de PLN. Pergunta
+   central reformulada: não "qual classificador é melhor", mas como
+   extrair dado estruturado auditável de texto ruidoso para alimentar
+   governança preditiva. Classificação automática agora é explicitamente
+   apresentada como primeira camada de um protocolo maior, não produto
+   final. Removida a única data solta da seção (23/07/2026). Revisão de
+   literatura já citada (Li *et al.* 2024, Sundaram e Zeid 2025,
+   Bouabdallaoui *et al.* 2020, Zhang *et al.* 2025, Kejriwal *et al.*
+   2024) mantida intacta.
 
-**Próximo passo**: retomar pelas Etapas 4-6 do plano acima, em rodadas
-separadas (cada uma mexe em muito texto para ir numa tacada só):
-(a) reformular a Introdução (remover datas/nomes de arquivo, abrir pela
-tensão de governança em biossistemas construídos); (b) condensar Método
-3.4 por família de modelo e Resultados aos 3 achados + 1 parágrafo
-estatístico consolidado (mover detalhe de Shapiro/Friedman/Nemenyi/McNemar
-para material suplementar); (c) passe de estilo final (parágrafos longos,
-hedging, duplicidade de citação) sobre o texto já reformulado. Antes de
-fechar, revalidar contra `docs/dados/*.json` qualquer número citado nas
-seções reescritas (regra de revalidação de dado vivo já em vigor). Depois
-de tudo, gerar novo PDF (`artigo_pdf.yml`) e revisar visualmente.
+5. **Método condensado (3.2-3.5)**: 3.2 perdeu data solta e jargão de
+   auditoria interna; 3.4 foi reorganizado por família conceitual de
+   modelo (linear, *ensemble* de árvores, neural), removendo excesso de
+   hiperparâmetro (dimensões de *embedding*, *dropout*, vocabulário) que
+   não muda a conclusão; 3.5 condensou a comparação empírica *k*-fold vs.
+   *holdout* (~40 linhas) num parágrafo, remetendo o número fino para a
+   Tabela Suplementar S4.
+6. **Resultados condensados (4.1-4.10)**: parágrafo de "3 achados
+   diretos" acrescentado na abertura da Seção 4 (lineares superam
+   neurais/*ensembles* com vantagem de custo; ruído real de ~3,5% no
+   histórico; meta de calibração próxima mas não formalmente
+   probabilística). Removidos os dois blocos "Nota de rastreabilidade
+   (data)" e todas as datas internas remanescentes (16/07, 23/07,
+   24/07, 25/07/2026, IDs de *workflow*, nomes de arquivo `.csv`)
+   espalhadas por 4.1-4.10, Discussão e Conclusão — preservando o
+   achado científico por trás de cada uma. A Subseção 4.10 (Robustez
+   estatística) foi consolidada de ~195 linhas (8 pressupostos um a um,
+   Tabelas 8-9, testes globais) para um único parágrafo com os
+   resultados principais (Shapiro rejeita normalidade; Friedman
+   confirma diferença global; McNemar confirma LinearSVC > LSTM e >
+   Naive Bayes); o Apêndice A (checklist) foi atualizado para não
+   referenciar mais as Tabelas 8-9, remetendo ao Material Suplementar.
+7. **Passe de estilo final (Etapa 6)**: quebrados os 8 parágrafos
+   remanescentes com mais de 200 palavras (3.5, 4.1, 4.3, 4.4, 4.6, 4.9,
+   Discussão x2), sem cortar conteúdo científico — Resumo/Abstract
+   mantidos como parágrafo único (convenção ABNT/MDPI) e o parágrafo
+   consolidado de 4.10 mantido único, por ser a própria consolidação
+   pedida na Etapa 5. Removidas duas referências residuais a caminho de
+   arquivo interno (`sensibilidade_vies_validacao.json`,
+   `tabela_S2...csv`) e um ID de *workflow* numérico na legenda da
+   Figura 5. **Corrigida uma inconsistência factual** encontrada na
+   Subseção 4.6: uma frase ainda atribuía a não investigação de uma
+   sobreposição de categorias à "corrupção de acentuação na Subseção
+   4.8" — mas essa suspeita de *mojibake* já havia sido investigada e
+   descartada como falso alarme nas Limitações; a frase citava como
+   causa algo que o próprio texto já refutava em outro ponto. Citações
+   repetidas (COCHRAN 1977, ZHANG *et al.* 2025) conferidas: usos
+   legítimos em contextos diferentes, não redundância — mantidas sem
+   alteração. Não havia hedging tipo "na interpretação do autor" no
+   texto. Formato ABNT (autor-data) inalterado.
+
+Suíte completa: 94/94 em todas as etapas.
+
+**Próximo passo**: (1) o Adinailson revisar/mesclar a PR #73; (2)
+revalidar contra `docs/dados/*.json` os números citados nas seções
+reescritas antes do merge (regra de revalidação de dado vivo — nenhum
+número foi alterado nesta reformulação, só a prosa ao redor, mas vale
+conferir); (3) depois do merge, gerar novo PDF (`artigo_pdf.yml`) e
+revisar visualmente (a reformulação alterou bastante a estrutura de
+parágrafos — checar quebra de página e formatação); (4) só então
+considerar o plano de reformulação editorial desta rodada fechado e
+voltar à pendência represada da rodada 22: regerar Figuras 2-3 e
+Tabelas 3/7 quando o cron de rematerialização da Etapa 1 (G:K, iniciado
+em 26/07/2026 16:13) terminar de reprocessar as 13.965 linhas.
 
 ---
 

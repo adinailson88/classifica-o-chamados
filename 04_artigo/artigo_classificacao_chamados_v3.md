@@ -41,9 +41,9 @@ desempenho da base completa (COCHRAN, 1977). Resultados indicam superioridade do
 tanto na concordância com o histórico (acurácia de 80,29%,
 IC95%: 79,62%--80,95%) quanto no acerto validado (94,93%, IC95%:
 94,47%--95,38%), enquanto o LSTM apresentou concordância de 68,13% e
-acerto validado de 87,90% (números atualizados em 25/07/2026, após
-limpeza completa e rematerialização dos sete modelos comparáveis a
-partir do zero — ver Subseções 4.1, 4.2 e 4.9). A normalidade da concordância por turno foi
+acerto validado de 87,90%, após limpeza completa e rematerialização dos
+sete modelos comparáveis a partir do zero (ver Subseções 4.1, 4.2 e
+4.9). A normalidade da concordância por turno foi
 rejeitada para todos os modelos, justificando testes não paramétricos
 (Friedman, Cochran Q, McNemar, bootstrap). O custo computacional é
 incorporado como dimensão de avaliação, evidenciando que modelos
@@ -91,36 +91,43 @@ governance.*
 
 **1. INTRODUÇÃO**
 
-A manutenção predial em instituições federais de ensino superior (IFES)
-envolve decisões recorrentes de triagem, categorização, priorização e
-alocação de equipes, agravadas pela dispersão territorial, pela
-diversidade de sistemas prediais e pela restrição orçamentária que
-historicamente limita o custeio dessas atividades a patamares inferiores
-a 2% do orçamento institucional (MARTINS; ESPEJO, 2024; PAMPANA *et
-al.*, 2022). Sistemas informatizados de registro de chamados, como
-plataformas GLPI e ambientes de *helpdesk*, tornaram-se, nesse contexto,
-não apenas instrumentos de solicitação, mas bases de conhecimento
-institucional sobre falhas, recorrências e padrões de uso, cujo
-potencial analítico permanece amplamente subutilizado (MORAIS; PAULA;
-REIS, 2023; MOHAMMED; AMOAH, 2025).
+Um campus universitário pode ser descrito como um biossistema
+construído: a integração dinâmica entre infraestrutura física,
+atividade humana, sistemas tecnológicos e condicionantes ambientais,
+cuja persistência ao longo do tempo depende de mecanismos de
+retroalimentação contínua entre uso, falha e reparo (CAPRA, 1996; ODUM,
+1971). A ecologia urbana descreve esse tipo de sistema como um
+organismo em troca permanente de matéria, energia e informação com seu
+entorno, cuja governança bem-sucedida depende da capacidade
+institucional de captar sinais operacionais e convertê-los em decisão
+(GRIMM *et al.*, 2008). Em instituições federais de ensino superior
+(IFES), esse sinal assume, na prática, a forma de registros textuais de
+chamados de manutenção predial — a matéria-prima do *feedback*
+operacional do biossistema construído. Esses registros, no entanto,
+nascem aprisionados em linguagem não estruturada, fragmentária e
+sujeita a interpretação individual no momento do atendimento, o que
+impede seu uso direto por qualquer mecanismo de decisão automatizada
+(MORAIS; PAULA; REIS, 2023; MOHAMMED; AMOAH, 2025).
 
-A exploração analítica dessas bases é limitada por ao menos três fatores
-estruturais. O primeiro reside na natureza textual curta, heterogênea e
-frequentemente incompleta dos registros, uma vez que chamados de
-manutenção predial são redigidos em linguagem técnica fragmentária, com
-abreviações locais e jargões de equipe que dificultam a aplicação direta
-de modelos genéricos de processamento de linguagem natural (PLN)
-(SUNDARAM; ZEID, 2025). O segundo fator é o desbalanceamento entre
-categorias, dado que demandas recorrentes de climatização, elétrica e
-hidrossanitária tendem a concentrar grande parte da base, ao passo que
-categorias raras dispõem de poucos exemplos para treinamento
-supervisionado (LI *et al.*, 2024). O terceiro fator, possivelmente o
-mais crítico do ponto de vista metodológico, é a qualidade dos rótulos
-históricos, pois a categoria registrada no momento do chamado pode
-resultar de interpretação rápida, classificação por conveniência
-operacional ou taxonomia ainda não estabilizada, de modo que o histórico
-administrativo constitui evidência importante, porém não verdade
-absoluta (ZHANG *et al.*, 2025; KEJRIWAL *et al.*, 2024).
+A exploração analítica dessas bases enfrenta ao menos três obstáculos
+estruturais, agravados pela restrição orçamentária que historicamente
+limita o custeio da manutenção predial em IFES a patamares inferiores a
+2% do orçamento institucional (MARTINS; ESPEJO, 2024; PAMPANA *et al.*,
+2022). O primeiro é a natureza textual curta, heterogênea e
+frequentemente incompleta dos registros: chamados de manutenção
+predial são redigidos em linguagem técnica fragmentária, com
+abreviações locais e jargões de equipe que dificultam a aplicação
+direta de modelos genéricos de processamento de linguagem natural (PLN)
+(SUNDARAM; ZEID, 2025). O segundo é o desbalanceamento entre
+categorias: demandas recorrentes de climatização, elétrica e
+hidrossanitária concentram grande parte da base, enquanto categorias
+raras dispõem de poucos exemplos para treinamento supervisionado (LI
+*et al.*, 2024). O terceiro, talvez o mais crítico do ponto de vista
+metodológico, é a qualidade do próprio rótulo histórico: a categoria
+registrada no momento do chamado pode resultar de interpretação rápida,
+conveniência operacional ou taxonomia ainda não estabilizada, de modo
+que o histórico administrativo constitui evidência importante, mas não
+verdade absoluta (ZHANG *et al.*, 2025; KEJRIWAL *et al.*, 2024).
 
 A literatura recente sobre mineração textual de ordens de manutenção
 confirma a relevância de técnicas de PLN para transformar registros
@@ -140,51 +147,56 @@ em inglês ou chinês e em domínios industriais ou hospitalares,
 configurando lacuna relevante para corpora em português brasileiro no
 contexto da manutenção predial pública universitária.
 
-O presente artigo parte de uma tese metodológica específica: em bases
-reais de chamados de manutenção, a avaliação de modelos não deve ser
-reduzida à pergunta sobre qual classificador mais concorda com a
-categoria histórica. Conforme Zhang *et al.* (2025), rótulos ruidosos em
-PLN afetam o desempenho dos classificadores e podem ampliar o consumo de
-recursos computacionais, exigindo métodos robustos de tratamento de
-ruído. Kejriwal *et al.* (2024) reforçam que *benchmarks* rotulados por
-humanos podem conter variabilidade relevante, questionando a prática de
-assumir uma única verdade absoluta quando há julgamento subjetivo
-envolvido. Dessa forma, a pergunta central deve ser mais ampla: em que
-medida os modelos reproduzem o histórico, em que medida auxiliam na
-identificação de inconsistências desse histórico e de que maneira a
-revisão humana pode converter divergências entre inteligência artificial
-e registro administrativo em melhoria progressiva da taxonomia
-institucional.
+Diante desse quadro, a pergunta que orienta este capítulo não é qual
+classificador mais concorda com a categoria histórica, mas outra, mais
+ampla e mais alinhada à função de governança que esses dados devem
+cumprir: como extrair, de forma confiável e auditável, dado estruturado
+a partir de texto ruidoso, de modo que esse dado possa alimentar um
+sistema de governança preditiva sem herdar acriticamente os erros do
+próprio histórico que lhe deu origem? Rótulos ruidosos em PLN não
+apenas reduzem o desempenho de classificadores, como também podem
+ampliar o consumo de recursos computacionais necessários para tratá-los
+(ZHANG *et al.*, 2025); mais importante, *benchmarks* anotados por
+humanos frequentemente carregam variabilidade relevante, o que torna
+questionável a prática de tratar qualquer rótulo — humano ou histórico
+— como verdade absoluta e não sujeita a julgamento (KEJRIWAL *et al.*,
+2024). A classificação automática apresentada neste capítulo é,
+portanto, a primeira camada de um protocolo maior — não seu produto
+final: uma camada que precisa produzir dado auditável o bastante para
+que divergências entre inteligência artificial e histórico
+administrativo sejam tratadas como evidência de revisão taxonômica, não
+como ruído a ser descartado.
 
 Com base em chamados reais da Universidade Federal do Sul da Bahia
-(UFSB), propõe-se uma comparação multimodelo de classificadores de texto
-aplicados a chamados de manutenção predial em português brasileiro. A
-base experimental contém 13.965 chamados não vazios (na consolidação
-vigente de 23/07/2026), distribuídos em 55 categorias históricas, e os
-campos textuais considerados agregam informações do título e da
-descrição do chamado, além de informações associadas à ordem de serviço.
-O estudo compara modelos clássicos baseados em TF-IDF (Naive Bayes,
-Regressão Logística, LinearSVC, SGD, Random Forest e Extra Trees) com
-abordagem neural LSTM bidirecional. O BERTimbau é mantido como extensão
-planejada, mas não integra as comparações enquanto não houver treino
-concluído e métricas próprias rastreáveis. O
-objeto de avaliação, portanto, não é apenas o classificador isolado, mas
-o protocolo de governança preditiva que articula aprendizado de máquina,
-auditoria estatística, custo computacional e validação humana, em
-consonância com a perspectiva de manutenção baseada em evidências
-preconizada pela NBR 5674 (ABNT, 2012).
+(UFSB), este capítulo propõe uma comparação multimodelo de
+classificadores de texto aplicada a chamados de manutenção predial em
+português brasileiro. A base experimental contém 13.965 chamados não
+vazios, distribuídos em 55 categorias históricas; os campos textuais
+considerados agregam título e descrição do chamado, além de informações
+associadas à ordem de serviço. O estudo compara modelos clássicos
+baseados em TF-IDF (Naive Bayes, Regressão Logística, LinearSVC, SGD,
+Random Forest e Extra Trees) com uma rede neural LSTM bidirecional; o
+BERTimbau é mantido como extensão planejada, mas não integra as
+comparações enquanto não houver treino concluído e métricas próprias
+rastreáveis. O objeto de avaliação, portanto, não é o classificador
+isolado, mas o protocolo de governança preditiva que articula
+aprendizado de máquina, auditoria estatística, custo computacional e
+validação humana — em consonância com a manutenção baseada em
+evidências preconizada pela NBR 5674 (ABNT, 2012) e com a integração
+físico-humano-tecnológico-ambiental que caracteriza um biossistema
+construído.
 
-Os objetivos específicos do estudo são: (i) apresentar um protocolo de
-comparação multimodelo para classificação de chamados reais de
-manutenção predial universitária em português brasileiro; (ii)
-distinguir concordância com rótulo histórico de acerto validado,
-evitando equiparar categoria histórica a *ground truth* incontestável;
-(iii) avaliar desempenho por métricas globais, métricas balanceadas,
-intervalos de confiança e testes estatísticos pareados adequados a dados
-não normais; (iv) incorporar custo computacional como dimensão de
-decisão operacional; e (v) transformar divergências entre IA e histórico
-em evidências para revisão taxonômica e retroalimentação da base de
-treino.
+Os objetivos específicos deste capítulo são: (i) apresentar um
+protocolo de classificação automática que produza dado estruturado
+auditável a partir de texto livre, como primeira camada de um sistema
+de governança preditiva; (ii) distinguir concordância com rótulo
+histórico de acerto validado, evitando equiparar categoria histórica a
+*ground truth* incontestável; (iii) avaliar desempenho por métricas
+globais, métricas balanceadas, intervalos de confiança e testes
+estatísticos pareados adequados a dados não normais; (iv) incorporar
+custo computacional como dimensão de decisão operacional; e (v)
+transformar divergências entre inteligência artificial e histórico em
+evidência para revisão taxonômica e retroalimentação da base de treino.
 
 **2. REFERENCIAL CONCEITUAL**
 
@@ -327,14 +339,11 @@ incompletas, características que impõem desafios específicos de
 pré-processamento e representação textual (SUNDARAM; ZEID, 2025).
 
 A base é dinâmica: novos chamados continuam sendo sincronizados e
-classificados em turnos. Na consolidação vigente (23/07/2026), o número
-de chamados elegíveis já cresceu para 13.965, em 55 categorias
-históricas (uma categoria adicional frente à contagem original de 54, em
-função de uma migração de nomenclatura registrada na auditoria técnica
-que acompanha este capítulo). Os resultados da Seção 4 utilizam esse
-recorte mais recente; eventuais diferenças frente a valores publicados
-em versões preliminares deste texto refletem o crescimento da base e a
-ampliação da conferência humana, não uma mudança metodológica.
+classificados em turnos, e a taxonomia institucional pode ser revisada
+ao longo do tempo. Os resultados da Seção 4 utilizam sempre o recorte
+mais recente disponível; eventuais diferenças frente a consolidações
+anteriores refletem o crescimento da base e a ampliação da conferência
+humana, não uma mudança metodológica.
 
 **3.3 Pré-processamento textual**
 
@@ -356,31 +365,38 @@ manutenção predial, onde palavras como *bomba*, *split*, *disjuntor*,
 
 **3.4 Modelos avaliados**
 
-O desenho experimental compara sete modelos materializados nesta
-consolidação. Os classificadores clássicos adotam representação
-TF-IDF e algoritmos de aprendizado supervisionado amplamente
-consolidados na literatura de classificação textual (JOACHIMS, 1998;
-PEDREGOSA *et al.*, 2011): Naive Bayes Multinomial, como *baseline*
-probabilístico; Regressão Logística, com calibração natural e boa
-interpretabilidade; LinearSVC, combinando margem linear e escores de
-decisão normalizados por *softmax* apenas para ordenação de confiança
-(sem calibrador de Platt ajustado; PLATT, 1999); SGD, como alternativa
-eficiente para matrizes esparsas de grande dimensão; Random Forest e
-Extra Trees, como representantes de métodos não lineares baseados em
-*ensemble* de árvores. A LSTM Bidirecional foi construída com camada de
-*embedding* de 8.000 termos e 128 dimensões, camada recorrente
-bidirecional de 64 unidades (GRAVES; SCHMIDHUBER, 2005), *dropout* de
-0,5 e camada densa com ativação *softmax*, treinada com parada
-antecipada, avaliada tanto na comparação *out-of-fold* (Subseção 4.1)
-quanto na Etapa 1 oficial de produção, com *fallback* de Random Forest.
+O desenho experimental compara sete modelos materializados, organizados
+em três famílias conceituais, cada uma escolhida por um motivo
+específico ligado às características do domínio: texto curto,
+vocabulário técnico e forte desbalanceamento entre categorias (Subseção
+3.2).
 
-O oitavo modelo planejado é um transformador pré-treinado em português
-(BERTimbau, `neuralmind/bert-base-portuguese-cased`). Seu fluxo de ajuste
-fino é separado, condicionado ao avanço da base validada e pode recorrer a
-*fallback* técnico quando as dependências não estão disponíveis. O estado
-do treino nesta consolidação é de dados insuficientes, com treino
-adiado; por isso o modelo não integra tabelas,
-rankings, testes inferenciais nem conclusões comparativas deste artigo.
+A família **linear** (LinearSVC, Regressão Logística e SGD) opera
+diretamente sobre a representação TF-IDF esparsa (Subseção 3.3): em
+espaços de alta dimensionalidade, fronteiras lineares tendem a separar
+bem as classes quando o vocabulário carrega forte poder discriminativo
+(JOACHIMS, 1998; SALTON; BUCKLEY, 1988), como é o caso dos termos
+técnicos de manutenção predial, que funcionam como âncoras semânticas de
+categoria. A família de **ensembles de árvores** (Random Forest e Extra
+Trees) captura interações não lineares entre atributos, a um custo
+computacional maior. O **Naive Bayes Multinomial** entra como *baseline*
+probabilístico mais simples, útil para calibrar a expectativa de
+desempenho mínimo (JOACHIMS, 1998; PEDREGOSA *et al.*, 2011). A **rede
+neural** (LSTM Bidirecional) modela dependências sequenciais no texto,
+mas, nesta consolidação, treina seus *embeddings* do zero, sem
+incorporar vetores pré-treinados em português (GRAVES; SCHMIDHUBER,
+2005) — a Subseção 3.4.1 discute por que essa escolha tende a penalizar
+o desempenho em corpora de porte médio como o deste estudo. Todos os
+sete modelos são avaliados tanto na comparação *out-of-fold* (Subseção
+4.1) quanto na Etapa 1 oficial de produção, onde a LSTM opera com
+*fallback* para Random Forest quando a base rotulada disponível é
+insuficiente.
+
+Um oitavo modelo, o transformador pré-treinado em português BERTimbau,
+permanece como extensão planejada: seu ajuste fino depende do avanço da
+base validada e, nesta consolidação, o treino ainda não foi concluído —
+por isso o modelo não integra tabelas, rankings, testes inferenciais nem
+conclusões comparativas deste capítulo.
 
 **3.4.1 Diferenças conceituais e operacionais entre os classificadores**
 
@@ -468,8 +484,9 @@ distribuição de uma estatística sem pressupor sua forma paramétrica
 (EFRON, 1979; EFRON; TIBSHIRANI, 1993), cuja variedade de métodos de
 construção de intervalo (percentil, BCa, bootstrap-*t*) e respectivas
 propriedades de cobertura é revisada em detalhe por DiCiccio e Efron
-(1996) — com 95% de confiança. A
-*macro*-F1 e a *balanced accuracy* são essenciais face ao
+(1996) — com 95% de confiança.
+
+A *macro*-F1 e a *balanced accuracy* são essenciais face ao
 desbalanceamento entre categorias, dado que a acurácia isolada pode
 superestimar desempenho em classes majoritárias e mascarar falhas em
 categorias raras (SOKOLOVA; LAPALME, 2009). A correlação entre confiança
@@ -483,7 +500,9 @@ em postos que dispensa o pressuposto de normalidade da ANOVA
 (MCNEMAR, 1947); e incerteza de acurácia é estimada por *bootstrap*
 (EFRON, 1979), abordagem cuja utilidade para intervalos de confiança de
 métricas de modelos preditivos continua sendo estudada e refinada
-recentemente (NOMA *et al.*, 2021). Quando múltiplas comparações são
+recentemente (NOMA *et al.*, 2021).
+
+Quando múltiplas comparações são
 realizadas, aplica-se o teste de Nemenyi sobre os postos médios
 (NEMENYI, 1963), seguindo o protocolo consolidado por Demšar (2006) para
 comparação estatística de classificadores em múltiplos conjuntos de
@@ -502,44 +521,29 @@ deliberadamente por *k-fold out-of-fold* em vez de um conjunto de teste
 fixo separado antes do treino. A literatura de avaliação de modelos
 indica que a validação cruzada tende a produzir estimativas de menor
 variância que um único *holdout*, sobretudo em bases pequenas ou
-desbalanceadas, precisamente por avaliar cada exemplo em algum fold em
+desbalanceadas, precisamente por avaliar cada exemplo em algum *fold* em
 vez de descartar uma fração fixa dos dados do treino (KOHAVI, 1995) — e
-esta base é desbalanceada por natureza (55 categorias históricas, várias
-com suporte de dígito único; Tabela Suplementar S1). Para não apenas
-invocar essa recomendação em abstrato, comparou-se empiricamente o
-protocolo atual (*k*-fold, 5 partições) com um *holdout* fixo de 15% dos
-dados, sobre os sete modelos comparáveis e a mesma base completa (n =
-13.965; a comparação usa 52 das 55 categorias da Tabela Suplementar
-S1 — três categorias raras não reapareceram entre duas consolidações
-consecutivas, provavelmente por renomeação concorrente com este
-experimento).
+esta base é desbalanceada por natureza, com várias das 55 categorias
+históricas tendo suporte de dígito único (Tabela Suplementar S1).
 
-A tentativa de estratificar esse *holdout* por categoria — o que a
-maioria dos protocolos faz por padrão — **falhou explicitamente** no
-*scikit-learn*, com o erro "*the least populated class in y has only 1
-member, which is too few*", confirmando que a base tem pelo menos uma
-categoria com um único exemplo. No *holdout* aleatório simples que
-substituiu a tentativa de estratificação, quatro categorias inteiras
-ficaram sem nenhum exemplo de teste — "Manutenção Preventiva",
-"Manutenção Preventiva \> Aplicação cupinicida", "Suprimentos / Apoio
-Técnico \> Limpeza de equipamentos, ambiente e mobiliário" e
-"Suprimentos / Apoio Técnico \> Transporte" —, tornando sua métrica de
-desempenho indefinida nesse desenho, ainda que o *k*-fold as avalie
-integralmente (Tabela Suplementar S1).
-
-A acurácia global variou pouco entre os dois protocolos (média de
-−0,30 ponto percentual no *holdout* frente ao *k*-fold entre os sete
-modelos, variando de −1,93 a +0,73 p.p. por modelo), mas a *macro*-F1 —
-que pondera todas as categorias igualmente, e não apenas as mais
-frequentes — piorou no *holdout* em seis dos sete modelos, com queda
-média de 1,24 ponto percentual e um pior caso de −3,98 p.p. no
-LinearSVC (0,6083 no *k*-fold contra 0,5685 no *holdout*; Tabela
-Suplementar S4). Em suma: um *holdout* fixo não melhora a estimativa de
-desempenho global de forma relevante nesta base e piora sistematicamente
-a avaliação das categorias raras — exatamente o padrão que a literatura
-antecipa para corpora pequenos e desbalanceados como este (KOHAVI,
-1995), o que confirma o protocolo *k*-fold como a escolha mais adequada
-e não apenas a mais conveniente.
+Essa recomendação foi verificada empiricamente, não apenas invocada em
+abstrato: comparou-se o protocolo *k*-fold com um *holdout* fixo de 15%
+sobre os sete modelos comparáveis e a mesma base completa. A tentativa
+de estratificar esse *holdout* por categoria — prática padrão na
+maioria dos protocolos — falhou de imediato, pois a base tem categorias
+com um único exemplo; no *holdout* aleatório que a substituiu, várias
+categorias raras ficaram sem nenhum exemplo de teste, tornando sua
+métrica de desempenho indefinida, um problema que o *k*-fold evita por
+avaliar todo exemplo em algum *fold* (Tabela Suplementar S1). A
+acurácia global variou pouco entre os dois protocolos, mas a
+*macro*-F1 — que pondera todas as categorias igualmente, e não apenas
+as mais frequentes — piorou no *holdout* na maioria dos modelos
+(detalhamento completo na Tabela Suplementar S4). Em suma, um *holdout*
+fixo não melhora a estimativa de desempenho global nesta base e piora
+sistematicamente a avaliação das categorias raras — o padrão que a
+literatura antecipa para corpora pequenos e desbalanceados como este
+(KOHAVI, 1995), confirmando o *k*-fold como a escolha metodologicamente
+mais adequada, não apenas a mais conveniente.
 
 **3.6 Validação humana**
 
@@ -619,23 +623,29 @@ segregados: a concordância com a categoria histórica (Subseção 4.1), que
 trata o registro do GLPI como referência preliminar e não como verdade
 absoluta; e o desempenho validado por conferência humana (Subseções 4.2
 e 4.3), calculado exclusivamente sobre os chamados com decisão travada
-pela memória M/N/P. Na consolidação vigente (23/07/2026), a base elegível
-contém 13.965 chamados e a conferência humana já cobre 9.534 chamados
-(68,3% da base), dos quais 9.096 com decisão travada e sem conflito
-(65,1% da base) e 438 casos restritos (categoria eliminada, ainda sem
-decisão travada). Esse crescimento — de 4.737 conferências (33,9% da
-base) em 16/07/2026 para 9.534 (68,3%) nesta consolidação — quase dobra a
-cobertura em relação à versão anterior deste protocolo e, como discutido
-na Subseção 4.2 e na Seção 5, revela um padrão de desempenho
-sensivelmente mais conservador do que a amostra menor sugeria.
+pela memória M/N/P. A base elegível contém 13.965 chamados; a
+conferência humana cobre 9.534 chamados (68,3% da base), dos quais
+9.096 com decisão travada e sem conflito (65,1% da base) e 438 casos
+restritos (categoria eliminada, ainda sem decisão travada). Como
+discutido na Subseção 4.2 e na Seção 5, o crescimento da conferência
+humana ao longo do protocolo revela um padrão de desempenho
+sensivelmente mais conservador do que amostras menores sugeriam.
+
+Três achados resumem esta seção. Primeiro, os classificadores lineares
+(liderados pelo LinearSVC) superam tanto os *ensembles* de árvores
+quanto a rede neural LSTM em concordância e em acerto validado, com
+vantagem adicional de custo computacional (Subseções 4.1, 4.2 e 4.7).
+Segundo, a validação humana confirma que o próprio rótulo histórico
+contém ruído real — cerca de 3,5% dos casos conferidos —, o que
+justifica metodologicamente todo o protocolo de conferência dupla
+(Subseção 4.3). Terceiro, a meta de calibração do estudo (confiança
+igual ou superior a 95% associada a acerto real igual ou superior a
+95%) está próxima de ser atingida, mas a confiança usada ainda é bruta,
+não formalmente calibrada por método probabilístico — o número deve ser
+lido como piso e teto da faixa observada, não como estimativa definitiva
+(Subseção 4.4).
 
 **4.1 Concordância com o histórico (base completa)**
-
-*Nota de rastreabilidade (25/07/2026)*: os sete modelos comparáveis foram
-**rematerializados por completo** nesta data (abas `CLASSIF__<modelo>`
-limpas e reclassificadas do zero, `run` via workflow com credencial),
-depois de a Subseção 4.9 revelar que a materialização anterior (16-17/07)
-estava desatualizada. Os números abaixo refletem essa rematerialização.
 
 A comparação contra a categoria histórica, sobre a base completa (n =
 13.965, com intervalo de confiança por bootstrap a 95%), mantém o
@@ -656,8 +666,8 @@ nesta consolidação, posicionando-se entre SGD e Regressão Logística
 nesta métrica — não é diretamente comparável ao LSTM *out-of-fold* da
 Tabela 1, pois combina LSTM com *fallback* de Random Forest conforme a
 regra de produção (Subseção 3.4), não um único modelo isolado. Essa fonte
-não foi rematerializada nesta rodada e pode estar sujeita à mesma
-defasagem temporal identificada na Subseção 4.9.
+não foi rematerializada junto com os sete modelos comparáveis e pode
+estar sujeita à mesma defasagem temporal identificada na Subseção 4.9.
 
 **Tabela 1** Concordância com a categoria histórica, base completa (n = 13.965)
 
@@ -671,10 +681,9 @@ defasagem temporal identificada na Subseção 4.9.
 | Naive Bayes | 0,6996 | 0,6921 -- 0,7070 | 0,6703 |
 | LSTM (out-of-fold) | 0,6813 | 0,6733 -- 0,6888 | 0,6598 |
 
-Fonte: elaborado pelos autores (2026), com base em rematerialização
-completa dos sete modelos (n = 13.965) em 25/07/2026. O modelo
-BERTimbau foi deliberadamente excluído por não representar treino
-concluído.
+Fonte: elaborado pelos autores (2026), com base na rematerialização
+completa dos sete modelos (n = 13.965). O modelo BERTimbau foi
+deliberadamente excluído por não representar treino concluído.
 
 A concordância com o histórico não é uniforme entre as 55 categorias. A
 Tabela Suplementar S1 reporta suporte, precisão, revocação e F1-Score
@@ -696,13 +705,12 @@ fortemente a métrica.
 
 **4.2 Ranking validado por conferência humana**
 
-*Nota de rastreabilidade (25/07/2026)*: esta subseção foi **regenerada
-apos a rematerializacao completa** dos sete modelos (ver nota da
-Subseção 4.1). A tabela anterior (gerada em 24/07/2026 04:55, a partir da
-materializacao de 16-17/07/2026) reportava acerto validado entre 0,71 e
-0,80; a diferenca em relacao aos numeros atuais confirma a hipotese
-registrada na Subseção 4.9 -- a materializacao antiga estava
-desatualizada, nao havia um problema de metodologia na avaliacao em si.
+Esta subseção reflete a rematerialização completa dos sete modelos (ver
+Subseção 4.1); uma materialização anterior, hoje descartada, havia
+reportado acerto validado sensivelmente mais baixo — a diferença
+confirma a hipótese discutida na Subseção 4.9: a materialização antiga
+estava desatualizada, não havia um problema de metodologia na avaliação
+em si.
 
 A avaliação contra a verdade validada pela memória de decisão M/N/P (n =
 9.096 decisões travadas) confirma a mesma liderança da Subseção 4.1: o
@@ -719,8 +727,8 @@ isolado com significância (McNemar p < 0,05 em favor do LinearSVC nos
 três casos). Conclusão: **não vale combinar modelos nesta consolidação**;
 usar LinearSVC isolado, com calibração.
 
-*Vies estrutural da seleção da amostra validada (achado de 25/07/2026)*:
-o número pontual de acerto validado acima é o **limite superior** de um
+**Viés estrutural da seleção da amostra validada**: o número pontual de
+acerto validado acima é o **limite superior** de um
 intervalo, não uma estimativa isenta de viés. A "verdade validada" usada
 neste cálculo só existe para um chamado quando pelo menos uma
 conferência marca "Correto" — ou seja, quando
@@ -771,46 +779,40 @@ intervalo de sensibilidade ao viés de seleção (n = 9.096 a 9.534)
 | LSTM | 0,8790 | 0,8724 -- 0,8857 | 0,8386 |
 | Naive Bayes | 0,8609 | 0,8533 -- 0,8680 | 0,8214 |
 
-Fonte: elaborado pelos autores (2026), com base em limpeza completa e
-rematerialização dos 8 modelos a partir do zero, em 25/07/2026.
-O limite inferior foi recalculado por derivação matemática direta a
-partir do novo acerto validado, mantendo fixo o número de casos
-restritos (438), que depende apenas das conferências humanas, não da
-rematerialização dos modelos; a composição desses casos (344 só com o
-histórico errado, 94 com histórico e IA errados) permanece a publicada
-em 25/07/2026. A tabela exclui o BERTimbau (treino ainda não concluído) e
-uma variante identificada como artefato de um *fallback* silencioso
-para o LSTM, cuja causa já foi corrigida (ver Limitações).
+Fonte: elaborado pelos autores (2026), com base na rematerialização
+completa dos oito modelos. O limite inferior foi recalculado por
+derivação matemática direta a partir do novo acerto validado, mantendo
+fixo o número de casos restritos (438), que depende apenas das
+conferências humanas, não da rematerialização dos modelos; a composição
+desses casos (344 só com o histórico errado, 94 com histórico e IA
+errados) permanece a mesma. A tabela exclui o BERTimbau (treino ainda
+não concluído) e uma variante identificada como artefato de um
+*fallback* silencioso para o LSTM, cuja causa já foi corrigida (ver
+Limitações).
 
-*Nota metodológica sobre a resolução da discrepância do LSTM (ver Figura
-6/Subseção 4.9)*: a Subseção 4.9 havia sinalizado que o ablation study do
-LSTM (86,35%--87,68% conforme o particionamento) discordava em ~11-13
-pontos percentuais do valor oficial então vigente (0,7471). A
-rematerialização completa desta subseção confirma a causa: o valor de
-0,7471 vinha de uma materialização de `CLASSIF__lstm` datada de
-16-17/07/2026, mais de uma semana desatualizada. O novo valor oficial do
-LSTM (0,8790, rematerializado em 25/07/2026) está muito mais próximo do
-que o ablation já indicava, confirmando que **o ablation nunca teve um
-bug de vazamento residual relevante** — o problema real era a defasagem
-temporal da materialização oficial usada como referência, não uma falha
-metodológica do ablation em si. A ressalva de "resultado suspeito" da
-Figura 6 é mantida apenas como registro histórico da investigação (ver
-Subseção 4.9), não como pendência ativa.
+A rematerialização completa também resolveu uma discrepância antes
+registrada entre o *ablation study* do LSTM (Subseção 4.9,
+86,35%--87,68% conforme o particionamento) e o valor oficial então
+vigente: o valor antigo vinha de uma materialização desatualizada; o
+valor oficial atual do LSTM (0,8790) está muito mais próximo do que o
+*ablation* já indicava. Isso confirma que o *ablation* nunca teve um
+problema metodológico de vazamento residual relevante — a discrepância
+vinha da defasagem temporal da materialização de referência, não de uma
+falha do *ablation* em si; a ressalva de "resultado suspeito" da Figura
+6 é mantida apenas como registro histórico da investigação, não como
+pendência ativa.
 
-*Nota metodológica sobre a mudança de patamar entre consolidações
-(92--96% em 16/07/2026 → 71--80% em 24/07/2026 → 86--95% em
-25/07/2026)*: a primeira queda (16/07 → 24/07) refletiu o crescimento
-genuíno da amostra validada (4.681 → 9.096 decisões); a leitura mais
-provável, retomada na Seção 5, é que a amostra menor de 16/07 estava mais
-concentrada em casos já fáceis de confirmar como corretos, e a ampliação
-da cobertura revelou uma taxa de acerto real mais baixa nessa
-consolidação. A segunda mudança (24/07 → 25/07), documentada acima, foi
-causada por uma materialização desatualizada dos modelos, não por
-crescimento de amostra (a amostra validada permanece 9.096 nas duas
-consolidações). Ainda assim, como a seleção da conferência humana não é
-probabilística, a comparação entre consolidações continua sendo
-descritiva, não inferencial (COCHRAN, 1977); não é possível estimar, a
-partir dessas consolidações, o desempenho da base completa.
+O patamar de acerto validado mudou de magnitude ao longo de
+consolidações sucessivas deste protocolo, por dois motivos distintos:
+primeiro, o crescimento genuíno da amostra validada revelou uma taxa de
+acerto real mais conservadora do que amostras menores — mais
+concentradas em casos fáceis de confirmar — sugeriam; segundo, uma
+materialização desatualizada dos modelos, já corrigida, havia
+subestimado o desempenho real numa consolidação intermediária. Como a
+seleção da conferência humana não é probabilística, a comparação entre
+consolidações continua sendo descritiva, não inferencial (COCHRAN,
+1977); não é possível estimar, a partir dela, o desempenho da base
+completa.
 
 **4.3 A classificação oficial frente ao histórico: matriz de confusão
 validada**
@@ -822,19 +824,18 @@ ruidosos apresentada na Introdução. Sobre as 9.096 decisões travadas
 desta consolidação, a categoria histórica (GLPI) coincide com a decisão
 em 96,49% dos casos (8.777 de 9.096), acima do acerto da IA oficial
 frente à mesma verdade (90,15%; 8.200 de 9.096) — repetindo, em
-magnitude renovada, o padrão já observado em 16/07/2026 (98,54% contra
-95,08%, sobre uma amostra bem menor). A matriz de confusão IA×histórico
-mostra 8.200 casos em que ambos coincidem com a decisão, 319 em que
-nenhum dos dois coincide, 577 em que o histórico acerta e a IA erra, e
-**nenhum** caso, nesta consolidação, em que a IA corrige uma categoria
-histórica que a decisão considerou incorreta. Diferentemente da
-observação anterior (13 casos de correção da IA sobre 4.737
-conferências), a ausência total dessa célula nesta base maior tem
-explicação estrutural discutida abaixo, não deve ser lida
-automaticamente como "a IA nunca corrige o histórico". O que o resultado
-sustenta com mais segurança é a outra metade da premissa: existe ruído
-real no histórico — 319 dos 9.096 casos conferidos (3,51%, quase o
-triplo da proporção observada em 16/07/2026) têm categoria histórica
+magnitude renovada, o padrão já observado em amostras menores. A matriz
+de confusão IA×histórico mostra 8.200 casos em que ambos coincidem com
+a decisão, 319 em que nenhum dos dois coincide, 577 em que o histórico
+acerta e a IA erra, e **nenhum** caso, nesta consolidação, em que a IA
+corrige uma categoria histórica que a decisão considerou incorreta.
+Essa ausência total tem explicação estrutural discutida abaixo, não
+deve ser lida automaticamente como "a IA nunca corrige o histórico".
+
+O que o resultado sustenta com mais segurança é a outra metade da
+premissa: existe ruído real no histórico — 319 dos 9.096 casos
+conferidos (3,51%, mais que o dobro da proporção observada em amostras
+menores) têm categoria histórica
 que não coincide com a decisão final —, mas esse ruído é
 proporcionalmente menor do que o risco de erro isolado da IA nesta
 mesma amostra (577 casos, 6,34%). A implicação prática permanece: a IA
@@ -848,7 +849,7 @@ histórico, não como substituto ou árbitro superior a ele.
 | **IA correta** | 8.200 | 0 |
 | **IA incorreta** | 577 | 319 |
 
-Fonte: elaborado pelos autores (2026), com dados de 23/07/2026. Leitura:
+Fonte: elaborado pelos autores (2026). Leitura:
 8.200 casos em que ambos (IA e histórico) coincidem com a categoria
 decidida; 319 em que
 nenhum dos dois coincide; 577 em que o histórico acerta e a IA erra; e **zero**
@@ -875,7 +876,9 @@ apresenta concordância de 99,08% com o histórico e, mais relevante,
 acerto validado de 96,79% sobre os 4.698 casos já com decisão travada
 nessa faixa — resultado que fica muito próximo da meta de referência do
 experimento (confiança calibrada >= 95% associada a acerto real >= 95%),
-embora não a atinja com folga. Nas faixas inferiores, a degradação de
+embora não a atinja com folga.
+
+Nas faixas inferiores, a degradação de
 desempenho acompanha a queda de confiança de forma consistente (90–95%:
 acerto validado 91,48%; 80–90%: 93,92%; 70–80%: 94,95%; 50–70%: 83,94%;
 inferior a 50%: 49,89%), o que corrobora a correlação positiva entre
@@ -899,40 +902,38 @@ oficial (Etapa 1), contra a verdade decidida M/N/P (n = 9.096 decisões travadas
 | 90–95% | 1.210 | 92,98% | 1.009 | 91,48% |
 | >= 95% | 4.808 | 99,08% | 4.698 | 96,79% |
 
-Fonte: elaborado pelos autores (2026), com dados de 23/07/2026. A
-amostra de conferência prioriza divergências e casos de menor confiança
-na composição original, não
-é aleatória — a leitura acima deve ser tomada como piso/teto conforme o
-desenho da conferência, não como taxa de acerto sobre amostra representativa.
+Fonte: elaborado pelos autores (2026). A amostra de conferência prioriza
+divergências e casos de menor confiança na composição original, não é
+aleatória — a leitura acima deve ser tomada como piso/teto conforme o
+desenho da conferência, não como taxa de acerto sobre amostra
+representativa.
 
-*Nota metodológica*: até 22/07/2026, esta tabela comparava a classificação do
-executor apenas contra a marcação bruta da coluna N (CONFERÊNCIA IA)
-isolada, o que produzia acerto validado artificialmente igual a 100% em toda
-faixa de confiança, inclusive abaixo de 50% — a coluna N, no uso real, quase
-nunca recebe marcação "Errado" (o erro da IA costuma ficar registrado via M,
-sem tocar N). Corrigido em 23/07/2026: a comparação passou a usar a
-categoria decidida pela memória de decisão (M/N/P), a mesma verdade da
-Subseção 4.2, eliminando o viés de seleção.
+*Nota metodológica*: uma versão anterior desta tabela comparava a
+classificação do executor apenas contra a marcação bruta da coluna N
+(CONFERÊNCIA IA) isolada, o que produzia acerto validado artificialmente
+igual a 100% em toda faixa de confiança, inclusive abaixo de 50% — a
+coluna N, no uso real, quase nunca recebe marcação "Errado" (o erro da
+IA costuma ficar registrado via M, sem tocar N). A comparação foi
+corrigida para usar a categoria decidida pela memória de decisão
+(M/N/P), a mesma verdade da Subseção 4.2, eliminando o viés de seleção.
 
 **4.5 Reclassificação e ganho líquido**
 
 A reclassificação dos chamados já conferidos produz resultados
 heterogêneos entre modelos, medidos contra a verdade validada quando
-travada e contra o histórico nos demais casos. Na consolidação de
-24/07/2026, o LSTM apresenta o maior ganho líquido absoluto (+99; 670
-corrigidos e 571 prejudicados), seguido por Regressão Logística (+92) e
-LinearSVC (+73). Todos os sete modelos materializados apresentam ganho
-líquido positivo nesta execução. Esse resultado não autoriza aplicação
-indiscriminada: o ganho combina parcelas comparadas contra verdade validada
-e contra histórico, e pode mudar a cada rodada. Reforça-se a decisão de não aplicar
-reclassificação em massa de forma indiscriminada por modelo, tratando o
-ganho líquido, e não apenas a acurácia agregada, como critério de
-decisão operacional por classificador — e de reavaliar esse critério a
-cada rodada, não como veredito permanente: a execução de 30/06/2026
-havia apontado SGD e Random Forest como negativos; ambos passaram a
-positivo nesta consolidação.
+travada e contra o histórico nos demais casos. Nesta consolidação, o
+LSTM apresenta o maior ganho líquido absoluto (+99; 670 corrigidos e
+571 prejudicados), seguido por Regressão Logística (+92) e LinearSVC
+(+73); todos os sete modelos materializados apresentam ganho líquido
+positivo. Esse resultado não autoriza aplicação indiscriminada: o ganho
+combina parcelas comparadas contra verdade validada e contra histórico,
+e já mudou de sinal para alguns modelos entre consolidações anteriores
+e esta. Reforça-se, portanto, a decisão de não aplicar reclassificação
+em massa por modelo, tratando o ganho líquido — e não apenas a acurácia
+agregada — como critério de decisão operacional a ser reavaliado a cada
+consolidação, não como veredito permanente sobre um classificador.
 
-**Tabela 5** Ganho líquido de reclassificação por modelo (execução de 24/07/2026)
+**Tabela 5** Ganho líquido de reclassificação por modelo
 
 | Modelo | Total reclassificado | Corrigidos | Prejudicados | Ganho líquido | Reuso de decisão humana |
 |---|---|---|---|---|---|
@@ -944,9 +945,9 @@ positivo nesta consolidação.
 | Naive Bayes | 13.826 | 158 | 132 | +26 | 8.623 |
 | Extra Trees | 13.899 | 237 | 226 | +11 | 8.713 |
 
-Fonte: elaborado pelos autores (2026), com dados de 24/07/2026. *Nota
-metodológica*: o total reclassificado do Random Forest chegava a 18.049
-nesta mesma tabela em versão anterior deste texto, valor que excedia o
+Fonte: elaborado pelos autores (2026). *Nota metodológica*: o total
+reclassificado do Random Forest chegava a 18.049 nesta mesma tabela em
+versão anterior deste texto, valor que excedia o
 tamanho da base (13.965) — matematicamente impossível sob a premissa de
 uma linha por chamado. Um diagnóstico direto identificou 4.737 linhas
 duplicadas, concentradas no registro do Random Forest, enquanto o
@@ -963,32 +964,31 @@ duplicadas históricas.
 (Shannon/Jensen-Shannon)**
 
 O diagnóstico de Shannon foi recalculado sobre oito fontes comparáveis:
-a Etapa 1 oficial e os sete modelos materializados. O BERTimbau foi excluído por não ter treino concluído. A Etapa 1
-oficial apresenta a maior diversidade
-de categorias previstas e a menor divergência de Jensen-Shannon frente à
-distribuição histórica. No nível de chamado individual, 3.277 dos 13.965
-registros (23,5%) apresentam alta entropia de votos entre as oito fontes,
-ou seja,
-desacordo estrutural relevante entre arquiteturas distintas — um
-critério de priorização de auditoria diferente e complementar à simples
-baixa confiança de um único modelo. No nível de categoria, a análise
-aponta 76 ocorrências de alta ambiguidade nas predições (com suporte
-mínimo de 30 registros por categoria); a interpretação detalhada de
-quais categorias específicas concentram essa ambiguidade, e sua
-sobreposição com os pares de maior confusão recíproca identificados na
-etapa de cruzamento de taxonomia, permanece como candidata a inspeção
-qualitativa dirigida — nesta consolidação, essa sobreposição não pôde
-ser detalhada com exemplos de categorias por causa da corrupção de
-acentuação identificada na Subseção 4.8. O que a camada Shannon oferece
-é a priorização estatística de onde essa inspeção deve começar, não a
-decisão de fusão ou desambiguação de categorias, que continua sendo
-humana. Naive Bayes chama atenção por combinar a menor cobertura de
+a Etapa 1 oficial e os sete modelos materializados. O BERTimbau foi
+excluído por não ter treino concluído. A Etapa 1 oficial apresenta a
+maior diversidade de categorias previstas e a menor divergência de
+Jensen-Shannon frente à distribuição histórica. No nível de chamado
+individual, 3.277 dos 13.965 registros (23,5%) apresentam alta entropia
+de votos entre as oito fontes, ou seja, desacordo estrutural relevante
+entre arquiteturas distintas — um critério de priorização de auditoria
+diferente e complementar à simples baixa confiança de um único modelo.
+
+No nível de categoria, a análise aponta 76 ocorrências de alta
+ambiguidade nas predições (com suporte mínimo de 30 registros por
+categoria); a interpretação detalhada de quais categorias específicas
+concentram essa ambiguidade, e sua sobreposição com os pares de maior
+confusão recíproca identificados na etapa de cruzamento de taxonomia,
+permanece como candidata a inspeção qualitativa dirigida futura. O que
+a camada Shannon oferece é a priorização estatística de onde essa
+inspeção deve começar, não a decisão de fusão ou desambiguação de
+categorias, que continua sendo humana. Naive Bayes chama atenção por
+combinar a menor cobertura de
 categorias (19, ante 47–53 dos demais modelos) com entropia normalizada
 relativamente alta (0,7848) — provável reflexo de concentração extrema
 em poucas categorias com alguma dispersão residual, não investigado em
-detalhe nesta rodada.
+detalhe neste capítulo.
 
-**Tabela 6** Entropia de Shannon e divergência de Jensen-Shannon por fonte de classificação (24/07/2026)
+**Tabela 6** Entropia de Shannon e divergência de Jensen-Shannon por fonte de classificação
 
 | Fonte | Categorias previstas | Entropia (nats) | Entropia normalizada | JS vs. histórico |
 |---|---|---|---|---|
@@ -1001,15 +1001,10 @@ detalhe nesta rodada.
 | Random Forest | 47 | 3,9574 | 0,7124 | 0,0804 |
 | Naive Bayes | 19 | 3,3340 | 0,7848 | 0,1755 |
 
-Fonte: elaborado pelos autores (2026), com dados regenerados em
-24/07/2026. O BERTimbau foi excluído explicitamente
-por não haver treino concluído. No nível de categoria, o resumo
-aponta 76 ocorrências de alta ambiguidade e 3.277 chamados com alta
-entropia de votos entre modelos. Naive Bayes chama atenção por combinar a
-menor cobertura de categorias (19, ante 47–53 dos demais) com entropia
-normalizada relativamente alta (0,7848) — provável reflexo de concentração
-extrema em poucas categorias com alguma dispersão residual, não investigado
-em detalhe nesta rodada.
+Fonte: elaborado pelos autores (2026). O BERTimbau foi excluído
+explicitamente por não haver treino concluído. No nível de categoria, o
+resumo aponta 76 ocorrências de alta ambiguidade e 3.277 chamados com
+alta entropia de votos entre modelos.
 
 **4.7 Custo computacional**
 
@@ -1032,7 +1027,7 @@ disponíveis para os modelos clássicos.
 | Extra Trees | 21,30 | 0,14 | 0,610 |
 
 Fonte: elaborado pelos autores (2026), execução mais recente por modelo
-em 18/07/2026 — não reexecutada nesta consolidação; único registro de
+disponível — não reexecutada nesta consolidação; único registro de
 custo computacional disponível para os modelos clássicos. LSTM
 e BERTimbau não constam deste arquivo. A acurácia
 reportada aqui é sobre um lote de 1.000 registros (não a base completa) e
@@ -1041,28 +1036,25 @@ não usar como substituto das Tabelas 1 e 2.
 
 **4.8 Figuras**
 
-*Atualização de dados (24/07/2026)*: as figuras foram geradas a partir dos
-JSONs vigentes do painel, da aba viva de métricas por categoria e dos treinos
-executados por workflow com credencial (scripts `matplotlib`, ver
-`04_artigo/figuras/`). A Figura 4 usa códigos de categoria para preservar a
-legibilidade; o mapeamento completo código-categoria está na Tabela
-Suplementar S2.
+As figuras foram geradas a partir dos dados vigentes do painel público e
+dos registros de treino de cada modelo. A Figura 4 usa códigos de
+categoria para preservar a legibilidade; o mapeamento completo
+código-categoria está na Tabela Suplementar S2.
 
-![Figura 2 — Confiança bruta × concordância com o histórico × acerto validado, por faixa de confiança (executor oficial, Etapa 1, 23/07/2026).](04_artigo/figuras/fig2_confianca_desfecho.png)
+![Figura 2 — Confiança bruta × concordância com o histórico × acerto validado, por faixa de confiança (executor oficial, Etapa 1).](04_artigo/figuras/fig2_confianca_desfecho.png)
 
 **Figura 2** Confiança bruta × concordância com o histórico × acerto validado,
 por faixa de confiança (executor oficial, Etapa 1). Mesmos números da
 Tabela 3 (Subseção 4.4), em forma gráfica.
 
-Fonte: elaborado pelos autores (2026), com dados de 23/07/2026.
+Fonte: elaborado pelos autores (2026).
 
 ![Figura 3 — Trade-off entre acerto validado e custo computacional (tempo de treino), modelos clássicos.](04_artigo/figuras/fig3_tradeoff_custo.png)
 
-**Figura 3** Trade-off entre acerto validado (conferência humana, 23/07/2026)
-e custo computacional (tempo de treino, lote de 1.000 registros, 18/07/2026),
-modelos clássicos. LSTM e BERTimbau não constam desta figura por não
-terem registro de tempo de treino no mesmo arquivo (Tabela 7, Subseção
-4.7).
+**Figura 3** Trade-off entre acerto validado (conferência humana) e custo
+computacional (tempo de treino, lote de 1.000 registros), modelos
+clássicos. LSTM e BERTimbau não constam desta figura por não terem
+registro de tempo de treino no mesmo arquivo (Tabela 7, Subseção 4.7).
 
 Fonte: elaborado pelos autores (2026), cruzando custo computacional e
 acerto validado.
@@ -1076,15 +1068,14 @@ Acessórios e Mobiliário > Instalação/reparo de equipamentos (Suportes de TV,
 acessórios de banheiro e quadro branco)` → `Estrutura Predial > Alvenaria /
 Pisos / Estrutura` (799) e `Estrutura Predial > Alvenaria / Pisos / Estrutura`
 → `Estrutura Predial > Esquadrias, porta, portão e janelas` (726). Os códigos
-C01-C10 usados no eixo vertical são descritos na Tabela Suplementar S2
-(`04_artigo/figuras/tabela_S2_codigos_categorias_fig4.csv`).
+C01-C10 usados no eixo vertical são descritos na Tabela Suplementar S2.
 
-Fonte: elaborado pelos autores (2026), com dados de 24/07/2026.
+Fonte: elaborado pelos autores (2026).
 
 ![Figura 5 — Curva de aprendizado do LSTM por época.](04_artigo/figuras/fig5_curva_aprendizado_lstm.png)
 
-**Figura 5** Curva real de aprendizado do LSTM gerada pelo workflow
-`30137383907`, com 13.965 exemplos e 53 categorias. O treino foi interrompido
+**Figura 5** Curva real de aprendizado do LSTM, com 13.965 exemplos e 53
+categorias. O treino foi interrompido
 por `EarlyStopping` após 11 épocas. O menor `val_loss` ocorreu na época 8
 (`val_loss = 1,4374`; `accuracy = 0,7073`; `val_accuracy = 0,6492`), enquanto o
 maior `val_accuracy` ocorreu na época 10 (`val_accuracy = 0,6722`;
@@ -1113,254 +1104,77 @@ treino. O *ablation* foi refeito com *GroupKFold* por hash de texto
 normalizado, excluindo do treino grupos textuais presentes no teste —
 isso reduziu a configuração atual (64 unidades, *dropout* de 0,5) de
 87,68% para 86,35% (7.854/9.096), uma correção pequena (1,33 ponto
-percentual). Segundo, e principal: o valor oficial de referência usado
-na comparação (0,7471, Subseção 4.2) vinha de uma materialização datada
-de 16-17/07/2026, mais de uma semana desatualizada em relação à base
-viva. A rematerialização completa dos sete modelos em 25/07/2026 (ver
-nota de rastreabilidade na Subseção 4.2) produziu um novo valor oficial
-do LSTM de 0,8790 — muito mais próximo dos 0,8635 deste *ablation*
-corrigido (diferença residual de 1,55 pontos percentuais, plausivelmente
-atribuível a diferenças remanescentes de protocolo:
-`k_folds=3` no *ablation* contra `k_folds=5` na materialização oficial, e
-treino por *fold* isolado contra o esquema *out-of-fold* padrão).
+percentual). Segundo, e principal: o valor oficial de referência usado na comparação
+(0,7471, Subseção 4.2) vinha de uma materialização desatualizada em
+relação à base viva. A rematerialização completa dos sete modelos (ver
+Subseção 4.2) produziu um novo valor oficial do LSTM de 0,8790 — muito
+mais próximo dos 0,8635 deste *ablation* corrigido (diferença residual
+de 1,55 pontos percentuais, plausivelmente atribuível a diferenças
+remanescentes de protocolo entre o número de *folds* e o esquema de
+treino usados em cada avaliação).
+
 **Conclusão**: o *ablation* nunca teve um problema metodológico grave; a
 maior parte da discrepância original vinha de comparar um resultado
-fresco com uma referência oficial desatualizada. A ordenação relativa das
-quatro variantes testadas (`units=128, dropout=0,3` como melhor, seguida
-de `units=128, dropout=0,5`, `units=64, dropout=0,5` e `units=64,
-dropout=0,3`) é interpretada como evidência preliminar de baixa
-sensibilidade do LSTM a esses hiperparâmetros nesta base (diferença total
-entre a melhor e a pior variante inferior a 4 pontos percentuais), não
-como indicação forte de que a arquitetura atual esteja subotimizada.
+fresco com uma referência oficial desatualizada. A ordenação relativa
+das quatro variantes testadas — variando número de unidades recorrentes
+e taxa de *dropout* — é interpretada como evidência preliminar de baixa
+sensibilidade do LSTM a esses hiperparâmetros nesta base (diferença
+total entre a melhor e a pior variante inferior a 4 pontos percentuais),
+não como indicação forte de que a arquitetura atual esteja
+subotimizada.
 
 Fonte: elaborado pelos autores (2026).
 
 **4.10 Robustez estatística: pressupostos e testes de sensibilidade**
 
-Esta subseção reúne, com números reais (não hipotéticos), os
-pressupostos verificados antes de qualquer teste inferencial e os
-resultados completos dos testes de robustez usados nas Subseções
-anteriores — hoje apenas citados pelo nome no corpo do texto (Subseção
-3.5). O protocolo de exploração de dados de Zuur, Ieno e Elphick (2010),
-originalmente proposto para respostas contínuas em ecologia, foi adaptado
-aqui para a resposta categórica de classificação de chamados (n = 13.965;
-dados de 25/07/2026); passos sem
-análogo direto na resposta categórica recebem justificativa explícita em
-vez de serem omitidos.
-
-*1) Outliers*: a distribuição da confiança bruta por modelo não apresenta
-valores extremos relevantes pela regra 1,5×IQR (distância interquartil;
-TUKEY, 1977) — regra amplamente adotada, mas que pressupõe distribuições
-próximas da normal, ressalva sistematizada na revisão taxonômica de
-métodos de detecção de outliers de Hodge e Austin (2004) e ilustrada, por
-analogia de aplicação em dados reais assimétricos fora do domínio de ML,
-por Lima *et al.* (2017): em métricas bibliométricas univariadas, os
-autores mostram que a regra clássica de Tukey detecta mais ou menos
-outliers do que uma versão ajustada pela assimetria da distribuição,
-conforme o sinal e a intensidade dessa assimetria — o mesmo cuidado se
-aplica aqui, já que a confiança bruta por modelo também é uma distribuição
-real, não necessariamente simétrica —, exceto no LinearSVC, cujo escore
-normalizado por *softmax* (não calibrado; Subseção 3.4) produz 51 valores
-atipicamente altos em 13.965 — consistente com a natureza do escore de
-margem, não com um problema de dados.
-
-*2) Homogeneidade de variância*: a razão entre a maior e a menor variância
-de confiança entre os sete modelos é 38,53, muito acima do limiar de
-preocupação (4; ZUUR; IENO; ELPHICK, 2010) — heterogeneidade que já
-motivava, mesmo antes deste detalhamento, a escolha por métodos robustos
-e não paramétricos.
-
-*3) Normalidade*: o teste de Shapiro-Wilk (SHAPIRO; WILK, 1965), apontado
-por estudos comparativos de poder estatístico como um dos mais sensíveis
-entre os testes de normalidade usuais para amostras pequenas e moderadas
-(RAZALI; WAH, 2011), achado reproduzido por comparações mais recentes com
-outras alternativas, como Anderson-Darling, Qui-quadrado e
-Kolmogorov-Smirnov (OGUNLEYE; OYEJOLA; OBISESAN, 2018) — situação mais
-próxima dos 931 turnos por modelo aqui analisados do que dos 13.965
-chamados individuais —, aplicado sobre a concordância por turno rejeita a
-normalidade a 5% para os sete modelos (Tabela 8), confirmando com
-números — e não apenas por afirmação — a justificativa não paramétrica já
-usada na Subseção 3.5.
-
-**Tabela 8** Teste de normalidade de Shapiro-Wilk sobre a concordância por
-turno (n = 931 turnos por modelo)
-
-| Modelo | *W* de Shapiro-Wilk | *p* | Normal a 5%? |
-|---|---|---|---|
-| LSTM | 0,9720 | 2,13 × 10⁻¹² | Não |
-| Naive Bayes | 0,9688 | 3,08 × 10⁻¹³ | Não |
-| Regressão Logística | 0,9443 | 3,15 × 10⁻¹⁸ | Não |
-| SGD | 0,9405 | 7,35 × 10⁻¹⁹ | Não |
-| Random Forest | 0,9424 | 1,50 × 10⁻¹⁸ | Não |
-| Extra Trees | 0,9365 | 1,75 × 10⁻¹⁹ | Não |
-| LinearSVC | 0,9313 | 2,95 × 10⁻²⁰ | Não |
-
-Fonte: elaborado pelos autores (2026).
-
-*4) Excesso de categorias raras*: das 52 categorias históricas com
-suporte identificável nesta consolidação, 27 (52%) têm suporte abaixo de
-70 chamados — o análogo, na resposta categórica, do excesso de zeros
-tratado no protocolo original. É o mesmo desbalanceamento já discutido na
-comparação empírica holdout vs. *k*-fold (Subseção 3.5) e tratado aqui
-com *macro*-F1 e intervalos de confiança em vez de acurácia isolada.
-
-*5) Colinearidade entre modelos*: tratando a confiança de cada modelo
-como uma covariável e calculando o Fator de Inflação de Variância (VIF;
-formalizado por MARQUARDT, 1970, como diagnóstico de colinearidade em
-regressão) entre elas, quatro modelos (Regressão Logística: 26,89; SGD:
-28,20; Random Forest: 24,89; Extra Trees: 22,10) excedem em muito o
-limiar de preocupação (VIF > 3; ZUUR; IENO; ELPHICK, 2010) — limiar mais
-conservador que a regra de bolso mais difundida (VIF > 10), cuja
-adequação geral é questionada por O'Brien (2007), que recomenda avaliar o
-impacto real da colinearidade caso a caso em vez de aplicar um corte
-único, ressalva reforçada por revisões recentes sobre mitigação de
-multicolinearidade em modelos de aprendizado de máquina
-(CHAN *et al.*, 2022) —, contra valores baixos para LinearSVC (3,64), Naive Bayes (3,74)
-e LSTM (3,04). Essa colinearidade alta entre quatro dos sete modelos é
-consistente com — e ajuda a explicar — o achado da Subseção 4.2 de que
-nenhum ensemble supera o LinearSVC isolado: modelos com confiança
-altamente correlacionada contribuem pouco em informação independente a
-um comitê, no mesmo sentido em que a literatura de agregação de
-classificadores associa ganho de ensemble à diversidade entre membros, não
-apenas ao número de membros (DIETTERICH, 2000).
-
-*6) Relação entre confiança e acerto*: correlação de Spearman
-(SPEARMAN, 1904) e ponto-bisserial (TATE, 1954; formulação e
-interpretação como tamanho de efeito também em KORNBROT, 2014) — esta
-última apropriada porque o acerto é uma variável binária (certo/errado)
-contra a confiança contínua — entre confiança bruta e acerto (histórico), positiva e
-estatisticamente significativa (*p* < 0,001) em todos os sete modelos —
-da mais fraca (LinearSVC, ρ = 0,479) à mais forte (LSTM, ρ = 0,637) —,
-confirmando que a confiança carrega sinal genuíno sobre o acerto em todos
-os modelos, pré-requisito para a calibração da Subseção 4.4
-(GUO *et al.*, 2017), cuja relação entre confiança e acurácia real em
-redes neurais modernas segue sendo revisitada e refinada na literatura
-recente (MINDERER *et al.*, 2021).
-
-**Tabela 9** Correlação entre confiança bruta e acerto contra o histórico
-
-| Modelo | Ponto-bisserial (r) | Spearman (ρ) | *p* |
-|---|---|---|---|
-| LSTM | 0,6607 | 0,6373 | < 0,001 |
-| Naive Bayes | 0,5885 | 0,5642 | < 0,001 |
-| Random Forest | 0,5462 | 0,5320 | < 0,001 |
-| Extra Trees | 0,5343 | 0,5187 | < 0,001 |
-| Regressão Logística | 0,4536 | 0,4688 | < 0,001 |
-| SGD | 0,4413 | 0,4605 | < 0,001 |
-| LinearSVC | 0,4326 | 0,4791 | < 0,001 |
-
-Fonte: elaborado pelos autores (2026).
-
-*7) Interações*: a interação modelo × categoria — inaplicável ao
-*coplot* contínuo do protocolo original — é tratada pela matriz de
-confusões cruzadas (Subseção 4.3; Figura 4).
-
-*8) Independência das observações*: a autocorrelação da concordância por
-turno (defasagem 1 a 5), diagnosticada pela função de autocorrelação
-amostral (ACF; BOX; JENKINS, 1970), é positiva e não desprezível em
-todos os modelos (por exemplo, LinearSVC: 0,362 na defasagem 1, decaindo
-para 0,221 na defasagem 5), e a estatística de Durbin-Watson
-(DURBIN; WATSON, 1950) fica entre 1,34 e 1,44 para os sete modelos —
-abaixo do valor de referência 2,0 que indicaria ausência de
-autocorrelação serial nos resíduos. Isso indica que turnos consecutivos
-não são inteiramente independentes (provável efeito de chamados
-textualmente semelhantes chegando em sequência), uma limitação a
-declarar explicitamente: os intervalos de confiança por turno podem
-estar levemente subestimados, pois erros-padrão calculados sob a hipótese
-de independência tendem a ser menores que os reais quando há
-autocorrelação positiva (DURBIN; WATSON, 1950). A tendência ao longo dos
-turnos é de leve alta na concordância para seis dos sete modelos
-(*p* < 10⁻⁷ em cada, por regressão linear simples do índice do turno
-sobre a concordância; Naive Bayes é o único estável, *p* = 0,51),
-compatível com o crescimento e a depuração progressiva da base ao longo
-do experimento, não com um artefato de curto prazo. (Nota de
-transparência: não foi encontrada, até o fechamento desta rodada, uma
-referência recente e suficientemente confiável que discuta a
-autocorrelação/ACF ou o teste de Durbin-Watson especificamente em
-contexto de aprendizado de máquina — a lacuna permanece declarada em vez
-de preenchida com uma citação fraca; as referências primárias de Box e
-Jenkins (1970) e Durbin e Watson (1950) continuam sustentando o método em
-si.)
-
-**Testes globais e correção para múltiplas comparações** — Cochran Q
-(COCHRAN, 1950), teste não paramétrico para diferenças entre três ou mais
-proporções pareadas (aqui, acerto binário por modelo sobre os mesmos
-chamados), confirma diferença global entre os sete modelos comparáveis
-(Q = 2984,07; *gl* = 6; *p* < 0,001; Subseção 4.1). O teste de Friedman
-(FRIEDMAN, 1937), alternativa não paramétrica à ANOVA de medidas
-repetidas baseada em postos, aplicado sobre 14 janelas de 1.000 chamados,
-confirma diferença global entre os seis
-modelos clássicos com tempo de treino medido (estatística = 44,43;
-*p* = 1,89 × 10⁻⁸); o *ranking* médio de Nemenyi (NEMENYI, 1963), teste
-*post-hoc* usual após Friedman, aplicado aqui seguindo o protocolo de
-comparação estatística de classificadores consolidado por Demšar (2006)
-(diferença crítica = 2,015 a α = 0,05), reproduz a mesma ordem das
-Tabelas 1 e 2 — LinearSVC (1,68) à frente de Extra Trees (2,46), Random
-Forest (3,29), SGD (3,36), Regressão Logística (4,29) e Naive Bayes
-(5,93) —, mas com poder estatístico bem menor que o McNemar sobre a base
-completa: apenas 5 das 15 comparações par a par superam a diferença
-crítica (as que envolvem os extremos da tabela — LinearSVC vs. Regressão
-Logística e vs. Naive Bayes; Extra Trees, Random Forest e SGD vs. Naive
-Bayes). Isso não contradiz os resultados anteriores; reflete que o
-Nemenyi opera sobre só 14 blocos (janelas), enquanto o McNemar a seguir
-opera sobre as 13.965 observações pareadas — poder muito maior para
-detectar diferenças entre modelos adjacentes no *ranking*, um contraste
-que ilustra na prática por que Demšar (2006) recomenda cautela ao
-interpretar a ausência de significância no teste *post-hoc* de Nemenyi
-como equivalência prática entre modelos.
-
-As 21 comparações pareadas de McNemar (MCNEMAR, 1947) entre os sete
-modelos, corrigidas pelo método sequencial de Holm-Bonferroni (HOLM,
-1979) a α = 0,05, são significativas em 20 dos 21 pares — a única
-exceção é SGD vs. Random Forest (*p* = 0,0902, acima do limiar de Holm
-de 0,05 para essa posição), indicando que esses dois modelos têm
-desempenho estatisticamente indistinguível entre si na base completa,
-ainda que ambos difiram significativamente dos demais.
-
-Por fim, o Kappa de Fleiss
-(FLEISS, 1971) — generalização do Kappa de Cohen para mais de dois
-avaliadores, aqui os sete modelos avaliando a mesma categoria — entre as
-sete IAs é 0,7719, concordância classificada como "substancial" pela
-escala de referência de Landis e Koch (1977, intervalo 0,61–0,80); Kappa
-e alternativas como o AC1 de Gwet respondem de forma diferente à
-prevalência desigual entre categorias (WONGPAKARAN *et al.*, 2013),
-ressalva relevante dado o desbalanceamento já discutido no item 4 desta
-subseção, ainda que o presente uso — concordância entre classificadores,
-não entre avaliadores humanos — não seja o cenário original desses
-estudos —,
-coerente com todos os modelos aprenderem o mesmo padrão subjacente da
-taxonomia histórica, divergindo principalmente nas categorias raras e
-ambíguas (Subseção 4.6).
-
-Fonte: elaborado pelos autores (2026), com dados de 25/07/2026.
+Antes de qualquer teste inferencial, verificamos os pressupostos de
+robustez estatística usuais — outliers, homogeneidade de variância,
+normalidade, desbalanceamento entre categorias, colinearidade entre
+modelos, relação entre confiança e acerto, e independência das
+observações —, adaptando o protocolo de exploração de dados de Zuur,
+Ieno e Elphick (2010) da resposta contínua da ecologia para a resposta
+categórica de classificação de chamados (n = 13.965). O teste de
+Shapiro-Wilk (SHAPIRO; WILK, 1965) rejeita a normalidade a 5% para os
+sete modelos sobre a concordância por turno, confirmando com números a
+justificativa não paramétrica já adotada na Subseção 3.5; a variância de
+confiança entre modelos também é fortemente heterogênea, reforçando essa
+escolha. O teste de Friedman (FRIEDMAN, 1937) confirma diferença global
+entre os modelos comparáveis, e o *post-hoc* de Nemenyi (NEMENYI, 1963)
+reproduz a mesma ordem das Tabelas 1 e 2, com poder estatístico menor que
+o McNemar par a par (MCNEMAR, 1947) — que, corrigido por
+Holm-Bonferroni (HOLM, 1979), é significativo em praticamente todas as
+21 comparações entre os sete modelos, confirmando que o **LinearSVC é
+estatisticamente superior ao LSTM e ao Naive Bayes** (a única exceção,
+sem significância, é o par SGD vs. Random Forest). A verificação de
+colinearidade mostra um efeito colateral relevante: quatro dos sete
+modelos têm confiança altamente correlacionada entre si (Fator de
+Inflação de Variância elevado; MARQUARDT, 1970), o que ajuda a explicar
+por que nenhum *ensemble* supera o LinearSVC isolado (Subseção 4.2) —
+modelos redundantes contribuem pouco em informação independente a um
+comitê (DIETTERICH, 2000). A correlação entre confiança bruta e acerto é
+positiva e significativa em todos os sete modelos (Spearman e
+ponto-bisserial, *p* < 0,001), pré-requisito para a calibração discutida
+na Subseção 4.4 (GUO *et al.*, 2017). A verificação completa dos oito
+pressupostos, item a item, com as tabelas de correlação, autocorrelação
+e o Kappa de Fleiss entre modelos, está disponível como Material
+Suplementar.
 
 **5. DISCUSSÃO**
 
 A comparação entre concordância histórica (Subseção 4.1) e desempenho
 validado (Subseção 4.2) revela um padrão que mudou de magnitude ao longo
-da elaboração deste capítulo e que, por isso, merece registro explícito
-antes de qualquer outra leitura, agora em três consolidações: na de
-16/07/2026, sobre 4.681 decisões travadas, o acerto validado (92–96%)
-superava com folga a concordância com o histórico (70–80%); na de
-23-24/07/2026, sobre 9.096 decisões — quase o dobro —, os dois patamares
-se aproximaram (concordância 68–80%, acerto validado 71–80%), com o
-LinearSVC em 80,34% de concordância e 79,89% de acerto validado; na
-consolidação vigente (25/07/2026), após a rematerialização completa dos
-sete modelos ter corrigido uma defasagem de mais de uma semana na
-materialização anterior (Subseção 4.9), o acerto validado voltou a superar
-a concordância histórica (concordância 68–80%, acerto validado 86–95%),
-com o LinearSVC em 80,29% de concordância e 94,93% de acerto validado. A
-primeira transição (16/07 → 24/07) refletiu crescimento genuíno da amostra
-validada; a segunda (24/07 → 25/07) refletiu correção de uma
-materialização desatualizada dos modelos, não mudança na amostra validada
-(9.096 nas duas consolidações). Nenhuma das mudanças observadas entre
-consolidações permite estimar o
-desempenho real da base completa: a conferência humana não é aleatória e
-prioriza divergências e casos críticos. Portanto, os resultados devem
-ser lidos como descrição da amostra conferida, não como estimativa
-representativa da população de chamados (COCHRAN, 1977).
+da elaboração deste capítulo, à medida que a conferência humana cresceu
+e uma materialização desatualizada dos modelos foi corrigida (Subseção
+4.9): o acerto validado do LinearSVC (94,93%) hoje supera com folga sua
+concordância com o histórico (80,29%), depois de um período
+intermediário em que os dois patamares haviam se aproximado. Nenhuma
+dessas mudanças permite estimar o desempenho real da base completa: a
+conferência humana não é aleatória e prioriza divergências e casos
+críticos. Os resultados devem ser lidos, portanto, como descrição da
+amostra conferida, não como estimativa representativa da população de
+chamados (COCHRAN, 1977).
 
-Além da não aleatoriedade da amostra, identificamos nesta rodada um
+Além da não aleatoriedade da amostra, identificamos um
 segundo mecanismo de viés, estrutural e mais específico: a própria regra
 de decisão da verdade validada (Subseção 3.7) exclui do denominador de
 qualquer acerto validado os chamados em que o avaliador humano julgou
@@ -1371,13 +1185,14 @@ para esses 438 casos, uma categoria de referência contra a qual comparar
 a predição de cada modelo, o acerto validado reportado como número
 pontual é, na verdade, um limite superior: mede o desempenho apenas nos
 casos em que pelo menos uma fonte (histórico ou IA) já estava certa, por
-construção. A análise de sensibilidade publicada em
-`04_artigo/figuras/sensibilidade_vies_validacao.json` recalcula um limite
-inferior (pior caso, contando os 438 restritos como erro de todos os
-modelos) e mostra que a amplitude do intervalo é de 3,95 a 4,36 pontos
-percentuais conforme o modelo — relevante em termos absolutos, mas sem
-alterar o ranking relativo entre os sete modelos em nenhum ponto do
-intervalo. A implicação para a leitura deste capítulo é dupla: a
+construção.
+
+Uma análise de sensibilidade recalcula um limite inferior (pior caso,
+contando os 438 restritos como erro de todos os modelos) e mostra que a
+amplitude do intervalo é de 3,95 a 4,36 pontos percentuais conforme o
+modelo — relevante em termos absolutos, mas sem alterar o *ranking*
+relativo entre os sete modelos em nenhum ponto do intervalo. A
+implicação para a leitura deste capítulo é dupla: a
 conclusão qualitativa (qual modelo priorizar) é robusta a esse viés, mas
 o valor pontual de acerto validado não deveria ser citado isoladamente,
 nem comparado a benchmarks externos, sem a ressalva do intervalo. Esse
@@ -1397,9 +1212,10 @@ estrutural já registrada na Subseção 4.3 sobre essa célula específica).
 Esse achado não invalida a premissa metodológica de que a categoria
 histórica não deve ser tratada como verdade absoluta — ainda existe uma
 taxa real de erro confirmado no registro original (3,51% dos casos
-conferidos nesta consolidação, quase o triplo do 1,2% observado em
-16/07/2026, o que por si só recomenda cautela contra tratar mesmo esse
-número como estabilizado) —, mas recomenda cautela contra a leitura
+conferidos nesta consolidação, bem acima do observado em consolidações
+anteriores com amostra menor, o que por si só recomenda cautela contra
+tratar mesmo esse número como estabilizado) —, mas recomenda cautela
+contra a leitura
 oposta e igualmente equivocada, de que baixa concordância com o
 histórico implica automaticamente acerto da IA. A validação humana,
 portanto, cumpre função insubstituível: sem ela, seria impossível
@@ -1419,15 +1235,15 @@ final sem o BERTimbau.
 O resultado da reclassificação (Subseção 4.5) introduz uma nuance
 operacional importante: o ganho líquido de corrigir chamados já
 classificados não é uniforme entre modelos nem estável ao longo do
-tempo. Na execução de 30/06/2026, três dos seis classificadores clássicos
-avaliados (SGD, Random Forest e Extra Trees) tinham ganho líquido
-negativo; na execução de 23/07/2026, com o LSTM incluído na comparação,
-apenas Extra Trees e Naive Bayes permanecem negativos — SGD e Random
-Forest passaram a positivo. Essa oscilação, por si só, reforça o
-argumento: decisões de reclassificação em produção devem ser tomadas por
-modelo e reavaliadas a cada rodada, com base no ganho líquido medido
-naquele momento, e não generalizadas a partir do desempenho médio de
-concordância ou acerto validado, nem tratadas como um veredito
+tempo. Numa consolidação anterior, três dos seis classificadores
+clássicos avaliados (SGD, Random Forest e Extra Trees) tinham ganho
+líquido negativo; nesta consolidação, com o LSTM incluído na
+comparação, apenas Extra Trees e Naive Bayes permanecem negativos — SGD
+e Random Forest passaram a positivo. Essa oscilação, por si só, reforça
+o argumento: decisões de reclassificação em produção devem ser tomadas
+por modelo e reavaliadas a cada consolidação, com base no ganho líquido
+medido naquele momento, e não generalizadas a partir do desempenho
+médio de concordância ou acerto validado, nem tratadas como um veredito
 permanente sobre determinado classificador — um modelo pode ser
 competitivo na classificação inicial e, ainda assim, não ser um bom
 candidato a reclassificar decisões já tomadas em todas as rodadas.
@@ -1450,24 +1266,24 @@ humana.
 
 A meta de confiança calibrada igual ou superior a 95% associada a acerto
 real igual ou superior a 95% (Subseção 4.4), estabelecida como critério
-de sucesso deste protocolo, fica próxima de ser atingida, mas não é mais
-alcançada com folga como sugeria a consolidação anterior: a faixa alta
-de confiança da Etapa 1 oficial chega a 96,79% de acerto validado sobre
-4.698 casos conferidos (ante 99,73% sobre 3.284 casos em 16/07/2026),
-ainda que a confiança utilizada seja bruta (softmax/decision_function),
-não formalmente calibrada por Platt ou isotônica (PLATT, 1999; GUO *et al.*, 2017). Essa queda de 99,73%
-para 96,79% na própria faixa de mais alta confiança, à medida que a
-conferência quase dobrou de tamanho, é o mesmo padrão discutido acima
-para o acerto validado geral, e reforça a mesma cautela: a amostra
-validada, embora agora cubra 68,3% da base (ante 33,9% em 16/07/2026),
-ainda prioriza divergências e casos de menor confiança na sua composição
+de sucesso deste protocolo, fica próxima de ser atingida, mas não é
+alcançada com a folga que consolidações anteriores, sobre amostra
+menor, sugeriam: a faixa alta de confiança da Etapa 1 oficial chega a
+96,79% de acerto validado sobre 4.698 casos conferidos, ainda que a
+confiança utilizada seja bruta (*softmax*/*decision_function*), não
+formalmente calibrada por Platt ou isotônica (PLATT, 1999; GUO *et al.*,
+2017).
+
+Essa retração, à medida que a conferência cresceu, é o mesmo
+padrão discutido acima para o acerto validado geral, e reforça a mesma
+cautela: a amostra validada, embora hoje cubra 68,3% da base, ainda
+prioriza divergências e casos de menor confiança na sua composição
 original, o que pode ter inflado artificialmente o acerto validado nas
-faixas de alta confiança das consolidações anteriores, onde a
+faixas de alta confiança de consolidações com menor cobertura, onde a
 conferência tendia a simplesmente confirmar o que já era esperado. A
 confirmação definitiva da meta depende da conclusão da conferência
-humana sobre a fração ainda não conferida da base (31,7%), e a trajetória
-observada entre 16/07 e 23/07/2026 recomenda que a leitura de "meta já
-atingida" só seja aceita quando essa conferência estiver
+humana sobre a fração ainda não conferida da base (31,7%); a leitura de
+"meta já atingida" só deve ser aceita quando essa conferência estiver
 substancialmente mais completa, não a cada consolidação intermediária.
 
 **Limitações**
@@ -1537,17 +1353,17 @@ metodológica: não apenas identificar o melhor classificador, mas
 estruturar um protocolo em que aprendizado de máquina, estatística não
 paramétrica, memória de decisão e auditoria humana qualificam
 progressivamente a base de dados e revelam inconsistências taxonômicas
-— e, como esta rodada demonstrou, também revelam e corrigem
-inconsistências no próprio pipeline de avaliação (Subseções 4.3 e 4.4).
+— e, como este protocolo demonstrou na prática, também revelam e
+corrigem inconsistências no próprio pipeline de avaliação (Subseções
+4.3 e 4.4).
 
 Na amostra parcial, não aleatória, de 9.096 chamados com decisão travada
 e sem conflito, o LinearSVC obteve o maior acerto validado entre os sete
 modelos comparáveis: 94,93% (IC95%: 94,47%--95,38%), seguido de SGD
 (93,92%), Regressão Logística (93,55%), Extra Trees (92,74%), Random
-Forest (92,27%), LSTM (87,90%) e Naive Bayes (86,09%) — números
-rematerializados em 25/07/2026, incluindo uma limpeza completa e
-reprocessamento do zero dos oito modelos (a materialização anterior,
-de 16-17/07, havia sido identificada como desatualizada;
+Forest (92,27%), LSTM (87,90%) e Naive Bayes (86,09%) — números obtidos
+após limpeza completa e reprocessamento do zero dos oito modelos (a
+materialização anterior havia sido identificada como desatualizada;
 Subseção 4.9). Nenhum dos três
 ensembles avaliados (maioria ponderada, confiança calibrada máxima,
 maioria simples) supera o LinearSVC isolado com significância estatística;
@@ -1562,13 +1378,14 @@ generalizada sem desenho probabilístico (COCHRAN, 1977).
 A meta original do experimento — confiança calibrada igual ou superior a
 95% associada a acerto validado igual ou superior a 95% — fica próxima
 de ser atingida na faixa de alta confiança da classificação oficial
-(96,79% de acerto validado, ante 99,73% na consolidação anterior sobre
-amostra menor). Essa reversão recomenda cautela redobrada: a trajetória
-entre 16/07 e 23/07/2026 mostrou que mesmo a leitura "meta atingida"
-pode reverter quando a amostra de conferência cresce, o que reforça a
-recomendação de não tratar a meta como cumprida para fins de liberação
-em produção sem revisão antes da conclusão da conferência humana sobre
-uma fração mais representativa da base.
+(96,79% de acerto validado), com folga menor do que consolidações
+anteriores, sobre amostra menor, sugeriam. Essa retração recomenda
+cautela redobrada: a trajetória observada ao longo do protocolo mostrou
+que mesmo a leitura "meta atingida" pode reverter quando a amostra de
+conferência cresce, o que reforça a recomendação de não tratar a meta
+como cumprida para fins de liberação em produção sem revisão antes da
+conclusão da conferência humana sobre uma fração mais representativa da
+base.
 
 A curva real de aprendizado do LSTM (Subseção 4.9, Figura 5) é
 consistente com o restante do capítulo. A discrepância do *ablation*
@@ -1647,6 +1464,9 @@ Buildings. Buildings, v. 10, n. 9, art. 160, 2020.
 BOX, G. E. P.; JENKINS, G. M. Time series analysis: forecasting and
 control. San Francisco: Holden-Day, 1970.
 
+CAPRA, F. A teia da vida: uma nova compreensão científica dos sistemas
+vivos. São Paulo: Cultrix, 1996.
+
 CHAN, J. Y.-L.; LEOW, S. M. H.; BEA, K. T.; CHENG, W. K.; PHOONG, S. W.;
 HONG, Z.-W.; CHEN, Y.-L. Mitigating the multicollinearity problem and
 its machine learning approach: a review. Mathematics, v. 10, n. 8, art.
@@ -1694,6 +1514,10 @@ Dublin: ACL, 2022. p. 4038--4051.
 GRAVES, A.; SCHMIDHUBER, J. Framewise phoneme classification with
 bidirectional LSTM and other neural network architectures. Neural
 Networks, v. 18, n. 5-6, p. 602--610, 2005.
+
+GRIMM, N. B.; FAETH, S. H.; GOLUBIEWSKI, N. E.; REDMAN, C. L.; WU, J.;
+BAI, X.; BRIGGS, J. M. Global change and the ecology of cities. Science,
+v. 319, n. 5864, p. 756--760, 2008.
 
 GUO, C.; PLEISS, G.; SUN, Y.; WEINBERGER, K. Q. On calibration of modern
 neural networks. In: INTERNATIONAL CONFERENCE ON MACHINE LEARNING, 34.,
@@ -1778,6 +1602,9 @@ methods. Statistics in Medicine, v. 40, n. 26, p. 5691--5701, 2021.
 
 O'BRIEN, R. M. A caution regarding rules of thumb for variance inflation
 factors. Quality & Quantity, v. 41, n. 5, p. 673--690, 2007.
+
+ODUM, H. T. Environment, power, and society. New York:
+Wiley-Interscience, 1971.
 
 OGUNLEYE, L. I.; OYEJOLA, B. A.; OBISESAN, K. O. Comparison of some
 common tests for normality. International Journal of Probability and
@@ -1875,7 +1702,7 @@ vigentes.
 | Justificativa da escolha k-fold vs. holdout fixo, com comparação empírica | 3.5 | Sim (KOHAVI, 1995; Tabela Suplementar S4) |
 | Métricas reportadas e justificativa | 3.5 | Sim (acurácia, macro-F1, balanced accuracy, IC95% bootstrap) |
 | Testes estatísticos e correção para múltiplas comparações | 3.5, 4.10 | Sim — resultados numéricos completos em 4.10 |
-| Verificação explícita de pressupostos (normalidade, homogeneidade, colinearidade, independência) | 4.10 | Sim — protocolo de Zuur, Ieno e Elphick (2010) adaptado; Tabelas 8-9 |
+| Verificação explícita de pressupostos (normalidade, homogeneidade, colinearidade, independência) | 4.10 | Sim — protocolo de Zuur, Ieno e Elphick (2010) adaptado; detalhamento completo em Material Suplementar |
 | Critério de calibração de confiança (bruta vs. calibrada) e meta de desempenho | 3.8, 4.4 | Parcial — meta declarada (>= 95%/>= 95%); calibração formal (Platt/isotônica) ainda não aplicada |
 | Protocolo de validação humana | 3.6 | Sim |
 | Cobertura da validação humana na data de publicação (n e % da base) | 4 (abertura) | Sim, mas desatualizada — ver nota de revalidação de dados |
@@ -1886,7 +1713,7 @@ vigentes.
 
 **Apêndice B — Matriz de decisão M/N/P**
 
-Contagens agregadas disponíveis nos JSONs públicos do painel (23/07/2026):
+Contagens agregadas disponíveis nos JSONs públicos do painel:
 
 | Métrica | n |
 |---|---|
@@ -1898,10 +1725,9 @@ Contagens agregadas disponíveis nos JSONs públicos do painel (23/07/2026):
 | Conferências da coluna M (CONFERÊNCIA GLPI) preenchidas | 9.534 |
 | Conferências da coluna P (CONFERÊNCIA IA - 2) preenchidas | 0 |
 
-Fonte: elaborado pelos autores (2026), com dados de 23/07/2026. A
-coluna P (reclassificação conferida) está zerada nesta
-consolidação — nenhuma reclassificação foi conferida via essa coluna
-especificamente até esta data.
+Fonte: elaborado pelos autores (2026). A coluna P (reclassificação
+conferida) está zerada nesta consolidação — nenhuma reclassificação foi
+conferida via essa coluna especificamente até o momento.
 
 *Pendência explícita*: o cruzamento fino de 3 vias (contagem por combinação
 exata de valores de M × N × P — ex.: quantos casos têm M=Correto e N=Errado
