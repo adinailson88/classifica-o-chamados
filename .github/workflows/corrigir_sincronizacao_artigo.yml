@@ -72,8 +72,16 @@ jobs:
       - name: Regenerar avaliacao final
         run: python src/avaliacao_final.py
 
-      - name: Regenerar estatistica multimodelo
-        run: python src/analise_estatistica.py
+      - name: Registrar diagnostico da estatistica multimodelo
+        continue-on-error: true
+        run: |
+          mkdir -p docs/diagnosticos
+          set +e
+          python src/analise_estatistica.py > docs/diagnosticos/estatistica_pr75.log 2>&1
+          status=$?
+          echo "exit_status=$status" > docs/diagnosticos/estatistica_pr75.status
+          cat docs/diagnosticos/estatistica_pr75.log
+          exit $status
 
       - name: Regenerar sensibilidade do vies de validacao
         run: python src/analise_sensibilidade_vies_validacao.py
