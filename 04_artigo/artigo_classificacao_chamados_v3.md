@@ -1470,75 +1470,58 @@ observada entre 16/07 e 23/07/2026 recomenda que a leitura de "meta já
 atingida" só seja aceita quando essa conferência estiver
 substancialmente mais completa, não a cada consolidação intermediária.
 
-As limitações do estudo foram atualizadas em relação à versão anterior,
-com seis ajustes relevantes.
+**Limitações**
 
-Primeiro, a amostra validada deixou de ser uma amostra piloto de 305
-casos (2,2% da base) e passou a cobrir 9.534 conferências (68,3% da
-base, 9.096 decisões travadas sem conflito), o que aumenta
-substancialmente a robustez estatística das Subseções 4.2 a 4.4 — mas,
-como discutido acima, essa mesma ampliação já revelou que a robustez
-estatística de uma amostra intermediária não garante estabilidade da
-magnitude do resultado, apenas de sua direção geral (a ordem entre
-modelos manteve-se; o patamar de acerto, não).
+As limitações deste estudo organizam-se em três dimensões.
 
-Segundo, os conflitos de conferência (casos em que duas fontes
-confirmam categorias diferentes) permanecem em zero nos dados
-publicados, o que não elimina a possibilidade de novos conflitos
-surgirem à medida que a conferência avança sobre os 31,7% da base
-ainda sem decisão travada.
+Quanto à cobertura, os dados provêm de uma única instituição federal de
+ensino superior, com textos em português brasileiro e taxonomia
+institucional própria; a generalização do desempenho relatado para
+outras instituições, taxonomias ou idiomas depende de validação externa
+ainda não realizada.
 
-Terceiro, o BERTimbau permanece pendente, sem treino concluído nem
-métricas próprias, e foi excluído de rankings, testes e diagnósticos
-comparativos; não há evidência suficiente para concluir sobre seu
-desempenho neste domínio. A causa identificada é que o fluxo automático
-de classificação nunca instala as dependências pesadas necessárias para
-o ajuste fino real e, ao não encontrá-las, recorria silenciosamente ao
-mesmo classificador LSTM usado em outra parte do experimento — sem
-registrar esse desvio em nenhum resultado publicado. A materialização
-publicada anteriormente sob o nome do BERTimbau (13.954 dos 13.965
-chamados) foi, na verdade, produzida por esse caminho de contingência.
-A causa já foi corrigida (o fluxo agora recusa publicar resultados sob
-o nome de um modelo quando suas dependências não estão disponíveis, em
-vez de substituí-lo silenciosamente); os resultados publicados
-anteriormente sob esse nome continuam a ser tratados como não
-confiáveis e devem ser desconsiderados até um treino real com as
-dependências corretas instaladas.
+Quanto à validação, a amostra conferida por avaliadores humanos não é
+probabilística — prioriza divergências entre modelo e histórico e casos
+de maior criticidade —, de modo que os números de acerto validado devem
+ser lidos como descrição da amostra conferida, não como estimativa
+inferencial do desempenho da base completa (COCHRAN, 1977). Uma regra de
+decisão adicional exclui do denominador de acerto validado os casos em
+que nenhuma fonte conferida foi confirmada como correta (4,6% dos
+chamados conferidos); a análise de sensibilidade correspondente mostra
+uma amplitude de poucos pontos percentuais entre o cenário mais
+otimista e o mais conservador, sem alterar o ranking relativo entre os
+modelos.
 
-Quarto, uma suspeita de corrupção de acentuação (*mojibake*) nos nomes
-de categoria usados nas análises de confusão entre categorias (Subseção
-4.8) **não se confirmou**: verificação byte a byte mostrou UTF-8 válido
-em sua totalidade; os caracteres corrompidos observados antes eram
-artefato de exibição do terminal usado para inspecionar os dados, não
-corrupção do dado publicado.
+Quanto ao modelo, o BERTimbau — único classificador contextual testado
+neste protocolo — não teve o ajuste fino concluído até esta consolidação
+e foi excluído de todas as comparações; de forma mais geral,
+classificadores neurais sem *embeddings* pré-treinados de domínio
+tendem a ser penalizados por bases de porte médio como a analisada
+aqui, o que é consistente com o desempenho relativamente inferior do
+LSTM frente aos modelos lineares. Persiste também, como limitação
+operacional, a dependência de uma única instituição como caso empírico.
 
-Quinto, a discrepância do *ablation* do LSTM, uma pendência técnica
-declarada em versão anterior deste texto, foi investigada e resolvida
-em 25/07/2026: uma fração pequena vinha de vazamento por duplicatas
-(corrigido via *GroupKFold*), e a maior parte vinha da avaliação
-oficial de referência estar desatualizada. A rematerialização completa
-dos sete modelos comparáveis (Subseção 4.2) substituiu o valor
-histórico do LSTM (74,71%) pelo valor atual (87,90%), muito mais
-próximo do *ablation* corrigido (86,35%). O *ablation* deixa de ser
-tratado como diagnóstico isolado e passa a ser lido como evidência
-preliminar de baixa sensibilidade do LSTM aos hiperparâmetros testados,
-consistente com a nova avaliação oficial.
+**Papel no modelo de governança preditiva**
 
-Sexto, identificamos e quantificamos um viés estrutural de seleção na
-própria amostra validada, discutido em detalhe na Seção 5: a regra de
-decisão da verdade validada exclui do denominador de acerto validado os
-438 chamados (4,6% dos 9.534 conferidos) em que nenhuma fonte conferida
-foi confirmada como correta, o que infla mecanicamente o número pontual
-reportado na Subseção 4.2. Publicamos um intervalo de sensibilidade com
-amplitude de 3,95 a 4,36 pontos percentuais conforme o modelo; o
-ranking relativo entre os sete modelos permanece estável em todo o
-intervalo, mas o valor absoluto de acerto validado não deve ser
-interpretado como uma estimativa isenta desse viés, nem comparado ponto
-a ponto com *benchmarks* externos sem essa ressalva.
-
-Persistem também como limitações a dependência de uma única instituição
-como caso empírico e a intermitência observada na publicação automática
-do painel de acompanhamento dos resultados.
+Este capítulo constitui o Eixo 1 de um modelo mais amplo de governança
+preditiva para manutenção predial, que trata o campus universitário
+como um biossistema construído — a integração entre infraestrutura
+física, atividade humana, sistemas tecnológicos e condicionantes
+ambientais. A contribuição central não termina na categoria atribuída a
+cada chamado: os dados estruturados e auditáveis produzidos aqui
+(categoria, criticidade e confiança calibrada) são a entrada necessária
+para três desenvolvimentos subsequentes do mesmo programa de pesquisa.
+Primeiro, alimentam modelos de séries temporais (ARIMA, suavização
+exponencial) para previsão de custos e demanda de manutenção por
+categoria. Segundo, compõem a base factual de uma matriz multicritério
+(MCDM/TOPSIS) que prioriza intervenções segundo critérios de
+sustentabilidade técnica, ambiental, social e institucional (ESG/ODS).
+Terceiro, tornam-se espacializáveis via geoprocessamento (Google Earth
+Engine), permitindo leitura territorial do biossistema construído. Sem
+uma camada confiável e auditável de classificação — o objeto deste
+capítulo —, nenhum desses três desenvolvimentos teria dado de entrada
+válido; este capítulo entrega, portanto, a fundação de dados sobre a
+qual o modelo de governança preditiva se torna possível.
 
 **6. CONSIDERAÇÕES FINAIS**
 
@@ -1867,30 +1850,10 @@ v. 1, n. 1, p. 3--14, 2010.
 
 **APÊNDICES**
 
-**Apêndice A — Dicionário de colunas da planilha experimental (A:P)**
+A estrutura completa dos dados, incluindo a arquitetura das planilhas e a
+memória de decisão, está disponível no repositório público do experimento.
 
-A aba experimental segue o esquema fixo de colunas A:P:
-
-| Coluna | Campo |
-|---|---|
-| A | ID Chamado |
-| B | TÍTULO |
-| C | CATEGORIA COMPLETA (rótulo histórico) |
-| D | DESCRIÇÃO GLPI |
-| E | TÍTULO O.S.M. |
-| F | DESCRIÇÃO O.S.M. |
-| G | Classificação IA |
-| H | Avaliação (%) — gravada como fração 0–1, formatada como % |
-| I | Executor |
-| J | Criticidade Atribuída por IA |
-| K | Comparação — fórmula `=SE(G="";"";G=C)` |
-| L | Classificado_Confiança_IA |
-| M | CONFERÊNCIA GLPI |
-| N | CONFERÊNCIA IA |
-| O | Classificação IA - 2 |
-| P | CONFERÊNCIA IA - 2 |
-
-**Apêndice B — Checklist de itens reportados**
+**Apêndice A — Checklist de itens reportados**
 
 Adaptado do espírito do checklist tipo PRISMA-ScR do artigo-modelo de revisão
 (MCDM/TOPSIS/ODS/ESG) para relato de experimento de classificação supervisionada
@@ -1921,7 +1884,7 @@ vigentes.
 | Limitações declaradas | 5, 6 | Sim |
 | Figuras/tabelas geradas a partir de dados verificáveis | 4.8 | Sim (scripts leem os JSONs vigentes do painel) |
 
-**Apêndice C — Matriz de decisão M/N/P**
+**Apêndice B — Matriz de decisão M/N/P**
 
 Contagens agregadas disponíveis nos JSONs públicos do painel (23/07/2026):
 

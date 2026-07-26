@@ -33,71 +33,77 @@ Isso substitui a necessidade de o usuário reexplicar contexto a cada nova conve
 
 ---
 
-## Estado desta rodada
+## Plano de reformulação editorial (rodada 23, substitui a abordagem anterior)
 
-**Data**: 2026-07-26 (America/Bahia, UTC-03:00) — rodada 22 (correção de
-formatação/citação/prolixidade a pedido do Adinailson, após revisar o
-PDF da rodada 21).
+O Adinailson trouxe um plano editorial externo (avaliado como melhor que a
+abordagem de polimento incremental das rodadas 20-22) e pediu para ele
+**substituir** a orientação anterior de "revisar formatação/prolixidade" por
+uma reformulação de conteúdo: transformar o texto de relatório técnico
+detalhado em capítulo de tese/artigo de alto impacto, integrado
+explicitamente ao projeto de doutorado "Modelo Preditivo de Governança
+Sustentável" (o artigo é o **Eixo 1**: transformar texto livre de chamados em
+dado estruturado para alimentar os Eixos 2 previsão de custos/séries
+temporais, 3 MCDM/ESG/ODS e 4 geoprocessamento).
 
-**Contexto**: o Adinailson revisou o PDF gerado após a rodada 21 e
-apontou vários problemas reais: (1) não queria mais citação numérica —
-reverter para autor-data (ABNT); (2) PDF com conteúdo estourando a
-margem; (3) um "Sumário" no início do PDF sem sentido para um artigo;
-(4) linhas "Fonte:" (e trechos do corpo) citando nomes de arquivo/script
-do repositório em vez de remeter aos autores; (5) parágrafos grandes e
-prolixos, com explicação redundante (incluindo referências a "rodadas",
-commits e nomes de scripts internos, que não têm lugar num artigo); (6)
-exigência do orientador de que toda afirmação tenha referência; (7)
-cuidado com escrita "com cara de IA"; (8) autoria no cabeçalho deve
-seguir o mesmo formato do artigo-exemplo (nome completo + e-mail, sem
-iniciais nem rótulo "orientador").
+Seis tarefas do plano (ordem de execução, não a ordem em que foram dadas):
 
-**Onde está**: concluído nesta branch
-(`docs/corrigir-formatacao-citacao-fontes`).
+1. Remover o Apêndice A (dicionário de colunas) — documentação de sistema,
+   não conteúdo científico.
+2. Condensar as Limitações (estavam em 6 parágrafos com datas/rodadas) em 3
+   parágrafos: cobertura, validação, modelo.
+3. Adicionar subseção na Discussão amarrando o artigo ao papel de "fundação
+   de dados" da tese (Eixos 2-4).
+4. Reformular a Introdução: abrir pela tensão de governança em biossistemas
+   construídos (Capra, Odum, Grimm), pergunta central não é "qual
+   classificador é melhor" e sim "como extrair dado estruturado auditável de
+   texto ruidoso para alimentar governança preditiva"; remover datas,
+   caminhos de script e nomes de arquivo do corpo.
+5. Condensar Método (3.4, organizar por família — linear/ensemble/neural —
+   com justificativa conceitual, não hiperparâmetro por hiperparâmetro) e
+   Resultados (resumir aos 3 achados principais; consolidar Shapiro/
+   Friedman/McNemar num parágrafo; mover detalhe estatístico para Material
+   Suplementar; remover "Nota de rastreabilidade (data)").
+6. Passe de estilo geral: parágrafos > 10 linhas quebrados, remover
+   "na interpretação do autor" e hedging repetitivo, checar duplicidade de
+   citação (ex.: Deng et al.), manter ABNT (não mexe no formato de citação).
 
-1. **Citação revertida para ABNT**: usado o commit `3a5d890f` (última
-   versão em autor-data, já com as 4 referências CAPES) como base;
-   reaplicado por cima só o cabeçalho de dois autores (agora no formato
-   do artigo-exemplo, sem iniciais/"orientador") e o bloco de
-   declarações da MDPI (Contribuições dos autores usando sobrenomes
-   completos, não iniciais).
-2. **PDF**: removida a flag `--toc` do workflow `artigo_pdf.yml`
-   (elimina o "Sumário"); encurtadas as duas células mais densas da
-   tabela-checklist do Apêndice B (a pior tinha mais de 200 caracteres
-   de prosa e citações sem quebra — candidata a estourar a margem no
-   `tabular`/`longtable` do pandoc/xelatex).
-3. **"Fonte:" e menções internas**: as 17 linhas "Fonte:" e cerca de 30
-   outras menções espalhadas pelo corpo (nomes de arquivo `.json`/`.py`,
-   hashes de commit, "rodada N") reescritas para remeter aos autores ou
-   simplesmente removidas, sem perder o dado relevante (datas, tamanhos
-   de amostra).
-4. **Parágrafos grandes**: os oito parágrafos mais longos (de 689 a 270
-   palavras) foram divididos e enxugados — o de Limitações (689
-   palavras, 6 ajustes) virou 7 parágrafos curtos, um por ajuste; a
-   maior parte da linguagem de "changelog interno" (nomes de
-   variável/arquivo, "nesta rodada", "nas rodadas 10-11") foi removida
-   sem cortar o achado científico.
-5. **Referências**: auditoria manual dos parágrafos não citados na
-   Introdução/Referencial Conceitual e na Discussão não encontrou
-   afirmação teórica/metodológica sem referência real — a cobertura já
-   era forte das rodadas anteriores. Não foram adicionadas referências
-   novas nesta rodada.
-6. **Figuras**: removido `ax.set_title()`/título duplicado dentro da
-   imagem das 6 figuras (a legenda numerada já existe no Markdown
-   abaixo de cada imagem, como no artigo-exemplo) — mantidos os
-   sub-títulos de painel em Fig5 (Perda/Acurácia por época), que
-   distinguem os dois gráficos lado a lado, não duplicam a legenda
-   externa. As 6 regeneradas a 300dpi.
-7. Suíte completa: 90/90.
+**Onde está**: Etapa 1-3 concluídas nesta rodada, direto em
+`04_artigo/artigo_classificacao_chamados_v3.md` (branch `main`, sem PR —
+mudança de conteúdo, não de dado/código). Etapas 4-6 pendentes, para as
+próximas rodadas.
 
-**Próximo passo**: (1) revisar/mergear o PR desta rodada; (2) quando o
-cron de rematerialização da Etapa 1 terminar, regerar Figuras 2–3 e
-atualizar Tabelas 3 e 7 com os números finais, e então gerar um
-snapshot de fechamento; (3) confirmar com o Adinailson se ainda falta
-algo específico da "subseção 5.4" além do bloco de declarações já
-inserido; (4) gerar o PDF via `artigo_pdf.yml` e revisar visualmente
-(sem Sumário, sem estouro de margem) antes de considerar a correção
-fechada.
+**O que foi feito nesta rodada**:
+1. Apêndice A (dicionário de colunas A:P) removido; substituído por uma
+   frase apontando para o repositório público. Apêndice B (checklist) e C
+   (matriz M/N/P) renumerados para A e B — conferido que não há referência
+   cruzada a "Apêndice B/C" em nenhum outro ponto do corpo antes de
+   renumerar.
+2. Limitações (dentro da Seção 5, Discussão) reescritas: os 6 parágrafos
+   antigos com datas de rodada (16/07, 23/07, 24/07, 25/07/2026) e nomes
+   de mecanismo interno (mojibake, ablation, viés estrutural) foram
+   condensados em 3 parágrafos — cobertura (instituição única/PT-BR),
+   validação (amostra não probabilística + regra de exclusão dos
+   "restritos", intervalo de sensibilidade sem detalhar o número exato de
+   antes) e modelo (BERTimbau sem treino concluído, penalidade estrutural
+   de neurais sem embedding pré-treinado em base de porte médio).
+3. Nova subseção **"Papel no modelo de governança preditiva"** adicionada
+   ao final da Seção 5 (Discussão), antes das Considerações Finais — liga
+   explicitamente os dados de saída (categoria, criticidade, confiança) aos
+   três eixos seguintes da tese (séries temporais ARIMA/SES, matriz
+   MCDM/ESG/ODS, geoprocessamento via Google Earth Engine) e afirma que
+   este capítulo entrega a "fundação de dados" do modelo de governança.
+
+**Próximo passo**: retomar pelas Etapas 4-6 do plano acima, em rodadas
+separadas (cada uma mexe em muito texto para ir numa tacada só):
+(a) reformular a Introdução (remover datas/nomes de arquivo, abrir pela
+tensão de governança em biossistemas construídos); (b) condensar Método
+3.4 por família de modelo e Resultados aos 3 achados + 1 parágrafo
+estatístico consolidado (mover detalhe de Shapiro/Friedman/Nemenyi/McNemar
+para material suplementar); (c) passe de estilo final (parágrafos longos,
+hedging, duplicidade de citação) sobre o texto já reformulado. Antes de
+fechar, revalidar contra `docs/dados/*.json` qualquer número citado nas
+seções reescritas (regra de revalidação de dado vivo já em vigor). Depois
+de tudo, gerar novo PDF (`artigo_pdf.yml`) e revisar visualmente.
 
 ---
 
