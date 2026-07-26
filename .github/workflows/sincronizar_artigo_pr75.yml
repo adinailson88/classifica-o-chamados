@@ -34,7 +34,7 @@ jobs:
       - name: Corrigir e compilar sincronizadores
         run: |
           python src/corrigir_sintaxe_sincronizador.py
-          python -m py_compile src/sincronizar_artigo_dados.py src/corrigir_residuos_artigo.py
+          python -m py_compile src/sincronizar_artigo_dados.py src/corrigir_residuos_artigo.py src/corrigir_apendice_pdf.py
 
       - name: Atualizar artigo e plano a partir dos agregados
         continue-on-error: true
@@ -44,6 +44,7 @@ jobs:
           {
             python src/sincronizar_artigo_dados.py
             python src/corrigir_residuos_artigo.py
+            python src/corrigir_apendice_pdf.py
           } > docs/diagnosticos/sincronizador_local_pr75.log 2>&1
           status=$?
           echo "exit_status=$status" > docs/diagnosticos/sincronizador_local_pr75.status
@@ -68,10 +69,10 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add src/sincronizar_artigo_dados.py src/corrigir_residuos_artigo.py 04_artigo/artigo_classificacao_chamados_v3.md PLANO_ARTIGO_CAPITULO.md docs/diagnosticos
+          git add src/sincronizar_artigo_dados.py src/corrigir_residuos_artigo.py src/corrigir_apendice_pdf.py 04_artigo/artigo_classificacao_chamados_v3.md PLANO_ARTIGO_CAPITULO.md docs/diagnosticos
           if git diff --cached --quiet; then
             echo "Texto ja sincronizado e sem novo diagnostico."
             exit 0
           fi
-          git commit -m "docs: elimina residuos numericos do artigo [skip ci]"
+          git commit -m "docs: corrige achados da revisao visual [skip ci]"
           git push origin HEAD:agent/corrigir-sincronizacao-artigo
