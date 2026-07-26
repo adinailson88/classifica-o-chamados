@@ -1,8 +1,7 @@
 name: Gerar PDF do artigo
 
-# Converte 04_artigo/artigo_classificacao_chamados_v3.md em PDF via pandoc/xelatex
-# e publica em docs/ (GitHub Pages), ao lado do painel. So LE o .md do repositorio;
-# nao le a planilha e nao usa credenciais. Ver docs/PLANO_PDF_ARTIGO_PAGES.md.
+# Converte 04_artigo/artigo_classificacao_chamados_v3.md em PDF via pandoc/xelatex.
+# Em main, publica em docs/. Em pull request, disponibiliza o PDF como artefato.
 
 on:
   push:
@@ -10,11 +9,14 @@ on:
     paths:
       - "04_artigo/artigo_classificacao_chamados_v3.md"
       - ".github/workflows/artigo_pdf.yml"
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
   workflow_dispatch:
 
 concurrency:
-  group: gerar-pdf-artigo
-  cancel-in-progress: false
+  group: gerar-pdf-artigo-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: write
@@ -37,7 +39,17 @@ jobs:
             -V geometry:margin=2.5cm
             --standalone
 
-      - name: Commitar PDF gerado
+      - name: Publicar PDF para revisao da PR
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: artigo-classificacao-pr-${{ github.event.pull_request.number }}
+          path: docs/artigo_classificacao_chamados.pdf
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Commitar PDF gerado em main
+        if: github.event_name != 'pull_request'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
