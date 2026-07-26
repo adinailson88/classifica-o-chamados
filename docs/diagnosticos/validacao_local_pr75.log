@@ -1,0 +1,95 @@
+test_mantem_ultima_ocorrencia_por_linha_planilha (tests.test_calibracao_deduplicada.TestDeduplicarSnapshot.test_mantem_ultima_ocorrencia_por_linha_planilha) ... ok
+test_preserva_linhas_sem_chave (tests.test_calibracao_deduplicada.TestDeduplicarSnapshot.test_preserva_linhas_sem_chave) ... ok
+test_snapshot_vazio_ou_so_cabecalho (tests.test_calibracao_deduplicada.TestDeduplicarSnapshot.test_snapshot_vazio_ou_so_cabecalho) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.000s
+
+OK
+== Arquivos essenciais ==
+OK config_experimento.json
+OK src/planilha.py
+OK src/decisao_validada.py
+OK src/avaliacao_final.py
+OK src/reclassificacao_multimodelo.py
+OK src/reclassificar_validados.py
+OK src/auditar_conferencias.py
+OK .github/workflows/auditar_conferencias.yml
+FALTA .github/workflows/check_final_ready.yml
+
+== Compilacao Python ==
+OK src/ablation_lstm.py
+OK src/analise_erros.py
+OK src/analise_estatistica.py
+OK src/analise_sensibilidade_vies_validacao.py
+OK src/analise_shannon.py
+OK src/atualizar_cache_planilha.py
+OK src/auditar_conferencias.py
+OK src/avaliacao_final.py
+OK src/bertimbau_coreset.py
+OK src/calibracao.py
+OK src/calibracao_confianca.py
+OK src/calibracao_deduplicada.py
+OK src/calibracao_modelos.py
+OK src/check_final_ready.py
+OK src/classificacao_ia_2_comite.py
+OK src/classificacao_multimodelo.py
+OK src/classificador_producao.py
+OK src/classificador_robusto.py
+OK src/classificar_etapa.py
+OK src/comparacao_holdout_kfold.py
+OK src/comparar_coreset.py
+OK src/comparar_modelos.py
+OK src/comparar_modelos_lote.py
+OK src/consolidar_memoria_validada_classificacao.py
+OK src/corrigir_sintaxe_sincronizador.py
+OK src/cruzamento_taxonomia.py
+OK src/decisao_validada.py
+OK src/escrever_estado_bertimbau.py
+OK src/executar_etapa1.py
+OK src/executar_etapa2.py
+OK src/exportar_dashboard.py
+OK src/exportar_dashboard_corrigido.py
+OK src/exportar_etapa.py
+OK src/exportar_tabela_por_categoria.py
+OK src/gerar_figura1_pipeline.py
+OK src/gerar_figura2_confianca_desfecho.py
+OK src/gerar_figura3_tradeoff_custo.py
+OK src/gerar_figura4_confusoes.py
+OK src/gerar_manifesto_snapshot_artigo.py
+OK src/guard_automacao.py
+OK src/limpar_classif_multimodelo.py
+OK src/memoria_validada.py
+OK src/modelo_lstm.py
+OK src/modelos_zoo.py
+OK src/planilha.py
+OK src/preparar_validacao_humana.py
+OK src/reclassificacao_multimodelo.py
+OK src/reclassificar_validados.py
+OK src/registrar_snapshot_inicial.py
+OK src/relevancia_termos.py
+OK src/rematerializar_etapa1_oficial.py
+OK src/resetar_experimento.py
+OK src/sincronizar_artigo_dados.py
+OK src/smoke_transformer.py
+OK src/tempo.py
+OK src/validacao_nao_supervisionada.py
+
+== JSONs publicos ==
+OK docs/dados/avaliacao_final.json
+OK docs/dados/reclass_resumo.json
+OK docs/dados/estatistica.json
+OK docs/dados/calibracao_modelos.json
+OK docs/dados/calibracao_ajustada_modelos.json
+
+== Avaliacao final ==
+status=ok
+validados=9044
+conflitos=52
+melhor_ia=linear_svc
+
+== Reclassificacao ==
+modelos=naive_bayes, regressao_logistica, linear_svc, sgd, extra_trees, random_forest, lstm
+
+status=problema_tecnico
+- arquivo essencial ausente: .github/workflows/check_final_ready.yml

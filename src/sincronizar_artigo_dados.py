@@ -67,7 +67,7 @@ def atualizar_artigo(texto: str) -> str:
     auditoria = ler_json("auditoria_conferencias.json")
     estatistica = ler_json("estatistica.json")
     calibracao = ler_json("calibracao.json")
-    sensibilidade_json = ler_json("sensibilidade_vies_validacao.json")
+    sensibilidade_json = json.loads((RAIZ / "04_artigo" / "figuras" / "sensibilidade_vies_validacao.json").read_text(encoding="utf-8"))
     reclass = ler_json("reclass_resumo.json")
 
     avaliacao = por_modelo(avaliacao_json["por_modelo"])

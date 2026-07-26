@@ -23,13 +23,20 @@ ordem:
    auditorias antigas sem conferir a data.
 3. Ao terminar o que foi pedido nesta rodada, **substituir** (não acrescentar sem
    critério) a seção "Estado desta rodada" com três blocos obrigatórios:
-   - **Onde está**: em qual seção/etapa do plano abaixo (ex.: "Seção 4.2 do artigo,
-     aguardando fechar 4.6").
-   - **O que foi feito nesta rodada**: resumo verificável (arquivos alterados,
-     números conferidos, o que foi descartado e por quê).
-   - **Próximo passo**: uma ação concreta e priorizada, não uma lista genérica.
+   - **Onde está**: reformulação editorial já incorporada à `main` pelas PRs
+#73 e #74. A correção de sincronização numérica está em execução na branch
+`agent/corrigir-sincronizacao-artigo`.
 
-Isso substitui a necessidade de o usuário reexplicar contexto a cada nova conversa.
+**O que foi feito nesta rodada**: identificada e corrigida a duplicação do
+`SNAPSHOT_ETAPA_1` na calibração, mantendo a última ocorrência por
+`linha_planilha`; criado sincronizador reproduzível para atualizar
+Resumo/Abstract, Tabelas 1--4, Discussão, Limitações e Considerações Finais a
+partir dos JSONs vigentes; corrigidas contradições editoriais remanescentes e a
+exposição de caminho interno na fonte da Figura 1.
+
+**Próximo passo**: executar o workflow corretivo com credencial da planilha,
+validar a suíte completa, regenerar Figuras 2 e 3 e o PDF, e revisar visualmente
+o artefato antes do merge da PR corretiva.
 
 ---
 
