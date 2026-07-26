@@ -80,7 +80,7 @@ def _salvar_figura(pares_top: list[dict], codigos: dict[str, str]) -> None:
         ax.text(valor + max(valores) * 0.01, idx, str(valor), va="center", fontsize=9)
     fig.tight_layout()
     SAIDA_FIGURA.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(SAIDA_FIGURA, dpi=220)
+    fig.savefig(SAIDA_FIGURA, dpi=300)
     plt.close(fig)
 
 

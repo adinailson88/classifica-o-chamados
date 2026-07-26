@@ -35,10 +35,71 @@ Isso substitui a necessidade de o usuário reexplicar contexto a cada nova conve
 
 ## Estado desta rodada
 
-**Data**: 2026-07-26 (America/Bahia, UTC-03:00) — rodada 20 (4 referências
-CAPES restantes; avaliação de 2 PDFs anexados; remoção da coautoria
-Claude do histórico; rematerialização da Etapa 1 oficial; Passo 6 —
-referências em formato numérico MDPI).
+**Data**: 2026-07-26 (America/Bahia, UTC-03:00) — rodada 21 (rigor formal
+MDPI: figuras a 300dpi via script, dois autores, declarações
+obrigatórias da *Buildings*).
+
+**Contexto**: seguindo o Passo 5 do prompt original de 6 passos ("rigor
+formal de submissão MDPI: metadados, figuras 300dpi, subseção 5.4
+dedicada"), o Adinailson confirmou: (a) escrever scripts Python/R para
+gerar as Figuras 1–3 (que não tinham script gerador no repo), seguindo o
+estilo de um artigo-exemplo que ele anexou (rascunho não citável,
+"Random Forest e Lógica Fuzzy..."); (b) autoria: Adinailson Guimarães de
+Oliveira + orientador Prof. Dr. Fabrício Berton Zanchi (UFSB); (c) sem
+financiamento formal, sem IRB/consentimento informado aplicável.
+
+**Onde está**: concluído nesta branch
+(`docs/mdpi-figuras-300dpi-declaracoes`).
+
+1. **Figuras 1–3 (sem script antes)**: criados
+   `src/gerar_figura1_pipeline.py` (diagrama estático do pipeline, não
+   depende de dado vivo), `src/gerar_figura2_confianca_desfecho.py` (lê
+   `calibracao.json#por_faixa`, mesmos números da Tabela 3) e
+   `src/gerar_figura3_tradeoff_custo.py` (cruza `comparacao_modelos.json`
+   — lote de 1.000 registros — com `avaliacao_final.json#por_modelo`).
+   Nenhum número foi digitado à mão; os três leem o JSON vigente do
+   painel.
+2. **Figuras 4–6 (já tinham script)**: `dpi=220` → `dpi=300` em
+   `src/ablation_lstm.py`, `src/gerar_figura4_confusoes.py` e
+   `src/modelo_lstm.py`. Regeneradas sem retreinar: Fig4 rodando o
+   script normal (só plota, não depende de treino); Fig5 e Fig6
+   chamando as funções de plot já existentes (`plotar_history`,
+   `salvar_figura`) com os artefatos já salvos em cache
+   (`lstm_history.json`, `ablation_lstm_resultados.json`) em vez de
+   re-treinar o LSTM. As 6 figuras confirmadas a 300dpi (`PIL.Image.info`).
+3. **Autoria e declarações MDPI**: cabeçalho do artigo passou a listar
+   os dois autores (E-mail de cada um, F.B.Z. identificado como
+   orientador). Acrescentado o bloco de declarações obrigatórias da
+   MDPI antes da lista de REFERÊNCIAS: Author Contributions (papéis
+   reais, não genéricos — F.B.Z. como supervisão/administração,
+   A.G.O. como execução), Funding ("no external funding"),
+   Institutional Review Board Statement e Informed Consent Statement
+   ("Not applicable", com justificativa de que não há pesquisa com
+   seres humanos — a conferência é atividade interna de qualidade,
+   não protocolo experimental), Data Availability Statement (dados da
+   planilha institucional não públicos por confidencialidade; código
+   público no GitHub), Acknowledgments, Conflicts of Interest.
+4. Suíte completa: 90/90.
+
+**Ressalva importante sobre dados transitórios**: a rematerialização da
+Etapa 1 oficial (rodada 20, item 3 abaixo) ainda está em andamento via
+cron (`etapa1_turnos.yml`, a cada 15 min) quando esta rodada foi feita.
+A Figura 2 e a Figura 3, por lerem o JSON vigente, já refletem números
+ligeiramente diferentes dos publicados nas Tabelas 3 e 7 do texto (que
+ficaram congeladas na última consolidação). Isso é esperado e
+transitório — quando o cron terminar de reclassificar a base inteira,
+recomenda-se rodar os três scripts de novo (`gerar_figura2_confianca_desfecho.py`,
+`gerar_figura3_tradeoff_custo.py`) e também atualizar as Tabelas 3 e 7 do
+texto para os números finais, num novo snapshot.
+
+**Próximo passo**: (1) revisar/mergear o PR desta rodada; (2) quando o
+cron de rematerialização da Etapa 1 terminar (pode levar mais de um
+dia), regerar Figuras 2–3 e atualizar Tabelas 3 e 7 com os números
+finais, e então gerar um snapshot de fechamento; (3) subseção dedicada
+de rigor formal (se o Adinailson ainda quiser uma "5.4" textual
+explícita além do bloco de declarações já inserido — confirmar com ele
+o que exatamente falta, já que "subseção 5.4" no prompt original de 6
+passos provavelmente já se referia a este bloco de declarações).
 
 **Contexto**: o Adinailson pediu, em uma única mensagem, 4 coisas: (1)
 incluir as "10 alternativas CAPES" da rodada 19, só as já salvas no
@@ -110,6 +171,71 @@ rodada futura, se o Adinailson quiser.
 MDPI numérico); (2) restam do prompt original de 6 passos: rigor formal
 de submissão MDPI (metadados, figuras 300dpi, subseção 5.4 dedicada) —
 ainda não tratado.
+
+---
+
+### Histórico da rodada 20 (4 referências CAPES restantes; remoção da coautoria Claude; rematerialização da Etapa 1; referências MDPI numérico)
+
+**Contexto**: o Adinailson pediu, em uma única mensagem, 4 coisas: (1)
+incluir as "10 alternativas CAPES" da rodada 19, só as já salvas no
+Drive; (2) avaliar 2 PDFs anexados (outliers em bibliometria;
+Durbin-Watson) para os gaps declarados na rodada 19; (3) gerar novo
+snapshot, mesclar, e remover `Co-Authored-By: Claude` de **todo** o
+histórico de commits (force-push confirmado, mesmo com o risco de
+quebrar outros clones/sessões); (4) assumir os Passos 3–6 pendentes
+(antes reservados ao Codex).
+
+**Onde está**: os 4 pontos concluídos.
+
+1. **CAPES + PDFs (pontos 1–2)**: PR #66 mesclado. 4 referências CAPES
+   que faltavam (Hodge e Austin 2004, DiCiccio e Efron 1996, Kornbrot
+   2014, Wongpakaran *et al.* 2013) inseridas na Subseção 4.10/3.5 e na
+   bibliografia — as outras 6 da lista de 10 já estavam citadas.
+   `Durbin-Watson.pdf` rejeitado (nota autopublicada no ResearchGate, sem
+   revisão por pares); a lacuna de Durbin-Watson/ACF continua declarada,
+   agora com nota de transparência. PDF de outliers bibliométricos (Lima
+   *et al.*, 2017, *Em Questão*/UFRGS, revisado por pares) aceito como
+   apoio ao Tukey/IQR, com analogia explícita para ML. Novo snapshot
+   `artigo-v3-20260726` gerado e mesclado.
+2. **Reescrita de histórico (ponto 3)**: `git filter-repo` removeu
+   `Co-Authored-By: Claude` de 110 commits no `main`; árvore de arquivos
+   verificada idêntica (mesmo hash) antes/depois; force-push isolado,
+   feito só depois de confirmar que nenhuma outra sessão tinha tocado o
+   `main` nesse meio-tempo. GitHub confirmado sem Claude nos Contributors.
+3. **Rematerialização da Etapa 1 oficial (Passo 3)**: cabeçalho real da
+   planilha confirmado pelo Adinailson (`L = Classificado_Confiança_IA`,
+   uma fórmula nativa que recalcula sozinha — resolveu divergência entre
+   `CONTEXTO.md` e o docstring de `resetar_experimento.py`). Script novo
+   `src/rematerializar_etapa1_oficial.py` + workflow
+   `rematerializar_etapa1_oficial.yml` (PR #67, mesclado): limpam SOMENTE
+   G2:K, preservando L (fórmula), M/N/O/P/Q (conferência humana e Etapa
+   2) e todas as abas de log. Dry-run confirmou 13.965 linhas afetadas;
+   aplicado de verdade com backup automático (`BACKUP_ETAPA1_20260726_131413`).
+   O cron de produção (`etapa1_turnos.yml`, a cada 15 min) assumiu o
+   reprocessamento gradual — não precisa de acompanhamento manual.
+4. **Passo 6 — referências em formato MDPI numérico**: convertido o
+   artigo inteiro (`04_artigo/artigo_classificacao_chamados_v3.md`) de
+   citação autor-data (ABNT) para numérica ([1], [2,3]...), ordem de
+   primeira citação, como exigido pela revista alvo (*Buildings*, MDPI).
+   Feito via script de conversão (não editado à mão): mapeou as 56
+   referências da bibliografia por (sobrenome, ano), localizou todas as
+   ~109 ocorrências de citação no corpo (formas ABNT maiúsculas,
+   narrativas em minúsculas, e bundles com prosa embutida em células de
+   tabela do Apêndice B), atribuiu os números por ordem de primeira
+   aparição e substituiu. Verificações feitas antes de aplicar: as 56
+   referências têm pelo menos uma citação encontrada; os números 1–56
+   aparecem cada um pelo menos uma vez no corpo (nenhum buraco, nenhum
+   número fora do intervalo); nenhum padrão autor-ano remanescente sobrou
+   fora da lista de referências; cabeçalhos de seção, legendas de
+   figura/tabela e conteúdo das tabelas continuam byte-a-byte idênticos
+   (`diff` vazio). A lista de REFERÊNCIAS foi reordenada e renumerada,
+   mas o texto bibliográfico de cada entrada foi mantido como estava
+   (não reformatado campo a campo para a micro-sintaxe exata da MDPI).
+5. Suíte completa: 90/90 em cada PR (mudança só em Markdown/JSON de
+   snapshot).
+
+**Próximo passo**: resolvido na rodada 21 (figuras 300dpi + declarações
+MDPI) — ver acima.
 
 ---
 

@@ -499,7 +499,7 @@ def salvar_figura(resultados: list[dict]) -> None:
         ax.text(i, v + 0.2, f"{v:.2f}%", ha="center", va="bottom", fontsize=9)
     fig.tight_layout()
     SAIDA_FIG.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(SAIDA_FIG, dpi=220)
+    fig.savefig(SAIDA_FIG, dpi=300)
     plt.close(fig)
 
 
