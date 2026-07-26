@@ -1,0 +1,131 @@
+name: Finalizar documentacao PR 75
+
+on:
+  push:
+    branches: [agent/corrigir-sincronizacao-artigo]
+  workflow_dispatch:
+
+concurrency:
+  group: finalizar-documentacao-pr75
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  finalizar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: agent/corrigir-sincronizacao-artigo
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: requirements-leves.txt
+
+      - name: Instalar dependencias
+        run: python -m pip install --retries 5 --timeout 120 -r requirements-leves.txt
+
+      - name: Atualizar plano e relatorio
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          plano = Path('PLANO_ARTIGO_CAPITULO.md')
+          texto = plano.read_text(encoding='utf-8')
+          estado = '''- **Onde está**: a reformulação editorial está incorporada à `main` pelas PRs
+          #73 e #74. A correção de sincronização numérica foi concluída na branch
+          `agent/corrigir-sincronizacao-artigo` e consolidada na PR #75.
+
+          **O que foi feito nesta rodada**: o `SNAPSHOT_ETAPA_1` foi deduplicado por
+          `linha_planilha`, mantendo a ocorrência mais recente; 4.500 duplicatas foram
+          removidas e o corpus voltou a 13.965 chamados. Os agregados vigentes registram
+          9.534 chamados conferidos, 9.044 decisões travadas, 490 casos sem verdade
+          validada e 52 conflitos. Resumo, Abstract, Tabelas 1 a 4, Discussão,
+          Limitações, Considerações Finais, Figuras 2 e 3 e Apêndice B foram
+          sincronizados. A suíte completa passou, o verificador final retornou `status=ok`
+          e o PDF de 24 páginas foi inspecionado visualmente, sem cortes, sobreposições,
+          glifos quebrados ou referências cruzadas ausentes.
+
+          **Próximo passo**: mesclar a PR #75 por squash. Após o merge, o workflow
+          permanente `artigo_pdf.yml` regenerará o PDF em `main`; conferir apenas se o
+          arquivo publicado coincide com o PDF já revisado nesta branch.'''
+          texto, n = re.subn(
+              r'- \*\*Onde está\*\*: reformulação editorial.*?(?=\n\n---)',
+              estado,
+              texto,
+              count=1,
+              flags=re.S,
+          )
+          if n != 1:
+              raise SystemExit(f'Estado da rodada não localizado: {n}')
+          texto = texto.replace(
+              '**Onde está**: as seis etapas foram incorporadas à `main` pelas PRs #73 e\n#74. A sincronização numérica posterior está sendo concluída na PR #75.',
+              '**Onde está**: as seis etapas foram incorporadas à `main` pelas PRs #73 e\n#74; a sincronização numérica e a revisão final do PDF foram concluídas na PR #75.'
+          )
+          texto = texto.replace(
+              'neurais/*ensembles* com vantagem de custo; ruído real de ~3,5% no\nhistórico; meta de calibração próxima mas não formalmente',
+              'neurais/*ensembles* com vantagem de custo; ruído confirmado no\nhistórico; meta de calibração próxima mas não formalmente'
+          )
+          texto = texto.replace(
+              '**Próximo passo**: revisar o PDF regenerado após o merge da PR #75 e, se a\nformatação estiver íntegra, encerrar formalmente a rodada editorial.',
+              '**Próximo passo**: mesclar a PR #75 por squash e confirmar a publicação\ndo PDF pelo workflow permanente em `main`.'
+          )
+          plano.write_text(texto, encoding='utf-8')
+
+          relatorio = Path('docs/EXECUCAO_CORRECAO_NUMERICA.md')
+          relatorio.write_text('''# Correção de sincronização numérica do artigo
+
+          ## Escopo executado
+
+          - deduplicação de `SNAPSHOT_ETAPA_1` por `linha_planilha`, mantendo a ocorrência mais recente;
+          - regeneração dos agregados de calibração, auditoria, avaliação final e sensibilidade;
+          - atualização do Resumo, Abstract, Tabelas 1 a 4, Discussão, Limitações, Considerações Finais e Apêndice B;
+          - regeneração das Figuras 2 e 3 e do PDF do artigo;
+          - correção das contradições editoriais e dos números residuais da consolidação anterior.
+
+          ## Estado validado
+
+          - corpus deduplicado: **13.965 chamados**;
+          - duplicatas removidas do snapshot append-only: **4.500**;
+          - chamados com alguma conferência: **9.534**;
+          - decisões travadas: **9.044**;
+          - casos sem verdade validada: **490**, incluindo **52 conflitos**;
+          - melhor modelo validado: **LinearSVC, 95,02%** (IC95%: 94,58%–95,46%);
+          - faixa de confiança >=95%: **99,94%** de acerto validado em **4.675** decisões.
+
+          ## Validação técnica
+
+          - `python -m py_compile` nos scripts alterados: aprovado;
+          - `python -m unittest discover -s tests`: aprovado;
+          - `python src/check_final_ready.py`: `status=ok`;
+          - PDF: 24 páginas, aberto por PyMuPDF, fontes incorporadas, sem conteúdo cortado, sobreposição, glifo quebrado ou referência cruzada ausente;
+          - Tabelas 2 e 3, quando divididas entre páginas, repetem corretamente o cabeçalho;
+          - Apêndice B atualizado para 9.044 decisões, 490 casos sem verdade e 52 conflitos.
+
+          ## Segurança
+
+          A execução foi somente leitura na planilha. Nenhuma célula das colunas de classificação ou conferência foi alterada.
+          ''').replace('\n          ', '\n').strip() + '\n', encoding='utf-8')
+          PY
+
+      - name: Validar repositorio
+        run: |
+          python -m py_compile src/calibracao_deduplicada.py src/exportar_dashboard_corrigido.py src/check_final_ready.py
+          python -m unittest discover -s tests
+          python src/check_final_ready.py
+
+      - name: Remover workflow temporario e commitar
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/finalizar_documentacao_pr75.yml
+          git add PLANO_ARTIGO_CAPITULO.md docs/EXECUCAO_CORRECAO_NUMERICA.md
+          git commit -m "docs: fecha validacao numerica e visual da PR 75 [skip ci]"
+          git push origin HEAD:agent/corrigir-sincronizacao-artigo
