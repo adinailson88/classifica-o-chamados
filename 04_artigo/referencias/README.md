@@ -1,16 +1,17 @@
-# Referências estatísticas com texto completo e fichas analíticas
+# Referências com texto completo e fichas analíticas
 
-Este diretório reúne as referências estatísticas e metodológicas incorporadas ao acervo do projeto em 26/07/2026. Os PDFs permanecem no Google Drive institucional para evitar duplicação de arquivos binários no repositório. Cada entrada abaixo aponta para o texto completo e para a ficha analítica consolidada deste diretório.
+Este diretório reúne referências estatísticas, metodológicas e de inteligência artificial incorporadas ao acervo do projeto em 26/07/2026. Os PDFs permanecem no Google Drive institucional para evitar duplicação de arquivos binários no repositório. Cada entrada aponta para o texto completo e para uma ficha analítica.
 
 ## Situação
 
-- Referências verificadas e organizadas: 10
-- PDFs disponíveis no Google Drive: 10
-- Fichas analíticas: 10
-- Duplicatas detectadas por SHA-256: nenhuma
-- Ficha consolidada: [`FICHAS_REFERENCIAS_ESTATISTICAS.md`](FICHAS_REFERENCIAS_ESTATISTICAS.md)
+- PDFs verificados e organizados nos dois lotes: 22
+- Fichas analíticas: 22
+- Duplicatas exatas detectadas por SHA-256: 1
+- Versões técnicas relacionadas, mas não idênticas: 2
+- Ficha consolidada do primeiro lote: [`FICHAS_REFERENCIAS_ESTATISTICAS.md`](FICHAS_REFERENCIAS_ESTATISTICAS.md)
+- Catálogo e fichas individuais do segundo lote: [`fichas/README_LOTE_2026-07-26_2.md`](fichas/README_LOTE_2026-07-26_2.md)
 
-## Catálogo
+## Primeiro lote — referências estatísticas
 
 | Ano | Referência | Aplicação no artigo/capítulo | Texto completo |
 |---:|---|---|---|
@@ -25,11 +26,11 @@ Este diretório reúne as referências estatísticas e metodológicas incorporad
 | 2021 | Minderer et al. — *Revisiting the Calibration of Modern Neural Networks* | Calibração, ECE, Brier score e confiabilidade das probabilidades | [Google Drive](https://drive.google.com/file/d/1dbgvSLPXkdVS-WIeM8reI5YT5YHCzux1/view) |
 | 2022 | Chan et al. — revisão sobre multicolinearidade e ML | VIF, regularização e interpretação de modelos correlacionados | [Google Drive](https://drive.google.com/file/d/1_SqEZGuR-TfBjFtkXwCvMgvTr0Eo3aWL/view) |
 
-## Organização no Drive
+## Segundo lote — fichas individuais
 
-- `02_IA_e_CienciaDeDados`: Hodge e Austin (2004); Minderer et al. (2021).
-- `03_Predicao_Custos_e_Estatistica`: DiCiccio e Efron (1996); Demšar (2006); Kornbrot (2014); Benavoli et al. (2016); Ogunleye et al. (2018); Noma et al. (2021); Chan et al. (2022).
-- `08_Metodologia`: Wongpakaran et al. (2013).
+O segundo lote acrescenta Zadeh, Salton–Buckley, Winkler, Joachims, Mamdani–Assilian, Breiman, Sebastiani, He–Garcia, Lee–Kao–Yang, Lima et al., Montroni et al. e Allam. O catálogo contém os links individuais para cada ficha e PDF.
+
+A cópia de Montroni et al. foi confirmada como duplicata exata e preservada com `_DUPLICATA`. Os relatórios de Salton–Buckley e Joachims possuem hashes distintos das versões publicadas já existentes e foram registrados como versões técnicas relacionadas.
 
 ## Regra de uso
 
