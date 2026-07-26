@@ -49,10 +49,14 @@ jobs:
       - name: Aplicar correcao idempotente de sintaxe
         run: python src/corrigir_sintaxe_sincronizador.py
 
-      - name: Validar codigo antes de acessar dados vivos
-        run: |
-          python -m py_compile src/calibracao_deduplicada.py src/exportar_dashboard_corrigido.py src/sincronizar_artigo_dados.py
-          python -m unittest discover -s tests
+      - name: Compilar novos scripts
+        run: python -m py_compile src/calibracao_deduplicada.py src/exportar_dashboard_corrigido.py src/sincronizar_artigo_dados.py
+
+      - name: Testar deduplicacao isoladamente
+        run: python -m unittest tests.test_calibracao_deduplicada -v
+
+      - name: Executar suite completa antes dos dados vivos
+        run: python -m unittest discover -s tests
 
       - name: Recriar chave da conta de servico
         env:
