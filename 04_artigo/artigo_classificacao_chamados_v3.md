@@ -484,8 +484,9 @@ distribuição de uma estatística sem pressupor sua forma paramétrica
 (EFRON, 1979; EFRON; TIBSHIRANI, 1993), cuja variedade de métodos de
 construção de intervalo (percentil, BCa, bootstrap-*t*) e respectivas
 propriedades de cobertura é revisada em detalhe por DiCiccio e Efron
-(1996) — com 95% de confiança. A
-*macro*-F1 e a *balanced accuracy* são essenciais face ao
+(1996) — com 95% de confiança.
+
+A *macro*-F1 e a *balanced accuracy* são essenciais face ao
 desbalanceamento entre categorias, dado que a acurácia isolada pode
 superestimar desempenho em classes majoritárias e mascarar falhas em
 categorias raras (SOKOLOVA; LAPALME, 2009). A correlação entre confiança
@@ -499,7 +500,9 @@ em postos que dispensa o pressuposto de normalidade da ANOVA
 (MCNEMAR, 1947); e incerteza de acurácia é estimada por *bootstrap*
 (EFRON, 1979), abordagem cuja utilidade para intervalos de confiança de
 métricas de modelos preditivos continua sendo estudada e refinada
-recentemente (NOMA *et al.*, 2021). Quando múltiplas comparações são
+recentemente (NOMA *et al.*, 2021).
+
+Quando múltiplas comparações são
 realizadas, aplica-se o teste de Nemenyi sobre os postos médios
 (NEMENYI, 1963), seguindo o protocolo consolidado por Demšar (2006) para
 comparação estatística de classificadores em múltiplos conjuntos de
@@ -827,8 +830,9 @@ a decisão, 319 em que nenhum dos dois coincide, 577 em que o histórico
 acerta e a IA erra, e **nenhum** caso, nesta consolidação, em que a IA
 corrige uma categoria histórica que a decisão considerou incorreta.
 Essa ausência total tem explicação estrutural discutida abaixo, não
-deve ser lida automaticamente como "a IA nunca corrige o histórico". O
-que o resultado sustenta com mais segurança é a outra metade da
+deve ser lida automaticamente como "a IA nunca corrige o histórico".
+
+O que o resultado sustenta com mais segurança é a outra metade da
 premissa: existe ruído real no histórico — 319 dos 9.096 casos
 conferidos (3,51%, mais que o dobro da proporção observada em amostras
 menores) têm categoria histórica
@@ -872,7 +876,9 @@ apresenta concordância de 99,08% com o histórico e, mais relevante,
 acerto validado de 96,79% sobre os 4.698 casos já com decisão travada
 nessa faixa — resultado que fica muito próximo da meta de referência do
 experimento (confiança calibrada >= 95% associada a acerto real >= 95%),
-embora não a atinja com folga. Nas faixas inferiores, a degradação de
+embora não a atinja com folga.
+
+Nas faixas inferiores, a degradação de
 desempenho acompanha a queda de confiança de forma consistente (90–95%:
 acerto validado 91,48%; 80–90%: 93,92%; 70–80%: 94,95%; 50–70%: 83,94%;
 inferior a 50%: 49,89%), o que corrobora a correlação positiva entre
@@ -958,26 +964,25 @@ duplicadas históricas.
 (Shannon/Jensen-Shannon)**
 
 O diagnóstico de Shannon foi recalculado sobre oito fontes comparáveis:
-a Etapa 1 oficial e os sete modelos materializados. O BERTimbau foi excluído por não ter treino concluído. A Etapa 1
-oficial apresenta a maior diversidade
-de categorias previstas e a menor divergência de Jensen-Shannon frente à
-distribuição histórica. No nível de chamado individual, 3.277 dos 13.965
-registros (23,5%) apresentam alta entropia de votos entre as oito fontes,
-ou seja,
-desacordo estrutural relevante entre arquiteturas distintas — um
-critério de priorização de auditoria diferente e complementar à simples
-baixa confiança de um único modelo. No nível de categoria, a análise
-aponta 76 ocorrências de alta ambiguidade nas predições (com suporte
-mínimo de 30 registros por categoria); a interpretação detalhada de
-quais categorias específicas concentram essa ambiguidade, e sua
-sobreposição com os pares de maior confusão recíproca identificados na
-etapa de cruzamento de taxonomia, permanece como candidata a inspeção
-qualitativa dirigida — nesta consolidação, essa sobreposição não pôde
-ser detalhada com exemplos de categorias por causa da corrupção de
-acentuação identificada na Subseção 4.8. O que a camada Shannon oferece
-é a priorização estatística de onde essa inspeção deve começar, não a
-decisão de fusão ou desambiguação de categorias, que continua sendo
-humana. Naive Bayes chama atenção por combinar a menor cobertura de
+a Etapa 1 oficial e os sete modelos materializados. O BERTimbau foi
+excluído por não ter treino concluído. A Etapa 1 oficial apresenta a
+maior diversidade de categorias previstas e a menor divergência de
+Jensen-Shannon frente à distribuição histórica. No nível de chamado
+individual, 3.277 dos 13.965 registros (23,5%) apresentam alta entropia
+de votos entre as oito fontes, ou seja, desacordo estrutural relevante
+entre arquiteturas distintas — um critério de priorização de auditoria
+diferente e complementar à simples baixa confiança de um único modelo.
+
+No nível de categoria, a análise aponta 76 ocorrências de alta
+ambiguidade nas predições (com suporte mínimo de 30 registros por
+categoria); a interpretação detalhada de quais categorias específicas
+concentram essa ambiguidade, e sua sobreposição com os pares de maior
+confusão recíproca identificados na etapa de cruzamento de taxonomia,
+permanece como candidata a inspeção qualitativa dirigida futura. O que
+a camada Shannon oferece é a priorização estatística de onde essa
+inspeção deve começar, não a decisão de fusão ou desambiguação de
+categorias, que continua sendo humana. Naive Bayes chama atenção por
+combinar a menor cobertura de
 categorias (19, ante 47–53 dos demais modelos) com entropia normalizada
 relativamente alta (0,7848) — provável reflexo de concentração extrema
 em poucas categorias com alguma dispersão residual, não investigado em
@@ -1107,15 +1112,16 @@ mais próximo dos 0,8635 deste *ablation* corrigido (diferença residual
 de 1,55 pontos percentuais, plausivelmente atribuível a diferenças
 remanescentes de protocolo entre o número de *folds* e o esquema de
 treino usados em cada avaliação).
+
 **Conclusão**: o *ablation* nunca teve um problema metodológico grave; a
 maior parte da discrepância original vinha de comparar um resultado
-fresco com uma referência oficial desatualizada. A ordenação relativa das
-quatro variantes testadas (`units=128, dropout=0,3` como melhor, seguida
-de `units=128, dropout=0,5`, `units=64, dropout=0,5` e `units=64,
-dropout=0,3`) é interpretada como evidência preliminar de baixa
-sensibilidade do LSTM a esses hiperparâmetros nesta base (diferença total
-entre a melhor e a pior variante inferior a 4 pontos percentuais), não
-como indicação forte de que a arquitetura atual esteja subotimizada.
+fresco com uma referência oficial desatualizada. A ordenação relativa
+das quatro variantes testadas — variando número de unidades recorrentes
+e taxa de *dropout* — é interpretada como evidência preliminar de baixa
+sensibilidade do LSTM a esses hiperparâmetros nesta base (diferença
+total entre a melhor e a pior variante inferior a 4 pontos percentuais),
+não como indicação forte de que a arquitetura atual esteja
+subotimizada.
 
 Fonte: elaborado pelos autores (2026).
 
@@ -1179,13 +1185,14 @@ para esses 438 casos, uma categoria de referência contra a qual comparar
 a predição de cada modelo, o acerto validado reportado como número
 pontual é, na verdade, um limite superior: mede o desempenho apenas nos
 casos em que pelo menos uma fonte (histórico ou IA) já estava certa, por
-construção. A análise de sensibilidade publicada em
-`04_artigo/figuras/sensibilidade_vies_validacao.json` recalcula um limite
-inferior (pior caso, contando os 438 restritos como erro de todos os
-modelos) e mostra que a amplitude do intervalo é de 3,95 a 4,36 pontos
-percentuais conforme o modelo — relevante em termos absolutos, mas sem
-alterar o ranking relativo entre os sete modelos em nenhum ponto do
-intervalo. A implicação para a leitura deste capítulo é dupla: a
+construção.
+
+Uma análise de sensibilidade recalcula um limite inferior (pior caso,
+contando os 438 restritos como erro de todos os modelos) e mostra que a
+amplitude do intervalo é de 3,95 a 4,36 pontos percentuais conforme o
+modelo — relevante em termos absolutos, mas sem alterar o *ranking*
+relativo entre os sete modelos em nenhum ponto do intervalo. A
+implicação para a leitura deste capítulo é dupla: a
 conclusão qualitativa (qual modelo priorizar) é robusta a esse viés, mas
 o valor pontual de acerto validado não deveria ser citado isoladamente,
 nem comparado a benchmarks externos, sem a ressalva do intervalo. Esse
@@ -1265,7 +1272,9 @@ menor, sugeriam: a faixa alta de confiança da Etapa 1 oficial chega a
 96,79% de acerto validado sobre 4.698 casos conferidos, ainda que a
 confiança utilizada seja bruta (*softmax*/*decision_function*), não
 formalmente calibrada por Platt ou isotônica (PLATT, 1999; GUO *et al.*,
-2017). Essa retração, à medida que a conferência cresceu, é o mesmo
+2017).
+
+Essa retração, à medida que a conferência cresceu, é o mesmo
 padrão discutido acima para o acerto validado geral, e reforça a mesma
 cautela: a amostra validada, embora hoje cubra 68,3% da base, ainda
 prioriza divergências e casos de menor confiança na sua composição
