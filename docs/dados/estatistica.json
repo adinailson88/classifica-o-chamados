@@ -1,5 +1,5 @@
 {
-  "gerado_em": "26/07/2026 01:47",
+  "gerado_em": "26/07/2026 04:18",
   "schema_version": "1.0",
   "run_id": "EXP_CLASSIFICACAO_CHAMADOS_2026_06_001",
   "script_origem": "src/analise_estatistica.py",
@@ -1186,44 +1186,44 @@
     }
   ],
   "validacao_humana_modelos": {
-    "n_verdade_derivada": 0,
+    "n_verdade_derivada": 9096,
     "base": "conferencia dupla M/N (N=Correto->G; senao M=Correto->C)",
     "nota": "Preliminar enquanto a amostra validada e pequena/nao aleatoria.",
     "por_modelo": [
       {
-        "modelo": "naive_bayes",
-        "n": 0,
-        "acerto_validado": null
-      },
-      {
-        "modelo": "regressao_logistica",
-        "n": 0,
-        "acerto_validado": null
-      },
-      {
         "modelo": "linear_svc",
-        "n": 0,
-        "acerto_validado": null
+        "n": 9096,
+        "acerto_validado": 0.915
       },
       {
         "modelo": "sgd",
-        "n": 0,
-        "acerto_validado": null
+        "n": 9096,
+        "acerto_validado": 0.9051
+      },
+      {
+        "modelo": "regressao_logistica",
+        "n": 9096,
+        "acerto_validado": 0.9013
       },
       {
         "modelo": "extra_trees",
-        "n": 0,
-        "acerto_validado": null
+        "n": 9096,
+        "acerto_validado": 0.893
       },
       {
         "modelo": "random_forest",
-        "n": 0,
-        "acerto_validado": null
+        "n": 9096,
+        "acerto_validado": 0.8881
       },
       {
         "modelo": "lstm",
-        "n": 0,
-        "acerto_validado": null
+        "n": 9096,
+        "acerto_validado": 0.8492
+      },
+      {
+        "modelo": "naive_bayes",
+        "n": 9096,
+        "acerto_validado": 0.8273
       }
     ]
   },
