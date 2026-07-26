@@ -224,6 +224,7 @@ calibração, sem combinar modelos nesta consolidação."""
         s = sensibilidade[m]
         linhas_t2.append(f"| {NOMES[m]} | {dec(a['acerto_validado'])} | {dec(a['ic95'][0])} -- {dec(a['ic95'][1])} | {dec(s['limite_inferior'])} |")
     amplitudes = [item["amplitude"] for item in sensibilidade.values()]
+    tabela_t2 = "\n".join(linhas_t2)
     vies_tabela = f"""**Viés estrutural da seleção da amostra validada**: a verdade validada só
 existe quando ao menos uma fonte conferida é confirmada como correta. Dos
 {inteiro(conferidos)} chamados com alguma conferência, {inteiro(restritos)}
@@ -238,7 +239,7 @@ alterar o ranking relativo dos sete modelos.
 
 | Modelo | Acerto validado (limite superior) | IC95% | Limite inferior (pior caso) |
 |---|---|---|---|
-{"\n".join(linhas_t2)}
+{tabela_t2}
 
 Fonte: elaborado pelos autores (2026). O limite inferior é uma análise de pior
 caso; os conflitos e demais linhas sem verdade validada não recebem crédito para
@@ -276,6 +277,7 @@ Subseção 4.2."""
         av = "--" if f["acerto_validado"] is None else pct(f["acerto_validado"])
         linhas_t3.append(f"| {f['faixa'].replace('>=', '>= ')} | {inteiro(f['n'])} | {pct(f['concordancia_historico'])} | {inteiro(f['n_validados'])} | {av} |")
     alvo = calibracao["faixa_alvo_95"]
+    tabela_t3 = "\n".join(linhas_t3)
     secao_44 = f"""A calibração bruta da Etapa 1 oficial apresenta ECE histórico de
 {dec(calibracao['ece_historico'])}. Na faixa igual ou superior a 95% de
 confiança (n = {inteiro(alvo['n'])}), a concordância com o histórico é de
@@ -288,7 +290,7 @@ portanto, a meta deve ser interpretada como diagnóstico da amostra conferida.
 
 | Faixa | n total | Concord. histórico | n validados | Acerto validado |
 |---|---|---|---|---|
-{"\n".join(linhas_t3)}
+{tabela_t3}
 
 Fonte: elaborado pelos autores (2026). O snapshot foi deduplicado por
 `linha_planilha`, mantendo a ocorrência mais recente. A amostra de conferência

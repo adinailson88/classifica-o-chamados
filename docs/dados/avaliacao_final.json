@@ -1,5 +1,5 @@
 {
-  "gerado_em": "26/07/2026 16:17",
+  "gerado_em": "26/07/2026 18:22",
   "schema_version": "1.0",
   "run_id": "EXP_CLASSIFICACAO_CHAMADOS_2026_06_001",
   "script_origem": "src/avaliacao_final.py",
@@ -8,134 +8,134 @@
   "escopo_validacao": "amostra parcial, não aleatória; prioriza divergências e casos críticos",
   "estado_bertimbau": "sem_dados",
   "natureza": "acerto contra a VERDADE VALIDADA pela conferencia humana (M/N/P); NAO e concordancia com o historico",
-  "validados": 9070,
+  "validados": 9044,
   "minimo_recomendado": 50,
   "conferencias": {
     "com_conferencia": 9534,
-    "decididos": 9070,
-    "restritos": 464,
-    "conflitos": 26
+    "decididos": 9044,
+    "restritos": 490,
+    "conflitos": 52
   },
   "modelos_excluidos": [
     "transformer_ft"
   ],
-  "n_avaliado": 9070,
+  "n_avaliado": 9044,
   "status": "ok",
   "por_modelo": [
     {
       "modelo": "linear_svc",
-      "n": 9070,
-      "acerto_validado": 0.9501,
+      "n": 9044,
+      "acerto_validado": 0.9502,
       "ic95": [
         0.9458,
-        0.9548
+        0.9546
       ],
-      "peso_log_odds": 2.9456,
-      "peso_normalizado": 0.148
+      "peso_log_odds": 2.9496,
+      "peso_normalizado": 0.1479
     },
     {
       "modelo": "sgd",
-      "n": 9070,
-      "acerto_validado": 0.9402,
+      "n": 9044,
+      "acerto_validado": 0.9411,
       "ic95": [
-        0.9354,
-        0.9452
+        0.9363,
+        0.9459
       ],
-      "peso_log_odds": 2.7558,
-      "peso_normalizado": 0.1464
+      "peso_log_odds": 2.7706,
+      "peso_normalizado": 0.1465
     },
     {
       "modelo": "regressao_logistica",
-      "n": 9070,
-      "acerto_validado": 0.9364,
+      "n": 9044,
+      "acerto_validado": 0.9371,
       "ic95": [
-        0.9313,
-        0.9416
+        0.9321,
+        0.9421
       ],
-      "peso_log_odds": 2.6892,
+      "peso_log_odds": 2.701,
       "peso_normalizado": 0.1459
     },
     {
       "modelo": "extra_trees",
-      "n": 9070,
-      "acerto_validado": 0.9281,
+      "n": 9044,
+      "acerto_validado": 0.9286,
       "ic95": [
-        0.9229,
-        0.9333
+        0.9234,
+        0.9335
       ],
-      "peso_log_odds": 2.5581,
-      "peso_normalizado": 0.1446
+      "peso_log_odds": 2.5649,
+      "peso_normalizado": 0.1445
     },
     {
       "modelo": "random_forest",
-      "n": 9070,
-      "acerto_validado": 0.9235,
+      "n": 9044,
+      "acerto_validado": 0.9241,
       "ic95": [
-        0.9178,
-        0.9289
+        0.9186,
+        0.9295
       ],
-      "peso_log_odds": 2.4907,
+      "peso_log_odds": 2.5001,
       "peso_normalizado": 0.1438
     },
     {
       "modelo": "lstm",
-      "n": 9070,
-      "acerto_validado": 0.8802,
+      "n": 9044,
+      "acerto_validado": 0.8811,
       "ic95": [
-        0.8735,
-        0.8869
+        0.8743,
+        0.888
       ],
-      "peso_log_odds": 1.9939,
+      "peso_log_odds": 2.0032,
       "peso_normalizado": 0.1371
     },
     {
       "modelo": "naive_bayes",
-      "n": 9070,
-      "acerto_validado": 0.8617,
+      "n": 9044,
+      "acerto_validado": 0.8627,
       "ic95": [
-        0.8545,
-        0.8689
+        0.8558,
+        0.8696
       ],
-      "peso_log_odds": 1.8298,
-      "peso_normalizado": 0.1342
+      "peso_log_odds": 1.8377,
+      "peso_normalizado": 0.1343
     }
   ],
   "melhor_ia": "linear_svc",
   "melhor_vs_segundo": {
     "segundo": "sgd",
-    "delta": 0.0099,
-    "p_mcnemar": 8.519093631638307e-09
+    "delta": 0.0091,
+    "p_mcnemar": 5.696306944798277e-08
   },
   "ensembles": [
     {
       "metodo": "maioria_ponderada",
-      "acerto_validado": 0.9462,
+      "acerto_validado": 0.9467,
       "ic95": [
-        0.9416,
+        0.9422,
         0.951
       ],
-      "delta_vs_melhor_ia": -0.0039,
-      "p_mcnemar_vs_melhor_ia": 0.006472872563071095
+      "delta_vs_melhor_ia": -0.0035,
+      "p_mcnemar_vs_melhor_ia": 0.012237048519511289
     },
     {
       "metodo": "confianca_calibrada_max",
-      "acerto_validado": 0.9454,
+      "acerto_validado": 0.9458,
       "ic95": [
-        0.9406,
-        0.9501
+        0.9414,
+        0.9502
       ],
-      "delta_vs_melhor_ia": -0.0047,
-      "p_mcnemar_vs_melhor_ia": 0.0025505192526799284
+      "delta_vs_melhor_ia": -0.0044,
+      "p_mcnemar_vs_melhor_ia": 0.003917460831386641
     },
     {
       "metodo": "maioria_simples",
-      "acerto_validado": 0.9439,
+      "acerto_validado": 0.9445,
       "ic95": [
-        0.9391,
-        0.9485
+        0.94,
+        0.9489
       ],
-      "delta_vs_melhor_ia": -0.0062,
-      "p_mcnemar_vs_melhor_ia": 9.912782420372888e-05
+      "delta_vs_melhor_ia": -0.0057,
+      "p_mcnemar_vs_melhor_ia": 0.00026907856965232115
     }
   ],
   "vale_combinar": {

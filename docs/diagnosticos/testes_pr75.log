@@ -1,0 +1,29 @@
+[append RECLASS__random_forest] falha transitoria (ConnectionError) mas a escrita ja foi commitada no servidor; retry cancelado para evitar duplicacao.
+.[append RECLASS__random_forest] falha transitoria (ConnectionError); retry 1/5 em 0s
+[append RECLASS__random_forest] falha transitoria (ConnectionError); retry 2/5 em 0s
+.....................................................................ABORTADO: C2 contem formula ('=IMPORTRANGE("id";"aba!A:F")') — esta coluna nao e segura para escrita literal.
+.ABORTADO: G3 contem formula ('=ARRAYFORMULA(A2:A)') — esta coluna nao e segura para escrita literal.
+..................[transformer_ft] transformers/torch indisponivel (ModuleNotFoundError: No module named 'torch'); fallback LSTM/RF.
+[producao] LSTM indisponível (ModuleNotFoundError: No module named 'tensorflow') — fallback RF.
+[transformer_ft] transformers/torch indisponivel (ModuleNotFoundError: No module named 'torch'); fallback LSTM/RF.
+[producao] LSTM indisponível (ModuleNotFoundError: No module named 'tensorflow') — fallback RF.
+[transformer_ft] transformers/torch indisponivel (ModuleNotFoundError: No module named 'torch'); fallback LSTM/RF.
+[producao] LSTM indisponível (ModuleNotFoundError: No module named 'tensorflow') — fallback RF.
+[transformer_ft] transformers/torch indisponivel (ModuleNotFoundError: No module named 'torch'); fallback LSTM/RF.
+[producao] LSTM indisponível (ModuleNotFoundError: No module named 'tensorflow') — fallback RF.
+[transformer_ft] transformers/torch indisponivel (ModuleNotFoundError: No module named 'torch'); fallback LSTM/RF.
+[producao] LSTM indisponível (ModuleNotFoundError: No module named 'tensorflow') — fallback RF.
+[transformer_ft] RECUSADO: dependencias pesadas (torch/transformers) indisponiveis neste ambiente -- a predicao caiu para LSTM/RF disfarcado. Nada publicado sob o nome do modelo pedido. Rode um workflow com as dependencias reais instaladas (ver .github/workflows/transformer_ft.yml) para classificar de verdade.
+.[transformer_ft] transformers/torch indisponivel (ModuleNotFoundError: No module named 'torch'); fallback LSTM/RF.
+[producao] LSTM indisponível (ModuleNotFoundError: No module named 'tensorflow') — fallback RF.
+..[transformer_ft] transformers/torch indisponivel (ModuleNotFoundError: No module named 'torch'); fallback LSTM/RF.
+[producao] LSTM indisponível (ModuleNotFoundError: No module named 'tensorflow') — fallback RF.
+.
+----------------------------------------------------------------------
+Ran 93 tests in 2.255s
+
+OK
+treino_lstm: exemplos=2 categorias=2 params={'vocab_size': 8000, 'max_len': 120, 'embed_dim': 128, 'units': 64, 'dense_units': 64, 'dropout': 0.5, 'layers': 1}
+history_json=/tmp/tmphlluqm7i/history.json
+history_fig=/tmp/tmphlluqm7i/history.png
+[transformer_ft] elegiveis=40 | ja_feitos=0 | pendentes=40 | lote_agora=40 | base_treino_fixa=0
