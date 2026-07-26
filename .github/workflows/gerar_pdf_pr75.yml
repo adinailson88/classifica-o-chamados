@@ -1,0 +1,36 @@
+name: Gerar PDF para revisar PR 75
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pdf:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Gerar PDF com pandoc e xelatex
+        uses: docker://pandoc/extra:latest
+        with:
+          args: >-
+            04_artigo/artigo_classificacao_chamados_v3.md
+            -o artigo_classificacao_chamados_pr75.pdf
+            --pdf-engine=xelatex
+            -V lang=pt-BR
+            -V geometry:margin=2.5cm
+            --standalone
+
+      - name: Publicar artefato para revisao
+        uses: actions/upload-artifact@v4
+        with:
+          name: artigo-classificacao-pr75
+          path: artigo_classificacao_chamados_pr75.pdf
+          if-no-files-found: error
+          retention-days: 7
