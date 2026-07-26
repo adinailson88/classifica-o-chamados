@@ -1,0 +1,99 @@
+name: Corrigir sincronizacao numerica do artigo
+
+on:
+  push:
+    branches:
+      - agent/corrigir-sincronizacao-artigo
+    paths:
+      - "src/calibracao_deduplicada.py"
+      - "src/exportar_dashboard_corrigido.py"
+      - "src/sincronizar_artigo_dados.py"
+      - "tests/test_calibracao_deduplicada.py"
+      - ".github/workflows/dashboard.yml"
+      - ".github/workflows/corrigir_sincronizacao_artigo.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: corrigir-sincronizacao-artigo
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  corrigir:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: agent/corrigir-sincronizacao-artigo
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: "requirements-leves.txt"
+
+      - name: Instalar dependencias
+        run: python -m pip install --retries 5 --timeout 120 -r requirements-leves.txt
+
+      - name: Validar codigo antes de acessar dados vivos
+        run: |
+          python -m py_compile src/calibracao_deduplicada.py src/exportar_dashboard_corrigido.py src/sincronizar_artigo_dados.py
+          python -m unittest discover -s tests
+
+      - name: Recriar chave da conta de servico
+        env:
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+        run: |
+          if [ -z "$GCP_SA_KEY" ]; then echo "Secret GCP_SA_KEY ausente." >&2; exit 1; fi
+          printf '%s' "$GCP_SA_KEY" > credenciais_sa.json
+
+      - name: Regenerar agregados deduplicados
+        run: python src/exportar_dashboard_corrigido.py
+
+      - name: Auditar conferencias M N P
+        run: python src/auditar_conferencias.py
+
+      - name: Regenerar avaliacao final
+        run: python src/avaliacao_final.py
+
+      - name: Regenerar estatistica multimodelo
+        run: python src/analise_estatistica.py
+
+      - name: Regenerar sensibilidade do vies de validacao
+        run: python src/analise_sensibilidade_vies_validacao.py
+
+      - name: Regenerar Figuras 2 e 3
+        run: |
+          python src/gerar_figura2_confianca_desfecho.py
+          python src/gerar_figura3_tradeoff_custo.py
+
+      - name: Sincronizar artigo e plano
+        run: python src/sincronizar_artigo_dados.py
+
+      - name: Validacao final
+        run: |
+          python -m py_compile src/calibracao_deduplicada.py src/exportar_dashboard_corrigido.py src/sincronizar_artigo_dados.py
+          python -m unittest discover -s tests
+          python src/check_final_ready.py
+
+      - name: Remover credenciais
+        if: always()
+        run: rm -f credenciais_sa.json
+
+      - name: Commitar resultados na branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/dados 04_artigo/artigo_classificacao_chamados_v3.md 04_artigo/figuras PLANO_ARTIGO_CAPITULO.md
+          if git diff --cached --quiet; then
+            echo "Nenhum artefato foi alterado."
+            exit 0
+          fi
+          git commit -m "docs: sincroniza artigo com dados vivos [skip ci]"
+          git push origin HEAD:agent/corrigir-sincronizacao-artigo
