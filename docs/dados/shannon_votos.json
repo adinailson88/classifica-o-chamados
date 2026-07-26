@@ -1,8 +1,8 @@
 {
   "resumo": {
     "linhas_com_2_ou_mais_modelos": 13965,
-    "linhas_alta_ambiguidade": 3277,
-    "entropia_media_votos": 0.5006
+    "linhas_alta_ambiguidade": 3287,
+    "entropia_media_votos": 0.5018
   },
   "linhas_mais_ambiguas": [
     {
@@ -796,23 +796,6 @@
       ]
     },
     {
-      "linha": 5505,
-      "categoria_historica": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-      "n_modelos": 8,
-      "categorias_votadas": 2,
-      "entropia_votos": 1.0,
-      "entropia_normalizada": 1.0,
-      "categorias_efetivas": 2.0,
-      "maioria": "Segurança contra Incêndio > Sistemas de combate a incêndio (extintores, hidrantes)",
-      "maioria_pct": 0.5,
-      "modelos_divergentes": [
-        "extra_trees",
-        "linear_svc",
-        "naive_bayes",
-        "random_forest"
-      ]
-    },
-    {
       "linha": 5685,
       "categoria_historica": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
       "n_modelos": 8,
@@ -830,7 +813,7 @@
       ]
     },
     {
-      "linha": 6080,
+      "linha": 5859,
       "categoria_historica": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
       "n_modelos": 8,
       "categorias_votadas": 2,
@@ -840,8 +823,25 @@
       "maioria": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
       "maioria_pct": 0.5,
       "modelos_divergentes": [
-        "extra_trees",
+        "lstm",
+        "random_forest",
+        "regressao_logistica",
+        "sgd"
+      ]
+    },
+    {
+      "linha": 6300,
+      "categoria_historica": "Manutenção Preventiva > Ar condicionado split",
+      "n_modelos": 8,
+      "categorias_votadas": 2,
+      "entropia_votos": 1.0,
+      "entropia_normalizada": 1.0,
+      "categorias_efetivas": 2.0,
+      "maioria": "Manutenção Preventiva > Ar condicionado split",
+      "maioria_pct": 0.5,
+      "modelos_divergentes": [
         "linear_svc",
+        "lstm",
         "regressao_logistica",
         "sgd"
       ]
@@ -2407,42 +2407,6 @@
       ]
     },
     {
-      "linha": 5474,
-      "categoria_historica": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-      "n_modelos": 8,
-      "categorias_votadas": 3,
-      "entropia_votos": 1.5613,
-      "entropia_normalizada": 0.9851,
-      "categorias_efetivas": 2.9512,
-      "maioria": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-      "maioria_pct": 0.375,
-      "modelos_divergentes": [
-        "etapa1_oficial",
-        "linear_svc",
-        "lstm",
-        "regressao_logistica",
-        "sgd"
-      ]
-    },
-    {
-      "linha": 5490,
-      "categoria_historica": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-      "n_modelos": 8,
-      "categorias_votadas": 3,
-      "entropia_votos": 1.5613,
-      "entropia_normalizada": 0.9851,
-      "categorias_efetivas": 2.9512,
-      "maioria": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-      "maioria_pct": 0.375,
-      "modelos_divergentes": [
-        "extra_trees",
-        "lstm",
-        "random_forest",
-        "regressao_logistica",
-        "sgd"
-      ]
-    },
-    {
       "linha": 5546,
       "categoria_historica": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
       "n_modelos": 8,
@@ -2492,6 +2456,42 @@
         "etapa1_oficial",
         "linear_svc",
         "lstm",
+        "regressao_logistica",
+        "sgd"
+      ]
+    },
+    {
+      "linha": 6044,
+      "categoria_historica": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
+      "n_modelos": 8,
+      "categorias_votadas": 3,
+      "entropia_votos": 1.5613,
+      "entropia_normalizada": 0.9851,
+      "categorias_efetivas": 2.9512,
+      "maioria": "Suprimentos / Apoio Técnico > Materiais",
+      "maioria_pct": 0.375,
+      "modelos_divergentes": [
+        "extra_trees",
+        "linear_svc",
+        "lstm",
+        "naive_bayes",
+        "random_forest"
+      ]
+    },
+    {
+      "linha": 6109,
+      "categoria_historica": "Climatização > Ar condicionado split",
+      "n_modelos": 8,
+      "categorias_votadas": 3,
+      "entropia_votos": 1.5613,
+      "entropia_normalizada": 0.9851,
+      "categorias_efetivas": 2.9512,
+      "maioria": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
+      "maioria_pct": 0.375,
+      "modelos_divergentes": [
+        "etapa1_oficial",
+        "lstm",
+        "naive_bayes",
         "regressao_logistica",
         "sgd"
       ]
@@ -3368,6 +3368,25 @@
       ]
     },
     {
+      "linha": 5679,
+      "categoria_historica": "Climatização > Ar condicionado split",
+      "n_modelos": 8,
+      "categorias_votadas": 7,
+      "entropia_votos": 2.75,
+      "entropia_normalizada": 0.9796,
+      "categorias_efetivas": 6.7272,
+      "maioria": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
+      "maioria_pct": 0.25,
+      "modelos_divergentes": [
+        "etapa1_oficial",
+        "linear_svc",
+        "lstm",
+        "naive_bayes",
+        "regressao_logistica",
+        "sgd"
+      ]
+    },
+    {
       "linha": 7719,
       "categoria_historica": "Elétrica > Iluminação",
       "n_modelos": 8,
@@ -3496,25 +3515,6 @@
         "linear_svc",
         "lstm",
         "naive_bayes",
-        "regressao_logistica",
-        "sgd"
-      ]
-    },
-    {
-      "linha": 283,
-      "categoria_historica": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-      "n_modelos": 8,
-      "categorias_votadas": 5,
-      "entropia_votos": 2.25,
-      "entropia_normalizada": 0.969,
-      "categorias_efetivas": 4.7568,
-      "maioria": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-      "maioria_pct": 0.25,
-      "modelos_divergentes": [
-        "etapa1_oficial",
-        "linear_svc",
-        "lstm",
-        "random_forest",
         "regressao_logistica",
         "sgd"
       ]
