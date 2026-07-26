@@ -461,6 +461,8 @@ para as métricas de calibração da Subseção 4.4 — distinção relevante
 porque uma leitura apressada do código poderia confundir os dois
 mecanismos.
 
+**3.5 Desenho de avaliação**
+
 A avaliação foi realizada por predições fora da amostra em protocolo
 *out-of-fold* com *KFold* embaralhado (`k = 5` partições,
 `src/classificacao_multimodelo.py`), `random_state=42` e mesma
@@ -479,6 +481,48 @@ Cochran Q e Friedman; comparações pareadas são avaliadas por McNemar
 (1947); e incerteza de acurácia é estimada por *bootstrap*. Quando
 múltiplas comparações são realizadas, aplica-se correção de Nemenyi no
 contexto de *ranks*.
+
+**Escolha entre validação cruzada e *holdout* fixo**: optou-se
+deliberadamente por *k-fold out-of-fold* em vez de um conjunto de teste
+fixo separado antes do treino. A literatura de avaliação de modelos
+indica que a validação cruzada tende a produzir estimativas de menor
+variância que um único *holdout*, sobretudo em bases pequenas ou
+desbalanceadas, precisamente por avaliar cada exemplo em algum fold em
+vez de descartar uma fração fixa dos dados do treino (KOHAVI, 1995) — e
+esta base é desbalanceada por natureza (55 categorias históricas, várias
+com suporte de dígito único; Tabela Suplementar S1). Para não apenas
+invocar essa recomendação em abstrato, comparou-se empiricamente o
+protocolo atual (*k*-fold, `k = 5`) com um *holdout* fixo de 15% dos
+dados (`random_state = 42`), reproduzido em
+`src/comparacao_holdout_kfold.py` sobre os sete modelos comparáveis e a
+mesma base completa (n = 13.965; a comparação usa 52 das 55 categorias
+da Tabela Suplementar S1 — três categorias raras da consolidação de
+24/07/2026 não reapareceram na leitura de 25/07/2026, provavelmente por
+renomeação/consolidação de categoria concorrente com este experimento).
+A tentativa de estratificar esse *holdout* por categoria — o que a
+maioria dos protocolos faz por padrão — **falhou explicitamente** no
+*scikit-learn*, com o erro "*the least populated class in y has only 1
+member, which is too few*", confirmando que a base tem pelo menos uma
+categoria com um único exemplo. No *holdout* aleatório simples que
+substituiu a tentativa de estratificação, quatro categorias inteiras
+ficaram sem nenhum exemplo de teste — "Manutenção Preventiva",
+"Manutenção Preventiva \> Aplicação cupinicida", "Suprimentos / Apoio
+Técnico \> Limpeza de equipamentos, ambiente e mobiliário" e
+"Suprimentos / Apoio Técnico \> Transporte" —, tornando sua métrica de
+desempenho indefinida nesse desenho, ainda que o *k*-fold as avalie
+integralmente (Tabela Suplementar S1). A acurácia global variou pouco
+entre os dois protocolos (média de −0,30 ponto percentual no *holdout*
+frente ao *k*-fold entre os sete modelos, variando de −1,93 a +0,73 p.p.
+por modelo), mas a *macro*-F1 — que pondera todas as categorias
+igualmente, e não apenas as mais frequentes — piorou no *holdout* em
+seis dos sete modelos, com queda média de 1,24 ponto percentual e um
+pior caso de −3,98 p.p. no LinearSVC (0,6083 no *k*-fold contra 0,5685
+no *holdout*; Tabela Suplementar S4). Em suma: um *holdout* fixo não
+melhora a estimativa de desempenho global de forma relevante nesta base
+e piora sistematicamente a avaliação das categorias raras — exatamente o
+padrão que a literatura antecipa para corpora pequenos e desbalanceados
+como este (KOHAVI, 1995), o que confirma o protocolo *k*-fold como a
+escolha mais adequada e não apenas a mais conveniente.
 
 **3.6 Validação humana**
 
@@ -1059,15 +1103,27 @@ Fonte: `04_artigo/figuras/lstm_history.json`, gerado por `src/modelo_lstm.py`.
 
 ![Figura 6 — Ablation study do LSTM: unidades recorrentes e dropout.](04_artigo/figuras/fig6_ablation_lstm.png)
 
-**Figura 6 — discrepância investigada e resolvida (atualizado em
-25/07/2026)**: a auditoria das rodadas 10-11 investigou por que este
-ablation reportava acerto validado muito acima do valor oficial então
-vigente para a mesma arquitetura do LSTM. Duas causas foram identificadas,
-em ordem de descoberta. Primeiro, um vazamento metodológico real, mas de
-magnitude modesta: no `KFold` aleatório por linha usado originalmente,
-4.250 de 9.096 linhas validadas de teste (46,72%) tinham duplicata textual
+**Figura 6** Ablation study do LSTM: quatro variantes de unidades
+recorrentes (64/128) e *dropout* (0,3/0,5), avaliadas por `GroupKFold`
+contra a verdade validada humana. Discussão completa da investigação da
+discrepância deste *ablation* na Subseção 4.9.
+
+Fonte: `04_artigo/figuras/diagnostico_ablation_lstm_duplicatas.json`,
+`04_artigo/figuras/ablation_lstm_resultados.json`,
+`04_artigo/figuras/diagnostico_materializacao_lstm_nova.json` e
+`04_artigo/figuras/tabela_S3_ablation_lstm.csv`, gerados por
+`src/ablation_lstm.py`.
+
+**4.9 Investigação da discrepância do *ablation* do LSTM**
+
+A auditoria das rodadas 10-11 investigou por que o *ablation* da Figura 6
+reportava acerto validado muito acima do valor oficial então vigente para
+a mesma arquitetura do LSTM. Duas causas foram identificadas, em ordem de
+descoberta. Primeiro, um vazamento metodológico real, mas de magnitude
+modesta: no `KFold` aleatório por linha usado originalmente, 4.250 de
+9.096 linhas validadas de teste (46,72%) tinham duplicata textual
 normalizada no treino (`diagnostico_ablation_lstm_duplicatas.json`). O
-ablation foi refeito com `GroupKFold` por hash de texto normalizado,
+*ablation* foi refeito com `GroupKFold` por hash de texto normalizado,
 excluindo do treino grupos textuais presentes no teste — isso reduziu a
 configuração atual (`units = 64`, `dropout = 0,5`) de 87,68% para 86,35%
 (7.854/9.096), uma correção pequena (1,33 ponto percentual). Segundo, e
@@ -1078,20 +1134,19 @@ rematerialização completa dos sete modelos em 25/07/2026 (ver nota de
 rastreabilidade na Subseção 4.2) produziu um novo valor oficial do LSTM de
 0,8790 (confirmado após limpeza completa e rematerialização de todos os 8
 modelos na rodada 15, 25/07/2026) — muito mais próximo dos 0,8635 deste
-ablation corrigido (diferença residual de 1,55 pontos percentuais,
-plausivelmente atribuível a
-diferenças remanescentes de protocolo: `k_folds=3` no ablation contra
-`k_folds=5` na materialização oficial, e treino por fold isolado contra o
-esquema *out-of-fold* padrão). **Conclusão**: o ablation nunca teve um
-problema metodológico grave; a maior parte da discrepância original vinha
-de comparar um resultado fresco com uma referência oficial desatualizada.
-A ordenação relativa das quatro variantes testadas (`units=128,
-dropout=0,3` como melhor, seguida de `units=128, dropout=0,5`,
-`units=64, dropout=0,5` e `units=64, dropout=0,3`) é interpretada como
-evidência preliminar de baixa sensibilidade do LSTM a esses
-hiperparâmetros nesta base (diferença total entre a melhor e a pior
-variante inferior a 4 pontos percentuais), não como indicação forte de
-que a arquitetura atual esteja subotimizada.
+*ablation* corrigido (diferença residual de 1,55 pontos percentuais,
+plausivelmente atribuível a diferenças remanescentes de protocolo:
+`k_folds=3` no *ablation* contra `k_folds=5` na materialização oficial, e
+treino por *fold* isolado contra o esquema *out-of-fold* padrão).
+**Conclusão**: o *ablation* nunca teve um problema metodológico grave; a
+maior parte da discrepância original vinha de comparar um resultado
+fresco com uma referência oficial desatualizada. A ordenação relativa das
+quatro variantes testadas (`units=128, dropout=0,3` como melhor, seguida
+de `units=128, dropout=0,5`, `units=64, dropout=0,5` e `units=64,
+dropout=0,3`) é interpretada como evidência preliminar de baixa
+sensibilidade do LSTM a esses hiperparâmetros nesta base (diferença total
+entre a melhor e a pior variante inferior a 4 pontos percentuais), não
+como indicação forte de que a arquitetura atual esteja subotimizada.
 
 Fonte: `04_artigo/figuras/diagnostico_ablation_lstm_duplicatas.json`,
 `04_artigo/figuras/ablation_lstm_resultados.json`,
@@ -1099,6 +1154,140 @@ Fonte: `04_artigo/figuras/diagnostico_ablation_lstm_duplicatas.json`,
 `04_artigo/figuras/tabela_S3_ablation_lstm.csv`, gerados por
 `src/ablation_lstm.py`. Ver `PLANO_ARTIGO_CAPITULO.md`, "Estado desta
 rodada", para o registro completo da investigação.
+
+**4.10 Robustez estatística: pressupostos e testes de sensibilidade**
+
+Esta subseção reúne, com números reais (não hipotéticos), os
+pressupostos verificados antes de qualquer teste inferencial e os
+resultados completos dos testes de robustez usados nas Subseções
+anteriores — hoje apenas citados pelo nome no corpo do texto (Subseção
+3.5). O protocolo de exploração de dados de Zuur, Ieno e Elphick (2010),
+originalmente proposto para respostas contínuas em ecologia, foi adaptado
+aqui para a resposta categórica de classificação de chamados (n = 13.965;
+`docs/dados/estatistica.json`, gerado em 25/07/2026 15:45); passos sem
+análogo direto na resposta categórica recebem justificativa explícita em
+vez de serem omitidos.
+
+*1) Outliers*: a distribuição da confiança bruta por modelo não apresenta
+valores extremos relevantes pela regra 1,5×IQR, exceto no LinearSVC, cujo
+escore normalizado por *softmax* (não calibrado; Subseção 3.4) produz 51
+valores atipicamente altos em 13.965 — consistente com a natureza do
+escore de margem, não com um problema de dados.
+
+*2) Homogeneidade de variância*: a razão entre a maior e a menor variância
+de confiança entre os sete modelos é 38,53, muito acima do limiar de
+preocupação (4; ZUUR; IENO; ELPHICK, 2010) — heterogeneidade que já
+motivava, mesmo antes deste detalhamento, a escolha por métodos robustos
+e não paramétricos.
+
+*3) Normalidade*: o teste de Shapiro-Wilk sobre a concordância por turno
+rejeita a normalidade a 5% para os sete modelos (Tabela 8), confirmando
+com números — e não apenas por afirmação — a justificativa não paramétrica
+já usada na Subseção 3.5.
+
+**Tabela 8** Teste de normalidade de Shapiro-Wilk sobre a concordância por
+turno (n = 931 turnos por modelo)
+
+| Modelo | *W* de Shapiro-Wilk | *p* | Normal a 5%? |
+|---|---|---|---|
+| LSTM | 0,9720 | 2,13 × 10⁻¹² | Não |
+| Naive Bayes | 0,9688 | 3,08 × 10⁻¹³ | Não |
+| Regressão Logística | 0,9443 | 3,15 × 10⁻¹⁸ | Não |
+| SGD | 0,9405 | 7,35 × 10⁻¹⁹ | Não |
+| Random Forest | 0,9424 | 1,50 × 10⁻¹⁸ | Não |
+| Extra Trees | 0,9365 | 1,75 × 10⁻¹⁹ | Não |
+| LinearSVC | 0,9313 | 2,95 × 10⁻²⁰ | Não |
+
+Fonte: `estatistica.json#normalidade_concordancia_turno`.
+
+*4) Excesso de categorias raras*: das 52 categorias históricas com
+suporte identificável nesta consolidação, 27 (52%) têm suporte abaixo de
+70 chamados — o análogo, na resposta categórica, do excesso de zeros
+tratado no protocolo original. É o mesmo desbalanceamento já discutido na
+comparação empírica holdout vs. *k*-fold (Subseção 3.5) e tratado aqui
+com *macro*-F1 e intervalos de confiança em vez de acurácia isolada.
+
+*5) Colinearidade entre modelos*: tratando a confiança de cada modelo
+como uma covariável e calculando o Fator de Inflação de Variância (VIF)
+entre elas, quatro modelos (Regressão Logística: 26,89; SGD: 28,20;
+Random Forest: 24,89; Extra Trees: 22,10) excedem em muito o limiar de
+preocupação (VIF > 3; ZUUR; IENO; ELPHICK, 2010), contra valores baixos
+para LinearSVC (3,64), Naive Bayes (3,74) e LSTM (3,04). Essa colinearidade
+alta entre quatro dos sete modelos é consistente com — e ajuda a explicar
+— o achado da Subseção 4.2 de que nenhum ensemble supera o LinearSVC
+isolado: modelos com confiança altamente correlacionada contribuem pouco
+em informação independente a um comitê.
+
+*6) Relação entre confiança e acerto*: correlação de Spearman e
+ponto-bisserial entre confiança bruta e acerto (histórico), positiva e
+estatisticamente significativa (*p* < 0,001) em todos os sete modelos —
+da mais fraca (LinearSVC, ρ = 0,479) à mais forte (LSTM, ρ = 0,637) —,
+confirmando que a confiança carrega sinal genuíno sobre o acerto em todos
+os modelos, pré-requisito para a calibração da Subseção 4.4.
+
+**Tabela 9** Correlação entre confiança bruta e acerto contra o histórico
+
+| Modelo | Ponto-bisserial (r) | Spearman (ρ) | *p* |
+|---|---|---|---|
+| LSTM | 0,6607 | 0,6373 | < 0,001 |
+| Naive Bayes | 0,5885 | 0,5642 | < 0,001 |
+| Random Forest | 0,5462 | 0,5320 | < 0,001 |
+| Extra Trees | 0,5343 | 0,5187 | < 0,001 |
+| Regressão Logística | 0,4536 | 0,4688 | < 0,001 |
+| SGD | 0,4413 | 0,4605 | < 0,001 |
+| LinearSVC | 0,4326 | 0,4791 | < 0,001 |
+
+Fonte: `estatistica.json#correlacao_conf_acerto`.
+
+*7) Interações*: a interação modelo × categoria — inaplicável ao
+*coplot* contínuo do protocolo original — é tratada pela matriz de
+confusões cruzadas (Subseção 4.3; Figura 4).
+
+*8) Independência das observações*: a autocorrelação da concordância por
+turno (defasagem 1 a 5) é positiva e não desprezível em todos os
+modelos (por exemplo, LinearSVC: 0,362 na defasagem 1, decaindo para
+0,221 na defasagem 5), e a estatística de Durbin-Watson fica entre 1,34 e
+1,44 para os sete modelos — abaixo do valor de referência 2,0 que indicaria
+ausência de autocorrelação. Isso indica que turnos consecutivos não são
+inteiramente independentes (provável efeito de chamados textualmente
+semelhantes chegando em sequência), uma limitação a declarar explicitamente:
+os intervalos de confiança por turno podem estar levemente subestimados. A
+tendência ao longo dos turnos é de leve alta na concordância para seis dos
+sete modelos (*p* < 10⁻⁷ em cada; Naive Bayes é o único estável, *p* = 0,51),
+compatível com o crescimento e a depuração progressiva da base ao longo do
+experimento, não com um artefato de curto prazo.
+
+**Testes globais e correção para múltiplas comparações** — Cochran Q
+confirma diferença global entre os sete modelos comparáveis (Q = 2984,07;
+*gl* = 6; *p* < 0,001; Subseção 4.1). O teste de Friedman sobre 14 janelas
+de 1.000 chamados (`comparacao_modelos.json`) confirma diferença global
+entre os seis modelos clássicos com tempo de treino medido (estatística =
+44,43; *p* = 1,89 × 10⁻⁸); o *ranking* médio de Nemenyi (diferença crítica
+= 2,015 a α = 0,05) reproduz a mesma ordem das Tabelas 1 e 2 — LinearSVC
+(1,68) à frente de Extra Trees (2,46), Random Forest (3,29), SGD (3,36),
+Regressão Logística (4,29) e Naive Bayes (5,93) —, mas com poder
+estatístico bem menor que o McNemar sobre a base completa: apenas 5 das
+15 comparações par a par superam a diferença crítica (as que envolvem os
+extremos da tabela — LinearSVC vs. Regressão Logística e vs. Naive Bayes;
+Extra Trees, Random Forest e SGD vs. Naive Bayes). Isso não contradiz os
+resultados anteriores; reflete que o Nemenyi opera sobre só 14 blocos
+(janelas), enquanto o McNemar a seguir opera sobre as 13.965 observações
+pareadas — poder muito maior para detectar diferenças entre modelos
+adjacentes no *ranking*. As 21 comparações pareadas de McNemar entre os
+sete modelos, corrigidas por Holm-Bonferroni (α = 0,05), são significativas
+em 20 dos 21 pares — a única exceção é SGD vs. Random Forest (*p* = 0,0902,
+acima do limiar de Holm de 0,05 para essa posição), indicando que esses
+dois modelos têm desempenho estatisticamente indistinguível entre si na
+base completa, ainda que ambos difiram significativamente dos demais. Por
+fim, o Kappa de Fleiss entre as sete IAs (concordância multivalorada entre
+avaliadores, aqui os modelos) é 0,7719 — concordância "substancial" na
+escala de referência usual, coerente com todos os modelos aprenderem o
+mesmo padrão subjacente da taxonomia histórica, divergindo principalmente
+nas categorias raras e ambíguas (Subseção 4.6).
+
+Fonte: `estatistica.json` (campos `pressupostos`, `protocolo_zuur`,
+`cochran_q`, `friedman`, `mcnemar_holm`, `fleiss_kappa_entre_ias`,
+`residuos_tendencia`), gerado em 25/07/2026 15:45.
 
 **5. DISCUSSÃO**
 
@@ -1431,6 +1620,11 @@ KEJRIWAL, M.; SANTOS, H.; SHEN, K.; MULVEHILL, A. M.; MCGUINNESS, D. L.
 A noise audit of human-labeled benchmarks for machine commonsense
 reasoning. Scientific Reports, v. 14, art. 8609, 2024.
 
+KOHAVI, R. A study of cross-validation and bootstrap for accuracy
+estimation and model selection. In: INTERNATIONAL JOINT CONFERENCE ON
+ARTIFICIAL INTELLIGENCE, 14., 1995, Montreal. Proceedings \[\...\]. San
+Francisco: Morgan Kaufmann, 1995. p. 1137--1143.
+
 LIN, J. Divergence measures based on the Shannon entropy. IEEE
 Transactions on Information Theory, v. 37, n. 1, p. 145--151, 1991. DOI:
 10.1109/18.61115.
@@ -1499,6 +1693,10 @@ noisy labels in Natural Language Processing: how to train models with
 label noise. Engineering Applications of Artificial Intelligence, v.
 146, art. 110157, 2025.
 
+ZUUR, A. F.; IENO, E. N.; ELPHICK, C. S. A protocol for data exploration
+to avoid common statistical problems. Methods in Ecology and Evolution,
+v. 1, n. 1, p. 3--14, 2010.
+
 **APÊNDICES**
 
 **Apêndice A — Dicionário de colunas da planilha experimental (A:P)**
@@ -1544,8 +1742,10 @@ vigentes.
 | Modelos avaliados e hiperparâmetros principais | 3.4 | Sim (7 materializados + 1 em extensão) |
 | Justificativa conceitual das diferenças de desempenho entre modelos | 3.4.1 | Sim |
 | Método de particionamento (out-of-fold, k-fold, seed) | 3.5 | Sim (out-of-fold, KFold embaralhado, `random_state=42`; sem estratificação) |
+| Justificativa da escolha k-fold vs. holdout fixo, com comparação empírica | 3.5 | Sim (KOHAVI, 1995; Tabela Suplementar S4) |
 | Métricas reportadas e justificativa | 3.5 | Sim (acurácia, macro-F1, balanced accuracy, IC95% bootstrap) |
-| Testes estatísticos e correção para múltiplas comparações | 3.5 | Sim (Cochran Q, Friedman, McNemar, Nemenyi) |
+| Testes estatísticos e correção para múltiplas comparações | 3.5, 4.10 | Sim (Cochran Q, Friedman, McNemar-Holm, Nemenyi, com resultados numéricos completos em 4.10) |
+| Verificação explícita de pressupostos (normalidade, homogeneidade, colinearidade, independência) | 4.10 | Sim (protocolo de ZUUR; IENO; ELPHICK, 2010, adaptado; Tabelas 8-9) |
 | Critério de calibração de confiança (bruta vs. calibrada) e meta de desempenho | 3.8, 4.4 | Parcial — meta declarada (>= 95%/>= 95%); calibração formal (Platt/isotônica) ainda não aplicada |
 | Protocolo de validação humana | 3.6 | Sim |
 | Cobertura da validação humana na data de publicação (n e % da base) | 4 (abertura) | Sim, mas desatualizada — ver nota de revalidação de dados |
