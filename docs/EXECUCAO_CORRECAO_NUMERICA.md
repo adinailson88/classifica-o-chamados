@@ -10,6 +10,16 @@ Esta branch corrige a divergência entre o artigo e os JSONs vivos do experiment
 - corrigir contradições editoriais remanescentes;
 - regenerar as Figuras 2 e 3 e, após o merge, o PDF do artigo.
 
+## Estado validado na execução
+
+- corpus deduplicado: 13.965 chamados;
+- duplicatas removidas do snapshot append-only: 4.500;
+- chamados com alguma conferência: 9.534;
+- decisões travadas: 9.044;
+- casos sem verdade validada: 490, incluindo 52 conflitos.
+
+Os valores acima são gerados novamente pelo workflow antes da sincronização do texto, não inseridos manualmente no artigo.
+
 ## Segurança
 
 O fluxo é somente leitura na planilha. Nenhuma coluna ou célula da base viva é alterada.
