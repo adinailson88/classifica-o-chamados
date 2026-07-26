@@ -23,6 +23,7 @@ import planilha as pl  # noqa: E402
 RAIZ = Path(__file__).resolve().parents[1]
 CONFIG_PADRAO = RAIZ / "config_experimento.json"
 SAIDA = RAIZ / "docs" / "dados" / "calibracao.json"
+_CALCULAR_BASE = base.calcular
 
 
 def deduplicar_snapshot(valores: list[list[Any]]) -> tuple[list[list[Any]], int]:
@@ -87,7 +88,7 @@ class _SpreadsheetSnapshotDeduplicado:
 def calcular(sh, config: dict) -> dict:
     aba_snapshot = config["abas_experimento"]["snapshot_etapa_1"]
     proxy = _SpreadsheetSnapshotDeduplicado(sh, aba_snapshot)
-    dados = base.calcular(proxy, config)
+    dados = _CALCULAR_BASE(proxy, config)
     removidas = proxy.snapshot_wrapper.duplicadas_removidas if proxy.snapshot_wrapper else 0
     dados["snapshot_deduplicacao"] = {
         "chave": "linha_planilha",
