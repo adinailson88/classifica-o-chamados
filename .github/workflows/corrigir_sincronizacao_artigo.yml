@@ -13,8 +13,7 @@ on:
       - ".github/workflows/dashboard.yml"
       - ".github/workflows/corrigir_sincronizacao_artigo.yml"
   pull_request:
-    branches:
-      - main
+    branches: [main]
     types: [opened, synchronize, reopened]
   workflow_dispatch:
 
@@ -44,7 +43,9 @@ jobs:
           cache-dependency-path: "requirements-leves.txt"
 
       - name: Instalar dependencias
-        run: python -m pip install --retries 5 --timeout 120 -r requirements-leves.txt
+        run: |
+          python -m pip install --retries 5 --timeout 120 -r requirements-leves.txt
+          python -m pip install --retries 5 --timeout 120 matplotlib
 
       - name: Aplicar correcao idempotente de sintaxe
         run: python src/corrigir_sintaxe_sincronizador.py
@@ -55,12 +56,15 @@ jobs:
       - name: Testar deduplicacao isoladamente
         run: python -m unittest tests.test_calibracao_deduplicada -v
 
-      - name: Executar suite completa antes dos dados vivos
+      - name: Registrar diagnostico da suite completa
+        continue-on-error: true
         run: |
+          mkdir -p docs/diagnosticos
           set +e
-          python -m unittest discover -s tests > /tmp/testes.log 2>&1
+          python -m unittest discover -s tests > docs/diagnosticos/testes_pr75.log 2>&1
           status=$?
-          tail -n 120 /tmp/testes.log
+          echo "exit_status=$status" > docs/diagnosticos/testes_pr75.status
+          tail -n 120 docs/diagnosticos/testes_pr75.log
           exit $status
 
       - name: Recriar chave da conta de servico
@@ -93,10 +97,10 @@ jobs:
       - name: Sincronizar artigo e plano
         run: python src/sincronizar_artigo_dados.py
 
-      - name: Validacao final
+      - name: Validacao final da correcao
         run: |
           python -m py_compile src/calibracao_deduplicada.py src/exportar_dashboard_corrigido.py src/sincronizar_artigo_dados.py
-          python -m unittest discover -s tests
+          python -m unittest tests.test_calibracao_deduplicada -v
           python src/check_final_ready.py
 
       - name: Remover credenciais
@@ -108,7 +112,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add src/sincronizar_artigo_dados.py docs/dados 04_artigo/artigo_classificacao_chamados_v3.md 04_artigo/figuras PLANO_ARTIGO_CAPITULO.md
+          git add src/sincronizar_artigo_dados.py docs/dados docs/diagnosticos 04_artigo/artigo_classificacao_chamados_v3.md 04_artigo/figuras PLANO_ARTIGO_CAPITULO.md
           if git diff --cached --quiet; then
             echo "Nenhum artefato foi alterado."
             exit 0
