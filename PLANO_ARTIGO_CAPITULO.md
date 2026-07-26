@@ -35,9 +35,39 @@ Isso substitui a necessidade de o usuário reexplicar contexto a cada nova conve
 
 ## Estado desta rodada
 
-**Data**: 2026-07-25 (America/Bahia, UTC-03:00) — rodada 17 (Subseção
-4.10 de robustez estatística; recuperação de conteúdo perdido em merge
-concorrente).
+**Data**: 2026-07-25 (America/Bahia, UTC-03:00) — rodada 18 (referenciação
+exaustiva da Subseção 4.10 e do parágrafo de métodos da 3.5).
+
+**Contexto**: após fechar a rodada 17 (PRs #61 e #62 mergeados, conteúdo
+verificado íntegro em `main`), o Adinailson pediu explicitamente que a
+redação estatística fosse "bastante referenciada e explicada" e que eu
+"não me contivesse em quantidade de citações de referências".
+
+**Onde está**: concluído, branch `docs/referencias-estatisticas-4-10`.
+Cada teste/conceito estatístico citado nas Subseções 3.5 e 4.10 ganhou
+sua referência primária (nenhuma foi inventada — todas são trabalhos
+reais e amplamente citados na literatura de estatística/ML):
+BOX; JENKINS (1970, ACF), COCHRAN (1950, teste Q — distinto do
+COCHRAN 1977 já citado, mesmo autor/obras diferentes), DEMŠAR (2006,
+protocolo de comparação de classificadores), DIETTERICH (2000,
+diversidade em ensembles), DURBIN; WATSON (1950), EFRON (1979) e EFRON;
+TIBSHIRANI (1993) (bootstrap), FLEISS (1971, Kappa), FRIEDMAN (1937),
+HOLM (1979), LANDIS; KOCH (1977, escala de interpretação do Kappa),
+MARQUARDT (1970, VIF), NEMENYI (1963), O'BRIEN (2007, crítica à regra de
+bolso do VIF), RAZALI; WAH (2011, poder comparativo do Shapiro-Wilk),
+SHAPIRO; WILK (1965), SPEARMAN (1904), TATE (1954, ponto-bisserial),
+TUKEY (1977, regra 1,5×IQR). 19 referências novas, todas verificadas e
+inseridas em ordem alfabética na lista de REFERÊNCIAS (checado com
+`grep`/leitura completa, não só memória). Apêndice B atualizado. Suíte
+completa: 90/90 (mudança é só em Markdown).
+
+**Próximo passo**: (1) revisar/mergear o PR desta rodada; (2) quando o
+Codex retomar em 29/07 (ou antes, se decidido), continuar os Passos 3–6
+do prompt original de 6 passos.
+
+---
+
+### Histórico da rodada 17 (Subseção 4.10 de robustez estatística; recuperação de conteúdo perdido em merge concorrente)
 
 **Contexto**: nesta mesma jornada de trabalho, mais de uma sessão/processo
 esteve operando neste clone local em paralelo (já detectado e contornado

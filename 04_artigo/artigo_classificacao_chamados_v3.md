@@ -471,16 +471,29 @@ estratificada; esta é uma limitação do desenho implementado. O procedimento r
 viés de comparação e permite
 testes pareados (SOKOLOVA; LAPALME, 2009). As métricas principais são
 acurácia, *macro*-F1, F1 ponderado, *balanced accuracy* e intervalo de
-confiança por *bootstrap* com 95% de confiança. A *macro*-F1 e a
-*balanced accuracy* são essenciais face ao desbalanceamento entre
-categorias, dado que a acurácia isolada pode superestimar desempenho em
-classes majoritárias e mascarar falhas em categorias raras (SOKOLOVA;
-LAPALME, 2009). A correlação entre confiança e acerto é avaliada por
-Spearman; diferenças globais entre classificadores são avaliadas por
-Cochran Q e Friedman; comparações pareadas são avaliadas por McNemar
-(1947); e incerteza de acurácia é estimada por *bootstrap*. Quando
-múltiplas comparações são realizadas, aplica-se correção de Nemenyi no
-contexto de *ranks*.
+confiança por *bootstrap* — reamostragem com reposição para estimar a
+distribuição de uma estatística sem pressupor sua forma paramétrica
+(EFRON, 1979; EFRON; TIBSHIRANI, 1993) — com 95% de confiança. A
+*macro*-F1 e a *balanced accuracy* são essenciais face ao
+desbalanceamento entre categorias, dado que a acurácia isolada pode
+superestimar desempenho em classes majoritárias e mascarar falhas em
+categorias raras (SOKOLOVA; LAPALME, 2009). A correlação entre confiança
+e acerto é avaliada por Spearman (SPEARMAN, 1904) e por correlação
+ponto-bisserial, apropriada quando uma das variáveis é binária
+(TATE, 1954); diferenças globais entre os sete classificadores são
+avaliadas por Cochran Q, teste não paramétrico para proporções pareadas
+em três ou mais condições (COCHRAN, 1950), e por Friedman, teste baseado
+em postos que dispensa o pressuposto de normalidade da ANOVA
+(FRIEDMAN, 1937); comparações pareadas são avaliadas por McNemar
+(MCNEMAR, 1947); e incerteza de acurácia é estimada por *bootstrap*
+(EFRON, 1979). Quando múltiplas comparações são realizadas, aplica-se o
+teste de Nemenyi sobre os postos médios (NEMENYI, 1963), seguindo o
+protocolo consolidado por Demšar (2006) para comparação estatística de
+classificadores em múltiplos conjuntos de dados; comparações pareadas
+adicionais entre os sete modelos são corrigidas pelo método sequencial
+de Holm-Bonferroni, que controla a taxa de erro familiar sem o
+conservadorismo excessivo da correção de Bonferroni simples
+(HOLM, 1979).
 
 **Escolha entre validação cruzada e *holdout* fixo**: optou-se
 deliberadamente por *k-fold out-of-fold* em vez de um conjunto de teste
@@ -1169,10 +1182,11 @@ análogo direto na resposta categórica recebem justificativa explícita em
 vez de serem omitidos.
 
 *1) Outliers*: a distribuição da confiança bruta por modelo não apresenta
-valores extremos relevantes pela regra 1,5×IQR, exceto no LinearSVC, cujo
-escore normalizado por *softmax* (não calibrado; Subseção 3.4) produz 51
-valores atipicamente altos em 13.965 — consistente com a natureza do
-escore de margem, não com um problema de dados.
+valores extremos relevantes pela regra 1,5×IQR (distância interquartil;
+TUKEY, 1977), exceto no LinearSVC, cujo escore normalizado por *softmax*
+(não calibrado; Subseção 3.4) produz 51 valores atipicamente altos em
+13.965 — consistente com a natureza do escore de margem, não com um
+problema de dados.
 
 *2) Homogeneidade de variância*: a razão entre a maior e a menor variância
 de confiança entre os sete modelos é 38,53, muito acima do limiar de
@@ -1180,10 +1194,14 @@ preocupação (4; ZUUR; IENO; ELPHICK, 2010) — heterogeneidade que já
 motivava, mesmo antes deste detalhamento, a escolha por métodos robustos
 e não paramétricos.
 
-*3) Normalidade*: o teste de Shapiro-Wilk sobre a concordância por turno
-rejeita a normalidade a 5% para os sete modelos (Tabela 8), confirmando
-com números — e não apenas por afirmação — a justificativa não paramétrica
-já usada na Subseção 3.5.
+*3) Normalidade*: o teste de Shapiro-Wilk (SHAPIRO; WILK, 1965), apontado
+por estudos comparativos de poder estatístico como um dos mais sensíveis
+entre os testes de normalidade usuais para amostras pequenas e moderadas
+(RAZALI; WAH, 2011) — situação mais próxima dos 931 turnos por modelo
+aqui analisados do que dos 13.965 chamados individuais —, aplicado sobre
+a concordância por turno rejeita a normalidade a 5% para os sete modelos
+(Tabela 8), confirmando com números — e não apenas por afirmação — a
+justificativa não paramétrica já usada na Subseção 3.5.
 
 **Tabela 8** Teste de normalidade de Shapiro-Wilk sobre a concordância por
 turno (n = 931 turnos por modelo)
@@ -1208,22 +1226,32 @@ comparação empírica holdout vs. *k*-fold (Subseção 3.5) e tratado aqui
 com *macro*-F1 e intervalos de confiança em vez de acurácia isolada.
 
 *5) Colinearidade entre modelos*: tratando a confiança de cada modelo
-como uma covariável e calculando o Fator de Inflação de Variância (VIF)
-entre elas, quatro modelos (Regressão Logística: 26,89; SGD: 28,20;
-Random Forest: 24,89; Extra Trees: 22,10) excedem em muito o limiar de
-preocupação (VIF > 3; ZUUR; IENO; ELPHICK, 2010), contra valores baixos
-para LinearSVC (3,64), Naive Bayes (3,74) e LSTM (3,04). Essa colinearidade
-alta entre quatro dos sete modelos é consistente com — e ajuda a explicar
-— o achado da Subseção 4.2 de que nenhum ensemble supera o LinearSVC
-isolado: modelos com confiança altamente correlacionada contribuem pouco
-em informação independente a um comitê.
+como uma covariável e calculando o Fator de Inflação de Variância (VIF;
+formalizado por MARQUARDT, 1970, como diagnóstico de colinearidade em
+regressão) entre elas, quatro modelos (Regressão Logística: 26,89; SGD:
+28,20; Random Forest: 24,89; Extra Trees: 22,10) excedem em muito o
+limiar de preocupação (VIF > 3; ZUUR; IENO; ELPHICK, 2010) — limiar mais
+conservador que a regra de bolso mais difundida (VIF > 10), cuja
+adequação geral é questionada por O'Brien (2007), que recomenda avaliar o
+impacto real da colinearidade caso a caso em vez de aplicar um corte
+único —, contra valores baixos para LinearSVC (3,64), Naive Bayes (3,74)
+e LSTM (3,04). Essa colinearidade alta entre quatro dos sete modelos é
+consistente com — e ajuda a explicar — o achado da Subseção 4.2 de que
+nenhum ensemble supera o LinearSVC isolado: modelos com confiança
+altamente correlacionada contribuem pouco em informação independente a
+um comitê, no mesmo sentido em que a literatura de agregação de
+classificadores associa ganho de ensemble à diversidade entre membros, não
+apenas ao número de membros (DIETTERICH, 2000).
 
-*6) Relação entre confiança e acerto*: correlação de Spearman e
-ponto-bisserial entre confiança bruta e acerto (histórico), positiva e
+*6) Relação entre confiança e acerto*: correlação de Spearman
+(SPEARMAN, 1904) e ponto-bisserial (TATE, 1954) — esta última apropriada
+porque o acerto é uma variável binária (certo/errado) contra a confiança
+contínua — entre confiança bruta e acerto (histórico), positiva e
 estatisticamente significativa (*p* < 0,001) em todos os sete modelos —
 da mais fraca (LinearSVC, ρ = 0,479) à mais forte (LSTM, ρ = 0,637) —,
 confirmando que a confiança carrega sinal genuíno sobre o acerto em todos
-os modelos, pré-requisito para a calibração da Subseção 4.4.
+os modelos, pré-requisito para a calibração da Subseção 4.4
+(GUO *et al.*, 2017).
 
 **Tabela 9** Correlação entre confiança bruta e acerto contra o histórico
 
@@ -1244,46 +1272,65 @@ Fonte: `estatistica.json#correlacao_conf_acerto`.
 confusões cruzadas (Subseção 4.3; Figura 4).
 
 *8) Independência das observações*: a autocorrelação da concordância por
-turno (defasagem 1 a 5) é positiva e não desprezível em todos os
-modelos (por exemplo, LinearSVC: 0,362 na defasagem 1, decaindo para
-0,221 na defasagem 5), e a estatística de Durbin-Watson fica entre 1,34 e
-1,44 para os sete modelos — abaixo do valor de referência 2,0 que indicaria
-ausência de autocorrelação. Isso indica que turnos consecutivos não são
-inteiramente independentes (provável efeito de chamados textualmente
-semelhantes chegando em sequência), uma limitação a declarar explicitamente:
-os intervalos de confiança por turno podem estar levemente subestimados. A
-tendência ao longo dos turnos é de leve alta na concordância para seis dos
-sete modelos (*p* < 10⁻⁷ em cada; Naive Bayes é o único estável, *p* = 0,51),
-compatível com o crescimento e a depuração progressiva da base ao longo do
-experimento, não com um artefato de curto prazo.
+turno (defasagem 1 a 5), diagnosticada pela função de autocorrelação
+amostral (ACF; BOX; JENKINS, 1970), é positiva e não desprezível em
+todos os modelos (por exemplo, LinearSVC: 0,362 na defasagem 1, decaindo
+para 0,221 na defasagem 5), e a estatística de Durbin-Watson
+(DURBIN; WATSON, 1950) fica entre 1,34 e 1,44 para os sete modelos —
+abaixo do valor de referência 2,0 que indicaria ausência de
+autocorrelação serial nos resíduos. Isso indica que turnos consecutivos
+não são inteiramente independentes (provável efeito de chamados
+textualmente semelhantes chegando em sequência), uma limitação a
+declarar explicitamente: os intervalos de confiança por turno podem
+estar levemente subestimados, pois erros-padrão calculados sob a hipótese
+de independência tendem a ser menores que os reais quando há
+autocorrelação positiva (DURBIN; WATSON, 1950). A tendência ao longo dos
+turnos é de leve alta na concordância para seis dos sete modelos
+(*p* < 10⁻⁷ em cada, por regressão linear simples do índice do turno
+sobre a concordância; Naive Bayes é o único estável, *p* = 0,51),
+compatível com o crescimento e a depuração progressiva da base ao longo
+do experimento, não com um artefato de curto prazo.
 
 **Testes globais e correção para múltiplas comparações** — Cochran Q
-confirma diferença global entre os sete modelos comparáveis (Q = 2984,07;
-*gl* = 6; *p* < 0,001; Subseção 4.1). O teste de Friedman sobre 14 janelas
-de 1.000 chamados (`comparacao_modelos.json`) confirma diferença global
-entre os seis modelos clássicos com tempo de treino medido (estatística =
-44,43; *p* = 1,89 × 10⁻⁸); o *ranking* médio de Nemenyi (diferença crítica
-= 2,015 a α = 0,05) reproduz a mesma ordem das Tabelas 1 e 2 — LinearSVC
-(1,68) à frente de Extra Trees (2,46), Random Forest (3,29), SGD (3,36),
-Regressão Logística (4,29) e Naive Bayes (5,93) —, mas com poder
-estatístico bem menor que o McNemar sobre a base completa: apenas 5 das
-15 comparações par a par superam a diferença crítica (as que envolvem os
-extremos da tabela — LinearSVC vs. Regressão Logística e vs. Naive Bayes;
-Extra Trees, Random Forest e SGD vs. Naive Bayes). Isso não contradiz os
-resultados anteriores; reflete que o Nemenyi opera sobre só 14 blocos
-(janelas), enquanto o McNemar a seguir opera sobre as 13.965 observações
-pareadas — poder muito maior para detectar diferenças entre modelos
-adjacentes no *ranking*. As 21 comparações pareadas de McNemar entre os
-sete modelos, corrigidas por Holm-Bonferroni (α = 0,05), são significativas
-em 20 dos 21 pares — a única exceção é SGD vs. Random Forest (*p* = 0,0902,
-acima do limiar de Holm de 0,05 para essa posição), indicando que esses
-dois modelos têm desempenho estatisticamente indistinguível entre si na
-base completa, ainda que ambos difiram significativamente dos demais. Por
-fim, o Kappa de Fleiss entre as sete IAs (concordância multivalorada entre
-avaliadores, aqui os modelos) é 0,7719 — concordância "substancial" na
-escala de referência usual, coerente com todos os modelos aprenderem o
-mesmo padrão subjacente da taxonomia histórica, divergindo principalmente
-nas categorias raras e ambíguas (Subseção 4.6).
+(COCHRAN, 1950), teste não paramétrico para diferenças entre três ou mais
+proporções pareadas (aqui, acerto binário por modelo sobre os mesmos
+chamados), confirma diferença global entre os sete modelos comparáveis
+(Q = 2984,07; *gl* = 6; *p* < 0,001; Subseção 4.1). O teste de Friedman
+(FRIEDMAN, 1937), alternativa não paramétrica à ANOVA de medidas
+repetidas baseada em postos, aplicado sobre 14 janelas de 1.000 chamados
+(`comparacao_modelos.json`), confirma diferença global entre os seis
+modelos clássicos com tempo de treino medido (estatística = 44,43;
+*p* = 1,89 × 10⁻⁸); o *ranking* médio de Nemenyi (NEMENYI, 1963), teste
+*post-hoc* usual após Friedman, aplicado aqui seguindo o protocolo de
+comparação estatística de classificadores consolidado por Demšar (2006)
+(diferença crítica = 2,015 a α = 0,05), reproduz a mesma ordem das
+Tabelas 1 e 2 — LinearSVC (1,68) à frente de Extra Trees (2,46), Random
+Forest (3,29), SGD (3,36), Regressão Logística (4,29) e Naive Bayes
+(5,93) —, mas com poder estatístico bem menor que o McNemar sobre a base
+completa: apenas 5 das 15 comparações par a par superam a diferença
+crítica (as que envolvem os extremos da tabela — LinearSVC vs. Regressão
+Logística e vs. Naive Bayes; Extra Trees, Random Forest e SGD vs. Naive
+Bayes). Isso não contradiz os resultados anteriores; reflete que o
+Nemenyi opera sobre só 14 blocos (janelas), enquanto o McNemar a seguir
+opera sobre as 13.965 observações pareadas — poder muito maior para
+detectar diferenças entre modelos adjacentes no *ranking*, um contraste
+que ilustra na prática por que Demšar (2006) recomenda cautela ao
+interpretar a ausência de significância no teste *post-hoc* de Nemenyi
+como equivalência prática entre modelos. As 21 comparações pareadas de
+McNemar (MCNEMAR, 1947) entre os sete modelos, corrigidas pelo método
+sequencial de Holm-Bonferroni (HOLM, 1979) a α = 0,05, são significativas
+em 20 dos 21 pares — a única exceção é SGD vs. Random Forest
+(*p* = 0,0902, acima do limiar de Holm de 0,05 para essa posição),
+indicando que esses dois modelos têm desempenho estatisticamente
+indistinguível entre si na base completa, ainda que ambos difiram
+significativamente dos demais. Por fim, o Kappa de Fleiss
+(FLEISS, 1971) — generalização do Kappa de Cohen para mais de dois
+avaliadores, aqui os sete modelos avaliando a mesma categoria — entre as
+sete IAs é 0,7719, concordância classificada como "substancial" pela
+escala de referência de Landis e Koch (1977, intervalo 0,61–0,80),
+coerente com todos os modelos aprenderem o mesmo padrão subjacente da
+taxonomia histórica, divergindo principalmente nas categorias raras e
+ambíguas (Subseção 4.6).
 
 Fonte: `estatistica.json` (campos `pressupostos`, `protocolo_zuur`,
 `cochran_q`, `friedman`, `mcnemar_holm`, `fleiss_kappa_entre_ias`,
@@ -1594,8 +1641,38 @@ BOUABDALLAOUI, Y.; LAFHAJ, Z.; YIM, P.; DUCOULOMBIER, L.; BENNADJI, B.
 Natural Language Processing Model for Managing Maintenance Requests in
 Buildings. Buildings, v. 10, n. 9, art. 160, 2020.
 
+BOX, G. E. P.; JENKINS, G. M. Time series analysis: forecasting and
+control. San Francisco: Holden-Day, 1970.
+
+COCHRAN, W. G. The comparison of percentages in matched samples.
+Biometrika, v. 37, n. 3-4, p. 256--266, 1950.
+
 COCHRAN, W. G. Sampling techniques. 3. ed. New York: John Wiley & Sons,
 1977.
+
+DEMŠAR, J. Statistical comparisons of classifiers over multiple data
+sets. Journal of Machine Learning Research, v. 7, p. 1--30, 2006.
+
+DIETTERICH, T. G. Ensemble methods in machine learning. In:
+INTERNATIONAL WORKSHOP ON MULTIPLE CLASSIFIER SYSTEMS, 1., 2000,
+Cagliari. Proceedings \[\...\]. Berlin: Springer, 2000. p. 1--15.
+(Lecture Notes in Computer Science, v. 1857).
+
+DURBIN, J.; WATSON, G. S. Testing for serial correlation in least
+squares regression, I. Biometrika, v. 37, n. 3-4, p. 409--428, 1950.
+
+EFRON, B. Bootstrap methods: another look at the jackknife. The Annals
+of Statistics, v. 7, n. 1, p. 1--26, 1979.
+
+EFRON, B.; TIBSHIRANI, R. J. An introduction to the bootstrap. New York:
+Chapman & Hall/CRC, 1993.
+
+FLEISS, J. L. Measuring nominal scale agreement among many raters.
+Psychological Bulletin, v. 76, n. 5, p. 378--382, 1971.
+
+FRIEDMAN, M. The use of ranks to avoid the assumption of normality
+implicit in the analysis of variance. Journal of the American
+Statistical Association, v. 32, n. 200, p. 675--701, 1937.
 
 GALKE, L.; SCHERP, A. Bag-of-words vs. graph vs. sequence in text
 classification: questioning the necessity of text-graphs and the
@@ -1611,6 +1688,9 @@ GUO, C.; PLEISS, G.; SUN, Y.; WEINBERGER, K. Q. On calibration of modern
 neural networks. In: INTERNATIONAL CONFERENCE ON MACHINE LEARNING, 34.,
 2017, Sydney. Proceedings \[\...\]. Sydney: PMLR, 2017. p. 1321--1330.
 
+HOLM, S. A simple sequentially rejective multiple test procedure.
+Scandinavian Journal of Statistics, v. 6, n. 2, p. 65--70, 1979.
+
 JOACHIMS, T. Text categorization with support vector machines: learning
 with many relevant features. In: EUROPEAN CONFERENCE ON MACHINE
 LEARNING, 10., 1998, Chemnitz. Proceedings \[\...\]. Berlin: Springer,
@@ -1625,6 +1705,9 @@ estimation and model selection. In: INTERNATIONAL JOINT CONFERENCE ON
 ARTIFICIAL INTELLIGENCE, 14., 1995, Montreal. Proceedings \[\...\]. San
 Francisco: Morgan Kaufmann, 1995. p. 1137--1143.
 
+LANDIS, J. R.; KOCH, G. G. The measurement of observer agreement for
+categorical data. Biometrics, v. 33, n. 1, p. 159--174, 1977.
+
 LIN, J. Divergence measures based on the Shannon entropy. IEEE
 Transactions on Information Theory, v. 37, n. 1, p. 145--151, 1991. DOI:
 10.1109/18.61115.
@@ -1635,6 +1718,10 @@ Automation in Construction, v. 165, art. 105501, 2024.
 
 LIU, Z.; BENGE, C.; JIANG, S. Ticket-BERT: labeling incident management
 tickets with language models. arXiv:2307.00108, 2023.
+
+MARQUARDT, D. W. Generalized inverses, ridge regression, biased linear
+estimation, and nonlinear estimation. Technometrics, v. 12, n. 3, p.
+591--612, 1970.
 
 MARTINS, R. F. B.; ESPEJO, M. M. S. B. Análise de custos de manutenção
 predial em uma universidade federal brasileira com uso do modelo de SES.
@@ -1653,6 +1740,12 @@ eficiência da manutenção predial em edificações públicas: abordagem
 baseada em registros de ordens de serviço. Paranoá, Brasília, v. 16, n.
 34, p. 1--18, 2023. DOI: 10.18830/issn.1679-0944.n34.2023.08.
 
+NEMENYI, P. B. Distribution-free multiple comparisons. 1963. Tese
+(Doutorado em Estatística) — Princeton University, Princeton, 1963.
+
+O'BRIEN, R. M. A caution regarding rules of thumb for variance inflation
+factors. Quality & Quantity, v. 41, n. 5, p. 673--690, 2007.
+
 PAMPANA, A. K. et al. Data-driven analysis for facility management in
 higher education institution. Buildings, v. 12, art. 2094, 2022.
 
@@ -1663,6 +1756,10 @@ PLATT, J. C. Probabilistic outputs for support vector machines and
 comparisons to regularized likelihood methods. In: SMOLA, A. J. et al.
 (Ed.). Advances in Large Margin Classifiers. Cambridge: MIT Press, 1999.
 p. 61--74.
+
+RAZALI, N. M.; WAH, Y. B. Power comparisons of Shapiro-Wilk,
+Kolmogorov-Smirnov, Lilliefors and Anderson-Darling tests. Journal of
+Statistical Modeling and Analytics, v. 2, n. 1, p. 21--33, 2011.
 
 SALTON, G.; BUCKLEY, C. Term-weighting approaches in automatic text
 retrieval. Information Processing & Management, v. 24, n. 5, p.
@@ -1675,18 +1772,30 @@ SHANNON, C. E. A mathematical theory of communication. Bell System
 Technical Journal, v. 27, n. 3, p. 379--423, jul. 1948; v. 27, n. 4, p.
 623--656, out. 1948.
 
+SHAPIRO, S. S.; WILK, M. B. An analysis of variance test for normality
+(complete samples). Biometrika, v. 52, n. 3-4, p. 591--611, 1965.
+
 SOKOLOVA, M.; LAPALME, G. A systematic analysis of performance measures
 for classification tasks. Information Processing & Management, v. 45, n.
 4, p. 427--437, 2009.
+
+SPEARMAN, C. The proof and measurement of association between two
+things. American Journal of Psychology, v. 15, n. 1, p. 72--101, 1904.
 
 SUNDARAM, S.; ZEID, A. Technical Language Processing for Prognostics and
 Health Management: applying text similarity and topic modeling to
 maintenance work orders. Journal of Intelligent Manufacturing, v. 36, p.
 1637--1657, 2025.
 
+TATE, R. F. Correlation between a discrete and a continuous variable.
+Point-biserial correlation. The Annals of Mathematical Statistics, v.
+25, n. 3, p. 603--607, 1954.
+
 TREVISO, M. et al. Efficient methods for Natural Language Processing: a
 survey. Transactions of the Association for Computational Linguistics,
 v. 11, p. 826--860, 2023.
+
+TUKEY, J. W. Exploratory data analysis. Reading: Addison-Wesley, 1977.
 
 ZHANG, H.; ZHANG, Y.; LI, J.; LIU, J.; JI, L. A survey on learning with
 noisy labels in Natural Language Processing: how to train models with
@@ -1745,7 +1854,7 @@ vigentes.
 | Justificativa da escolha k-fold vs. holdout fixo, com comparação empírica | 3.5 | Sim (KOHAVI, 1995; Tabela Suplementar S4) |
 | Métricas reportadas e justificativa | 3.5 | Sim (acurácia, macro-F1, balanced accuracy, IC95% bootstrap) |
 | Testes estatísticos e correção para múltiplas comparações | 3.5, 4.10 | Sim (Cochran Q, Friedman, McNemar-Holm, Nemenyi, com resultados numéricos completos em 4.10) |
-| Verificação explícita de pressupostos (normalidade, homogeneidade, colinearidade, independência) | 4.10 | Sim (protocolo de ZUUR; IENO; ELPHICK, 2010, adaptado; Tabelas 8-9) |
+| Verificação explícita de pressupostos (normalidade, homogeneidade, colinearidade, independência) | 4.10 | Sim (protocolo de ZUUR; IENO; ELPHICK, 2010, adaptado; Tabelas 8-9; cada teste referenciado à sua fonte primária — SHAPIRO; WILK, 1965; DURBIN; WATSON, 1950; MARQUARDT, 1970; entre outras) |
 | Critério de calibração de confiança (bruta vs. calibrada) e meta de desempenho | 3.8, 4.4 | Parcial — meta declarada (>= 95%/>= 95%); calibração formal (Platt/isotônica) ainda não aplicada |
 | Protocolo de validação humana | 3.6 | Sim |
 | Cobertura da validação humana na data de publicação (n e % da base) | 4 (abertura) | Sim, mas desatualizada — ver nota de revalidação de dados |
