@@ -67,43 +67,51 @@ Seis tarefas do plano (ordem de execução, não a ordem em que foram dadas):
    "na interpretação do autor" e hedging repetitivo, checar duplicidade de
    citação (ex.: Deng et al.), manter ABNT (não mexe no formato de citação).
 
-**Onde está**: Etapa 1-3 concluídas nesta rodada, direto em
-`04_artigo/artigo_classificacao_chamados_v3.md` (branch `main`, sem PR —
-mudança de conteúdo, não de dado/código). Etapas 4-6 pendentes, para as
-próximas rodadas.
+**Onde está**: Etapas 1-4 concluídas (branch
+`docs/reformulacao-editorial-governanca-preditiva`, PR #73, ainda sem
+merge — mudança de conteúdo grande, revisão em fatias). Etapas 5-6
+pendentes.
 
-**O que foi feito nesta rodada**:
+**O que foi feito até agora**:
 1. Apêndice A (dicionário de colunas A:P) removido; substituído por uma
    frase apontando para o repositório público. Apêndice B (checklist) e C
-   (matriz M/N/P) renumerados para A e B — conferido que não há referência
-   cruzada a "Apêndice B/C" em nenhum outro ponto do corpo antes de
-   renumerar.
-2. Limitações (dentro da Seção 5, Discussão) reescritas: os 6 parágrafos
-   antigos com datas de rodada (16/07, 23/07, 24/07, 25/07/2026) e nomes
-   de mecanismo interno (mojibake, ablation, viés estrutural) foram
-   condensados em 3 parágrafos — cobertura (instituição única/PT-BR),
-   validação (amostra não probabilística + regra de exclusão dos
-   "restritos", intervalo de sensibilidade sem detalhar o número exato de
-   antes) e modelo (BERTimbau sem treino concluído, penalidade estrutural
-   de neurais sem embedding pré-treinado em base de porte médio).
-3. Nova subseção **"Papel no modelo de governança preditiva"** adicionada
-   ao final da Seção 5 (Discussão), antes das Considerações Finais — liga
-   explicitamente os dados de saída (categoria, criticidade, confiança) aos
-   três eixos seguintes da tese (séries temporais ARIMA/SES, matriz
-   MCDM/ESG/ODS, geoprocessamento via Google Earth Engine) e afirma que
-   este capítulo entrega a "fundação de dados" do modelo de governança.
+   (matriz M/N/P) renumerados para A e B.
+2. Limitações (dentro da Seção 5, Discussão) condensadas de 6 parágrafos
+   com datas de rodada para 3 parágrafos — cobertura, validação, modelo.
+3. Nova subseção **"Papel no modelo de governança preditiva"** ao final
+   da Seção 5 (Discussão) — liga os dados de saída (categoria,
+   criticidade, confiança) aos três eixos seguintes da tese (séries
+   temporais ARIMA/SES, matriz MCDM/ESG/ODS, geoprocessamento via Google
+   Earth Engine); afirma que este capítulo entrega a "fundação de dados"
+   do modelo de governança.
+4. **Introdução reformulada**: abre pela tensão de governança em
+   biossistemas construídos (CAPRA, 1996; ODUM, 1971; GRIMM *et al.*,
+   2008 — três referências novas, inseridas em ordem alfabética na lista
+   ABNT) em vez de partir direto da lacuna técnica de PLN. Pergunta
+   central reformulada: não "qual classificador é melhor", mas como
+   extrair dado estruturado auditável de texto ruidoso para alimentar
+   governança preditiva. Classificação automática agora é explicitamente
+   apresentada como primeira camada de um protocolo maior, não produto
+   final. Removida a única data solta da seção (23/07/2026). Revisão de
+   literatura já citada (Li *et al.* 2024, Sundaram e Zeid 2025,
+   Bouabdallaoui *et al.* 2020, Zhang *et al.* 2025, Kejriwal *et al.*
+   2024) mantida intacta.
 
-**Próximo passo**: retomar pelas Etapas 4-6 do plano acima, em rodadas
-separadas (cada uma mexe em muito texto para ir numa tacada só):
-(a) reformular a Introdução (remover datas/nomes de arquivo, abrir pela
-tensão de governança em biossistemas construídos); (b) condensar Método
-3.4 por família de modelo e Resultados aos 3 achados + 1 parágrafo
-estatístico consolidado (mover detalhe de Shapiro/Friedman/Nemenyi/McNemar
-para material suplementar); (c) passe de estilo final (parágrafos longos,
-hedging, duplicidade de citação) sobre o texto já reformulado. Antes de
-fechar, revalidar contra `docs/dados/*.json` qualquer número citado nas
-seções reescritas (regra de revalidação de dado vivo já em vigor). Depois
-de tudo, gerar novo PDF (`artigo_pdf.yml`) e revisar visualmente.
+**Próximo passo**: Etapa 5 — condensar Método 3.4 (reorganizar por
+família de modelo: linear/ensemble/neural, com justificativa conceitual
+por família, não hiperparâmetro por hiperparâmetro; manter ênfase no
+protocolo de validação out-of-fold + validação humana como diferencial)
+e condensar Resultados (4.1-4.10) aos 3 achados principais do plano —
+(a) lineares superam neurais/ensembles em texto curto e desbalanceado,
+com vantagem de custo; (b) validação humana confirmou ruído real no
+rótulo histórico (~3,5%); (c) meta de calibração próxima mas não
+formalmente probabilística — consolidando Shapiro/Friedman/Nemenyi/
+McNemar num único parágrafo e movendo detalhe estatístico para Material
+Suplementar. Depois, Etapa 6 (passe de estilo geral: parágrafos longos,
+"na interpretação do autor", duplicidade de citação) sobre o texto já
+reformulado. Antes de fechar, revalidar contra `docs/dados/*.json`
+qualquer número citado nas seções reescritas. Ao final, gerar novo PDF
+(`artigo_pdf.yml`) e revisar visualmente.
 
 ---
 
