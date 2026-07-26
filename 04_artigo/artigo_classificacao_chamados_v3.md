@@ -673,7 +673,7 @@ A avaliação contra a verdade validada pela memória de decisão M/N/P
 (n = 9.044) mantém a liderança do LinearSVC,
 com acerto validado de 0,9502 (IC95%:
 0,9458--0,9546). A ordenação completa é
-LinearSVC (95,02%), SGD (94,11%), Regressão Logística (93,71%), Extra Trees (92,86%), Random Forest (92,41%), LSTM (88,11%) e Naive Bayes (86,27%). A diferença entre o primeiro e o segundo colocado é de 0,91 ponto percentual, com McNemar *p* ≈ 5,70 × 10⁻⁸. Os *ensembles* avaliados foram maioria ponderada (0,9467), confiança calibrada máxima (0,9458) e maioria simples (0,9445); nenhum supera o LinearSVC isolado. A recomendação permanece utilizar o LinearSVC com calibração, sem combinar modelos nesta consolidação.
+LinearSVC (95,02%), SGD (94,11%), Regressão Logística (93,71%), Extra Trees (92,86%), Random Forest (92,41%), LSTM (88,11%) e Naive Bayes (86,27%). A diferença entre o primeiro e o segundo colocado é de 0,91 ponto percentual, com McNemar ($p \approx 5{,}70 \times 10^{-8}$). Os *ensembles* avaliados foram maioria ponderada (0,9467), confiança calibrada máxima (0,9458) e maioria simples (0,9445); nenhum supera o LinearSVC isolado. A recomendação permanece utilizar o LinearSVC com calibração, sem combinar modelos nesta consolidação.
 
 **Viés estrutural da seleção da amostra validada**: a verdade validada só
 existe quando ao menos uma fonte conferida é confirmada como correta. Dos
@@ -1444,16 +1444,14 @@ memória de decisão, está disponível no repositório público do experimento.
 
 Adaptado do espírito do checklist tipo PRISMA-ScR do artigo-modelo de revisão
 (MCDM/TOPSIS/ODS/ESG) para relato de experimento de classificação supervisionada
-com validação humana. Cada item indica a subseção onde é reportado e o status na
-data de publicação; **não substitui a reconferência de números antes da
-submissão** — os status "Sim" abaixo atestam que o item é reportado em algum
-lugar do texto, não que o número citado já foi revalidado contra os JSONs
-vigentes.
+com validação humana. Cada item indica a subseção onde é reportado e o status desta consolidação.
+Os números foram sincronizados com os JSONs vigentes, mas devem ser
+revalidados antes da submissão caso ocorra nova materialização dos dados.
 
 | Item | Subseção | Reportado? |
 |---|---|---|
 | Fonte de dados e sistema de origem declarados | 3.1, 3.2 | Sim (GLPI/UFSB) |
-| Tamanho da amostra e período/corte de consolidação | 3.2 | Sim, mas com data de corte a reconferir |
+| Tamanho da amostra e corte de consolidação | 3.2 | Sim (n = 13.965; agregados vigentes) |
 | Critério de inclusão/exclusão de registros | 3.2 | Parcial — "chamados não vazios" declarado; demais critérios não detalhados |
 | Pré-processamento textual | 3.3 | Sim |
 | Modelos avaliados e hiperparâmetros principais | 3.4 | Sim (7 materializados + 1 em extensão) |
@@ -1465,11 +1463,13 @@ vigentes.
 | Verificação explícita de pressupostos (normalidade, homogeneidade, colinearidade, independência) | 4.10 | Sim — protocolo de Zuur, Ieno e Elphick (2010) adaptado; detalhamento completo em Material Suplementar |
 | Critério de calibração de confiança (bruta vs. calibrada) e meta de desempenho | 3.8, 4.4 | Parcial — meta declarada (>= 95%/>= 95%); calibração formal (Platt/isotônica) ainda não aplicada |
 | Protocolo de validação humana | 3.6 | Sim |
-| Cobertura da validação humana na data de publicação (n e % da base) | 4 (abertura) | Sim, mas desatualizada — ver nota de revalidação de dados |
+| Cobertura da validação humana (n e % da base) | 4 (abertura) | Sim (9.534 conferidos; 9.044 decisões; 52 conflitos) |
 | Tratamento de conflitos de conferência | 3.7 | Sim (regra de veto/trava) |
 | Reprodutibilidade (scripts e dados versionados) | 3.9 | Sim (repositório público, JSONs sanitizados) |
 | Limitações declaradas | 5, 6 | Sim |
 | Figuras/tabelas geradas a partir de dados verificáveis | 4.8 | Sim (scripts leem os JSONs vigentes do painel) |
+
+\newpage
 
 **Apêndice B — Matriz de decisão M/N/P**
 
@@ -1478,16 +1478,16 @@ Contagens agregadas disponíveis nos JSONs públicos do painel:
 | Métrica | n |
 |---|---|
 | Chamados com ao menos uma conferência (M, N ou P) | 9.534 |
-| Decisões travadas (categoria decidida sem conflito) | 9.096 |
-| Casos restritos (categoria eliminada, sem decisão travada) | 438 |
-| Conflitos (M e N confirmam categorias diferentes) | 0 |
-| Conferências da coluna N (CONFERÊNCIA IA) preenchidas | 9.096 |
-| Conferências da coluna M (CONFERÊNCIA GLPI) preenchidas | 9.534 |
-| Conferências da coluna P (CONFERÊNCIA IA - 2) preenchidas | 0 |
+| Decisões travadas (categoria decidida sem conflito) | 9.044 |
+| Casos sem verdade validada | 490 |
+| Conflitos entre fontes conferidas | 52 |
+| Comparações válidas da IA oficial contra a verdade decidida | 9.044 |
+| Registros no diagnóstico da conferência GLPI | 9.534 |
+| Registros com conferência da reclassificação | 0 |
 
-Fonte: elaborado pelos autores (2026). A coluna P (reclassificação
-conferida) está zerada nesta consolidação — nenhuma reclassificação foi
-conferida via essa coluna especificamente até o momento.
+Fonte: elaborado pelos autores (2026), com base nos agregados vigentes de
+auditoria e calibração. Não há registro com conferência da reclassificação
+nesta consolidação.
 
 *Pendência explícita*: o cruzamento fino de 3 vias (contagem por combinação
 exata de valores de M × N × P — ex.: quantos casos têm M=Correto e N=Errado
