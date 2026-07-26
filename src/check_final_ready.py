@@ -23,7 +23,7 @@ ESSENCIAIS = [
     "src/reclassificar_validados.py",
     "src/auditar_conferencias.py",
     ".github/workflows/auditar_conferencias.yml",
-    ".github/workflows/check_final_ready.yml",
+    ".github/manual_workflows/check_final_ready.yml",
 ]
 
 JSONS_PUBLICOS = [
