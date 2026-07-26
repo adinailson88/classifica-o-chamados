@@ -35,8 +35,53 @@ Isso substitui a necessidade de o usuário reexplicar contexto a cada nova conve
 
 ## Estado desta rodada
 
-**Data**: 2026-07-25 (America/Bahia, UTC-03:00) — rodada 18 (referenciação
-exaustiva da Subseção 4.10 e do parágrafo de métodos da 3.5).
+**Data**: 2026-07-25 (America/Bahia, UTC-03:00) — rodada 19 (limite de 10
+anos + acesso aos arquivos das referências estatísticas).
+
+**Contexto**: o Adinailson perguntou se as 19 referências estatísticas da
+rodada 18 existem na pasta do acervo do Drive (`Referência Bibliográfica
+- Drive/README.md`) e pediu duas coisas: (1) nenhuma referência com mais
+de 10 anos — mas todas as 19 são os artigos ORIGINAIS de cada teste
+clássico (Shapiro-Wilk 1965, Friedman 1937, Cochran 1950 etc.), o que é
+inevitável (o teste nasceu naquele ano); (2) link de acesso (Scopus, Web
+of Science ou DOI) para as que não estão salvas no Drive. Perguntei antes
+de agir (`AskUserQuestion`) porque forçar "só ≤10 anos" sem contexto
+faria eu inventar ou descartar referências fundadoras — ele escolheu
+manter os originais + adicionar um artigo recente de apoio para cada
+teste, e pediu os links de acesso para as 17 que faltam no Drive.
+
+**Onde está**: concluído, branch `docs/referencias-recentes-complementares`.
+1. **Verificação no Drive**: só 2 das 19 (ZUUR 2010, RAZALI; WAH 2011) já
+   estão salvas em `03_Predicao_Custos_e_Estatistica` do acervo, com
+   link de acesso no README. As outras 17 não estão no Drive.
+2. **5 referências recentes (≤10 anos) adicionadas**, uma para cada
+   cluster de testes, todas verificadas via busca web (DOI/venue
+   conferidos, não só memória): BENAVOLI; CORANI; MANGILI (2016, JMLR) —
+   crítica ao Nemenyi/postos médios, cita explicitamente por que este
+   artigo também reporta McNemar par a par em vez de só confiar no
+   Nemenyi; CHAN *et al.* (2022, Mathematics/MDPI) — revisão de
+   multicolinearidade/VIF em ML; MINDERER *et al.* (2021, NeurIPS) —
+   calibração de redes neurais modernas; NOMA *et al.* (2021, Statistics
+   in Medicine) — IC por bootstrap em modelos preditivos; OGUNLEYE;
+   OYEJOLA; OBISESAN (2018) — comparação de testes de normalidade,
+   reforçando Shapiro-Wilk.
+3. **Gaps declarados, não forçados**: não encontrei um artigo recente
+   (≤10 anos) suficientemente confiável para Tukey/regra 1,5×IQR nem para
+   Durbin-Watson/ACF em contexto de ML — preferi avisar o Adinailson a
+   inventar uma citação fraca só para preencher a lacuna.
+4. Links de acesso (DOI/venue) das 19 referências originais + das 5
+   novas enviados ao Adinailson na resposta desta rodada, para ele
+   salvar no Drive se quiser. Suíte completa: 90/90 (mudança só em
+   Markdown).
+
+**Próximo passo**: (1) revisar/mergear o PR desta rodada; (2) o
+Adinailson decide se quer salvar os PDFs das 17 referências faltantes no
+Drive (links já enviados); (3) quando o Codex retomar em 29/07 (ou antes,
+se decidido), continuar os Passos 3–6 do prompt original de 6 passos.
+
+---
+
+### Histórico da rodada 18 (referenciação exaustiva da Subseção 4.10 e do parágrafo de métodos da 3.5)
 
 **Contexto**: após fechar a rodada 17 (PRs #61 e #62 mergeados, conteúdo
 verificado íntegro em `main`), o Adinailson pediu explicitamente que a
