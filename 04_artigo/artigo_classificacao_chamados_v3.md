@@ -473,7 +473,10 @@ testes pareados (SOKOLOVA; LAPALME, 2009). As métricas principais são
 acurácia, *macro*-F1, F1 ponderado, *balanced accuracy* e intervalo de
 confiança por *bootstrap* — reamostragem com reposição para estimar a
 distribuição de uma estatística sem pressupor sua forma paramétrica
-(EFRON, 1979; EFRON; TIBSHIRANI, 1993) — com 95% de confiança. A
+(EFRON, 1979; EFRON; TIBSHIRANI, 1993), cuja variedade de métodos de
+construção de intervalo (percentil, BCa, bootstrap-*t*) e respectivas
+propriedades de cobertura é revisada em detalhe por DiCiccio e Efron
+(1996) — com 95% de confiança. A
 *macro*-F1 e a *balanced accuracy* são essenciais face ao
 desbalanceamento entre categorias, dado que a acurácia isolada pode
 superestimar desempenho em classes majoritárias e mascarar falhas em
@@ -1190,10 +1193,19 @@ vez de serem omitidos.
 
 *1) Outliers*: a distribuição da confiança bruta por modelo não apresenta
 valores extremos relevantes pela regra 1,5×IQR (distância interquartil;
-TUKEY, 1977), exceto no LinearSVC, cujo escore normalizado por *softmax*
-(não calibrado; Subseção 3.4) produz 51 valores atipicamente altos em
-13.965 — consistente com a natureza do escore de margem, não com um
-problema de dados.
+TUKEY, 1977) — regra amplamente adotada, mas que pressupõe distribuições
+próximas da normal, ressalva sistematizada na revisão taxonômica de
+métodos de detecção de outliers de Hodge e Austin (2004) e ilustrada, por
+analogia de aplicação em dados reais assimétricos fora do domínio de ML,
+por Lima *et al.* (2017): em métricas bibliométricas univariadas, os
+autores mostram que a regra clássica de Tukey detecta mais ou menos
+outliers do que uma versão ajustada pela assimetria da distribuição,
+conforme o sinal e a intensidade dessa assimetria — o mesmo cuidado se
+aplica aqui, já que a confiança bruta por modelo também é uma distribuição
+real, não necessariamente simétrica —, exceto no LinearSVC, cujo escore
+normalizado por *softmax* (não calibrado; Subseção 3.4) produz 51 valores
+atipicamente altos em 13.965 — consistente com a natureza do escore de
+margem, não com um problema de dados.
 
 *2) Homogeneidade de variância*: a razão entre a maior e a menor variância
 de confiança entre os sete modelos é 38,53, muito acima do limiar de
@@ -1256,9 +1268,10 @@ classificadores associa ganho de ensemble à diversidade entre membros, não
 apenas ao número de membros (DIETTERICH, 2000).
 
 *6) Relação entre confiança e acerto*: correlação de Spearman
-(SPEARMAN, 1904) e ponto-bisserial (TATE, 1954) — esta última apropriada
-porque o acerto é uma variável binária (certo/errado) contra a confiança
-contínua — entre confiança bruta e acerto (histórico), positiva e
+(SPEARMAN, 1904) e ponto-bisserial (TATE, 1954; formulação e
+interpretação como tamanho de efeito também em KORNBROT, 2014) — esta
+última apropriada porque o acerto é uma variável binária (certo/errado)
+contra a confiança contínua — entre confiança bruta e acerto (histórico), positiva e
 estatisticamente significativa (*p* < 0,001) em todos os sete modelos —
 da mais fraca (LinearSVC, ρ = 0,479) à mais forte (LSTM, ρ = 0,637) —,
 confirmando que a confiança carrega sinal genuíno sobre o acerto em todos
@@ -1303,7 +1316,14 @@ turnos é de leve alta na concordância para seis dos sete modelos
 (*p* < 10⁻⁷ em cada, por regressão linear simples do índice do turno
 sobre a concordância; Naive Bayes é o único estável, *p* = 0,51),
 compatível com o crescimento e a depuração progressiva da base ao longo
-do experimento, não com um artefato de curto prazo.
+do experimento, não com um artefato de curto prazo. (Nota de
+transparência: não foi encontrada, até o fechamento desta rodada, uma
+referência recente e suficientemente confiável que discuta a
+autocorrelação/ACF ou o teste de Durbin-Watson especificamente em
+contexto de aprendizado de máquina — a lacuna permanece declarada em vez
+de preenchida com uma citação fraca; as referências primárias de Box e
+Jenkins (1970) e Durbin e Watson (1950) continuam sustentando o método em
+si.)
 
 **Testes globais e correção para múltiplas comparações** — Cochran Q
 (COCHRAN, 1950), teste não paramétrico para diferenças entre três ou mais
@@ -1341,7 +1361,13 @@ significativamente dos demais. Por fim, o Kappa de Fleiss
 (FLEISS, 1971) — generalização do Kappa de Cohen para mais de dois
 avaliadores, aqui os sete modelos avaliando a mesma categoria — entre as
 sete IAs é 0,7719, concordância classificada como "substancial" pela
-escala de referência de Landis e Koch (1977, intervalo 0,61–0,80),
+escala de referência de Landis e Koch (1977, intervalo 0,61–0,80); Kappa
+e alternativas como o AC1 de Gwet respondem de forma diferente à
+prevalência desigual entre categorias (WONGPAKARAN *et al.*, 2013),
+ressalva relevante dado o desbalanceamento já discutido no item 4 desta
+subseção, ainda que o presente uso — concordância entre classificadores,
+não entre avaliadores humanos — não seja o cenário original desses
+estudos —,
 coerente com todos os modelos aprenderem o mesmo padrão subjacente da
 taxonomia histórica, divergindo principalmente nas categorias raras e
 ambíguas (Subseção 4.6).
@@ -1676,6 +1702,9 @@ COCHRAN, W. G. Sampling techniques. 3. ed. New York: John Wiley & Sons,
 DEMŠAR, J. Statistical comparisons of classifiers over multiple data
 sets. Journal of Machine Learning Research, v. 7, p. 1--30, 2006.
 
+DICICCIO, T. J.; EFRON, B. Bootstrap confidence intervals. Statistical
+Science, v. 11, n. 3, p. 189--228, 1996.
+
 DIETTERICH, T. G. Ensemble methods in machine learning. In:
 INTERNATIONAL WORKSHOP ON MULTIPLE CLASSIFIER SYSTEMS, 1., 2000,
 Cagliari. Proceedings \[\...\]. Berlin: Springer, 2000. p. 1--15.
@@ -1711,6 +1740,9 @@ GUO, C.; PLEISS, G.; SUN, Y.; WEINBERGER, K. Q. On calibration of modern
 neural networks. In: INTERNATIONAL CONFERENCE ON MACHINE LEARNING, 34.,
 2017, Sydney. Proceedings \[\...\]. Sydney: PMLR, 2017. p. 1321--1330.
 
+HODGE, V. J.; AUSTIN, J. A survey of outlier detection methodologies.
+Artificial Intelligence Review, v. 22, n. 2, p. 85--126, 2004.
+
 HOLM, S. A simple sequentially rejective multiple test procedure.
 Scandinavian Journal of Statistics, v. 6, n. 2, p. 65--70, 1979.
 
@@ -1728,8 +1760,16 @@ estimation and model selection. In: INTERNATIONAL JOINT CONFERENCE ON
 ARTIFICIAL INTELLIGENCE, 14., 1995, Montreal. Proceedings \[\...\]. San
 Francisco: Morgan Kaufmann, 1995. p. 1137--1143.
 
+KORNBROT, D. Point biserial correlation. In: Wiley StatsRef: Statistics
+Reference Online. Chichester: Wiley, 2014.
+
 LANDIS, J. R.; KOCH, G. G. The measurement of observer agreement for
 categorical data. Biometrics, v. 33, n. 1, p. 159--174, 1977.
+
+LIMA, L. F. M.; MAROLDI, A. M.; SILVA, D. V. O. da; HAYASHI, C. R. M.;
+HAYASHI, M. C. P. I. Métricas científicas em estudos bibliométricos:
+detecção de outliers para dados univariados. Em Questão, Porto Alegre, v.
+23, p. 254--273, 2017.
 
 LIN, J. Divergence measures based on the Shannon entropy. IEEE
 Transactions on Information Theory, v. 37, n. 1, p. 145--151, 1991. DOI:
@@ -1834,6 +1874,11 @@ survey. Transactions of the Association for Computational Linguistics,
 v. 11, p. 826--860, 2023.
 
 TUKEY, J. W. Exploratory data analysis. Reading: Addison-Wesley, 1977.
+
+WONGPAKARAN, N.; WONGPAKARAN, T.; WEDDING, D.; GWET, K. L. A comparison
+of Cohen's Kappa and Gwet's AC1 when calculating inter-rater reliability
+coefficients: a study conducted with personality disorder samples. BMC
+Medical Research Methodology, v. 13, art. 61, 2013.
 
 ZHANG, H.; ZHANG, Y.; LI, J.; LIU, J.; JI, L. A survey on learning with
 noisy labels in Natural Language Processing: how to train models with
