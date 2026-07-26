@@ -67,12 +67,12 @@ Seis tarefas do plano (ordem de execução, não a ordem em que foram dadas):
    "na interpretação do autor" e hedging repetitivo, checar duplicidade de
    citação (ex.: Deng et al.), manter ABNT (não mexe no formato de citação).
 
-**Onde está**: Etapas 1-5 concluídas (branch
+**Onde está**: as 6 etapas do plano estão concluídas (branch
 `docs/reformulacao-editorial-governanca-preditiva`, PR #73, ainda sem
-merge — mudança de conteúdo grande, revisão em fatias). Etapa 6
-(última) pendente.
+merge — mudança de conteúdo grande, revisão em fatias pelo Adinailson
+antes de mesclar).
 
-**O que foi feito até agora**:
+**O que foi feito (histórico completo)**:
 1. Apêndice A (dicionário de colunas A:P) removido; substituído por uma
    frase apontando para o repositório público. Apêndice B (checklist) e C
    (matriz M/N/P) renumerados para A e B.
@@ -119,16 +119,38 @@ merge — mudança de conteúdo grande, revisão em fatias). Etapa 6
    confirma diferença global; McNemar confirma LinearSVC > LSTM e >
    Naive Bayes); o Apêndice A (checklist) foi atualizado para não
    referenciar mais as Tabelas 8-9, remetendo ao Material Suplementar.
+7. **Passe de estilo final (Etapa 6)**: quebrados os 8 parágrafos
+   remanescentes com mais de 200 palavras (3.5, 4.1, 4.3, 4.4, 4.6, 4.9,
+   Discussão x2), sem cortar conteúdo científico — Resumo/Abstract
+   mantidos como parágrafo único (convenção ABNT/MDPI) e o parágrafo
+   consolidado de 4.10 mantido único, por ser a própria consolidação
+   pedida na Etapa 5. Removidas duas referências residuais a caminho de
+   arquivo interno (`sensibilidade_vies_validacao.json`,
+   `tabela_S2...csv`) e um ID de *workflow* numérico na legenda da
+   Figura 5. **Corrigida uma inconsistência factual** encontrada na
+   Subseção 4.6: uma frase ainda atribuía a não investigação de uma
+   sobreposição de categorias à "corrupção de acentuação na Subseção
+   4.8" — mas essa suspeita de *mojibake* já havia sido investigada e
+   descartada como falso alarme nas Limitações; a frase citava como
+   causa algo que o próprio texto já refutava em outro ponto. Citações
+   repetidas (COCHRAN 1977, ZHANG *et al.* 2025) conferidas: usos
+   legítimos em contextos diferentes, não redundância — mantidas sem
+   alteração. Não havia hedging tipo "na interpretação do autor" no
+   texto. Formato ABNT (autor-data) inalterado.
 
-**Próximo passo**: Etapa 6, a última do plano — passe de estilo geral
-sobre o texto já reformulado: quebrar parágrafos com mais de 10 linhas
-que ainda restarem (Referencial Conceitual e trechos do meio de 4.1-4.9
-não foram tocados nesta rodada), remover hedging repetitivo ("na
-interpretação do autor" e afins) e checar duplicidade de citação (ex.:
-Deng et al., se houver). Depois de tudo, revalidar contra
-`docs/dados/*.json` qualquer número citado nas seções reescritas, gerar
-novo PDF (`artigo_pdf.yml`) e revisar visualmente antes de considerar o
-plano de reformulação editorial fechado.
+Suíte completa: 94/94 em todas as etapas.
+
+**Próximo passo**: (1) o Adinailson revisar/mesclar a PR #73; (2)
+revalidar contra `docs/dados/*.json` os números citados nas seções
+reescritas antes do merge (regra de revalidação de dado vivo — nenhum
+número foi alterado nesta reformulação, só a prosa ao redor, mas vale
+conferir); (3) depois do merge, gerar novo PDF (`artigo_pdf.yml`) e
+revisar visualmente (a reformulação alterou bastante a estrutura de
+parágrafos — checar quebra de página e formatação); (4) só então
+considerar o plano de reformulação editorial desta rodada fechado e
+voltar à pendência represada da rodada 22: regerar Figuras 2-3 e
+Tabelas 3/7 quando o cron de rematerialização da Etapa 1 (G:K, iniciado
+em 26/07/2026 16:13) terminar de reprocessar as 13.965 linhas.
 
 ---
 
