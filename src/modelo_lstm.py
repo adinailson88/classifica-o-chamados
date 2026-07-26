@@ -137,7 +137,7 @@ def plotar_history(history: dict, caminho: str | Path) -> None:
     axes[1].legend()
 
     fig.tight_layout()
-    fig.savefig(caminho, dpi=220)
+    fig.savefig(caminho, dpi=300)
     plt.close(fig)
 
 

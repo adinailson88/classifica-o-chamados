@@ -6,12 +6,12 @@ COM VALIDAÇÃO HUMANA SOB RÓTULOS HISTÓRICOS RUIDOSOS**
 work orders in Brazilian Portuguese: a predictive governance protocol
 with human validation under noisy historical labels*
 
-**Adinailson Guimarães de Oliveira**
+**Adinailson Guimarães de Oliveira**, **Fabrício Berton Zanchi**
 
 Universidade Federal do Sul da Bahia (UFSB), Programa de Pós-Graduação
 em Biossistemas
 
-E-mail: adinailson.oliveira@cja.ufsb.edu.br
+E-mail: adinailson.oliveira@cja.ufsb.edu.br (A.G.O.); fabricio.berton@ufsb.edu.br (F.B.Z., orientador)
 
 **RESUMO**
 
@@ -1663,6 +1663,40 @@ defendida ao longo deste capítulo, é capaz de encontrar e corrigir
 falhas no pipeline de avaliação, não apenas nos rótulos históricos que
 motivaram o estudo.
 
+**Author Contributions**: Conceptualization, A.G.O. and F.B.Z.;
+methodology, A.G.O.; software, A.G.O.; validation, A.G.O.; formal
+analysis, A.G.O.; investigation, A.G.O.; resources, A.G.O.; data
+curation, A.G.O.; writing—original draft preparation, A.G.O.;
+writing—review and editing, A.G.O. and F.B.Z.; visualization, A.G.O.;
+supervision, F.B.Z.; project administration, F.B.Z. All authors have
+read and agreed to the published version of the manuscript.
+
+**Funding**: This research received no external funding.
+
+**Institutional Review Board Statement**: Not applicable. This study
+did not involve human-subjects research, clinical procedures, or
+personal data disclosure; it analyzes institutional maintenance-ticket
+records (short operational titles/descriptions) and internal staff
+quality-review decisions made as part of routine institutional duties,
+not an experimental protocol on human participants.
+
+**Informed Consent Statement**: Not applicable, for the same reason
+above.
+
+**Data Availability Statement**: The maintenance-ticket data analyzed
+in this study originate from the institutional GLPI system of the
+Universidade Federal do Sul da Bahia (UFSB) and are not publicly
+available due to institutional privacy and confidentiality
+restrictions. De-identified derived metrics and the code used to
+produce every figure, table, and statistic reported in this article
+are available at
+[github.com/adinailson88/classificacao-chamados](https://github.com/adinailson88/classificacao-chamados).
+
+**Acknowledgments**: The authors thank the Universidade Federal do Sul
+da Bahia for institutional support.
+
+**Conflicts of Interest**: The authors declare no conflicts of
+interest.
 
 **REFERÊNCIAS**
 
