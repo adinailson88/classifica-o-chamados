@@ -63,8 +63,8 @@ jobs:
           if [ -z "$GCP_SA_KEY" ]; then echo "Secret GCP_SA_KEY ausente." >&2; exit 1; fi
           printf '%s' "$GCP_SA_KEY" > credenciais_sa.json
 
-      - name: Regenerar agregados deduplicados
-        run: python src/exportar_dashboard_corrigido.py
+      - name: Regenerar calibracao deduplicada
+        run: python src/calibracao_deduplicada.py
 
       - name: Auditar conferencias M N P
         run: python src/auditar_conferencias.py
