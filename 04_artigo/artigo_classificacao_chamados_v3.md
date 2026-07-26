@@ -91,36 +91,43 @@ governance.*
 
 **1. INTRODUÇÃO**
 
-A manutenção predial em instituições federais de ensino superior (IFES)
-envolve decisões recorrentes de triagem, categorização, priorização e
-alocação de equipes, agravadas pela dispersão territorial, pela
-diversidade de sistemas prediais e pela restrição orçamentária que
-historicamente limita o custeio dessas atividades a patamares inferiores
-a 2% do orçamento institucional (MARTINS; ESPEJO, 2024; PAMPANA *et
-al.*, 2022). Sistemas informatizados de registro de chamados, como
-plataformas GLPI e ambientes de *helpdesk*, tornaram-se, nesse contexto,
-não apenas instrumentos de solicitação, mas bases de conhecimento
-institucional sobre falhas, recorrências e padrões de uso, cujo
-potencial analítico permanece amplamente subutilizado (MORAIS; PAULA;
-REIS, 2023; MOHAMMED; AMOAH, 2025).
+Um campus universitário pode ser descrito como um biossistema
+construído: a integração dinâmica entre infraestrutura física,
+atividade humana, sistemas tecnológicos e condicionantes ambientais,
+cuja persistência ao longo do tempo depende de mecanismos de
+retroalimentação contínua entre uso, falha e reparo (CAPRA, 1996; ODUM,
+1971). A ecologia urbana descreve esse tipo de sistema como um
+organismo em troca permanente de matéria, energia e informação com seu
+entorno, cuja governança bem-sucedida depende da capacidade
+institucional de captar sinais operacionais e convertê-los em decisão
+(GRIMM *et al.*, 2008). Em instituições federais de ensino superior
+(IFES), esse sinal assume, na prática, a forma de registros textuais de
+chamados de manutenção predial — a matéria-prima do *feedback*
+operacional do biossistema construído. Esses registros, no entanto,
+nascem aprisionados em linguagem não estruturada, fragmentária e
+sujeita a interpretação individual no momento do atendimento, o que
+impede seu uso direto por qualquer mecanismo de decisão automatizada
+(MORAIS; PAULA; REIS, 2023; MOHAMMED; AMOAH, 2025).
 
-A exploração analítica dessas bases é limitada por ao menos três fatores
-estruturais. O primeiro reside na natureza textual curta, heterogênea e
-frequentemente incompleta dos registros, uma vez que chamados de
-manutenção predial são redigidos em linguagem técnica fragmentária, com
-abreviações locais e jargões de equipe que dificultam a aplicação direta
-de modelos genéricos de processamento de linguagem natural (PLN)
-(SUNDARAM; ZEID, 2025). O segundo fator é o desbalanceamento entre
-categorias, dado que demandas recorrentes de climatização, elétrica e
-hidrossanitária tendem a concentrar grande parte da base, ao passo que
-categorias raras dispõem de poucos exemplos para treinamento
-supervisionado (LI *et al.*, 2024). O terceiro fator, possivelmente o
-mais crítico do ponto de vista metodológico, é a qualidade dos rótulos
-históricos, pois a categoria registrada no momento do chamado pode
-resultar de interpretação rápida, classificação por conveniência
-operacional ou taxonomia ainda não estabilizada, de modo que o histórico
-administrativo constitui evidência importante, porém não verdade
-absoluta (ZHANG *et al.*, 2025; KEJRIWAL *et al.*, 2024).
+A exploração analítica dessas bases enfrenta ao menos três obstáculos
+estruturais, agravados pela restrição orçamentária que historicamente
+limita o custeio da manutenção predial em IFES a patamares inferiores a
+2% do orçamento institucional (MARTINS; ESPEJO, 2024; PAMPANA *et al.*,
+2022). O primeiro é a natureza textual curta, heterogênea e
+frequentemente incompleta dos registros: chamados de manutenção
+predial são redigidos em linguagem técnica fragmentária, com
+abreviações locais e jargões de equipe que dificultam a aplicação
+direta de modelos genéricos de processamento de linguagem natural (PLN)
+(SUNDARAM; ZEID, 2025). O segundo é o desbalanceamento entre
+categorias: demandas recorrentes de climatização, elétrica e
+hidrossanitária concentram grande parte da base, enquanto categorias
+raras dispõem de poucos exemplos para treinamento supervisionado (LI
+*et al.*, 2024). O terceiro, talvez o mais crítico do ponto de vista
+metodológico, é a qualidade do próprio rótulo histórico: a categoria
+registrada no momento do chamado pode resultar de interpretação rápida,
+conveniência operacional ou taxonomia ainda não estabilizada, de modo
+que o histórico administrativo constitui evidência importante, mas não
+verdade absoluta (ZHANG *et al.*, 2025; KEJRIWAL *et al.*, 2024).
 
 A literatura recente sobre mineração textual de ordens de manutenção
 confirma a relevância de técnicas de PLN para transformar registros
@@ -140,51 +147,56 @@ em inglês ou chinês e em domínios industriais ou hospitalares,
 configurando lacuna relevante para corpora em português brasileiro no
 contexto da manutenção predial pública universitária.
 
-O presente artigo parte de uma tese metodológica específica: em bases
-reais de chamados de manutenção, a avaliação de modelos não deve ser
-reduzida à pergunta sobre qual classificador mais concorda com a
-categoria histórica. Conforme Zhang *et al.* (2025), rótulos ruidosos em
-PLN afetam o desempenho dos classificadores e podem ampliar o consumo de
-recursos computacionais, exigindo métodos robustos de tratamento de
-ruído. Kejriwal *et al.* (2024) reforçam que *benchmarks* rotulados por
-humanos podem conter variabilidade relevante, questionando a prática de
-assumir uma única verdade absoluta quando há julgamento subjetivo
-envolvido. Dessa forma, a pergunta central deve ser mais ampla: em que
-medida os modelos reproduzem o histórico, em que medida auxiliam na
-identificação de inconsistências desse histórico e de que maneira a
-revisão humana pode converter divergências entre inteligência artificial
-e registro administrativo em melhoria progressiva da taxonomia
-institucional.
+Diante desse quadro, a pergunta que orienta este capítulo não é qual
+classificador mais concorda com a categoria histórica, mas outra, mais
+ampla e mais alinhada à função de governança que esses dados devem
+cumprir: como extrair, de forma confiável e auditável, dado estruturado
+a partir de texto ruidoso, de modo que esse dado possa alimentar um
+sistema de governança preditiva sem herdar acriticamente os erros do
+próprio histórico que lhe deu origem? Rótulos ruidosos em PLN não
+apenas reduzem o desempenho de classificadores, como também podem
+ampliar o consumo de recursos computacionais necessários para tratá-los
+(ZHANG *et al.*, 2025); mais importante, *benchmarks* anotados por
+humanos frequentemente carregam variabilidade relevante, o que torna
+questionável a prática de tratar qualquer rótulo — humano ou histórico
+— como verdade absoluta e não sujeita a julgamento (KEJRIWAL *et al.*,
+2024). A classificação automática apresentada neste capítulo é,
+portanto, a primeira camada de um protocolo maior — não seu produto
+final: uma camada que precisa produzir dado auditável o bastante para
+que divergências entre inteligência artificial e histórico
+administrativo sejam tratadas como evidência de revisão taxonômica, não
+como ruído a ser descartado.
 
 Com base em chamados reais da Universidade Federal do Sul da Bahia
-(UFSB), propõe-se uma comparação multimodelo de classificadores de texto
-aplicados a chamados de manutenção predial em português brasileiro. A
-base experimental contém 13.965 chamados não vazios (na consolidação
-vigente de 23/07/2026), distribuídos em 55 categorias históricas, e os
-campos textuais considerados agregam informações do título e da
-descrição do chamado, além de informações associadas à ordem de serviço.
-O estudo compara modelos clássicos baseados em TF-IDF (Naive Bayes,
-Regressão Logística, LinearSVC, SGD, Random Forest e Extra Trees) com
-abordagem neural LSTM bidirecional. O BERTimbau é mantido como extensão
-planejada, mas não integra as comparações enquanto não houver treino
-concluído e métricas próprias rastreáveis. O
-objeto de avaliação, portanto, não é apenas o classificador isolado, mas
-o protocolo de governança preditiva que articula aprendizado de máquina,
-auditoria estatística, custo computacional e validação humana, em
-consonância com a perspectiva de manutenção baseada em evidências
-preconizada pela NBR 5674 (ABNT, 2012).
+(UFSB), este capítulo propõe uma comparação multimodelo de
+classificadores de texto aplicada a chamados de manutenção predial em
+português brasileiro. A base experimental contém 13.965 chamados não
+vazios, distribuídos em 55 categorias históricas; os campos textuais
+considerados agregam título e descrição do chamado, além de informações
+associadas à ordem de serviço. O estudo compara modelos clássicos
+baseados em TF-IDF (Naive Bayes, Regressão Logística, LinearSVC, SGD,
+Random Forest e Extra Trees) com uma rede neural LSTM bidirecional; o
+BERTimbau é mantido como extensão planejada, mas não integra as
+comparações enquanto não houver treino concluído e métricas próprias
+rastreáveis. O objeto de avaliação, portanto, não é o classificador
+isolado, mas o protocolo de governança preditiva que articula
+aprendizado de máquina, auditoria estatística, custo computacional e
+validação humana — em consonância com a manutenção baseada em
+evidências preconizada pela NBR 5674 (ABNT, 2012) e com a integração
+físico-humano-tecnológico-ambiental que caracteriza um biossistema
+construído.
 
-Os objetivos específicos do estudo são: (i) apresentar um protocolo de
-comparação multimodelo para classificação de chamados reais de
-manutenção predial universitária em português brasileiro; (ii)
-distinguir concordância com rótulo histórico de acerto validado,
-evitando equiparar categoria histórica a *ground truth* incontestável;
-(iii) avaliar desempenho por métricas globais, métricas balanceadas,
-intervalos de confiança e testes estatísticos pareados adequados a dados
-não normais; (iv) incorporar custo computacional como dimensão de
-decisão operacional; e (v) transformar divergências entre IA e histórico
-em evidências para revisão taxonômica e retroalimentação da base de
-treino.
+Os objetivos específicos deste capítulo são: (i) apresentar um
+protocolo de classificação automática que produza dado estruturado
+auditável a partir de texto livre, como primeira camada de um sistema
+de governança preditiva; (ii) distinguir concordância com rótulo
+histórico de acerto validado, evitando equiparar categoria histórica a
+*ground truth* incontestável; (iii) avaliar desempenho por métricas
+globais, métricas balanceadas, intervalos de confiança e testes
+estatísticos pareados adequados a dados não normais; (iv) incorporar
+custo computacional como dimensão de decisão operacional; e (v)
+transformar divergências entre inteligência artificial e histórico em
+evidência para revisão taxonômica e retroalimentação da base de treino.
 
 **2. REFERENCIAL CONCEITUAL**
 
@@ -1647,6 +1659,9 @@ Buildings. Buildings, v. 10, n. 9, art. 160, 2020.
 BOX, G. E. P.; JENKINS, G. M. Time series analysis: forecasting and
 control. San Francisco: Holden-Day, 1970.
 
+CAPRA, F. A teia da vida: uma nova compreensão científica dos sistemas
+vivos. São Paulo: Cultrix, 1996.
+
 CHAN, J. Y.-L.; LEOW, S. M. H.; BEA, K. T.; CHENG, W. K.; PHOONG, S. W.;
 HONG, Z.-W.; CHEN, Y.-L. Mitigating the multicollinearity problem and
 its machine learning approach: a review. Mathematics, v. 10, n. 8, art.
@@ -1694,6 +1709,10 @@ Dublin: ACL, 2022. p. 4038--4051.
 GRAVES, A.; SCHMIDHUBER, J. Framewise phoneme classification with
 bidirectional LSTM and other neural network architectures. Neural
 Networks, v. 18, n. 5-6, p. 602--610, 2005.
+
+GRIMM, N. B.; FAETH, S. H.; GOLUBIEWSKI, N. E.; REDMAN, C. L.; WU, J.;
+BAI, X.; BRIGGS, J. M. Global change and the ecology of cities. Science,
+v. 319, n. 5864, p. 756--760, 2008.
 
 GUO, C.; PLEISS, G.; SUN, Y.; WEINBERGER, K. Q. On calibration of modern
 neural networks. In: INTERNATIONAL CONFERENCE ON MACHINE LEARNING, 34.,
@@ -1778,6 +1797,9 @@ methods. Statistics in Medicine, v. 40, n. 26, p. 5691--5701, 2021.
 
 O'BRIEN, R. M. A caution regarding rules of thumb for variance inflation
 factors. Quality & Quantity, v. 41, n. 5, p. 673--690, 2007.
+
+ODUM, H. T. Environment, power, and society. New York:
+Wiley-Interscience, 1971.
 
 OGUNLEYE, L. I.; OYEJOLA, B. A.; OBISESAN, K. O. Comparison of some
 common tests for normality. International Journal of Probability and
