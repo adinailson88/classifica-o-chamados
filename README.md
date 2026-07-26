@@ -51,26 +51,36 @@ Antes de qualquer coisa:
    "Publicacao em PDF" de `PLANO_ARTIGO_CAPITULO.md`) — o PDF se regenera quando
    `04_artigo/*.md` muda, mas NAO reescreve numeros no texto sozinho; a
    correspondencia entre resultado e JSON vigente ainda depende de revisao humana.
-7. A anomalia de `calibracao.json` (`acerto_validado` = 1.0 em toda faixa de
-   confianca) foi diagnosticada e corrigida em 23/07/2026 (viés de selecao em
-   `src/calibracao.py`, commits `21258deb` e `617d3ac2`; testes em
-   `tests/test_calibracao.py`). Nao e mais pendencia.
-8. Duas pendencias tecnicas NOVAS, encontradas em 23/07/2026, ainda sem
-   correcao (exigem leitura/escrita direta na planilha, fora do alcance de
-   uma sessao sem credenciais): (a) corrupcao de acentuacao (mojibake) nos
-   nomes de categoria lidos das abas `CLASSIF__<modelo>` por
-   `src/analise_estatistica.py`, contaminando `top_confusoes` em
-   `estatistica.json`, `cruzamento_taxonomia.json` e
-   `confusao_historico_ia.json`; (b) `total_reclassificado` do Random Forest
-   em `reclass_resumo.json` excede o tamanho da base (18.049 > 13.965),
-   indicando linhas duplicadas na aba `RECLASS__random_forest` — suspeita de
-   falha silenciosa em `linhas_ja_reclass()` (`src/reclassificacao_multimodelo.py`).
-   Ver "Estado desta rodada" em `PLANO_ARTIGO_CAPITULO.md`.
+7. Todas as pendencias tecnicas antigas ja listadas aqui (anomalia de
+   `calibracao.json`, suspeita de mojibake nos nomes de categoria,
+   duplicatas em `RECLASS__random_forest`) foram investigadas e
+   resolvidas em rodadas anteriores. Nao reabrir sem evidencia nova —
+   ver o historico em `PLANO_ARTIGO_CAPITULO.md` se precisar do
+   detalhe de como cada uma foi corrigida.
+8. O artigo hoje usa citacao autor-data (ABNT), duas autorias
+   (Adinailson Guimaraes de Oliveira + Fabricio Berton Zanchi) e um
+   bloco de declaracoes obrigatorias da MDPI (Author Contributions,
+   Funding, IRB/Informed Consent, Data Availability, Acknowledgments,
+   Conflicts of Interest) antes da lista de REFERENCIAS. NAO reconverter
+   para citacao numerica sem confirmar com o Adinailson — ja foi tentado
+   e revertido.
 
 Depois de executar o que for pedido nesta rodada, atualizar a secao "Estado desta
 rodada" de `PLANO_ARTIGO_CAPITULO.md` (substituir, nao acumular) com: onde parou, o
 que foi feito, e o proximo passo — para que a proxima sessao continue sem precisar
 de mais contexto do que este prompt e esse arquivo.
+
+PENDENCIA IMEDIATA (26/07/2026): o PR #71
+(`docs/corrigir-formatacao-citacao-fontes`) esta aberto, limpo para
+merge, aguardando o Adinailson revisar (reverte a citacao de volta para
+ABNT, corrige Sumario/margem do PDF, linhas "Fonte:", prolixidade e
+titulo duplicado nas figuras — ver "Estado desta rodada", rodada 22, em
+`PLANO_ARTIGO_CAPITULO.md`). Primeiro passo de uma sessao nova: rodar
+`gh pr view 71 --json state,mergedAt`. Se ainda `OPEN`, perguntar se o
+Adinailson quer mesclar agora; se ja `MERGED`, seguir para o proximo
+passo registrado no plano (regerar Figuras 2-3 e Tabelas 3/7 quando o
+cron de rematerializacao da Etapa 1 terminar; depois gerar o PDF via
+`artigo_pdf.yml` e revisar visualmente).
 
 Agora: [descreva aqui o que voce quer que a sessao faca nesta rodada — ex.: "revalide
 os numeros da secao 4.2 e escreva um rascunho da Discussao (secao 5)", ou "traga o
