@@ -1,25 +1,14 @@
 name: Corrigir sincronizacao numerica do artigo
 
 on:
-  push:
-    branches:
-      - agent/corrigir-sincronizacao-artigo
-    paths:
-      - "src/calibracao_deduplicada.py"
-      - "src/exportar_dashboard_corrigido.py"
-      - "src/sincronizar_artigo_dados.py"
-      - "src/corrigir_sintaxe_sincronizador.py"
-      - "tests/test_calibracao_deduplicada.py"
-      - ".github/workflows/dashboard.yml"
-      - ".github/workflows/corrigir_sincronizacao_artigo.yml"
   pull_request:
     branches: [main]
     types: [opened, synchronize, reopened]
   workflow_dispatch:
 
 concurrency:
-  group: corrigir-sincronizacao-artigo
-  cancel-in-progress: false
+  group: corrigir-sincronizacao-artigo-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: write
@@ -108,7 +97,6 @@ jobs:
         run: rm -f credenciais_sa.json
 
       - name: Commitar resultados na branch
-        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
