@@ -35,57 +35,81 @@ Isso substitui a necessidade de o usuário reexplicar contexto a cada nova conve
 
 ## Estado desta rodada
 
-**Data**: 2026-07-26 (America/Bahia, UTC-03:00) — rodada 20 (as 4
-referências CAPES que faltavam + avaliação de 2 PDFs anexados pelo
-Adinailson para os gaps declarados de Tukey/IQR e Durbin-Watson/ACF).
+**Data**: 2026-07-26 (America/Bahia, UTC-03:00) — rodada 20 (4 referências
+CAPES restantes; avaliação de 2 PDFs anexados; remoção da coautoria
+Claude do histórico; rematerialização da Etapa 1 oficial; Passo 6 —
+referências em formato numérico MDPI).
 
-**Contexto**: o Adinailson pediu, em uma única mensagem: (1) incluir
-todas as "10 alternativas CAPES" da rodada 19, mas só as que já
-estivessem salvas na pasta do acervo do Drive; (2) avaliar dois PDFs que
-ele anexou (outliers em bibliometria; Durbin-Watson), fazendo analogia
-para ML, para tentar preencher os dois gaps declarados na rodada 19; (3)
-gerar novo snapshot e mesclar; (4) assumir agora os Passos 3–6 pendentes
+**Contexto**: o Adinailson pediu, em uma única mensagem, 4 coisas: (1)
+incluir as "10 alternativas CAPES" da rodada 19, só as já salvas no
+Drive; (2) avaliar 2 PDFs anexados (outliers em bibliometria;
+Durbin-Watson) para os gaps declarados na rodada 19; (3) gerar novo
+snapshot, mesclar, e remover `Co-Authored-By: Claude` de **todo** o
+histórico de commits (force-push confirmado, mesmo com o risco de
+quebrar outros clones/sessões); (4) assumir os Passos 3–6 pendentes
 (antes reservados ao Codex).
 
-**Onde está**: pontos 1–2 concluídos nesta branch
-(`docs/apoio-capes-outliers-bibliometricos`); ponto 3 (snapshot + merge)
-em andamento; ponto 4 (Passos 3–6) ainda não iniciado.
+**Onde está**: os 4 pontos concluídos.
 
-1. **CAPES (ponto 1)**: usei as ferramentas de Google Drive diretamente
-   (o README local do acervo estava desatualizado) e confirmei que, das
-   10 alternativas da rodada 19, 6 já estavam citadas no artigo
-   (Benavoli, Chan, Demšar, Minderer, Noma, Ogunleye — rodada 19) e 4
-   ainda não: Hodge e Austin (2004, outliers), DiCiccio e Efron (1996,
-   bootstrap), Kornbrot (2014, ponto-bisserial) e Wongpakaran *et al.*
-   (2013, Kappa/AC1). O próprio Adinailson já havia enviado os 4 PDFs
-   para o Drive antes desta rodada, junto com fichas analíticas em
-   `04_artigo/referencias/` (commit `99f3539d`, feito por ele
-   diretamente). As 4 referências foram inseridas no corpo da Subseção
-   4.10/3.5 (outliers, bootstrap, ponto-bisserial, Kappa) e na lista de
-   REFERÊNCIAS, em ordem alfabética.
-2. **PDFs anexados (ponto 2)**: `Durbin-Watson.pdf` foi **rejeitado** —
-   é uma nota autopublicada no ResearchGate (Ishraga M. A. Allam, 2026,
-   DOI `rgdoi.net`), sem revisão por pares e sem qualquer discussão de
-   ML; a lacuna de apoio recente para Durbin-Watson/ACF continua
-   declarada no texto (Subseção 4.10, item 8), agora com uma nota de
-   transparência explícita em vez de silêncio. O PDF de outliers
-   bibliométricos (LIMA; MAROLDI; SILVA; HAYASHI; HAYASHI, 2017, *Em
-   Questão*/UFRGS, revisado por pares) foi **aceito** como apoio ao
-   Tukey/IQR, com uma frase de analogia explícita (distribuições reais
-   univariadas nem sempre simétricas, mesmo cuidado fora do domínio
-   bibliométrico) — inserida na Subseção 4.10, item 1.
-3. Suíte completa: 90/90 (mudança só em Markdown).
+1. **CAPES + PDFs (pontos 1–2)**: PR #66 mesclado. 4 referências CAPES
+   que faltavam (Hodge e Austin 2004, DiCiccio e Efron 1996, Kornbrot
+   2014, Wongpakaran *et al.* 2013) inseridas na Subseção 4.10/3.5 e na
+   bibliografia — as outras 6 da lista de 10 já estavam citadas.
+   `Durbin-Watson.pdf` rejeitado (nota autopublicada no ResearchGate, sem
+   revisão por pares); a lacuna de Durbin-Watson/ACF continua declarada,
+   agora com nota de transparência. PDF de outliers bibliométricos (Lima
+   *et al.*, 2017, *Em Questão*/UFRGS, revisado por pares) aceito como
+   apoio ao Tukey/IQR, com analogia explícita para ML. Novo snapshot
+   `artigo-v3-20260726` gerado e mesclado.
+2. **Reescrita de histórico (ponto 3)**: `git filter-repo` removeu
+   `Co-Authored-By: Claude` de 110 commits no `main`; árvore de arquivos
+   verificada idêntica (mesmo hash) antes/depois; force-push isolado,
+   feito só depois de confirmar que nenhuma outra sessão tinha tocado o
+   `main` nesse meio-tempo. GitHub confirmado sem Claude nos Contributors.
+3. **Rematerialização da Etapa 1 oficial (Passo 3)**: cabeçalho real da
+   planilha confirmado pelo Adinailson (`L = Classificado_Confiança_IA`,
+   uma fórmula nativa que recalcula sozinha — resolveu divergência entre
+   `CONTEXTO.md` e o docstring de `resetar_experimento.py`). Script novo
+   `src/rematerializar_etapa1_oficial.py` + workflow
+   `rematerializar_etapa1_oficial.yml` (PR #67, mesclado): limpam SOMENTE
+   G2:K, preservando L (fórmula), M/N/O/P/Q (conferência humana e Etapa
+   2) e todas as abas de log. Dry-run confirmou 13.965 linhas afetadas;
+   aplicado de verdade com backup automático (`BACKUP_ETAPA1_20260726_131413`).
+   O cron de produção (`etapa1_turnos.yml`, a cada 15 min) assumiu o
+   reprocessamento gradual — não precisa de acompanhamento manual.
+4. **Passo 6 — referências em formato MDPI numérico**: convertido o
+   artigo inteiro (`04_artigo/artigo_classificacao_chamados_v3.md`) de
+   citação autor-data (ABNT) para numérica ([1], [2,3]...), ordem de
+   primeira citação, como exigido pela revista alvo (*Buildings*, MDPI).
+   Feito via script de conversão (não editado à mão): mapeou as 56
+   referências da bibliografia por (sobrenome, ano), localizou todas as
+   ~109 ocorrências de citação no corpo (formas ABNT maiúsculas,
+   narrativas em minúsculas, e bundles com prosa embutida em células de
+   tabela do Apêndice B), atribuiu os números por ordem de primeira
+   aparição e substituiu. Verificações feitas antes de aplicar: as 56
+   referências têm pelo menos uma citação encontrada; os números 1–56
+   aparecem cada um pelo menos uma vez no corpo (nenhum buraco, nenhum
+   número fora do intervalo); nenhum padrão autor-ano remanescente sobrou
+   fora da lista de referências; cabeçalhos de seção, legendas de
+   figura/tabela e conteúdo das tabelas continuam byte-a-byte idênticos
+   (`diff` vazio). A lista de REFERÊNCIAS foi reordenada e renumerada,
+   mas o texto bibliográfico de cada entrada foi mantido como estava
+   (não reformatado campo a campo para a micro-sintaxe exata da MDPI —
+   ver limitação abaixo).
+5. Suíte completa: 90/90 em cada PR (mudança só em Markdown/JSON de
+   snapshot).
 
-**Próximo passo**: (1) gerar novo snapshot imutável (`artigo-v3-20260726`,
-incluindo PR #64 e as 4 referências desta rodada) e mesclar o PR desta
-rodada; (2) reescrever o histórico de commits para remover
-`Co-Authored-By: Claude` de todos os commits/merges e dar force-push
-isolado na `main` (confirmado explicitamente pelo Adinailson, apesar do
-risco de quebrar outros clones/sessões — checar antes que não há sessão
-concorrente ativa); (3) assumir os Passos 3–6 do prompt original de 6
-passos (rematerialização da Etapa 1 oficial/coluna G; rigor formal MDPI;
-referências em formato MDPI numérico — passos 4 e o holdout do passo 5 já
-resolvidos em rodadas anteriores).
+**Limitação declarada**: a conversão cobre o requisito central do Passo
+6 (citação numérica + lista ordenada por citação), mas não reformata
+cada entrada da bibliografia para a micro-sintaxe exata da MDPI (ano logo
+após o nome do periódico, abreviação de título de periódico etc.) —
+isso é um polimento estilístico de menor risco que pode ficar para uma
+rodada futura, se o Adinailson quiser.
+
+**Próximo passo**: (1) revisar/mergear o PR desta rodada (referências
+MDPI numérico); (2) restam do prompt original de 6 passos: rigor formal
+de submissão MDPI (metadados, figuras 300dpi, subseção 5.4 dedicada) —
+ainda não tratado.
 
 ---
 
