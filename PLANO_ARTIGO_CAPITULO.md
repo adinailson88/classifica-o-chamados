@@ -35,8 +35,61 @@ Isso substitui a necessidade de o usuário reexplicar contexto a cada nova conve
 
 ## Estado desta rodada
 
-**Data**: 2026-07-25 (America/Bahia, UTC-03:00) — rodada 19 (limite de 10
-anos + acesso aos arquivos das referências estatísticas).
+**Data**: 2026-07-26 (America/Bahia, UTC-03:00) — rodada 20 (as 4
+referências CAPES que faltavam + avaliação de 2 PDFs anexados pelo
+Adinailson para os gaps declarados de Tukey/IQR e Durbin-Watson/ACF).
+
+**Contexto**: o Adinailson pediu, em uma única mensagem: (1) incluir
+todas as "10 alternativas CAPES" da rodada 19, mas só as que já
+estivessem salvas na pasta do acervo do Drive; (2) avaliar dois PDFs que
+ele anexou (outliers em bibliometria; Durbin-Watson), fazendo analogia
+para ML, para tentar preencher os dois gaps declarados na rodada 19; (3)
+gerar novo snapshot e mesclar; (4) assumir agora os Passos 3–6 pendentes
+(antes reservados ao Codex).
+
+**Onde está**: pontos 1–2 concluídos nesta branch
+(`docs/apoio-capes-outliers-bibliometricos`); ponto 3 (snapshot + merge)
+em andamento; ponto 4 (Passos 3–6) ainda não iniciado.
+
+1. **CAPES (ponto 1)**: usei as ferramentas de Google Drive diretamente
+   (o README local do acervo estava desatualizado) e confirmei que, das
+   10 alternativas da rodada 19, 6 já estavam citadas no artigo
+   (Benavoli, Chan, Demšar, Minderer, Noma, Ogunleye — rodada 19) e 4
+   ainda não: Hodge e Austin (2004, outliers), DiCiccio e Efron (1996,
+   bootstrap), Kornbrot (2014, ponto-bisserial) e Wongpakaran *et al.*
+   (2013, Kappa/AC1). O próprio Adinailson já havia enviado os 4 PDFs
+   para o Drive antes desta rodada, junto com fichas analíticas em
+   `04_artigo/referencias/` (commit `99f3539d`, feito por ele
+   diretamente). As 4 referências foram inseridas no corpo da Subseção
+   4.10/3.5 (outliers, bootstrap, ponto-bisserial, Kappa) e na lista de
+   REFERÊNCIAS, em ordem alfabética.
+2. **PDFs anexados (ponto 2)**: `Durbin-Watson.pdf` foi **rejeitado** —
+   é uma nota autopublicada no ResearchGate (Ishraga M. A. Allam, 2026,
+   DOI `rgdoi.net`), sem revisão por pares e sem qualquer discussão de
+   ML; a lacuna de apoio recente para Durbin-Watson/ACF continua
+   declarada no texto (Subseção 4.10, item 8), agora com uma nota de
+   transparência explícita em vez de silêncio. O PDF de outliers
+   bibliométricos (LIMA; MAROLDI; SILVA; HAYASHI; HAYASHI, 2017, *Em
+   Questão*/UFRGS, revisado por pares) foi **aceito** como apoio ao
+   Tukey/IQR, com uma frase de analogia explícita (distribuições reais
+   univariadas nem sempre simétricas, mesmo cuidado fora do domínio
+   bibliométrico) — inserida na Subseção 4.10, item 1.
+3. Suíte completa: 90/90 (mudança só em Markdown).
+
+**Próximo passo**: (1) gerar novo snapshot imutável (`artigo-v3-20260726`,
+incluindo PR #64 e as 4 referências desta rodada) e mesclar o PR desta
+rodada; (2) reescrever o histórico de commits para remover
+`Co-Authored-By: Claude` de todos os commits/merges e dar force-push
+isolado na `main` (confirmado explicitamente pelo Adinailson, apesar do
+risco de quebrar outros clones/sessões — checar antes que não há sessão
+concorrente ativa); (3) assumir os Passos 3–6 do prompt original de 6
+passos (rematerialização da Etapa 1 oficial/coluna G; rigor formal MDPI;
+referências em formato MDPI numérico — passos 4 e o holdout do passo 5 já
+resolvidos em rodadas anteriores).
+
+---
+
+### Histórico da rodada 19 (limite de 10 anos + acesso aos arquivos das referências estatísticas)
 
 **Contexto**: o Adinailson perguntou se as 19 referências estatísticas da
 rodada 18 existem na pasta do acervo do Drive (`Referência Bibliográfica
