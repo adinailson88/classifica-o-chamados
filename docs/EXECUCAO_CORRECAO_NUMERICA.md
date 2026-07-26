@@ -18,7 +18,7 @@ Esta branch corrige a divergência entre o artigo e os JSONs vivos do experiment
 - decisões travadas: 9.044;
 - casos sem verdade validada: 490, incluindo 52 conflitos.
 
-Os valores acima são gerados novamente pelo workflow antes da sincronização do texto, não inseridos manualmente no artigo.
+Os valores acima são gerados novamente pelo workflow antes da sincronização do texto, não inseridos manualmente no artigo. A regeneração estatística requer `statsmodels`, e as figuras requerem `matplotlib`; ambas as dependências são instaladas explicitamente no workflow corretivo.
 
 ## Segurança
 
