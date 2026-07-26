@@ -1,13 +1,12 @@
 name: Corrigir sincronizacao numerica do artigo
 
 on:
-  pull_request:
-    branches: [main]
-    types: [opened, synchronize, reopened]
+  push:
+    branches: [agent/corrigir-sincronizacao-artigo]
   workflow_dispatch:
 
 concurrency:
-  group: corrigir-sincronizacao-artigo-${{ github.event.pull_request.number || github.ref }}
+  group: corrigir-sincronizacao-artigo
   cancel-in-progress: true
 
 permissions:
