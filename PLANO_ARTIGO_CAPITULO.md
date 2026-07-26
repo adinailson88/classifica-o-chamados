@@ -67,10 +67,10 @@ Seis tarefas do plano (ordem de execução, não a ordem em que foram dadas):
    "na interpretação do autor" e hedging repetitivo, checar duplicidade de
    citação (ex.: Deng et al.), manter ABNT (não mexe no formato de citação).
 
-**Onde está**: Etapas 1-4 concluídas (branch
+**Onde está**: Etapas 1-5 concluídas (branch
 `docs/reformulacao-editorial-governanca-preditiva`, PR #73, ainda sem
-merge — mudança de conteúdo grande, revisão em fatias). Etapas 5-6
-pendentes.
+merge — mudança de conteúdo grande, revisão em fatias). Etapa 6
+(última) pendente.
 
 **O que foi feito até agora**:
 1. Apêndice A (dicionário de colunas A:P) removido; substituído por uma
@@ -97,21 +97,38 @@ pendentes.
    Bouabdallaoui *et al.* 2020, Zhang *et al.* 2025, Kejriwal *et al.*
    2024) mantida intacta.
 
-**Próximo passo**: Etapa 5 — condensar Método 3.4 (reorganizar por
-família de modelo: linear/ensemble/neural, com justificativa conceitual
-por família, não hiperparâmetro por hiperparâmetro; manter ênfase no
-protocolo de validação out-of-fold + validação humana como diferencial)
-e condensar Resultados (4.1-4.10) aos 3 achados principais do plano —
-(a) lineares superam neurais/ensembles em texto curto e desbalanceado,
-com vantagem de custo; (b) validação humana confirmou ruído real no
-rótulo histórico (~3,5%); (c) meta de calibração próxima mas não
-formalmente probabilística — consolidando Shapiro/Friedman/Nemenyi/
-McNemar num único parágrafo e movendo detalhe estatístico para Material
-Suplementar. Depois, Etapa 6 (passe de estilo geral: parágrafos longos,
-"na interpretação do autor", duplicidade de citação) sobre o texto já
-reformulado. Antes de fechar, revalidar contra `docs/dados/*.json`
-qualquer número citado nas seções reescritas. Ao final, gerar novo PDF
-(`artigo_pdf.yml`) e revisar visualmente.
+5. **Método condensado (3.2-3.5)**: 3.2 perdeu data solta e jargão de
+   auditoria interna; 3.4 foi reorganizado por família conceitual de
+   modelo (linear, *ensemble* de árvores, neural), removendo excesso de
+   hiperparâmetro (dimensões de *embedding*, *dropout*, vocabulário) que
+   não muda a conclusão; 3.5 condensou a comparação empírica *k*-fold vs.
+   *holdout* (~40 linhas) num parágrafo, remetendo o número fino para a
+   Tabela Suplementar S4.
+6. **Resultados condensados (4.1-4.10)**: parágrafo de "3 achados
+   diretos" acrescentado na abertura da Seção 4 (lineares superam
+   neurais/*ensembles* com vantagem de custo; ruído real de ~3,5% no
+   histórico; meta de calibração próxima mas não formalmente
+   probabilística). Removidos os dois blocos "Nota de rastreabilidade
+   (data)" e todas as datas internas remanescentes (16/07, 23/07,
+   24/07, 25/07/2026, IDs de *workflow*, nomes de arquivo `.csv`)
+   espalhadas por 4.1-4.10, Discussão e Conclusão — preservando o
+   achado científico por trás de cada uma. A Subseção 4.10 (Robustez
+   estatística) foi consolidada de ~195 linhas (8 pressupostos um a um,
+   Tabelas 8-9, testes globais) para um único parágrafo com os
+   resultados principais (Shapiro rejeita normalidade; Friedman
+   confirma diferença global; McNemar confirma LinearSVC > LSTM e >
+   Naive Bayes); o Apêndice A (checklist) foi atualizado para não
+   referenciar mais as Tabelas 8-9, remetendo ao Material Suplementar.
+
+**Próximo passo**: Etapa 6, a última do plano — passe de estilo geral
+sobre o texto já reformulado: quebrar parágrafos com mais de 10 linhas
+que ainda restarem (Referencial Conceitual e trechos do meio de 4.1-4.9
+não foram tocados nesta rodada), remover hedging repetitivo ("na
+interpretação do autor" e afins) e checar duplicidade de citação (ex.:
+Deng et al., se houver). Depois de tudo, revalidar contra
+`docs/dados/*.json` qualquer número citado nas seções reescritas, gerar
+novo PDF (`artigo_pdf.yml`) e revisar visualmente antes de considerar o
+plano de reformulação editorial fechado.
 
 ---
 
