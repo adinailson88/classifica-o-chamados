@@ -1,0 +1,51 @@
+name: Rematerializar Etapa 1 oficial (G:K)
+
+# Disparo manual apenas. Limpa G2:K da aba principal (Classificacao IA,
+# Avaliacao, Executor, Criticidade, Comparacao), preservando L (formula),
+# M/N/O/P/Q (conferencia humana e Etapa 2) e todas as abas de log.
+# Ver src/rematerializar_etapa1_oficial.py para o escopo exato e a
+# justificativa. Sem aplicar=true, roda em modo leitura (dry-run) e so
+# reporta quantas linhas seriam afetadas -- nao escreve nada.
+
+on:
+  workflow_dispatch:
+    inputs:
+      aplicar:
+        description: "true para limpar de verdade; false (padrao) so conta as linhas afetadas"
+        type: boolean
+        default: false
+      confirmar:
+        description: "Digite REMATERIALIZAR para confirmar a limpeza real (ignorado se aplicar=false)"
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  rematerializar:
+    runs-on: ubuntu-latest
+    env:
+      SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: requirements-leves.txt
+      - name: Instalar dependencias leves
+        run: python -m pip install --retries 5 --timeout 120 -r requirements-leves.txt
+      - name: Recriar chave da conta de servico
+        env:
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+        run: |
+          if [ -z "$GCP_SA_KEY" ]; then echo "Secret GCP_SA_KEY ausente." >&2; exit 1; fi
+          printf '%s' "$GCP_SA_KEY" > credenciais_sa.json
+      - name: Rematerializar Etapa 1 (dry-run por padrao)
+        run: >
+          python src/rematerializar_etapa1_oficial.py
+          ${{ github.event.inputs.aplicar == 'true' && '--aplicar' || '' }}
+          --confirmar "${{ github.event.inputs.confirmar }}"
+      - name: Remover credenciais
+        if: always()
+        run: rm -f credenciais_sa.json
