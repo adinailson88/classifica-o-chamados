@@ -47,8 +47,8 @@ jobs:
         run: |
           if [ -z "$GCP_SA_KEY" ]; then echo "Secret GCP_SA_KEY ausente." >&2; exit 1; fi
           printf '%s' "$GCP_SA_KEY" > credenciais_sa.json
-      - name: Exportar JSON do dashboard
-        run: python src/exportar_dashboard.py
+      - name: Exportar JSON do dashboard com snapshot deduplicado
+        run: python src/exportar_dashboard_corrigido.py
       - name: Gerar analise Shannon
         run: python src/analise_shannon.py
       - name: Remover credenciais
