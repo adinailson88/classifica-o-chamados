@@ -34,7 +34,7 @@ jobs:
       - name: Instalar dependencias
         run: |
           python -m pip install --retries 5 --timeout 120 -r requirements-leves.txt
-          python -m pip install --retries 5 --timeout 120 matplotlib
+          python -m pip install --retries 5 --timeout 120 matplotlib statsmodels
 
       - name: Aplicar correcao idempotente de sintaxe
         run: python src/corrigir_sintaxe_sincronizador.py
