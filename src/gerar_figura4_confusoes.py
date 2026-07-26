@@ -73,7 +73,6 @@ def _salvar_figura(pares_top: list[dict], codigos: dict[str, str]) -> None:
     ax.invert_yaxis()
     ax.set_xlabel("Ocorrencias agregadas nos top pares por modelo")
     ax.set_ylabel("Par historico -> predicao")
-    ax.set_title("Top 15 pares de maior confusao entre categorias")
     ax.grid(axis="x", linestyle="--", linewidth=0.6, alpha=0.35)
     ax.spines[["top", "right"]].set_visible(False)
     for idx, valor in enumerate(valores):

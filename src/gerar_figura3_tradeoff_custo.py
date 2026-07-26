@@ -67,7 +67,6 @@ def gerar(custo_path: Path, avaliacao_path: Path, saida: Path) -> None:
     ax.set_xscale("log")
     ax.set_xlabel(f"Tempo de treino (s, escala log) - lote de 1.000 registros, {executado_em.split(' ')[0] if executado_em else ''}")
     ax.set_ylabel(f"Acerto validado (%) - conferencia humana, {conferencia_data.split(' ')[0] if conferencia_data else ''}")
-    ax.set_title("Figura 3 - Trade-off acuracia validada x custo computacional\n(modelos classicos; LSTM/BERTimbau nao medidos nesta base)")
     ax.grid(axis="both", linestyle="--", linewidth=0.6, alpha=0.35)
     ax.spines[["top", "right"]].set_visible(False)
 

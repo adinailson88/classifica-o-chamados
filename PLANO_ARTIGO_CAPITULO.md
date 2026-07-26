@@ -35,9 +35,73 @@ Isso substitui a necessidade de o usuário reexplicar contexto a cada nova conve
 
 ## Estado desta rodada
 
-**Data**: 2026-07-26 (America/Bahia, UTC-03:00) — rodada 21 (rigor formal
-MDPI: figuras a 300dpi via script, dois autores, declarações
-obrigatórias da *Buildings*).
+**Data**: 2026-07-26 (America/Bahia, UTC-03:00) — rodada 22 (correção de
+formatação/citação/prolixidade a pedido do Adinailson, após revisar o
+PDF da rodada 21).
+
+**Contexto**: o Adinailson revisou o PDF gerado após a rodada 21 e
+apontou vários problemas reais: (1) não queria mais citação numérica —
+reverter para autor-data (ABNT); (2) PDF com conteúdo estourando a
+margem; (3) um "Sumário" no início do PDF sem sentido para um artigo;
+(4) linhas "Fonte:" (e trechos do corpo) citando nomes de arquivo/script
+do repositório em vez de remeter aos autores; (5) parágrafos grandes e
+prolixos, com explicação redundante (incluindo referências a "rodadas",
+commits e nomes de scripts internos, que não têm lugar num artigo); (6)
+exigência do orientador de que toda afirmação tenha referência; (7)
+cuidado com escrita "com cara de IA"; (8) autoria no cabeçalho deve
+seguir o mesmo formato do artigo-exemplo (nome completo + e-mail, sem
+iniciais nem rótulo "orientador").
+
+**Onde está**: concluído nesta branch
+(`docs/corrigir-formatacao-citacao-fontes`).
+
+1. **Citação revertida para ABNT**: usado o commit `3a5d890f` (última
+   versão em autor-data, já com as 4 referências CAPES) como base;
+   reaplicado por cima só o cabeçalho de dois autores (agora no formato
+   do artigo-exemplo, sem iniciais/"orientador") e o bloco de
+   declarações da MDPI (Contribuições dos autores usando sobrenomes
+   completos, não iniciais).
+2. **PDF**: removida a flag `--toc` do workflow `artigo_pdf.yml`
+   (elimina o "Sumário"); encurtadas as duas células mais densas da
+   tabela-checklist do Apêndice B (a pior tinha mais de 200 caracteres
+   de prosa e citações sem quebra — candidata a estourar a margem no
+   `tabular`/`longtable` do pandoc/xelatex).
+3. **"Fonte:" e menções internas**: as 17 linhas "Fonte:" e cerca de 30
+   outras menções espalhadas pelo corpo (nomes de arquivo `.json`/`.py`,
+   hashes de commit, "rodada N") reescritas para remeter aos autores ou
+   simplesmente removidas, sem perder o dado relevante (datas, tamanhos
+   de amostra).
+4. **Parágrafos grandes**: os oito parágrafos mais longos (de 689 a 270
+   palavras) foram divididos e enxugados — o de Limitações (689
+   palavras, 6 ajustes) virou 7 parágrafos curtos, um por ajuste; a
+   maior parte da linguagem de "changelog interno" (nomes de
+   variável/arquivo, "nesta rodada", "nas rodadas 10-11") foi removida
+   sem cortar o achado científico.
+5. **Referências**: auditoria manual dos parágrafos não citados na
+   Introdução/Referencial Conceitual e na Discussão não encontrou
+   afirmação teórica/metodológica sem referência real — a cobertura já
+   era forte das rodadas anteriores. Não foram adicionadas referências
+   novas nesta rodada.
+6. **Figuras**: removido `ax.set_title()`/título duplicado dentro da
+   imagem das 6 figuras (a legenda numerada já existe no Markdown
+   abaixo de cada imagem, como no artigo-exemplo) — mantidos os
+   sub-títulos de painel em Fig5 (Perda/Acurácia por época), que
+   distinguem os dois gráficos lado a lado, não duplicam a legenda
+   externa. As 6 regeneradas a 300dpi.
+7. Suíte completa: 90/90.
+
+**Próximo passo**: (1) revisar/mergear o PR desta rodada; (2) quando o
+cron de rematerialização da Etapa 1 terminar, regerar Figuras 2–3 e
+atualizar Tabelas 3 e 7 com os números finais, e então gerar um
+snapshot de fechamento; (3) confirmar com o Adinailson se ainda falta
+algo específico da "subseção 5.4" além do bloco de declarações já
+inserido; (4) gerar o PDF via `artigo_pdf.yml` e revisar visualmente
+(sem Sumário, sem estouro de margem) antes de considerar a correção
+fechada.
+
+---
+
+### Histórico da rodada 21 (rigor formal MDPI: figuras 300dpi, dois autores, declarações)
 
 **Contexto**: seguindo o Passo 5 do prompt original de 6 passos ("rigor
 formal de submissão MDPI: metadados, figuras 300dpi, subseção 5.4
@@ -100,77 +164,6 @@ de rigor formal (se o Adinailson ainda quiser uma "5.4" textual
 explícita além do bloco de declarações já inserido — confirmar com ele
 o que exatamente falta, já que "subseção 5.4" no prompt original de 6
 passos provavelmente já se referia a este bloco de declarações).
-
-**Contexto**: o Adinailson pediu, em uma única mensagem, 4 coisas: (1)
-incluir as "10 alternativas CAPES" da rodada 19, só as já salvas no
-Drive; (2) avaliar 2 PDFs anexados (outliers em bibliometria;
-Durbin-Watson) para os gaps declarados na rodada 19; (3) gerar novo
-snapshot, mesclar, e remover `Co-Authored-By: Claude` de **todo** o
-histórico de commits (force-push confirmado, mesmo com o risco de
-quebrar outros clones/sessões); (4) assumir os Passos 3–6 pendentes
-(antes reservados ao Codex).
-
-**Onde está**: os 4 pontos concluídos.
-
-1. **CAPES + PDFs (pontos 1–2)**: PR #66 mesclado. 4 referências CAPES
-   que faltavam (Hodge e Austin 2004, DiCiccio e Efron 1996, Kornbrot
-   2014, Wongpakaran *et al.* 2013) inseridas na Subseção 4.10/3.5 e na
-   bibliografia — as outras 6 da lista de 10 já estavam citadas.
-   `Durbin-Watson.pdf` rejeitado (nota autopublicada no ResearchGate, sem
-   revisão por pares); a lacuna de Durbin-Watson/ACF continua declarada,
-   agora com nota de transparência. PDF de outliers bibliométricos (Lima
-   *et al.*, 2017, *Em Questão*/UFRGS, revisado por pares) aceito como
-   apoio ao Tukey/IQR, com analogia explícita para ML. Novo snapshot
-   `artigo-v3-20260726` gerado e mesclado.
-2. **Reescrita de histórico (ponto 3)**: `git filter-repo` removeu
-   `Co-Authored-By: Claude` de 110 commits no `main`; árvore de arquivos
-   verificada idêntica (mesmo hash) antes/depois; force-push isolado,
-   feito só depois de confirmar que nenhuma outra sessão tinha tocado o
-   `main` nesse meio-tempo. GitHub confirmado sem Claude nos Contributors.
-3. **Rematerialização da Etapa 1 oficial (Passo 3)**: cabeçalho real da
-   planilha confirmado pelo Adinailson (`L = Classificado_Confiança_IA`,
-   uma fórmula nativa que recalcula sozinha — resolveu divergência entre
-   `CONTEXTO.md` e o docstring de `resetar_experimento.py`). Script novo
-   `src/rematerializar_etapa1_oficial.py` + workflow
-   `rematerializar_etapa1_oficial.yml` (PR #67, mesclado): limpam SOMENTE
-   G2:K, preservando L (fórmula), M/N/O/P/Q (conferência humana e Etapa
-   2) e todas as abas de log. Dry-run confirmou 13.965 linhas afetadas;
-   aplicado de verdade com backup automático (`BACKUP_ETAPA1_20260726_131413`).
-   O cron de produção (`etapa1_turnos.yml`, a cada 15 min) assumiu o
-   reprocessamento gradual — não precisa de acompanhamento manual.
-4. **Passo 6 — referências em formato MDPI numérico**: convertido o
-   artigo inteiro (`04_artigo/artigo_classificacao_chamados_v3.md`) de
-   citação autor-data (ABNT) para numérica ([1], [2,3]...), ordem de
-   primeira citação, como exigido pela revista alvo (*Buildings*, MDPI).
-   Feito via script de conversão (não editado à mão): mapeou as 56
-   referências da bibliografia por (sobrenome, ano), localizou todas as
-   ~109 ocorrências de citação no corpo (formas ABNT maiúsculas,
-   narrativas em minúsculas, e bundles com prosa embutida em células de
-   tabela do Apêndice B), atribuiu os números por ordem de primeira
-   aparição e substituiu. Verificações feitas antes de aplicar: as 56
-   referências têm pelo menos uma citação encontrada; os números 1–56
-   aparecem cada um pelo menos uma vez no corpo (nenhum buraco, nenhum
-   número fora do intervalo); nenhum padrão autor-ano remanescente sobrou
-   fora da lista de referências; cabeçalhos de seção, legendas de
-   figura/tabela e conteúdo das tabelas continuam byte-a-byte idênticos
-   (`diff` vazio). A lista de REFERÊNCIAS foi reordenada e renumerada,
-   mas o texto bibliográfico de cada entrada foi mantido como estava
-   (não reformatado campo a campo para a micro-sintaxe exata da MDPI —
-   ver limitação abaixo).
-5. Suíte completa: 90/90 em cada PR (mudança só em Markdown/JSON de
-   snapshot).
-
-**Limitação declarada**: a conversão cobre o requisito central do Passo
-6 (citação numérica + lista ordenada por citação), mas não reformata
-cada entrada da bibliografia para a micro-sintaxe exata da MDPI (ano logo
-após o nome do periódico, abreviação de título de periódico etc.) —
-isso é um polimento estilístico de menor risco que pode ficar para uma
-rodada futura, se o Adinailson quiser.
-
-**Próximo passo**: (1) revisar/mergear o PR desta rodada (referências
-MDPI numérico); (2) restam do prompt original de 6 passos: rigor formal
-de submissão MDPI (metadados, figuras 300dpi, subseção 5.4 dedicada) —
-ainda não tratado.
 
 ---
 
