@@ -38,7 +38,7 @@ validado por conferência humana (9.096 decisões travadas) revelou-se
 mais conservador do que a concordância com o histórico sugeria, à medida
 que a amostra de conferência cresceu. Como a seleção não é aleatória e
 prioriza divergências e casos críticos, esses resultados não estimam o
-desempenho da base completa (COCHRAN, 1977). Resultados indicam superioridade do LinearSVC
+desempenho da base completa ([1]). Resultados indicam superioridade do LinearSVC
 tanto na concordância com o histórico (acurácia de 80,29%,
 IC95%: 79,62%--80,95%) quanto no acerto validado (94,93%, IC95%:
 94,47%--95,38%), enquanto o LSTM apresentou concordância de 68,13% e
@@ -97,13 +97,11 @@ envolve decisões recorrentes de triagem, categorização, priorização e
 alocação de equipes, agravadas pela dispersão territorial, pela
 diversidade de sistemas prediais e pela restrição orçamentária que
 historicamente limita o custeio dessas atividades a patamares inferiores
-a 2% do orçamento institucional (MARTINS; ESPEJO, 2024; PAMPANA *et
-al.*, 2022). Sistemas informatizados de registro de chamados, como
+a 2% do orçamento institucional ([2,3]). Sistemas informatizados de registro de chamados, como
 plataformas GLPI e ambientes de *helpdesk*, tornaram-se, nesse contexto,
 não apenas instrumentos de solicitação, mas bases de conhecimento
 institucional sobre falhas, recorrências e padrões de uso, cujo
-potencial analítico permanece amplamente subutilizado (MORAIS; PAULA;
-REIS, 2023; MOHAMMED; AMOAH, 2025).
+potencial analítico permanece amplamente subutilizado ([4,5]).
 
 A exploração analítica dessas bases é limitada por ao menos três fatores
 estruturais. O primeiro reside na natureza textual curta, heterogênea e
@@ -111,29 +109,29 @@ frequentemente incompleta dos registros, uma vez que chamados de
 manutenção predial são redigidos em linguagem técnica fragmentária, com
 abreviações locais e jargões de equipe que dificultam a aplicação direta
 de modelos genéricos de processamento de linguagem natural (PLN)
-(SUNDARAM; ZEID, 2025). O segundo fator é o desbalanceamento entre
+([6]). O segundo fator é o desbalanceamento entre
 categorias, dado que demandas recorrentes de climatização, elétrica e
 hidrossanitária tendem a concentrar grande parte da base, ao passo que
 categorias raras dispõem de poucos exemplos para treinamento
-supervisionado (LI *et al.*, 2024). O terceiro fator, possivelmente o
+supervisionado ([7]). O terceiro fator, possivelmente o
 mais crítico do ponto de vista metodológico, é a qualidade dos rótulos
 históricos, pois a categoria registrada no momento do chamado pode
 resultar de interpretação rápida, classificação por conveniência
 operacional ou taxonomia ainda não estabilizada, de modo que o histórico
 administrativo constitui evidência importante, porém não verdade
-absoluta (ZHANG *et al.*, 2025; KEJRIWAL *et al.*, 2024).
+absoluta ([8,9]).
 
 A literatura recente sobre mineração textual de ordens de manutenção
 confirma a relevância de técnicas de PLN para transformar registros
-textuais em insumos de gestão. Li *et al.* (2024) demonstraram, em base
+textuais em insumos de gestão. Li *et al.* [7] demonstraram, em base
 hospitalar com 15.623 ordens de serviço, que a atribuição automática de
 equipes por PLN alcança acurácia de 0,83, reduzindo substancialmente a
-dependência de triagem manual. Sundaram e Zeid (2025) analisaram
+dependência de triagem manual. Sundaram e Zeid [6] analisaram
 registros de *Maintenance Work Orders* sob a abordagem de *Technical
 Language Processing*, argumentando que textos técnicos de manutenção
 funcionam como *black holes* informacionais quando armazenam dados
 relevantes sem serem efetivamente utilizados na tomada de decisão.
-Bouabdallaoui et al. (2020), por sua vez, aplicaram modelos de PLN à
+Bouabdallaoui et al. [10], por sua vez, aplicaram modelos de PLN à
 classificação de requisições de manutenção em edificação hospitalar,
 reportando acurácia média de 78% com múltiplos métodos de representação
 textual. Contudo, a maior parte dessas aplicações concentra-se em bases
@@ -144,10 +142,10 @@ contexto da manutenção predial pública universitária.
 O presente artigo parte de uma tese metodológica específica: em bases
 reais de chamados de manutenção, a avaliação de modelos não deve ser
 reduzida à pergunta sobre qual classificador mais concorda com a
-categoria histórica. Conforme Zhang *et al.* (2025), rótulos ruidosos em
+categoria histórica. Conforme Zhang *et al.* [8], rótulos ruidosos em
 PLN afetam o desempenho dos classificadores e podem ampliar o consumo de
 recursos computacionais, exigindo métodos robustos de tratamento de
-ruído. Kejriwal *et al.* (2024) reforçam que *benchmarks* rotulados por
+ruído. Kejriwal *et al.* [9] reforçam que *benchmarks* rotulados por
 humanos podem conter variabilidade relevante, questionando a prática de
 assumir uma única verdade absoluta quando há julgamento subjetivo
 envolvido. Dessa forma, a pergunta central deve ser mais ampla: em que
@@ -173,7 +171,7 @@ objeto de avaliação, portanto, não é apenas o classificador isolado, mas
 o protocolo de governança preditiva que articula aprendizado de máquina,
 auditoria estatística, custo computacional e validação humana, em
 consonância com a perspectiva de manutenção baseada em evidências
-preconizada pela NBR 5674 (ABNT, 2012).
+preconizada pela NBR 5674 ([11]).
 
 Os objetivos específicos do estudo são: (i) apresentar um protocolo de
 comparação multimodelo para classificação de chamados reais de
@@ -196,8 +194,7 @@ informacional elevado, porém usualmente subutilizado. Elas documentam
 sintomas, locais, equipamentos, procedimentos, materiais e soluções
 executadas, acumulando-se ao longo de anos em sistemas informatizados
 cuja forma textual e semiestruturada dificulta o uso direto em
-planejamento e alocação de recursos (PAMPANA *et al.*, 2022; MORAIS;
-PAULA; REIS, 2023). Li *et al.* (2024) propuseram estrutura baseada em
+planejamento e alocação de recursos ([3,4]). Li *et al.* [7] propuseram estrutura baseada em
 PLN para análise e atribuição automática de ordens de manutenção
 hospitalar, utilizando 15.623 registros de hospital municipal em Xangai
 e reportando acurácia de 0,83 na tarefa de atribuição de trabalhadores,
@@ -207,14 +204,14 @@ constitui referência-âncora para a presente pesquisa por tratar
 diretamente da automação de ordens de manutenção predial, embora em
 idioma, tipologia institucional e estrutura taxonômica distintos.
 
-Sundaram e Zeid (2025), ao analisar registros textuais de *Maintenance
+Sundaram e Zeid [6], ao analisar registros textuais de *Maintenance
 Work Orders* sob a abordagem de *Technical Language Processing*,
 defenderam que textos técnicos de manutenção funcionam como repositórios
 informacionais subutilizados quando não integrados a processos
 decisórios. Essa perspectiva é especialmente pertinente à manutenção
 predial universitária, na qual chamados curtos, abreviações locais,
 nomes de ambientes e descrições incompletas dificultam o uso de modelos
-genéricos sem adaptação ao domínio. Bouabdallaoui et al. (2020)
+genéricos sem adaptação ao domínio. Bouabdallaoui et al. [10]
 reportaram acurácia média de 78% na classificação de requisições de
 manutenção predial hospitalar utilizando múltiplos métodos de PLN,
 resultado que reforça a viabilidade da abordagem, mas também evidencia a
@@ -225,22 +222,21 @@ necessidade de adaptação lexical e semântica ao corpus específico.
 A classificação automática de *tickets* em ambientes de suporte técnico
 e ITSM evoluiu de representações vetoriais baseadas em frequência
 lexical para *embeddings* e modelos de linguagem pré-treinados. Liu,
-Benge e Jiang (2023) propuseram o Ticket-BERT para rotulagem de
+Benge e Jiang [12] propuseram o Ticket-BERT para rotulagem de
 *tickets* de incidentes, enfatizando desafios como atualização contínua
 de rótulos e necessidade de aprendizado ativo. Entretanto, a
 transferência direta de achados do ITSM para a manutenção predial deve
 ser cautelosa, pois a semântica do domínio envolve sistemas físicos,
 ambientes e equipamentos prediais que não coincidem com categorias de
-incidentes de *software* ou infraestrutura digital (SUNDARAM; ZEID,
-2025).
+incidentes de *software* ou infraestrutura digital ([6]).
 
 Modelos lineares com TF-IDF continuam competitivos em tarefas de texto
 curto, especialmente quando o corpus é de porte médio, o vocabulário
 possui alta especificidade técnica e as classes são desbalanceadas
-(GALKE; SCHERP, 2022). Nesses cenários, modelos profundos podem não
+([13]). Nesses cenários, modelos profundos podem não
 compensar seu custo computacional caso não disponham de volume
 suficiente, balanceamento adequado ou *embeddings* fortemente adaptados
-ao domínio. Galke e Scherp (2022), em revisão comparativa abrangente de
+ao domínio. Galke e Scherp [13], em revisão comparativa abrangente de
 métodos para classificação textual, demonstraram que classificadores
 baseados em *bag-of-words* com TF-IDF e SVM permanecem altamente
 competitivos frente a redes neurais em múltiplos *benchmarks*, sobretudo
@@ -255,10 +251,10 @@ O problema de rótulos ruidosos é central em aprendizado supervisionado
 aplicado a bases administrativas. Em classificação textual, ruído de
 rótulo pode decorrer de ambiguidade semântica, polissemia, insuficiência
 de contexto, sobreposição taxonômica, julgamento subjetivo ou erro
-humano de registro (ZHANG *et al.*, 2025). Conforme levantamento de
-Zhang *et al.* (2025), rótulos ruidosos em PLN afetam o desempenho dos
+humano de registro ([8]). Conforme levantamento de
+Zhang *et al.* [8], rótulos ruidosos em PLN afetam o desempenho dos
 modelos e podem ampliar o consumo de recursos, exigindo métodos robustos
-de tratamento de ruído. Kejriwal *et al.* (2024) reforçam que
+de tratamento de ruído. Kejriwal *et al.* [9] reforçam que
 *benchmarks* rotulados por humanos podem conter variabilidade relevante,
 questionando a prática de assumir uma única verdade absoluta quando há
 julgamento subjetivo envolvido. No contexto do presente artigo, a
@@ -271,11 +267,10 @@ validação humana com registro explícito da decisão tomada.
 A avaliação de modelos de PLN tem sido tradicionalmente orientada por
 métricas de desempenho, mas a literatura recente enfatiza que custo
 computacional, tempo de treino, consumo energético e reprodutibilidade
-também devem compor a decisão de adoção (TREVISO *et al.*, 2023;
-SCHWARTZ *et al.*, 2020). Treviso *et al.* (2023) argumentam que a
+também devem compor a decisão de adoção ([14,15]). Treviso *et al.* [14] argumentam que a
 ampliação de escala em PLN tende a aumentar o consumo de dados, tempo,
 armazenamento e energia, motivando métodos eficientes especialmente em
-contextos de recursos limitados. Schwartz *et al.* (2020) cunharam o
+contextos de recursos limitados. Schwartz *et al.* [15] cunharam o
 conceito de *Green AI*, propondo que a eficiência computacional seja
 reportada e valorizada na avaliação de modelos, não apenas a acurácia.
 Em uma instituição pública, essa dimensão é operacionalmente decisiva:
@@ -283,7 +278,7 @@ um modelo que treina em segundos pode ser reexecutado frequentemente,
 auditado com facilidade e mantido sem infraestrutura dedicada, ao passo
 que um modelo que demanda dezenas de minutos exige *checkpoint*,
 controle de versão de pesos e justificativa robusta de ganho marginal
-(TREVISO *et al.*, 2023).
+([14]).
 
 **3. MÉTODO**
 
@@ -293,7 +288,7 @@ O estudo adota delineamento experimental aplicado, com base
 observacional retrospectiva de chamados de manutenção predial
 registrados no sistema GLPI institucional da UFSB, universidade
 multicampi com unidades em Itabuna, Ilhéus, Porto Seguro e Teixeira de
-Freitas (MORAIS; PAULA; REIS, 2023). A unidade de análise é o chamado
+Freitas ([4]). A unidade de análise é o chamado
 individual de manutenção, representado por campos textuais concatenados
 e por uma categoria histórica registrada no sistema. O fluxo
 metodológico compõe-se de oito etapas sequenciais: (i) extração e
@@ -325,7 +320,7 @@ conclusiva depende da base validada por revisão humana. O idioma dos
 registros é português brasileiro, com presença significativa de jargões
 técnicos, nomes de ambientes, abreviações locais e descrições
 incompletas, características que impõem desafios específicos de
-pré-processamento e representação textual (SUNDARAM; ZEID, 2025).
+pré-processamento e representação textual ([6]).
 
 A base é dinâmica: novos chamados continuam sendo sincronizados e
 classificados em turnos. Na consolidação vigente (23/07/2026), o número
@@ -343,8 +338,7 @@ dos scripts que produzem `avaliacao_final.json` e `estatistica.json`).
 
 O pré-processamento textual foi documentado de modo reprodutível, uma
 vez que pequenas decisões sobre normalização podem alterar a matriz de
-atributos e, consequentemente, o desempenho dos modelos (SALTON;
-BUCKLEY, 1988). Para os classificadores clássicos, a representação
+atributos e, consequentemente, o desempenho dos modelos ([16]). Para os classificadores clássicos, a representação
 principal é TF-IDF com *n-gramas* de uma e duas palavras e limite
 superior de 5.000 atributos para controle de dimensionalidade. Para o
 modelo neural LSTM, são utilizadas tokenizações específicas com
@@ -362,17 +356,16 @@ manutenção predial, onde palavras como *bomba*, *split*, *disjuntor*,
 O desenho experimental compara sete modelos materializados nesta
 consolidação. Os classificadores clássicos adotam representação
 TF-IDF e algoritmos de aprendizado supervisionado amplamente
-consolidados na literatura de classificação textual (JOACHIMS, 1998;
-PEDREGOSA *et al.*, 2011): Naive Bayes Multinomial, como *baseline*
+consolidados na literatura de classificação textual ([17,18]): Naive Bayes Multinomial, como *baseline*
 probabilístico; Regressão Logística, com calibração natural e boa
 interpretabilidade; LinearSVC, combinando margem linear e escores de
 decisão normalizados por *softmax* apenas para ordenação de confiança
-(sem calibrador de Platt ajustado; PLATT, 1999); SGD, como alternativa
+(sem calibrador de Platt ajustado; [19]); SGD, como alternativa
 eficiente para matrizes esparsas de grande dimensão; Random Forest e
 Extra Trees, como representantes de métodos não lineares baseados em
 *ensemble* de árvores. A LSTM Bidirecional foi construída com camada de
 *embedding* de 8.000 termos e 128 dimensões, camada recorrente
-bidirecional de 64 unidades (GRAVES; SCHMIDHUBER, 2005), *dropout* de
+bidirecional de 64 unidades ([20]), *dropout* de
 0,5 e camada densa com ativação *softmax*, treinada com parada
 antecipada, avaliada tanto na comparação *out-of-fold* (Subseção 4.1)
 quanto na Etapa 1 oficial de produção, com *fallback* de Random Forest.
@@ -401,7 +394,7 @@ O **LinearSVC** otimiza uma fronteira de decisão linear por margem
 máxima sobre a representação TF-IDF esparsa de até 5.000 atributos
 (Subseção 3.3). Em espaços esparsos de alta dimensionalidade, classificadores
 lineares tendem a separar bem as classes quando o vocabulário carrega
-forte poder discriminativo (JOACHIMS, 1998; SALTON; BUCKLEY, 1988) — como
+forte poder discriminativo ([17,16]) — como
 ocorre aqui, em que termos técnicos do domínio (*bomba*, *split*,
 *disjuntor*, *vazamento*, *infiltração*, *ar-condicionado*; Subseção 3.3)
 funcionam como âncoras semânticas de categoria. Essa combinação é
@@ -429,7 +422,7 @@ Trees) de treino por lote de 1.000 registros, entre 7,6 e 8,4 vezes o
 tempo do LinearSVC (2,55 s) e entre 17,1 e 18,7 vezes o do Naive Bayes
 (1,14 s) no mesmo lote (Tabela 7) — um custo que só se justifica se
 revertido em ganho de acerto validado, o que não se confirma nesta
-consolidação (SCHWARTZ *et al.*, 2020; TREVISO *et al.*, 2023).
+consolidação ([15,14]).
 
 A **LSTM Bidirecional** foi projetada para modelar dependências
 sequenciais no texto, mas nesta consolidação seus *embeddings* são
@@ -443,7 +436,7 @@ de 11.172 compõem cada partição de treino em `k=5` *folds*; Subseção
 3.5) — um cenário consistente com a hipótese de que modelos lineares
 tendem a igualar ou superar redes neurais em corpora de porte médio e
 ruidosos quando não há *embeddings* pré-treinados disponíveis no idioma
-(GALKE; SCHERP, 2022), sem que isso configure uma falha da arquitetura
+([13]), sem que isso configure uma falha da arquitetura
 em si (Subseção 4.9 detalha a investigação da discrepância do *ablation*
 do LSTM).
 
@@ -469,41 +462,40 @@ A avaliação foi realizada por predições fora da amostra em protocolo
 partição determinística para todos os modelos. A partição não é
 estratificada; esta é uma limitação do desenho implementado. O procedimento reduz
 viés de comparação e permite
-testes pareados (SOKOLOVA; LAPALME, 2009). As métricas principais são
+testes pareados ([21]). As métricas principais são
 acurácia, *macro*-F1, F1 ponderado, *balanced accuracy* e intervalo de
 confiança por *bootstrap* — reamostragem com reposição para estimar a
 distribuição de uma estatística sem pressupor sua forma paramétrica
-(EFRON, 1979; EFRON; TIBSHIRANI, 1993), cuja variedade de métodos de
+([22,23]), cuja variedade de métodos de
 construção de intervalo (percentil, BCa, bootstrap-*t*) e respectivas
-propriedades de cobertura é revisada em detalhe por DiCiccio e Efron
-(1996) — com 95% de confiança. A
+propriedades de cobertura é revisada em detalhe por DiCiccio e Efron [24] — com 95% de confiança. A
 *macro*-F1 e a *balanced accuracy* são essenciais face ao
 desbalanceamento entre categorias, dado que a acurácia isolada pode
 superestimar desempenho em classes majoritárias e mascarar falhas em
-categorias raras (SOKOLOVA; LAPALME, 2009). A correlação entre confiança
-e acerto é avaliada por Spearman (SPEARMAN, 1904) e por correlação
+categorias raras ([21]). A correlação entre confiança
+e acerto é avaliada por Spearman ([25]) e por correlação
 ponto-bisserial, apropriada quando uma das variáveis é binária
-(TATE, 1954); diferenças globais entre os sete classificadores são
+([26]); diferenças globais entre os sete classificadores são
 avaliadas por Cochran Q, teste não paramétrico para proporções pareadas
-em três ou mais condições (COCHRAN, 1950), e por Friedman, teste baseado
+em três ou mais condições ([27]), e por Friedman, teste baseado
 em postos que dispensa o pressuposto de normalidade da ANOVA
-(FRIEDMAN, 1937); comparações pareadas são avaliadas por McNemar
-(MCNEMAR, 1947); e incerteza de acurácia é estimada por *bootstrap*
-(EFRON, 1979), abordagem cuja utilidade para intervalos de confiança de
+([28]); comparações pareadas são avaliadas por McNemar
+([29]); e incerteza de acurácia é estimada por *bootstrap*
+([22]), abordagem cuja utilidade para intervalos de confiança de
 métricas de modelos preditivos continua sendo estudada e refinada
-recentemente (NOMA *et al.*, 2021). Quando múltiplas comparações são
+recentemente ([30]). Quando múltiplas comparações são
 realizadas, aplica-se o teste de Nemenyi sobre os postos médios
-(NEMENYI, 1963), seguindo o protocolo consolidado por Demšar (2006) para
+([31]), seguindo o protocolo consolidado por Demšar [32] para
 comparação estatística de classificadores em múltiplos conjuntos de
 dados — protocolo cujas limitações já foram apontadas por trabalho mais
-recente: Benavoli, Corani e Mangili (2016) mostram que o teste de
+recente: Benavoli, Corani e Mangili [33] mostram que o teste de
 postos médios (base do Nemenyi) pode ser inconsistente e recomendam
 testes pareados diretos como complemento, razão pela qual este trabalho
 também reporta o McNemar par a par (Subseção 4.10) em vez de depender
 apenas do Nemenyi; comparações pareadas adicionais entre os sete modelos
 são corrigidas pelo método sequencial de Holm-Bonferroni, que controla a
 taxa de erro familiar sem o conservadorismo excessivo da correção de
-Bonferroni simples (HOLM, 1979).
+Bonferroni simples ([34]).
 
 **Escolha entre validação cruzada e *holdout* fixo**: optou-se
 deliberadamente por *k-fold out-of-fold* em vez de um conjunto de teste
@@ -511,7 +503,7 @@ fixo separado antes do treino. A literatura de avaliação de modelos
 indica que a validação cruzada tende a produzir estimativas de menor
 variância que um único *holdout*, sobretudo em bases pequenas ou
 desbalanceadas, precisamente por avaliar cada exemplo em algum fold em
-vez de descartar uma fração fixa dos dados do treino (KOHAVI, 1995) — e
+vez de descartar uma fração fixa dos dados do treino ([35]) — e
 esta base é desbalanceada por natureza (55 categorias históricas, várias
 com suporte de dígito único; Tabela Suplementar S1). Para não apenas
 invocar essa recomendação em abstrato, comparou-se empiricamente o
@@ -544,7 +536,7 @@ no *holdout*; Tabela Suplementar S4). Em suma: um *holdout* fixo não
 melhora a estimativa de desempenho global de forma relevante nesta base
 e piora sistematicamente a avaliação das categorias raras — exatamente o
 padrão que a literatura antecipa para corpora pequenos e desbalanceados
-como este (KOHAVI, 1995), o que confirma o protocolo *k*-fold como a
+como este ([35]), o que confirma o protocolo *k*-fold como a
 escolha mais adequada e não apenas a mais conveniente.
 
 **3.6 Validação humana**
@@ -562,7 +554,7 @@ categoria; ou marcar o caso como ambíguo ou taxonômico. Essa estrutura
 permite mensurar se a IA errou, se o histórico estava inconsistente ou
 se a própria taxonomia institucional necessita de revisão, em
 consonância com a perspectiva de que a verdade operacional deve ser
-construída progressivamente (ZHANG *et al.*, 2025).
+construída progressivamente ([8]).
 
 **3.7 Memória de decisão: veto e trava por chamado**
 
@@ -590,7 +582,7 @@ em um evento isolado.
 
 Como dimensão complementar às métricas supervisionadas, o protocolo
 incorporou uma camada de análise informacional baseada em entropia de
-Shannon e divergência de Jensen-Shannon (SHANNON, 1948; LIN, 1991), calculada exclusivamente sobre
+Shannon e divergência de Jensen-Shannon ([36,37]), calculada exclusivamente sobre
 os arquivos públicos e sanitizados do painel (sem identificador, título
 ou texto livre do chamado). Essa camada não substitui acurácia,
 calibração ou validação humana; responde a uma pergunta distinta, sobre
@@ -833,7 +825,7 @@ causada por uma materialização desatualizada dos modelos, não por
 crescimento de amostra (a amostra validada permanece 9.096 nas duas
 consolidações). Ainda assim, como a seleção da conferência humana não é
 probabilística, a comparação entre consolidações continua sendo
-descritiva, não inferencial (COCHRAN, 1977); não é possível estimar, a
+descritiva, não inferencial ([1]); não é possível estimar, a
 partir dessas consolidações, o desempenho da base completa.
 
 **4.3 A classificação oficial frente ao histórico: matriz de confusão
@@ -1184,7 +1176,7 @@ Esta subseção reúne, com números reais (não hipotéticos), os
 pressupostos verificados antes de qualquer teste inferencial e os
 resultados completos dos testes de robustez usados nas Subseções
 anteriores — hoje apenas citados pelo nome no corpo do texto (Subseção
-3.5). O protocolo de exploração de dados de Zuur, Ieno e Elphick (2010),
+3.5). O protocolo de exploração de dados de Zuur, Ieno e Elphick [38],
 originalmente proposto para respostas contínuas em ecologia, foi adaptado
 aqui para a resposta categórica de classificação de chamados (n = 13.965;
 `docs/dados/estatistica.json`, gerado em 25/07/2026 15:45); passos sem
@@ -1193,11 +1185,11 @@ vez de serem omitidos.
 
 *1) Outliers*: a distribuição da confiança bruta por modelo não apresenta
 valores extremos relevantes pela regra 1,5×IQR (distância interquartil;
-TUKEY, 1977) — regra amplamente adotada, mas que pressupõe distribuições
+[39]) — regra amplamente adotada, mas que pressupõe distribuições
 próximas da normal, ressalva sistematizada na revisão taxonômica de
-métodos de detecção de outliers de Hodge e Austin (2004) e ilustrada, por
+métodos de detecção de outliers de Hodge e Austin [40] e ilustrada, por
 analogia de aplicação em dados reais assimétricos fora do domínio de ML,
-por Lima *et al.* (2017): em métricas bibliométricas univariadas, os
+por Lima *et al.* [41]: em métricas bibliométricas univariadas, os
 autores mostram que a regra clássica de Tukey detecta mais ou menos
 outliers do que uma versão ajustada pela assimetria da distribuição,
 conforme o sinal e a intensidade dessa assimetria — o mesmo cuidado se
@@ -1209,16 +1201,16 @@ margem, não com um problema de dados.
 
 *2) Homogeneidade de variância*: a razão entre a maior e a menor variância
 de confiança entre os sete modelos é 38,53, muito acima do limiar de
-preocupação (4; ZUUR; IENO; ELPHICK, 2010) — heterogeneidade que já
+preocupação (4; [38]) — heterogeneidade que já
 motivava, mesmo antes deste detalhamento, a escolha por métodos robustos
 e não paramétricos.
 
-*3) Normalidade*: o teste de Shapiro-Wilk (SHAPIRO; WILK, 1965), apontado
+*3) Normalidade*: o teste de Shapiro-Wilk ([42]), apontado
 por estudos comparativos de poder estatístico como um dos mais sensíveis
 entre os testes de normalidade usuais para amostras pequenas e moderadas
-(RAZALI; WAH, 2011), achado reproduzido por comparações mais recentes com
+([43]), achado reproduzido por comparações mais recentes com
 outras alternativas, como Anderson-Darling, Qui-quadrado e
-Kolmogorov-Smirnov (OGUNLEYE; OYEJOLA; OBISESAN, 2018) — situação mais
+Kolmogorov-Smirnov ([44]) — situação mais
 próxima dos 931 turnos por modelo aqui analisados do que dos 13.965
 chamados individuais —, aplicado sobre a concordância por turno rejeita a
 normalidade a 5% para os sete modelos (Tabela 8), confirmando com
@@ -1249,36 +1241,36 @@ com *macro*-F1 e intervalos de confiança em vez de acurácia isolada.
 
 *5) Colinearidade entre modelos*: tratando a confiança de cada modelo
 como uma covariável e calculando o Fator de Inflação de Variância (VIF;
-formalizado por MARQUARDT, 1970, como diagnóstico de colinearidade em
+formalizado por [45], como diagnóstico de colinearidade em
 regressão) entre elas, quatro modelos (Regressão Logística: 26,89; SGD:
 28,20; Random Forest: 24,89; Extra Trees: 22,10) excedem em muito o
-limiar de preocupação (VIF > 3; ZUUR; IENO; ELPHICK, 2010) — limiar mais
+limiar de preocupação (VIF > 3; [38]) — limiar mais
 conservador que a regra de bolso mais difundida (VIF > 10), cuja
-adequação geral é questionada por O'Brien (2007), que recomenda avaliar o
+adequação geral é questionada por O'Brien [46], que recomenda avaliar o
 impacto real da colinearidade caso a caso em vez de aplicar um corte
 único, ressalva reforçada por revisões recentes sobre mitigação de
 multicolinearidade em modelos de aprendizado de máquina
-(CHAN *et al.*, 2022) —, contra valores baixos para LinearSVC (3,64), Naive Bayes (3,74)
+([47]) —, contra valores baixos para LinearSVC (3,64), Naive Bayes (3,74)
 e LSTM (3,04). Essa colinearidade alta entre quatro dos sete modelos é
 consistente com — e ajuda a explicar — o achado da Subseção 4.2 de que
 nenhum ensemble supera o LinearSVC isolado: modelos com confiança
 altamente correlacionada contribuem pouco em informação independente a
 um comitê, no mesmo sentido em que a literatura de agregação de
 classificadores associa ganho de ensemble à diversidade entre membros, não
-apenas ao número de membros (DIETTERICH, 2000).
+apenas ao número de membros ([48]).
 
 *6) Relação entre confiança e acerto*: correlação de Spearman
-(SPEARMAN, 1904) e ponto-bisserial (TATE, 1954; formulação e
-interpretação como tamanho de efeito também em KORNBROT, 2014) — esta
+([25]) e ponto-bisserial ([26]; formulação e
+interpretação como tamanho de efeito também em [49]) — esta
 última apropriada porque o acerto é uma variável binária (certo/errado)
 contra a confiança contínua — entre confiança bruta e acerto (histórico), positiva e
 estatisticamente significativa (*p* < 0,001) em todos os sete modelos —
 da mais fraca (LinearSVC, ρ = 0,479) à mais forte (LSTM, ρ = 0,637) —,
 confirmando que a confiança carrega sinal genuíno sobre o acerto em todos
 os modelos, pré-requisito para a calibração da Subseção 4.4
-(GUO *et al.*, 2017), cuja relação entre confiança e acurácia real em
+([50]), cuja relação entre confiança e acurácia real em
 redes neurais modernas segue sendo revisitada e refinada na literatura
-recente (MINDERER *et al.*, 2021).
+recente ([51]).
 
 **Tabela 9** Correlação entre confiança bruta e acerto contra o histórico
 
@@ -1300,10 +1292,10 @@ confusões cruzadas (Subseção 4.3; Figura 4).
 
 *8) Independência das observações*: a autocorrelação da concordância por
 turno (defasagem 1 a 5), diagnosticada pela função de autocorrelação
-amostral (ACF; BOX; JENKINS, 1970), é positiva e não desprezível em
+amostral (ACF; [52]), é positiva e não desprezível em
 todos os modelos (por exemplo, LinearSVC: 0,362 na defasagem 1, decaindo
 para 0,221 na defasagem 5), e a estatística de Durbin-Watson
-(DURBIN; WATSON, 1950) fica entre 1,34 e 1,44 para os sete modelos —
+([53]) fica entre 1,34 e 1,44 para os sete modelos —
 abaixo do valor de referência 2,0 que indicaria ausência de
 autocorrelação serial nos resíduos. Isso indica que turnos consecutivos
 não são inteiramente independentes (provável efeito de chamados
@@ -1311,7 +1303,7 @@ textualmente semelhantes chegando em sequência), uma limitação a
 declarar explicitamente: os intervalos de confiança por turno podem
 estar levemente subestimados, pois erros-padrão calculados sob a hipótese
 de independência tendem a ser menores que os reais quando há
-autocorrelação positiva (DURBIN; WATSON, 1950). A tendência ao longo dos
+autocorrelação positiva ([53]). A tendência ao longo dos
 turnos é de leve alta na concordância para seis dos sete modelos
 (*p* < 10⁻⁷ em cada, por regressão linear simples do índice do turno
 sobre a concordância; Naive Bayes é o único estável, *p* = 0,51),
@@ -1322,21 +1314,21 @@ referência recente e suficientemente confiável que discuta a
 autocorrelação/ACF ou o teste de Durbin-Watson especificamente em
 contexto de aprendizado de máquina — a lacuna permanece declarada em vez
 de preenchida com uma citação fraca; as referências primárias de Box e
-Jenkins (1970) e Durbin e Watson (1950) continuam sustentando o método em
+Jenkins [52] e Durbin e Watson [53] continuam sustentando o método em
 si.)
 
 **Testes globais e correção para múltiplas comparações** — Cochran Q
-(COCHRAN, 1950), teste não paramétrico para diferenças entre três ou mais
+([27]), teste não paramétrico para diferenças entre três ou mais
 proporções pareadas (aqui, acerto binário por modelo sobre os mesmos
 chamados), confirma diferença global entre os sete modelos comparáveis
 (Q = 2984,07; *gl* = 6; *p* < 0,001; Subseção 4.1). O teste de Friedman
-(FRIEDMAN, 1937), alternativa não paramétrica à ANOVA de medidas
+([28]), alternativa não paramétrica à ANOVA de medidas
 repetidas baseada em postos, aplicado sobre 14 janelas de 1.000 chamados
 (`comparacao_modelos.json`), confirma diferença global entre os seis
 modelos clássicos com tempo de treino medido (estatística = 44,43;
-*p* = 1,89 × 10⁻⁸); o *ranking* médio de Nemenyi (NEMENYI, 1963), teste
+*p* = 1,89 × 10⁻⁸); o *ranking* médio de Nemenyi ([31]), teste
 *post-hoc* usual após Friedman, aplicado aqui seguindo o protocolo de
-comparação estatística de classificadores consolidado por Demšar (2006)
+comparação estatística de classificadores consolidado por Demšar [32]
 (diferença crítica = 2,015 a α = 0,05), reproduz a mesma ordem das
 Tabelas 1 e 2 — LinearSVC (1,68) à frente de Extra Trees (2,46), Random
 Forest (3,29), SGD (3,36), Regressão Logística (4,29) e Naive Bayes
@@ -1348,22 +1340,22 @@ Bayes). Isso não contradiz os resultados anteriores; reflete que o
 Nemenyi opera sobre só 14 blocos (janelas), enquanto o McNemar a seguir
 opera sobre as 13.965 observações pareadas — poder muito maior para
 detectar diferenças entre modelos adjacentes no *ranking*, um contraste
-que ilustra na prática por que Demšar (2006) recomenda cautela ao
+que ilustra na prática por que Demšar [32] recomenda cautela ao
 interpretar a ausência de significância no teste *post-hoc* de Nemenyi
 como equivalência prática entre modelos. As 21 comparações pareadas de
-McNemar (MCNEMAR, 1947) entre os sete modelos, corrigidas pelo método
-sequencial de Holm-Bonferroni (HOLM, 1979) a α = 0,05, são significativas
+McNemar ([29]) entre os sete modelos, corrigidas pelo método
+sequencial de Holm-Bonferroni ([34]) a α = 0,05, são significativas
 em 20 dos 21 pares — a única exceção é SGD vs. Random Forest
 (*p* = 0,0902, acima do limiar de Holm de 0,05 para essa posição),
 indicando que esses dois modelos têm desempenho estatisticamente
 indistinguível entre si na base completa, ainda que ambos difiram
 significativamente dos demais. Por fim, o Kappa de Fleiss
-(FLEISS, 1971) — generalização do Kappa de Cohen para mais de dois
+([54]) — generalização do Kappa de Cohen para mais de dois
 avaliadores, aqui os sete modelos avaliando a mesma categoria — entre as
 sete IAs é 0,7719, concordância classificada como "substancial" pela
-escala de referência de Landis e Koch (1977, intervalo 0,61–0,80); Kappa
+escala de referência de Landis e Koch [55] (intervalo 0,61–0,80); Kappa
 e alternativas como o AC1 de Gwet respondem de forma diferente à
-prevalência desigual entre categorias (WONGPAKARAN *et al.*, 2013),
+prevalência desigual entre categorias ([56]),
 ressalva relevante dado o desbalanceamento já discutido no item 4 desta
 subseção, ainda que o presente uso — concordância entre classificadores,
 não entre avaliadores humanos — não seja o cenário original desses
@@ -1400,7 +1392,7 @@ consolidações permite estimar o
 desempenho real da base completa: a conferência humana não é aleatória e
 prioriza divergências e casos críticos. Portanto, os resultados devem
 ser lidos como descrição da amostra conferida, não como estimativa
-representativa da população de chamados (COCHRAN, 1977).
+representativa da população de chamados ([1]).
 
 Além da não aleatoriedade da amostra, identificamos nesta rodada um
 segundo mecanismo de viés, estrutural e mais específico: a própria regra
@@ -1497,7 +1489,7 @@ alcançada com folga como sugeria a consolidação anterior: a faixa alta
 de confiança da Etapa 1 oficial chega a 96,79% de acerto validado sobre
 4.698 casos conferidos (ante 99,73% sobre 3.284 casos em 16/07/2026),
 ainda que a confiança utilizada seja bruta (softmax/decision_function),
-não formalmente calibrada por Platt ou isotônica (PLATT, 1999; GUO *et al.*, 2017). Essa queda de 99,73%
+não formalmente calibrada por Platt ou isotônica ([19,50]). Essa queda de 99,73%
 para 96,79% na própria faixa de mais alta confiança, à medida que a
 conferência quase dobrou de tamanho, é o mesmo padrão discutido acima
 para o acerto validado geral, e reforça a mesma cautela: a amostra
@@ -1611,11 +1603,11 @@ ensembles avaliados (maioria ponderada, confiança calibrada máxima,
 maioria simples) supera o LinearSVC isolado com significância estatística;
 a recomendação é usar o LinearSVC isolado, com calibração, em vez de
 combinar modelos. Esses números não estimam o desempenho da base completa, pois
-a seleção da conferência prioriza divergências e casos críticos (COCHRAN, 1977). A matriz
+a seleção da conferência prioriza divergências e casos críticos ([1]). A matriz
 IA × histórico registra que o histórico administrativo também contém
 erros confirmados, o que mantém a validação humana como parte necessária
 do protocolo; a proporção observada nessa amostra não deve ser
-generalizada sem desenho probabilístico (COCHRAN, 1977).
+generalizada sem desenho probabilístico ([1]).
 
 A meta original do experimento — confiança calibrada igual ou superior a
 95% associada a acerto validado igual ou superior a 95% — fica próxima
@@ -1671,223 +1663,120 @@ defendida ao longo deste capítulo, é capaz de encontrar e corrigir
 falhas no pipeline de avaliação, não apenas nos rótulos históricos que
 motivaram o estudo.
 
+
 **REFERÊNCIAS**
 
-ASSOCIAÇÃO BRASILEIRA DE NORMAS TÉCNICAS. ABNT NBR 5674: Manutenção de
-edificações: Requisitos para o sistema de gestão de manutenção. Rio de
-Janeiro: ABNT, 2012.
+1. COCHRAN, W. G. Sampling techniques. 3. ed. New York: John Wiley & Sons, 1977.
 
-BENAVOLI, A.; CORANI, G.; MANGILI, F. Should we really use post-hoc
-tests based on mean-ranks? Journal of Machine Learning Research, v. 17,
-n. 5, p. 1--10, 2016.
+2. MARTINS, R. F. B.; ESPEJO, M. M. S. B. Análise de custos de manutenção predial em uma universidade federal brasileira com uso do modelo de SES. ABCustos, São Leopoldo, v. 19, n. 1, p. 79--98, 2024.
 
-BOUABDALLAOUI, Y.; LAFHAJ, Z.; YIM, P.; DUCOULOMBIER, L.; BENNADJI, B.
-Natural Language Processing Model for Managing Maintenance Requests in
-Buildings. Buildings, v. 10, n. 9, art. 160, 2020.
+3. PAMPANA, A. K. et al. Data-driven analysis for facility management in higher education institution. Buildings, v. 12, art. 2094, 2022.
 
-BOX, G. E. P.; JENKINS, G. M. Time series analysis: forecasting and
-control. San Francisco: Holden-Day, 1970.
+4. MORAIS, L. S. R. de; PAULA, H. M. de; REIS, R. P. A. Promoção da eficiência da manutenção predial em edificações públicas: abordagem baseada em registros de ordens de serviço. Paranoá, Brasília, v. 16, n. 34, p. 1--18, 2023. DOI: 10.18830/issn.1679-0944.n34.2023.08.
 
-CHAN, J. Y.-L.; LEOW, S. M. H.; BEA, K. T.; CHENG, W. K.; PHOONG, S. W.;
-HONG, Z.-W.; CHEN, Y.-L. Mitigating the multicollinearity problem and
-its machine learning approach: a review. Mathematics, v. 10, n. 8, art.
-1283, 2022.
+5. MOHAMMED, A. S.; AMOAH, C. Integration of technology in decision-making in university facilities management: a literature review. Facilities, v. 43, n. 13/14, p. 1018--1052, 2025.
 
-COCHRAN, W. G. The comparison of percentages in matched samples.
-Biometrika, v. 37, n. 3-4, p. 256--266, 1950.
+6. SUNDARAM, S.; ZEID, A. Technical Language Processing for Prognostics and Health Management: applying text similarity and topic modeling to maintenance work orders. Journal of Intelligent Manufacturing, v. 36, p. 1637--1657, 2025.
 
-COCHRAN, W. G. Sampling techniques. 3. ed. New York: John Wiley & Sons,
-1977.
+7. LI, Y.; LIU, Y.; ZHANG, J.; CAO, L.; WANG, Q. Automated analysis and assignment of maintenance work orders using natural language processing. Automation in Construction, v. 165, art. 105501, 2024.
 
-DEMŠAR, J. Statistical comparisons of classifiers over multiple data
-sets. Journal of Machine Learning Research, v. 7, p. 1--30, 2006.
+8. ZHANG, H.; ZHANG, Y.; LI, J.; LIU, J.; JI, L. A survey on learning with noisy labels in Natural Language Processing: how to train models with label noise. Engineering Applications of Artificial Intelligence, v. 146, art. 110157, 2025.
 
-DICICCIO, T. J.; EFRON, B. Bootstrap confidence intervals. Statistical
-Science, v. 11, n. 3, p. 189--228, 1996.
+9. KEJRIWAL, M.; SANTOS, H.; SHEN, K.; MULVEHILL, A. M.; MCGUINNESS, D. L. A noise audit of human-labeled benchmarks for machine commonsense reasoning. Scientific Reports, v. 14, art. 8609, 2024.
 
-DIETTERICH, T. G. Ensemble methods in machine learning. In:
-INTERNATIONAL WORKSHOP ON MULTIPLE CLASSIFIER SYSTEMS, 1., 2000,
-Cagliari. Proceedings \[\...\]. Berlin: Springer, 2000. p. 1--15.
-(Lecture Notes in Computer Science, v. 1857).
+10. BOUABDALLAOUI, Y.; LAFHAJ, Z.; YIM, P.; DUCOULOMBIER, L.; BENNADJI, B. Natural Language Processing Model for Managing Maintenance Requests in Buildings. Buildings, v. 10, n. 9, art. 160, 2020.
 
-DURBIN, J.; WATSON, G. S. Testing for serial correlation in least
-squares regression, I. Biometrika, v. 37, n. 3-4, p. 409--428, 1950.
+11. ASSOCIAÇÃO BRASILEIRA DE NORMAS TÉCNICAS. ABNT NBR 5674: Manutenção de edificações: Requisitos para o sistema de gestão de manutenção. Rio de Janeiro: ABNT, 2012.
 
-EFRON, B. Bootstrap methods: another look at the jackknife. The Annals
-of Statistics, v. 7, n. 1, p. 1--26, 1979.
+12. LIU, Z.; BENGE, C.; JIANG, S. Ticket-BERT: labeling incident management tickets with language models. arXiv:2307.00108, 2023.
 
-EFRON, B.; TIBSHIRANI, R. J. An introduction to the bootstrap. New York:
-Chapman & Hall/CRC, 1993.
+13. GALKE, L.; SCHERP, A. Bag-of-words vs. graph vs. sequence in text classification: questioning the necessity of text-graphs and the surprising strength of a wide MLP. In: ANNUAL MEETING OF THE ASSOCIATION FOR COMPUTATIONAL LINGUISTICS, 60., 2022, Dublin. Proceedings \[\...\]. Dublin: ACL, 2022. p. 4038--4051.
 
-FLEISS, J. L. Measuring nominal scale agreement among many raters.
-Psychological Bulletin, v. 76, n. 5, p. 378--382, 1971.
+14. TREVISO, M. et al. Efficient methods for Natural Language Processing: a survey. Transactions of the Association for Computational Linguistics, v. 11, p. 826--860, 2023.
 
-FRIEDMAN, M. The use of ranks to avoid the assumption of normality
-implicit in the analysis of variance. Journal of the American
-Statistical Association, v. 32, n. 200, p. 675--701, 1937.
+15. SCHWARTZ, R.; DODGE, J.; SMITH, N. A.; ETZIONI, O. Green AI. Communications of the ACM, v. 63, n. 12, p. 54--63, 2020.
 
-GALKE, L.; SCHERP, A. Bag-of-words vs. graph vs. sequence in text
-classification: questioning the necessity of text-graphs and the
-surprising strength of a wide MLP. In: ANNUAL MEETING OF THE ASSOCIATION
-FOR COMPUTATIONAL LINGUISTICS, 60., 2022, Dublin. Proceedings \[\...\].
-Dublin: ACL, 2022. p. 4038--4051.
+16. SALTON, G.; BUCKLEY, C. Term-weighting approaches in automatic text retrieval. Information Processing & Management, v. 24, n. 5, p. 513--523, 1988.
 
-GRAVES, A.; SCHMIDHUBER, J. Framewise phoneme classification with
-bidirectional LSTM and other neural network architectures. Neural
-Networks, v. 18, n. 5-6, p. 602--610, 2005.
+17. JOACHIMS, T. Text categorization with support vector machines: learning with many relevant features. In: EUROPEAN CONFERENCE ON MACHINE LEARNING, 10., 1998, Chemnitz. Proceedings \[\...\]. Berlin: Springer, 1998. p. 137--142.
 
-GUO, C.; PLEISS, G.; SUN, Y.; WEINBERGER, K. Q. On calibration of modern
-neural networks. In: INTERNATIONAL CONFERENCE ON MACHINE LEARNING, 34.,
-2017, Sydney. Proceedings \[\...\]. Sydney: PMLR, 2017. p. 1321--1330.
+18. PEDREGOSA, F. et al. Scikit-learn: machine learning in Python. Journal of Machine Learning Research, v. 12, p. 2825--2830, 2011.
 
-HODGE, V. J.; AUSTIN, J. A survey of outlier detection methodologies.
-Artificial Intelligence Review, v. 22, n. 2, p. 85--126, 2004.
+19. PLATT, J. C. Probabilistic outputs for support vector machines and comparisons to regularized likelihood methods. In: SMOLA, A. J. et al. (Ed.). Advances in Large Margin Classifiers. Cambridge: MIT Press, 1999. p. 61--74.
 
-HOLM, S. A simple sequentially rejective multiple test procedure.
-Scandinavian Journal of Statistics, v. 6, n. 2, p. 65--70, 1979.
+20. GRAVES, A.; SCHMIDHUBER, J. Framewise phoneme classification with bidirectional LSTM and other neural network architectures. Neural Networks, v. 18, n. 5-6, p. 602--610, 2005.
 
-JOACHIMS, T. Text categorization with support vector machines: learning
-with many relevant features. In: EUROPEAN CONFERENCE ON MACHINE
-LEARNING, 10., 1998, Chemnitz. Proceedings \[\...\]. Berlin: Springer,
-1998. p. 137--142.
+21. SOKOLOVA, M.; LAPALME, G. A systematic analysis of performance measures for classification tasks. Information Processing & Management, v. 45, n. 4, p. 427--437, 2009.
 
-KEJRIWAL, M.; SANTOS, H.; SHEN, K.; MULVEHILL, A. M.; MCGUINNESS, D. L.
-A noise audit of human-labeled benchmarks for machine commonsense
-reasoning. Scientific Reports, v. 14, art. 8609, 2024.
+22. EFRON, B. Bootstrap methods: another look at the jackknife. The Annals of Statistics, v. 7, n. 1, p. 1--26, 1979.
 
-KOHAVI, R. A study of cross-validation and bootstrap for accuracy
-estimation and model selection. In: INTERNATIONAL JOINT CONFERENCE ON
-ARTIFICIAL INTELLIGENCE, 14., 1995, Montreal. Proceedings \[\...\]. San
-Francisco: Morgan Kaufmann, 1995. p. 1137--1143.
+23. EFRON, B.; TIBSHIRANI, R. J. An introduction to the bootstrap. New York: Chapman & Hall/CRC, 1993.
 
-KORNBROT, D. Point biserial correlation. In: Wiley StatsRef: Statistics
-Reference Online. Chichester: Wiley, 2014.
+24. DICICCIO, T. J.; EFRON, B. Bootstrap confidence intervals. Statistical Science, v. 11, n. 3, p. 189--228, 1996.
 
-LANDIS, J. R.; KOCH, G. G. The measurement of observer agreement for
-categorical data. Biometrics, v. 33, n. 1, p. 159--174, 1977.
+25. SPEARMAN, C. The proof and measurement of association between two things. American Journal of Psychology, v. 15, n. 1, p. 72--101, 1904.
 
-LIMA, L. F. M.; MAROLDI, A. M.; SILVA, D. V. O. da; HAYASHI, C. R. M.;
-HAYASHI, M. C. P. I. Métricas científicas em estudos bibliométricos:
-detecção de outliers para dados univariados. Em Questão, Porto Alegre, v.
-23, p. 254--273, 2017.
+26. TATE, R. F. Correlation between a discrete and a continuous variable. Point-biserial correlation. The Annals of Mathematical Statistics, v. 25, n. 3, p. 603--607, 1954.
 
-LIN, J. Divergence measures based on the Shannon entropy. IEEE
-Transactions on Information Theory, v. 37, n. 1, p. 145--151, 1991. DOI:
-10.1109/18.61115.
+27. COCHRAN, W. G. The comparison of percentages in matched samples. Biometrika, v. 37, n. 3-4, p. 256--266, 1950.
 
-LI, Y.; LIU, Y.; ZHANG, J.; CAO, L.; WANG, Q. Automated analysis and
-assignment of maintenance work orders using natural language processing.
-Automation in Construction, v. 165, art. 105501, 2024.
+28. FRIEDMAN, M. The use of ranks to avoid the assumption of normality implicit in the analysis of variance. Journal of the American Statistical Association, v. 32, n. 200, p. 675--701, 1937.
 
-LIU, Z.; BENGE, C.; JIANG, S. Ticket-BERT: labeling incident management
-tickets with language models. arXiv:2307.00108, 2023.
+29. MCNEMAR, Q. Note on the sampling error of the difference between correlated proportions or percentages. Psychometrika, v. 12, n. 2, p. 153--157, 1947.
 
-MARQUARDT, D. W. Generalized inverses, ridge regression, biased linear
-estimation, and nonlinear estimation. Technometrics, v. 12, n. 3, p.
-591--612, 1970.
+30. NOMA, H.; SHINOZAKI, T.; IBA, K.; TERAMUKAI, S.; FURUKAWA, T. A. Confidence intervals of prediction accuracy measures for multivariable prediction models based on the bootstrap-based optimism correction methods. Statistics in Medicine, v. 40, n. 26, p. 5691--5701, 2021.
 
-MARTINS, R. F. B.; ESPEJO, M. M. S. B. Análise de custos de manutenção
-predial em uma universidade federal brasileira com uso do modelo de SES.
-ABCustos, São Leopoldo, v. 19, n. 1, p. 79--98, 2024.
+31. NEMENYI, P. B. Distribution-free multiple comparisons. 1963. Tese (Doutorado em Estatística) — Princeton University, Princeton, 1963.
 
-MCNEMAR, Q. Note on the sampling error of the difference between
-correlated proportions or percentages. Psychometrika, v. 12, n. 2, p.
-153--157, 1947.
+32. DEMŠAR, J. Statistical comparisons of classifiers over multiple data sets. Journal of Machine Learning Research, v. 7, p. 1--30, 2006.
 
-MINDERER, M.; DJOLONGA, J.; ROMIJNDERS, R.; HUBIS, F.; ZHAI, X.;
-HOULSBY, N.; TRAN, D.; LUCIC, M. Revisiting the calibration of modern
-neural networks. In: CONFERENCE ON NEURAL INFORMATION PROCESSING
-SYSTEMS, 35., 2021. Advances in Neural Information Processing Systems,
-v. 34, 2021.
+33. BENAVOLI, A.; CORANI, G.; MANGILI, F. Should we really use post-hoc tests based on mean-ranks? Journal of Machine Learning Research, v. 17, n. 5, p. 1--10, 2016.
 
-MOHAMMED, A. S.; AMOAH, C. Integration of technology in decision-making
-in university facilities management: a literature review. Facilities, v.
-43, n. 13/14, p. 1018--1052, 2025.
+34. HOLM, S. A simple sequentially rejective multiple test procedure. Scandinavian Journal of Statistics, v. 6, n. 2, p. 65--70, 1979.
 
-MORAIS, L. S. R. de; PAULA, H. M. de; REIS, R. P. A. Promoção da
-eficiência da manutenção predial em edificações públicas: abordagem
-baseada em registros de ordens de serviço. Paranoá, Brasília, v. 16, n.
-34, p. 1--18, 2023. DOI: 10.18830/issn.1679-0944.n34.2023.08.
+35. KOHAVI, R. A study of cross-validation and bootstrap for accuracy estimation and model selection. In: INTERNATIONAL JOINT CONFERENCE ON ARTIFICIAL INTELLIGENCE, 14., 1995, Montreal. Proceedings \[\...\]. San Francisco: Morgan Kaufmann, 1995. p. 1137--1143.
 
-NEMENYI, P. B. Distribution-free multiple comparisons. 1963. Tese
-(Doutorado em Estatística) — Princeton University, Princeton, 1963.
+36. SHANNON, C. E. A mathematical theory of communication. Bell System Technical Journal, v. 27, n. 3, p. 379--423, jul. 1948; v. 27, n. 4, p. 623--656, out. 1948.
 
-NOMA, H.; SHINOZAKI, T.; IBA, K.; TERAMUKAI, S.; FURUKAWA, T. A.
-Confidence intervals of prediction accuracy measures for multivariable
-prediction models based on the bootstrap-based optimism correction
-methods. Statistics in Medicine, v. 40, n. 26, p. 5691--5701, 2021.
+37. LIN, J. Divergence measures based on the Shannon entropy. IEEE Transactions on Information Theory, v. 37, n. 1, p. 145--151, 1991. DOI: 10.1109/18.61115.
 
-O'BRIEN, R. M. A caution regarding rules of thumb for variance inflation
-factors. Quality & Quantity, v. 41, n. 5, p. 673--690, 2007.
+38. ZUUR, A. F.; IENO, E. N.; ELPHICK, C. S. A protocol for data exploration to avoid common statistical problems. Methods in Ecology and Evolution, v. 1, n. 1, p. 3--14, 2010.
 
-OGUNLEYE, L. I.; OYEJOLA, B. A.; OBISESAN, K. O. Comparison of some
-common tests for normality. International Journal of Probability and
-Statistics, v. 7, n. 5, p. 130--137, 2018.
+39. TUKEY, J. W. Exploratory data analysis. Reading: Addison-Wesley, 1977.
 
-PAMPANA, A. K. et al. Data-driven analysis for facility management in
-higher education institution. Buildings, v. 12, art. 2094, 2022.
+40. HODGE, V. J.; AUSTIN, J. A survey of outlier detection methodologies. Artificial Intelligence Review, v. 22, n. 2, p. 85--126, 2004.
 
-PEDREGOSA, F. et al. Scikit-learn: machine learning in Python. Journal
-of Machine Learning Research, v. 12, p. 2825--2830, 2011.
+41. LIMA, L. F. M.; MAROLDI, A. M.; SILVA, D. V. O. da; HAYASHI, C. R. M.; HAYASHI, M. C. P. I. Métricas científicas em estudos bibliométricos: detecção de outliers para dados univariados. Em Questão, Porto Alegre, v. 23, p. 254--273, 2017.
 
-PLATT, J. C. Probabilistic outputs for support vector machines and
-comparisons to regularized likelihood methods. In: SMOLA, A. J. et al.
-(Ed.). Advances in Large Margin Classifiers. Cambridge: MIT Press, 1999.
-p. 61--74.
+42. SHAPIRO, S. S.; WILK, M. B. An analysis of variance test for normality (complete samples). Biometrika, v. 52, n. 3-4, p. 591--611, 1965.
 
-RAZALI, N. M.; WAH, Y. B. Power comparisons of Shapiro-Wilk,
-Kolmogorov-Smirnov, Lilliefors and Anderson-Darling tests. Journal of
-Statistical Modeling and Analytics, v. 2, n. 1, p. 21--33, 2011.
+43. RAZALI, N. M.; WAH, Y. B. Power comparisons of Shapiro-Wilk, Kolmogorov-Smirnov, Lilliefors and Anderson-Darling tests. Journal of Statistical Modeling and Analytics, v. 2, n. 1, p. 21--33, 2011.
 
-SALTON, G.; BUCKLEY, C. Term-weighting approaches in automatic text
-retrieval. Information Processing & Management, v. 24, n. 5, p.
-513--523, 1988.
+44. OGUNLEYE, L. I.; OYEJOLA, B. A.; OBISESAN, K. O. Comparison of some common tests for normality. International Journal of Probability and Statistics, v. 7, n. 5, p. 130--137, 2018.
 
-SCHWARTZ, R.; DODGE, J.; SMITH, N. A.; ETZIONI, O. Green AI.
-Communications of the ACM, v. 63, n. 12, p. 54--63, 2020.
+45. MARQUARDT, D. W. Generalized inverses, ridge regression, biased linear estimation, and nonlinear estimation. Technometrics, v. 12, n. 3, p. 591--612, 1970.
 
-SHANNON, C. E. A mathematical theory of communication. Bell System
-Technical Journal, v. 27, n. 3, p. 379--423, jul. 1948; v. 27, n. 4, p.
-623--656, out. 1948.
+46. O'BRIEN, R. M. A caution regarding rules of thumb for variance inflation factors. Quality & Quantity, v. 41, n. 5, p. 673--690, 2007.
 
-SHAPIRO, S. S.; WILK, M. B. An analysis of variance test for normality
-(complete samples). Biometrika, v. 52, n. 3-4, p. 591--611, 1965.
+47. CHAN, J. Y.-L.; LEOW, S. M. H.; BEA, K. T.; CHENG, W. K.; PHOONG, S. W.; HONG, Z.-W.; CHEN, Y.-L. Mitigating the multicollinearity problem and its machine learning approach: a review. Mathematics, v. 10, n. 8, art. 1283, 2022.
 
-SOKOLOVA, M.; LAPALME, G. A systematic analysis of performance measures
-for classification tasks. Information Processing & Management, v. 45, n.
-4, p. 427--437, 2009.
+48. DIETTERICH, T. G. Ensemble methods in machine learning. In: INTERNATIONAL WORKSHOP ON MULTIPLE CLASSIFIER SYSTEMS, 1., 2000, Cagliari. Proceedings \[\...\]. Berlin: Springer, 2000. p. 1--15. (Lecture Notes in Computer Science, v. 1857).
 
-SPEARMAN, C. The proof and measurement of association between two
-things. American Journal of Psychology, v. 15, n. 1, p. 72--101, 1904.
+49. KORNBROT, D. Point biserial correlation. In: Wiley StatsRef: Statistics Reference Online. Chichester: Wiley, 2014.
 
-SUNDARAM, S.; ZEID, A. Technical Language Processing for Prognostics and
-Health Management: applying text similarity and topic modeling to
-maintenance work orders. Journal of Intelligent Manufacturing, v. 36, p.
-1637--1657, 2025.
+50. GUO, C.; PLEISS, G.; SUN, Y.; WEINBERGER, K. Q. On calibration of modern neural networks. In: INTERNATIONAL CONFERENCE ON MACHINE LEARNING, 34., 2017, Sydney. Proceedings \[\...\]. Sydney: PMLR, 2017. p. 1321--1330.
 
-TATE, R. F. Correlation between a discrete and a continuous variable.
-Point-biserial correlation. The Annals of Mathematical Statistics, v.
-25, n. 3, p. 603--607, 1954.
+51. MINDERER, M.; DJOLONGA, J.; ROMIJNDERS, R.; HUBIS, F.; ZHAI, X.; HOULSBY, N.; TRAN, D.; LUCIC, M. Revisiting the calibration of modern neural networks. In: CONFERENCE ON NEURAL INFORMATION PROCESSING SYSTEMS, 35., 2021. Advances in Neural Information Processing Systems, v. 34, 2021.
 
-TREVISO, M. et al. Efficient methods for Natural Language Processing: a
-survey. Transactions of the Association for Computational Linguistics,
-v. 11, p. 826--860, 2023.
+52. BOX, G. E. P.; JENKINS, G. M. Time series analysis: forecasting and control. San Francisco: Holden-Day, 1970.
 
-TUKEY, J. W. Exploratory data analysis. Reading: Addison-Wesley, 1977.
+53. DURBIN, J.; WATSON, G. S. Testing for serial correlation in least squares regression, I. Biometrika, v. 37, n. 3-4, p. 409--428, 1950.
 
-WONGPAKARAN, N.; WONGPAKARAN, T.; WEDDING, D.; GWET, K. L. A comparison
-of Cohen's Kappa and Gwet's AC1 when calculating inter-rater reliability
-coefficients: a study conducted with personality disorder samples. BMC
-Medical Research Methodology, v. 13, art. 61, 2013.
+54. FLEISS, J. L. Measuring nominal scale agreement among many raters. Psychological Bulletin, v. 76, n. 5, p. 378--382, 1971.
 
-ZHANG, H.; ZHANG, Y.; LI, J.; LIU, J.; JI, L. A survey on learning with
-noisy labels in Natural Language Processing: how to train models with
-label noise. Engineering Applications of Artificial Intelligence, v.
-146, art. 110157, 2025.
+55. LANDIS, J. R.; KOCH, G. G. The measurement of observer agreement for categorical data. Biometrics, v. 33, n. 1, p. 159--174, 1977.
 
-ZUUR, A. F.; IENO, E. N.; ELPHICK, C. S. A protocol for data exploration
-to avoid common statistical problems. Methods in Ecology and Evolution,
-v. 1, n. 1, p. 3--14, 2010.
+56. WONGPAKARAN, N.; WONGPAKARAN, T.; WEDDING, D.; GWET, K. L. A comparison of Cohen's Kappa and Gwet's AC1 when calculating inter-rater reliability coefficients: a study conducted with personality disorder samples. BMC Medical Research Methodology, v. 13, art. 61, 2013.
 
 **APÊNDICES**
 
@@ -1934,10 +1823,10 @@ vigentes.
 | Modelos avaliados e hiperparâmetros principais | 3.4 | Sim (7 materializados + 1 em extensão) |
 | Justificativa conceitual das diferenças de desempenho entre modelos | 3.4.1 | Sim |
 | Método de particionamento (out-of-fold, k-fold, seed) | 3.5 | Sim (out-of-fold, KFold embaralhado, `random_state=42`; sem estratificação) |
-| Justificativa da escolha k-fold vs. holdout fixo, com comparação empírica | 3.5 | Sim (KOHAVI, 1995; Tabela Suplementar S4) |
+| Justificativa da escolha k-fold vs. holdout fixo, com comparação empírica | 3.5 | Sim ([35]; Tabela Suplementar S4) |
 | Métricas reportadas e justificativa | 3.5 | Sim (acurácia, macro-F1, balanced accuracy, IC95% bootstrap) |
 | Testes estatísticos e correção para múltiplas comparações | 3.5, 4.10 | Sim (Cochran Q, Friedman, McNemar-Holm, Nemenyi, com resultados numéricos completos em 4.10) |
-| Verificação explícita de pressupostos (normalidade, homogeneidade, colinearidade, independência) | 4.10 | Sim (protocolo de ZUUR; IENO; ELPHICK, 2010, adaptado; Tabelas 8-9; cada teste referenciado à sua fonte primária — SHAPIRO; WILK, 1965; DURBIN; WATSON, 1950; MARQUARDT, 1970; entre outras) |
+| Verificação explícita de pressupostos (normalidade, homogeneidade, colinearidade, independência) | 4.10 | Sim (protocolo de [38], adaptado; Tabelas 8-9; cada teste referenciado à sua fonte primária — [42,53]; [45]; entre outras) |
 | Critério de calibração de confiança (bruta vs. calibrada) e meta de desempenho | 3.8, 4.4 | Parcial — meta declarada (>= 95%/>= 95%); calibração formal (Platt/isotônica) ainda não aplicada |
 | Protocolo de validação humana | 3.6 | Sim |
 | Cobertura da validação humana na data de publicação (n e % da base) | 4 (abertura) | Sim, mas desatualizada — ver nota de revalidação de dados |
