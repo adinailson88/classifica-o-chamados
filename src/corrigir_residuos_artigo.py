@@ -58,15 +58,37 @@ def main() -> int:
     # Pontuação e apresentação da Subseção 4.1/4.2.
     texto = texto.replace(
         f"e LSTM ({dec(hist['lstm']['acuracia'])}), O teste de Cochran Q",
-        f"e LSTM ({dec(hist['lstm']['acuracia'])}. O teste de Cochran Q",
+        f"e LSTM ({dec(hist['lstm']['acuracia'])}). O teste de Cochran Q",
+    )
+    segundo = avaliacao["melhor_vs_segundo"]
+    nomes_ensemble = {
+        "maioria_ponderada": "maioria ponderada",
+        "confianca_calibrada_max": "confiança calibrada máxima",
+        "maioria_simples": "maioria simples",
+    }
+    ensembles = " e ".join(
+        [
+            ", ".join(
+                f"{nomes_ensemble[item['metodo']]} ({dec(item['acerto_validado'])})"
+                for item in avaliacao["ensembles"][:-1]
+            ),
+            f"{nomes_ensemble[avaliacao['ensembles'][-1]['metodo']]} ({dec(avaliacao['ensembles'][-1]['acerto_validado'])})",
+        ]
+    )
+    p_mcnemar = segundo["p_mcnemar"]
+    p_texto = f"{p_mcnemar:.2e}".replace(".", ",").replace("e-08", " × 10⁻⁸")
+    paragrafo_42 = (
+        f"A diferença entre o primeiro e o segundo colocado é de {pct(segundo['delta']).replace('%', ' ponto percentual')}, "
+        f"com McNemar *p* ≈ {p_texto}. Os *ensembles* avaliados foram {ensembles}; "
+        "nenhum supera o LinearSVC isolado. A recomendação permanece utilizar o "
+        "LinearSVC com calibração, sem combinar modelos nesta consolidação."
     )
     texto = re.sub(
-        r"A diferença entre o primeiro e o segundo\ncolocado é de 0,91%, com McNemar p =\n5\.696e-08\. Os ensembles avaliados foram maioria ponderada \(0,9467\), confianca calibrada max \(0,9458\), maioria simples \(0,9445\); nenhum\nsupera o LinearSVC isolado\.",
-        "A diferença entre o primeiro e o segundo colocado é de 0,91 ponto "
-        "percentual, com McNemar *p* ≈ 5,70 × 10⁻⁸. Os *ensembles* avaliados "
-        "foram maioria ponderada (0,9467), confiança calibrada máxima (0,9458) "
-        "e maioria simples (0,9445); nenhum supera o LinearSVC isolado.",
+        r"A diferença entre o primeiro e o segundo.*?sem combinar modelos nesta consolidação\.",
+        paragrafo_42,
         texto,
+        count=1,
+        flags=re.S,
     )
 
     # Subseção 4.9: o denominador 9.096 pertence à coorte histórica do ablation;
@@ -83,17 +105,12 @@ def main() -> int:
         "de ablação e não devem ser confundidos com a contagem corrente de decisões\n"
         "travadas. Segundo, e principal:",
     )
+    texto = texto.replace("0,8790", dec(lstm_atual))
     texto = texto.replace(
-        "produziu um novo valor oficial do LSTM de 0,8790 — muito\n"
         "mais próximo dos 0,8635 deste *ablation* corrigido (diferença residual\n"
         "de 1,55 pontos percentuais",
-        f"produziu um valor oficial do LSTM que, na consolidação corrente, é {dec(lstm_atual)} — muito\n"
         f"mais próximo dos 0,8635 deste *ablation* corrigido (diferença residual\n"
-        f"de {pct(delta_ablation)}",
-    )
-    texto = texto.replace(
-        f"de {pct(delta_ablation)}, plausivelmente",
-        f"de {pct(delta_ablation).replace('%', ' pontos percentuais')}, plausivelmente",
+        f"de {pct(delta_ablation).replace('%', ' pontos percentuais')}",
     )
 
     # Discussão: matriz atual da IA oficial versus histórico.
@@ -112,15 +129,16 @@ def main() -> int:
         "indispensável para distinguir erro do modelo, erro histórico e conflito\n"
         "taxonômico."
     )
-    texto, n_sub = re.subn(
-        r"Ainda assim, a distinção entre concordância e acerto validado continua.*?representativa\.",
-        novo_matriz,
-        texto,
-        count=1,
-        flags=re.S,
-    )
-    if n_sub != 1:
-        raise RuntimeError(f"parágrafo residual da matriz não localizado: {n_sub}")
+    if "quando os dois discordam da decisão final" in texto:
+        texto, n_sub = re.subn(
+            r"Ainda assim, a distinção entre concordância e acerto validado continua.*?representativa\.",
+            novo_matriz,
+            texto,
+            count=1,
+            flags=re.S,
+        )
+        if n_sub != 1:
+            raise RuntimeError(f"parágrafo residual da matriz não localizado: {n_sub}")
 
     # Considerações finais: restaura o verbo e melhora a leitura do ranking.
     ranking = (
@@ -144,9 +162,10 @@ def main() -> int:
         "acerto validado (0,9493; Tabela 2)",
         "histórico (0,6996; Tabela 1)",
         "acerto validado (0,8609; Tabela",
-        "valor oficial atual do LSTM (0,8790)",
+        "0,8790",
         "577 casos",
         "3,51% dos casos",
+        "e LSTM (0,6718), O teste",
     ]
     encontrados = [padrao for padrao in proibidos if padrao in texto]
     if encontrados:
