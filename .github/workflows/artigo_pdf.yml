@@ -1,21 +1,20 @@
 name: Gerar PDF do artigo
 
-# Converte 04_artigo/artigo_classificacao_chamados_v3.md em PDF via pandoc/xelatex.
-# O gatilho da branch agent e o artefato sao temporarios para a revisao final da PR 75.
+# Converte 04_artigo/artigo_classificacao_chamados_v3.md em PDF via pandoc/xelatex
+# e publica em docs/ (GitHub Pages), ao lado do painel. So LE o .md do repositorio;
+# nao le a planilha e nao usa credenciais. Ver docs/PLANO_PDF_ARTIGO_PAGES.md.
 
 on:
   push:
-    branches:
-      - main
-      - agent/corrigir-sincronizacao-artigo
+    branches: [main]
     paths:
       - "04_artigo/artigo_classificacao_chamados_v3.md"
       - ".github/workflows/artigo_pdf.yml"
   workflow_dispatch:
 
 concurrency:
-  group: gerar-pdf-artigo-${{ github.ref }}
-  cancel-in-progress: true
+  group: gerar-pdf-artigo
+  cancel-in-progress: false
 
 permissions:
   contents: write
@@ -38,23 +37,13 @@ jobs:
             -V geometry:margin=2.5cm
             --standalone
 
-      - name: Publicar PDF como artefato temporario
-        uses: actions/upload-artifact@v4
-        with:
-          name: artigo-classificacao-pr75
-          path: docs/artigo_classificacao_chamados.pdf
-          if-no-files-found: error
-          retention-days: 7
-
-      - name: Registrar execucao e commitar PDF
+      - name: Commitar PDF gerado
         run: |
-          mkdir -p docs/diagnosticos
-          printf '%s\n' "${{ github.run_id }}" > docs/diagnosticos/pdf_pr75_run_id.txt
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add docs/artigo_classificacao_chamados.pdf docs/diagnosticos/pdf_pr75_run_id.txt
+          git add docs/artigo_classificacao_chamados.pdf
           if git diff --cached --quiet; then
-            echo "PDF e run_id sem mudancas."
+            echo "PDF sem mudancas, nada a commitar."
           else
             git commit -m "pdf do artigo gerado automaticamente [skip ci]"
             git push
