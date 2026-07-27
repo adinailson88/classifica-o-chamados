@@ -22,30 +22,45 @@ controle de versão.
   pendência explícita, sem conteúdo inventado). O `.docx` original **não foi
   alterado** — permanece como registro de proveniência.
 
-## Estado conhecido do rascunho v3 (herdado, não revisado nesta rodada)
+## Estado atual (após a reformulação editorial enxuta)
 
-Estrutura: Resumo/Abstract → 1. Introdução → 2. Trabalhos relacionados (2.1–2.4) →
-3. Materiais e métodos (3.1–3.8) → 4. Resultados (4.1–4.7) → 5. Discussão →
-6. Conclusão.
+Estrutura: Resumo/Abstract → 1. Introdução → 2. Referencial conceitual (2.1–2.4) →
+3. Método (3.1–3.9) → 4. Resultados (4.1–4.9) → 5. Discussão (com Limitações) →
+6. Considerações finais → Declarações → Referências. **Sem apêndices.**
 
-Pendências já registradas no próprio rascunho e/ou em `PLANO_ARTIGO_CAPITULO.md`:
+Extensão: ~12.100 palavras, 22 páginas no formato do workflow de PDF.
 
-- **Números do Resumo (LinearSVC 80,26%, LSTM 67,57% de concordância) não foram
-  revalidados nesta rodada.** Antes de citar em qualquer nova escrita, reconferir
-  contra `docs/dados/avaliacao_final.json` e demais JSONs vigentes — os dados
-  mudam a cada execução de workflow (ver regra em `PLANO_ARTIGO_CAPITULO.md` e na
-  skill `artigo-metodologia-biossistemas`).
-- **4 figuras não regeneradas** (o `.md` convertido não tem imagens embutidas — a
-  seção 3.2/Figura 1 e as figuras de resultados citam geração pendente a partir dos
-  JSONs do painel).
-- **8º modelo (BERTimbau)**: resultado comparativo ainda não existe no rascunho.
-- **Referências**: a auditoria de 2026-07-16 já encontrou 1 erro de autoria e 1
-  inconsistência de ano — não aceitar a lista de referências do v3 como validada
-  sem reconferência.
-- Conferência humana M/N/P: no rascunho, os números de "acerto validado" refletem o
-  estado da conferência na data de redação (16/07 ou antes) — reconferir estado
-  atual antes de qualquer atualização.
+O que a rodada de reformulação fez:
 
-Este README não altera o texto do artigo; apenas documenta a proveniência e o que
-ainda falta confirmar antes de tratar este rascunho como fonte de números
-publicáveis.
+- Removeu o ruído técnico do texto (colunas de planilha, executores, "Etapa 1
+  oficial", rematerialização, JSON, painel). Termos internos foram substituídos
+  por linguagem de artigo: "classificação automática em produção" e "decisão
+  validada pela conferência humana".
+- Eliminou a subseção 4.8 "Figuras". As seis figuras passaram para as subseções
+  onde o resultado é discutido, e as antigas 4.9/4.10 viraram 4.8/4.9.
+- Removeu os Apêndices A (checklist) e B (matriz M/N/P), e as citações à Tabela
+  Suplementar S4, cujo arquivo nunca foi gerado.
+- Condensou Limitações e Considerações Finais em três parágrafos cada.
+
+### Figuras
+
+As seis figuras são geradas por script a partir de JSON versionado, em **PDF
+vetorial** (usado pelo build) e **PNG a 300 dpi** (submissão), com paleta
+Okabe-Ito. O estilo comum vive em `src/estilo_figuras.py`. A numeração dos
+arquivos acompanha a ordem de leitura (`fig3_top_confusoes`,
+`fig4_tradeoff_custo`). Para regerar tudo, use a tarefa `figuras_artigo` do
+workflow `lstm_artigo.yml` ou rode os seis `src/gerar_figura*.py`.
+
+### Pendências que permanecem
+
+- **8º modelo (BERTimbau)**: sem treino concluído; declarado no texto como
+  extensão planejada e excluído de todas as comparações.
+- **Referências**: a auditoria de 2026-07-16 encontrou 1 erro de autoria e 1
+  inconsistência de ano. A lista ainda não foi integralmente reconferida.
+- **Números congelados em n = 9.096.** O artigo descreve um recorte da
+  conferência humana. Os JSONs vigentes já registram cobertura maior, então
+  qualquer atualização de números precisa ser feita no artigo inteiro de uma vez,
+  não tabela a tabela.
+- Os números do Resumo e do Abstract foram conferidos contra as Tabelas 1 e 2 e
+  batem. O Abstract em inglês trazia valores anteriores ao reprocessamento dos
+  modelos (79.89% e 74.71%) e foi corrigido.

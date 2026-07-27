@@ -33,7 +33,7 @@ RAIZ = Path(__file__).resolve().parents[1]
 CONFIG_PADRAO = RAIZ / "config_experimento.json"
 SAIDA_JSON = RAIZ / "04_artigo" / "figuras" / "ablation_lstm_resultados.json"
 SAIDA_CSV = RAIZ / "04_artigo" / "figuras" / "tabela_S3_ablation_lstm.csv"
-SAIDA_FIG = RAIZ / "04_artigo" / "figuras" / "fig6_ablation_lstm.png"
+SAIDA_FIG = RAIZ / "04_artigo" / "figuras" / "fig6_ablation_lstm"
 SAIDA_DIAG = RAIZ / "04_artigo" / "figuras" / "diagnostico_ablation_lstm_duplicatas.json"
 SAIDA_DIAG_PROTOCOLO = RAIZ / "04_artigo" / "figuras" / "diagnostico_ablation_lstm_protocolo.json"
 SAIDA_DIAG_MATERIALIZACAO = RAIZ / "04_artigo" / "figuras" / "diagnostico_materializacao_lstm_nova.json"
@@ -484,22 +484,15 @@ def salvar_csv(resultados: list[dict]) -> None:
 
 
 def salvar_figura(resultados: list[dict]) -> None:
-    import matplotlib.pyplot as plt
+    """Delega o desenho ao gerador dedicado da Figura 6.
 
-    ordenados = sorted(resultados, key=lambda r: r["acerto_validado"], reverse=True)
-    fig, ax = plt.subplots(figsize=(9, 4.8))
-    labels = [r["variante"].replace("_", "\n") for r in ordenados]
-    vals = [100 * r["acerto_validado"] for r in ordenados]
-    ax.bar(labels, vals, color="#6b8f2f")
-    ax.set_ylabel("Acerto validado (%)")
-    ax.grid(axis="y", linestyle="--", linewidth=0.6, alpha=0.35)
-    ax.spines[["top", "right"]].set_visible(False)
-    for i, v in enumerate(vals):
-        ax.text(i, v + 0.2, f"{v:.2f}%", ha="center", va="bottom", fontsize=9)
-    fig.tight_layout()
-    SAIDA_FIG.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(SAIDA_FIG, dpi=300)
-    plt.close(fig)
+    O ablation ja gravou `SAIDA_JSON`; o gerador le esse arquivo. Manter um
+    unico gerador evita divergencia de estilo entre a figura do experimento e
+    a figura do artigo.
+    """
+    from gerar_figura6_ablation import gerar as gerar_figura6
+
+    gerar_figura6(SAIDA_JSON, SAIDA_FIG)
 
 
 def parse_args():
