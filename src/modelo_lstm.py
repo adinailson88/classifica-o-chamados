@@ -295,7 +295,7 @@ def _parse_args():
     p.add_argument("--history-json", type=Path,
                    default=Path(__file__).resolve().parents[1] / "04_artigo" / "figuras" / "lstm_history.json")
     p.add_argument("--history-fig", type=Path,
-                   default=Path(__file__).resolve().parents[1] / "04_artigo" / "figuras" / "fig5_curva_aprendizado_lstm")
+                   default=Path(__file__).resolve().parents[1] / "04_artigo" / "figuras" / "fig_curva_aprendizado_lstm")
     p.add_argument("--epochs", type=int, default=None)
     p.add_argument("--batch-size", type=int, default=None)
     p.add_argument("--validation-split", type=float, default=0.1)

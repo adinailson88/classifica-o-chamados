@@ -21,7 +21,7 @@ from estilo_figuras import COR, LARGURA_DUPLA, aplicar_estilo, limpar_eixo, salv
 
 RAIZ = Path(__file__).resolve().parents[1]
 ENTRADA_PADRAO = RAIZ / "docs" / "dados" / "calibracao.json"
-SAIDA_PADRAO = RAIZ / "04_artigo" / "figuras" / "fig2_confianca_desfecho"
+SAIDA_PADRAO = RAIZ / "04_artigo" / "figuras" / "fig_confianca_desfecho"
 META = 0.95
 
 

@@ -28,7 +28,7 @@ from estilo_figuras import COR, LARGURA_COLUNA, aplicar_estilo, salvar  # noqa: 
 RAIZ = Path(__file__).resolve().parents[1]
 CUSTO_PADRAO = RAIZ / "docs" / "dados" / "comparacao_modelos.json"
 AVALIACAO_PADRAO = RAIZ / "docs" / "dados" / "avaliacao_final.json"
-SAIDA_PADRAO = RAIZ / "04_artigo" / "figuras" / "fig4_tradeoff_custo"
+SAIDA_PADRAO = RAIZ / "04_artigo" / "figuras" / "fig_tradeoff_custo"
 
 NOMES_EXIBICAO = {
     "naive_bayes": "Naive Bayes",

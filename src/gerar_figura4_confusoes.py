@@ -21,7 +21,7 @@ from estilo_figuras import COR, LARGURA_DUPLA, aplicar_estilo, limpar_eixo, salv
 
 RAIZ = Path(__file__).resolve().parents[1]
 ENTRADA = RAIZ / "docs" / "dados" / "estatistica.json"
-SAIDA_FIGURA = RAIZ / "04_artigo" / "figuras" / "fig3_top_confusoes"
+SAIDA_FIGURA = RAIZ / "04_artigo" / "figuras" / "fig_top_confusoes"
 SAIDA_TABELA = RAIZ / "04_artigo" / "figuras" / "tabela_S2_codigos_categorias.csv"
 TOP_N = 15
 
