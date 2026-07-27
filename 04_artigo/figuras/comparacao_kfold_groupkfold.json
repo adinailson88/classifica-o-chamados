@@ -1,0 +1,104 @@
+{
+  "gerado_em": "27/07/2026 22:06",
+  "script_origem": "src/comparacao_kfold_groupkfold.py",
+  "natureza": "acuracia contra a categoria historica, mesmo alvo da Tabela 1",
+  "k_folds": 5,
+  "duplicatas_textuais": {
+    "n_linhas": 13965,
+    "n_grupos_textuais": 9714,
+    "linhas_com_duplicata": 4562,
+    "proporcao_com_duplicata": 0.3267
+  },
+  "resultados": [
+    {
+      "modelo": "naive_bayes",
+      "kfold": {
+        "acuracia": 0.6997
+      },
+      "groupkfold": {
+        "acuracia": 0.6982
+      },
+      "delta_acuracia_kfold_menos_groupkfold": 0.0015
+    },
+    {
+      "modelo": "regressao_logistica",
+      "kfold": {
+        "acuracia": 0.7682
+      },
+      "groupkfold": {
+        "acuracia": 0.7653
+      },
+      "delta_acuracia_kfold_menos_groupkfold": 0.0029
+    },
+    {
+      "modelo": "linear_svc",
+      "kfold": {
+        "acuracia": 0.8031
+      },
+      "groupkfold": {
+        "acuracia": 0.7967
+      },
+      "delta_acuracia_kfold_menos_groupkfold": 0.0064
+    },
+    {
+      "modelo": "sgd",
+      "kfold": {
+        "acuracia": 0.7767
+      },
+      "groupkfold": {
+        "acuracia": 0.7744
+      },
+      "delta_acuracia_kfold_menos_groupkfold": 0.0023
+    },
+    {
+      "modelo": "extra_trees",
+      "kfold": {
+        "acuracia": 0.7894
+      },
+      "groupkfold": {
+        "acuracia": 0.7802
+      },
+      "delta_acuracia_kfold_menos_groupkfold": 0.0092
+    },
+    {
+      "modelo": "random_forest",
+      "kfold": {
+        "acuracia": 0.7816
+      },
+      "groupkfold": {
+        "acuracia": 0.7706
+      },
+      "delta_acuracia_kfold_menos_groupkfold": 0.011
+    },
+    {
+      "modelo": "lstm",
+      "kfold": {
+        "acuracia": 0.6899
+      },
+      "groupkfold": {
+        "acuracia": 0.6828
+      },
+      "delta_acuracia_kfold_menos_groupkfold": 0.0071
+    }
+  ],
+  "ranking_kfold": [
+    "linear_svc",
+    "extra_trees",
+    "random_forest",
+    "sgd",
+    "regressao_logistica",
+    "naive_bayes",
+    "lstm"
+  ],
+  "ranking_groupkfold": [
+    "linear_svc",
+    "extra_trees",
+    "sgd",
+    "random_forest",
+    "regressao_logistica",
+    "naive_bayes",
+    "lstm"
+  ],
+  "ranking_preservado": false,
+  "origem_dos_numeros": "execucao 30307577367 do workflow lstm_artigo; o passo de commit falhou por conflito de push, os valores foram recuperados do log"
+}

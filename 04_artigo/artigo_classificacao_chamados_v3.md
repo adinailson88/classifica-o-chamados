@@ -3,8 +3,11 @@ header-includes:
   - |
     ```{=latex}
     \usepackage[font=small,labelfont=bf,justification=centering,skip=6pt]{caption}
+    % Sem a posicao 'b': figura colocada no rodape estourava a margem inferior.
+    \makeatletter
+    \def\fps@figure{tp}
+    \makeatother
     \renewcommand{\topfraction}{0.85}
-    \renewcommand{\bottomfraction}{0.45}
     \renewcommand{\textfraction}{0.10}
     \renewcommand{\floatpagefraction}{0.90}
     \setcounter{topnumber}{2}
@@ -602,6 +605,25 @@ sistematicamente a avaliação das categorias raras, padrão que a
 literatura antecipa para corpora pequenos e desbalanceados (KOHAVI,
 1995).
 
+A partição por linha, contudo, carrega uma limitação própria neste
+corpus. Chamados de manutenção repetem-se, e 32,67% das 13.965 linhas
+compartilham texto normalizado com outra linha, de modo que a base
+contém 9.714 grupos textuais distintos. Sob particionamento por linha, o
+mesmo texto pode cair em treino e em teste, o que superestima o
+desempenho. Para dimensionar esse efeito, os sete modelos foram
+reexecutados sob *GroupKFold* por hash de texto normalizado, protocolo
+que mantém todo grupo textual em uma única partição, e comparados com o
+*KFold* por linha sobre a mesma base e o mesmo alvo. O vazamento existe,
+mas é pequeno: a queda média de acurácia é de 0,58 ponto percentual e a
+máxima de 1,10, no Random Forest. O LinearSVC passa de 0,8031 para
+0,7967. A ordenação dos modelos permanece a mesma sob os dois
+protocolos, com uma única exceção, a troca de posição entre SGD e Random
+Forest, justamente o par que o teste de McNemar corrigido por
+Holm-Bonferroni já apontava como estatisticamente indistinguível
+(Subseção 4.9). As Tabelas 1 e 2 reportam o protocolo por linha, por
+coerência com a materialização em produção, e o material suplementar
+traz a comparação completa entre os dois.
+
 ```{=latex}
 \FloatBarrier
 ```
@@ -923,11 +945,15 @@ permite.
 **4.4 Confiança, calibração e faixas de decisão**
 
 A classificação automática em produção mantém erro de calibração
-esperado (ECE) de 0,0555 sobre a confiança bruta. O conjunto calibrado
-reúne as 27.930 predições emitidas ao longo dos turnos, mais numerosas
-que os 13.965 chamados porque um mesmo chamado recebe nova predição a
-cada turno em que é reprocessado, e 17.790 dessas predições têm
-conferência humana. Segmentada por faixa de confiança e cruzada com a
+esperado (ECE) de 0,0555 sobre a confiança bruta. A unidade desta
+subseção é a classificação emitida, não o chamado: o registro da
+classificação em produção é acumulativo, de modo que cada execução
+acrescenta uma classificação por chamado sem substituir a anterior. Daí
+as 27.930 classificações sobre 13.965 chamados, das quais 17.790 têm
+conferência humana. Um chamado reclassificado com confiança diferente
+entre execuções contribui para mais de uma faixa, o que recomenda ler a
+Tabela 4 como distribuição de classificações por faixa, e não como curva
+de calibração de uma passagem única. Segmentada por faixa de confiança e cruzada com a
 decisão validada, a faixa igual ou superior a 95% concentra 9.869
 predições, 35,3% do conjunto calibrado, com concordância de 98,89% frente
 ao histórico e acerto validado de 98,35% sobre as 9.582 predições já
@@ -948,9 +974,8 @@ essa camada. A monotonia não é perfeita, pois a faixa de 80 a 90%
 merece acompanhamento em recortes futuros antes de ser tratada como
 padrão estável.
 
-**Tabela 4** Acerto validado por faixa de confiança da classificação
-automática. A coluna n total soma as 27.930 predições do conjunto
-calibrado; a coluna n validados, as 17.790 com conferência humana.
+**Tabela 4** Acerto validado por faixa de confiança. A unidade é a
+classificação emitida: 27.930 no total, 17.790 com conferência humana.
 
 | Faixa | n total | Concord. histórico | n validados | Acerto validado |
 |---|---|---|---|---|
@@ -1348,6 +1373,12 @@ correta, 6,4% dos chamados conferidos. A análise de sensibilidade
 correspondente mostra amplitude de 5,50 a 6,05 pontos percentuais entre
 o cenário mais otimista e o mais conservador, sem alterar o ranking
 relativo entre os modelos.
+
+As Tabelas 1 e 2 usam particionamento por linha, e não por grupo
+textual. A comparação da Subseção 3.5 mostra que isso superestima a
+acurácia em 0,58 ponto percentual em média, sem alterar a ordenação dos
+modelos, exceto entre SGD e Random Forest, cuja diferença já não era
+significativa. Os valores absolutos devem ser lidos com essa margem.
 
 Duas limitações dizem respeito aos modelos. O BERTimbau, único
 classificador contextual previsto no protocolo, não teve o ajuste fino
