@@ -110,7 +110,7 @@ governance.*
 **1. INTRODUÇÃO**
 
 Um campus universitário pode ser descrito como um biossistema
-construído: a integração dinâmica entre infraestrutura física,
+construído, isto é, a integração dinâmica entre infraestrutura física,
 atividade humana, sistemas tecnológicos e condicionantes ambientais,
 cuja persistência ao longo do tempo depende de mecanismos de
 retroalimentação contínua entre uso, falha e reparo (CAPRA, 1996; ODUM,
@@ -132,16 +132,16 @@ estruturais, agravados pela restrição orçamentária que historicamente
 limita o custeio da manutenção predial em IFES a patamares inferiores a
 2% do orçamento institucional (MARTINS; ESPEJO, 2024; PAMPANA *et al.*,
 2022). O primeiro é a natureza textual curta, heterogênea e
-frequentemente incompleta dos registros: chamados de manutenção
+frequentemente incompleta dos registros. Chamados de manutenção
 predial são redigidos em linguagem técnica fragmentária, com
 abreviações locais e jargões de equipe que dificultam a aplicação
 direta de modelos genéricos de processamento de linguagem natural (PLN)
 (SUNDARAM; ZEID, 2025). O segundo é o desbalanceamento entre
-categorias: demandas recorrentes de climatização, elétrica e
+categorias. Demandas recorrentes de climatização, elétrica e
 hidrossanitária concentram grande parte da base, enquanto categorias
 raras dispõem de poucos exemplos para treinamento supervisionado (LI
 *et al.*, 2024). O terceiro, talvez o mais crítico do ponto de vista
-metodológico, é a qualidade do próprio rótulo histórico: a categoria
+metodológico, é a qualidade do próprio rótulo histórico. A categoria
 registrada no momento do chamado pode resultar de interpretação rápida,
 conveniência operacional ou taxonomia ainda não estabilizada, de modo
 que o histórico administrativo constitui evidência importante, mas não
@@ -305,8 +305,8 @@ armazenamento e energia, motivando métodos eficientes especialmente em
 contextos de recursos limitados. Schwartz *et al.* (2020) cunharam o
 conceito de *Green AI*, propondo que a eficiência computacional seja
 reportada e valorizada na avaliação de modelos, não apenas a acurácia.
-Em uma instituição pública, essa dimensão é operacionalmente decisiva:
-um modelo que treina em segundos pode ser reexecutado frequentemente,
+Em uma instituição pública, essa dimensão é operacionalmente decisiva.
+Um modelo que treina em segundos pode ser reexecutado frequentemente,
 auditado com facilidade e mantido sem infraestrutura dedicada, ao passo
 que um modelo que demanda dezenas de minutos exige *checkpoint*,
 controle de versão de pesos e justificativa robusta de ganho marginal
@@ -323,7 +323,7 @@ multicampi com unidades em Itabuna, Ilhéus, Porto Seguro e Teixeira de
 Freitas (MORAIS; PAULA; REIS, 2023). A unidade de análise é o chamado
 individual de manutenção, representado por campos textuais concatenados
 e por uma categoria histórica registrada no sistema. O fluxo
-metodológico compõe-se de oito etapas sequenciais: (i) extração e
+metodológico compõe-se de oito etapas sequenciais, (i) extração e
 consolidação da base; (ii) higienização textual; (iii) construção da
 matriz de atributos; (iv) treinamento e inferência multimodelo; (v)
 geração de predições *out-of-fold*; (vi) comparação preliminar com
@@ -331,7 +331,7 @@ categoria histórica; (vii) análise estatística não paramétrica; e (viii)
 validação humana das divergências e amostras críticas. A Figura 1
 apresenta esse fluxo como *pipeline* de governança preditiva.
 
-![Pipeline de governança preditiva: fluxo metodológico completo, da extração da base à retroalimentação por validação humana. Fonte: elaborado pelos autores (2026).](04_artigo/figuras/fig_pipeline_governanca.pdf)
+![Pipeline de governança preditiva, do fluxo de extração da base à retroalimentação por validação humana.](04_artigo/figuras/fig_pipeline_governanca.pdf)
 
 **3.2 Corpus e variáveis**
 
@@ -374,12 +374,12 @@ manutenção predial, onde palavras como *bomba*, *split*, *disjuntor*,
 
 O desenho experimental compara sete modelos, organizados
 em três famílias conceituais, cada uma escolhida por um motivo
-específico ligado às características do domínio: texto curto,
+específico ligado às características do domínio, ou seja, texto curto,
 vocabulário técnico e forte desbalanceamento entre categorias (Subseção
 3.2).
 
 A família **linear** (LinearSVC, Regressão Logística e SGD) opera
-diretamente sobre a representação TF-IDF esparsa (Subseção 3.3): em
+diretamente sobre a representação TF-IDF esparsa (Subseção 3.3). Em
 espaços de alta dimensionalidade, fronteiras lineares tendem a separar
 bem as classes quando o vocabulário carrega forte poder discriminativo
 (JOACHIMS, 1998; SALTON; BUCKLEY, 1988), como é o caso dos termos
@@ -408,7 +408,7 @@ comparativas deste artigo.
 **3.4.1 Diferenças conceituais e operacionais entre os classificadores**
 
 Os sete modelos comparáveis cobrem quatro famílias
-com suposições distintas sobre os dados: um gerador probabilístico
+com suposições distintas sobre os dados, um gerador probabilístico
 (Naive Bayes), discriminadores lineares (LinearSVC, Regressão Logística,
 SGD), *ensembles* não lineares baseados em árvores (Random Forest, Extra
 Trees) e uma rede neural sequencial (LSTM). Cada família responde de
@@ -525,7 +525,7 @@ variância que um único *holdout*, sobretudo em bases pequenas ou
 desbalanceadas, por avaliar cada exemplo em algum *fold* em vez de
 descartar uma fração fixa dos dados do treino (KOHAVI, 1995). Esta base
 é desbalanceada por natureza, com várias das 55 categorias históricas
-apresentando suporte de dígito único (Tabela Suplementar S1).
+apresentando suporte de dígito único.
 
 A recomendação foi verificada empiricamente. Comparou-se o protocolo
 *k*-fold com um *holdout* fixo de 15% sobre os sete modelos comparáveis
@@ -552,9 +552,9 @@ sugerida por cada modelo, a confiança associada, a decisão humana e a
 categoria travada. A priorização recai sobre chamados em que há
 divergência entre modelos, alta confiança da IA contra histórico, baixa
 confiança generalizada, classes raras e pares de categorias com alta
-confusão recíproca. A decisão humana pode produzir quatro resultados:
-manter o histórico; aceitar a sugestão do modelo; definir terceira
-categoria; ou marcar o caso como ambíguo ou taxonômico. Essa estrutura
+confusão recíproca. A decisão humana pode produzir quatro resultados, a saber, manter o
+histórico, aceitar a sugestão do modelo, definir terceira categoria ou
+marcar o caso como ambíguo ou taxonômico. Essa estrutura
 permite mensurar se a IA errou, se o histórico estava inconsistente ou
 se a própria taxonomia institucional necessita de revisão, em
 consonância com a perspectiva de que a verdade operacional deve ser
@@ -570,7 +570,7 @@ travada e reaproveitada diretamente nas rodadas seguintes de
 reclassificação, sem novo treinamento ou nova predição para aquele
 chamado. Quando a conferência identifica que uma categoria está
 incorreta, essa categoria passa a ser vetada especificamente para aquele
-chamado: os modelos do repositório de classificadores passam a escolher
+chamado, e os modelos do repositório passam a escolher
 a melhor categoria alternativa fora do conjunto vetado, com a confiança
 renormalizada sobre as categorias remanescentes. Essa regra é aplicada
 de forma consistente na seleção de candidatos à reclassificação e no
@@ -621,9 +621,10 @@ dos dados. Nenhum identificador pessoal, título ou texto livre de chamado
 **4. RESULTADOS**
 
 Esta seção apresenta dois conjuntos de resultados, deliberadamente
-segregados: a concordância com a categoria histórica (Subseção 4.1), que
-trata o registro do GLPI como referência preliminar e não como verdade
-absoluta; e o desempenho validado por conferência humana (Subseções 4.2
+segregados. O primeiro é a concordância com a categoria histórica
+(Subseção 4.1), que trata o registro do GLPI como referência preliminar,
+não como verdade absoluta. O segundo é o desempenho validado por
+conferência humana (Subseções 4.2
 e 4.3), calculado exclusivamente sobre os chamados com decisão validada
 pela conferência humana. A base elegível contém 13.965 chamados. A
 conferência humana cobre 9.534 chamados (68,3% da base), dos quais
@@ -677,11 +678,9 @@ regra de contingência do Random Forest (Subseção 3.4), em vez de um
 | Naive Bayes | 0,6997 | 0,6923 -- 0,7071 |
 | LSTM (out-of-fold) | 0,6718 | 0,6637 -- 0,6796 |
 
-Fonte: elaborado pelos autores (2026).
-
-A concordância com o histórico não é uniforme entre as 55 categorias. A
-Tabela Suplementar S1 reporta suporte, precisão, revocação e F1-Score
-por categoria. O desempenho concentra-se nas classes de maior volume. As
+A concordância com o histórico não é uniforme entre as 55 categorias. O
+desempenho por categoria, incluindo suporte, precisão, revocação e F1,
+está disponível no material suplementar. O desempenho concentra-se nas classes de maior volume. As
 cinco categorias com maior F1 pertencem todas à Manutenção Preventiva,
 com destaque para Gerador (F1 = 0,9908; suporte = 1.211) e Quadros
 Elétricos (F1 = 0,9869; suporte = 576). No extremo oposto, as cinco
@@ -707,9 +706,9 @@ isolado com significância, e o McNemar aponta *p* < 0,05 em favor do
 modelo isolado nos três casos. **Não compensa combinar modelos nestes
 dados.** A recomendação é usar o LinearSVC isolado, com calibração.
 
-**Viés estrutural da seleção da amostra validada**: o número pontual de
-acerto validado acima constitui o **limite superior** de um intervalo, e
-não uma estimativa isenta de viés. A verdade validada usada neste cálculo
+A seleção da amostra validada carrega viés estrutural, de modo que o
+número pontual de acerto validado acima constitui o **limite superior**
+de um intervalo, e não uma estimativa isenta de viés. A verdade validada usada neste cálculo
 só existe para um chamado quando o avaliador confirma pelo menos uma
 fonte como correta, seja o histórico, seja a classificação automática,
 seja a reclassificação. Dos 9.534 chamados conferidos, 464 (4,9%) caem no
@@ -730,8 +729,8 @@ modelo caso os 464 restritos entrassem no denominador contados como erro
 para **todos** os modelos. Trata-se do pior caso possível, pois a
 categoria certa desses chamados é desconhecida e nenhum modelo pode
 receber crédito neles. O intervalo entre limite inferior e superior
-substitui o número pontual como leitura honesta do acerto validado:
-LinearSVC 0,9039--0,9501 (amplitude 4,62 p.p.), SGD 0,8944--0,9402 (4,58
+substitui o número pontual como leitura honesta do acerto validado, com
+LinearSVC em 0,9039--0,9501 (amplitude 4,62 p.p.), SGD 0,8944--0,9402 (4,58
 p.p.), Regressão Logística 0,8908--0,9364 (4,56 p.p.), Extra Trees
 0,8829--0,9281 (4,52 p.p.), Random Forest 0,8786--0,9235 (4,49 p.p.),
 LSTM 0,8374--0,8802 (4,28 p.p.) e Naive Bayes 0,8198--0,8617 (4,19
@@ -744,7 +743,8 @@ o valor absoluto do acerto validado exige essa ressalva sempre que for
 citado isoladamente.
 
 **Tabela 2** Acerto validado por modelo e limite inferior de
-sensibilidade ao viés de seleção (n = 9.070).
+sensibilidade ao viés de seleção (n = 9.070). O limite inferior conta os
+464 casos restritos como erro de todos os modelos.
 
 | Modelo | Acerto validado | IC95% | Limite inferior |
 |---|---|---|---|
@@ -755,9 +755,6 @@ sensibilidade ao viés de seleção (n = 9.070).
 | Random Forest | 0,9235 | 0,9178 -- 0,9289 | 0,8786 |
 | LSTM | 0,8802 | 0,8735 -- 0,8869 | 0,8374 |
 | Naive Bayes | 0,8617 | 0,8545 -- 0,8689 | 0,8198 |
-
-Fonte: elaborado pelos autores (2026). O limite inferior conta os 464
-casos restritos como erro de todos os modelos.
 
 **4.3 A classificação automática frente ao histórico: matriz de confusão
 validada**
@@ -793,8 +790,6 @@ histórico, contra a decisão validada (n = 11.232).
 |---|---|---|
 | **Classificação automática correta** | 10.128 | 0 |
 | **Classificação automática incorreta** | 777 | 327 |
-
-Fonte: elaborado pelos autores (2026).
 
 A ausência total de casos na célula "classificação automática correta /
 histórico incorreto" tem explicação estrutural. Quando a categoria
@@ -845,13 +840,11 @@ automática (n = 11.232 conferências).
 | 90–95% | 1.508 | 92,97% | 1.252 | 92,81% |
 | >= 95% | 5.848 | 98,56% | 5.666 | 97,32% |
 
-Fonte: elaborado pelos autores (2026).
-
 A Figura 2 apresenta esses mesmos valores em forma gráfica, tornando
 visível o descolamento entre concordância com o histórico e acerto
 validado nas faixas inferiores de confiança.
 
-![Concordância com o histórico e acerto validado por faixa de confiança bruta da classificação automática. Fonte: elaborado pelos autores (2026).](04_artigo/figuras/fig_confianca_desfecho.pdf)
+![Concordância com o histórico e acerto validado por faixa de confiança bruta da classificação automática.](04_artigo/figuras/fig_confianca_desfecho.pdf)
 
 **4.5 Reclassificação e ganho líquido**
 
@@ -880,8 +873,6 @@ atualização da base.
 | SGD | 201 | 163 | +38 |
 | Naive Bayes | 158 | 132 | +26 |
 | Extra Trees | 237 | 228 | +9 |
-
-Fonte: elaborado pelos autores (2026).
 
 **4.6 Diagnóstico de taxonomia e ambiguidade estrutural
 (Shannon/Jensen-Shannon)**
@@ -913,7 +904,7 @@ recua para 0,463 e apenas 3,9% das predições atingem o limiar alto. Os
 dois grupos têm porte semelhante, 5.213 e 6.247 chamados, de modo que a
 diferença não decorre de escassez de exemplos.
 
-![Concordância com o histórico, confiança média e proporção de predições em alta confiança, para as dez categorias de maior e de menor concordância entre as 39 com suporte mínimo de 30 chamados. Fonte: elaborado pelos autores (2026).](04_artigo/figuras/fig_calor_categorias.pdf)
+![Concordância com o histórico, confiança média e proporção de predições em alta confiança, para as dez categorias de maior e de menor concordância entre as 39 com suporte mínimo de 30 chamados.](04_artigo/figuras/fig_calor_categorias.pdf)
 
 O padrão que emerge é sistemático, não aleatório. Sete das dez categorias
 de maior concordância pertencem a Manutenção Preventiva, cujos chamados
@@ -941,7 +932,7 @@ Pisos e Estrutura, e 707 no sentido inverso, entre Alvenaria e
 Esquadrias. A leitura da matriz é assimétrica em vários pares, o que
 sugere absorção de uma categoria por outra, e não simples permuta.
 
-![Recorte da matriz de confusão sobre as oito categorias mais envolvidas em troca recíproca, com contagens agregadas entre modelos. Fonte: elaborado pelos autores (2026).](04_artigo/figuras/fig_matriz_confusao.pdf)
+![Recorte da matriz de confusão sobre as oito categorias mais envolvidas em troca recíproca, com contagens agregadas entre modelos.](04_artigo/figuras/fig_matriz_confusao.pdf)
 
 Esses dois recortes sustentam a mesma conclusão operacional. O
 desempenho agregado das Tabelas 1 e 2 esconde heterogeneidade relevante
@@ -965,7 +956,7 @@ recíproca, dominados pela fronteira entre climatização corretiva e
 manutenção preventiva de ar condicionado, seguida pelas fronteiras
 internas de estrutura predial.
 
-![Quinze pares de categorias com maior confusão recíproca, agregados entre modelos. Os códigos do eixo vertical são descritos na Tabela Suplementar S2. Fonte: elaborado pelos autores (2026).](04_artigo/figuras/fig_top_confusoes.pdf)
+![Quinze pares de categorias com maior confusão recíproca, agregados entre modelos. Os códigos do eixo vertical estão descritos no material suplementar.](04_artigo/figuras/fig_top_confusoes.pdf)
 
 **Tabela 6** Entropia de Shannon e divergência de Jensen-Shannon por
 fonte de classificação.
@@ -981,8 +972,6 @@ fonte de classificação.
 | Random Forest | 43 | 0,7279 | 0,0263 |
 | Naive Bayes | 17 | 0,8157 | 0,1027 |
 
-Fonte: elaborado pelos autores (2026).
-
 **4.7 Custo computacional**
 
 Nos recortes de comparação por lote (1.000 registros cada), os seis
@@ -991,7 +980,8 @@ há medição comparável de custo para LSTM ou BERTimbau, portanto não é
 possível ordenar esses dois modelos frente aos demais. A tabela informa
 exclusivamente as medições disponíveis para os modelos clássicos.
 
-**Tabela 7** Custo computacional por lote de 1.000 registros.
+**Tabela 7** Custo computacional por lote de 1.000 registros. A acurácia
+refere-se ao lote, não à base completa.
 
 | Modelo | Tempo de treino (s) | Tempo de inferência (s) | Acurácia neste lote |
 |---|---|---|---|
@@ -1002,14 +992,11 @@ exclusivamente as medições disponíveis para os modelos clássicos.
 | Random Forest | 19,45 | 0,13 | 0,597 |
 | Extra Trees | 21,30 | 0,14 | 0,610 |
 
-Fonte: elaborado pelos autores (2026). A acurácia refere-se ao lote de
-1.000 registros, não à base completa.
-
 A Figura 6 cruza essas medições de custo com o acerto validado da Tabela
 2 e mostra que o LinearSVC ocupa a posição mais favorável, com o maior
 acerto validado a um custo de treino próximo do menor observado.
 
-![Trade-off entre acerto validado e tempo de treino, modelos clássicos. Fonte: elaborado pelos autores (2026).](04_artigo/figuras/fig_tradeoff_custo.pdf)
+![Trade-off entre acerto validado e tempo de treino, modelos clássicos.](04_artigo/figuras/fig_tradeoff_custo.pdf)
 
 **4.8 Comportamento do LSTM: curva de aprendizado e *ablation***
 
@@ -1020,7 +1007,7 @@ validação na época 10 (0,6722). O padrão indica saturação precoce,
 consistente com a hipótese de que *embeddings* treinados do zero são
 insuficientes para um corpus deste porte (Subseção 3.4.1).
 
-![Curva de aprendizado do LSTM por época, perda e acurácia em treino e validação. Fonte: elaborado pelos autores (2026).](04_artigo/figuras/fig_curva_aprendizado_lstm.pdf)
+![Curva de aprendizado do LSTM por época, perda e acurácia em treino e validação.](04_artigo/figuras/fig_curva_aprendizado_lstm.pdf)
 
 O *ablation* de hiperparâmetros exige cuidado adicional de
 particionamento neste corpus. Chamados de manutenção repetem-se com
@@ -1041,7 +1028,7 @@ sensibilidade do LSTM ao número de unidades recorrentes e à taxa de
 ajuste desses hiperparâmetros, mas na ausência de *embeddings*
 pré-treinados discutida na Subseção 3.4.1.
 
-![*Ablation* do LSTM, quatro variantes de unidades recorrentes e *dropout*, avaliadas por *GroupKFold* contra a decisão validada. Fonte: elaborado pelos autores (2026).](04_artigo/figuras/fig_ablation_lstm.pdf)
+![*Ablation* do LSTM, quatro variantes de unidades recorrentes e *dropout*, avaliadas por *GroupKFold* contra a decisão validada.](04_artigo/figuras/fig_ablation_lstm.pdf)
 
 **4.9 Robustez estatística: pressupostos e testes de sensibilidade**
 
@@ -1079,6 +1066,8 @@ e o Kappa de Fleiss entre modelos, está disponível como Material
 Suplementar.
 
 **5. DISCUSSÃO**
+
+**5.1 Concordância histórica frente ao acerto validado**
 
 A comparação entre concordância histórica (Subseção 4.1) e desempenho
 validado (Subseção 4.2) revela um descolamento sistemático entre as duas
@@ -1137,6 +1126,8 @@ esta base e esta amostra, sem estabelecer superioridade generalizável de
 classificadores lineares sobre arquiteturas neurais. A comparação de
 custo permanece restrita aos seis modelos clássicos da Tabela 7.
 
+**5.2 Reclassificação, ambiguidade taxonômica e calibração**
+
 O resultado da reclassificação (Subseção 4.5) introduz uma nuance
 operacional importante, pois o ganho líquido de corrigir chamados já
 classificados não é uniforme entre modelos. A amplitude vai de +9 no
@@ -1184,7 +1175,7 @@ confiança, de modo que a fração ainda não conferida pode deslocar o
 resultado. Liberar a faixa alta para decisão automática exige concluir
 essa conferência e aplicar calibração formal por modelo.
 
-**Limitações**
+**5.3 Limitações**
 
 Os dados provêm de uma única instituição federal de ensino superior,
 com textos em português brasileiro e taxonomia institucional própria.
@@ -1209,7 +1200,7 @@ concluído e ficou fora de todas as comparações. O LSTM treina seus
 que penaliza redes neurais em corpora de porte médio e ajuda a explicar
 seu desempenho inferior ao dos modelos lineares.
 
-**Contribuição para a governança preditiva da manutenção**
+**5.4 Contribuição para a governança preditiva da manutenção**
 
 A contribuição deste artigo não termina na categoria atribuída a cada
 chamado. Ao converter texto livre em categoria, criticidade e confiança
