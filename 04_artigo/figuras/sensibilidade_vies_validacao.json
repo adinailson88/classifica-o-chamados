@@ -1,85 +1,85 @@
 {
-  "gerado_em": "26/07/2026 18:23",
+  "gerado_em": "26/07/2026 22:33",
   "script_origem": "src/analise_sensibilidade_vies_validacao.py",
   "natureza": "sensibilidade do acerto validado ao vies estrutural de selecao da amostra: 'restritos' (nenhuma fonte conferida como Correto) sao excluidos do calculo padrao (limite_superior); limite_inferior mostra o pior caso, contando-os como erro de todos os modelos",
   "mecanismo_do_vies": "a verdade validada so existe quando M, N ou P marca 'Correto'. Chamados em que o avaliador julgou TODAS as fontes conferidas erradas (status='restrito') ficam fora do denominador de avaliacao_final.json, inflando mecanicamente o acerto de qualquer modelo que concorde com o historico ou a IA oficial",
   "conferencias": {
     "com_conferencia": 9534,
-    "decididos": 9044,
-    "restritos": 490,
-    "conflitos": 52
+    "decididos": 9014,
+    "restritos": 520,
+    "conflitos": 82
   },
   "composicao_restritos": {
     "errado_glpi": 340,
     "errado_glpi_e_ia": 98,
-    "conflito_correto_divergente": 52
+    "conflito_correto_divergente": 82
   },
-  "n_decididas_avaliaveis": 9044,
-  "n_restritas_avaliaveis": 490,
+  "n_decididas_avaliaveis": 9014,
+  "n_restritas_avaliaveis": 520,
   "n_total_se_incluir_restritos": 9534,
   "por_modelo": [
     {
       "modelo": "linear_svc",
-      "corretos": 8594,
-      "n_limite_superior": 9044,
+      "corretos": 8570,
+      "n_limite_superior": 9014,
       "n_limite_inferior": 9534,
-      "limite_inferior": 0.9014,
-      "limite_superior": 0.9502,
-      "amplitude": 0.0488
+      "limite_inferior": 0.8989,
+      "limite_superior": 0.9507,
+      "amplitude": 0.0519
     },
     {
       "modelo": "sgd",
-      "corretos": 8511,
-      "n_limite_superior": 9044,
+      "corretos": 8488,
+      "n_limite_superior": 9014,
       "n_limite_inferior": 9534,
-      "limite_inferior": 0.8927,
-      "limite_superior": 0.9411,
-      "amplitude": 0.0484
+      "limite_inferior": 0.8903,
+      "limite_superior": 0.9416,
+      "amplitude": 0.0514
     },
     {
       "modelo": "regressao_logistica",
-      "corretos": 8475,
-      "n_limite_superior": 9044,
+      "corretos": 8451,
+      "n_limite_superior": 9014,
       "n_limite_inferior": 9534,
-      "limite_inferior": 0.8889,
-      "limite_superior": 0.9371,
-      "amplitude": 0.0482
+      "limite_inferior": 0.8864,
+      "limite_superior": 0.9375,
+      "amplitude": 0.0511
     },
     {
       "modelo": "extra_trees",
-      "corretos": 8398,
-      "n_limite_superior": 9044,
+      "corretos": 8377,
+      "n_limite_superior": 9014,
       "n_limite_inferior": 9534,
-      "limite_inferior": 0.8808,
-      "limite_superior": 0.9286,
-      "amplitude": 0.0477
+      "limite_inferior": 0.8786,
+      "limite_superior": 0.9293,
+      "amplitude": 0.0507
     },
     {
       "modelo": "random_forest",
-      "corretos": 8358,
-      "n_limite_superior": 9044,
+      "corretos": 8337,
+      "n_limite_superior": 9014,
       "n_limite_inferior": 9534,
-      "limite_inferior": 0.8767,
-      "limite_superior": 0.9241,
-      "amplitude": 0.0475
+      "limite_inferior": 0.8744,
+      "limite_superior": 0.9249,
+      "amplitude": 0.0504
     },
     {
       "modelo": "lstm",
-      "corretos": 7969,
-      "n_limite_superior": 9044,
+      "corretos": 7954,
+      "n_limite_superior": 9014,
       "n_limite_inferior": 9534,
-      "limite_inferior": 0.8359,
-      "limite_superior": 0.8811,
-      "amplitude": 0.0453
+      "limite_inferior": 0.8343,
+      "limite_superior": 0.8824,
+      "amplitude": 0.0481
     },
     {
       "modelo": "naive_bayes",
-      "corretos": 7802,
-      "n_limite_superior": 9044,
+      "corretos": 7782,
+      "n_limite_superior": 9014,
       "n_limite_inferior": 9534,
-      "limite_inferior": 0.8183,
-      "limite_superior": 0.8627,
-      "amplitude": 0.0443
+      "limite_inferior": 0.8162,
+      "limite_superior": 0.8633,
+      "amplitude": 0.0471
     }
   ],
   "observacao": "o valor real do acerto validado esta em algum ponto do intervalo [limite_inferior, limite_superior]; nao e possivel apontar um numero exato sem uma verdade adicional para os 'restritos' (exigiria nova rodada de conferencia humana especificamente sobre eles)"

@@ -1,98 +1,98 @@
 {
-  "gerado_em": "26/07/2026 18:22",
+  "gerado_em": "26/07/2026 22:33",
   "run_id": "EXP_CLASSIFICACAO_CHAMADOS_2026_06_001",
   "total": 13965,
-  "validados": 9044,
+  "validados": 9014,
   "validacao_humana": {
     "modo": "acerto_ia_validado (e todo o acerto_validado de geral/por_faixa/por_executor abaixo) = classificacao do executor (col G) comparada a categoria DECIDIDA pela memoria M/N/P (decisao_validada.verdade_validada), a mesma verdade usada em avaliacao_final.json — corrigido em 2026-07-23 (antes comparava so contra a marcacao bruta da coluna N, que na pratica so registra 'Correto'). acerto_glpi_validado/acerto_reclass_validado abaixo usam a marcacao bruta de M/P, so como diagnostico de cobertura por coluna.",
-    "n_conferencia_ia": 9044,
-    "acerto_ia_validado": 0.9372,
+    "n_conferencia_ia": 9014,
+    "acerto_ia_validado": 0.9414,
     "n_conferencia_glpi": 9534,
     "acerto_glpi_validado": 0.9541,
     "n_conferencia_reclass": 0,
     "acerto_reclass_validado": null,
     "matriz_ia_x_glpi": {
-      "ia_ok_glpi_ok": 8476,
+      "ia_ok_glpi_ok": 8486,
       "ia_ok_glpi_erro": 0,
-      "ia_erro_glpi_ok": 559,
-      "ia_erro_glpi_erro": 9
+      "ia_erro_glpi_ok": 520,
+      "ia_erro_glpi_erro": 8
     }
   },
-  "ece_historico": 0.0656,
+  "ece_historico": 0.0524,
   "alvo_confianca": 0.95,
   "faixa_alvo_95": {
-    "n": 4810,
-    "concordancia_historico": 0.9875,
-    "confianca_media": 0.9848,
-    "n_validados": 4675,
-    "acerto_validado": 0.9994
+    "n": 4703,
+    "concordancia_historico": 0.9879,
+    "confianca_media": 0.9865,
+    "n_validados": 4563,
+    "acerto_validado": 0.9993
   },
   "por_faixa": [
     {
       "faixa": "<50%",
-      "n": 4058,
-      "concordancia_historico": 0.4305,
-      "confianca_media": 0.3075,
-      "n_validados": 880,
-      "acerto_validado": 0.5193
+      "n": 3930,
+      "concordancia_historico": 0.4148,
+      "confianca_media": 0.3112,
+      "n_validados": 815,
+      "acerto_validado": 0.5166
     },
     {
       "faixa": "50-70%",
-      "n": 1443,
-      "concordancia_historico": 0.7512,
-      "confianca_media": 0.5971,
-      "n_validados": 712,
-      "acerto_validado": 0.875
+      "n": 1421,
+      "concordancia_historico": 0.7298,
+      "confianca_media": 0.5979,
+      "n_validados": 653,
+      "acerto_validado": 0.879
     },
     {
       "faixa": "70-80%",
-      "n": 946,
-      "concordancia_historico": 0.871,
-      "confianca_media": 0.7534,
-      "n_validados": 653,
-      "acerto_validado": 0.9678
+      "n": 911,
+      "concordancia_historico": 0.8474,
+      "confianca_media": 0.7536,
+      "n_validados": 593,
+      "acerto_validado": 0.9663
     },
     {
       "faixa": "80-90%",
-      "n": 1484,
-      "concordancia_historico": 0.8282,
-      "confianca_media": 0.8542,
-      "n_validados": 1065,
-      "acerto_validado": 0.9784
+      "n": 1702,
+      "concordancia_historico": 0.8519,
+      "confianca_media": 0.8577,
+      "n_validados": 1265,
+      "acerto_validado": 0.9818
     },
     {
       "faixa": "90-95%",
-      "n": 1224,
-      "concordancia_historico": 0.9559,
-      "confianca_media": 0.9296,
-      "n_validados": 1059,
-      "acerto_validado": 0.9915
+      "n": 1298,
+      "concordancia_historico": 0.9561,
+      "confianca_media": 0.9288,
+      "n_validados": 1125,
+      "acerto_validado": 0.992
     },
     {
       "faixa": ">=95%",
-      "n": 4810,
-      "concordancia_historico": 0.9875,
-      "confianca_media": 0.9848,
-      "n_validados": 4675,
-      "acerto_validado": 0.9994
+      "n": 4703,
+      "concordancia_historico": 0.9879,
+      "confianca_media": 0.9865,
+      "n_validados": 4563,
+      "acerto_validado": 0.9993
     }
   ],
   "por_executor": [
     {
       "executor": "LSTM",
-      "n": 4810,
-      "concordancia_historico": 0.9875,
-      "confianca_media": 0.9848,
-      "n_validados": 4675,
-      "acerto_validado": 0.9994
+      "n": 4703,
+      "concordancia_historico": 0.9879,
+      "confianca_media": 0.9865,
+      "n_validados": 4563,
+      "acerto_validado": 0.9993
     },
     {
       "executor": "LSTM_BAIXA_CONF",
-      "n": 9155,
-      "concordancia_historico": 0.6613,
-      "confianca_media": 0.571,
-      "n_validados": 4369,
-      "acerto_validado": 0.8707
+      "n": 9262,
+      "concordancia_historico": 0.6618,
+      "confianca_media": 0.5857,
+      "n_validados": 4451,
+      "acerto_validado": 0.882
     }
   ],
   "tipo_confianca": "bruta (softmax/decision_function) — NAO calibrada",
@@ -102,6 +102,6 @@
   "snapshot_deduplicacao": {
     "chave": "linha_planilha",
     "criterio": "mantida a ultima ocorrencia",
-    "linhas_duplicadas_removidas": 4500
+    "linhas_duplicadas_removidas": 7200
   }
 }
