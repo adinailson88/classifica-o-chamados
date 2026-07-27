@@ -1,4 +1,4 @@
-name: Finalizar documentacao da PR 75
+name: Aplicar revisao editorial final PR 75
 
 on:
   push:
@@ -6,16 +6,16 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: finalizar-documentacao-pr75
+  group: revisao-editorial-final-pr75
   cancel-in-progress: true
 
 permissions:
   contents: write
 
 jobs:
-  finalizar:
+  revisar:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v6
         with:
@@ -29,106 +29,85 @@ jobs:
           cache-dependency-path: requirements-leves.txt
 
       - name: Instalar dependencias
-        run: python -m pip install --retries 5 --timeout 120 -r requirements-leves.txt
+        run: |
+          python -m pip install --retries 5 --timeout 120 -r requirements-leves.txt
+          python -m pip install --retries 5 --timeout 120 pymupdf
 
-      - name: Atualizar plano e relatorio
+      - name: Aplicar revisao editorial
+        run: |
+          python -m py_compile src/aplicar_revisao_editorial_final.py
+          python src/aplicar_revisao_editorial_final.py
+
+      - name: Validar texto e testes
+        run: |
+          python -m unittest discover -s tests
+          python - <<'PY'
+          from pathlib import Path
+          texto = Path('04_artigo/artigo_classificacao_chamados_v3.md').read_text(encoding='utf-8')
+          proibidos = [
+              'nesta consolidação', 'nesta execução', 'nesta rodada', 'nesta data',
+              '**Tabela 4** Matriz de confusão',
+              '**Apêndice A — Checklist de itens reportados**',
+          ]
+          for termo in proibidos:
+              if termo.lower() in texto.lower():
+                  raise SystemExit(f'Resíduo editorial encontrado: {termo}')
+          esperados = [
+              '**Tabela 4** Ganho líquido de reclassificação por modelo',
+              '**Tabela 5** Entropia de Shannon',
+              '**Tabela 6** Custo computacional',
+              '**Apêndice A — Matriz de decisão M/N/P**',
+              '**4.10 Robustez estatística**',
+              'material_suplementar_estatistica_checklist.md',
+          ]
+          for termo in esperados[:-1]:
+              if termo not in texto:
+                  raise SystemExit(f'Elemento esperado ausente: {termo}')
+          if not Path('04_artigo/material_suplementar_estatistica_checklist.md').exists():
+              raise SystemExit('Material Suplementar não foi criado')
+          print('Validação editorial aprovada')
+          PY
+
+      - name: Gerar PDF
+        uses: docker://pandoc/extra:latest
+        with:
+          args: >-
+            04_artigo/artigo_classificacao_chamados_v3.md
+            -o docs/artigo_classificacao_chamados.pdf
+            --pdf-engine=xelatex
+            -V lang=pt-BR
+            -V geometry:margin=2.5cm
+            --standalone
+
+      - name: Validar PDF
         run: |
           python - <<'PY'
           from pathlib import Path
-          import re
-
-          plano = Path('PLANO_ARTIGO_CAPITULO.md')
-          texto = plano.read_text(encoding='utf-8')
-          estado = '''- **Onde está**: a reformulação editorial está incorporada à `main` pelas PRs
-          #73 e #74. A correção de sincronização numérica foi concluída na branch
-          `agent/corrigir-sincronizacao-artigo` e consolidada na PR #75.
-
-          **O que foi feito nesta rodada**: o `SNAPSHOT_ETAPA_1` foi deduplicado por
-          `linha_planilha`, mantendo a ocorrência mais recente; 4.500 duplicatas foram
-          removidas e o corpus voltou a 13.965 chamados. Os agregados vigentes registram
-          9.534 chamados conferidos, 9.044 decisões travadas, 490 casos sem verdade
-          validada e 52 conflitos. Resumo, Abstract, Tabelas 1 a 4, Discussão,
-          Limitações, Considerações Finais, Figuras 2 e 3 e Apêndice B foram
-          sincronizados. A suíte completa passou, o verificador final retornou `status=ok`
-          e o PDF de 24 páginas foi inspecionado visualmente, sem cortes, sobreposições,
-          glifos quebrados ou referências cruzadas ausentes.
-
-          **Próximo passo**: mesclar a PR #75 por squash. Após o merge, o workflow
-          permanente `artigo_pdf.yml` regenerará o PDF em `main`; conferir apenas se o
-          arquivo publicado coincide com o PDF já revisado nesta branch.'''
-          estado = estado.replace('\n          ', '\n')
-          texto, n = re.subn(
-              r'- \*\*Onde está\*\*: reformulação editorial.*?(?=\n\n---)',
-              estado,
-              texto,
-              count=1,
-              flags=re.S,
-          )
-          if n != 1:
-              raise SystemExit(f'Estado da rodada não localizado: {n}')
-          texto = texto.replace(
-              '**Onde está**: as seis etapas foram incorporadas à `main` pelas PRs #73 e\n#74. A sincronização numérica posterior está sendo concluída na PR #75.',
-              '**Onde está**: as seis etapas foram incorporadas à `main` pelas PRs #73 e\n#74; a sincronização numérica e a revisão final do PDF foram concluídas na PR #75.'
-          )
-          texto = texto.replace(
-              'neurais/*ensembles* com vantagem de custo; ruído real de ~3,5% no\nhistórico; meta de calibração próxima mas não formalmente',
-              'neurais/*ensembles* com vantagem de custo; ruído confirmado no\nhistórico; meta de calibração próxima mas não formalmente'
-          )
-          texto = texto.replace(
-              '**Próximo passo**: revisar o PDF regenerado após o merge da PR #75 e, se a\nformatação estiver íntegra, encerrar formalmente a rodada editorial.',
-              '**Próximo passo**: mesclar a PR #75 por squash e confirmar a publicação\ndo PDF pelo workflow permanente em `main`.'
-          )
-          plano.write_text(texto, encoding='utf-8')
-
-          relatorio = Path('docs/EXECUCAO_CORRECAO_NUMERICA.md')
-          conteudo = '''# Correção de sincronização numérica do artigo
-
-          ## Escopo executado
-
-          - deduplicação de `SNAPSHOT_ETAPA_1` por `linha_planilha`, mantendo a ocorrência mais recente;
-          - regeneração dos agregados de calibração, auditoria, avaliação final e sensibilidade;
-          - atualização do Resumo, Abstract, Tabelas 1 a 4, Discussão, Limitações, Considerações Finais e Apêndice B;
-          - regeneração das Figuras 2 e 3 e do PDF do artigo;
-          - correção das contradições editoriais e dos números residuais da consolidação anterior.
-
-          ## Estado validado
-
-          - corpus deduplicado: **13.965 chamados**;
-          - duplicatas removidas do snapshot append-only: **4.500**;
-          - chamados com alguma conferência: **9.534**;
-          - decisões travadas: **9.044**;
-          - casos sem verdade validada: **490**, incluindo **52 conflitos**;
-          - melhor modelo validado: **LinearSVC, 95,02%** (IC95%: 94,58%–95,46%);
-          - faixa de confiança >=95%: **99,94%** de acerto validado em **4.675** decisões.
-
-          ## Validação técnica
-
-          - `python -m py_compile` nos scripts alterados: aprovado;
-          - `python -m unittest discover -s tests`: aprovado;
-          - `python src/check_final_ready.py`: `status=ok`;
-          - PDF: 24 páginas, aberto por PyMuPDF, fontes incorporadas, sem conteúdo cortado, sobreposição, glifo quebrado ou referência cruzada ausente;
-          - Tabelas 2 e 3, quando divididas entre páginas, repetem corretamente o cabeçalho;
-          - Apêndice B atualizado para 9.044 decisões, 490 casos sem verdade e 52 conflitos.
-
-          ## Segurança
-
-          A execução foi somente leitura na planilha. Nenhuma célula das colunas de classificação ou conferência foi alterada.
-          '''
-          relatorio.write_text(conteudo.replace('\n          ', '\n').strip() + '\n', encoding='utf-8')
+          import fitz
+          caminho = Path('docs/artigo_classificacao_chamados.pdf')
+          if not caminho.exists() or caminho.stat().st_size < 100000:
+              raise SystemExit('PDF ausente ou incompleto')
+          doc = fitz.open(caminho)
+          if len(doc) < 10:
+              raise SystemExit(f'Número de páginas inesperado: {len(doc)}')
+          texto = ''.join(p.get_text() for p in doc)
+          for termo in ['RESUMO', '4.10 Robustez estatística', 'CONSIDERAÇÕES FINAIS', 'Apêndice A']:
+              if termo not in texto:
+                  raise SystemExit(f'Texto esperado ausente do PDF: {termo}')
+          print(f'PDF validado: {len(doc)} páginas, {caminho.stat().st_size} bytes')
           PY
-
-      - name: Validar repositorio
-        run: |
-          python -m py_compile src/calibracao_deduplicada.py src/exportar_dashboard_corrigido.py src/check_final_ready.py
-          python -m unittest discover -s tests
-          python src/check_final_ready.py
 
       - name: Restaurar workflow permanente e commitar
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git show origin/main:.github/workflows/artigo_pdf.yml > .github/workflows/artigo_pdf.yml
+          git rm -f src/aplicar_revisao_editorial_final.py
           git rm -f .github/workflows/finalizar_documentacao_pr75.yml 2>/dev/null || true
-          git add .github/workflows/artigo_pdf.yml PLANO_ARTIGO_CAPITULO.md docs/EXECUCAO_CORRECAO_NUMERICA.md
-          git commit -m "docs: fecha validacao numerica e visual da PR 75 [skip ci]"
+          git add .github/workflows/artigo_pdf.yml \
+            04_artigo/artigo_classificacao_chamados_v3.md \
+            04_artigo/material_suplementar_estatistica_checklist.md \
+            docs/artigo_classificacao_chamados.pdf \
+            PLANO_ARTIGO_CAPITULO.md
+          git commit -m "docs: aplica revisão editorial científica final [skip ci]"
           git push origin HEAD:agent/corrigir-sincronizacao-artigo
