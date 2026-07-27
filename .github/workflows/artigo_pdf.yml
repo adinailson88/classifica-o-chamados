@@ -26,8 +26,13 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      # placeins.sty nao existe na imagem pandoc/extra e vive versionado em
+      # 04_artigo/latex; TEXINPUTS aponta o xelatex para la. Se nao alcancar,
+      # o preambulo do .md cai num FloatBarrier proprio em vez de falhar.
       - name: Gerar PDF (pandoc + xelatex)
         uses: docker://pandoc/extra:latest
+        env:
+          TEXINPUTS: ".:./04_artigo/latex:"
         with:
           args: >-
             04_artigo/artigo_classificacao_chamados_v3.md
