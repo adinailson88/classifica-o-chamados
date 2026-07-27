@@ -11,8 +11,21 @@ RAIZ = Path(__file__).resolve().parents[1]
 
 
 def main() -> int:
+    aplicador = RAIZ / "src" / "aplicar_revisao_editorial_final.py"
+    texto = aplicador.read_text(encoding="utf-8")
+    texto = texto.replace(
+        '    suplemento = """# Material Suplementar — classificação automática de chamados\\n\\n"\n',
+        '    suplemento = "# Material Suplementar — classificação automática de chamados\\n\\n"\n',
+    )
+    aplicador.write_text(texto, encoding="utf-8")
+
     subprocess.run(
-        [sys.executable, str(RAIZ / "src" / "aplicar_revisao_editorial_final.py")],
+        [sys.executable, "-m", "py_compile", str(aplicador)],
+        cwd=RAIZ,
+        check=True,
+    )
+    subprocess.run(
+        [sys.executable, str(aplicador)],
         cwd=RAIZ,
         check=True,
     )
