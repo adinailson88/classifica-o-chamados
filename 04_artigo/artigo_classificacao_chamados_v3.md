@@ -42,7 +42,7 @@ tanto na concordância com o histórico (acurácia de 80,29%,
 IC95%: 79,62%--80,95%) quanto no acerto validado (94,93%, IC95%:
 94,47%--95,38%), enquanto o LSTM apresentou concordância de 68,13% e
 acerto validado de 87,90%, após reprocessamento completo dos sete
-modelos comparáveis (Subseções 4.1, 4.2 e 4.9). A normalidade da concordância por turno foi
+modelos comparáveis (Subseções 4.1, 4.2 e 4.8). A normalidade da concordância por turno foi
 rejeitada para todos os modelos, justificando testes não paramétricos
 (Friedman, Cochran Q, McNemar, bootstrap). O custo computacional é
 incorporado como dimensão de avaliação, evidenciando que modelos
@@ -453,7 +453,7 @@ de 11.172 compõem cada partição de treino em `k=5` *folds*; Subseção
 tendem a igualar ou superar redes neurais em corpora de porte médio e
 ruidosos quando não há *embeddings* pré-treinados disponíveis no idioma
 (GALKE; SCHERP, 2022), sem que isso configure uma falha da arquitetura
-em si (Subseção 4.9 detalha a investigação da discrepância do *ablation*
+em si (Subseção 4.8 detalha a investigação da discrepância do *ablation*
 do LSTM).
 
 Na classificação automática em produção, distinta da comparação
@@ -507,7 +507,7 @@ dados — protocolo cujas limitações já foram apontadas por trabalho mais
 recente: Benavoli, Corani e Mangili (2016) mostram que o teste de
 postos médios (base do Nemenyi) pode ser inconsistente e recomendam
 testes pareados diretos como complemento, razão pela qual este trabalho
-também reporta o McNemar par a par (Subseção 4.10) em vez de depender
+também reporta o McNemar par a par (Subseção 4.9) em vez de depender
 apenas do Nemenyi; comparações pareadas adicionais entre os sete modelos
 são corrigidas pelo método sequencial de Holm-Bonferroni, que controla a
 taxa de erro familiar sem o conservadorismo excessivo da correção de
@@ -534,8 +534,7 @@ métrica de desempenho indefinida, um problema que o *k*-fold evita por
 avaliar todo exemplo em algum *fold* (Tabela Suplementar S1). A
 acurácia global variou pouco entre os dois protocolos, mas a
 *macro*-F1 — que pondera todas as categorias igualmente, e não apenas
-as mais frequentes — piorou no *holdout* na maioria dos modelos
-(detalhamento completo na Tabela Suplementar S4). Em suma, um *holdout*
+as mais frequentes — piorou no *holdout* na maioria dos modelos. Em suma, um *holdout*
 fixo não melhora a estimativa de desempenho global nesta base e piora
 sistematicamente a avaliação das categorias raras — o padrão que a
 literatura antecipa para corpora pequenos e desbalanceados como este
@@ -664,7 +663,7 @@ Tabela 1 não é apropriada porque essa fonte combina a rede neural com a
 regra de contingência do Random Forest (Subseção 3.4), em vez de um
 único modelo isolado. Ela também não foi reprocessada junto com os sete
 modelos comparáveis e pode estar sujeita à mesma defasagem discutida na
-Subseção 4.9.
+Subseção 4.8.
 
 **Tabela 1** Concordância com a categoria histórica, base completa (n = 13.965)
 
@@ -704,7 +703,7 @@ fortemente a métrica.
 Esta subseção reflete a atualização completa dos sete modelos (Subseção
 4.1). Uma versão anterior, hoje descartada, reportava acerto validado
 sensivelmente mais baixo. A diferença confirma a hipótese discutida na
-Subseção 4.9, de que a versão antiga estava desatualizada, sem problema
+Subseção 4.8, de que a versão antiga estava desatualizada, sem problema
 de metodologia na avaliação em si.
 
 A avaliação contra a decisão validada pela conferência humana (n =
@@ -778,7 +777,7 @@ restritos (438), que depende apenas das conferências humanas. A tabela
 exclui o BERTimbau, cujo treino não foi concluído.
 
 A atualização completa dos modelos também resolveu uma discrepância
-antes registrada entre o *ablation study* do LSTM (Subseção 4.9,
+antes registrada entre o *ablation study* do LSTM (Subseção 4.8,
 86,35%--87,68% conforme o particionamento) e o valor de referência então
 vigente. O valor antigo vinha de uma versão desatualizada dos modelos, e
 o valor atual do LSTM (0,8790) está muito mais próximo do que o
@@ -885,6 +884,17 @@ Fonte: elaborado pelos autores (2026). A amostra de conferência prioriza
 divergências e casos de menor confiança, portanto os valores descrevem a
 amostra conferida, não uma taxa de acerto sobre amostra representativa.
 
+A Figura 2 apresenta esses mesmos valores em forma gráfica, tornando
+visível o descolamento entre concordância com o histórico e acerto
+validado nas faixas inferiores de confiança.
+
+![Figura 2 — Confiança bruta, concordância com o histórico e acerto validado, por faixa de confiança.](04_artigo/figuras/fig2_confianca_desfecho.png)
+
+**Figura 2** Concordância com o histórico e acerto validado por faixa de
+confiança bruta da classificação automática.
+
+Fonte: elaborado pelos autores (2026).
+
 **4.5 Reclassificação e ganho líquido**
 
 A reclassificação dos chamados já conferidos produz resultados
@@ -944,6 +954,19 @@ relativamente alta (0,7848), provável reflexo de concentração extrema
 em poucas categorias com alguma dispersão residual, não investigado em
 detalhe neste artigo.
 
+A Figura 3 mostra os quinze pares de categorias com maior confusão
+recíproca, dominados pela fronteira entre climatização corretiva e
+manutenção preventiva de ar condicionado, seguida pelas fronteiras
+internas de estrutura predial.
+
+![Figura 3 — Quinze pares de maior confusão entre categorias.](04_artigo/figuras/fig4_top_confusoes.png)
+
+**Figura 3** Quinze pares de categorias com maior confusão recíproca,
+agregados entre modelos. Os códigos do eixo vertical são descritos na
+Tabela Suplementar S2.
+
+Fonte: elaborado pelos autores (2026).
+
 **Tabela 6** Entropia de Shannon e divergência de Jensen-Shannon por fonte de classificação
 
 | Fonte | Categorias previstas | Entropia (nats) | Entropia normalizada | JS vs. histórico |
@@ -982,65 +1005,32 @@ Fonte: elaborado pelos autores (2026). A acurácia reportada refere-se ao
 lote de 1.000 registros, não à base completa, e contextualiza apenas o
 trade-off entre custo e desempenho desta subseção.
 
-**4.8 Figuras**
+A Figura 4 cruza essas medições de custo com o acerto validado da Tabela
+2 e mostra que o LinearSVC ocupa a posição mais favorável, com o maior
+acerto validado a um custo de treino próximo do menor observado.
 
-As figuras foram geradas a partir dos dados vigentes do painel público e
-dos registros de treino de cada modelo. A Figura 4 usa códigos de
-categoria para preservar a legibilidade; o mapeamento completo
-código-categoria está na Tabela Suplementar S2.
+![Figura 4 — Trade-off entre acerto validado e custo computacional.](04_artigo/figuras/fig3_tradeoff_custo.png)
 
-![Figura 2 — Confiança bruta × concordância com o histórico × acerto validado, por faixa de confiança (executor oficial, Etapa 1).](04_artigo/figuras/fig2_confianca_desfecho.png)
-
-**Figura 2** Confiança bruta × concordância com o histórico × acerto validado,
-por faixa de confiança (executor oficial, Etapa 1). Mesmos números da
-Tabela 3 (Subseção 4.4), em forma gráfica.
+**Figura 4** Trade-off entre acerto validado e tempo de treino, modelos
+clássicos.
 
 Fonte: elaborado pelos autores (2026).
 
-![Figura 3 — Trade-off entre acerto validado e custo computacional (tempo de treino), modelos clássicos.](04_artigo/figuras/fig3_tradeoff_custo.png)
+**4.8 Comportamento do LSTM: curva de aprendizado e *ablation***
 
-**Figura 3** Trade-off entre acerto validado (conferência humana) e custo
-computacional (tempo de treino, lote de 1.000 registros), modelos
-clássicos. LSTM e BERTimbau não constam desta figura por não terem
-registro de tempo de treino no mesmo arquivo (Tabela 7, Subseção 4.7).
-
-Fonte: elaborado pelos autores (2026), cruzando custo computacional e
-acerto validado.
-
-![Figura 4 — Top 15 pares de maior confusão entre categorias, agregados a partir dos top pares por modelo.](04_artigo/figuras/fig4_top_confusoes.png)
-
-**Figura 4** Top 15 pares de maior confusão entre categorias. O par mais recorrente
-foi `Climatização > Ar condicionado` → `Manutenção Preventiva > Ar
-condicionado split` (1.310 ocorrências agregadas), seguido por `Instalação de
-Acessórios e Mobiliário > Instalação/reparo de equipamentos (Suportes de TV,
-acessórios de banheiro e quadro branco)` → `Estrutura Predial > Alvenaria /
-Pisos / Estrutura` (799) e `Estrutura Predial > Alvenaria / Pisos / Estrutura`
-→ `Estrutura Predial > Esquadrias, porta, portão e janelas` (726). Os códigos
-C01-C10 usados no eixo vertical são descritos na Tabela Suplementar S2.
-
-Fonte: elaborado pelos autores (2026).
+A Figura 5 mostra a curva real de aprendizado do LSTM sobre os 13.965
+exemplos e 53 categorias. O treino parou por interrupção antecipada após
+11 épocas, com menor perda de validação na época 8 e maior acurácia de
+validação na época 10 (0,6722). O padrão indica saturação precoce,
+consistente com a hipótese de que *embeddings* treinados do zero são
+insuficientes para um corpus deste porte (Subseção 3.4.1).
 
 ![Figura 5 — Curva de aprendizado do LSTM por época.](04_artigo/figuras/fig5_curva_aprendizado_lstm.png)
 
-**Figura 5** Curva real de aprendizado do LSTM, com 13.965 exemplos e 53
-categorias. O treino foi interrompido
-por `EarlyStopping` após 11 épocas. O menor `val_loss` ocorreu na época 8
-(`val_loss = 1,4374`; `accuracy = 0,7073`; `val_accuracy = 0,6492`), enquanto o
-maior `val_accuracy` ocorreu na época 10 (`val_accuracy = 0,6722`;
-`val_loss = 1,4767`).
+**Figura 5** Curva de aprendizado do LSTM por época, perda e acurácia em
+treino e validação.
 
 Fonte: elaborado pelos autores (2026).
-
-![Figura 6 — Ablation study do LSTM: unidades recorrentes e dropout.](04_artigo/figuras/fig6_ablation_lstm.png)
-
-**Figura 6** Ablation study do LSTM: quatro variantes de unidades
-recorrentes (64/128) e *dropout* (0,3/0,5), avaliadas por `GroupKFold`
-contra a verdade validada humana. Discussão completa da investigação da
-discrepância deste *ablation* na Subseção 4.9.
-
-Fonte: elaborado pelos autores (2026).
-
-**4.9 Investigação da discrepância do *ablation* do LSTM**
 
 Uma auditoria investigou por que o *ablation* da Figura 6 reportava
 acerto validado muito acima do valor oficial então vigente para a mesma
@@ -1071,9 +1061,15 @@ total entre a melhor e a pior variante inferior a 4 pontos percentuais),
 não como indicação forte de que a arquitetura atual esteja
 subotimizada.
 
+![Figura 6 — Ablation do LSTM: unidades recorrentes e dropout.](04_artigo/figuras/fig6_ablation_lstm.png)
+
+**Figura 6** *Ablation* do LSTM, quatro variantes de unidades
+recorrentes e *dropout*, avaliadas por *GroupKFold* contra a decisão
+validada.
+
 Fonte: elaborado pelos autores (2026).
 
-**4.10 Robustez estatística: pressupostos e testes de sensibilidade**
+**4.9 Robustez estatística: pressupostos e testes de sensibilidade**
 
 Antes de qualquer teste inferencial, verificamos os pressupostos de
 robustez estatística usuais — outliers, homogeneidade de variância,
@@ -1113,7 +1109,7 @@ A comparação entre concordância histórica (Subseção 4.1) e desempenho
 validado (Subseção 4.2) revela um padrão que mudou de magnitude ao longo
 da elaboração deste artigo, à medida que a conferência humana cresceu
 e uma versão desatualizada dos modelos foi corrigida (Subseção
-4.9): o acerto validado do LinearSVC (94,93%) hoje supera com folga sua
+4.8): o acerto validado do LinearSVC (94,93%) hoje supera com folga sua
 concordância com o histórico (80,29%), depois de um período
 intermediário em que os dois patamares haviam se aproximado. Nenhuma
 dessas mudanças permite estimar o desempenho real da base completa: a
@@ -1308,7 +1304,7 @@ modelos comparáveis: 94,93% (IC95%: 94,47%--95,38%), seguido de SGD
 Forest (92,27%), LSTM (87,90%) e Naive Bayes (86,09%) — números obtidos
 após limpeza completa e reprocessamento do zero dos oito modelos (a
 materialização anterior havia sido identificada como desatualizada;
-Subseção 4.9). Nenhum dos três
+Subseção 4.8). Nenhum dos três
 ensembles avaliados (maioria ponderada, confiança calibrada máxima,
 maioria simples) supera o LinearSVC isolado com significância estatística;
 a recomendação é usar o LinearSVC isolado, com calibração, em vez de
@@ -1331,7 +1327,7 @@ como cumprida para fins de liberação em produção sem revisão antes da
 conclusão da conferência humana sobre uma fração mais representativa da
 base.
 
-A curva real de aprendizado do LSTM (Subseção 4.9, Figura 5) é
+A curva real de aprendizado do LSTM (Subseção 4.8, Figura 5) é
 consistente com o restante do artigo. A discrepância do *ablation*
 do mesmo modelo (Figura 6), discutida em detalhe nas Limitações, não
 indica arquitetura mal ajustada: com a causa principal corrigida, a
@@ -1383,7 +1379,8 @@ Universidade Federal do Sul da Bahia (UFSB) e não estão publicamente
 disponíveis, por restrição de privacidade e confidencialidade
 institucional. As métricas derivadas e o código utilizados para
 produzir cada figura, tabela e estatística deste artigo são de acesso
-público, disponibilizados pelos autores em repositório de código aberto.
+público, disponibilizados pelos autores em repositório de código aberto,
+onde também está descrita a estrutura completa dos dados.
 
 **Agradecimentos**: os autores agradecem à Universidade Federal do Sul
 da Bahia pelo apoio institucional.
@@ -1618,67 +1615,3 @@ label noise. Engineering Applications of Artificial Intelligence, v.
 ZUUR, A. F.; IENO, E. N.; ELPHICK, C. S. A protocol for data exploration
 to avoid common statistical problems. Methods in Ecology and Evolution,
 v. 1, n. 1, p. 3--14, 2010.
-
-**APÊNDICES**
-
-A estrutura completa dos dados, incluindo a arquitetura das planilhas e a
-memória de decisão, está disponível no repositório público do experimento.
-
-**Apêndice A — Checklist de itens reportados**
-
-Adaptado do espírito do checklist tipo PRISMA-ScR do artigo-modelo de revisão
-(MCDM/TOPSIS/ODS/ESG) para relato de experimento de classificação supervisionada
-com validação humana. Cada item indica a subseção onde é reportado e o status na
-data de publicação; **não substitui a reconferência de números antes da
-submissão** — os status "Sim" abaixo atestam que o item é reportado em algum
-lugar do texto, não que o número citado já foi revalidado contra os JSONs
-vigentes.
-
-| Item | Subseção | Reportado? |
-|---|---|---|
-| Fonte de dados e sistema de origem declarados | 3.1, 3.2 | Sim (GLPI/UFSB) |
-| Tamanho da amostra e período/corte de consolidação | 3.2 | Sim, mas com data de corte a reconferir |
-| Critério de inclusão/exclusão de registros | 3.2 | Parcial — "chamados não vazios" declarado; demais critérios não detalhados |
-| Pré-processamento textual | 3.3 | Sim |
-| Modelos avaliados e hiperparâmetros principais | 3.4 | Sim (7 materializados + 1 em extensão) |
-| Justificativa conceitual das diferenças de desempenho entre modelos | 3.4.1 | Sim |
-| Método de particionamento (out-of-fold, k-fold, seed) | 3.5 | Sim (out-of-fold, KFold embaralhado, `random_state=42`; sem estratificação) |
-| Justificativa da escolha k-fold vs. holdout fixo, com comparação empírica | 3.5 | Sim (KOHAVI, 1995; Tabela Suplementar S4) |
-| Métricas reportadas e justificativa | 3.5 | Sim (acurácia, macro-F1, balanced accuracy, IC95% bootstrap) |
-| Testes estatísticos e correção para múltiplas comparações | 3.5, 4.10 | Sim — resultados numéricos completos em 4.10 |
-| Verificação explícita de pressupostos (normalidade, homogeneidade, colinearidade, independência) | 4.10 | Sim — protocolo de Zuur, Ieno e Elphick (2010) adaptado; detalhamento completo em Material Suplementar |
-| Critério de calibração de confiança (bruta vs. calibrada) e meta de desempenho | 3.8, 4.4 | Parcial — meta declarada (>= 95%/>= 95%); calibração formal (Platt/isotônica) ainda não aplicada |
-| Protocolo de validação humana | 3.6 | Sim |
-| Cobertura da validação humana na data de publicação (n e % da base) | 4 (abertura) | Sim, mas desatualizada — ver nota de revalidação de dados |
-| Tratamento de conflitos de conferência | 3.7 | Sim (regra de veto/trava) |
-| Reprodutibilidade (scripts e dados versionados) | 3.9 | Sim (repositório público, JSONs sanitizados) |
-| Limitações declaradas | 5, 6 | Sim |
-| Figuras/tabelas geradas a partir de dados verificáveis | 4.8 | Sim (scripts leem os JSONs vigentes do painel) |
-
-**Apêndice B — Matriz de decisão M/N/P**
-
-Contagens agregadas disponíveis nos JSONs públicos do painel:
-
-| Métrica | n |
-|---|---|
-| Chamados com ao menos uma conferência (M, N ou P) | 9.534 |
-| Decisões travadas (categoria decidida sem conflito) | 9.096 |
-| Casos restritos (categoria eliminada, sem decisão travada) | 438 |
-| Conflitos (M e N confirmam categorias diferentes) | 0 |
-| Conferências da coluna N (CONFERÊNCIA IA) preenchidas | 9.096 |
-| Conferências da coluna M (CONFERÊNCIA GLPI) preenchidas | 9.534 |
-| Conferências da coluna P (CONFERÊNCIA IA - 2) preenchidas | 0 |
-
-Fonte: elaborado pelos autores (2026). A coluna P (reclassificação
-conferida) está zerada nesta consolidação — nenhuma reclassificação foi
-conferida via essa coluna especificamente até o momento.
-
-*Pendência explícita*: o cruzamento fino de 3 vias (contagem por combinação
-exata de valores de M × N × P — ex.: quantos casos têm M=Correto e N=Errado
-simultaneamente) **não está disponível em nenhum JSON público atual** e exige
-extração direta da planilha experimental (`Informação insuficiente para
-verificar` com os dados hoje publicados). O que se aproxima disso é a matriz
-2×2 IA×histórico da Tabela 4 (Subseção 4.3), que cruza acerto da IA e do
-histórico contra a verdade decidida — não é o mesmo cruzamento M×N×P bruto,
-mas cobre a mesma pergunta de fundo (quando IA e histórico concordam ou
-divergem da decisão final).
