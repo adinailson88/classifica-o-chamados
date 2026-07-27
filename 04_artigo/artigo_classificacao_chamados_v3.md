@@ -350,7 +350,7 @@ construída progressivamente (ZHANG *et al.*, 2025).
 memória de decisão por chamado, que evita o reprocessamento de casos já
 resolvidos e impede a repetição de erros já identificados. Quando a
 conferência confirma que uma categoria está correta, essa decisão é
-travada e reaproveitada diretamente nas ciclos posteriores de
+travada e reaproveitada diretamente em ciclos posteriores de
 reclassificação, sem novo treinamento ou nova predição para aquele
 chamado. Quando a conferência identifica que uma categoria está
 incorreta, essa categoria passa a ser vetada especificamente para aquele
@@ -372,10 +372,7 @@ Como dimensão complementar às métricas supervisionadas, o protocolo
 incorporou uma camada de análise informacional baseada em entropia de
 Shannon e divergência de Jensen-Shannon (SHANNON, 1948; LIN, 1991), calculada exclusivamente sobre
 os arquivos públicos e sanitizados do painel (sem identificador, título
-ou texto livre do chamado). Essa camada não substitui acurácia,
-calibração ou validação humana; responde a uma pergunta distinta, sobre
-onde modelos, categorias e chamados individuais concentram maior
-incerteza estrutural. No nível dos modelos, a entropia de Shannon sobre
+ou texto livre do chamado). Essa camada complementa a acurácia, a calibração e a validação humana ao indicar onde modelos, categorias e chamados individuais concentram maior incerteza estrutural. No nível dos modelos, a entropia de Shannon sobre
 a distribuição de categorias previstas indica se um classificador
 dispersa suas predições por muitas classes ou as concentra
 excessivamente em poucas; a divergência de Jensen-Shannon mede a
@@ -445,9 +442,9 @@ Fonte: elaborado pelos autores (2026). O limite inferior considera os conflitos 
 
 A classificação operacional e a categoria histórica foram comparadas com a mesma decisão validada em 9.044 chamados. Ambas coincidem com a decisão em 8.476 casos. Em 559 registros, o histórico coincide com a decisão e a classificação operacional diverge; em outros nove, ambas divergem.
 
-A ausência de ocorrências na combinação “classificação operacional correta e histórico incorreto” decorre da regra empregada para construir a verdade validada. A decisão é formada a partir das próprias fontes submetidas à conferência e somente é travada quando ao menos uma delas é confirmada. Essa dependência estrutural restringe a combinação correspondente e impede que seu valor seja interpretado como estimativa da capacidade da IA de corrigir o histórico.
+A ausência de ocorrências na combinação “classificação operacional correta e histórico incorreto” decorre da regra empregada para construir a verdade validada. A decisão é formada a partir das próprias fontes submetidas à conferência e somente é travada quando ao menos uma delas é confirmada. Essa dependência estrutural restringe a combinação correspondente, cujo valor caracteriza o funcionamento da regra de decisão, e não a capacidade da IA de corrigir o histórico.
 
-O valor zero representa, portanto, uma propriedade do protocolo de decisão, e não evidência de que classificadores automáticos sejam incapazes de identificar categorias históricas inadequadas. A avaliação dessa capacidade exige uma amostra independente, anotada sem utilizar como ponto de partida as classificações comparadas.
+O valor zero representa, portanto, uma propriedade do protocolo de decisão. A capacidade dos classificadores de identificar categorias históricas inadequadas requer uma amostra independente, anotada sem utilizar como ponto de partida as classificações comparadas.
 
 **4.4 Confiança, calibração e faixas de decisão**
 
@@ -532,7 +529,7 @@ Fonte: elaborado pelos autores (2026). A acurácia desta tabela contextualiza o 
 
 **4.8 Figuras**
 
-As figuras foram geradas a partir dos dados vigentes do painel público e
+As figuras foram geradas a partir dos agregados publicados no painel e
 dos registros de treino de cada modelo. A Figura 4 usa códigos de
 categoria para preservar a legibilidade; o mapeamento completo
 código-categoria está na Tabela Suplementar S2.
@@ -622,7 +619,7 @@ A faixa de confiança igual ou superior a 95% alcança 99,94% de acerto validado
 
 A principal limitação de cobertura decorre do uso de dados de uma única instituição federal de ensino superior, com taxonomia própria e textos em português brasileiro. A transferência dos resultados para outras organizações requer avaliação externa sob diferentes distribuições de chamados, estruturas de categorias e práticas de registro.
 
-A amostra conferida não é probabilística. A seleção prioriza divergências entre modelos e histórico, casos críticos e regiões de baixa confiança. Assim, os valores de acerto caracterizam os 9.044 chamados com decisão travada e não constituem estimativa inferencial do desempenho sobre os 13.965 registros. Os 490 casos sem verdade validada, entre eles 52 conflitos, foram incorporados à análise de sensibilidade; mesmo no cenário conservador, o ranking dos modelos permanece estável (COCHRAN, 1977).
+A amostra conferida não é probabilística. A seleção prioriza divergências entre modelos e histórico, casos críticos e regiões de baixa confiança. Assim, os valores de acerto descrevem os 9.044 chamados com decisão travada; a estimativa populacional para os 13.965 registros requer amostragem probabilística. Os 490 casos sem verdade validada, entre eles 52 conflitos, foram incorporados à análise de sensibilidade; mesmo no cenário conservador, o ranking dos modelos permanece estável (COCHRAN, 1977).
 
 A comparação neural inclui apenas a LSTM treinada sem *embeddings* pré-treinados de domínio. A avaliação do BERTimbau permitirá examinar o efeito de representações contextuais em português e ampliar a comparação entre modelos lineares, sequenciais e transformadores.
 
@@ -919,16 +916,6 @@ Contagens agregadas disponíveis nos JSONs públicos do painel:
 | Registros no diagnóstico da conferência GLPI | 9.534 |
 | Registros com conferência da reclassificação | 0 |
 
-Fonte: elaborado pelos autores (2026), com base nos agregados vigentes de
-auditoria e calibração. Não há registro com conferência da reclassificação
-neste estudo.
+Fonte: elaborado pelos autores (2026), com base nos agregados de auditoria e calibração. A conferência da reclassificação registra zero casos na base analisada.
 
-*Pendência explícita*: o cruzamento fino de 3 vias (contagem por combinação
-exata de valores de M × N × P — ex.: quantos casos têm M=Correto e N=Errado
-simultaneamente) **não está disponível em nenhum JSON público atual** e exige
-extração direta da planilha experimental (`Informação insuficiente para
-verificar` com os dados hoje publicados). O que se aproxima disso é a matriz
-2×2 IA×histórico da Tabela 4 (Subseção 4.3), que cruza acerto da IA e do
-histórico contra a verdade decidida — não é o mesmo cruzamento M×N×P bruto,
-mas cobre a mesma pergunta de fundo (quando IA e histórico concordam ou
-divergem da decisão final).
+Os agregados públicos não incluem o cruzamento completo das combinações M × N × P. Essa decomposição pode ser produzida a partir da planilha experimental, enquanto os resultados do corpo utilizam as contagens consolidadas da memória de decisão. A Subseção 4.3 discute a dependência estrutural entre classificação operacional, histórico e verdade validada.
