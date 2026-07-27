@@ -750,9 +750,12 @@ LinearSVC na liderança, com acurácia de 0,8031 (IC95%:
 (0,7816), SGD (0,7767), Regressão Logística (0,7682), Naive Bayes
 (0,6997) e LSTM (0,6718). O teste de Cochran Q confirma diferença global
 entre os sete modelos avaliados (Q = 2984,07; p < 0,001). A comparação exclui o BERTimbau,
-cujo treino não foi concluído. O Kappa de Cohen entre cada modelo e o
-histórico reproduz exatamente a mesma ordenação, variando de 0,7881
-(LinearSVC) a 0,6496 (LSTM). A oitava fonte de classificação, a
+cujo treino não foi concluído. O Kappa de Cohen (COHEN, 1960) entre cada
+modelo e o histórico reproduz exatamente a mesma ordenação, variando de
+0,7881 (LinearSVC) a 0,6496 (LSTM), faixa que Landis e Koch (1977)
+classificam como concordância substancial. Cabe a ressalva de que o
+coeficiente é sensível à prevalência das categorias, o que recomenda
+lê-lo ao lado do acordo bruto (WONGPAKARAN *et al.*, 2013). A oitava fonte de classificação, a
 classificação automática em produção, mantém concordância de 77,26% e
 confiança média de 71,09%, posicionando-se entre Regressão Logística e
 SGD nesta métrica. A comparação direta com o LSTM *out-of-fold* da
@@ -1151,14 +1154,16 @@ pré-treinados discutida na Subseção 3.4.1.
 **4.9 Robustez estatística: pressupostos e testes de sensibilidade**
 
 Antes de qualquer teste inferencial, foram verificados os pressupostos de
-robustez estatística usuais, a saber, outliers, homogeneidade de
-variância, normalidade, desbalanceamento entre categorias, colinearidade
-entre modelos, relação entre confiança e acerto e independência das
-observações, adaptando o protocolo de exploração de dados de Zuur,
-Ieno e Elphick (2010) da resposta contínua da ecologia para a resposta
+robustez estatística usuais, a saber, outliers (TUKEY, 1977; HODGE;
+AUSTIN, 2004), homogeneidade de variância, normalidade, desbalanceamento
+entre categorias, colinearidade entre modelos, relação entre confiança e
+acerto e independência das observações, adaptando o protocolo de
+exploração de dados de Zuur, Ieno e Elphick (2010) da resposta contínua da ecologia para a resposta
 categórica de classificação de chamados (n = 13.965). O teste de
-Shapiro-Wilk (SHAPIRO; WILK, 1965) rejeita a normalidade a 5% para os
-sete modelos sobre a concordância por turno, confirmando com números a
+Shapiro-Wilk (SHAPIRO; WILK, 1965) foi escolhido por reunir o maior
+poder entre os testes de normalidade usuais nas comparações de Razali e
+Wah (2011) e de Ogunleye, Oyejola e Obisesan (2018). Ele rejeita a
+normalidade a 5% para os sete modelos sobre a concordância por turno, confirmando com números a
 justificativa não paramétrica já adotada na Subseção 3.5; a variância de
 confiança entre modelos também é fortemente heterogênea, reforçando essa
 escolha. O teste de Friedman (FRIEDMAN, 1937) confirma diferença global
@@ -1171,16 +1176,20 @@ estatisticamente superior ao LSTM e ao Naive Bayes**. A única exceção,
 sem significância, é o par SGD contra Random Forest. A verificação de
 colinearidade revela um efeito colateral relevante. Quatro dos sete
 modelos têm confiança altamente correlacionada entre si, com Fator de
-Inflação de Variância elevado (MARQUARDT, 1970), o que ajuda a explicar
+Inflação de Variância elevado (MARQUARDT, 1970), cujos limiares
+convencionais devem ser lidos com a cautela recomendada por O'Brien
+(2007), o que ajuda a explicar
 por que nenhum *ensemble* supera o LinearSVC isolado (Subseção 4.2),
 dado que modelos redundantes pouco acrescentam em informação
 independente a um comitê (DIETTERICH, 2000). A correlação entre confiança bruta e acerto é
 positiva e significativa em todos os sete modelos, com Spearman entre
-0,46 e 0,64 e ponto-bisserial entre 0,43 e 0,66 (*p* < 0,001 em ambos),
+0,46 e 0,64 e ponto-bisserial entre 0,43 e 0,66 (*p* < 0,001 em ambos;
+KORNBROT, 2014),
 pré-requisito para a calibração discutida
-na Subseção 4.4 (GUO *et al.*, 2017). A verificação completa dos oito
-pressupostos, item a item, com as tabelas de correlação, autocorrelação
-e o Kappa de Fleiss entre modelos, está disponível como Material
+na Subseção 4.4 (GUO *et al.*, 2017; MINDERER *et al.*, 2021). A verificação completa dos oito
+pressupostos, item a item, com as tabelas de correlação, a verificação de
+autocorrelação serial (DURBIN; WATSON, 1950) e o Kappa de Fleiss (FLEISS,
+1971) entre modelos, está disponível como Material
 Suplementar.
 
 ```{=latex}
@@ -1409,9 +1418,6 @@ BOUABDALLAOUI, Y.; LAFHAJ, Z.; YIM, P.; DUCOULOMBIER, L.; BENNADJI, B.
 Natural Language Processing Model for Managing Maintenance Requests in
 Buildings. Buildings, v. 10, n. 9, art. 160, 2020.
 
-BOX, G. E. P.; JENKINS, G. M. Time series analysis: forecasting and
-control. San Francisco: Holden-Day, 1970.
-
 CAPRA, F. A teia da vida: uma nova compreensão científica dos sistemas
 vivos. São Paulo: Cultrix, 1996.
 
@@ -1425,6 +1431,9 @@ Biometrika, v. 37, n. 3-4, p. 256--266, 1950.
 
 COCHRAN, W. G. Sampling techniques. 3. ed. New York: John Wiley & Sons,
 1977.
+
+COHEN, J. A coefficient of agreement for nominal scales. Educational and
+Psychological Measurement, v. 20, n. 1, p. 37--46, 1960.
 
 DEMŠAR, J. Statistical comparisons of classifiers over multiple data
 sets. Journal of Machine Learning Research, v. 7, p. 1--30, 2006.
