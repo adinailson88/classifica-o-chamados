@@ -18,9 +18,9 @@ A classificação automática de chamados de manutenção predial constitui um r
 
 Este artigo propõe um protocolo multimodelo para a classificação de chamados reais de manutenção predial universitária em português brasileiro, extraídos do sistema GLPI da Universidade Federal do Sul da Bahia. O corpus reúne 13.965 chamados não vazios, distribuídos em 55 categorias históricas, e compara classificadores baseados em TF-IDF — Naive Bayes, Regressão Logística, LinearSVC, SGD, Random Forest e Extra Trees — com uma rede neural LSTM bidirecional. O BERTimbau é apresentado como extensão planejada.
 
-O protocolo distingue a concordância com o histórico administrativo do acerto avaliado por revisão humana, tratando a categoria original como referência preliminar. A conferência abrange 9.534 chamados, dos quais 9.044 possuem decisão travada e 52 apresentam conflito entre as fontes avaliadas. O LinearSVC alcança a maior concordância com o histórico, com 80,31% (IC95%: 79,63%–80,97%), e o maior acerto validado, com 95,02% (IC95%: 94,58%–95,46%). A LSTM obtém, respectivamente, 67,18% e 88,11%.
+O protocolo distingue a concordância com o histórico administrativo do acerto avaliado por revisão humana, tratando a categoria original como referência preliminar. A conferência abrange 9.534 chamados, dos quais 9.014 possuem decisão travada e 82 apresentam conflito entre as fontes avaliadas. O LinearSVC alcança a maior concordância com o histórico, com 80,31% (IC95%: 79,63%–80,97%), e o maior acerto validado, com 95,07% (IC95%: 94,62%–95,52%). A LSTM obtém, respectivamente, 67,18% e 88,24%.
 
-Na faixa de confiança igual ou superior a 95%, o classificador operacional alcança 99,94% de acerto em 4.675 decisões validadas. Os resultados referem-se à amostra conferida, cuja composição é discutida na Seção 5. A rejeição da normalidade sustenta o emprego de testes não paramétricos. Em conjunto, os achados mostram que classificadores lineares oferecem equilíbrio favorável entre desempenho, custo computacional e auditabilidade para textos técnicos curtos, ruidosos e desbalanceados.
+Na faixa de confiança igual ou superior a 95%, o classificador operacional alcança 99,93% de acerto em 4.563 decisões validadas. Os resultados referem-se à amostra conferida, cuja composição é discutida na Seção 5. A rejeição da normalidade sustenta o emprego de testes não paramétricos. Em conjunto, os achados mostram que classificadores lineares oferecem equilíbrio favorável entre desempenho, custo computacional e auditabilidade para textos técnicos curtos, ruidosos e desbalanceados.
 
 **Palavras-chave:** manutenção predial; classificação de chamados; processamento de linguagem natural; rótulos ruidosos; validação humana; governança preditiva.
 
@@ -30,9 +30,9 @@ Na faixa de confiança igual ou superior a 95%, o classificador operacional alca
 
 This study proposes a multi-model protocol for 13,965 real university building-maintenance work orders in Brazilian Portuguese, organized into 55 historical categories. The comparison includes TF-IDF-based classifiers — Naive Bayes, Logistic Regression, LinearSVC, SGD, Random Forest and Extra Trees — and a bidirectional LSTM. BERTimbau is presented as a planned extension.
 
-The protocol distinguishes agreement with the administrative history from accuracy against human-reviewed decisions. Human review covers 9,534 records, including 9,044 locked decisions and 52 conflicts. LinearSVC achieves the highest historical agreement, 80.31% (95% CI: 79.63%–80.97%), and the highest validated accuracy, 95.02% (95% CI: 94.58%–95.46%). LSTM reaches 67.18% and 88.11%, respectively.
+The protocol distinguishes agreement with the administrative history from accuracy against human-reviewed decisions. Human review covers 9,534 records, including 9,014 locked decisions and 82 conflicts. LinearSVC achieves the highest historical agreement, 80.31% (95% CI: 79.63%–80.97%), and the highest validated accuracy, 95.07% (95% CI: 94.62%–95.52%). LSTM reaches 67.18% and 88.24%, respectively.
 
-For predictions with confidence equal to or greater than 95%, the operational classifier reaches 99.94% validated accuracy across 4,675 decisions. The results refer to the reviewed sample, whose composition is discussed in Section 5. Rejection of normality supports non-parametric testing. Overall, linear classifiers provide a favorable balance between performance, computational cost and auditability for short, noisy and imbalanced technical text.*
+For predictions with confidence equal to or greater than 95%, the operational classifier reaches 99.93% validated accuracy across 4,563 decisions. The results refer to the reviewed sample, whose composition is discussed in Section 5. Rejection of normality supports non-parametric testing. Overall, linear classifiers provide a favorable balance between performance, computational cost and auditability for short, noisy and imbalanced technical text.*
 
 ***Keywords:** building maintenance; work-order classification; natural language processing; noisy labels; human validation; predictive governance.*
 
@@ -392,7 +392,7 @@ Os resultados são produzidos por um pipeline automatizado e reprodutível. Os a
 
 **4. RESULTADOS**
 
-A análise separa a concordância com a categoria histórica do desempenho contra a decisão validada por conferência humana. A base contém 13.965 chamados, dos quais 9.534 foram conferidos. Entre eles, 9.044 possuem categoria decidida e 490 permanecem sem verdade validada, incluindo 52 conflitos.
+A análise separa a concordância com a categoria histórica do desempenho contra a decisão validada por conferência humana. A base contém 13.965 chamados, dos quais 9.534 foram conferidos. Entre eles, 9.014 possuem categoria decidida e 520 permanecem sem verdade validada, incluindo 82 conflitos.
 
 Os resultados evidenciam três padrões. Os classificadores lineares, liderados pelo LinearSVC, apresentam o melhor desempenho global. A conferência humana demonstra que concordância administrativa e acerto validado são dimensões distintas. Por fim, as faixas superiores de confiança concentram maior proporção de decisões corretas.
 
@@ -418,29 +418,29 @@ O desempenho varia entre as 55 categorias. As classes com menor F1 possuem, em s
 
 **4.2 Ranking validado por conferência humana**
 
-A comparação contra as 9.044 decisões travadas mantém o LinearSVC na primeira posição, com acerto validado de 0,9502 (IC95%: 0,9458–0,9546). Em seguida aparecem SGD (0,9411), Regressão Logística (0,9371), Extra Trees (0,9286), Random Forest (0,9241), LSTM (0,8811) e Naive Bayes (0,8627).
+A comparação contra as 9.014 decisões travadas mantém o LinearSVC na primeira posição, com acerto validado de 0,9507 (IC95%: 0,9462–0,9552). Em seguida aparecem SGD (0,9416), Regressão Logística (0,9375), Extra Trees (0,9293), Random Forest (0,9249), LSTM (0,8824), e Naive Bayes (0,8633).
 
-A diferença entre LinearSVC e SGD é de 0,91 ponto percentual, com McNemar *p* ≈ 5,70 × 10⁻⁸. Os *ensembles* por maioria ponderada, confiança máxima e maioria simples alcançam, respectivamente, 0,9467, 0,9458 e 0,9445. O LinearSVC isolado permanece como a opção de maior desempenho. A composição da amostra validada e seus efeitos sobre a interpretação dos resultados são discutidos na Seção 5.
+A diferença entre LinearSVC e SGD é de 0.91 ponto percentual, com McNemar *p* ≈ 6.78e-08. Os *ensembles* por maioria ponderada, confiança máxima e maioria simples alcançam, respectivamente, 0,9474, 0,9463 e 0,9453. O LinearSVC isolado permanece como a opção de maior desempenho. A composição da amostra validada e seus efeitos sobre a interpretação dos resultados são discutidos na Seção 5.
 
-A análise de sensibilidade inclui os 490 casos sem verdade validada como erros no cenário conservador. A amplitude entre os limites varia de 4,43 a 4,88 pontos percentuais e preserva a ordenação dos sete modelos.
+A análise de sensibilidade inclui os 520 casos sem verdade validada como erros no cenário conservador. A amplitude entre os limites varia de 4.71 a 5.19 pontos percentuais e preserva a ordenação dos sete modelos.
 
-**Tabela 2** Acerto validado contra a verdade decidida M/N/P (n = 9.044) e intervalo de sensibilidade
+**Tabela 2** Acerto validado contra a verdade decidida M/N/P (n = 9.014) e intervalo de sensibilidade
 
 | Modelo | Acerto validado (limite superior) | IC95% | Limite inferior (pior caso) |
 |---|---|---|---|
-| LinearSVC | 0,9502 | 0,9458 -- 0,9546 | 0,9014 |
-| SGD | 0,9411 | 0,9363 -- 0,9459 | 0,8927 |
-| Regressão Logística | 0,9371 | 0,9321 -- 0,9421 | 0,8889 |
-| Extra Trees | 0,9286 | 0,9234 -- 0,9335 | 0,8808 |
-| Random Forest | 0,9241 | 0,9186 -- 0,9295 | 0,8767 |
-| LSTM | 0,8811 | 0,8743 -- 0,8880 | 0,8359 |
-| Naive Bayes | 0,8627 | 0,8558 -- 0,8696 | 0,8183 |
+| LinearSVC | 0,9507 | 0,9462 -- 0,9552 | 0,8989 |
+| SGD | 0,9416 | 0,9364 -- 0,9463 | 0,8903 |
+| Regressão Logística | 0,9375 | 0,9323 -- 0,9423 | 0,8864 |
+| Extra Trees | 0,9293 | 0,9241 -- 0,9341 | 0,8786 |
+| Random Forest | 0,9249 | 0,9190 -- 0,9301 | 0,8744 |
+| LSTM | 0,8824 | 0,8757 -- 0,8891 | 0,8343 |
+| Naive Bayes | 0,8633 | 0,8558 -- 0,8706 | 0,8162 |
 
 Fonte: elaborado pelos autores (2026). O limite inferior considera os conflitos e os demais registros sem verdade validada como erros para todos os modelos.
 
 **4.3 Interpretação conjunta da classificação operacional e do histórico**
 
-A classificação operacional e a categoria histórica foram comparadas com a mesma decisão validada em 9.044 chamados. Ambas coincidem com a decisão em 8.476 casos. Em 559 registros, o histórico coincide com a decisão e a classificação operacional diverge; em outros nove, ambas divergem.
+A classificação operacional e a categoria histórica foram comparadas com a mesma decisão validada em 9.014 chamados. Ambas coincidem com a decisão em 8.486 casos. Em 520 registros, o histórico coincide com a decisão e a classificação operacional diverge; em outros 8, ambas divergem.
 
 A ausência de ocorrências na combinação “classificação operacional correta e histórico incorreto” decorre da regra empregada para construir a verdade validada. A decisão é formada a partir das próprias fontes submetidas à conferência e somente é travada quando ao menos uma delas é confirmada. Essa dependência estrutural restringe a combinação correspondente, cujo valor caracteriza o funcionamento da regra de decisão, e não a capacidade da IA de corrigir o histórico.
 
@@ -448,7 +448,7 @@ O valor zero representa, portanto, uma propriedade do protocolo de decisão. A c
 
 **4.4 Confiança, calibração e faixas de decisão**
 
-O classificador operacional apresenta erro esperado de calibração histórico de 0,0656. Na faixa de confiança igual ou superior a 95%, que reúne 4.810 chamados, a concordância com o histórico é de 98,75%. Entre as 4.675 decisões humanas disponíveis nessa faixa, o acerto validado alcança 99,94%.
+O classificador operacional apresenta erro esperado de calibração histórico de 0,0524. Na faixa de confiança igual ou superior a 95%, que reúne 4.703 chamados, a concordância com o histórico é de 98,79%. Entre as 4.563 decisões humanas disponíveis nessa faixa, o acerto validado alcança 99,93%.
 
 A confiança utilizada é bruta, derivada da função de decisão ou da saída probabilística dos modelos. Esses valores sustentam uma política de priorização por faixas e fornecem a base empírica para a calibração formal por Platt, regressão isotônica ou escalonamento de temperatura.
 
@@ -456,12 +456,12 @@ A confiança utilizada é bruta, derivada da função de decisão ou da saída p
 
 | Faixa | n total | Concord. histórico | n validados | Acerto validado |
 |---|---|---|---|---|
-| <50% | 4.058 | 43,05% | 880 | 51,93% |
-| 50-70% | 1.443 | 75,12% | 712 | 87,50% |
-| 70-80% | 946 | 87,10% | 653 | 96,78% |
-| 80-90% | 1.484 | 82,82% | 1.065 | 97,84% |
-| 90-95% | 1.224 | 95,59% | 1.059 | 99,15% |
-| >= 95% | 4.810 | 98,75% | 4.675 | 99,94% |
+| <50% | 3.930 | 41,48% | 815 | 51,66% |
+| 50-70% | 1.421 | 72,98% | 653 | 87,90% |
+| 70-80% | 911 | 84,74% | 593 | 96,63% |
+| 80-90% | 1.702 | 85,19% | 1.265 | 98,18% |
+| 90-95% | 1.298 | 95,61% | 1.125 | 99,20% |
+| >=95% | 4.703 | 98,79% | 4.563 | 99,93% |
 
 Fonte: elaborado pelos autores (2026), após deduplicação por `linha_planilha`.
 
@@ -591,7 +591,7 @@ A comparação entre o estudo de ablação e a avaliação principal da LSTM rev
 
 O estudo foi refeito com *GroupKFold* definido pelo *hash* do texto normalizado. A alteração reduziu o acerto da configuração com 64 unidades e *dropout* de 0,5 de 87,68% para 86,35%, diferença de 1,33 ponto percentual. O resultado indica que a repetição textual produzia efeito mensurável, porém limitado.
 
-A segunda fonte de diferença foi o desalinhamento entre a base utilizada no estudo de ablação e a referência empregada na comparação inicial. Na avaliação principal, a LSTM alcança 88,11%, enquanto o estudo corrigido alcança 86,35%. A diferença residual de 1,76 ponto percentual é compatível com as distinções entre os protocolos de particionamento e treinamento.
+A segunda fonte de diferença foi o desalinhamento entre a base utilizada no estudo de ablação e a referência empregada na comparação inicial. Na avaliação principal, a LSTM alcança 88,24%, enquanto o estudo corrigido alcança 86,35%. A diferença residual de 1,89 ponto percentual é compatível com as distinções entre os protocolos de particionamento e treinamento.
 
 As quatro variantes avaliadas apresentam diferença inferior a quatro pontos percentuais. O resultado mostra baixa sensibilidade da LSTM às combinações testadas de número de unidades e *dropout*, ao mesmo tempo que confirma a importância do agrupamento de textos repetidos na construção das partições.
 
@@ -603,7 +603,7 @@ Os pressupostos da análise foram verificados segundo protocolo adaptado de Zuur
 
 **5. DISCUSSÃO**
 
-O LinearSVC apresenta o melhor resultado tanto na concordância com o histórico quanto no acerto validado. Seu desempenho de 95,02%, associado ao tempo de treino de 2,55 segundos por lote de 1.000 registros, demonstra que uma representação TF-IDF combinada com um classificador linear constitui solução eficiente para chamados técnicos curtos e com vocabulário especializado.
+O LinearSVC apresenta o melhor resultado tanto na concordância com o histórico quanto no acerto validado. Seu desempenho de 95,07%, associado ao tempo de treino de 2,55 segundos por lote de 1.000 registros, demonstra que uma representação TF-IDF combinada com um classificador linear constitui solução eficiente para chamados técnicos curtos e com vocabulário especializado.
 
 O resultado também confirma a relevância de distinguir concordância administrativa de acerto validado. A diferença entre as duas métricas mostra que a avaliação de classificadores em bases institucionais depende da qualidade do rótulo de referência. A conferência humana acrescenta uma camada de governança ao separar erro de modelo, inconsistência histórica e ambiguidade taxonômica.
 
@@ -613,13 +613,13 @@ Os ganhos positivos de reclassificação indicam que os modelos contêm informa�
 
 A entropia de votos acrescenta uma dimensão distinta da confiança individual. Os 3.277 chamados com alto desacordo entre modelos representam regiões da base em que diferentes hipóteses de classificação produzem respostas incompatíveis. Esse indicador direciona a revisão taxonômica e fortalece a gestão da incerteza no protocolo.
 
-A faixa de confiança igual ou superior a 95% alcança 99,94% de acerto validado. O resultado fornece base empírica para uma política gradual de automação, com tratamento diferenciado por faixa de confiança e integração da calibração formal antes da adoção operacional em maior escala.
+A faixa de confiança igual ou superior a 95% alcança 99,93% de acerto validado. O resultado fornece base empírica para uma política gradual de automação, com tratamento diferenciado por faixa de confiança e integração da calibração formal antes da adoção operacional em maior escala.
 
 **Limitações**
 
 A principal limitação de cobertura decorre do uso de dados de uma única instituição federal de ensino superior, com taxonomia própria e textos em português brasileiro. A transferência dos resultados para outras organizações requer avaliação externa sob diferentes distribuições de chamados, estruturas de categorias e práticas de registro.
 
-A amostra conferida não é probabilística. A seleção prioriza divergências entre modelos e histórico, casos críticos e regiões de baixa confiança. Assim, os valores de acerto descrevem os 9.044 chamados com decisão travada; a estimativa populacional para os 13.965 registros requer amostragem probabilística. Os 490 casos sem verdade validada, entre eles 52 conflitos, foram incorporados à análise de sensibilidade; mesmo no cenário conservador, o ranking dos modelos permanece estável (COCHRAN, 1977).
+A amostra conferida não é probabilística. A seleção prioriza divergências entre modelos e histórico, casos críticos e regiões de baixa confiança. Assim, os valores de acerto descrevem os 9.014 chamados com decisão travada; a estimativa populacional para os 13.965 registros requer amostragem probabilística. Os 520 casos sem verdade validada, entre eles 82 conflitos, foram incorporados à análise de sensibilidade; mesmo no cenário conservador, o ranking dos modelos permanece estável (COCHRAN, 1977).
 
 A comparação neural inclui apenas a LSTM treinada sem *embeddings* pré-treinados de domínio. A avaliação do BERTimbau permitirá examinar o efeito de representações contextuais em português e ampliar a comparação entre modelos lineares, sequenciais e transformadores.
 
@@ -633,7 +633,7 @@ A camada de classificação oferece, assim, a infraestrutura informacional neces
 
 **6. CONSIDERAÇÕES FINAIS**
 
-O protocolo multimodelo identificou o LinearSVC como o classificador de melhor desempenho para os chamados analisados. O modelo alcançou 80,31% de concordância com o histórico e 95,02% de acerto na amostra validada, superando os demais classificadores e os três *ensembles*. Na faixa de confiança igual ou superior a 95%, o classificador operacional atingiu 99,94% de acerto em 4.675 decisões. Esses resultados, combinados ao baixo custo computacional, sustentam a adoção do LinearSVC como modelo principal, acompanhado de calibração de confiança e memória de decisão humana.
+O protocolo multimodelo identificou o LinearSVC como o classificador de melhor desempenho para os chamados analisados. O modelo alcançou 80,31% de concordância com o histórico e 95,07% de acerto na amostra validada, superando os demais classificadores e os três *ensembles*. Na faixa de confiança igual ou superior a 95%, o classificador operacional atingiu 99,93% de acerto em 4.563 decisões. Esses resultados, combinados ao baixo custo computacional, sustentam a adoção do LinearSVC como modelo principal, acompanhado de calibração de confiança e memória de decisão humana.
 
 A contribuição do estudo ultrapassa a seleção de um classificador. O protocolo transforma textos operacionais ruidosos em dados estruturados e auditáveis, que podem alimentar previsão de custos e demanda, priorização multicritério de intervenções e análise espacial da manutenção. A classificação constitui, portanto, a camada informacional de base do modelo de governança preditiva aplicado ao biossistema construído universitário.
 
@@ -909,10 +909,10 @@ Contagens agregadas disponíveis nos JSONs públicos do painel:
 | Métrica | n |
 |---|---|
 | Chamados com ao menos uma conferência (M, N ou P) | 9.534 |
-| Decisões travadas (categoria decidida sem conflito) | 9.044 |
-| Casos sem verdade validada | 490 |
-| Conflitos entre fontes conferidas | 52 |
-| Comparações válidas da IA oficial contra a verdade decidida | 9.044 |
+| Decisões travadas (categoria decidida sem conflito) | 9.014 |
+| Casos sem verdade validada | 520 |
+| Conflitos entre fontes conferidas | 82 |
+| Comparações válidas da IA oficial contra a verdade decidida | 9.014 |
 | Registros no diagnóstico da conferência GLPI | 9.534 |
 | Registros com conferência da reclassificação | 0 |
 
