@@ -1222,134 +1222,77 @@ substancialmente mais completa, não a cada atualização intermediária.
 
 **Limitações**
 
-As limitações deste estudo organizam-se em três dimensões.
+Os dados provêm de uma única instituição federal de ensino superior,
+com textos em português brasileiro e taxonomia institucional própria.
+Estender o desempenho relatado a outras instituições, taxonomias ou
+idiomas exige validação externa, ainda não realizada.
 
-Quanto à cobertura, os dados provêm de uma única instituição federal de
-ensino superior, com textos em português brasileiro e taxonomia
-institucional própria; a generalização do desempenho relatado para
-outras instituições, taxonomias ou idiomas depende de validação externa
-ainda não realizada.
+A amostra conferida por avaliadores humanos não é probabilística, porque
+prioriza divergências entre modelo e histórico e casos de maior
+criticidade. Os números de acerto validado descrevem, portanto, a
+amostra conferida, e não estimam por inferência o desempenho da base
+completa (COCHRAN, 1977). Uma regra de decisão adicional exclui do
+denominador os casos em que nenhuma fonte conferida foi confirmada como
+correta, 4,6% dos chamados conferidos. A análise de sensibilidade
+correspondente mostra amplitude de 3,96 a 4,36 pontos percentuais entre
+o cenário mais otimista e o mais conservador, sem alterar o ranking
+relativo entre os modelos.
 
-Quanto à validação, a amostra conferida por avaliadores humanos não é
-probabilística — prioriza divergências entre modelo e histórico e casos
-de maior criticidade —, de modo que os números de acerto validado devem
-ser lidos como descrição da amostra conferida, não como estimativa
-inferencial do desempenho da base completa (COCHRAN, 1977). Uma regra de
-decisão adicional exclui do denominador de acerto validado os casos em
-que nenhuma fonte conferida foi confirmada como correta (4,6% dos
-chamados conferidos); a análise de sensibilidade correspondente mostra
-uma amplitude de poucos pontos percentuais entre o cenário mais
-otimista e o mais conservador, sem alterar o ranking relativo entre os
-modelos.
+Duas limitações dizem respeito aos modelos. O BERTimbau, único
+classificador contextual previsto no protocolo, não teve o ajuste fino
+concluído e ficou fora de todas as comparações. O LSTM treina seus
+*embeddings* do zero, sem vetores pré-treinados em português, condição
+que penaliza redes neurais em corpora de porte médio e ajuda a explicar
+seu desempenho inferior ao dos modelos lineares.
 
-Quanto ao modelo, o BERTimbau — único classificador contextual testado
-neste protocolo — não teve o ajuste fino concluído até esta consolidação
-e foi excluído de todas as comparações; de forma mais geral,
-classificadores neurais sem *embeddings* pré-treinados de domínio
-tendem a ser penalizados por bases de porte médio como a analisada
-aqui, o que é consistente com o desempenho relativamente inferior do
-LSTM frente aos modelos lineares. Persiste também, como limitação
-operacional, a dependência de uma única instituição como caso empírico.
+**Contribuição para a governança preditiva da manutenção**
 
-**Papel no modelo de governança preditiva**
-
-Este artigo constitui o Eixo 1 de um modelo mais amplo de governança
-preditiva para manutenção predial, que trata o campus universitário
-como um biossistema construído — a integração entre infraestrutura
-física, atividade humana, sistemas tecnológicos e condicionantes
-ambientais. A contribuição central não termina na categoria atribuída a
-cada chamado: os dados estruturados e auditáveis produzidos aqui
-(categoria, criticidade e confiança calibrada) são a entrada necessária
-para três desenvolvimentos subsequentes do mesmo programa de pesquisa.
-Primeiro, alimentam modelos de séries temporais (ARIMA, suavização
-exponencial) para previsão de custos e demanda de manutenção por
-categoria. Segundo, compõem a base factual de uma matriz multicritério
-(MCDM/TOPSIS) que prioriza intervenções segundo critérios de
-sustentabilidade técnica, ambiental, social e institucional (ESG/ODS).
-Terceiro, tornam-se espacializáveis via geoprocessamento (Google Earth
-Engine), permitindo leitura territorial do biossistema construído. Sem
-uma camada confiável e auditável de classificação — o objeto deste
-artigo —, nenhum desses três desenvolvimentos teria dado de entrada
-válido; este artigo entrega, portanto, a fundação de dados sobre a
-qual o modelo de governança preditiva se torna possível.
+A contribuição deste artigo não termina na categoria atribuída a cada
+chamado. Ao converter texto livre em categoria, criticidade e confiança
+auditáveis, o protocolo produz a camada de dados estruturados sobre a
+qual a gestão pública de manutenção predial pode operar de forma
+preditiva, e não apenas reativa. Previsão de demanda por categoria,
+priorização de intervenções segundo critérios de sustentabilidade e
+leitura territorial do parque edificado dependem, todas, de uma base
+classificada de modo confiável. Este artigo entrega essa fundação e
+demonstra que ela exige conferência humana para se sustentar.
 
 **6. CONSIDERAÇÕES FINAIS**
 
-O presente artigo atualizou o protocolo de classificação automática
-multimodelo de chamados de manutenção predial universitária em português
-brasileiro com os resultados acumulados até 24 de julho de 2026,
-incluindo sete modelos materializados, uma camada de memória de decisão
-por veto e trava de categorias já conferidas, e uma camada de análise
-informacional baseada em entropia de Shannon e divergência de
-Jensen-Shannon. O BERTimbau permanece como extensão planejada, sem
-treino concluído ou métricas próprias. A contribuição central permanece
-metodológica: não apenas identificar o melhor classificador, mas
-estruturar um protocolo em que aprendizado de máquina, estatística não
-paramétrica, memória de decisão e auditoria humana qualificam
-progressivamente a base de dados e revelam inconsistências taxonômicas
-— e, como este protocolo demonstrou na prática, também revelam e
-corrigem inconsistências no próprio pipeline de avaliação (Subseções
-4.3 e 4.4).
+A contribuição central deste artigo é metodológica. Em vez de apenas
+eleger o melhor classificador, o protocolo separa duas grandezas que a
+literatura de classificação de chamados costuma tratar como uma só, a
+concordância com o rótulo histórico e o acerto validado por conferência
+humana. Essa separação depende de uma camada de validação que registra a
+decisão do avaliador, veta categorias já rejeitadas e trava as
+confirmadas, convertendo cada conferência em conhecimento persistente.
+Foi ela que permitiu medir o desempenho contra uma referência construída,
+e não contra um rótulo administrativo aceito por conveniência.
 
-Na amostra parcial, não aleatória, de 9.096 chamados com decisão travada
-e sem conflito, o LinearSVC obteve o maior acerto validado entre os sete
-modelos comparáveis: 94,93% (IC95%: 94,47%--95,38%), seguido de SGD
-(93,92%), Regressão Logística (93,55%), Extra Trees (92,74%), Random
-Forest (92,27%), LSTM (87,90%) e Naive Bayes (86,09%) — números obtidos
-após limpeza completa e reprocessamento do zero dos oito modelos (a
-materialização anterior havia sido identificada como desatualizada;
-Subseção 4.8). Nenhum dos três
-ensembles avaliados (maioria ponderada, confiança calibrada máxima,
-maioria simples) supera o LinearSVC isolado com significância estatística;
-a recomendação é usar o LinearSVC isolado, com calibração, em vez de
-combinar modelos. Esses números não estimam o desempenho da base completa, pois
-a seleção da conferência prioriza divergências e casos críticos (COCHRAN, 1977). A matriz
-IA × histórico registra que o histórico administrativo também contém
-erros confirmados, o que mantém a validação humana como parte necessária
-do protocolo; a proporção observada nessa amostra não deve ser
-generalizada sem desenho probabilístico (COCHRAN, 1977).
+O resultado prático confirma que a classificação automática serve à
+triagem e à auditoria, mas não dispensa a conferência humana. Sobre
+9.096 chamados com decisão validada, o LinearSVC alcançou 94,93% de
+acerto validado (IC95%: 94,47%--95,38%), à frente dos demais seis
+modelos, e nenhum dos três *ensembles* avaliados o superou com
+significância estatística. A recomendação operacional é usar o LinearSVC
+isolado, com calibração. A matriz de confusão mostra por que a
+conferência continua necessária, pois o histórico administrativo também
+contém erros confirmados, em 3,51% dos casos conferidos. Como a amostra
+conferida prioriza divergências e casos críticos, esses valores
+descrevem a amostra e não estimam o desempenho da base completa
+(COCHRAN, 1977).
 
-A meta original do experimento — confiança calibrada igual ou superior a
-95% associada a acerto validado igual ou superior a 95% — fica próxima
-de ser atingida na faixa de alta confiança da classificação oficial
-(96,79% de acerto validado), com folga menor do que consolidações
-anteriores, sobre amostra menor, sugeriam. Essa retração recomenda
-cautela redobrada: a trajetória observada ao longo do protocolo mostrou
-que mesmo a leitura "meta atingida" pode reverter quando a amostra de
-conferência cresce, o que reforça a recomendação de não tratar a meta
-como cumprida para fins de liberação em produção sem revisão antes da
-conclusão da conferência humana sobre uma fração mais representativa da
-base.
-
-A curva real de aprendizado do LSTM (Subseção 4.8, Figura 5) é
-consistente com o restante do artigo. A discrepância do *ablation*
-do mesmo modelo (Figura 6), discutida em detalhe nas Limitações, não
-indica arquitetura mal ajustada: com a causa principal corrigida, a
-ordenação relativa das quatro variantes testadas mostra baixa
-sensibilidade do LSTM a unidades e *dropout* nesta base (diferença
-entre melhor e pior variante inferior a 4 pontos percentuais).
-
-Os próximos passos deste protocolo incluem a conclusão da conferência
-humana pendente (31,7% da base ainda sem decisão travada), a
-calibração formal por modelo (Platt, isotônica ou temperatura)
-condicionada a essa conferência, o treino e a avaliação comparativa do
-BERTimbau, a revisão taxonômica dirigida pelos candidatos identificados
-na etapa de cruzamento de taxonomia e na entropia de Shannon, e a
-estabilização da publicação automática do painel de acompanhamento.
-
-Como direções de trabalho futuro mais amplas, este protocolo também
-aponta para: (i) a validação externa do modelo em outras instituições
-federais de ensino superior, testando se o padrão de desempenho
-observado na UFSB se mantém sob taxonomias e volumes de chamados
-distintos; e (ii) a integração dos dados de chamados tratados e
-validados como entrada para um modelo multicritério (MCDM/TOPSIS) de
-priorização de manutenção, conectando este artigo empírico à lacuna,
-já identificada na literatura de revisão integrativa correlata, sobre o
-uso raro de dados operacionais de chamados nesse tipo de modelo. Com
-isso, o protocolo pretende seguir contribuindo tanto para a literatura
-de *facility management* e processamento de linguagem natural aplicado
-quanto para a melhoria concreta e auditável da gestão de manutenção
-predial em instituições públicas.
+Duas frentes dão continuidade ao trabalho. A primeira é a validação
+externa em outras instituições federais de ensino superior, para testar
+se o padrão observado se mantém sob taxonomias e volumes distintos, com
+o BERTimbau incorporado à comparação e a calibração formal aplicada por
+modelo. A segunda é o uso desta camada classificada como entrada de
+modelos de previsão de demanda e de priorização multicritério de
+intervenções, lacuna já apontada na literatura de gestão de manutenção,
+que raramente incorpora dados operacionais de chamados. Nas duas
+direções, o protocolo aqui descrito funciona como pré-requisito, pois
+previsão e priorização só são confiáveis sobre uma base cuja
+classificação seja, ela própria, auditável.
 
 **Contribuições dos autores**: conceituação, Oliveira e Zanchi;
 metodologia, software, análise formal, investigação, curadoria de dados
