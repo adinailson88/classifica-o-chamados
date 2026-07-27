@@ -23,7 +23,11 @@ OK src/analise_erros.py
 OK src/analise_estatistica.py
 OK src/analise_sensibilidade_vies_validacao.py
 OK src/analise_shannon.py
-OK src/aplicar_revisao_editorial_final.py
+ERRO src/aplicar_revisao_editorial_final.py:   File "/home/runner/work/classificacao-chamados/classificacao-chamados/src/aplicar_revisao_editorial_final.py", line 409
+    **O que foi feito nesta rodada**: eliminadas referências temporais internas e linguagem de relatório operacional; parágrafos extensos foram segmentados; a Subseção 4.10 foi condensada e seus detalhes transferidos ao Material Suplementar; a ressalva da amostra não probabilística foi concentrada na Discussão; a matriz IA × histórico foi substituída por explicação textual da dependência estrutural da regra de decisão; o checklist foi removido do manuscrito; e a conclusão foi reduzida a três parágrafos.
+                                                                                                                                                                                                                                                                                                                                     ^
+SyntaxError: invalid character '×' (U+00D7)
+
 OK src/atualizar_cache_planilha.py
 OK src/auditar_conferencias.py
 OK src/avaliacao_final.py
@@ -92,5 +96,5 @@ melhor_ia=linear_svc
 == Reclassificacao ==
 modelos=naive_bayes, regressao_logistica, linear_svc, sgd, extra_trees, random_forest, lstm
 
-status=ok
-Repositorio tecnicamente pronto; avaliacao validada disponivel.
+status=problema_tecnico
+- falha de compilacao: src/aplicar_revisao_editorial_final.py
