@@ -33,15 +33,15 @@ concluído ou métrica própria. O diferencial metodológico reside na distinç�
 concordância com o histórico administrativo e acerto validado por
 revisão humana, tratando a categoria histórica como referência
 preliminar imperfeita. A distinção mostrou-se decisiva, pois o acerto
-validado por conferência humana (9.096 decisões) revelou-se
+validado por conferência humana (9.070 decisões) revelou-se
 mais conservador do que a concordância com o histórico sugeria, à medida
 que a amostra de conferência cresceu. Como a seleção não é aleatória e
 prioriza divergências e casos críticos, esses resultados não estimam o
 desempenho da base completa (COCHRAN, 1977). Resultados indicam superioridade do LinearSVC
-tanto na concordância com o histórico (acurácia de 80,29%,
-IC95%: 79,62%--80,95%) quanto no acerto validado (94,93%, IC95%:
-94,47%--95,38%), enquanto o LSTM apresentou concordância de 68,13% e
-acerto validado de 87,90%, após reprocessamento completo dos sete
+tanto na concordância com o histórico (acurácia de 80,31%,
+IC95%: 79,63%--80,97%) quanto no acerto validado (95,01%, IC95%:
+94,58%--95,48%), enquanto o LSTM apresentou concordância de 67,18% e
+acerto validado de 88,02%, após reprocessamento completo dos sete
 modelos comparáveis (Subseções 4.1, 4.2 e 4.8). A normalidade da concordância por turno foi
 rejeitada para todos os modelos, justificando testes não paramétricos
 (Friedman, Cochran Q, McNemar, bootstrap). O custo computacional é
@@ -74,15 +74,15 @@ extension, with neither completed training nor its own metric. The
 methodological contribution lies in distinguishing agreement with
 administrative history from human-validated accuracy, treating the
 historical category as an imperfect preliminary reference. This
-distinction proved decisive, since human-validated accuracy (9,096
+distinction proved decisive, since human-validated accuracy (9,070
 decisions) turned out to be more conservative than agreement with
 history suggested, as the reviewed sample grew. Because the sample is
 non-random and prioritizes divergences and critical cases, these results
 do not estimate performance over the full database (COCHRAN, 1977).
 Results indicate LinearSVC superiority both in agreement with history
-(80.29% accuracy, 95%CI: 79.62%--80.95%) and in human-validated accuracy
-(94.93%, 95%CI: 94.47%--95.38%), while LSTM achieved 68.13% agreement
-and 87.90% validated accuracy, after full reprocessing of the seven
+(80.31% accuracy, 95%CI: 79.63%--80.97%) and in human-validated accuracy
+(95.01%, 95%CI: 94.58%--95.48%), while LSTM achieved 67.18% agreement
+and 88.02% validated accuracy, after full reprocessing of the seven
 comparable models. Normality was rejected for all models, supporting
 non-parametric tests (Friedman, Cochran Q, McNemar, bootstrap).
 Computational cost is incorporated as an evaluation dimension, showing
@@ -419,15 +419,15 @@ como ocorre aqui, em que termos técnicos do domínio (*bomba*, *split*,
 *disjuntor*, *vazamento*, *infiltração*, *ar-condicionado*; Subseção 3.3)
 funcionam como âncoras semânticas de categoria. Essa combinação é
 consistente com o LinearSVC liderando tanto a concordância com o
-histórico (0,8029; Tabela 1) quanto o acerto validado (0,9493; Tabela 2).
+histórico (0,8031; Tabela 1) quanto o acerto validado (0,9501; Tabela 2).
 
 O **Naive Bayes** assume independência condicional entre atributos dada
 a classe, suposição estrutural violada em texto de manutenção predial,
 onde termos técnicos co-ocorrem de forma sistemática dentro de uma mesma
 categoria. Essa divergência entre a suposição do modelo e a estrutura
 real dos dados explica de forma plausível a última posição do Naive
-Bayes, tanto na concordância com o histórico (0,6996; Tabela 1) quanto
-no acerto validado (0,8609; Tabela 2). Trata-se do comportamento
+Bayes, tanto na concordância com o histórico (0,6997; Tabela 1) quanto
+no acerto validado (0,8617; Tabela 2). Trata-se do comportamento
 esperado do modelo mais simples da comparação, e não de problema de
 implementação.
 
@@ -615,9 +615,10 @@ absoluta; e o desempenho validado por conferência humana (Subseções 4.2
 e 4.3), calculado exclusivamente sobre os chamados com decisão validada
 pela conferência humana. A base elegível contém 13.965 chamados. A
 conferência humana cobre 9.534 chamados (68,3% da base), dos quais
-9.096 com decisão validada e sem conflito (65,1% da base) e 438 casos
-restritos, em que o avaliador eliminou as categorias conferidas sem
-indicar a correta. Como
+9.070 com decisão validada (65,0% da base) e 464 casos restritos, em que
+o avaliador eliminou as categorias conferidas sem indicar a correta.
+Entre os chamados decididos, 26 registram conflito entre conferências,
+volume que não altera os resultados agregados. Como
 discutido na Subseção 4.2 e na Seção 5, o crescimento da conferência
 humana ao longo do protocolo revela um padrão de desempenho
 sensivelmente mais conservador do que amostras menores sugeriam.
@@ -627,32 +628,32 @@ Três achados resumem esta seção. Primeiro, os classificadores lineares
 quanto a rede neural LSTM em concordância e em acerto validado, com
 vantagem adicional de custo computacional (Subseções 4.1, 4.2 e 4.7).
 Segundo, a validação humana confirma que o próprio rótulo histórico
-contém ruído real, cerca de 3,5% dos casos conferidos, o que
+contém ruído real, cerca de 2,9% dos casos conferidos, o que
 justifica metodologicamente todo o protocolo de conferência dupla
-(Subseção 4.3). Terceiro, a meta de calibração do estudo (confiança
-igual ou superior a 95% associada a acerto real igual ou superior a
-95%) está próxima de ser atingida, mas a confiança usada ainda é bruta,
-sem calibração formal por método probabilístico. O número deve ser lido
-como piso e teto da faixa observada, e não como estimativa definitiva
-(Subseção 4.4).
+(Subseção 4.3). Terceiro, a meta de calibração do estudo, que associa
+confiança igual ou superior a 95% a acerto real igual ou superior a 95%,
+é alcançada na faixa alta de confiança. A confiança usada permanece
+bruta, sem calibração formal por método probabilístico, de modo que o
+resultado descreve a faixa observada e não constitui estimativa
+definitiva (Subseção 4.4).
 
 **4.1 Concordância com o histórico (base completa)**
 
 A comparação contra a categoria histórica, sobre a base completa (n =
 13.965, com intervalo de confiança por bootstrap a 95%), mantém o
-LinearSVC na liderança, com acurácia de 0,8029 (IC95%:
-0,7962--0,8095), seguido por Extra Trees (0,7885), Random Forest
-(0,7799), SGD (0,7765), Regressão Logística (0,7677), Naive Bayes
-(0,6996) e LSTM (0,6813). O teste de Cochran Q confirma diferença global
-entre os sete modelos avaliados (Q = 2680,70; p < 0,001). A comparação exclui o BERTimbau,
+LinearSVC na liderança, com acurácia de 0,8031 (IC95%:
+0,7963--0,8097), seguido por Extra Trees (0,7894), Random Forest
+(0,7816), SGD (0,7767), Regressão Logística (0,7682), Naive Bayes
+(0,6997) e LSTM (0,6718). O teste de Cochran Q confirma diferença global
+entre os sete modelos avaliados (Q = 2984,07; p < 0,001). A comparação exclui o BERTimbau,
 cujo treino não foi concluído. O Kappa de Cohen entre cada modelo e o
-histórico reproduz exatamente a mesma ordenação, variando de 0,7880
-(LinearSVC) a 0,6598 (LSTM). A ordem entre os sete modelos permanece a mesma de
+histórico reproduz exatamente a mesma ordenação, variando de 0,7881
+(LinearSVC) a 0,6496 (LSTM). A ordem entre os sete modelos permanece a mesma de
 recortes anteriores, pois a atualização completa dos modelos alterou o
 patamar absoluto, não o ranking. A oitava fonte de classificação, a
-classificação automática em produção, mantém concordância de 77,65% e
-confiança média de 71,67%, posicionando-se entre SGD e Regressão
-Logística nesta métrica. A comparação direta com o LSTM *out-of-fold* da
+classificação automática em produção, mantém concordância de 77,26% e
+confiança média de 71,09%, posicionando-se entre Regressão Logística e
+SGD nesta métrica. A comparação direta com o LSTM *out-of-fold* da
 Tabela 1 não é apropriada porque essa fonte combina a rede neural com a
 regra de contingência do Random Forest (Subseção 3.4), em vez de um
 único modelo isolado. Ela também não foi reprocessada junto com os sete
@@ -663,13 +664,13 @@ Subseção 4.8.
 
 | Modelo | Acurácia | IC95% |
 |---|---|---|
-| LinearSVC | 0,8029 | 0,7962 -- 0,8095 |
-| Extra Trees | 0,7885 | 0,7817 -- 0,7949 |
-| Random Forest | 0,7799 | 0,7732 -- 0,7864 |
-| SGD | 0,7765 | 0,7697 -- 0,7833 |
-| Regressão Logística | 0,7677 | 0,7608 -- 0,7745 |
-| Naive Bayes | 0,6996 | 0,6921 -- 0,7070 |
-| LSTM (out-of-fold) | 0,6813 | 0,6733 -- 0,6888 |
+| LinearSVC | 0,8031 | 0,7963 -- 0,8097 |
+| Extra Trees | 0,7894 | 0,7825 -- 0,7961 |
+| Random Forest | 0,7816 | 0,7749 -- 0,7881 |
+| SGD | 0,7767 | 0,7700 -- 0,7835 |
+| Regressão Logística | 0,7682 | 0,7613 -- 0,7751 |
+| Naive Bayes | 0,6997 | 0,6923 -- 0,7071 |
+| LSTM (out-of-fold) | 0,6718 | 0,6637 -- 0,6796 |
 
 Fonte: elaborado pelos autores (2026).
 
@@ -693,79 +694,77 @@ sensivelmente mais baixo. A diferença confirma a hipótese discutida na
 Subseção 4.8, de que a versão antiga estava desatualizada, sem problema
 de metodologia na avaliação em si.
 
-A avaliação contra a decisão validada pela conferência humana (n =
-9.096 decisões) confirma a mesma liderança da Subseção 4.1: o
-LinearSVC permanece o melhor modelo isolado, com
-acerto validado de 0,9493 (IC95%: 0,9447--0,9538), seguido por SGD
-(0,9392), Regressão Logística (0,9355), Extra Trees (0,9274), Random
-Forest (0,9227), LSTM (0,8790) e Naive Bayes (0,8609). A diferença entre o primeiro e o segundo colocado é
-pequena em termos absolutos (1,01 ponto percentual), mas estatisticamente
-significativa (McNemar, *p* < 0,001). Foram avaliados também três
-*ensembles*, maioria ponderada (0,9445), confiança calibrada máxima
-(0,9436) e maioria simples (0,9422). Nenhum supera o LinearSVC isolado
-com significância (McNemar p < 0,05 em favor do LinearSVC nos três
-casos). **Não compensa combinar modelos nestes dados.** A recomendação é
-usar o LinearSVC isolado, com calibração.
+A avaliação contra a decisão validada pela conferência humana (n = 9.070
+decisões) confirma a mesma liderança da Subseção 4.1. O LinearSVC
+permanece o melhor modelo isolado, com acerto validado de 0,9501 (IC95%:
+0,9458--0,9548), seguido por SGD (0,9402), Regressão Logística (0,9364),
+Extra Trees (0,9281), Random Forest (0,9235), LSTM (0,8802) e Naive
+Bayes (0,8617). A diferença entre o primeiro e o segundo colocado é
+pequena em termos absolutos, de 0,99 ponto percentual, mas
+estatisticamente significativa (McNemar, *p* < 0,001). Foram avaliados
+também três *ensembles*, maioria ponderada (0,9462), confiança calibrada
+máxima (0,9454) e maioria simples (0,9439). Nenhum supera o LinearSVC
+isolado com significância, e o McNemar aponta *p* < 0,05 em favor do
+modelo isolado nos três casos. **Não compensa combinar modelos nestes
+dados.** A recomendação é usar o LinearSVC isolado, com calibração.
 
 **Viés estrutural da seleção da amostra validada**: o número pontual de
-acerto validado acima é o **limite superior** de um
-intervalo, não uma estimativa isenta de viés. A "verdade validada" usada
-neste cálculo só existe para um chamado quando o avaliador confirma
-pelo menos uma fonte como correta, seja o histórico, seja a
-classificação automática, seja a reclassificação. Dos 9.534 chamados
-conferidos, 438 (4,6%) caem no status "restrito", em que o avaliador
-julgou **todas** as fontes erradas para aquele chamado (344 casos só com
-o histórico marcado errado, 94 com histórico e classificação automática
-errados simultaneamente), sem indicar qual seria a categoria certa. Esses 438
-casos são **excluídos do denominador** de qualquer acerto validado por
-modelo, porque não existe categoria de referência contra a qual comparar
-a predição. Isso torna a amostra de 9.096 decisões, por construção, um
+acerto validado acima constitui o **limite superior** de um intervalo, e
+não uma estimativa isenta de viés. A verdade validada usada neste cálculo
+só existe para um chamado quando o avaliador confirma pelo menos uma
+fonte como correta, seja o histórico, seja a classificação automática,
+seja a reclassificação. Dos 9.534 chamados conferidos, 464 (4,9%) caem no
+status restrito, em que o avaliador julgou **todas** as fontes erradas
+para aquele chamado sem indicar qual seria a categoria certa. Esses casos
+são **excluídos do denominador** de qualquer acerto validado por modelo,
+porque não existe categoria de referência contra a qual comparar a
+predição. Isso torna a amostra de 9.070 decisões, por construção, um
 subconjunto em que pelo menos uma fonte já estava correta, o que infla
-mecanicamente o acerto validado de qualquer modelo que tenda a
-concordar com o histórico ou com a classificação automática, independentemente
-da qualidade real do modelo nos casos mais difíceis (exatamente os que
-ficaram de fora).
+mecanicamente o acerto validado de qualquer modelo que tenda a concordar
+com o histórico ou com a classificação automática, independentemente da
+qualidade real do modelo nos casos mais difíceis, exatamente os que
+ficaram de fora.
 
 Para tornar esse viés visível sem descartar a métrica, calculou-se um
-**limite inferior** de sensibilidade: o acerto de cada modelo caso os 438
-restritos fossem incluídos no denominador e contados como erro para
-**todos** os modelos. Trata-se do pior caso possível, pois a categoria
-certa desses chamados é desconhecida e nenhum modelo pode receber
-crédito neles. O intervalo entre limite inferior e superior substitui o
-número pontual como leitura honesta do acerto validado: LinearSVC 0,9057--0,9493
-(amplitude 4,36 p.p.), SGD 0,8961--0,9392 (4,31 p.p.), Regressão
-Logística 0,8925--0,9355 (4,30 p.p.), Extra Trees 0,8848--0,9274 (4,26
-p.p.), Random Forest 0,8803--0,9227 (4,24 p.p.), LSTM 0,8386--0,8790
-(4,04 p.p.) e Naive Bayes 0,8214--0,8609 (3,95 p.p.). O achado
-metodologicamente mais importante desta análise de sensibilidade é que o
-**ranking relativo entre os sete modelos não muda em nenhum ponto do
-intervalo**. Mesmo no pior caso, o LinearSVC permanece à frente e o
-Naive Bayes atrás de todos. A conclusão qualitativa sobre qual modelo
-usar é, portanto, robusta ao viés identificado, ao passo que o
-valor absoluto do acerto validado não deve ser citado como um número
-único sem essa ressalva.
+**limite inferior** de sensibilidade, correspondente ao acerto de cada
+modelo caso os 464 restritos entrassem no denominador contados como erro
+para **todos** os modelos. Trata-se do pior caso possível, pois a
+categoria certa desses chamados é desconhecida e nenhum modelo pode
+receber crédito neles. O intervalo entre limite inferior e superior
+substitui o número pontual como leitura honesta do acerto validado:
+LinearSVC 0,9039--0,9501 (amplitude 4,62 p.p.), SGD 0,8944--0,9402 (4,58
+p.p.), Regressão Logística 0,8908--0,9364 (4,56 p.p.), Extra Trees
+0,8829--0,9281 (4,52 p.p.), Random Forest 0,8786--0,9235 (4,49 p.p.),
+LSTM 0,8374--0,8802 (4,28 p.p.) e Naive Bayes 0,8198--0,8617 (4,19
+p.p.). O achado metodologicamente mais importante desta análise de
+sensibilidade é que o **ranking relativo entre os sete modelos não muda
+em nenhum ponto do intervalo**. Mesmo no pior caso, o LinearSVC permanece
+à frente e o Naive Bayes atrás de todos. A conclusão qualitativa sobre
+qual modelo usar é, portanto, robusta ao viés identificado, ao passo que
+o valor absoluto do acerto validado exige essa ressalva sempre que for
+citado isoladamente.
 
 **Tabela 2** Acerto validado por modelo e limite inferior de
-sensibilidade ao viés de seleção (n = 9.096).
+sensibilidade ao viés de seleção (n = 9.070).
 
 | Modelo | Acerto validado | IC95% | Limite inferior |
 |---|---|---|---|
-| LinearSVC | 0,9493 | 0,9447 -- 0,9538 | 0,9057 |
-| SGD | 0,9392 | 0,9343 -- 0,9440 | 0,8961 |
-| Regressão Logística | 0,9355 | 0,9302 -- 0,9404 | 0,8925 |
-| Extra Trees | 0,9274 | 0,9222 -- 0,9325 | 0,8848 |
-| Random Forest | 0,9227 | 0,9171 -- 0,9280 | 0,8803 |
-| LSTM | 0,8790 | 0,8724 -- 0,8857 | 0,8386 |
-| Naive Bayes | 0,8609 | 0,8533 -- 0,8680 | 0,8214 |
+| LinearSVC | 0,9501 | 0,9458 -- 0,9548 | 0,9039 |
+| SGD | 0,9402 | 0,9354 -- 0,9452 | 0,8944 |
+| Regressão Logística | 0,9364 | 0,9313 -- 0,9416 | 0,8908 |
+| Extra Trees | 0,9281 | 0,9229 -- 0,9333 | 0,8829 |
+| Random Forest | 0,9235 | 0,9178 -- 0,9289 | 0,8786 |
+| LSTM | 0,8802 | 0,8735 -- 0,8869 | 0,8374 |
+| Naive Bayes | 0,8617 | 0,8545 -- 0,8689 | 0,8198 |
 
-Fonte: elaborado pelos autores (2026). O limite inferior conta os 438
+Fonte: elaborado pelos autores (2026). O limite inferior conta os 464
 casos restritos como erro de todos os modelos.
 
 A atualização completa dos modelos também resolveu uma discrepância
 antes registrada entre o *ablation study* do LSTM (Subseção 4.8,
 86,35%--87,68% conforme o particionamento) e o valor de referência então
 vigente. O valor antigo vinha de uma versão desatualizada dos modelos, e
-o valor atual do LSTM (0,8790) está muito mais próximo do que o
+o valor atual do LSTM (0,8802) está muito mais próximo do que o
 *ablation* já indicava. Isso confirma que o *ablation* nunca teve
 problema metodológico de vazamento residual relevante, pois a
 discrepância vinha da defasagem da referência, não de falha do
@@ -786,34 +785,34 @@ validada**
 Um resultado adicional, obtido comparando a categoria histórica e a
 classificação automática em produção contra a mesma decisão validada
 pela conferência humana, qualifica a tese de rótulos ruidosos
-apresentada na Introdução. Sobre as 9.096 decisões validadas, a
-categoria histórica coincide com a decisão em 96,49% dos casos (8.777 de
-9.096), acima do acerto da classificação automática frente à mesma
-referência (90,15%; 8.200 de 9.096), repetindo em magnitude renovada o
-padrão já observado em amostras menores. A matriz de confusão (Tabela 3)
-mostra 8.200 casos em que ambas as fontes coincidem com a decisão, 319 em que
-nenhuma coincide, 577 em que o histórico acerta e a classificação
-automática erra, e **nenhum** caso em que a classificação automática
-corrige uma categoria histórica considerada incorreta. Essa ausência
-total tem explicação estrutural, discutida adiante.
+apresentada na Introdução. O cruzamento abrange as 11.232 conferências
+em que ambas as fontes foram avaliadas. A categoria histórica coincide
+com a decisão em 97,09% dos casos (10.905 de 11.232), acima do acerto da
+classificação automática frente à mesma referência (90,17%; 10.128 de
+11.232), o que repete o padrão já observado em amostras menores. A matriz
+de confusão (Tabela 3) mostra 10.128 casos em que ambas as fontes
+coincidem com a decisão, 327 em que nenhuma coincide, 777 em que o
+histórico acerta e a classificação automática erra, e **nenhum** caso em
+que a classificação automática corrige uma categoria histórica
+considerada incorreta. Essa ausência total tem explicação estrutural,
+discutida adiante.
 
 O que o resultado sustenta com mais segurança é a outra metade da
-premissa. Existe ruído real no histórico, pois 319 dos 9.096 casos
-conferidos (3,51%, mais que o dobro da proporção observada em amostras
-menores) têm categoria histórica que não coincide com a decisão final.
-Esse ruído é proporcionalmente menor do que o risco de erro isolado da
-classificação automática na mesma amostra (577 casos, 6,34%). A
+premissa. Existe ruído real no histórico, pois 327 dos 11.232 casos
+conferidos (2,91%) têm categoria histórica que não coincide com a decisão
+final. Esse ruído é proporcionalmente menor do que o risco de erro
+isolado da classificação automática na mesma amostra (777 casos, 6,92%). A
 implicação prática permanece, a classificação automática deve ser
 tratada como instrumento de triagem e auditoria complementar ao
 histórico, não como substituto ou árbitro superior a ele.
 
 **Tabela 3** Matriz de confusão entre classificação automática e
-histórico, contra a decisão validada (n = 9.096).
+histórico, contra a decisão validada (n = 11.232).
 
 | | Histórico correto | Histórico incorreto |
 |---|---|---|
-| **Classificação automática correta** | 8.200 | 0 |
-| **Classificação automática incorreta** | 577 | 319 |
+| **Classificação automática correta** | 10.128 | 0 |
+| **Classificação automática incorreta** | 777 | 327 |
 
 Fonte: elaborado pelos autores (2026).
 
@@ -831,38 +830,39 @@ pendente.
 **4.4 Confiança, calibração e faixas de decisão**
 
 A classificação automática em produção mantém erro de calibração
-esperado (ECE) de 0,0598 sobre a confiança bruta. Segmentada por faixa
-de confiança e cruzada com a decisão validada pela conferência humana, a
-faixa igual ou superior a 95% (n = 4.808; 34,4% da base) apresenta
-concordância de 99,08% com o histórico e, mais relevante, acerto
-validado de 96,79% sobre os 4.698 casos já decididos nessa faixa. O
-resultado fica próximo da meta de referência do experimento (confiança
-calibrada >= 95% associada a acerto real >= 95%), embora não a atinja
-com folga.
+esperado (ECE) de 0,0598 sobre a confiança bruta. Segmentada por faixa de
+confiança e cruzada com a decisão validada pela conferência humana, a
+faixa igual ou superior a 95% concentra 5.848 predições, um terço do
+conjunto calibrado, com concordância de 98,56% frente ao histórico e
+acerto validado de 97,32% sobre os 5.666 casos já decididos nessa faixa.
+O resultado cumpre a meta de referência do experimento, que associa
+confiança igual ou superior a 95% a acerto real igual ou superior a 95%.
+Cabe a ressalva de que a confiança empregada é bruta, sem calibração
+formal, de modo que a meta é atingida na métrica disponível, não em
+confiança calibrada em sentido estrito.
 
-Nas faixas inferiores (Tabela 4), a degradação de
-desempenho acompanha a queda de confiança de forma consistente, do
-patamar de 91,48% na faixa de 90 a 95% até 49,89% abaixo de 50%. Esse
-comportamento corrobora a correlação positiva entre confiança bruta e
-acerto, quantificada por Spearman entre 0,45 e 0,56 conforme o modelo
-(Subseção 4.1), mesmo sem calibração formal aplicada a essa camada. A
-faixa 80–90% (93,92%) supera
-ligeiramente a faixa 90–95% (91,48%). Essa pequena inversão de monotonia
-é plausível em dados reais com amostras desse tamanho, mas merece
-acompanhamento em recortes futuros antes de ser tratada como padrão
-estável.
+Nas faixas inferiores (Tabela 4), a degradação de desempenho acompanha a
+queda de confiança, do patamar de 92,81% na faixa de 90 a 95% até 49,20%
+abaixo de 50%. Esse comportamento corrobora a correlação positiva entre
+confiança bruta e acerto, quantificada por Spearman entre 0,46 e 0,64
+conforme o modelo (Subseção 4.9), mesmo sem calibração formal aplicada a
+essa camada. A monotonia não é perfeita, pois as faixas de 70 a 80%
+(95,38%) e de 80 a 90% (94,50%) superam a de 90 a 95% (92,81%). Essa
+inversão é plausível em dados reais com amostras desse tamanho, mas
+merece acompanhamento em recortes futuros antes de ser tratada como
+padrão estável.
 
 **Tabela 4** Acerto validado por faixa de confiança da classificação
-automática (n = 9.096).
+automática (n = 11.232 conferências).
 
 | Faixa | n total | Concord. histórico | n validados | Acerto validado |
 |---|---|---|---|---|
-| < 50% | 3.972 | 42,35% | 876 | 49,89% |
-| 50–70% | 1.504 | 73,40% | 741 | 83,94% |
-| 70–80% | 972 | 87,45% | 654 | 94,95% |
-| 80–90% | 1.499 | 87,99% | 1.118 | 93,92% |
-| 90–95% | 1.210 | 92,98% | 1.009 | 91,48% |
-| >= 95% | 4.808 | 99,08% | 4.698 | 96,79% |
+| < 50% | 5.012 | 43,22% | 1.191 | 49,20% |
+| 50–70% | 1.905 | 72,86% | 904 | 84,29% |
+| 70–80% | 1.235 | 85,51% | 801 | 95,38% |
+| 80–90% | 2.057 | 81,72% | 1.418 | 94,50% |
+| 90–95% | 1.508 | 92,97% | 1.252 | 92,81% |
+| >= 95% | 5.848 | 98,56% | 5.666 | 97,32% |
 
 Fonte: elaborado pelos autores (2026).
 
@@ -882,9 +882,10 @@ Fonte: elaborado pelos autores (2026).
 A reclassificação dos chamados já conferidos produz resultados
 heterogêneos entre modelos, medidos contra a decisão validada quando ela
 existe e contra o histórico nos demais casos. O LSTM apresenta o maior
-ganho líquido absoluto (+99; 670 corrigidos e 571 prejudicados), seguido
+ganho líquido absoluto (+100; 674 corrigidos e 574 prejudicados), seguido
 por Regressão Logística (+92) e LinearSVC (+73), e todos os sete modelos
-apresentam ganho líquido positivo (Tabela 5). Esse resultado não autoriza aplicação
+apresentam ganho líquido positivo (Tabela 5), embora o Extra Trees fique
+no limiar da neutralidade (+9). Esse resultado não autoriza aplicação
 indiscriminada, porque o ganho combina parcelas comparadas contra a
 decisão validada e contra o histórico, e já mudou de sinal para alguns
 modelos entre recortes sucessivos. Isso reforça a decisão de não aplicar
@@ -897,13 +898,13 @@ classificador.
 
 | Modelo | Corrigidos | Prejudicados | Ganho líquido |
 |---|---|---|---|
-| LSTM | 670 | 571 | +99 |
+| LSTM | 674 | 574 | +100 |
 | Regressão Logística | 245 | 153 | +92 |
 | LinearSVC | 291 | 218 | +73 |
 | Random Forest | 234 | 186 | +48 |
 | SGD | 201 | 163 | +38 |
 | Naive Bayes | 158 | 132 | +26 |
-| Extra Trees | 237 | 226 | +11 |
+| Extra Trees | 237 | 228 | +9 |
 
 Fonte: elaborado pelos autores (2026).
 
@@ -912,29 +913,33 @@ Fonte: elaborado pelos autores (2026).
 
 O diagnóstico de Shannon abrange oito fontes comparáveis, a
 classificação automática em produção e os sete modelos avaliados. O
-BERTimbau foi excluído por não ter treino concluído. A classificação
-automática apresenta a maior diversidade de categorias previstas e a
-menor divergência de Jensen-Shannon frente à distribuição histórica
-(Tabela 6). No nível de chamado
-individual, 3.277 dos 13.965 registros (23,5%) apresentam alta entropia
-de votos entre as oito fontes, ou seja, desacordo estrutural relevante
-entre arquiteturas distintas. Constitui critério de priorização de
-auditoria distinto e complementar à baixa confiança de um único modelo.
+BERTimbau foi excluído por não ter treino concluído. Duas leituras
+distintas emergem da Tabela 6. O LSTM apresenta a maior diversidade de
+categorias previstas, com entropia normalizada de 0,8213, ao passo que o
+LinearSVC exibe a menor divergência de Jensen-Shannon frente à
+distribuição histórica (0,0047). Dispersão de predições e aderência
+distributiva ao histórico, portanto, não caminham juntas, e o modelo de
+melhor acerto validado é justamente o de distribuição mais próxima da
+base. No nível de chamado individual, 3.262 dos 13.965 registros (23,4%)
+apresentam alta entropia de votos entre as oito fontes, ou seja,
+desacordo estrutural relevante entre arquiteturas distintas. Constitui
+critério de priorização de auditoria distinto e complementar à baixa
+confiança de um único modelo.
 
-No nível de categoria, a análise aponta 76 ocorrências de alta
-ambiguidade nas predições (com suporte mínimo de 30 registros por
-categoria); a interpretação detalhada de quais categorias específicas
+No nível de categoria, a análise aponta 78 ocorrências de alta
+ambiguidade nas predições, com suporte mínimo de 30 registros por
+categoria. A interpretação detalhada de quais categorias específicas
 concentram essa ambiguidade, e sua sobreposição com os pares de maior
 confusão recíproca identificados na etapa de cruzamento de taxonomia,
 permanece como candidata a inspeção qualitativa dirigida futura. O que
 a camada Shannon oferece é a priorização estatística de onde essa
 inspeção deve começar, não a decisão de fusão ou desambiguação de
-categorias, que continua sendo humana. Naive Bayes chama atenção por
-combinar a menor cobertura de
-categorias (19, ante 47–53 dos demais modelos) com entropia normalizada
-relativamente alta (0,7848), provável reflexo de concentração extrema
-em poucas categorias com alguma dispersão residual, não investigado em
-detalhe neste artigo.
+categorias, que continua sendo humana. O Naive Bayes chama atenção por
+combinar a menor cobertura de categorias, apenas 17 contra 43 a 51 dos
+demais modelos, com entropia normalizada relativamente alta (0,8157).
+Trata-se de provável reflexo de concentração extrema em poucas
+categorias com dispersão residual entre elas, e também da maior
+divergência frente ao histórico observada na Tabela 6 (0,1027).
 
 A Figura 3 mostra os quinze pares de categorias com maior confusão
 recíproca, dominados pela fronteira entre climatização corretiva e
@@ -954,14 +959,14 @@ fonte de classificação.
 
 | Fonte | Categorias previstas | Entropia normalizada | JS vs. histórico |
 |---|---|---|---|
-| Classificação automática | 53 | 0,8163 | 0,0286 |
-| LSTM | 52 | 0,8105 | 0,0847 |
-| Regressão Logística | 52 | 0,7805 | 0,0716 |
-| SGD | 53 | 0,7745 | 0,0639 |
-| LinearSVC | 53 | 0,7569 | 0,0575 |
-| Extra Trees | 47 | 0,7193 | 0,0761 |
-| Random Forest | 47 | 0,7124 | 0,0804 |
-| Naive Bayes | 19 | 0,7848 | 0,1755 |
+| LSTM | 51 | 0,8213 | 0,0431 |
+| Classificação automática | 51 | 0,8121 | 0,0277 |
+| Regressão Logística | 49 | 0,7906 | 0,0197 |
+| SGD | 51 | 0,7806 | 0,0112 |
+| LinearSVC | 50 | 0,7666 | 0,0047 |
+| Extra Trees | 46 | 0,7217 | 0,0215 |
+| Random Forest | 43 | 0,7279 | 0,0263 |
+| Naive Bayes | 17 | 0,8157 | 0,1027 |
 
 Fonte: elaborado pelos autores (2026).
 
@@ -1018,16 +1023,16 @@ Uma auditoria investigou por que o *ablation* da Figura 6 reportava
 acerto validado muito acima do valor oficial então vigente para a mesma
 arquitetura do LSTM. Duas causas foram identificadas. Primeiro, um
 vazamento metodológico real, mas de magnitude modesta: no *KFold*
-aleatório por linha usado originalmente, 4.250 de 9.096 linhas
-validadas de teste (46,72%) tinham duplicata textual normalizada no
-treino. O *ablation* foi refeito com *GroupKFold* por hash de texto
+aleatório por linha usado originalmente, 4.250 das 9.096 linhas
+validadas de teste então disponíveis (46,72%) tinham duplicata textual
+normalizada no treino. O *ablation* foi refeito com *GroupKFold* por hash de texto
 normalizado, excluindo do treino grupos textuais presentes no teste. A
 correção reduziu a configuração atual (64 unidades, *dropout* de 0,5) de
 87,68% para 86,35% (7.854/9.096), uma correção pequena (1,33 ponto
 percentual). Segundo, e principal, o valor de referência usado na
 comparação (0,7471, Subseção 4.2) vinha de uma versão desatualizada dos
 modelos. O reprocessamento completo dos sete modelos (Subseção 4.2)
-produziu um novo valor do LSTM de 0,8790, muito mais próximo dos 0,8635
+produziu um novo valor do LSTM de 0,8802, muito mais próximo dos 0,8635
 deste *ablation* corrigido. A diferença residual de 1,55 pontos
 percentuais é plausivelmente atribuível a diferenças remanescentes de
 protocolo entre o número de *folds* e o esquema de treino usados em cada
@@ -1078,8 +1083,9 @@ Inflação de Variância elevado (MARQUARDT, 1970), o que ajuda a explicar
 por que nenhum *ensemble* supera o LinearSVC isolado (Subseção 4.2),
 dado que modelos redundantes pouco acrescentam em informação
 independente a um comitê (DIETTERICH, 2000). A correlação entre confiança bruta e acerto é
-positiva e significativa em todos os sete modelos (Spearman e
-ponto-bisserial, *p* < 0,001), pré-requisito para a calibração discutida
+positiva e significativa em todos os sete modelos, com Spearman entre
+0,46 e 0,64 e ponto-bisserial entre 0,43 e 0,66 (*p* < 0,001 em ambos),
+pré-requisito para a calibração discutida
 na Subseção 4.4 (GUO *et al.*, 2017). A verificação completa dos oito
 pressupostos, item a item, com as tabelas de correlação, autocorrelação
 e o Kappa de Fleiss entre modelos, está disponível como Material
@@ -1091,8 +1097,8 @@ A comparação entre concordância histórica (Subseção 4.1) e desempenho
 validado (Subseção 4.2) revela um padrão que mudou de magnitude ao longo
 da elaboração deste artigo, à medida que a conferência humana cresceu e
 uma versão desatualizada dos modelos foi corrigida (Subseção 4.8). O
-acerto validado do LinearSVC (94,93%) hoje supera com folga sua
-concordância com o histórico (80,29%), depois de um período intermediário
+acerto validado do LinearSVC (95,01%) hoje supera com folga sua
+concordância com o histórico (80,31%), depois de um período intermediário
 em que os dois patamares se aproximaram. Nenhuma dessas mudanças permite
 estimar o desempenho real da base completa, pois a conferência humana
 prioriza divergências e casos críticos em vez de amostrar ao acaso.
@@ -1103,16 +1109,16 @@ Um segundo mecanismo de viés, estrutural e mais específico, soma-se à
 não aleatoriedade da amostra. A regra de decisão da verdade validada
 (Subseção 3.7) exclui do denominador do acerto validado os chamados em
 que o avaliador julgou erradas todas as fontes conferidas, designados
-"restritos". Dos 9.534 chamados conferidos, 438 (4,6%) estão nessa
-condição e ficam fora dos 9.096 usados na Subseção 4.2. Como esses casos
+"restritos". Dos 9.534 chamados conferidos, 464 (4,9%) estão nessa
+condição e ficam fora dos 9.070 usados na Subseção 4.2. Como esses casos
 não têm categoria de referência contra a qual comparar a predição de
 cada modelo, o acerto validado reportado como número pontual constitui um
 limite superior, pois mede o desempenho apenas onde pelo menos uma fonte
 já estava correta por construção.
 
-A análise de sensibilidade recalcula um limite inferior, tratando os 438
-restritos como erro de todos os modelos, e apura amplitude de 3,95 a
-4,36 pontos percentuais conforme o modelo. A amplitude é relevante em
+A análise de sensibilidade recalcula um limite inferior, tratando os 464
+restritos como erro de todos os modelos, e apura amplitude de 4,19 a
+4,62 pontos percentuais conforme o modelo. A amplitude é relevante em
 termos absolutos, mas o *ranking* relativo entre os sete modelos
 permanece inalterado em qualquer ponto do intervalo. Duas implicações
 decorrem daí. A conclusão qualitativa sobre qual modelo priorizar é
@@ -1131,7 +1137,7 @@ com frequência muito maior (577 casos) do que a classificação automática
 corrige um erro genuíno do registro original, com a ressalva estrutural
 já discutida sobre a célula zerada. O achado preserva a premissa de que
 a categoria histórica não é verdade absoluta, já que persiste taxa real
-de erro confirmado no registro original, em 3,51% dos casos conferidos.
+de erro confirmado no registro original, em 2,91% dos casos conferidos.
 Esse valor supera o observado em recortes anteriores, de amostra menor, o
 que desaconselha tratá-lo como estabilizado. Ao mesmo tempo, o resultado
 adverte contra a leitura oposta e igualmente equivocada, de que baixa
@@ -1152,7 +1158,7 @@ classificados não é uniforme entre modelos nem estável ao longo do
 tempo. Em recortes anteriores, três dos classificadores clássicos
 avaliados (SGD, Random Forest e Extra Trees) tinham ganho líquido
 negativo. No corpus atual, todos os sete modelos apresentam ganho
-positivo, embora a amplitude varie de +11 (Extra Trees) a +99 (LSTM).
+positivo, embora a amplitude varie de +9 (Extra Trees) a +100 (LSTM).
 Essa oscilação reforça o argumento. Decisões de reclassificação em
 produção devem ser tomadas por modelo e reavaliadas a cada atualização
 da base, com base no ganho líquido medido naquele momento, e não
@@ -1166,33 +1172,35 @@ humana, mas amplia o repertório de governança do experimento ao separar
 três fenômenos que a acurácia isolada tende a confundir, o erro de
 modelo, a ambiguidade genuína da taxonomia institucional e a
 heterogeneidade natural da distribuição de chamados. A identificação de
-3.277 chamados (23,5% da base) com alto desacordo estrutural entre as
+3.262 chamados (23,4% da base) com alto desacordo estrutural entre as
 oito fontes comparáveis oferece um critério de priorização de auditoria
 distinto do simples corte por baixa confiança de um único classificador,
 e complementa a fila já construída a partir da conferência humana. A
-classificação automática em produção, não o LSTM isolado, lidera tanto a
-diversidade de predições quanto a menor divergência frente ao histórico
-(Subseção 4.6). Esse diagnóstico descreve o corpus analisado e não
-substitui acurácia ou validação humana.
+dispersão das predições e a aderência à distribuição histórica separam-se
+neste corpus, pois o LSTM lidera a diversidade de categorias previstas e
+o LinearSVC apresenta a menor divergência frente ao histórico (Subseção
+4.6). Esse diagnóstico descreve o corpus analisado e não substitui
+acurácia ou validação humana.
 
 A meta estabelecida como critério de sucesso do protocolo associa
 confiança calibrada igual ou superior a 95% a acerto real igual ou
 superior a 95% (Subseção 4.4). A faixa alta de confiança da classificação
-automática chega a 96,79% de acerto validado sobre 4.698 casos
-conferidos, de modo que a meta fica próxima, embora sem a folga que
-recortes de amostra menor sugeriam. Pondera-se que a confiança utilizada
-é bruta (*softmax* ou *decision_function*), sem calibração formal por
-Platt ou isotônica (PLATT, 1999; GUO *et al.*, 2017), o que mantém a
-leitura provisória.
+automática atinge 97,32% de acerto validado sobre 5.666 casos
+conferidos, o que cumpre o critério na métrica disponível. Duas ressalvas
+qualificam essa leitura. A confiança utilizada é bruta (*softmax* ou
+*decision_function*), sem calibração formal por Platt ou isotônica
+(PLATT, 1999; GUO *et al.*, 2017), de modo que o requisito de confiança
+calibrada permanece pendente em sentido estrito. Além disso, a faixa
+concentra um terço das predições e é justamente aquela em que a
+conferência tende a confirmar o esperado.
 
-Essa retração acompanha o crescimento da conferência e repete o padrão já
-discutido para o acerto validado geral. A amostra validada cobre hoje
-68,3% da base, mas sua composição original privilegia divergências e
-casos de menor confiança, o que pode ter inflado o acerto validado nas
-faixas altas quando a cobertura era menor e a conferência tendia a
-confirmar o esperado. A confirmação definitiva da meta depende de
-concluir a conferência sobre os 31,7% ainda não verificados, e a leitura
-de meta atingida só se sustenta a partir daí.
+O patamar da faixa alta oscilou ao longo dos recortes, o que recomenda
+tratar o cumprimento da meta como resultado do corpus atual, não como
+propriedade estabilizada do protocolo. A amostra validada cobre hoje
+68,3% da base, e sua composição original privilegia divergências e casos
+de menor confiança. A confirmação definitiva depende de concluir a
+conferência sobre os 31,7% ainda não verificados e de aplicar calibração
+formal por modelo, ambas condições já previstas como próximos passos.
 
 **Limitações**
 
@@ -1207,8 +1215,8 @@ criticidade. Os números de acerto validado descrevem, portanto, a
 amostra conferida, e não estimam por inferência o desempenho da base
 completa (COCHRAN, 1977). Uma regra de decisão adicional exclui do
 denominador os casos em que nenhuma fonte conferida foi confirmada como
-correta, 4,6% dos chamados conferidos. A análise de sensibilidade
-correspondente mostra amplitude de 3,95 a 4,36 pontos percentuais entre
+correta, 4,9% dos chamados conferidos. A análise de sensibilidade
+correspondente mostra amplitude de 4,19 a 4,62 pontos percentuais entre
 o cenário mais otimista e o mais conservador, sem alterar o ranking
 relativo entre os modelos.
 
@@ -1245,19 +1253,19 @@ e não contra um rótulo administrativo aceito por conveniência.
 
 O resultado prático confirma que a classificação automática serve à
 triagem e à auditoria, mas não dispensa a conferência humana. Sobre
-9.096 chamados com decisão validada, o LinearSVC alcançou 94,93% de
-acerto validado (IC95%: 94,47%--95,38%), à frente dos demais seis
+9.070 chamados com decisão validada, o LinearSVC alcançou 95,01% de
+acerto validado (IC95%: 94,58%--95,48%), à frente dos demais seis
 modelos, e nenhum dos três *ensembles* avaliados o superou com
 significância estatística. A recomendação operacional é usar o LinearSVC
 isolado, com calibração, escolha que o custo computacional reforça, já
 que os modelos lineares treinam em uma fração do tempo exigido pelos
 *ensembles* de árvores sem perder acerto. A matriz de confusão mostra
 por que a conferência continua necessária, pois o histórico
-administrativo também contém erros confirmados, em 3,51% dos casos
+administrativo também contém erros confirmados, em 2,91% dos casos
 conferidos. Esses valores descrevem a amostra conferida, com a ressalva
 de representatividade já registrada nas Limitações. As divergências
 entre modelos e histórico, por sua vez, deixaram de ser ruído descartado
-e passaram a alimentar a fila de revisão taxonômica, com 3.277 chamados
+e passaram a alimentar a fila de revisão taxonômica, com 3.262 chamados
 sinalizados por alto desacordo estrutural entre as fontes.
 
 Duas frentes dão continuidade ao trabalho. A primeira é a validação
