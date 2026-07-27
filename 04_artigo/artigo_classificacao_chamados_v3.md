@@ -3,7 +3,6 @@ header-includes:
   - |
     ```{=latex}
     \usepackage[font=small,labelfont=bf,justification=centering,skip=6pt]{caption}
-    \usepackage{placeins}
     \renewcommand{\topfraction}{0.85}
     \renewcommand{\bottomfraction}{0.45}
     \renewcommand{\textfraction}{0.10}
@@ -11,6 +10,25 @@ header-includes:
     \setcounter{topnumber}{2}
     \setcounter{totalnumber}{3}
     \raggedbottom
+    % O texto usa titulos em negrito, nao comandos de secao, entao o LaTeX nao
+    % tem ancora para esvaziar a fila de floats e acaba despejando figuras em
+    % paginas onde nao cabem. As barreiras resolvem isso. O placeins vive em
+    % 04_artigo/latex porque nao existe na imagem pandoc/extra do workflow; o
+    % ramo alternativo evita falha de build caso o TEXINPUTS nao o alcance.
+    \IfFileExists{placeins.sty}{%
+      \usepackage{placeins}%
+    }{%
+      \makeatletter
+      \newcommand\FloatBarrier{%
+        \par
+        \begingroup
+          \let\@elt\relax
+          \xdef\fb@pendentes{\@deferlist}%
+        \endgroup
+        \ifx\fb@pendentes\@empty\else\clearpage\fi
+      }
+      \makeatother
+    }
     ```
 ---
 
