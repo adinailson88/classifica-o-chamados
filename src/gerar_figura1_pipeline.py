@@ -24,14 +24,14 @@ RAIZ = Path(__file__).resolve().parents[1]
 SAIDA = RAIZ / "04_artigo" / "figuras" / "fig_pipeline_governanca"
 
 ETAPAS = [
-    "1. Extracao e\nconsolidacao da base",
-    "2. Higienizacao\ntextual",
+    "1. Extração e\nconsolidação da base",
+    "2. Higienização\ntextual",
     "3. Matriz de\natributos",
-    "4. Treino e inferencia\nmultimodelo",
-    "5. Predicoes\nout-of-fold",
-    "6. Comparacao com\ncategoria historica",
-    "7. Analise estatistica\nnao parametrica",
-    "8. Validacao humana\n(divergencias e criticos)",
+    "4. Treino e inferência\nmultimodelo",
+    "5. Predições\nout-of-fold",
+    "6. Comparação com\ncategoria histórica",
+    "7. Análise estatística\nnão paramétrica",
+    "8. Validação humana\n(divergências e críticos)",
 ]
 POR_FILEIRA = 4
 COR_CAIXA = "#E8ECF1"
@@ -87,7 +87,7 @@ def gerar(saida: Path = SAIDA) -> list[Path]:
     ax.annotate("", xy=(x4 + 1.0, y4 + 0.45), xytext=(margem, y4 + 0.45),
                 arrowprops=dict(arrowstyle="-|>", color=COR["vermelho"], linewidth=1.1))
     ax.text((POR_FILEIRA - 1) * 1.18 / 2 + 0.5, volta - 0.12,
-            "retroalimentacao: a memoria de decisao informa novas rodadas de treino",
+            "retroalimentação: a memória de decisão informa novas rodadas de treino",
             ha="center", va="top", fontsize=6, style="italic", color=COR["vermelho"])
 
     ax.set_xlim(-0.10, margem + 0.12)

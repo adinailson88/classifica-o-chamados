@@ -34,7 +34,7 @@ NOMES_EXIBICAO = {
     "naive_bayes": "Naive Bayes",
     "linear_svc": "LinearSVC",
     "sgd": "SGD",
-    "regressao_logistica": "Regressao Log.",
+    "regressao_logistica": "Regressão Log.",
     "random_forest": "Random Forest",
     "extra_trees": "Extra Trees",
 }
