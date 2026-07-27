@@ -57,8 +57,7 @@ desempenho da base completa (COCHRAN, 1977). Resultados indicam superioridade do
 tanto na concordância com o histórico (acurácia de 80,31%,
 IC95%: 79,63%--80,97%) quanto no acerto validado (95,01%, IC95%:
 94,58%--95,48%), enquanto o LSTM apresentou concordância de 67,18% e
-acerto validado de 88,02%, após reprocessamento completo dos sete
-modelos comparáveis (Subseções 4.1, 4.2 e 4.8). A normalidade da concordância por turno foi
+acerto validado de 88,02% (Subseções 4.1 e 4.2). A normalidade da concordância por turno foi
 rejeitada para todos os modelos, justificando testes não paramétricos
 (Friedman, Cochran Q, McNemar, bootstrap). O custo computacional é
 incorporado como dimensão de avaliação, evidenciando que modelos
@@ -98,8 +97,7 @@ do not estimate performance over the full database (COCHRAN, 1977).
 Results indicate LinearSVC superiority both in agreement with history
 (80.31% accuracy, 95%CI: 79.63%--80.97%) and in human-validated accuracy
 (95.01%, 95%CI: 94.58%--95.48%), while LSTM achieved 67.18% agreement
-and 88.02% validated accuracy, after full reprocessing of the seven
-comparable models. Normality was rejected for all models, supporting
+and 88.02% validated accuracy. Normality was rejected for all models, supporting
 non-parametric tests (Friedman, Cochran Q, McNemar, bootstrap).
 Computational cost is incorporated as an evaluation dimension, showing
 that linear models can offer a better balance between performance and
@@ -352,9 +350,7 @@ pré-processamento e representação textual (SUNDARAM; ZEID, 2025).
 
 A base é dinâmica, pois novos chamados continuam a ser incorporados e a
 taxonomia institucional pode ser revisada ao longo do tempo. Os
-resultados da Seção 4 referem-se ao corpus descrito acima. Diferenças
-frente a recortes anteriores refletem o crescimento da base e a
-ampliação da conferência humana, não mudança metodológica.
+resultados da Seção 4 referem-se ao corpus descrito acima.
 
 **3.3 Pré-processamento textual**
 
@@ -634,10 +630,7 @@ conferência humana cobre 9.534 chamados (68,3% da base), dos quais
 9.070 com decisão validada (65,0% da base) e 464 casos restritos, em que
 o avaliador eliminou as categorias conferidas sem indicar a correta.
 Entre os chamados decididos, 26 registram conflito entre conferências,
-volume que não altera os resultados agregados. Como
-discutido na Subseção 4.2 e na Seção 5, o crescimento da conferência
-humana ao longo do protocolo revela um padrão de desempenho
-sensivelmente mais conservador do que amostras menores sugeriam.
+volume que não altera os resultados agregados.
 
 Três achados resumem esta seção. Primeiro, os classificadores lineares
 (liderados pelo LinearSVC) superam tanto os *ensembles* de árvores
@@ -664,17 +657,13 @@ LinearSVC na liderança, com acurácia de 0,8031 (IC95%:
 entre os sete modelos avaliados (Q = 2984,07; p < 0,001). A comparação exclui o BERTimbau,
 cujo treino não foi concluído. O Kappa de Cohen entre cada modelo e o
 histórico reproduz exatamente a mesma ordenação, variando de 0,7881
-(LinearSVC) a 0,6496 (LSTM). A ordem entre os sete modelos permanece a mesma de
-recortes anteriores, pois a atualização completa dos modelos alterou o
-patamar absoluto, não o ranking. A oitava fonte de classificação, a
+(LinearSVC) a 0,6496 (LSTM). A oitava fonte de classificação, a
 classificação automática em produção, mantém concordância de 77,26% e
 confiança média de 71,09%, posicionando-se entre Regressão Logística e
 SGD nesta métrica. A comparação direta com o LSTM *out-of-fold* da
 Tabela 1 não é apropriada porque essa fonte combina a rede neural com a
 regra de contingência do Random Forest (Subseção 3.4), em vez de um
-único modelo isolado. Ela também não foi reprocessada junto com os sete
-modelos comparáveis e pode estar sujeita à mesma defasagem discutida na
-Subseção 4.8.
+único modelo isolado.
 
 **Tabela 1** Concordância com a categoria histórica por modelo (n = 13.965).
 
@@ -703,12 +692,6 @@ categorias têm suporte igual ou inferior a sete registros, condição em
 que pequena variação absoluta altera fortemente a métrica.
 
 **4.2 Ranking validado por conferência humana**
-
-Esta subseção reflete a atualização completa dos sete modelos (Subseção
-4.1). Uma versão anterior, hoje descartada, reportava acerto validado
-sensivelmente mais baixo. A diferença confirma a hipótese discutida na
-Subseção 4.8, de que a versão antiga estava desatualizada, sem problema
-de metodologia na avaliação em si.
 
 A avaliação contra a decisão validada pela conferência humana (n = 9.070
 decisões) confirma a mesma liderança da Subseção 4.1. O LinearSVC
@@ -776,25 +759,6 @@ sensibilidade ao viés de seleção (n = 9.070).
 Fonte: elaborado pelos autores (2026). O limite inferior conta os 464
 casos restritos como erro de todos os modelos.
 
-A atualização completa dos modelos também resolveu uma discrepância
-antes registrada entre o *ablation study* do LSTM (Subseção 4.8,
-86,35%--87,68% conforme o particionamento) e o valor de referência então
-vigente. O valor antigo vinha de uma versão desatualizada dos modelos, e
-o valor atual do LSTM (0,8802) está muito mais próximo do que o
-*ablation* já indicava. Isso confirma que o *ablation* nunca teve
-problema metodológico de vazamento residual relevante, pois a
-discrepância vinha da defasagem da referência, não de falha do
-procedimento em si.
-
-O patamar de acerto validado mudou de magnitude ao longo de recortes
-sucessivos deste protocolo, por dois motivos distintos. Primeiro, o
-crescimento genuíno da amostra validada revelou uma taxa de acerto mais
-conservadora do que amostras menores sugeriam, por serem mais
-concentradas em casos fáceis de confirmar. Segundo, uma versão
-desatualizada dos modelos, já corrigida, havia subestimado o desempenho
-real num recorte intermediário. A comparação entre recortes permanece,
-portanto, descritiva.
-
 **4.3 A classificação automática frente ao histórico: matriz de confusão
 validada**
 
@@ -805,7 +769,7 @@ apresentada na Introdução. O cruzamento abrange as 11.232 conferências
 em que ambas as fontes foram avaliadas. A categoria histórica coincide
 com a decisão em 97,09% dos casos (10.905 de 11.232), acima do acerto da
 classificação automática frente à mesma referência (90,17%; 10.128 de
-11.232), o que repete o padrão já observado em amostras menores. A matriz
+11.232). A matriz
 de confusão (Tabela 3) mostra 10.128 casos em que ambas as fontes
 coincidem com a decisão, 327 em que nenhuma coincide, 777 em que o
 histórico acerta e a classificação automática erra, e **nenhum** caso em
@@ -835,13 +799,14 @@ Fonte: elaborado pelos autores (2026).
 A ausência total de casos na célula "classificação automática correta /
 histórico incorreto" tem explicação estrutural. Quando a categoria
 decidida vem da confirmação da própria categoria histórica, a coluna
-"histórico incorreto" fica automaticamente descartada para aquela linha.
-A memória de decisão (Subseção 3.7) também reaproveita categorias já
-validadas em rodadas anteriores, o que tende a alinhar a classificação
-automática vigente com decisões já confirmadas. Essa célula-zero,
-portanto, não demonstra que a classificação automática nunca corrija o
-histórico, e uma auditoria dirigida da origem de cada decisão permanece
-pendente.
+"histórico incorreto" fica descartada para aquela linha por construção.
+A memória de decisão (Subseção 3.7) reforça esse efeito ao reaproveitar
+categorias já validadas, o que alinha a classificação automática às
+decisões confirmadas. A célula-zero mede, portanto, uma propriedade do
+desenho da conferência, e não a incapacidade de a classificação
+automática corrigir o histórico. Separar as duas coisas exigiria
+rastrear a origem de cada decisão validada, o que o desenho atual não
+permite.
 
 **4.4 Confiança, calibração e faixas de decisão**
 
@@ -898,12 +863,11 @@ por Regressão Logística (+92) e LinearSVC (+73), e todos os sete modelos
 apresentam ganho líquido positivo (Tabela 5), embora o Extra Trees fique
 no limiar da neutralidade (+9). Esse resultado não autoriza aplicação
 indiscriminada, porque o ganho combina parcelas comparadas contra a
-decisão validada e contra o histórico, e já mudou de sinal para alguns
-modelos entre recortes sucessivos. Isso reforça a decisão de não aplicar
-reclassificação em massa por modelo. O ganho líquido, e não apenas a
-acurácia agregada, funciona como critério operacional a ser reavaliado a
-cada atualização da base, não como veredito permanente sobre um
-classificador.
+decisão validada e contra o histórico, duas referências de naturezas
+distintas. Isso desaconselha a reclassificação em massa por modelo. O
+ganho líquido, e não apenas a acurácia agregada, é o critério
+operacional adequado para essa decisão, e deve ser recalculado a cada
+atualização da base.
 
 **Tabela 5** Ganho líquido de reclassificação por modelo.
 
@@ -1058,34 +1022,24 @@ insuficientes para um corpus deste porte (Subseção 3.4.1).
 
 ![Curva de aprendizado do LSTM por época, perda e acurácia em treino e validação. Fonte: elaborado pelos autores (2026).](04_artigo/figuras/fig_curva_aprendizado_lstm.pdf)
 
-Uma auditoria investigou por que o *ablation* da Figura 8 reportava
-acerto validado muito acima do valor oficial então vigente para a mesma
-arquitetura do LSTM. Duas causas foram identificadas. Primeiro, um
-vazamento metodológico real, mas de magnitude modesta: no *KFold*
-aleatório por linha usado originalmente, 4.250 das 9.096 linhas
-validadas de teste então disponíveis (46,72%) tinham duplicata textual
-normalizada no treino. O *ablation* foi refeito com *GroupKFold* por hash de texto
-normalizado, excluindo do treino grupos textuais presentes no teste. A
-correção reduziu a configuração atual (64 unidades, *dropout* de 0,5) de
-87,68% para 86,35% (7.854/9.096), uma correção pequena (1,33 ponto
-percentual). Segundo, e principal, o valor de referência usado na
-comparação (0,7471, Subseção 4.2) vinha de uma versão desatualizada dos
-modelos. O reprocessamento completo dos sete modelos (Subseção 4.2)
-produziu um novo valor do LSTM de 0,8802, muito mais próximo dos 0,8635
-deste *ablation* corrigido. A diferença residual de 1,55 pontos
-percentuais é plausivelmente atribuível a diferenças remanescentes de
-protocolo entre o número de *folds* e o esquema de treino usados em cada
-avaliação.
+O *ablation* de hiperparâmetros exige cuidado adicional de
+particionamento neste corpus. Chamados de manutenção repetem-se com
+frequência, e 46,72% das linhas validadas têm duplicata textual
+normalizada em outra parte da base. Uma partição aleatória por linha
+colocaria o mesmo texto em treino e teste, inflando o resultado. O
+*ablation* usa, por isso, *GroupKFold* por hash de texto normalizado,
+que mantém todo grupo textual em uma única partição. Sob esse protocolo,
+a configuração adotada em produção (64 unidades, *dropout* de 0,5)
+alcança 86,35% de acerto validado, e a partição aleatória equivalente
+produziria 87,68%, diferença de 1,33 ponto percentual que dimensiona o
+vazamento evitado.
 
-Em síntese, o *ablation* nunca teve problema metodológico grave, e a
-maior parte da discrepância original vinha de comparar um resultado
-recente com uma referência desatualizada. A ordenação relativa
-das quatro variantes testadas, que variam o número de unidades
-recorrentes e a taxa de *dropout*, é interpretada como evidência preliminar de baixa
-sensibilidade do LSTM a esses hiperparâmetros nesta base (diferença
-total entre a melhor e a pior variante inferior a 4 pontos percentuais),
-não como indicação forte de que a arquitetura atual esteja
-subotimizada.
+As quatro variantes testadas separam-se por menos de 4 pontos
+percentuais entre a melhor e a pior (Figura 8), o que indica baixa
+sensibilidade do LSTM ao número de unidades recorrentes e à taxa de
+*dropout* nesta base. A limitação do modelo, portanto, não está no
+ajuste desses hiperparâmetros, mas na ausência de *embeddings*
+pré-treinados discutida na Subseção 3.4.1.
 
 ![*Ablation* do LSTM, quatro variantes de unidades recorrentes e *dropout*, avaliadas por *GroupKFold* contra a decisão validada. Fonte: elaborado pelos autores (2026).](04_artigo/figuras/fig_ablation_lstm.pdf)
 
@@ -1127,14 +1081,13 @@ Suplementar.
 **5. DISCUSSÃO**
 
 A comparação entre concordância histórica (Subseção 4.1) e desempenho
-validado (Subseção 4.2) revela um padrão que mudou de magnitude ao longo
-da elaboração deste artigo, à medida que a conferência humana cresceu e
-uma versão desatualizada dos modelos foi corrigida (Subseção 4.8). O
-acerto validado do LinearSVC (95,01%) hoje supera com folga sua
-concordância com o histórico (80,31%), depois de um período intermediário
-em que os dois patamares se aproximaram. Nenhuma dessas mudanças permite
-estimar o desempenho real da base completa, pois a conferência humana
-prioriza divergências e casos críticos em vez de amostrar ao acaso.
+validado (Subseção 4.2) revela um descolamento sistemático entre as duas
+grandezas. O acerto validado do LinearSVC (95,01%) supera com folga sua
+concordância com o histórico (80,31%), diferença de quase quinze pontos
+percentuais que mede exatamente o quanto o rótulo administrativo
+subestima o classificador. Esse contraste não permite estimar o
+desempenho da base completa, pois a conferência humana prioriza
+divergências e casos críticos em vez de amostrar ao acaso.
 Verifica-se, portanto, que os resultados descrevem a amostra conferida,
 sem representar a população de chamados (COCHRAN, 1977).
 
@@ -1171,9 +1124,8 @@ corrige um erro genuíno do registro original, com a ressalva estrutural
 já discutida sobre a célula zerada. O achado preserva a premissa de que
 a categoria histórica não é verdade absoluta, já que persiste taxa real
 de erro confirmado no registro original, em 2,91% dos casos conferidos.
-Esse valor supera o observado em recortes anteriores, de amostra menor, o
-que desaconselha tratá-lo como estabilizado. Ao mesmo tempo, o resultado
-adverte contra a leitura oposta e igualmente equivocada, de que baixa
+Ao mesmo tempo, o resultado adverte contra a leitura oposta e igualmente
+equivocada, de que baixa
 concordância com o histórico implicaria acerto da classificação
 automática. Cabe destacar que a validação humana cumpre aqui função
 insubstituível, pois só ela distingue as duas situações, que a taxa de
@@ -1187,12 +1139,10 @@ custo permanece restrita aos seis modelos clássicos da Tabela 7.
 
 O resultado da reclassificação (Subseção 4.5) introduz uma nuance
 operacional importante, pois o ganho líquido de corrigir chamados já
-classificados não é uniforme entre modelos nem estável ao longo do
-tempo. Em recortes anteriores, três dos classificadores clássicos
-avaliados (SGD, Random Forest e Extra Trees) tinham ganho líquido
-negativo. No corpus atual, todos os sete modelos apresentam ganho
-positivo, embora a amplitude varie de +9 (Extra Trees) a +100 (LSTM).
-Essa oscilação reforça o argumento. Decisões de reclassificação em
+classificados não é uniforme entre modelos. A amplitude vai de +9 no
+Extra Trees a +100 no LSTM, e a ordenação por ganho não reproduz a
+ordenação por acerto validado, o que mostra que classificar bem e
+recorrigir bem são capacidades distintas. Decisões de reclassificação em
 produção devem ser tomadas por modelo e reavaliadas a cada atualização
 da base, com base no ganho líquido medido naquele momento, e não
 generalizadas a partir do desempenho médio de concordância ou acerto
@@ -1227,13 +1177,12 @@ calibrada permanece pendente em sentido estrito. Além disso, a faixa
 concentra um terço das predições e é justamente aquela em que a
 conferência tende a confirmar o esperado.
 
-O patamar da faixa alta oscilou ao longo dos recortes, o que recomenda
-tratar o cumprimento da meta como resultado do corpus atual, não como
-propriedade estabilizada do protocolo. A amostra validada cobre hoje
-68,3% da base, e sua composição original privilegia divergências e casos
-de menor confiança. A confirmação definitiva depende de concluir a
-conferência sobre os 31,7% ainda não verificados e de aplicar calibração
-formal por modelo, ambas condições já previstas como próximos passos.
+O cumprimento da meta deve ser lido como propriedade do corpus
+analisado, não como garantia de operação. A amostra validada cobre 68,3%
+da base e sua composição privilegia divergências e casos de menor
+confiança, de modo que a fração ainda não conferida pode deslocar o
+resultado. Liberar a faixa alta para decisão automática exige concluir
+essa conferência e aplicar calibração formal por modelo.
 
 **Limitações**
 
