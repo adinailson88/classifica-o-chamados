@@ -1,5 +1,5 @@
 {
-  "gerado_em": "27/07/2026 06:59",
+  "gerado_em": "27/07/2026 16:41",
   "natureza": "analise exploratoria de erros da IA contra a conferencia humana; orienta a qualidade da ABERTURA do chamado, nao e metrica de producao",
   "n_conferidos_ia": 8703,
   "minimo_recomendado": 30,
@@ -64,11 +64,11 @@
     {
       "caracteristica": "cobertura_termos_categoria",
       "n_erros": 160,
-      "n_acertos": 8324,
+      "n_acertos": 8277,
       "mediana_erros": 0.08,
       "mediana_acertos": 0.32,
-      "p_mann_whitney": 2.900500538705773e-56,
-      "delta_cliff": -0.7238
+      "p_mann_whitney": 1.150143270630961e-56,
+      "delta_cliff": -0.7265
     }
   ],
   "leitura": "Se 'cobertura_termos_categoria' e comprimentos forem significativamente menores nos ERROS (p<0,05 e |delta de Cliff|>=0,147), a hipotese se confirma: texto pobre -> erro de categoria. O checklist por categoria lista os termos discriminativos ausentes nos erros — e a informacao que o formulario deve induzir o solicitante a fornecer, sem nunca pedir a categoria em si.",
@@ -344,9 +344,9 @@
     },
     {
       "categoria": "Hidrossanitária > Hidráulica",
-      "n_conferidos": 662,
+      "n_conferidos": 648,
       "erros_ia": 29,
-      "taxa_erro_ia": 0.0438,
+      "taxa_erro_ia": 0.0448,
       "termos_que_faltaram_nos_erros": [
         {
           "termo": "banheiro masculino",
@@ -393,9 +393,9 @@
     },
     {
       "categoria": "Elétrica > Iluminação",
-      "n_conferidos": 634,
+      "n_conferidos": 625,
       "erros_ia": 23,
-      "taxa_erro_ia": 0.0363,
+      "taxa_erro_ia": 0.0368,
       "termos_que_faltaram_nos_erros": [
         {
           "termo": "externa",
@@ -482,6 +482,47 @@
       "informacao_a_solicitar": null
     },
     {
+      "categoria": "Estrutura Predial > Esquadrias, porta, portão e janelas",
+      "n_conferidos": 697,
+      "erros_ia": 12,
+      "taxa_erro_ia": 0.0172,
+      "termos_que_faltaram_nos_erros": [
+        {
+          "termo": "chave",
+          "ausente_em": 12
+        },
+        {
+          "termo": "cadeado",
+          "ausente_em": 12
+        },
+        {
+          "termo": "conserto",
+          "ausente_em": 12
+        },
+        {
+          "termo": "fechadura porta",
+          "ausente_em": 12
+        },
+        {
+          "termo": "troca fechadura",
+          "ausente_em": 12
+        },
+        {
+          "termo": "abrir",
+          "ausente_em": 12
+        },
+        {
+          "termo": "fechar",
+          "ausente_em": 12
+        },
+        {
+          "termo": "porta vidro",
+          "ausente_em": 12
+        }
+      ],
+      "informacao_a_solicitar": "Pedir que o solicitante descreva o problema citando o objeto e o sintoma (vocabulario tipico desta categoria: chave, cadeado, conserto, fechadura porta, troca fechadura)."
+    },
+    {
       "categoria": "Manutenção Preventiva > Vistoria em Instalações",
       "n_conferidos": 233,
       "erros_ia": 4,
@@ -523,51 +564,10 @@
       "informacao_a_solicitar": "Pedir que o solicitante descreva o problema citando o objeto e o sintoma (vocabulario tipico desta categoria: vistoria, necessidade, informada, devera informada, preventivas)."
     },
     {
-      "categoria": "Estrutura Predial > Esquadrias, porta, portão e janelas",
-      "n_conferidos": 707,
-      "erros_ia": 12,
-      "taxa_erro_ia": 0.017,
-      "termos_que_faltaram_nos_erros": [
-        {
-          "termo": "chave",
-          "ausente_em": 12
-        },
-        {
-          "termo": "cadeado",
-          "ausente_em": 12
-        },
-        {
-          "termo": "conserto",
-          "ausente_em": 12
-        },
-        {
-          "termo": "fechadura porta",
-          "ausente_em": 12
-        },
-        {
-          "termo": "troca fechadura",
-          "ausente_em": 12
-        },
-        {
-          "termo": "abrir",
-          "ausente_em": 12
-        },
-        {
-          "termo": "fechar",
-          "ausente_em": 12
-        },
-        {
-          "termo": "porta vidro",
-          "ausente_em": 12
-        }
-      ],
-      "informacao_a_solicitar": "Pedir que o solicitante descreva o problema citando o objeto e o sintoma (vocabulario tipico desta categoria: chave, cadeado, conserto, fechadura porta, troca fechadura)."
-    },
-    {
       "categoria": "Climatização > Ar condicionado split",
-      "n_conferidos": 1275,
+      "n_conferidos": 1268,
       "erros_ia": 10,
-      "taxa_erro_ia": 0.0078,
+      "taxa_erro_ia": 0.0079,
       "termos_que_faltaram_nos_erros": [
         {
           "termo": "aparelhos",
@@ -696,7 +696,7 @@
     },
     {
       "categoria": "Elétrica > Nobreak",
-      "n_conferidos": 112,
+      "n_conferidos": 110,
       "erros_ia": 0,
       "taxa_erro_ia": 0.0,
       "termos_que_faltaram_nos_erros": [],
@@ -752,7 +752,7 @@
     },
     {
       "categoria": "Manutenção Preventiva > Sistemas de combate a incêndio (extintores, hidrantes)",
-      "n_conferidos": 53,
+      "n_conferidos": 51,
       "erros_ia": 0,
       "taxa_erro_ia": 0.0,
       "termos_que_faltaram_nos_erros": [],
@@ -784,7 +784,7 @@
     },
     {
       "categoria": "Manutenção Preventiva > Ar condicionado split",
-      "n_conferidos": 1757,
+      "n_conferidos": 1755,
       "erros_ia": 0,
       "taxa_erro_ia": 0.0,
       "termos_que_faltaram_nos_erros": [],
@@ -800,7 +800,7 @@
     },
     {
       "categoria": "Climatização > Ar condicionado central",
-      "n_conferidos": 28,
+      "n_conferidos": 27,
       "erros_ia": 0,
       "taxa_erro_ia": 0.0,
       "termos_que_faltaram_nos_erros": [],
