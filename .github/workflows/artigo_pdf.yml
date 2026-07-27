@@ -1,74 +1,32 @@
-name: Aplicar revisao editorial final PR 75
+name: Gerar PDF do artigo
+
+# Converte 04_artigo/artigo_classificacao_chamados_v3.md em PDF via pandoc/xelatex
+# e publica em docs/ (GitHub Pages), ao lado do painel. So LE o .md do repositorio;
+# nao le a planilha e nao usa credenciais. Ver docs/PLANO_PDF_ARTIGO_PAGES.md.
 
 on:
   push:
-    branches: [agent/corrigir-sincronizacao-artigo]
+    branches: [main]
+    paths:
+      - "04_artigo/artigo_classificacao_chamados_v3.md"
+      - ".github/workflows/artigo_pdf.yml"
   workflow_dispatch:
 
 concurrency:
-  group: revisao-editorial-final-pr75
-  cancel-in-progress: true
+  group: gerar-pdf-artigo
+  cancel-in-progress: false
 
 permissions:
   contents: write
 
 jobs:
-  revisar:
+  gerar-pdf:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v6
-        with:
-          ref: agent/corrigir-sincronizacao-artigo
-          fetch-depth: 0
 
-      - uses: actions/setup-python@v6
-        with:
-          python-version: "3.11"
-          cache: "pip"
-          cache-dependency-path: requirements-leves.txt
-
-      - name: Instalar dependencias
-        run: |
-          python -m pip install --retries 5 --timeout 120 -r requirements-leves.txt
-          python -m pip install --retries 5 --timeout 120 pymupdf
-
-      - name: Aplicar revisao editorial
-        run: |
-          python -m py_compile src/aplicar_revisao_editorial_final.py
-          python src/aplicar_revisao_editorial_final.py
-
-      - name: Validar texto e testes
-        run: |
-          python -m unittest discover -s tests
-          python - <<'PY'
-          from pathlib import Path
-          texto = Path('04_artigo/artigo_classificacao_chamados_v3.md').read_text(encoding='utf-8')
-          proibidos = [
-              'nesta consolidação', 'nesta execução', 'nesta rodada', 'nesta data',
-              '**Tabela 4** Matriz de confusão',
-              '**Apêndice A — Checklist de itens reportados**',
-          ]
-          for termo in proibidos:
-              if termo.lower() in texto.lower():
-                  raise SystemExit(f'Resíduo editorial encontrado: {termo}')
-          esperados = [
-              '**Tabela 4** Ganho líquido de reclassificação por modelo',
-              '**Tabela 5** Entropia de Shannon',
-              '**Tabela 6** Custo computacional',
-              '**Apêndice A — Matriz de decisão M/N/P**',
-              '**4.10 Robustez estatística**',
-              'material_suplementar_estatistica_checklist.md',
-          ]
-          for termo in esperados[:-1]:
-              if termo not in texto:
-                  raise SystemExit(f'Elemento esperado ausente: {termo}')
-          if not Path('04_artigo/material_suplementar_estatistica_checklist.md').exists():
-              raise SystemExit('Material Suplementar não foi criado')
-          print('Validação editorial aprovada')
-          PY
-
-      - name: Gerar PDF
+      - name: Gerar PDF (pandoc + xelatex)
         uses: docker://pandoc/extra:latest
         with:
           args: >-
@@ -79,35 +37,14 @@ jobs:
             -V geometry:margin=2.5cm
             --standalone
 
-      - name: Validar PDF
-        run: |
-          python - <<'PY'
-          from pathlib import Path
-          import fitz
-          caminho = Path('docs/artigo_classificacao_chamados.pdf')
-          if not caminho.exists() or caminho.stat().st_size < 100000:
-              raise SystemExit('PDF ausente ou incompleto')
-          doc = fitz.open(caminho)
-          if len(doc) < 10:
-              raise SystemExit(f'Número de páginas inesperado: {len(doc)}')
-          texto = ''.join(p.get_text() for p in doc)
-          for termo in ['RESUMO', '4.10 Robustez estatística', 'CONSIDERAÇÕES FINAIS', 'Apêndice A']:
-              if termo not in texto:
-                  raise SystemExit(f'Texto esperado ausente do PDF: {termo}')
-          print(f'PDF validado: {len(doc)} páginas, {caminho.stat().st_size} bytes')
-          PY
-
-      - name: Restaurar workflow permanente e commitar
+      - name: Commitar PDF gerado
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git show origin/main:.github/workflows/artigo_pdf.yml > .github/workflows/artigo_pdf.yml
-          git rm -f src/aplicar_revisao_editorial_final.py
-          git rm -f .github/workflows/finalizar_documentacao_pr75.yml 2>/dev/null || true
-          git add .github/workflows/artigo_pdf.yml \
-            04_artigo/artigo_classificacao_chamados_v3.md \
-            04_artigo/material_suplementar_estatistica_checklist.md \
-            docs/artigo_classificacao_chamados.pdf \
-            PLANO_ARTIGO_CAPITULO.md
-          git commit -m "docs: aplica revisão editorial científica final [skip ci]"
-          git push origin HEAD:agent/corrigir-sincronizacao-artigo
+          git add docs/artigo_classificacao_chamados.pdf
+          if git diff --cached --quiet; then
+            echo "PDF sem mudancas, nada a commitar."
+          else
+            git commit -m "pdf do artigo gerado automaticamente [skip ci]"
+            git push
+          fi
