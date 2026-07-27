@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Gera a Figura 4 e a Tabela S2 do artigo a partir de estatistica.json.
+"""Gera a Figura 3 e a Tabela S2 do artigo a partir de estatistica.json.
 
 A figura usa codigos C01..Cnn para manter o grafico legivel; a Tabela S2
 mantem o mapeamento completo codigo -> categoria real em UTF-8.
@@ -9,16 +9,20 @@ from __future__ import annotations
 
 import csv
 import json
+import sys
 from collections import defaultdict
 from pathlib import Path
 
 import matplotlib.pyplot as plt
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from estilo_figuras import COR, LARGURA_DUPLA, aplicar_estilo, limpar_eixo, salvar  # noqa: E402
+
 
 RAIZ = Path(__file__).resolve().parents[1]
 ENTRADA = RAIZ / "docs" / "dados" / "estatistica.json"
-SAIDA_FIGURA = RAIZ / "04_artigo" / "figuras" / "fig4_top_confusoes.png"
-SAIDA_TABELA = RAIZ / "04_artigo" / "figuras" / "tabela_S2_codigos_categorias_fig4.csv"
+SAIDA_FIGURA = RAIZ / "04_artigo" / "figuras" / "fig3_top_confusoes"
+SAIDA_TABELA = RAIZ / "04_artigo" / "figuras" / "tabela_S2_codigos_categorias.csv"
 TOP_N = 15
 
 
@@ -66,21 +70,20 @@ def _salvar_figura(pares_top: list[dict], codigos: dict[str, str]) -> None:
     rotulos = [f"{codigos[p['de']]} -> {codigos[p['para']]}" for p in pares_top]
     valores = [p["total"] for p in pares_top]
 
-    fig, ax = plt.subplots(figsize=(10, 7))
+    aplicar_estilo()
+    fig, ax = plt.subplots(figsize=(LARGURA_DUPLA, 3.6))
     y = range(len(pares_top))
-    ax.barh(y, valores, color="#2f6f8f")
+    ax.barh(y, valores, color=COR["azul"], height=0.7)
     ax.set_yticks(y, labels=rotulos)
     ax.invert_yaxis()
-    ax.set_xlabel("Ocorrencias agregadas nos top pares por modelo")
-    ax.set_ylabel("Par historico -> predicao")
-    ax.grid(axis="x", linestyle="--", linewidth=0.6, alpha=0.35)
-    ax.spines[["top", "right"]].set_visible(False)
+    ax.set_xlabel("Ocorrencias agregadas entre modelos")
+    ax.set_ylabel("Par categoria historica -> predicao")
+    limpar_eixo(ax, eixo_grade="x")
     for idx, valor in enumerate(valores):
-        ax.text(valor + max(valores) * 0.01, idx, str(valor), va="center", fontsize=9)
+        ax.text(valor + max(valores) * 0.01, idx, str(valor), va="center", fontsize=6)
     fig.tight_layout()
-    SAIDA_FIGURA.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(SAIDA_FIGURA, dpi=300)
-    plt.close(fig)
+    for caminho in salvar(fig, SAIDA_FIGURA):
+        print(f"figura={caminho.relative_to(RAIZ)}")
 
 
 def main() -> int:
@@ -91,7 +94,6 @@ def main() -> int:
     codigos = _codificar_categorias(pares_top)
     _salvar_tabela_s2(codigos)
     _salvar_figura(pares_top, codigos)
-    print(f"Figura 4 gerada: {SAIDA_FIGURA.relative_to(RAIZ)}")
     print(f"Tabela S2 gerada: {SAIDA_TABELA.relative_to(RAIZ)} ({len(codigos)} categorias)")
     print(f"Pares plotados: {len(pares_top)}")
     return 0

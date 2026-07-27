@@ -111,34 +111,27 @@ def carregar_base_planilha(config: dict, credenciais: str | Path | None = None) 
 
 
 def plotar_history(history: dict, caminho: str | Path) -> None:
-    """Plota loss/val_loss e accuracy/val_accuracy por epoca."""
-    import matplotlib.pyplot as plt
+    """Grava o historico e delega a plotagem ao gerador da Figura 5.
+
+    O desenho da figura vive em `src/gerar_figura5_curva_aprendizado.py`, que
+    le o JSON de historico. Manter um unico gerador evita que a figura do
+    treino e a figura do artigo divirjam em estilo ou formato.
+    """
+    import json
+    import tempfile
+
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from gerar_figura5_curva_aprendizado import gerar as gerar_figura5
 
     caminho = Path(caminho)
-    caminho.parent.mkdir(parents=True, exist_ok=True)
-    epocas = range(1, len(history.get("loss", [])) + 1)
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4.5))
-    axes[0].plot(epocas, history.get("loss", []), marker="o", label="loss")
-    if history.get("val_loss"):
-        axes[0].plot(epocas, history.get("val_loss", []), marker="o", label="val_loss")
-    axes[0].set_title("Perda por epoca")
-    axes[0].set_xlabel("Epoca")
-    axes[0].set_ylabel("Loss")
-    axes[0].grid(alpha=0.3)
-    axes[0].legend()
-
-    axes[1].plot(epocas, history.get("accuracy", []), marker="o", label="accuracy")
-    if history.get("val_accuracy"):
-        axes[1].plot(epocas, history.get("val_accuracy", []), marker="o", label="val_accuracy")
-    axes[1].set_title("Acuracia por epoca")
-    axes[1].set_xlabel("Epoca")
-    axes[1].set_ylabel("Accuracy")
-    axes[1].grid(alpha=0.3)
-    axes[1].legend()
-
-    fig.tight_layout()
-    fig.savefig(caminho, dpi=300)
-    plt.close(fig)
+    with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False,
+                                     encoding="utf-8") as tmp:
+        json.dump(history, tmp)
+        temporario = Path(tmp.name)
+    try:
+        gerar_figura5(temporario, caminho.with_suffix(""))
+    finally:
+        temporario.unlink(missing_ok=True)
 
 
 class ClassificadorLSTM:
@@ -302,7 +295,7 @@ def _parse_args():
     p.add_argument("--history-json", type=Path,
                    default=Path(__file__).resolve().parents[1] / "04_artigo" / "figuras" / "lstm_history.json")
     p.add_argument("--history-fig", type=Path,
-                   default=Path(__file__).resolve().parents[1] / "04_artigo" / "figuras" / "fig5_curva_aprendizado_lstm.png")
+                   default=Path(__file__).resolve().parents[1] / "04_artigo" / "figuras" / "fig5_curva_aprendizado_lstm")
     p.add_argument("--epochs", type=int, default=None)
     p.add_argument("--batch-size", type=int, default=None)
     p.add_argument("--validation-split", type=float, default=0.1)

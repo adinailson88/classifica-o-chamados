@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Gera a Figura 3 do artigo: trade-off entre acerto validado e custo computacional.
+"""Gera a Figura 4 do artigo: trade-off entre acerto validado e custo computacional.
 
 Cruza dois JSONs sem recalcular nada:
   - `docs/dados/comparacao_modelos.json`: tempo de treino por modelo classico,
@@ -17,14 +17,18 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from pathlib import Path
 
 import matplotlib.pyplot as plt
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from estilo_figuras import COR, LARGURA_COLUNA, aplicar_estilo, salvar  # noqa: E402
+
 RAIZ = Path(__file__).resolve().parents[1]
 CUSTO_PADRAO = RAIZ / "docs" / "dados" / "comparacao_modelos.json"
 AVALIACAO_PADRAO = RAIZ / "docs" / "dados" / "avaliacao_final.json"
-SAIDA_PADRAO = RAIZ / "04_artigo" / "figuras" / "fig3_tradeoff_custo.png"
+SAIDA_PADRAO = RAIZ / "04_artigo" / "figuras" / "fig4_tradeoff_custo"
 
 NOMES_EXIBICAO = {
     "naive_bayes": "Naive Bayes",
@@ -59,22 +63,25 @@ def gerar(custo_path: Path, avaliacao_path: Path, saida: Path) -> None:
     ys = [100 * acerto_por_modelo[m] for m in modelos]
     labels = [NOMES_EXIBICAO.get(m, m) for m in modelos]
 
-    fig, ax = plt.subplots(figsize=(9, 6))
-    ax.scatter(xs, ys, s=180, color="#1f5c8b", edgecolor="white", linewidth=1.2, zorder=3)
+    aplicar_estilo()
+    fig, ax = plt.subplots(figsize=(LARGURA_COLUNA, 2.8))
+    ax.scatter(xs, ys, s=45, color=COR["azul"], edgecolor="white", linewidth=0.8, zorder=3)
+    # Rotulos dos pontos mais a direita viram para dentro, para nao vazar da figura.
+    limite = sorted(xs)[len(xs) // 2]
     for x, y, label in zip(xs, ys, labels):
-        ax.annotate(label, xy=(x, y), xytext=(8, 4), textcoords="offset points", fontsize=11)
+        a_esquerda = x > limite
+        ax.annotate(label, xy=(x, y),
+                    xytext=(-5 if a_esquerda else 5, 3), textcoords="offset points",
+                    ha="right" if a_esquerda else "left", fontsize=6)
 
     ax.set_xscale("log")
-    ax.set_xlabel(f"Tempo de treino (s, escala log) - lote de 1.000 registros, {executado_em.split(' ')[0] if executado_em else ''}")
-    ax.set_ylabel(f"Acerto validado (%) - conferencia humana, {conferencia_data.split(' ')[0] if conferencia_data else ''}")
-    ax.grid(axis="both", linestyle="--", linewidth=0.6, alpha=0.35)
+    ax.set_xlabel("Tempo de treino (s, escala log)")
+    ax.set_ylabel("Acerto validado (%)")
     ax.spines[["top", "right"]].set_visible(False)
 
     fig.tight_layout()
-    saida.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(saida, dpi=300)
-    plt.close(fig)
-    print(f"figura={saida}")
+    for caminho in salvar(fig, saida):
+        print(f"figura={caminho.relative_to(RAIZ)}")
     print(f"modelos={modelos}")
 
 
@@ -82,7 +89,8 @@ def main() -> int:
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--custo", type=Path, default=CUSTO_PADRAO)
     p.add_argument("--avaliacao", type=Path, default=AVALIACAO_PADRAO)
-    p.add_argument("--saida", type=Path, default=SAIDA_PADRAO)
+    p.add_argument("--saida", type=Path, default=SAIDA_PADRAO,
+                   help="caminho sem extensao; grava .pdf e .png")
     args = p.parse_args()
     gerar(args.custo, args.avaliacao, args.saida)
     return 0

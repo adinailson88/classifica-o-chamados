@@ -314,7 +314,7 @@ categoria histórica; (vii) análise estatística não paramétrica; e (viii)
 validação humana das divergências e amostras críticas. A Figura 1
 apresenta esse fluxo como *pipeline* de governança preditiva.
 
-![Figura 1 — Pipeline de governança preditiva: fluxo metodológico completo, da extração da base à retroalimentação por validação humana.](04_artigo/figuras/fig1_pipeline_governanca.png)
+![Figura 1 — Pipeline de governança preditiva: fluxo metodológico completo, da extração da base à retroalimentação por validação humana.](04_artigo/figuras/fig1_pipeline_governanca.pdf)
 
 **Figura 1** Pipeline de governança preditiva: fluxo metodológico
 completo, da extração da base à retroalimentação por validação humana.
@@ -882,7 +882,7 @@ A Figura 2 apresenta esses mesmos valores em forma gráfica, tornando
 visível o descolamento entre concordância com o histórico e acerto
 validado nas faixas inferiores de confiança.
 
-![Figura 2 — Confiança bruta, concordância com o histórico e acerto validado, por faixa de confiança.](04_artigo/figuras/fig2_confianca_desfecho.png)
+![Figura 2 — Confiança bruta, concordância com o histórico e acerto validado, por faixa de confiança.](04_artigo/figuras/fig2_confianca_desfecho.pdf)
 
 **Figura 2** Concordância com o histórico e acerto validado por faixa de
 confiança bruta da classificação automática.
@@ -953,7 +953,7 @@ recíproca, dominados pela fronteira entre climatização corretiva e
 manutenção preventiva de ar condicionado, seguida pelas fronteiras
 internas de estrutura predial.
 
-![Figura 3 — Quinze pares de maior confusão entre categorias.](04_artigo/figuras/fig4_top_confusoes.png)
+![Figura 3 — Quinze pares de maior confusão entre categorias.](04_artigo/figuras/fig3_top_confusoes.pdf)
 
 **Figura 3** Quinze pares de categorias com maior confusão recíproca,
 agregados entre modelos. Os códigos do eixo vertical são descritos na
@@ -1003,7 +1003,7 @@ A Figura 4 cruza essas medições de custo com o acerto validado da Tabela
 2 e mostra que o LinearSVC ocupa a posição mais favorável, com o maior
 acerto validado a um custo de treino próximo do menor observado.
 
-![Figura 4 — Trade-off entre acerto validado e custo computacional.](04_artigo/figuras/fig3_tradeoff_custo.png)
+![Figura 4 — Trade-off entre acerto validado e custo computacional.](04_artigo/figuras/fig4_tradeoff_custo.pdf)
 
 **Figura 4** Trade-off entre acerto validado e tempo de treino, modelos
 clássicos.
@@ -1019,7 +1019,7 @@ validação na época 10 (0,6722). O padrão indica saturação precoce,
 consistente com a hipótese de que *embeddings* treinados do zero são
 insuficientes para um corpus deste porte (Subseção 3.4.1).
 
-![Figura 5 — Curva de aprendizado do LSTM por época.](04_artigo/figuras/fig5_curva_aprendizado_lstm.png)
+![Figura 5 — Curva de aprendizado do LSTM por época.](04_artigo/figuras/fig5_curva_aprendizado_lstm.pdf)
 
 **Figura 5** Curva de aprendizado do LSTM por época, perda e acurácia em
 treino e validação.
@@ -1055,7 +1055,7 @@ total entre a melhor e a pior variante inferior a 4 pontos percentuais),
 não como indicação forte de que a arquitetura atual esteja
 subotimizada.
 
-![Figura 6 — Ablation do LSTM: unidades recorrentes e dropout.](04_artigo/figuras/fig6_ablation_lstm.png)
+![Figura 6 — Ablation do LSTM: unidades recorrentes e dropout.](04_artigo/figuras/fig6_ablation_lstm.pdf)
 
 **Figura 6** *Ablation* do LSTM, quatro variantes de unidades
 recorrentes e *dropout*, avaliadas por *GroupKFold* contra a decisão
