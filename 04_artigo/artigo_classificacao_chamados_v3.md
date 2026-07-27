@@ -650,10 +650,9 @@ LinearSVC na liderança, com acurácia de 0,8029 (IC95%:
 (0,7799), SGD (0,7765), Regressão Logística (0,7677), Naive Bayes
 (0,6996) e LSTM (0,6813). O teste de Cochran Q confirma diferença global
 entre os sete modelos avaliados (Q = 2680,70; p < 0,001). A comparação exclui o BERTimbau,
-cujo treino não foi concluído. O Kappa de Cohen entre cada modelo e o histórico acompanha
-ordenamento muito próximo (LinearSVC 0,7880; Extra Trees 0,7707; Random
-Forest 0,7612; SGD 0,7603; Regressão Logística 0,7513; Naive Bayes
-0,6703; LSTM 0,6598). A ordem entre os sete modelos permanece a mesma de
+cujo treino não foi concluído. O Kappa de Cohen entre cada modelo e o
+histórico reproduz exatamente a mesma ordenação, variando de 0,7880
+(LinearSVC) a 0,6598 (LSTM). A ordem entre os sete modelos permanece a mesma de
 recortes anteriores, pois a atualização completa dos modelos alterou o
 patamar absoluto, não o ranking. A oitava fonte de classificação, a
 classificação automática em produção, mantém concordância de 77,65% e
@@ -665,20 +664,19 @@ regra de contingência do Random Forest (Subseção 3.4), em vez de um
 modelos comparáveis e pode estar sujeita à mesma defasagem discutida na
 Subseção 4.8.
 
-**Tabela 1** Concordância com a categoria histórica, base completa (n = 13.965)
+**Tabela 1** Concordância com a categoria histórica por modelo (n = 13.965).
 
-| Modelo | Acurácia | IC95% bootstrap | Kappa vs. histórico |
-|---|---|---|---|
-| LinearSVC | 0,8029 | 0,7962 -- 0,8095 | 0,7880 |
-| Extra Trees | 0,7885 | 0,7817 -- 0,7949 | 0,7707 |
-| Random Forest | 0,7799 | 0,7732 -- 0,7864 | 0,7612 |
-| SGD | 0,7765 | 0,7697 -- 0,7833 | 0,7603 |
-| Regressão Logística | 0,7677 | 0,7608 -- 0,7745 | 0,7513 |
-| Naive Bayes | 0,6996 | 0,6921 -- 0,7070 | 0,6703 |
-| LSTM (out-of-fold) | 0,6813 | 0,6733 -- 0,6888 | 0,6598 |
+| Modelo | Acurácia | IC95% |
+|---|---|---|
+| LinearSVC | 0,8029 | 0,7962 -- 0,8095 |
+| Extra Trees | 0,7885 | 0,7817 -- 0,7949 |
+| Random Forest | 0,7799 | 0,7732 -- 0,7864 |
+| SGD | 0,7765 | 0,7697 -- 0,7833 |
+| Regressão Logística | 0,7677 | 0,7608 -- 0,7745 |
+| Naive Bayes | 0,6996 | 0,6921 -- 0,7070 |
+| LSTM (out-of-fold) | 0,6813 | 0,6733 -- 0,6888 |
 
-Fonte: elaborado pelos autores (2026). O BERTimbau foi excluído por não
-ter treino concluído.
+Fonte: elaborado pelos autores (2026).
 
 A concordância com o histórico não é uniforme entre as 55 categorias. A
 Tabela Suplementar S1 reporta suporte, precisão, revocação e F1-Score
@@ -758,10 +756,10 @@ qualitativa (qual modelo usar) é robusta ao viés identificado, mas o
 valor absoluto do acerto validado não deve ser citado como um número
 único sem essa ressalva.
 
-**Tabela 2** Acerto validado contra a decisão validada pela conferência
-humana (n = 9.096) e intervalo de sensibilidade ao viés de seleção
+**Tabela 2** Acerto validado por modelo e limite inferior de
+sensibilidade ao viés de seleção (n = 9.096).
 
-| Modelo | Acerto validado (limite superior) | IC95% | Limite inferior (pior caso) |
+| Modelo | Acerto validado | IC95% | Limite inferior |
 |---|---|---|---|
 | LinearSVC | 0,9493 | 0,9447 -- 0,9538 | 0,9057 |
 | SGD | 0,9392 | 0,9343 -- 0,9440 | 0,8961 |
@@ -771,10 +769,8 @@ humana (n = 9.096) e intervalo de sensibilidade ao viés de seleção
 | LSTM | 0,8790 | 0,8724 -- 0,8857 | 0,8386 |
 | Naive Bayes | 0,8609 | 0,8533 -- 0,8680 | 0,8214 |
 
-Fonte: elaborado pelos autores (2026). O limite inferior deriva
-diretamente do acerto validado, mantendo fixo o número de casos
-restritos (438), que depende apenas das conferências humanas. A tabela
-exclui o BERTimbau, cujo treino não foi concluído.
+Fonte: elaborado pelos autores (2026). O limite inferior conta os 438
+casos restritos como erro de todos os modelos.
 
 A atualização completa dos modelos também resolveu uma discrepância
 antes registrada entre o *ablation study* do LSTM (Subseção 4.8,
@@ -806,8 +802,8 @@ apresentada na Introdução. Sobre as 9.096 decisões validadas, a
 categoria histórica coincide com a decisão em 96,49% dos casos (8.777 de
 9.096), acima do acerto da classificação automática frente à mesma
 referência (90,15%; 8.200 de 9.096), repetindo em magnitude renovada o
-padrão já observado em amostras menores. A matriz de confusão mostra
-8.200 casos em que ambas as fontes coincidem com a decisão, 319 em que
+padrão já observado em amostras menores. A matriz de confusão (Tabela 3)
+mostra 8.200 casos em que ambas as fontes coincidem com a decisão, 319 em que
 nenhuma coincide, 577 em que o histórico acerta e a classificação
 automática erra, e **nenhum** caso em que a classificação automática
 corrige uma categoria histórica considerada incorreta. Essa ausência
@@ -823,8 +819,8 @@ implicação prática permanece, a classificação automática deve ser
 tratada como instrumento de triagem e auditoria complementar ao
 histórico, não como substituto ou árbitro superior a ele.
 
-**Tabela 4** Matriz de confusão entre classificação automática e
-histórico, contra a decisão validada (n = 9.096)
+**Tabela 3** Matriz de confusão entre classificação automática e
+histórico, contra a decisão validada (n = 9.096).
 
 | | Histórico correto | Histórico incorreto |
 |---|---|---|
@@ -856,7 +852,7 @@ resultado fica próximo da meta de referência do experimento (confiança
 calibrada >= 95% associada a acerto real >= 95%), embora não a atinja
 com folga.
 
-Nas faixas inferiores, a degradação de
+Nas faixas inferiores (Tabela 4), a degradação de
 desempenho acompanha a queda de confiança de forma consistente (90–95%:
 acerto validado 91,48%; 80–90%: 93,92%; 70–80%: 94,95%; 50–70%: 83,94%;
 inferior a 50%: 49,89%), o que corrobora a correlação positiva entre
@@ -868,8 +864,8 @@ ligeiramente a faixa 90–95% (91,48%). Essa pequena inversão de monotonia
 acompanhamento em recortes futuros antes de ser tratada como padrão
 estável.
 
-**Tabela 3** Acerto validado por faixa de confiança bruta da
-classificação automática, contra a decisão validada (n = 9.096)
+**Tabela 4** Acerto validado por faixa de confiança da classificação
+automática (n = 9.096).
 
 | Faixa | n total | Concord. histórico | n validados | Acerto validado |
 |---|---|---|---|---|
@@ -880,9 +876,7 @@ classificação automática, contra a decisão validada (n = 9.096)
 | 90–95% | 1.210 | 92,98% | 1.009 | 91,48% |
 | >= 95% | 4.808 | 99,08% | 4.698 | 96,79% |
 
-Fonte: elaborado pelos autores (2026). A amostra de conferência prioriza
-divergências e casos de menor confiança, portanto os valores descrevem a
-amostra conferida, não uma taxa de acerto sobre amostra representativa.
+Fonte: elaborado pelos autores (2026).
 
 A Figura 2 apresenta esses mesmos valores em forma gráfica, tornando
 visível o descolamento entre concordância com o histórico e acerto
@@ -902,7 +896,7 @@ heterogêneos entre modelos, medidos contra a decisão validada quando ela
 existe e contra o histórico nos demais casos. O LSTM apresenta o maior
 ganho líquido absoluto (+99; 670 corrigidos e 571 prejudicados), seguido
 por Regressão Logística (+92) e LinearSVC (+73), e todos os sete modelos
-apresentam ganho líquido positivo. Esse resultado não autoriza aplicação
+apresentam ganho líquido positivo (Tabela 5). Esse resultado não autoriza aplicação
 indiscriminada, porque o ganho combina parcelas comparadas contra a
 decisão validada e contra o histórico, e já mudou de sinal para alguns
 modelos entre recortes sucessivos. Isso reforça a decisão de não aplicar
@@ -911,20 +905,19 @@ acurácia agregada, funciona como critério operacional a ser reavaliado a
 cada atualização da base, não como veredito permanente sobre um
 classificador.
 
-**Tabela 5** Ganho líquido de reclassificação por modelo
+**Tabela 5** Ganho líquido de reclassificação por modelo.
 
-| Modelo | Total reclassificado | Corrigidos | Prejudicados | Ganho líquido | Reuso de decisão humana |
-|---|---|---|---|---|---|
-| LSTM | 13.905 | 670 | 571 | +99 | 8.805 |
-| Regressão Logística | 13.932 | 245 | 153 | +92 | 8.727 |
-| LinearSVC | 13.965 | 291 | 218 | +73 | 8.856 |
-| Random Forest | 13.912 | 234 | 186 | +48 | 8.719 |
-| SGD | 13.965 | 201 | 163 | +38 | 8.771 |
-| Naive Bayes | 13.826 | 158 | 132 | +26 | 8.623 |
-| Extra Trees | 13.899 | 237 | 226 | +11 | 8.713 |
+| Modelo | Corrigidos | Prejudicados | Ganho líquido |
+|---|---|---|---|
+| LSTM | 670 | 571 | +99 |
+| Regressão Logística | 245 | 153 | +92 |
+| LinearSVC | 291 | 218 | +73 |
+| Random Forest | 234 | 186 | +48 |
+| SGD | 201 | 163 | +38 |
+| Naive Bayes | 158 | 132 | +26 |
+| Extra Trees | 237 | 226 | +11 |
 
-Fonte: elaborado pelos autores (2026). Os números refletem a
-deduplicação por identificador de chamado aplicada antes da contagem.
+Fonte: elaborado pelos autores (2026).
 
 **4.6 Diagnóstico de taxonomia e ambiguidade estrutural
 (Shannon/Jensen-Shannon)**
@@ -933,7 +926,8 @@ O diagnóstico de Shannon abrange oito fontes comparáveis, a
 classificação automática em produção e os sete modelos avaliados. O
 BERTimbau foi excluído por não ter treino concluído. A classificação
 automática apresenta a maior diversidade de categorias previstas e a
-menor divergência de Jensen-Shannon frente à distribuição histórica. No nível de chamado
+menor divergência de Jensen-Shannon frente à distribuição histórica
+(Tabela 6). No nível de chamado
 individual, 3.277 dos 13.965 registros (23,5%) apresentam alta entropia
 de votos entre as oito fontes, ou seja, desacordo estrutural relevante
 entre arquiteturas distintas — um critério de priorização de auditoria
@@ -967,18 +961,19 @@ Tabela Suplementar S2.
 
 Fonte: elaborado pelos autores (2026).
 
-**Tabela 6** Entropia de Shannon e divergência de Jensen-Shannon por fonte de classificação
+**Tabela 6** Entropia de Shannon e divergência de Jensen-Shannon por
+fonte de classificação.
 
-| Fonte | Categorias previstas | Entropia (nats) | Entropia normalizada | JS vs. histórico |
-|---|---|---|---|---|
-| Classificação automática | 53 | 4,6758 | 0,8163 | 0,0286 |
-| LSTM | 52 | 4,6201 | 0,8105 | 0,0847 |
-| Regressão Logística | 52 | 4,4490 | 0,7805 | 0,0716 |
-| SGD | 53 | 4,4363 | 0,7745 | 0,0639 |
-| LinearSVC | 53 | 4,3356 | 0,7569 | 0,0575 |
-| Extra Trees | 47 | 3,9955 | 0,7193 | 0,0761 |
-| Random Forest | 47 | 3,9574 | 0,7124 | 0,0804 |
-| Naive Bayes | 19 | 3,3340 | 0,7848 | 0,1755 |
+| Fonte | Categorias previstas | Entropia normalizada | JS vs. histórico |
+|---|---|---|---|
+| Classificação automática | 53 | 0,8163 | 0,0286 |
+| LSTM | 52 | 0,8105 | 0,0847 |
+| Regressão Logística | 52 | 0,7805 | 0,0716 |
+| SGD | 53 | 0,7745 | 0,0639 |
+| LinearSVC | 53 | 0,7569 | 0,0575 |
+| Extra Trees | 47 | 0,7193 | 0,0761 |
+| Random Forest | 47 | 0,7124 | 0,0804 |
+| Naive Bayes | 19 | 0,7848 | 0,1755 |
 
 Fonte: elaborado pelos autores (2026).
 
@@ -990,7 +985,7 @@ há medição comparável de custo para LSTM ou BERTimbau, portanto não é
 possível ordenar esses dois modelos frente aos demais. A tabela informa
 exclusivamente as medições disponíveis para os modelos clássicos.
 
-**Tabela 7** Custo computacional por lote de 1.000 registros
+**Tabela 7** Custo computacional por lote de 1.000 registros.
 
 | Modelo | Tempo de treino (s) | Tempo de inferência (s) | Acurácia neste lote |
 |---|---|---|---|
@@ -1001,9 +996,8 @@ exclusivamente as medições disponíveis para os modelos clássicos.
 | Random Forest | 19,45 | 0,13 | 0,597 |
 | Extra Trees | 21,30 | 0,14 | 0,610 |
 
-Fonte: elaborado pelos autores (2026). A acurácia reportada refere-se ao
-lote de 1.000 registros, não à base completa, e contextualiza apenas o
-trade-off entre custo e desempenho desta subseção.
+Fonte: elaborado pelos autores (2026). A acurácia refere-se ao lote de
+1.000 registros, não à base completa.
 
 A Figura 4 cruza essas medições de custo com o acerto validado da Tabela
 2 e mostra que o LinearSVC ocupa a posição mais favorável, com o maior
