@@ -32,13 +32,11 @@ header-includes:
     ```
 ---
 
-**CLASSIFICAÇÃO AUTOMÁTICA MULTIMODELO DE CHAMADOS DE MANUTENÇÃO PREDIAL
-UNIVERSITÁRIA EM PORTUGUÊS BRASILEIRO: PROTOCOLO DE GOVERNANÇA PREDITIVA
-COM VALIDAÇÃO HUMANA SOB RÓTULOS HISTÓRICOS RUIDOSOS**
+**CLASSIFICAÇÃO MULTIMODELO DE CHAMADOS DE MANUTENÇÃO PREDIAL
+UNIVERSITÁRIA EM PORTUGUÊS BRASILEIRO SOB RÓTULOS HISTÓRICOS RUIDOSOS**
 
-*Multi-model automatic classification of university building maintenance
-work orders in Brazilian Portuguese: a predictive governance protocol
-with human validation under noisy historical labels*
+*Multi-model classification of university building maintenance work
+orders in Brazilian Portuguese under noisy historical labels*
 
 **Adinailson Guimarães de Oliveira** - adinailson.oliveira@cja.ufsb.edu.br
 **Fabrício Berton Zanchi** - fabricio.berton@ufsb.edu.br
@@ -49,42 +47,34 @@ em Biossistemas
 **RESUMO**
 
 A classificação automática de chamados de manutenção predial constitui
-recurso estratégico para a qualificação da triagem operacional e para a
-ampliação da governança baseada em evidências em instituições públicas.
-Contudo, em bases históricas de sistemas informatizados de gestão de
-chamados, a categoria originalmente registrada não deve ser tratada como
-verdade absoluta, uma vez que pode refletir decisões operacionais
-ruidosas, taxonomias sobrepostas, registros incompletos e interpretações
-heterogêneas entre equipes de atendimento. O presente artigo propõe um
-protocolo multimodelo para classificação de chamados reais de manutenção
-predial universitária em português brasileiro, extraídos do sistema GLPI
-da Universidade Federal do Sul da Bahia. O experimento utiliza 13.965
-chamados não vazios, organizados em 55 categorias históricas, e compara
-classificadores clássicos baseados em TF-IDF (Naive Bayes, Regressão
-Logística, LinearSVC, SGD, Random Forest e Extra Trees) e rede neural LSTM
-bidirecional. O BERTimbau permanece como extensão planejada, sem treino
-concluído ou métrica própria. O diferencial metodológico reside na distinção entre
-concordância com o histórico administrativo e acerto validado por
-revisão humana, tratando a categoria histórica como referência
-preliminar imperfeita. A distinção mostrou-se decisiva, pois o acerto
-validado por conferência humana (8.928 decisões) descreve apenas a
-amostra conferida e constitui limite superior por construção amostral.
-Como a seleção prioriza divergências e casos críticos em vez de amostrar
-ao acaso, esses resultados não estimam o desempenho da base completa
-(COCHRAN, 1977). Resultados indicam superioridade do LinearSVC
-tanto na concordância com o histórico (acurácia de 80,31%,
-IC95%: 79,63%--80,97%) quanto no acerto validado (95,24%, IC95%:
-94,80%--95,68%), enquanto o LSTM apresentou concordância de 67,18% e
-acerto validado de 88,58% (Subseções 4.1 e 4.2). A normalidade da concordância por turno foi
-rejeitada para todos os modelos, justificando testes não paramétricos
-(Friedman, Cochran Q, McNemar, bootstrap). O custo computacional é
-incorporado como dimensão de avaliação, evidenciando que modelos
-lineares podem oferecer melhor relação entre desempenho e viabilidade
+recurso estratégico para qualificar a triagem operacional e ampliar a
+governança baseada em evidências em instituições públicas. Em bases
+históricas de sistemas informatizados de gestão de chamados, contudo, a
+categoria originalmente registrada não deve ser tratada como verdade
+absoluta, pois pode refletir decisões operacionais ruidosas, taxonomias
+sobrepostas, registros incompletos e interpretações heterogêneas entre
+equipes. Este artigo propõe um protocolo multimodelo para classificação
+de chamados reais de manutenção predial universitária em português
+brasileiro, extraídos do sistema institucional da Universidade Federal do
+Sul da Bahia. O experimento utiliza 13.965 chamados não vazios,
+organizados em 55 categorias históricas, e compara seis classificadores
+clássicos baseados em TF-IDF com uma rede neural LSTM bidirecional. O
+diferencial metodológico reside na distinção entre concordância com o
+histórico administrativo e acerto validado por revisão humana, tratando a
+categoria histórica como referência preliminar imperfeita. A distinção
+altera a leitura do desempenho, pois o acerto validado por conferência
+humana, apurado sobre 8.928 decisões, descreve apenas a amostra conferida
+e constitui limite superior por construção amostral. Os resultados
+indicam superioridade do LinearSVC tanto na concordância com o histórico
+(80,31%) quanto no acerto validado (95,24%), ao passo que o LSTM alcança
+67,18% e 88,58%. A normalidade da concordância por turno é rejeitada para
+todos os modelos, o que justifica a bateria não paramétrica adotada. O
+custo computacional entra como dimensão de avaliação e evidencia que
+modelos lineares oferecem melhor relação entre desempenho e viabilidade
 operacional em cenários de texto curto, ruidoso e desbalanceado.
 
 **Palavras-chave:** manutenção predial; classificação de chamados;
-processamento de linguagem natural; rótulos ruidosos; validação humana;
-governança preditiva.
+processamento de linguagem natural; rótulos ruidosos; validação humana.
 
 **ABSTRACT**
 
@@ -122,8 +112,7 @@ that linear models can offer a better balance between performance and
 operational feasibility in short, noisy, and imbalanced text.*
 
 ***Keywords:** building maintenance; work-order classification; natural
-language processing; noisy labels; human validation; predictive
-governance.*
+language processing; noisy labels; human validation.*
 
 ```{=latex}
 \FloatBarrier
@@ -162,7 +151,7 @@ direta de modelos genéricos de processamento de linguagem natural (PLN)
 categorias. Demandas recorrentes de climatização, elétrica e
 hidrossanitária concentram grande parte da base, enquanto categorias
 raras dispõem de poucos exemplos para treinamento supervisionado (LI
-*et al.*, 2024). O terceiro, talvez o mais crítico do ponto de vista
+*et al.*, 2024). O terceiro, e o mais consequente do ponto de vista
 metodológico, é a qualidade do próprio rótulo histórico. A categoria
 registrada no momento do chamado pode resultar de interpretação rápida,
 conveniência operacional ou taxonomia ainda não estabilizada, de modo
@@ -373,7 +362,7 @@ multicampi com unidades em Itabuna, Ilhéus, Porto Seguro e Teixeira de
 Freitas (MORAIS; PAULA; REIS, 2023). A unidade de análise é o chamado
 individual de manutenção, representado por campos textuais concatenados
 e por uma categoria histórica registrada no sistema. O fluxo
-metodológico compõe-se de oito etapas sequenciais, (i) extração e
+metodológico compõe-se de oito etapas sequenciais: (i) extração e
 consolidação da base; (ii) higienização textual; (iii) construção da
 matriz de atributos; (iv) treinamento e inferência multimodelo; (v)
 geração de predições *out-of-fold*; (vi) comparação preliminar com
@@ -412,7 +401,7 @@ resultados da Seção 4 referem-se ao corpus descrito acima.
 
 **3.3 Pré-processamento textual**
 
-O pré-processamento textual foi documentado de modo reprodutível, uma
+O pré-processamento textual é documentado de modo reprodutível, uma
 vez que pequenas decisões sobre normalização podem alterar a matriz de
 atributos e, consequentemente, o desempenho dos modelos (SALTON;
 BUCKLEY, 1988). Para os classificadores clássicos, a representação
@@ -440,18 +429,18 @@ específico ligado às características do domínio, ou seja, texto curto,
 vocabulário técnico e forte desbalanceamento entre categorias (Subseção
 3.2).
 
-A família **linear** (LinearSVC, Regressão Logística e SGD) opera
+A família linear (LinearSVC, Regressão Logística e SGD) opera
 diretamente sobre a representação TF-IDF esparsa (Subseção 3.3). Em
 espaços de alta dimensionalidade, fronteiras lineares tendem a separar
 bem as classes quando o vocabulário carrega forte poder discriminativo
 (JOACHIMS, 1998; SALTON; BUCKLEY, 1988), como é o caso dos termos
 técnicos de manutenção predial, que funcionam como âncoras semânticas de
-categoria. A família de **ensembles de árvores** (Random Forest e Extra
+categoria. A família de *ensembles* de árvores (Random Forest e Extra
 Trees) captura interações não lineares entre atributos, a um custo
 computacional maior. O **Naive Bayes Multinomial** entra como *baseline*
 probabilístico mais simples, útil para calibrar a expectativa de
-desempenho mínimo (JOACHIMS, 1998; PEDREGOSA *et al.*, 2011). A **rede
-neural** (LSTM Bidirecional) modela dependências sequenciais no texto,
+desempenho mínimo (JOACHIMS, 1998; PEDREGOSA *et al.*, 2011). A rede
+neural (LSTM Bidirecional) modela dependências sequenciais no texto,
 mas treina seus *embeddings* do zero, sem incorporar vetores
 pré-treinados em português (GRAVES; SCHMIDHUBER, 2005). A Subseção 3.4.1
 discute por que essa escolha tende a penalizar o desempenho em corpora
@@ -474,7 +463,7 @@ comparativas deste artigo.
 **3.4.1 Diferenças conceituais e operacionais entre os classificadores**
 
 Os sete modelos comparáveis cobrem quatro famílias
-com suposições distintas sobre os dados, um gerador probabilístico
+com suposições distintas sobre os dados: um gerador probabilístico
 (Naive Bayes), discriminadores lineares (LinearSVC, Regressão Logística,
 SGD), *ensembles* não lineares baseados em árvores (Random Forest, Extra
 Trees) e uma rede neural sequencial (LSTM). Cada família responde de
@@ -494,7 +483,7 @@ funcionam como âncoras semânticas de categoria. Essa combinação é
 consistente com o LinearSVC liderando tanto a concordância com o
 histórico (0,8031; Tabela 1) quanto o acerto validado (0,9524; Tabela 2).
 
-O **Naive Bayes** assume independência condicional entre atributos dada
+O Naive Bayes assume independência condicional entre atributos dada
 a classe, suposição estrutural violada em texto de manutenção predial,
 onde termos técnicos co-ocorrem de forma sistemática dentro de uma mesma
 categoria. Essa divergência entre a suposição do modelo e a estrutura
@@ -504,7 +493,7 @@ no acerto validado (0,8617; Tabela 2). Trata-se do comportamento
 esperado do modelo mais simples da comparação, e não de problema de
 implementação.
 
-**Random Forest** e **Extra Trees** capturam interações não lineares
+Random Forest e Extra Trees capturam interações não lineares
 entre atributos por meio da estrutura de árvores, mas em espaços
 esparsos de alta dimensionalidade como o TF-IDF tendem a ajustar-se
 demais às co-ocorrências mais frequentes, o que se reflete no desempenho
@@ -518,7 +507,7 @@ justificaria se revertido em ganho de acerto validado, o que não se
 confirma nos dados analisados (SCHWARTZ *et al.*, 2020; TREVISO *et
 al.*, 2023).
 
-A **LSTM Bidirecional** foi projetada para modelar dependências
+A LSTM Bidirecional é projetada para modelar dependências
 sequenciais no texto, mas seus *embeddings* são inicializados
 aleatoriamente e treinados do zero, sem incorporação de vetores
 pré-treinados em português. A camada de *embedding* (8.000 termos × 128
@@ -549,7 +538,7 @@ calibração da Subseção 4.4.
 
 **3.5 Desenho de avaliação**
 
-A avaliação foi realizada por predições fora da amostra em protocolo
+A avaliação se dá por predições fora da amostra em protocolo
 *out-of-fold* com *KFold* embaralhado, cinco partições, semente fixa e
 mesma partição determinística para todos os modelos. A partição não é
 estratificada, limitação do desenho implementado. O procedimento reduz
@@ -671,7 +660,10 @@ renormalizada sobre as categorias remanescentes. Essa regra é aplicada
 de forma consistente na seleção de candidatos à reclassificação e no
 cálculo do ganho líquido, que passa a comparar o resultado da
 reclassificação contra a verdade validada quando ela está travada, e
-contra o histórico apenas quando ainda não há decisão humana. O objetivo
+contra o histórico apenas quando ainda não há decisão humana. Essa memória é o mecanismo concreto de
+retroalimentação anunciado na Introdução: no biossistema construído, a
+conferência humana funciona como o sinal que corrige o próprio sistema de
+registro, e não apenas como aferição externa dele. O objetivo
 metodológico da memória de decisão é impedir que o sistema corrija um
 erro apenas para reincidir nele em ciclos futuros, convertendo cada
 conferência manual em conhecimento persistente sobre o experimento, não
@@ -688,9 +680,12 @@ incorporou uma camada de análise informacional baseada em entropia de
 Shannon e divergência de Jensen-Shannon (SHANNON, 1948; LIN, 1991),
 calculada exclusivamente sobre agregados públicos e sanitizados, sem
 identificador, título ou texto livre do chamado. Essa camada não substitui acurácia,
-calibração ou validação humana; responde a uma pergunta distinta, sobre
-onde modelos, categorias e chamados individuais concentram maior
-incerteza estrutural. No nível dos modelos, a entropia de Shannon sobre
+calibração ou validação humana, pois responde a uma pergunta distinta,
+sobre onde modelos, categorias e chamados individuais concentram maior
+incerteza estrutural. A entropia opera aqui como medida da desordem
+informacional do biossistema construído, no sentido de Shannon (1948),
+e o que ela localiza não é erro de modelo, mas a região da taxonomia em
+que o próprio sistema de registro perdeu capacidade de discriminar. No nível dos modelos, a entropia de Shannon sobre
 a distribuição de categorias previstas indica se um classificador
 dispersa suas predições por muitas classes ou as concentra
 excessivamente em poucas; a divergência de Jensen-Shannon mede a
@@ -716,8 +711,10 @@ atualização do experimento. Os chamados analisados têm origem no sistema
 institucional GLPI da UFSB e não estão publicamente disponíveis, por
 restrição de privacidade institucional. As métricas derivadas e o código
 que produz cada figura, tabela e estatística deste artigo são de acesso
-público, em repositório aberto que também descreve a estrutura completa
-dos dados. Nenhum identificador pessoal, título ou texto livre de chamado
+público no repositório
+https://github.com/adinailson88/classificacao-chamados, que também
+descreve a estrutura completa dos dados e o material suplementar citado
+neste artigo. Nenhum identificador pessoal, título ou texto livre de chamado
 é armazenado nos agregados publicados, e a camada de entropia (Subseção
 3.8) opera exclusivamente sobre esses agregados.
 
@@ -748,10 +745,8 @@ contém ruído real, cerca de 1,8% dos casos conferidos, o que
 justifica metodologicamente todo o protocolo de conferência dupla
 (Subseção 4.3). Terceiro, a meta de calibração do estudo, que associa
 confiança igual ou superior a 95% a acerto real igual ou superior a 95%,
-é alcançada na faixa alta de confiança. A confiança usada permanece
-bruta, sem calibração formal por método probabilístico, de modo que o
-resultado descreve a faixa observada e não constitui estimativa
-definitiva (Subseção 4.4).
+é alcançada na faixa alta de confiança, com a ressalva de calibração
+discutida na Subseção 4.4.
 
 ```{=latex}
 \FloatBarrier
@@ -767,7 +762,7 @@ LinearSVC na liderança, com acurácia de 0,8031 (IC95%:
 (0,6997) e LSTM (0,6718). O teste de Cochran Q confirma diferença global
 entre os sete modelos avaliados (Q = 2984,07; p < 0,001). A comparação exclui o BERTimbau,
 cujo treino não foi concluído. O Kappa de Cohen (COHEN, 1960) entre cada
-modelo e o histórico reproduz exatamente a mesma ordenação, variando de
+modelo e o histórico reproduz a mesma ordenação, variando de
 0,7881 (LinearSVC) a 0,6496 (LSTM), faixa que Landis e Koch (1977)
 classificam como concordância substancial. Cabe a ressalva de que o
 coeficiente é sensível à prevalência das categorias, o que recomenda
@@ -820,18 +815,18 @@ estatisticamente significativa (McNemar, *p* < 0,001). Foram avaliados
 também três *ensembles*, maioria ponderada (0,9494), confiança calibrada
 máxima (0,9483) e maioria simples (0,9467). Nenhum supera o LinearSVC
 isolado com significância, e o McNemar aponta *p* < 0,05 em favor do
-modelo isolado nos três casos. **Não compensa combinar modelos nestes
-dados.** A recomendação é usar o LinearSVC isolado, com calibração.
+modelo isolado nos três casos. Não compensa combinar modelos nestes
+dados. A recomendação é usar o LinearSVC isolado, com calibração.
 
 A seleção da amostra validada carrega viés estrutural, de modo que o
-número pontual de acerto validado acima constitui o **limite superior**
+número pontual de acerto validado acima constitui o limite superior
 de um intervalo, e não uma estimativa isenta de viés. A verdade validada usada neste cálculo
 só existe para um chamado quando o avaliador confirma pelo menos uma
 fonte como correta, seja o histórico, seja a classificação automática,
 seja a reclassificação. Dos 9.534 chamados conferidos, 606 (6,4%) caem no
-status restrito, em que o avaliador julgou **todas** as fontes erradas
+status restrito, em que o avaliador julgou todas as fontes erradas
 para aquele chamado sem indicar qual seria a categoria certa. Esses casos
-são **excluídos do denominador** de qualquer acerto validado por modelo,
+são excluídos do denominador de qualquer acerto validado por modelo,
 porque não existe categoria de referência contra a qual comparar a
 predição. Isso torna a amostra de 8.928 decisões, por construção, um
 subconjunto em que pelo menos uma fonte já estava correta, o que infla
@@ -841,9 +836,9 @@ qualidade real do modelo nos casos mais difíceis, exatamente os que
 ficaram de fora.
 
 Para tornar esse viés visível sem descartar a métrica, calculou-se um
-**limite inferior** de sensibilidade, correspondente ao acerto de cada
+limite inferior de sensibilidade, correspondente ao acerto de cada
 modelo caso os 606 restritos entrassem no denominador contados como erro
-para **todos** os modelos. Trata-se do pior caso possível, pois a
+para todos os modelos. Trata-se do pior caso possível, pois a
 categoria certa desses chamados é desconhecida e nenhum modelo pode
 receber crédito neles. O intervalo entre limite inferior e superior
 substitui o número pontual como leitura honesta do acerto validado, com
@@ -852,8 +847,8 @@ LinearSVC em 0,8919--0,9524 (amplitude 6,05 p.p.), SGD 0,8841--0,9441
 0,8720--0,9312 (5,92 p.p.), Random Forest 0,8677--0,9266 (5,89 p.p.),
 LSTM 0,8295--0,8858 (5,63 p.p.) e Naive Bayes 0,8097--0,8647 (5,50
 p.p.). O achado metodologicamente mais importante desta análise de
-sensibilidade é que o **ranking relativo entre os sete modelos não muda
-em nenhum ponto do intervalo**. Mesmo no pior caso, o LinearSVC permanece
+sensibilidade é que o ranking relativo entre os sete modelos não muda
+em nenhum ponto do intervalo. Mesmo no pior caso, o LinearSVC permanece
 à frente e o Naive Bayes atrás de todos. A conclusão qualitativa sobre
 qual modelo usar é, portanto, robusta ao viés identificado, ao passo que
 o valor absoluto do acerto validado exige essa ressalva sempre que for
@@ -886,7 +881,7 @@ classificação automática frente à mesma referência (92,80%; 16.510 de
 17.790). A matriz
 de confusão (Tabela 3) mostra 16.510 casos em que ambas as fontes
 coincidem com a decisão, 326 em que nenhuma coincide, 954 em que o
-histórico acerta e a classificação automática erra, e **nenhum** caso em
+histórico acerta e a classificação automática erra, e nenhum caso em
 que a classificação automática corrige uma categoria histórica
 considerada incorreta. Essa ausência total tem explicação estrutural,
 discutida adiante.
@@ -897,7 +892,7 @@ conferências (1,83%) têm categoria histórica que não coincide com a
 decisão final. Esse ruído é proporcionalmente menor do que o risco de
 erro isolado da classificação automática na mesma amostra (954
 conferências, 5,36%). A
-implicação prática permanece, a classificação automática deve ser
+implicação prática permanece: a classificação automática deve ser
 tratada como instrumento de triagem e auditoria complementar ao
 histórico, não como substituto ou árbitro superior a ele.
 
@@ -1192,8 +1187,8 @@ entre os modelos comparáveis, e o *post-hoc* de Nemenyi (NEMENYI, 1963)
 reproduz a mesma ordem das Tabelas 1 e 2, com poder estatístico menor que
 o McNemar par a par (MCNEMAR, 1947). Corrigido por Holm-Bonferroni
 (HOLM, 1979), o McNemar é significativo em praticamente todas as 21
-comparações entre os sete modelos, e confirma que o **LinearSVC é
-estatisticamente superior ao LSTM e ao Naive Bayes**. A única exceção,
+comparações entre os sete modelos, e confirma que o LinearSVC é
+estatisticamente superior ao LSTM e ao Naive Bayes. A única exceção,
 sem significância, é o par SGD contra Random Forest. A verificação de
 colinearidade revela um efeito colateral relevante. Quatro dos sete
 modelos têm confiança altamente correlacionada entre si, com Fator de
@@ -1228,12 +1223,10 @@ Suplementar.
 A comparação entre concordância histórica (Subseção 4.1) e desempenho
 validado (Subseção 4.2) revela um descolamento sistemático entre as duas
 grandezas. O acerto validado do LinearSVC (95,24%) supera sua concordância com o
-histórico (80,31%) em 14,93 pontos percentuais que mede exatamente o quanto o rótulo administrativo
-subestima o classificador. Esse contraste não permite estimar o
-desempenho da base completa, pois a conferência humana prioriza
-divergências e casos críticos em vez de amostrar ao acaso.
-Verifica-se, portanto, que os resultados descrevem a amostra conferida,
-sem representar a população de chamados (COCHRAN, 1977).
+histórico (80,31%) em 14,93 pontos percentuais, diferença que mede o
+quanto o rótulo administrativo subestima o classificador. Nenhuma dessas
+grandezas estima o desempenho da base completa, conforme a ressalva
+amostral detalhada na Subseção 5.3.
 
 Um segundo mecanismo de viés, estrutural e mais específico, soma-se à
 não aleatoriedade da amostra. A regra de decisão da verdade validada
@@ -1263,7 +1256,7 @@ fora da amostra decidida por construção.
 A distinção entre concordância e acerto validado permanece
 metodologicamente necessária, e a matriz da Subseção 4.3 mostra por quê.
 Quando as duas fontes divergem da decisão final, o histórico está correto
-com frequência muito maior (954 conferências) do que a classificação automática
+em 954 conferências, contra nenhuma em que a classificação automática
 corrige um erro genuíno do registro original, com a ressalva estrutural
 já discutida sobre a célula zerada. O achado preserva a premissa de que
 a categoria histórica não é verdade absoluta, já que persiste taxa real
@@ -1302,7 +1295,7 @@ ainda assim, não ser bom candidato a reclassificar decisões já tomadas.
 A camada de entropia de Shannon e divergência de Jensen-Shannon
 (Subseção 4.6) não substitui as métricas supervisionadas ou a validação
 humana, mas amplia o repertório de governança do experimento ao separar
-três fenômenos que a acurácia isolada tende a confundir, o erro de
+três fenômenos que a acurácia isolada tende a confundir: o erro de
 modelo, a ambiguidade genuína da taxonomia institucional e a
 heterogeneidade natural da distribuição de chamados. A identificação de
 3.268 chamados (23,4% da base) com alto desacordo estrutural entre as
