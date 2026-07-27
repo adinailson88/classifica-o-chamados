@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from collections import defaultdict
 from pathlib import Path
@@ -48,8 +49,38 @@ ESCALA = LinearSegmentedColormap.from_list("painel", [
 ])
 
 
+# Encurtamentos que preservam o termo discriminante do rotulo. Truncar
+# apagava justamente o fim, que e o que distingue categorias vizinhas.
+ABREVIACOES = [
+    ("Manutenção Preventiva", "Manut. Preventiva"),
+    ("Ar condicionado", "Ar cond."),
+    ("Instalação/reparo", "Instalação/rep."),
+    ("Instalações", "Instal."),
+    ("Esquadrias, porta, portão e janelas", "Esquadrias e portas"),
+    ("Ponto de rede / fibra ótica / Wi-fi", "Rede / fibra / Wi-fi"),
+]
+
+
+def _compactar(texto: str) -> str:
+    """Remove o detalhamento entre parenteses e abrevia termos longos."""
+    texto = re.sub(r"\s*\([^)]*\)", "", texto).strip()
+    for longo, curto in ABREVIACOES:
+        texto = texto.replace(longo, curto)
+    return texto
+
+
 def _cortar(texto: str, limite: int = MAX_ROTULO) -> str:
-    return texto if len(texto) <= limite else texto[: limite - 1] + "…"
+    """Compacta e, se ainda for longo, quebra em duas linhas."""
+    texto = _compactar(texto)
+    if len(texto) <= limite:
+        return texto
+    corte = texto.rfind(" ", 0, limite)
+    if corte <= 0:
+        corte = limite
+    resto = texto[corte:].strip()
+    if len(resto) > limite:
+        resto = resto[: limite - 1] + "…"
+    return texto[:corte].strip() + "\n" + resto
 
 
 def _rotulos(categorias: list[str]) -> list[str]:

@@ -126,8 +126,27 @@ def calcular(sh, config: dict) -> dict:
     matriz = {"ia_ok_glpi_ok": 0, "ia_ok_glpi_erro": 0, "ia_erro_glpi_ok": 0, "ia_erro_glpi_erro": 0}
     glpi = {"n": 0, "ok": 0}      # acerto validado da classificacao historica (coluna M)
     reclass = {"n": 0, "ok": 0}   # acerto validado da reclassificacao IA-2 (coluna P)
-    # SNAPSHOT cols: 1 linha, 3 cat_original, 4 cat_ia, 5 conf, 6 executor
+    # SNAPSHOT cols: 0 run_id, 1 linha, 3 cat_original, 4 cat_ia, 5 conf, 6 executor
+    #
+    # A aba do snapshot e append-only: cada execucao da Etapa 1 acrescenta uma
+    # linha por chamado sem substituir a anterior. Percorrer todas as linhas
+    # contava o mesmo chamado uma vez por execucao acumulada, o que inflava o
+    # denominador (27.930 classificacoes para 13.965 chamados em 27/07/2026) e
+    # permitia que um chamado caisse em duas faixas de confianca diferentes,
+    # descaracterizando a curva de calibracao. Mantem-se apenas a ultima
+    # classificacao de cada chamado, na ordem de escrita, que e a vigente.
+    ultima_por_chamado = {}
     for r in vals[1:]:
+        if len(r) < 6:
+            continue
+        chave = str(r[1]).strip()
+        if not chave:
+            continue
+        ultima_por_chamado[chave] = r
+    linhas_dedup = list(ultima_por_chamado.values())
+    n_bruto = max(0, len(vals) - 1)
+
+    for r in linhas_dedup:
         if len(r) < 6:
             continue
         ln = str(r[1]).strip()
@@ -197,6 +216,9 @@ def calcular(sh, config: dict) -> dict:
         "run_id": config.get("run_id", ""),
         "total": n_tot,
         "validados": geral["n_val"],
+        "linhas_snapshot_brutas": n_bruto,
+        "linhas_descartadas_por_deduplicacao": max(0, n_bruto - n_tot),
+        "unidade": "chamado (ultima classificacao de cada um no snapshot)",
         "validacao_humana": {
             "modo": ("acerto_ia_validado (e todo o acerto_validado de geral/por_faixa/"
                      "por_executor abaixo) = classificacao do executor (col G) comparada "

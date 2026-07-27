@@ -39,8 +39,8 @@ def gerar(entrada: Path, saida: Path) -> None:
 
     aplicar_estilo()
     fig, ax = plt.subplots(figsize=(LARGURA_DUPLA, 2.8))
-    b1 = ax.bar(x - largura / 2, concordancia, largura, label="Concordancia com o historico", color=COR["cinza"])
-    b2 = ax.bar(x + largura / 2, acerto_validado, largura, label="Acerto validado (conferencia humana)", color=COR["azul"])
+    b1 = ax.bar(x - largura / 2, concordancia, largura, label="Concordância com o histórico", color=COR["cinza"])
+    b2 = ax.bar(x + largura / 2, acerto_validado, largura, label="Acerto validado (conferência humana)", color=COR["azul"])
     ax.axhline(100 * META, color=COR["vermelho"], linestyle="--", linewidth=1.2, label=f"Meta ({int(100 * META)}%)")
 
     for bars in (b1, b2):
@@ -53,7 +53,7 @@ def gerar(entrada: Path, saida: Path) -> None:
     ax.set_xticklabels(faixas)
     ax.set_ylabel("%")
     ax.set_ylim(0, 112)
-    ax.set_xlabel("Faixa de confianca")
+    ax.set_xlabel("Faixa de confiança")
     limpar_eixo(ax)
     ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1.01), ncol=3)
 

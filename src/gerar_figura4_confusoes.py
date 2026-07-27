@@ -76,8 +76,8 @@ def _salvar_figura(pares_top: list[dict], codigos: dict[str, str]) -> None:
     ax.barh(y, valores, color=COR["azul"], height=0.7)
     ax.set_yticks(y, labels=rotulos)
     ax.invert_yaxis()
-    ax.set_xlabel("Ocorrencias agregadas entre modelos")
-    ax.set_ylabel("Par categoria historica -> predicao")
+    ax.set_xlabel("Ocorrências agregadas entre modelos")
+    ax.set_ylabel("Par categoria histórica → predição")
     limpar_eixo(ax, eixo_grade="x")
     for idx, valor in enumerate(valores):
         ax.text(valor + max(valores) * 0.01, idx, str(valor), va="center", fontsize=6)
