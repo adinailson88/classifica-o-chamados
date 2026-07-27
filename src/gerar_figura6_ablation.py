@@ -20,7 +20,7 @@ from estilo_figuras import COR, LARGURA_COLUNA, aplicar_estilo, limpar_eixo, sal
 
 RAIZ = Path(__file__).resolve().parents[1]
 ENTRADA_PADRAO = RAIZ / "04_artigo" / "figuras" / "ablation_lstm_resultados.json"
-SAIDA_PADRAO = RAIZ / "04_artigo" / "figuras" / "fig6_ablation_lstm"
+SAIDA_PADRAO = RAIZ / "04_artigo" / "figuras" / "fig_ablation_lstm"
 
 
 def gerar(entrada: Path, saida: Path) -> list[Path]:

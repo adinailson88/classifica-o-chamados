@@ -1,3 +1,19 @@
+---
+header-includes:
+  - |
+    ```{=latex}
+    \usepackage[font=small,labelfont=bf,justification=centering,skip=6pt]{caption}
+    \renewcommand{\topfraction}{0.92}
+    \renewcommand{\bottomfraction}{0.85}
+    \renewcommand{\textfraction}{0.06}
+    \renewcommand{\floatpagefraction}{0.80}
+    \setcounter{topnumber}{3}
+    \setcounter{bottomnumber}{2}
+    \setcounter{totalnumber}{4}
+    \raggedbottom
+    ```
+---
+
 **CLASSIFICAÇÃO AUTOMÁTICA MULTIMODELO DE CHAMADOS DE MANUTENÇÃO PREDIAL
 UNIVERSITÁRIA EM PORTUGUÊS BRASILEIRO: PROTOCOLO DE GOVERNANÇA PREDITIVA
 COM VALIDAÇÃO HUMANA SOB RÓTULOS HISTÓRICOS RUIDOSOS**
@@ -317,12 +333,7 @@ categoria histórica; (vii) análise estatística não paramétrica; e (viii)
 validação humana das divergências e amostras críticas. A Figura 1
 apresenta esse fluxo como *pipeline* de governança preditiva.
 
-![](04_artigo/figuras/fig1_pipeline_governanca.pdf)
-
-**Figura 1** Pipeline de governança preditiva: fluxo metodológico
-completo, da extração da base à retroalimentação por validação humana.
-
-Fonte: elaborado pelos autores (2026).
+![Pipeline de governança preditiva: fluxo metodológico completo, da extração da base à retroalimentação por validação humana. Fonte: elaborado pelos autores (2026).](04_artigo/figuras/fig_pipeline_governanca.pdf)
 
 **3.2 Corpus e variáveis**
 
@@ -602,9 +613,14 @@ isolada de um único modelo.
 
 Os artefatos que sustentam os resultados relatados neste artigo são
 gerados por um processo automatizado e reproduzível, reexecutado a cada
-atualização do experimento. Nenhum identificador pessoal, título ou
-texto livre de chamado é armazenado nos agregados publicados, e a camada
-de entropia (Subseção 3.8) opera exclusivamente sobre esses agregados.
+atualização do experimento. Os chamados analisados têm origem no sistema
+institucional GLPI da UFSB e não estão publicamente disponíveis, por
+restrição de privacidade institucional. As métricas derivadas e o código
+que produz cada figura, tabela e estatística deste artigo são de acesso
+público, em repositório aberto que também descreve a estrutura completa
+dos dados. Nenhum identificador pessoal, título ou texto livre de chamado
+é armazenado nos agregados publicados, e a camada de entropia (Subseção
+3.8) opera exclusivamente sobre esses agregados.
 
 **4. RESULTADOS**
 
@@ -870,12 +886,7 @@ A Figura 2 apresenta esses mesmos valores em forma gráfica, tornando
 visível o descolamento entre concordância com o histórico e acerto
 validado nas faixas inferiores de confiança.
 
-![](04_artigo/figuras/fig2_confianca_desfecho.pdf)
-
-**Figura 2** Concordância com o histórico e acerto validado por faixa de
-confiança bruta da classificação automática.
-
-Fonte: elaborado pelos autores (2026).
+![Concordância com o histórico e acerto validado por faixa de confiança bruta da classificação automática. Fonte: elaborado pelos autores (2026).](04_artigo/figuras/fig_confianca_desfecho.pdf)
 
 **4.5 Reclassificação e ganho líquido**
 
@@ -928,31 +939,69 @@ confiança de um único modelo.
 
 No nível de categoria, a análise aponta 78 ocorrências de alta
 ambiguidade nas predições, com suporte mínimo de 30 registros por
-categoria. A interpretação detalhada de quais categorias específicas
-concentram essa ambiguidade, e sua sobreposição com os pares de maior
-confusão recíproca identificados na etapa de cruzamento de taxonomia,
-permanece como candidata a inspeção qualitativa dirigida futura. O que
-a camada Shannon oferece é a priorização estatística de onde essa
-inspeção deve começar, não a decisão de fusão ou desambiguação de
-categorias, que continua sendo humana. O Naive Bayes chama atenção por
+categoria. A Figura 3 traduz esse diagnóstico em leitura direta, ao
+contrastar as dez categorias de maior e de menor concordância entre as 39
+com suporte suficiente. O contraste é acentuado. Nas dez melhores, a
+concordância varia de 96,23% a 98,34%, com confiança média de 0,915 e
+65,6% das predições emitidas acima do limiar de 95%. Nas dez piores, a
+concordância cai para a faixa de 14,47% a 67,83%, a confiança média
+recua para 0,463 e apenas 3,9% das predições atingem o limiar alto. Os
+dois grupos têm porte semelhante, 5.213 e 6.247 chamados, de modo que a
+diferença não decorre de escassez de exemplos.
+
+![Concordância com o histórico, confiança média e proporção de predições em alta confiança, para as dez categorias de maior e de menor concordância entre as 39 com suporte mínimo de 30 chamados. Fonte: elaborado pelos autores (2026).](04_artigo/figuras/fig_calor_categorias.pdf)
+
+O padrão que emerge é sistemático, não aleatório. Sete das dez categorias
+de maior concordância pertencem a Manutenção Preventiva, cujos chamados
+nascem de rotina programada e recebem descrição padronizada. As de menor
+concordância concentram rótulos de fronteira aberta, como Instalação e
+reparo de equipamentos (14,47%), Outros (26,47%) e Alvenaria, Pisos e
+Estrutura (34,28%), que competem por vocabulário com categorias vizinhas.
+A confiança acompanha a concordância nos dois extremos, o que reforça a
+correlação já reportada na Subseção 4.4 e indica que o classificador
+reconhece a própria incerteza nessas fronteiras. Trata-se, portanto, de
+ambiguidade estrutural da taxonomia, não apenas de erro do modelo, na
+linha do que Zhang *et al.* (2025) descrevem para rótulos ruidosos em
+processamento de linguagem natural.
+
+A Figura 4 recorta a matriz de confusão sobre as oito categorias mais
+envolvidas em troca recíproca e mostra que os erros não se espalham pela
+taxonomia. A célula dominante registra 1.305 chamados de Climatização,
+Ar condicionado split, preditos como Manutenção Preventiva, Ar
+condicionado split. As duas categorias descrevem o mesmo equipamento e
+se distinguem apenas pela natureza da intervenção, corretiva ou
+programada, distinção que o texto do chamado raramente explicita. Outras
+concentrações seguem a mesma lógica de vizinhança semântica, com 815
+chamados de Instalação e reparo de equipamentos preditos como Alvenaria,
+Pisos e Estrutura, e 707 no sentido inverso, entre Alvenaria e
+Esquadrias. A leitura da matriz é assimétrica em vários pares, o que
+sugere absorção de uma categoria por outra, e não simples permuta.
+
+![Recorte da matriz de confusão sobre as oito categorias mais envolvidas em troca recíproca, com contagens agregadas entre modelos. Fonte: elaborado pelos autores (2026).](04_artigo/figuras/fig_matriz_confusao.pdf)
+
+Esses dois recortes sustentam a mesma conclusão operacional. O
+desempenho agregado das Tabelas 1 e 2 esconde heterogeneidade relevante
+entre categorias, fenômeno que a *macro*-F1 e a *balanced accuracy*
+foram adotadas para capturar (SOKOLOVA; LAPALME, 2009). Quando a queda
+de desempenho se concentra em fronteiras taxonômicas específicas, e não
+de modo difuso, a resposta adequada não é substituir o classificador,
+mas revisar a taxonomia. A interpretação qualitativa de cada par
+identificado, bem como a decisão de fundir ou redefinir categorias,
+permanece humana. O que a camada Shannon e essas duas figuras oferecem é
+a priorização estatística de onde essa inspeção deve começar. O Naive
+Bayes chama atenção por
 combinar a menor cobertura de categorias, apenas 17 contra 43 a 51 dos
 demais modelos, com entropia normalizada relativamente alta (0,8157).
 Trata-se de provável reflexo de concentração extrema em poucas
 categorias com dispersão residual entre elas, e também da maior
 divergência frente ao histórico observada na Tabela 6 (0,1027).
 
-A Figura 3 mostra os quinze pares de categorias com maior confusão
+A Figura 5 mostra os quinze pares de categorias com maior confusão
 recíproca, dominados pela fronteira entre climatização corretiva e
 manutenção preventiva de ar condicionado, seguida pelas fronteiras
 internas de estrutura predial.
 
-![](04_artigo/figuras/fig3_top_confusoes.pdf)
-
-**Figura 3** Quinze pares de categorias com maior confusão recíproca,
-agregados entre modelos. Os códigos do eixo vertical são descritos na
-Tabela Suplementar S2.
-
-Fonte: elaborado pelos autores (2026).
+![Quinze pares de categorias com maior confusão recíproca, agregados entre modelos. Os códigos do eixo vertical são descritos na Tabela Suplementar S2. Fonte: elaborado pelos autores (2026).](04_artigo/figuras/fig_top_confusoes.pdf)
 
 **Tabela 6** Entropia de Shannon e divergência de Jensen-Shannon por
 fonte de classificação.
@@ -992,34 +1041,24 @@ exclusivamente as medições disponíveis para os modelos clássicos.
 Fonte: elaborado pelos autores (2026). A acurácia refere-se ao lote de
 1.000 registros, não à base completa.
 
-A Figura 4 cruza essas medições de custo com o acerto validado da Tabela
+A Figura 6 cruza essas medições de custo com o acerto validado da Tabela
 2 e mostra que o LinearSVC ocupa a posição mais favorável, com o maior
 acerto validado a um custo de treino próximo do menor observado.
 
-![](04_artigo/figuras/fig4_tradeoff_custo.pdf)
-
-**Figura 4** Trade-off entre acerto validado e tempo de treino, modelos
-clássicos.
-
-Fonte: elaborado pelos autores (2026).
+![Trade-off entre acerto validado e tempo de treino, modelos clássicos. Fonte: elaborado pelos autores (2026).](04_artigo/figuras/fig_tradeoff_custo.pdf)
 
 **4.8 Comportamento do LSTM: curva de aprendizado e *ablation***
 
-A Figura 5 mostra a curva real de aprendizado do LSTM sobre os 13.965
+A Figura 7 mostra a curva real de aprendizado do LSTM sobre os 13.965
 exemplos e 53 categorias. O treino parou por interrupção antecipada após
 11 épocas, com menor perda de validação na época 8 e maior acurácia de
 validação na época 10 (0,6722). O padrão indica saturação precoce,
 consistente com a hipótese de que *embeddings* treinados do zero são
 insuficientes para um corpus deste porte (Subseção 3.4.1).
 
-![](04_artigo/figuras/fig5_curva_aprendizado_lstm.pdf)
+![Curva de aprendizado do LSTM por época, perda e acurácia em treino e validação. Fonte: elaborado pelos autores (2026).](04_artigo/figuras/fig_curva_aprendizado_lstm.pdf)
 
-**Figura 5** Curva de aprendizado do LSTM por época, perda e acurácia em
-treino e validação.
-
-Fonte: elaborado pelos autores (2026).
-
-Uma auditoria investigou por que o *ablation* da Figura 6 reportava
+Uma auditoria investigou por que o *ablation* da Figura 8 reportava
 acerto validado muito acima do valor oficial então vigente para a mesma
 arquitetura do LSTM. Duas causas foram identificadas. Primeiro, um
 vazamento metodológico real, mas de magnitude modesta: no *KFold*
@@ -1048,13 +1087,7 @@ total entre a melhor e a pior variante inferior a 4 pontos percentuais),
 não como indicação forte de que a arquitetura atual esteja
 subotimizada.
 
-![](04_artigo/figuras/fig6_ablation_lstm.pdf)
-
-**Figura 6** *Ablation* do LSTM, quatro variantes de unidades
-recorrentes e *dropout*, avaliadas por *GroupKFold* contra a decisão
-validada.
-
-Fonte: elaborado pelos autores (2026).
+![*Ablation* do LSTM, quatro variantes de unidades recorrentes e *dropout*, avaliadas por *GroupKFold* contra a decisão validada. Fonte: elaborado pelos autores (2026).](04_artigo/figuras/fig_ablation_lstm.pdf)
 
 **4.9 Robustez estatística: pressupostos e testes de sensibilidade**
 
@@ -1279,37 +1312,6 @@ que raramente incorpora dados operacionais de chamados. Nas duas
 direções, o protocolo aqui descrito funciona como pré-requisito, pois
 previsão e priorização só são confiáveis sobre uma base cuja
 classificação seja, ela própria, auditável.
-
-**Contribuições dos autores**: conceituação, Oliveira e Zanchi;
-metodologia, software, análise formal, investigação, curadoria de dados
-e redação do rascunho original, Oliveira; redação — revisão e edição,
-Oliveira e Zanchi; supervisão e administração do projeto, Zanchi. Todos
-os autores leram e concordaram com a versão publicada do manuscrito.
-
-**Financiamento**: esta pesquisa não recebeu financiamento externo.
-
-**Comitê de ética e consentimento informado**: não se aplica. O estudo
-não envolveu pesquisa com seres humanos, procedimento clínico ou
-divulgação de dados pessoais; analisa registros institucionais de
-chamados de manutenção (títulos e descrições operacionais curtos) e
-decisões internas de conferência de qualidade tomadas pela equipe no
-exercício de suas funções rotineiras, não um protocolo experimental com
-participantes humanos.
-
-**Disponibilidade de dados**: os dados de chamados de manutenção
-analisados neste estudo têm origem no sistema institucional GLPI da
-Universidade Federal do Sul da Bahia (UFSB) e não estão publicamente
-disponíveis, por restrição de privacidade e confidencialidade
-institucional. As métricas derivadas e o código utilizados para
-produzir cada figura, tabela e estatística deste artigo são de acesso
-público, disponibilizados pelos autores em repositório de código aberto,
-onde também está descrita a estrutura completa dos dados.
-
-**Agradecimentos**: os autores agradecem à Universidade Federal do Sul
-da Bahia pelo apoio institucional.
-
-**Conflitos de interesse**: os autores declaram não haver conflitos de
-interesse.
 
 **REFERÊNCIAS**
 

@@ -20,7 +20,7 @@ Uso tipico:
     aplicar_estilo()
     fig, ax = plt.subplots(figsize=(LARGURA_COLUNA, 2.6))
     ...
-    salvar(fig, RAIZ / "04_artigo" / "figuras" / "fig2_confianca_desfecho")
+    salvar(fig, RAIZ / "04_artigo" / "figuras" / "fig_confianca_desfecho")
 """
 
 from __future__ import annotations

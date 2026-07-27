@@ -21,7 +21,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from estilo_figuras import COR, LARGURA_DUPLA, aplicar_estilo, salvar  # noqa: E402
 
 RAIZ = Path(__file__).resolve().parents[1]
-SAIDA = RAIZ / "04_artigo" / "figuras" / "fig1_pipeline_governanca"
+SAIDA = RAIZ / "04_artigo" / "figuras" / "fig_pipeline_governanca"
 
 ETAPAS = [
     "1. Extracao e\nconsolidacao da base",
