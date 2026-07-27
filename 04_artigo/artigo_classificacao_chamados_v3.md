@@ -70,19 +70,24 @@ into 55 historical categories and compares TF-IDF-based classical
 classifiers (Naive Bayes, Logistic Regression, LinearSVC, SGD, Random
 Forest, and Extra Trees) and a bidirectional LSTM neural network. The
 Portuguese pre-trained transformer (BERTimbau) remains a planned
-extension, without completed training or its own metric in this
-consolidation. The methodological contribution lies in distinguishing agreement with
-administrative history from human-validated accuracy — a distinction
-that is necessary for the present protocol: human-validated accuracy
-(9,096 locked decisions) is reported only for the partial, non-random
-reviewed sample, which prioritizes divergences and critical cases.
-Results indicate LinearSVC superiority both
-in agreement with history (80.34% accuracy, 95%CI: 79.69%--80.97%) and
-in human-validated accuracy (79.89%, 95%CI: 78.99%--80.73%), while LSTM
-achieved 68.47% agreement and 74.71% validated accuracy. Normality was
-rejected for all models, supporting non-parametric tests (Friedman,
-Cochran Q, McNemar, bootstrap). Computational cost is incorporated as an
-evaluation dimension.*
+extension, with neither completed training nor its own metric. The
+methodological contribution lies in distinguishing agreement with
+administrative history from human-validated accuracy, treating the
+historical category as an imperfect preliminary reference. This
+distinction proved decisive, since human-validated accuracy (9,096
+decisions) turned out to be more conservative than agreement with
+history suggested, as the reviewed sample grew. Because the sample is
+non-random and prioritizes divergences and critical cases, these results
+do not estimate performance over the full database (COCHRAN, 1977).
+Results indicate LinearSVC superiority both in agreement with history
+(80.29% accuracy, 95%CI: 79.62%--80.95%) and in human-validated accuracy
+(94.93%, 95%CI: 94.47%--95.38%), while LSTM achieved 68.13% agreement
+and 87.90% validated accuracy, after full reprocessing of the seven
+comparable models. Normality was rejected for all models, supporting
+non-parametric tests (Friedman, Cochran Q, McNemar, bootstrap).
+Computational cost is incorporated as an evaluation dimension, showing
+that linear models can offer a better balance between performance and
+operational feasibility in short, noisy, and imbalanced text.*
 
 ***Keywords:** building maintenance; work-order classification; natural
 language processing; noisy labels; human validation; predictive
@@ -312,7 +317,7 @@ categoria histórica; (vii) análise estatística não paramétrica; e (viii)
 validação humana das divergências e amostras críticas. A Figura 1
 apresenta esse fluxo como *pipeline* de governança preditiva.
 
-![Figura 1 — Pipeline de governança preditiva: fluxo metodológico completo, da extração da base à retroalimentação por validação humana.](04_artigo/figuras/fig1_pipeline_governanca.pdf)
+![](04_artigo/figuras/fig1_pipeline_governanca.pdf)
 
 **Figura 1** Pipeline de governança preditiva: fluxo metodológico
 completo, da extração da base à retroalimentação por validação humana.
@@ -695,7 +700,7 @@ acerto validado de 0,9493 (IC95%: 0,9447--0,9538), seguido por SGD
 (0,9392), Regressão Logística (0,9355), Extra Trees (0,9274), Random
 Forest (0,9227), LSTM (0,8790) e Naive Bayes (0,8609). A diferença entre o primeiro e o segundo colocado é
 pequena em termos absolutos (1,01 ponto percentual), mas estatisticamente
-significativa (McNemar, p ~ 3,21 × 10⁻⁹). Foram avaliados também três
+significativa (McNemar, *p* < 0,001). Foram avaliados também três
 *ensembles*, maioria ponderada (0,9445), confiança calibrada máxima
 (0,9436) e maioria simples (0,9422). Nenhum supera o LinearSVC isolado
 com significância (McNemar p < 0,05 em favor do LinearSVC nos três
@@ -865,7 +870,7 @@ A Figura 2 apresenta esses mesmos valores em forma gráfica, tornando
 visível o descolamento entre concordância com o histórico e acerto
 validado nas faixas inferiores de confiança.
 
-![Figura 2 — Confiança bruta, concordância com o histórico e acerto validado, por faixa de confiança.](04_artigo/figuras/fig2_confianca_desfecho.pdf)
+![](04_artigo/figuras/fig2_confianca_desfecho.pdf)
 
 **Figura 2** Concordância com o histórico e acerto validado por faixa de
 confiança bruta da classificação automática.
@@ -936,7 +941,7 @@ recíproca, dominados pela fronteira entre climatização corretiva e
 manutenção preventiva de ar condicionado, seguida pelas fronteiras
 internas de estrutura predial.
 
-![Figura 3 — Quinze pares de maior confusão entre categorias.](04_artigo/figuras/fig3_top_confusoes.pdf)
+![](04_artigo/figuras/fig3_top_confusoes.pdf)
 
 **Figura 3** Quinze pares de categorias com maior confusão recíproca,
 agregados entre modelos. Os códigos do eixo vertical são descritos na
@@ -986,7 +991,7 @@ A Figura 4 cruza essas medições de custo com o acerto validado da Tabela
 2 e mostra que o LinearSVC ocupa a posição mais favorável, com o maior
 acerto validado a um custo de treino próximo do menor observado.
 
-![Figura 4 — Trade-off entre acerto validado e custo computacional.](04_artigo/figuras/fig4_tradeoff_custo.pdf)
+![](04_artigo/figuras/fig4_tradeoff_custo.pdf)
 
 **Figura 4** Trade-off entre acerto validado e tempo de treino, modelos
 clássicos.
@@ -1002,7 +1007,7 @@ validação na época 10 (0,6722). O padrão indica saturação precoce,
 consistente com a hipótese de que *embeddings* treinados do zero são
 insuficientes para um corpus deste porte (Subseção 3.4.1).
 
-![Figura 5 — Curva de aprendizado do LSTM por época.](04_artigo/figuras/fig5_curva_aprendizado_lstm.pdf)
+![](04_artigo/figuras/fig5_curva_aprendizado_lstm.pdf)
 
 **Figura 5** Curva de aprendizado do LSTM por época, perda e acurácia em
 treino e validação.
@@ -1038,7 +1043,7 @@ total entre a melhor e a pior variante inferior a 4 pontos percentuais),
 não como indicação forte de que a arquitetura atual esteja
 subotimizada.
 
-![Figura 6 — Ablation do LSTM: unidades recorrentes e dropout.](04_artigo/figuras/fig6_ablation_lstm.pdf)
+![](04_artigo/figuras/fig6_ablation_lstm.pdf)
 
 **Figura 6** *Ablation* do LSTM, quatro variantes de unidades
 recorrentes e *dropout*, avaliadas por *GroupKFold* contra a decisão
@@ -1244,11 +1249,16 @@ triagem e à auditoria, mas não dispensa a conferência humana. Sobre
 acerto validado (IC95%: 94,47%--95,38%), à frente dos demais seis
 modelos, e nenhum dos três *ensembles* avaliados o superou com
 significância estatística. A recomendação operacional é usar o LinearSVC
-isolado, com calibração. A matriz de confusão mostra por que a
-conferência continua necessária, pois o histórico administrativo também
-contém erros confirmados, em 3,51% dos casos conferidos. Esses valores
-descrevem a amostra conferida, com a ressalva de representatividade já
-registrada nas Limitações.
+isolado, com calibração, escolha que o custo computacional reforça, já
+que os modelos lineares treinam em uma fração do tempo exigido pelos
+*ensembles* de árvores sem perder acerto. A matriz de confusão mostra
+por que a conferência continua necessária, pois o histórico
+administrativo também contém erros confirmados, em 3,51% dos casos
+conferidos. Esses valores descrevem a amostra conferida, com a ressalva
+de representatividade já registrada nas Limitações. As divergências
+entre modelos e histórico, por sua vez, deixaram de ser ruído descartado
+e passaram a alimentar a fila de revisão taxonômica, com 3.277 chamados
+sinalizados por alto desacordo estrutural entre as fontes.
 
 Duas frentes dão continuidade ao trabalho. A primeira é a validação
 externa em outras instituições federais de ensino superior, para testar
