@@ -71,7 +71,7 @@ def _salvar_figura(pares_top: list[dict], codigos: dict[str, str]) -> None:
     valores = [p["total"] for p in pares_top]
 
     aplicar_estilo()
-    fig, ax = plt.subplots(figsize=(LARGURA_DUPLA, 3.6))
+    fig, ax = plt.subplots(figsize=(LARGURA_DUPLA, 2.9))
     y = range(len(pares_top))
     ax.barh(y, valores, color=COR["azul"], height=0.7)
     ax.set_yticks(y, labels=rotulos)

@@ -3,13 +3,13 @@ header-includes:
   - |
     ```{=latex}
     \usepackage[font=small,labelfont=bf,justification=centering,skip=6pt]{caption}
-    \renewcommand{\topfraction}{0.92}
-    \renewcommand{\bottomfraction}{0.85}
-    \renewcommand{\textfraction}{0.06}
-    \renewcommand{\floatpagefraction}{0.80}
-    \setcounter{topnumber}{3}
-    \setcounter{bottomnumber}{2}
-    \setcounter{totalnumber}{4}
+    \usepackage{placeins}
+    \renewcommand{\topfraction}{0.85}
+    \renewcommand{\bottomfraction}{0.45}
+    \renewcommand{\textfraction}{0.10}
+    \renewcommand{\floatpagefraction}{0.90}
+    \setcounter{topnumber}{2}
+    \setcounter{totalnumber}{3}
     \raggedbottom
     ```
 ---
@@ -106,6 +106,10 @@ operational feasibility in short, noisy, and imbalanced text.*
 ***Keywords:** building maintenance; work-order classification; natural
 language processing; noisy labels; human validation; predictive
 governance.*
+
+```{=latex}
+\FloatBarrier
+```
 
 **1. INTRODUÇÃO**
 
@@ -214,7 +218,15 @@ quinto é converter divergências entre inteligência artificial e
 histórico em evidência para revisão taxonômica e retroalimentação da
 base de treino.
 
+```{=latex}
+\FloatBarrier
+```
+
 **2. REFERENCIAL CONCEITUAL**
+
+```{=latex}
+\FloatBarrier
+```
 
 **2.1 Processamento de linguagem natural em ordens de manutenção**
 
@@ -247,6 +259,10 @@ manutenção predial hospitalar utilizando múltiplos métodos de PLN,
 resultado que reforça a viabilidade da abordagem, mas também evidencia a
 necessidade de adaptação lexical e semântica ao corpus específico.
 
+```{=latex}
+\FloatBarrier
+```
+
 **2.2 Classificação de tickets e evolução dos modelos**
 
 A classificação automática de *tickets* em ambientes de suporte técnico
@@ -276,6 +292,10 @@ Esse achado é particularmente relevante para o contexto institucional de
 manutenção predial, onde a base operacional raramente atinge escala
 compatível com as exigências de modelos de linguagem de grande porte.
 
+```{=latex}
+\FloatBarrier
+```
+
 **2.3 Rótulos ruidosos e verdade operacional**
 
 O problema de rótulos ruidosos é central em aprendizado supervisionado
@@ -292,6 +312,10 @@ julgamento subjetivo envolvido. No contexto do presente artigo, a
 categoria histórica do chamado é tratada como referência administrativa,
 não como verdade final, e a verdade operacional deve ser construída por
 validação humana com registro explícito da decisão tomada.
+
+```{=latex}
+\FloatBarrier
+```
 
 **2.4 Custo computacional e eficiência em PLN**
 
@@ -312,7 +336,15 @@ que um modelo que demanda dezenas de minutos exige *checkpoint*,
 controle de versão de pesos e justificativa robusta de ganho marginal
 (TREVISO *et al.*, 2023).
 
+```{=latex}
+\FloatBarrier
+```
+
 **3. MÉTODO**
+
+```{=latex}
+\FloatBarrier
+```
 
 **3.1 Delineamento geral**
 
@@ -331,7 +363,11 @@ categoria histórica; (vii) análise estatística não paramétrica; e (viii)
 validação humana das divergências e amostras críticas. A Figura 1
 apresenta esse fluxo como *pipeline* de governança preditiva.
 
-![Pipeline de governança preditiva, do fluxo de extração da base à retroalimentação por validação humana.](04_artigo/figuras/fig_pipeline_governanca.pdf)
+![Pipeline de governança preditiva, do fluxo de extração da base à retroalimentação por validação humana.](04_artigo/figuras/fig_pipeline_governanca.pdf){width=95%}
+
+```{=latex}
+\FloatBarrier
+```
 
 **3.2 Corpus e variáveis**
 
@@ -352,6 +388,10 @@ A base é dinâmica, pois novos chamados continuam a ser incorporados e a
 taxonomia institucional pode ser revisada ao longo do tempo. Os
 resultados da Seção 4 referem-se ao corpus descrito acima.
 
+```{=latex}
+\FloatBarrier
+```
+
 **3.3 Pré-processamento textual**
 
 O pré-processamento textual foi documentado de modo reprodutível, uma
@@ -369,6 +409,10 @@ equipe, pois esses elementos possuem alto valor discriminativo em
 manutenção predial, onde palavras como *bomba*, *split*, *disjuntor*,
 *vazamento*, *infiltração* e *ar-condicionado* podem funcionar como
 âncoras semânticas relevantes para categorias específicas.
+
+```{=latex}
+\FloatBarrier
+```
 
 **3.4 Modelos avaliados**
 
@@ -404,6 +448,10 @@ permanece como extensão planejada. Seu ajuste fino depende do avanço da
 base validada e ainda não foi concluído, razão pela qual o modelo não
 integra tabelas, rankings, testes inferenciais nem conclusões
 comparativas deste artigo.
+
+```{=latex}
+\FloatBarrier
+```
 
 **3.4.1 Diferenças conceituais e operacionais entre os classificadores**
 
@@ -477,6 +525,10 @@ predição em três faixas (abaixo de 70%, entre 70% e 95%, acima de 95%),
 usadas para priorização de conferência humana e para as métricas de
 calibração da Subseção 4.4.
 
+```{=latex}
+\FloatBarrier
+```
+
 **3.5 Desenho de avaliação**
 
 A avaliação foi realizada por predições fora da amostra em protocolo
@@ -543,6 +595,10 @@ sistematicamente a avaliação das categorias raras, padrão que a
 literatura antecipa para corpora pequenos e desbalanceados (KOHAVI,
 1995).
 
+```{=latex}
+\FloatBarrier
+```
+
 **3.6 Validação humana**
 
 A validação humana constitui a etapa que diferencia o presente estudo de
@@ -559,6 +615,10 @@ permite mensurar se a IA errou, se o histórico estava inconsistente ou
 se a própria taxonomia institucional necessita de revisão, em
 consonância com a perspectiva de que a verdade operacional deve ser
 construída progressivamente (ZHANG *et al.*, 2025).
+
+```{=latex}
+\FloatBarrier
+```
 
 **3.7 Memória de decisão: veto e trava por chamado**
 
@@ -581,6 +641,10 @@ metodológico da memória de decisão é impedir que o sistema corrija um
 erro apenas para reincidir nele em ciclos futuros, convertendo cada
 conferência manual em conhecimento persistente sobre o experimento, não
 em um evento isolado.
+
+```{=latex}
+\FloatBarrier
+```
 
 **3.8 Camada de entropia de Shannon e divergência de Jensen-Shannon**
 
@@ -605,6 +669,10 @@ desacordo estrutural entre arquiteturas distintas, formando uma fila de
 auditoria orientada por ambiguidade, e não apenas por baixa confiança
 isolada de um único modelo.
 
+```{=latex}
+\FloatBarrier
+```
+
 **3.9 Disponibilidade de dados**
 
 Os artefatos que sustentam os resultados relatados neste artigo são
@@ -617,6 +685,10 @@ público, em repositório aberto que também descreve a estrutura completa
 dos dados. Nenhum identificador pessoal, título ou texto livre de chamado
 é armazenado nos agregados publicados, e a camada de entropia (Subseção
 3.8) opera exclusivamente sobre esses agregados.
+
+```{=latex}
+\FloatBarrier
+```
 
 **4. RESULTADOS**
 
@@ -646,6 +718,10 @@ confiança igual ou superior a 95% a acerto real igual ou superior a 95%,
 bruta, sem calibração formal por método probabilístico, de modo que o
 resultado descreve a faixa observada e não constitui estimativa
 definitiva (Subseção 4.4).
+
+```{=latex}
+\FloatBarrier
+```
 
 **4.1 Concordância com o histórico (base completa)**
 
@@ -689,6 +765,10 @@ sem subcategoria, Instalações Especiais, Transporte e Drenagem, todas com
 F1 inferior a 0,14. Essa leitura pede cautela, pois quatro dessas cinco
 categorias têm suporte igual ou inferior a sete registros, condição em
 que pequena variação absoluta altera fortemente a métrica.
+
+```{=latex}
+\FloatBarrier
+```
 
 **4.2 Ranking validado por conferência humana**
 
@@ -803,6 +883,10 @@ automática corrigir o histórico. Separar as duas coisas exigiria
 rastrear a origem de cada decisão validada, o que o desenho atual não
 permite.
 
+```{=latex}
+\FloatBarrier
+```
+
 **4.4 Confiança, calibração e faixas de decisão**
 
 A classificação automática em produção mantém erro de calibração
@@ -844,7 +928,11 @@ A Figura 2 apresenta esses mesmos valores em forma gráfica, tornando
 visível o descolamento entre concordância com o histórico e acerto
 validado nas faixas inferiores de confiança.
 
-![Concordância com o histórico e acerto validado por faixa de confiança bruta da classificação automática.](04_artigo/figuras/fig_confianca_desfecho.pdf)
+![Concordância com o histórico e acerto validado por faixa de confiança bruta da classificação automática.](04_artigo/figuras/fig_confianca_desfecho.pdf){width=95%}
+
+```{=latex}
+\FloatBarrier
+```
 
 **4.5 Reclassificação e ganho líquido**
 
@@ -904,7 +992,7 @@ recua para 0,463 e apenas 3,9% das predições atingem o limiar alto. Os
 dois grupos têm porte semelhante, 5.213 e 6.247 chamados, de modo que a
 diferença não decorre de escassez de exemplos.
 
-![Concordância com o histórico, confiança média e proporção de predições em alta confiança, para as dez categorias de maior e de menor concordância entre as 39 com suporte mínimo de 30 chamados.](04_artigo/figuras/fig_calor_categorias.pdf)
+![Concordância com o histórico, confiança média e proporção de predições em alta confiança, para as dez categorias de maior e de menor concordância entre as 39 com suporte mínimo de 30 chamados.](04_artigo/figuras/fig_calor_categorias.pdf){width=91%}
 
 O padrão que emerge é sistemático, não aleatório. Sete das dez categorias
 de maior concordância pertencem a Manutenção Preventiva, cujos chamados
@@ -956,7 +1044,7 @@ recíproca, dominados pela fronteira entre climatização corretiva e
 manutenção preventiva de ar condicionado, seguida pelas fronteiras
 internas de estrutura predial.
 
-![Quinze pares de categorias com maior confusão recíproca, agregados entre modelos. Os códigos do eixo vertical estão descritos no material suplementar.](04_artigo/figuras/fig_top_confusoes.pdf)
+![Quinze pares de categorias com maior confusão recíproca, agregados entre modelos. Os códigos do eixo vertical estão descritos no material suplementar.](04_artigo/figuras/fig_top_confusoes.pdf){width=95%}
 
 **Tabela 6** Entropia de Shannon e divergência de Jensen-Shannon por
 fonte de classificação.
@@ -971,6 +1059,10 @@ fonte de classificação.
 | Extra Trees | 46 | 0,7217 | 0,0215 |
 | Random Forest | 43 | 0,7279 | 0,0263 |
 | Naive Bayes | 17 | 0,8157 | 0,1027 |
+
+```{=latex}
+\FloatBarrier
+```
 
 **4.7 Custo computacional**
 
@@ -998,6 +1090,10 @@ acerto validado a um custo de treino próximo do menor observado.
 
 ![Trade-off entre acerto validado e tempo de treino, modelos clássicos.](04_artigo/figuras/fig_tradeoff_custo.pdf)
 
+```{=latex}
+\FloatBarrier
+```
+
 **4.8 Comportamento do LSTM: curva de aprendizado e *ablation***
 
 A Figura 7 mostra a curva real de aprendizado do LSTM sobre os 13.965
@@ -1007,7 +1103,7 @@ validação na época 10 (0,6722). O padrão indica saturação precoce,
 consistente com a hipótese de que *embeddings* treinados do zero são
 insuficientes para um corpus deste porte (Subseção 3.4.1).
 
-![Curva de aprendizado do LSTM por época, perda e acurácia em treino e validação.](04_artigo/figuras/fig_curva_aprendizado_lstm.pdf)
+![Curva de aprendizado do LSTM por época, perda e acurácia em treino e validação.](04_artigo/figuras/fig_curva_aprendizado_lstm.pdf){width=95%}
 
 O *ablation* de hiperparâmetros exige cuidado adicional de
 particionamento neste corpus. Chamados de manutenção repetem-se com
@@ -1029,6 +1125,10 @@ ajuste desses hiperparâmetros, mas na ausência de *embeddings*
 pré-treinados discutida na Subseção 3.4.1.
 
 ![*Ablation* do LSTM, quatro variantes de unidades recorrentes e *dropout*, avaliadas por *GroupKFold* contra a decisão validada.](04_artigo/figuras/fig_ablation_lstm.pdf)
+
+```{=latex}
+\FloatBarrier
+```
 
 **4.9 Robustez estatística: pressupostos e testes de sensibilidade**
 
@@ -1065,7 +1165,15 @@ pressupostos, item a item, com as tabelas de correlação, autocorrelação
 e o Kappa de Fleiss entre modelos, está disponível como Material
 Suplementar.
 
+```{=latex}
+\FloatBarrier
+```
+
 **5. DISCUSSÃO**
+
+```{=latex}
+\FloatBarrier
+```
 
 **5.1 Concordância histórica frente ao acerto validado**
 
@@ -1126,6 +1234,10 @@ esta base e esta amostra, sem estabelecer superioridade generalizável de
 classificadores lineares sobre arquiteturas neurais. A comparação de
 custo permanece restrita aos seis modelos clássicos da Tabela 7.
 
+```{=latex}
+\FloatBarrier
+```
+
 **5.2 Reclassificação, ambiguidade taxonômica e calibração**
 
 O resultado da reclassificação (Subseção 4.5) introduz uma nuance
@@ -1175,6 +1287,10 @@ confiança, de modo que a fração ainda não conferida pode deslocar o
 resultado. Liberar a faixa alta para decisão automática exige concluir
 essa conferência e aplicar calibração formal por modelo.
 
+```{=latex}
+\FloatBarrier
+```
+
 **5.3 Limitações**
 
 Os dados provêm de uma única instituição federal de ensino superior,
@@ -1200,6 +1316,10 @@ concluído e ficou fora de todas as comparações. O LSTM treina seus
 que penaliza redes neurais em corpora de porte médio e ajuda a explicar
 seu desempenho inferior ao dos modelos lineares.
 
+```{=latex}
+\FloatBarrier
+```
+
 **5.4 Contribuição para a governança preditiva da manutenção**
 
 A contribuição deste artigo não termina na categoria atribuída a cada
@@ -1211,6 +1331,10 @@ priorização de intervenções segundo critérios de sustentabilidade e
 leitura territorial do parque edificado dependem, todas, de uma base
 classificada de modo confiável. Este artigo entrega essa fundação e
 demonstra que ela exige conferência humana para se sustentar.
+
+```{=latex}
+\FloatBarrier
+```
 
 **6. CONSIDERAÇÕES FINAIS**
 

@@ -113,7 +113,7 @@ def gerar_calor(entrada: Path, saida: Path) -> list[Path]:
     colunas = [rotulo for rotulo, _ in melhores[0][1]]
 
     aplicar_estilo()
-    fig, (esq, dir_) = plt.subplots(1, 2, figsize=(LARGURA_DUPLA, 3.4),
+    fig, (esq, dir_) = plt.subplots(1, 2, figsize=(LARGURA_DUPLA, 2.85),
                                     gridspec_kw={"wspace": 0.62})
     _painel(esq, melhores, f"{TOP_N} categorias de maior concordância", colunas)
     _painel(dir_, piores, f"{TOP_N} categorias de menor concordância", colunas)
@@ -148,7 +148,7 @@ def gerar_matriz(entrada: Path, saida: Path, n_categorias: int = 8) -> list[Path
                        for de in categorias], dtype=float)
 
     aplicar_estilo()
-    fig, ax = plt.subplots(figsize=(LARGURA_DUPLA * 0.62, 3.2))
+    fig, ax = plt.subplots(figsize=(LARGURA_DUPLA * 0.66, 2.75))
     maximo = matriz.max() or 1
     ax.imshow(matriz / maximo, cmap=ESCALA, vmin=0, vmax=1, aspect="auto")
     rotulos = _rotulos(categorias)
