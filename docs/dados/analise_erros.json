@@ -1,5 +1,5 @@
 {
-  "gerado_em": "27/07/2026 00:33",
+  "gerado_em": "27/07/2026 05:56",
   "natureza": "analise exploratoria de erros da IA contra a conferencia humana; orienta a qualidade da ABERTURA do chamado, nao e metrica de producao",
   "n_conferidos_ia": 8703,
   "minimo_recomendado": 30,
@@ -64,11 +64,11 @@
     {
       "caracteristica": "cobertura_termos_categoria",
       "n_erros": 160,
-      "n_acertos": 8363,
+      "n_acertos": 8324,
       "mediana_erros": 0.08,
       "mediana_acertos": 0.32,
-      "p_mann_whitney": 6.175134558989422e-56,
-      "delta_cliff": -0.7217
+      "p_mann_whitney": 2.900500538705773e-56,
+      "delta_cliff": -0.7238
     }
   ],
   "leitura": "Se 'cobertura_termos_categoria' e comprimentos forem significativamente menores nos ERROS (p<0,05 e |delta de Cliff|>=0,147), a hipotese se confirma: texto pobre -> erro de categoria. O checklist por categoria lista os termos discriminativos ausentes nos erros — e a informacao que o formulario deve induzir o solicitante a fornecer, sem nunca pedir a categoria em si.",
@@ -343,18 +343,10 @@
       "informacao_a_solicitar": null
     },
     {
-      "categoria": "Manutenção Preventiva > Hidráulica",
-      "n_conferidos": 23,
-      "erros_ia": 1,
-      "taxa_erro_ia": 0.0435,
-      "termos_que_faltaram_nos_erros": [],
-      "informacao_a_solicitar": null
-    },
-    {
       "categoria": "Hidrossanitária > Hidráulica",
-      "n_conferidos": 683,
+      "n_conferidos": 662,
       "erros_ia": 29,
-      "taxa_erro_ia": 0.0425,
+      "taxa_erro_ia": 0.0438,
       "termos_que_faltaram_nos_erros": [
         {
           "termo": "banheiro masculino",
@@ -392,10 +384,18 @@
       "informacao_a_solicitar": "Pedir que o solicitante descreva o problema citando o objeto e o sintoma (vocabulario tipico desta categoria: banheiro masculino, torneiras, vazamento agua, bebedouros, pia)."
     },
     {
+      "categoria": "Manutenção Preventiva > Hidráulica",
+      "n_conferidos": 23,
+      "erros_ia": 1,
+      "taxa_erro_ia": 0.0435,
+      "termos_que_faltaram_nos_erros": [],
+      "informacao_a_solicitar": null
+    },
+    {
       "categoria": "Elétrica > Iluminação",
-      "n_conferidos": 636,
+      "n_conferidos": 634,
       "erros_ia": 23,
-      "taxa_erro_ia": 0.0362,
+      "taxa_erro_ia": 0.0363,
       "termos_que_faltaram_nos_erros": [
         {
           "termo": "externa",
@@ -524,9 +524,9 @@
     },
     {
       "categoria": "Estrutura Predial > Esquadrias, porta, portão e janelas",
-      "n_conferidos": 709,
+      "n_conferidos": 707,
       "erros_ia": 12,
-      "taxa_erro_ia": 0.0169,
+      "taxa_erro_ia": 0.017,
       "termos_que_faltaram_nos_erros": [
         {
           "termo": "chave",
@@ -565,7 +565,7 @@
     },
     {
       "categoria": "Climatização > Ar condicionado split",
-      "n_conferidos": 1282,
+      "n_conferidos": 1275,
       "erros_ia": 10,
       "taxa_erro_ia": 0.0078,
       "termos_que_faltaram_nos_erros": [
@@ -606,7 +606,7 @@
     },
     {
       "categoria": "Manutenção Preventiva > Reservatório",
-      "n_conferidos": 274,
+      "n_conferidos": 273,
       "erros_ia": 2,
       "taxa_erro_ia": 0.0073,
       "termos_que_faltaram_nos_erros": [],
@@ -784,7 +784,7 @@
     },
     {
       "categoria": "Manutenção Preventiva > Ar condicionado split",
-      "n_conferidos": 1758,
+      "n_conferidos": 1757,
       "erros_ia": 0,
       "taxa_erro_ia": 0.0,
       "termos_que_faltaram_nos_erros": [],
@@ -824,7 +824,7 @@
     },
     {
       "categoria": "Manutenção Preventiva > Telhados, calhas, rufos, etc.",
-      "n_conferidos": 34,
+      "n_conferidos": 32,
       "erros_ia": 0,
       "taxa_erro_ia": 0.0,
       "termos_que_faltaram_nos_erros": [],
@@ -847,16 +847,16 @@
       "informacao_a_solicitar": null
     },
     {
-      "categoria": "Manutenção Preventiva > Iluminação",
-      "n_conferidos": 126,
+      "categoria": "Manutenção Preventiva > Bomba",
+      "n_conferidos": 2,
       "erros_ia": 0,
       "taxa_erro_ia": 0.0,
       "termos_que_faltaram_nos_erros": [],
       "informacao_a_solicitar": null
     },
     {
-      "categoria": "Manutenção Preventiva > Bomba",
-      "n_conferidos": 3,
+      "categoria": "Manutenção Preventiva > Iluminação",
+      "n_conferidos": 124,
       "erros_ia": 0,
       "taxa_erro_ia": 0.0,
       "termos_que_faltaram_nos_erros": [],
