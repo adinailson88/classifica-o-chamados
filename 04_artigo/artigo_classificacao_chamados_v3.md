@@ -628,8 +628,8 @@ A avaliação do BERTimbau segue protocolo adicional e não substitui a
 comparação *out-of-fold*. A execução completa mais recente do transformador
 define um lote de 1.000 chamados. Os outros sete modelos são retreinados
 fora exatamente dessas linhas e avaliados no mesmo conjunto, evitando
-sobreposição entre treino e teste. O lote contém 639 chamados com decisão
-humana M/N/P/Q. Reportam-se concordância com o histórico, acerto validado,
+sobreposição entre treino e teste. O lote contém 639 chamados com categoria de referência estabelecida por
+validação humana. Reportam-se concordância com o histórico, acerto validado,
 intervalos por *bootstrap* e McNemar entre o BERTimbau e o melhor modelo
 alternativo. Como o lote corresponde aos primeiros registros elegíveis e
 não a uma amostra probabilística, os resultados descrevem esse recorte e
@@ -656,9 +656,12 @@ categoria travada.
 Duas unidades de análise convivem no protocolo e não devem ser
 confundidas. O **chamado** é o registro individual de manutenção, unidade
 das Tabelas 1, 2 e 3. A **conferência** é cada julgamento humano emitido
-sobre uma fonte de classificação. A decisão M/N/P/Q pode manter o
-histórico, aceitar uma classificação automática, aceitar a
-reclassificação ou registrar manualmente uma categoria distinta. Dos
+sobre uma fonte de classificação. A validação humana pode confirmar a categoria histórica, aceitar uma
+classificação automática, aceitar uma reclassificação ou definir
+manualmente uma categoria distinta. A categoria resultante desse processo
+constitui a referência validada utilizada na avaliação dos modelos. Quando
+nenhuma das fontes é confirmada e não há categoria alternativa definida
+pelo avaliador, o chamado permanece sem categoria de referência. Dos
 13.965 chamados, 9.534 receberam ao menos uma conferência; 8.895 chegaram
 a uma categoria decidida e 639 permaneceram restritos, incluindo 201
 conflitos entre fontes marcadas como corretas. A priorização recai sobre
@@ -757,7 +760,7 @@ Esta seção apresenta três conjuntos de resultados deliberadamente
 segregados. O primeiro é a concordância dos sete modelos com a categoria
 histórica na base completa (Subseção 4.1), em que o registro do GLPI é
 referência preliminar, não verdade absoluta. O segundo é o desempenho
-desses mesmos modelos contra a decisão humana M/N/P/Q (Subseção 4.2). O
+desses mesmos modelos contra a categoria de referência estabelecida por validação humana (Subseção 4.2). O
 terceiro é a comparação dos oito modelos no *holdout* comum que inclui o
 BERTimbau (Subseção 4.3). A base elegível contém 13.965 chamados. A
 conferência humana cobre 9.534 chamados (68,3% da base), dos quais 8.895
@@ -830,8 +833,8 @@ que pequena variação absoluta altera fortemente a métrica.
 
 **4.2 Ranking validado por conferência humana**
 
-A avaliação contra a decisão humana M/N/P/Q utiliza 8.895 chamados com
-categoria decidida. O LinearSVC permanece o melhor modelo isolado, com
+A avaliação contra a categoria de referência validada utiliza 8.895 chamados
+para os quais a conferência humana estabeleceu uma categoria final. O LinearSVC permanece o melhor modelo isolado, com
 acerto validado de 0,9527 (IC95%: 0,9482--0,9569), seguido por SGD
 (0,9442), Regressão Logística (0,9404), Extra Trees (0,9314), Random
 Forest (0,9268), LSTM (0,8872) e Naive Bayes (0,8659). A diferença entre
@@ -878,9 +881,8 @@ sensibilidade ao viés de seleção (n = 8.895). O limite inferior inclui os
 **4.3 BERTimbau no holdout comum de oito modelos**
 
 O BERTimbau foi comparado aos sete modelos no mesmo lote de 1.000
-chamados, com treino realizado fora dessas linhas. Entre os registros do
-lote, 639 possuem decisão humana M/N/P/Q e formam o denominador do acerto
-validado. O LinearSVC ocupa a primeira posição, com 0,7856 (IC95%:
+chamados, com treino realizado fora dessas linhas. Entre os registros do lote, 639 possuem categoria de referência estabelecida
+por validação humana e formam o denominador do acerto validado. O LinearSVC ocupa a primeira posição, com 0,7856 (IC95%:
 0,7527--0,8185), e o BERTimbau a segunda, com 0,7746 (IC95%:
 0,7402--0,8075). A diferença é de 1,10 ponto percentual em favor do
 LinearSVC e não é estatisticamente significativa (McNemar, *p* = 0,510;
@@ -1229,8 +1231,7 @@ acompanhado da ressalva amostral.
 
 O desenho atual também não permite estimar uma taxa empírica de erro do
 rótulo histórico. Quando o histórico é marcado como errado e nenhuma
-categoria alternativa é decidida, o chamado permanece restrito; sem o
-preenchimento da categoria manual Q, não há referência final para afirmar
+categoria alternativa é decidida, o chamado permanece restrito; sem a definição manual de uma categoria alternativa, não há referência final para afirmar
 qual fonte acertou. A hipótese de rótulos potencialmente ruidosos continua
 fundamentada na literatura e justifica a conferência, mas não deve ser
 apresentada como taxa confirmada por esta amostra (KEJRIWAL *et al.*,
@@ -1319,8 +1320,9 @@ decidida e ficam fora do denominador padrão. A análise de sensibilidade
 apura amplitude de 5,80 a 6,39 pontos percentuais entre o cenário
 conservador e o valor pontual, sem alterar o ranking relativo.
 
-A regra M/N/P/Q ainda depende do preenchimento manual de uma categoria
-quando todas as fontes são rejeitadas ou entram em conflito. Enquanto
+O protocolo de validação ainda depende da definição manual de uma categoria
+alternativa quando todas as fontes avaliadas são rejeitadas ou quando há
+conflito entre classificações consideradas corretas. Enquanto
 essa categoria não é informada, o protocolo não permite quantificar a
 taxa de erro do histórico nem atribuir acerto a um modelo nesses casos.
 A validação confirma a necessidade de governança sobre os rótulos, mas
@@ -1369,7 +1371,8 @@ persistente. Essa camada evita tratar o histórico como verdade automática
 e, ao mesmo tempo, impede concluir que toda divergência da IA representa
 correção do registro original.
 
-Na avaliação integral de 8.895 chamados com decisão M/N/P/Q, o LinearSVC
+Na avaliação integral dos 8.895 chamados com categoria de referência
+estabelecida por validação humana, o LinearSVC
 alcança 95,27% de acerto validado (IC95%: 94,82%--95,69%) e nenhum dos
 três *ensembles* o supera. A análise conservadora que inclui 639 casos
 restritos reduz o limite do LinearSVC para 88,88%, sem modificar a
@@ -1386,9 +1389,9 @@ toda a base.
 
 A finalização metodológica também exige reconhecer o que os dados não
 respondem. Como casos sem categoria decidida permanecem restritos, o
-desenho atual não estima a taxa de erro do histórico. A próxima etapa de
-validação deve preencher a categoria manual Q nesses casos, com prioridade
-para conflitos e rejeição de todas as fontes. Em paralelo, a validação
+desenho atual não estima a taxa de erro do histórico. A próxima etapa de validação deve definir manualmente uma categoria de
+referência nesses casos, priorizando os conflitos entre fontes e as situações
+em que todas as classificações avaliadas foram rejeitadas. Em paralelo, a validação
 externa em outras instituições e a execução integral do BERTimbau poderão
 testar a estabilidade dos resultados sob taxonomias e volumes distintos.
 A camada classificada poderá então alimentar modelos de previsão de

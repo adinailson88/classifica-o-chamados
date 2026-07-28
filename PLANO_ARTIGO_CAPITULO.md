@@ -59,9 +59,9 @@ A fonte editável é `04_artigo/artigo_classificacao_chamados_v3.md`. O PDF publ
 
 ## Estado desta rodada
 
-**Onde está:** o treino e a avaliação held-out do BERTimbau foram concluídos e incorporados ao artigo. A rodada científica está fechada.
+**Onde está:** o artigo permanece cientificamente fechado, com resultados e conclusões inalterados. A redação metodológica foi revisada para retirar do corpo científico os identificadores internos das colunas de conferência da planilha.
 
-**O que foi feito:** o BERTimbau foi treinado em modo automático (`bertimbau_training_state.json`, `status=ok`) e avaliado em protocolo *holdout* comum de 1.000 chamados frente aos outros sete modelos, com 639 casos com decisão M/N/P/Q (`docs/dados/avaliacao_bertimbau_holdout.json`). O BERTimbau alcançou 77,46% de acerto validado (IC95%: 74,02%–80,75%), segunda posição, contra 78,56% do LinearSVC, sem diferença estatística (McNemar, *p* = 0,510). O artigo foi atualizado com a Subseção 4.3 (BERTimbau no holdout comum de oito modelos), Resumo, Abstract, metodologia, discussão, limitações e considerações finais reconciliados, e o PDF foi regenerado e revisado visualmente. O orquestrador temporário (`src/atualizar_artigo_bertimbau_temp.py` e `.github/workflows/finalizar_artigo_bertimbau_temp.yml`) foi removido após uso.
+**O que foi feito:** as referências a M/N/P/Q e à categoria manual Q foram substituídas, apenas no artigo, por categorias conceituais de decisão: confirmação da categoria histórica, aceitação da classificação automática, aceitação da reclassificação, definição manual de categoria alternativa e categoria de referência validada. Nenhum dado, cálculo, denominador, resultado, regra operacional da planilha ou código de processamento foi alterado. O PDF público foi regenerado a partir da fonte Markdown revisada.
 
 **Próximo passo:** preencher a categoria manual Q dos 639 casos restritos (201 deles em conflito) e avaliar a viabilidade de uma execução *out-of-fold* integral do BERTimbau sobre toda a base.
 
