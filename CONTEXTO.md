@@ -1541,39 +1541,55 @@ preâmbulo tem `\IfFileExists` como alternativa para não quebrar o build).
 
 Configuração atual: `\def\fps@figure{tp}` (figura nunca no rodapé, senão estoura
 a margem), `topfraction 0.85`, `textfraction 0.10`, `floatpagefraction 0.90`,
-`raggedbottom`, e `\FloatBarrier` antes de cada título numerado. As barreiras são
-necessárias porque o texto usa títulos em negrito, não comandos de seção, então
-o LaTeX não tem âncora para esvaziar a fila de floats.
+`raggedbottom`, e `\FloatBarrier` apenas onde é estrutural.
 
-**Impasse não resolvido, com medições.** Existe desperdício real de espaço
-(página 4 com 141 pt de vão, página 16 com 204 pt; total 856 pt):
+**Impasse resolvido em 27/07/2026, sem tocar na carga de figuras.** O artigo
+passou de 23 para 22 páginas, com vão interno total de 939 pt para 290 pt e
+nenhum texto fora da margem. As oito figuras permanecem, cada uma na subseção
+que a discute.
 
 | Configuração | Páginas | Vão total | Texto fora da margem |
 |---|---|---|---|
-| Sem barreiras | 22 | 408 pt | página 15 |
-| Com barreiras (atual) | 23 | 856 pt | nenhum |
-| Barreiras só em 4.7–4.9 | 23 | 860 pt | nenhum |
-| Com `flafter` | 24 | — | nenhum |
+| Barreira antes de cada título (anterior) | 23 | 939 pt | nenhum |
+| Sem as barreiras que cercam tabelas | 22 | 181 pt | páginas 14–15 |
+| Barreiras só onde são estruturais (atual) | 22 | 290 pt | nenhum |
 
-Remover a barreira antes de 3.2 elimina o vão da página 4, mas cria um maior na
-página 5: o vazio anda, não some. `flafter` custa uma página e não agrega, pois
-nenhuma figura hoje aparece antes da própria chamada.
+Três achados sustentam a configuração atual.
 
-Causa real: **oito figuras em 23 páginas, seis concentradas entre 4.6 e 4.8**,
-sem texto suficiente entre elas para absorvê-las. O caminho que de fato
-economiza folha é reduzir a carga de figuras nesse trecho — fundir as Figuras 3
-e 4 (mapa de calor e matriz de confusão contam a mesma história), encolher a
-Figura 5 ou mover uma para o suplementar. Isso muda conteúdo, então depende de
-decisão do autor.
+1. **A causa do estouro de margem é `longtable`, não a posição do float.** O
+   pandoc emite `longtable` para toda tabela, e `longtable` não é float, não se
+   divide em torno de figura e estoura a margem inferior quando divide página
+   com uma. Toda barreira que cerca tabela é obrigatória. As barreiras que
+   apenas antecedem títulos podem sair, e cada uma que sai devolve o vão que o
+   `\clearpage` cobrava.
+2. **A posição `b` continua proibida.** Reabilitá-la fecha o vão da página 16
+   mas põe figura sobre a margem inferior, qualquer que seja `bottomfraction`.
+3. **Âncora de float só anda para a frente.** O vão da antiga página 16 vinha da
+   Figura 6 esperar a barreira do fim da 4.7. Com a marcação da Figura 6 movida
+   para junto da Figura 5, ao fim da 4.6, as duas ocupam o topo da mesma página
+   e o texto da 4.7 preenche o resto. Só a marcação mudou de lugar, o texto não.
+
+Barreiras removidas: antes de 3.2, ao fim de 3.2, ao fim de 4.8. Barreiras
+mantidas: todas as demais, com destaque para as que cercam as Tabelas 6 e 7.
+
+Vãos remanescentes: 90 pt na página 16 e 39 pt na 14, o resto abaixo de 25 pt.
+A página 16 fecha antes porque as Figuras 7 e 8 aguardam a barreira do fim da
+4.9. Fechar esse resto exigiria reduzir a carga de figuras, o que muda conteúdo
+e continua dependendo de decisão do autor.
 
 ### Referências
 
 59 verbetes, todos citados, nenhuma órfã. Onze obras que haviam ficado órfãs no
 enxugamento foram religadas ao texto na 4.9 e na 4.1 (Tukey, Hodge e Austin,
 Razali e Wah, Ogunleye, O'Brien, Kornbrot, Minderer, Durbin e Watson, Landis e
-Koch, Wongpakaran). Cohen (1960) foi acrescentado e é **o único verbete sem
-ficha no repositório** — conferir os dados bibliográficos antes de submeter.
-Box e Jenkins removido, pois sustentava a menção a ARIMA que saiu.
+Koch, Wongpakaran). Box e Jenkins removido, pois sustentava a menção a ARIMA
+que saiu.
+
+Cohen (1960) foi conferido em 27/07/2026 e está correto no artigo (Educational
+and Psychological Measurement, v. 20, n. 1, p. 37–46, DOI
+10.1177/001316446002000104). A ficha foi criada em
+`04_artigo/referencias/fichas/`. O PDF ainda não integra o acervo do Drive, e a
+ficha registra essa lacuna; ao incorporá-lo, acrescentar o link permanente.
 
 ### Armadilhas observadas nesta rodada
 
@@ -1585,3 +1601,31 @@ Box e Jenkins removido, pois sustentava a menção a ARIMA que saiu.
   falhar; os resultados ficam recuperáveis no log da execução.
 - O build do Pages falha de forma intermitente quando há pushes em sequência;
   basta solicitar novo build.
+- O `.docx` em `04_artigo/artigo_classificacao_chamados_v3.docx` está defasado
+  (23/07) e **não contém nenhuma figura**. Ler o artigo por ele induz a erro.
+  Ou regenerar a cada build, ou tirar do repositório.
+
+## Rodada de 27/07/2026, itens de parecer
+
+Quatro pontos vieram de parecer externo. Dois eram improcedentes e foram
+conferidos contra o PDF publicado, idêntico byte a byte ao de `main`.
+
+- **Figuras 6 e 8 não faltavam.** Estavam presentes, com imagem e legenda. O que
+  havia de anômalo é que eram as duas únicas geradas com `LARGURA_COLUNA`, o que
+  as deixava com metade da largura do texto num artigo de coluna única. Os dois
+  geradores passaram a usar `LARGURA_DUPLA`, com a mesma altura, e as marcações
+  ganharam `{width=95%}` como as outras seis. A mudança devolve altura em vez de
+  consumir, porque a escala de 95% encolhe a figura mais larga.
+- **GRIMM et al. (2008) não faltava** na lista de referências, e os dados estão
+  corretos.
+- **Calibração formal.** A Conclusão passou a nomear Platt e regressão isotônica
+  e a declarar a calibração por modelo como condição para liberar a faixa igual
+  ou superior a 95% à decisão automática em produção. A afirmação já estava
+  sustentada pela 5.2 e pelo `PLANO_CALIBRACAO.md`. A menção que ficava dentro
+  da agenda de validação externa saiu, para não repetir.
+- **Vãos das páginas 4 e 16.** Resolvidos, ver a seção de layout acima.
+
+Medição de vão por página, para reproduzir: renderizar com
+`pdftoppm -r 72 -gray -png` e localizar a última linha com pixel escuro acima de
+`altura − 71 pt`. Conferir `Overfull \vbox` no log do pandoc com `--verbose`,
+porque texto fora da margem não aparece na contagem de páginas.

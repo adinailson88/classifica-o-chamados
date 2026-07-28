@@ -16,7 +16,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from estilo_figuras import COR, LARGURA_COLUNA, aplicar_estilo, limpar_eixo, salvar  # noqa: E402
+from estilo_figuras import COR, LARGURA_DUPLA, aplicar_estilo, limpar_eixo, salvar  # noqa: E402
 
 RAIZ = Path(__file__).resolve().parents[1]
 ENTRADA_PADRAO = RAIZ / "04_artigo" / "figuras" / "ablation_lstm_resultados.json"
@@ -38,7 +38,7 @@ def gerar(entrada: Path, saida: Path) -> list[Path]:
              for r in resultados]
 
     aplicar_estilo()
-    fig, ax = plt.subplots(figsize=(LARGURA_COLUNA, 2.6))
+    fig, ax = plt.subplots(figsize=(LARGURA_DUPLA, 2.6))
     barras = ax.barh(range(len(resultados)), valores, color=cores, height=0.65)
     ax.set_yticks(range(len(resultados)), labels=rotulos)
     ax.set_xlabel("Acerto validado (%)")

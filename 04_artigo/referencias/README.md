@@ -5,9 +5,10 @@ Este diretório reúne referências estatísticas, metodológicas e de inteligê
 ## Situação
 
 - PDFs verificados e organizados nos dois lotes: 22
-- Fichas analíticas: 22
+- Fichas analíticas: 23
 - Duplicatas exatas detectadas por SHA-256: 1
 - Versões técnicas relacionadas, mas não idênticas: 2
+- Fichas sem texto completo no acervo: 1 (Cohen, 1960)
 - Ficha consolidada do primeiro lote: [`FICHAS_REFERENCIAS_ESTATISTICAS.md`](FICHAS_REFERENCIAS_ESTATISTICAS.md)
 - Catálogo e fichas individuais do segundo lote: [`fichas/README_LOTE_2026-07-26_2.md`](fichas/README_LOTE_2026-07-26_2.md)
 
@@ -31,6 +32,14 @@ Este diretório reúne referências estatísticas, metodológicas e de inteligê
 O segundo lote acrescenta Zadeh, Salton–Buckley, Winkler, Joachims, Mamdani–Assilian, Breiman, Sebastiani, He–Garcia, Lee–Kao–Yang, Lima et al., Montroni et al. e Allam. O catálogo contém os links individuais para cada ficha e PDF.
 
 A cópia de Montroni et al. foi confirmada como duplicata exata e preservada com `_DUPLICATA`. Os relatórios de Salton–Buckley e Joachims possuem hashes distintos das versões publicadas já existentes e foram registrados como versões técnicas relacionadas.
+
+## Fichas avulsas
+
+| Ano | Referência | Aplicação no artigo/capítulo | Ficha |
+|---:|---|---|---|
+| 1960 | Cohen — *A Coefficient of Agreement for Nominal Scales* | Kappa entre modelos e categoria histórica na Subseção 4.1 | [`fichas/1960_ARTIGO_Estatistica_Cohen_Coefficient_Agreement_Nominal_Scales.md`](fichas/1960_ARTIGO_Estatistica_Cohen_Coefficient_Agreement_Nominal_Scales.md) |
+
+Cohen (1960) era o único verbete da lista de referências do artigo sem ficha no repositório. Os dados bibliográficos foram conferidos em 27/07/2026 (Educational and Psychological Measurement, v. 20, n. 1, p. 37–46, DOI 10.1177/001316446002000104). O PDF ainda não integra o acervo do Drive; ao ser incorporado, acrescentar o link permanente na ficha e mover a entrada para o lote correspondente.
 
 ## Regra de uso
 

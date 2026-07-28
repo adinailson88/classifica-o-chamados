@@ -15,9 +15,13 @@ header-includes:
     \raggedbottom
     % O texto usa titulos em negrito, nao comandos de secao, entao o LaTeX nao
     % tem ancora para esvaziar a fila de floats e acaba despejando figuras em
-    % paginas onde nao cabem. As barreiras resolvem isso. O placeins vive em
-    % 04_artigo/latex porque nao existe na imagem pandoc/extra do workflow; o
-    % ramo alternativo evita falha de build caso o TEXINPUTS nao o alcance.
+    % paginas onde nao cabem. As barreiras resolvem isso, mas cobram vao no
+    % rodape a cada \clearpage, entao ficaram so onde sao estruturais. As que
+    % cercam tabelas sao obrigatorias: o pandoc emite longtable, que nao e
+    % float e estoura a margem inferior quando divide pagina com figura.
+    % O placeins vive em 04_artigo/latex porque nao existe na imagem
+    % pandoc/extra do workflow; o ramo alternativo evita falha de build caso o
+    % TEXINPUTS nao o alcance.
     \IfFileExists{placeins.sty}{%
       \usepackage{placeins}%
     }{%
@@ -375,10 +379,6 @@ apresenta esse fluxo como *pipeline* de governança preditiva.
 
 ![Pipeline de governança preditiva, do fluxo de extração da base à retroalimentação por validação humana.](04_artigo/figuras/fig_pipeline_governanca.pdf){width=95%}
 
-```{=latex}
-\FloatBarrier
-```
-
 **3.2 Corpus e variáveis**
 
 O corpus experimental é composto por 13.965 chamados de manutenção
@@ -397,10 +397,6 @@ pré-processamento e representação textual (SUNDARAM; ZEID, 2025).
 A base é dinâmica, pois novos chamados continuam a ser incorporados e a
 taxonomia institucional pode ser revisada ao longo do tempo. Os
 resultados da Seção 4 referem-se ao corpus descrito acima.
-
-```{=latex}
-\FloatBarrier
-```
 
 **3.3 Pré-processamento textual**
 
@@ -1108,6 +1104,8 @@ internas de estrutura predial.
 
 ![Quinze pares de categorias com maior confusão recíproca, agregados entre modelos. Os códigos do eixo vertical estão descritos no material suplementar.](04_artigo/figuras/fig_top_confusoes.pdf){width=95%}
 
+![Trade-off entre acerto validado e tempo de treino, modelos clássicos.](04_artigo/figuras/fig_tradeoff_custo.pdf){width=95%}
+
 **Tabela 6** Entropia de Shannon e divergência de Jensen-Shannon por
 fonte de classificação.
 
@@ -1150,8 +1148,6 @@ A Figura 6 cruza essas medições de custo com o acerto validado da Tabela
 2 e mostra que o LinearSVC ocupa a posição mais favorável, com o maior
 acerto validado a um custo de treino próximo do menor observado.
 
-![Trade-off entre acerto validado e tempo de treino, modelos clássicos.](04_artigo/figuras/fig_tradeoff_custo.pdf)
-
 ```{=latex}
 \FloatBarrier
 ```
@@ -1186,11 +1182,7 @@ sensibilidade do LSTM ao número de unidades recorrentes e à taxa de
 ajuste desses hiperparâmetros, mas na ausência de *embeddings*
 pré-treinados discutida na Subseção 3.4.1.
 
-![*Ablation* do LSTM, quatro variantes de unidades recorrentes e *dropout*, avaliadas por *GroupKFold* contra a decisão validada.](04_artigo/figuras/fig_ablation_lstm.pdf)
-
-```{=latex}
-\FloatBarrier
-```
+![*Ablation* do LSTM, quatro variantes de unidades recorrentes e *dropout*, avaliadas por *GroupKFold* contra a decisão validada.](04_artigo/figuras/fig_ablation_lstm.pdf){width=95%}
 
 **4.9 Robustez estatística: pressupostos e testes de sensibilidade**
 
@@ -1425,9 +1417,12 @@ triagem e à auditoria, mas não dispensa a conferência humana. Sobre
 acerto validado (IC95%: 94,80%--95,68%), à frente dos demais seis
 modelos, e nenhum dos três *ensembles* avaliados o superou com
 significância estatística. A recomendação operacional é usar o LinearSVC
-isolado, com calibração, escolha que o custo computacional reforça, já
-que os modelos lineares treinam em uma fração do tempo exigido pelos
-*ensembles* de árvores sem perder acerto. A matriz de confusão mostra
+isolado, escolha que o custo computacional reforça, já que os modelos
+lineares treinam em uma fração do tempo exigido pelos *ensembles* de
+árvores sem perder acerto. A confiança utilizada neste artigo é bruta,
+e liberar a faixa igual ou superior a 95% para decisão automática em
+produção exige calibração formal por modelo, por Platt ou por regressão
+isotônica (PLATT, 1999; GUO *et al.*, 2017). A matriz de confusão mostra
 por que a conferência continua necessária, pois o histórico
 administrativo também contém erros confirmados, em 1,83% das
 conferências. Esses valores descrevem a amostra conferida, com a ressalva
@@ -1439,10 +1434,10 @@ sinalizados por alto desacordo estrutural entre as fontes.
 Duas frentes dão continuidade ao trabalho. A primeira é a validação
 externa em outras instituições federais de ensino superior, para testar
 se o padrão observado se mantém sob taxonomias e volumes distintos, com
-o BERTimbau incorporado à comparação e a calibração formal aplicada por
-modelo. A segunda é o uso desta camada classificada como entrada de
-modelos de previsão de demanda e de priorização multicritério de
-intervenções, lacuna já apontada na literatura de gestão de manutenção,
+o BERTimbau incorporado à comparação. A segunda é o uso desta camada
+classificada como entrada de modelos de previsão de demanda e de
+priorização multicritério de intervenções, lacuna já apontada na
+literatura de gestão de manutenção,
 que raramente incorpora dados operacionais de chamados. Nas duas
 direções, o protocolo aqui descrito funciona como pré-requisito, pois
 previsão e priorização só são confiáveis sobre uma base cuja
