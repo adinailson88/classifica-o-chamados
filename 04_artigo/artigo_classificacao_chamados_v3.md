@@ -1646,7 +1646,10 @@ v. 1, n. 1, p. 3--14, 2010.
 **APÊNDICE A — DISTRIBUIÇÃO DAS CATEGORIAS HISTÓRICAS DO CORPUS**
 
 A Tabela A1 apresenta as 55 categorias históricas utilizadas na classificação
-dos 13.965 chamados, ordenadas por frequência decrescente e ```{=latex}
+dos 13.965 chamados, ordenadas por frequência decrescente e distribuídas em
+dois blocos paralelos para reduzir a extensão do apêndice.
+
+```{=latex}
 \scriptsize
 \setlength{\tabcolsep}{2.5pt}
 \renewcommand{\arraystretch}{0.92}
@@ -1692,8 +1695,4 @@ dos 13.965 chamados, ordenadas por frequência decrescente e ```{=latex}
 \normalsize
 \setlength{\tabcolsep}{6pt}
 \renewcommand{\arraystretch}{1}
-```aboração própria a partir do corpus analisado.*
-
-```{=latex}
-\normalsize
 ```
