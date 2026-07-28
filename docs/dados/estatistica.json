@@ -1,12 +1,12 @@
 {
-  "gerado_em": "28/07/2026 01:39",
+  "gerado_em": "28/07/2026 03:30",
   "schema_version": "1.0",
   "run_id": "EXP_CLASSIFICACAO_CHAMADOS_2026_06_001",
   "script_origem": "src/analise_estatistica.py",
   "commit_origem": null,
   "fonte_dados": "CLASSIF__{modelo}",
   "escopo_validacao": "concordância contra categoria histórica; não equivale a validação humana",
-  "estado_bertimbau": "sem_dados",
+  "estado_bertimbau": "ok",
   "n_linhas_comuns": 13965,
   "modelos": [
     "naive_bayes",
@@ -17,9 +17,7 @@
     "random_forest",
     "lstm"
   ],
-  "modelos_excluidos": [
-    "transformer_ft"
-  ],
+  "modelos_excluidos": [],
   "alpha": 0.05,
   "observacao": "Acerto = IA x categoria historica (preliminar; a validacao humana qualifica). Sem texto de chamado. Normalidade rejeitada (Shapiro) nos modelos avaliados: a analise assume pressupostos NAO parametricos (Spearman, Friedman/Nemenyi, Cochran Q, McNemar, bootstrap). Resultados sao contra o historico, nao contra validacao humana.",
   "correlacao_conf_acerto": [
@@ -371,8 +369,8 @@
     ]
   },
   "friedman": {
-    "stat": 44.432,
-    "p": 1.89e-08,
+    "stat": 44.082,
+    "p": 2.23e-08,
     "blocos": [
       "0-1000",
       "1000-2000",
@@ -412,11 +410,11 @@
       },
       {
         "modelo": "sgd",
-        "rank_medio": 3.357
+        "rank_medio": 3.393
       },
       {
         "modelo": "regressao_logistica",
-        "rank_medio": 4.286
+        "rank_medio": 4.25
       },
       {
         "modelo": "naive_bayes",
