@@ -38,4 +38,13 @@ jobs:
       - name: Compilar scripts
         run: python -m compileall -q src tests
       - name: Executar testes
-        run: python -m unittest discover -s tests -v
+        run: |
+          set -o pipefail
+          python -m unittest discover -s tests -v 2>&1 | tee relatorio_testes.txt
+      - name: Publicar relatorio dos testes
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: relatorio-testes-bertimbau
+          path: relatorio_testes.txt
+          if-no-files-found: error
