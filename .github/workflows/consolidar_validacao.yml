@@ -1,20 +1,19 @@
-name: Consolidar validacao da Classificacao IA 2
+name: Consolidar validacao humana
 
 on:
-  # Automatico diario (madrugada): consolida a memoria/metricas/calibracao validadas da
-  # IA-2. No cron grava; manual respeita o input 'aplicar'.
+  # O cron executa somente o diagnostico read-only. Gravacao exige disparo manual
+  # explicito com aplicar=true, apos revisao de um dry-run recente.
   schedule:
     - cron: "50 3 * * *"
   workflow_dispatch:
     inputs:
       aplicar:
-        description: "Gravar memoria, metricas e calibracao"
+        description: "Gravar abas privadas apos revisar o dry-run"
         type: boolean
         default: false
 
-# Grupo proprio: nao disputa a fila 'escrita-planilha' (saturada pelos fluxos de 15 min).
 concurrency:
-  group: consolidar-validacao-ia2
+  group: consolidar-validacao
   cancel-in-progress: false
 
 permissions:
@@ -41,10 +40,10 @@ jobs:
         run: |
           if [ -z "$GCP_SA_KEY" ]; then echo "Secret GCP_SA_KEY ausente." >&2; exit 1; fi
           printf '%s' "$GCP_SA_KEY" > credenciais_sa.json
-      - name: Consolidar validacao e calibracao
+      - name: Consolidar validacao M N P Q
         run: |
-          CMD="python src/consolidar_memoria_validada_classificacao.py"
-          if [ "${{ github.event.inputs.aplicar }}" = "true" ] || [ "${{ github.event_name }}" = "schedule" ]; then
+          CMD="python src/consolidar_validacao.py"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ github.event.inputs.aplicar }}" = "true" ]; then
             CMD="$CMD --aplicar"
           fi
           eval "$CMD"

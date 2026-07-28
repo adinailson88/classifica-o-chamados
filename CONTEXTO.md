@@ -33,6 +33,7 @@ Os JSONs são dinâmicos e devem ser conferidos por data de geração antes de q
 - A aba principal é lida em `A:Q`.
 - A verdade validada é derivada por `src/decisao_validada.py` a partir de M, N, P e, quando necessário, Q.
 - A memória de treino validada é lida diretamente da aba principal por `src/memoria_validada.py`; a antiga aba separada `VALIDACAO_HUMANA` não é mais fonte operacional.
+- A consolidação das abas privadas usa `src/consolidar_validacao.py`, sem regra paralela de verdade e com exclusão de conflitos. O cron executa apenas dry-run; a gravação exige disparo manual explícito.
 - Modelos compartilhados de reclassificação ficam em `src/modelos_reclassificacao.py`.
 - Rotinas destrutivas de reset e executores legados da Etapa 2 não integram mais o fluxo vigente.
 
