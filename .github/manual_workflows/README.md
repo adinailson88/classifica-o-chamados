@@ -1,17 +1,12 @@
 # Workflows manuais isolados (DESATIVADOS)
 
-Os arquivos `.yml` desta pasta **não são executados pelo GitHub Actions**. O GitHub só
-reconhece workflows diretamente em `.github/workflows/` (não lê subpastas). Eles foram
-movidos para cá de propósito, para ficarem isolados da operação automática e **não
-poderem ser disparados** (nem por cron, nem por `Run workflow`).
+Os arquivos `.yml` desta pasta não são executados pelo GitHub Actions. O GitHub reconhece workflows apenas quando estão diretamente em `.github/workflows/`.
 
-São contingências/operações manuais que **não** alimentam o painel no fluxo normal — a
-classificação, reclassificação, comparação, estatística, decisão e taxonomia já são
-atualizadas por workflows automáticos/condicionados em `.github/workflows/`.
+Esta pasta mantém somente contingências, diagnósticos ou operações de recuperação que ainda possuem função exclusiva. Fluxos substituídos ou que duplicam escrita na planilha devem ser apagados, não arquivados indefinidamente.
 
 ## Reativar um workflow
 
-Mover o arquivo de volta para `.github/workflows/` e commitar:
+Mover o arquivo para `.github/workflows/`, revisar seu escopo e criar uma alteração específica em branch + Pull Request.
 
 ```bash
 git mv .github/manual_workflows/<arquivo>.yml .github/workflows/<arquivo>.yml
@@ -22,14 +17,14 @@ git commit -m "reativa <arquivo>"
 
 | Arquivo | Por que está isolado |
 |---|---|
-| `resetar_destrutivo/resetar.yml` | **DESTRUTIVO**: zera o experimento. Isolado em subpasta própria para reforçar que não deve rodar por acidente. |
-| `classificacao_ia_2_aplicar.yml` | Grava a coluna O com confirmação `APLICAR_O`; a coluna O já é atualizada no automático pelo `transformer_ft` (noturno). |
-| `reclassificar_validados.yml` | Coluna O — idem (coberta pelo `transformer_ft`). |
-| `reclassificacao_robusta.yml` | Reclassificação com LSTM robusto sob demanda; a automática é coberta por `multimodelo_reclassificacao`. |
-| `etapa2_reclassificacao.yml` | Reclassificação single-model; a automática é coberta por `multimodelo_reclassificacao`. |
-| `classificacao_incremental.yml` | Superseded por `etapa1_turnos` (cron */15). |
-| `classificacao_ia_2_dryrun.yml` | Simulação (nunca grava). |
-| `reclassificacao_dry_run.yml` | Simulação (nunca grava). |
-| `preparar_validacao.yml` | Re-amostra a aba `VALIDACAO_HUMANA`; automatizar trocaria a amostra que o humano está conferindo. |
-| `iniciar_pipeline.yml` | Orquestrador; os fluxos que ele dispara já têm cron próprio. |
-| `check_final_ready.yml` | Porta/gate de verificação; não publica dados do painel. |
+| `resetar_destrutivo/resetar.yml` | **Destrutivo:** zera o experimento. Mantido em subpasta própria para impedir execução acidental. |
+| `reclassificar_validados.yml` | Contingência para a coluna O; o fluxo normal é coberto pelo `transformer_ft`. |
+| `reclassificacao_robusta.yml` | Reclassificação pesada sob demanda; o fluxo normal é coberto por `multimodelo_reclassificacao.yml`. |
+| `etapa2_reclassificacao.yml` | Reclassificação single-model legada, mantida apenas como contingência controlada. |
+| `classificacao_ia_2_dryrun.yml` | Diagnóstico do comitê sem gravação da coluna O. |
+| `reclassificacao_dry_run.yml` | Simulação da Etapa 2 sem escrita na planilha. |
+| `preparar_validacao.yml` | Reamostra a aba de validação humana; não deve ser automatizado. |
+| `iniciar_pipeline.yml` | Orquestrador manual de fluxos que já possuem execução própria. |
+| `check_final_ready.yml` | Porta de verificação antes do fechamento da avaliação. |
+
+Antes de reativar qualquer arquivo, confirmar que ele não duplica um workflow vigente e que preserva as colunas M, N, P e Q.
