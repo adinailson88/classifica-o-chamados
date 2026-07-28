@@ -1,5 +1,6 @@
 name: TEMPORARIO - limpar documentos obsoletos lote 2
 
+# Segundo push: dispara a rotina agora que o workflow já existe em main.
 on:
   push:
     branches:
@@ -113,4 +114,4 @@ jobs:
             --base main \
             --head docs/remover-obsoletos-lote2 \
             --title "docs: remove documentos obsoletos do segundo lote" \
-            --body "Remove cinco arquivos autorizados como obsoletos e corrige referências internas aos documentos excluídos neste e no lote anterior. A rotina temporária também se remove no mesmo PR. Não altera dados, planilha, artigo nem código de processamento." 
+            --body "Remove cinco arquivos autorizados como obsoletos e corrige referências internas aos documentos excluídos neste e no lote anterior. A rotina temporária também se remove no mesmo PR. Não altera dados, planilha, artigo nem código de processamento."
