@@ -1,0 +1,39 @@
+name: Validar avaliacao BERTimbau heldout (temporario)
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: requirements-estatistica.txt
+      - name: Instalar dependencias
+        run: python -m pip install --retries 5 --timeout 120 -r requirements-estatistica.txt
+      - name: Validar YAML dos workflows alterados
+        run: |
+          python - <<'PY'
+          import yaml
+          for caminho in [
+              '.github/workflows/comparar_modelos.yml',
+              '.github/workflows/avaliacao_bertimbau_holdout.yml',
+              '.github/workflows/temporario_incorporar_bertimbau.yml',
+          ]:
+              with open(caminho, encoding='utf-8') as arquivo:
+                  yaml.safe_load(arquivo)
+              print('ok', caminho)
+          PY
+      - name: Compilar scripts
+        run: python -m compileall -q src tests
+      - name: Executar testes
+        run: python -m unittest discover -s tests -v
