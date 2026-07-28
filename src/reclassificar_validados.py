@@ -1,20 +1,9 @@
 #!/usr/bin/env python3
-"""Reclassificacao dos chamados JA VALIDADOS (conferencia dupla M e N preenchidas).
+"""Reclassifica chamados com verdade humana decidida e coluna O vazia.
 
-Seleciona os chamados com a CONFERENCIA HUMANA completa — coluna M (CONFERENCIA GLPI)
-e coluna N (CONFERENCIA IA) preenchidas — e ainda SEM reclassificacao (coluna O,
-"Classificacao IA - 2", vazia). Reclassifica com o modelo MAIS ROBUSTO disponivel
-(transformer multilingue + memoria validada; fallback LSTM/RF) e grava o resultado na
-coluna O, SEM tocar em G (classificacao original), M ou N. Progressivo, em turnos de 15
-(pensado para cron */15: no maximo 15 chamados a cada execucao).
-
-Quando a verdade e derivavel das conferencias, mede o acerto da reclassificacao robusta:
-- N (CONFERENCIA IA) = "Correto"  -> a categoria certa e a da IA original (coluna G);
-- senao, M (CONFERENCIA GLPI) = "Correto" -> a categoria certa e a historica (coluna C);
-- ambas "Errado" -> verdade desconhecida (nao entra no acerto).
-
-Auditoria por chamado em RECLASS_VALIDADOS. Sem --aplicar = dry-run (nada gravado).
-Acesso via conta de servico (gspread).
+A verdade e obtida pela regra unica de ``decisao_validada`` sobre M/N/P/Q. O
+script grava somente a coluna O, preservando G e todas as conferencias humanas.
+Sem ``--aplicar`` opera em dry-run.
 """
 
 from __future__ import annotations
@@ -26,223 +15,358 @@ import time
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-import planilha as pl  # noqa: E402
+
+import decisao_validada as dv  # noqa: E402
 import memoria_validada as mv  # noqa: E402
-from executar_etapa2 import treinar_reclass, cel  # noqa: E402
+import planilha as pl  # noqa: E402
+from modelos_reclassificacao import cel, treinar_reclass  # noqa: E402
 from tempo import agora_bahia  # noqa: E402
 
 RAIZ = Path(__file__).resolve().parents[1]
 CONFIG_PADRAO = RAIZ / "config_experimento.json"
-DADOS = RAIZ / "dados"
 ABA_AUDITORIA = "RECLASS_VALIDADOS"
 
 
-def parse_args():
-    p = argparse.ArgumentParser(description="Reclassifica chamados validados (M e N) na coluna O.")
-    p.add_argument("--config", type=Path, default=CONFIG_PADRAO)
-    p.add_argument("--credenciais", default=None)
-    p.add_argument("--modelo", choices=["transformer_ft", "robusto", "producao", "baseline"],
-                   default="transformer_ft",
-                   help="Modelo de reclassificacao. Padrao: transformer_ft = BERTimbau com "
-                        "fine-tuning (contextual). 'robusto' = embeddings MiniLM + LogReg.")
-    p.add_argument("--tamanho-turno", type=int, default=15)
-    p.add_argument("--max-turnos", type=int, default=1, help="Turnos de 15 por execucao (0=todos).")
-    p.add_argument("--aplicar", action="store_true")
-    return p.parse_args()
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Reclassifica chamados com verdade M/N/P/Q na coluna O."
+    )
+    parser.add_argument("--config", type=Path, default=CONFIG_PADRAO)
+    parser.add_argument("--credenciais", default=None)
+    parser.add_argument(
+        "--modelo",
+        choices=["transformer_ft", "robusto", "producao", "baseline"],
+        default="transformer_ft",
+    )
+    parser.add_argument("--tamanho-turno", type=int, default=15)
+    parser.add_argument(
+        "--max-turnos",
+        type=int,
+        default=1,
+        help="Turnos por execucao; 0 processa todos os candidatos.",
+    )
+    parser.add_argument("--aplicar", action="store_true")
+    return parser.parse_args()
+
+
+def _normalizar_cabecalho(valor: str) -> str:
+    return pl.normalizar_cabecalho(valor)
 
 
 def main() -> int:
     args = parse_args()
-    with args.config.open(encoding="utf-8") as f:
-        config = json.load(f)
+    with args.config.open(encoding="utf-8") as arquivo:
+        config = json.load(arquivo)
+
     aba = config["aba_principal"]
     run_id = config.get("run_id", "")
     gerado = agora_bahia()
-    tam = max(1, args.tamanho_turno)
+    tamanho_turno = max(1, int(args.tamanho_turno))
 
     try:
         sh = pl.abrir_planilha(pl.id_planilha(config), args.credenciais)
         ws = sh.worksheet(aba)
-        valores = pl.ler_valores(ws, "A:O")
-    except FileNotFoundError as e:
-        print(str(e), file=sys.stderr); return 2
-    except Exception as e:  # noqa: BLE001
-        print(f"Falha ao acessar a planilha: {type(e).__name__}: {e}", file=sys.stderr); return 1
+        valores = pl.ler_valores(ws, "A:Q")
+    except FileNotFoundError as erro:
+        print(str(erro), file=sys.stderr)
+        return 2
+    except Exception as erro:  # noqa: BLE001
+        print(f"Falha ao acessar a planilha: {type(erro).__name__}: {erro}", file=sys.stderr)
+        return 1
 
-    cab = valores[0] if valores else []
-    import unicodedata
-    def norm(s):  # casefold + remove acentos (cabecalhos da planilha tem acento)
-        t = unicodedata.normalize("NFKD", str(s or ""))
-        t = "".join(c for c in t if not unicodedata.combining(c))
-        return " ".join(t.split()).casefold()
-    idx = {norm(n): i for i, n in enumerate(cab)}
-    i_id, i_tit, i_cat = idx.get(norm("ID Chamado")), idx.get(norm("TITULO")), idx.get(norm("CATEGORIA COMPLETA"))
-    i_dg, i_to, i_do = idx.get(norm("DESCRICAO GLPI")), idx.get(norm("TITULO O.S.M.")), idx.get(norm("DESCRICAO O.S.M."))
-    i_g = idx.get(norm("Classificacao IA"))
+    cabecalho = valores[0] if valores else []
+    indices = {_normalizar_cabecalho(nome): i for i, nome in enumerate(cabecalho)}
+
+    def idx(*nomes: str) -> int | None:
+        for nome in nomes:
+            encontrado = indices.get(_normalizar_cabecalho(nome))
+            if encontrado is not None:
+                return encontrado
+        return None
+
+    i_id = idx("ID Chamado", "ID")
+    i_titulo = idx("TITULO", "TÍTULO")
+    i_categoria = idx("CATEGORIA COMPLETA")
+    i_desc_glpi = idx("DESCRICAO GLPI", "DESCRIÇÃO GLPI")
+    i_titulo_osm = idx("TITULO O.S.M.", "TÍTULO O.S.M.")
+    i_desc_osm = idx("DESCRICAO O.S.M.", "DESCRIÇÃO O.S.M.")
+    i_ia = idx("Classificacao IA", "Classificação IA")
+
     col_o = pl.indice_coluna_por_cabecalho(ws, "Classificacao IA - 2", 15)
     i_o = col_o - 1
 
-    # Base rotulada (texto + categoria historica) e indice por linha.
-    elegiveis = []   # (linha, texto, cat_C)
-    info = {}
-    for pos, linha in enumerate(valores[1:], start=2):
-        cat = cel(linha, i_cat)
-        texto = "\n".join(c for c in [cel(linha, i_tit), cel(linha, i_dg),
-                                      cel(linha, i_to), cel(linha, i_do)] if c)
-        if not (cat and texto):
+    elegiveis: list[tuple[int, str, str]] = []
+    info: dict[int, dict[str, str | bool]] = {}
+    for posicao, linha in enumerate(valores[1:], start=2):
+        categoria = pl.normalizar_categoria(cel(linha, i_categoria))
+        texto = "\n".join(
+            parte
+            for parte in [
+                cel(linha, i_titulo),
+                cel(linha, i_desc_glpi),
+                cel(linha, i_titulo_osm),
+                cel(linha, i_desc_osm),
+            ]
+            if parte
+        )
+        if not categoria or not texto:
             continue
-        elegiveis.append((pos, texto, cat))
-        info[pos] = {"id": cel(linha, i_id), "cat_C": cat, "cat_G": cel(linha, i_g), "texto": texto,
-                     "o_preenchido": bool(cel(linha, i_o))}
+        elegiveis.append((posicao, texto, categoria))
+        info[posicao] = {
+            "id": cel(linha, i_id),
+            "cat_C": categoria,
+            "cat_G": cel(linha, i_ia),
+            "texto": texto,
+            "o_preenchido": bool(cel(linha, i_o)),
+        }
 
-    # Conferencias: M=GLPI, N=IA. Validado = ambas preenchidas.
+    decisoes = dv.carregar_decisoes(sh, aba)
     conferencias = pl.ler_conferencias(sh, aba)
 
-    candidatos = []
-    for ln, d in info.items():
-        c = conferencias.get(str(ln))
-        if not c or c.get("ia") is None or c.get("glpi") is None:
-            continue          # precisa de M e N preenchidas
-        if d["o_preenchido"]:
-            continue          # ja reclassificado (coluna O preenchida)
-        candidatos.append(ln)
+    candidatos = [
+        linha
+        for linha, dados in info.items()
+        if not dados["o_preenchido"]
+        and linha in decisoes
+        and decisoes[linha].get("status") == dv.STATUS_DECIDIDO
+        and not decisoes[linha].get("conflito")
+        and decisoes[linha].get("decidida")
+    ]
     candidatos.sort()
+
     total = len(candidatos)
-    print(f"run_id={run_id} | elegiveis={len(elegiveis)} | validados_pendentes={total} | modelo={args.modelo}")
+    print(
+        f"run_id={run_id} | elegiveis={len(elegiveis)} | "
+        f"validados_pendentes={total} | modelo={args.modelo}"
+    )
     if total == 0:
-        print("0 chamados validados pendentes de reclassificacao.")
+        print("0 chamados com verdade decidida e coluna O pendente.")
         return 0
 
-    n_lote = total if args.max_turnos <= 0 else min(total, args.max_turnos * tam)
-    sel = candidatos[:n_lote]
-    sel_set = set(sel)
+    quantidade = total if args.max_turnos <= 0 else min(
+        total,
+        args.max_turnos * tamanho_turno,
+    )
+    selecionados = candidatos[:quantidade]
+    selecionados_set = set(selecionados)
 
-    # Treino: base historica MENOS o lote (evita prever na propria linha) + memoria validada.
-    base_textos = [t for (ln, t, _) in elegiveis if ln not in sel_set]
-    base_cats = [c for (ln, _, c) in elegiveis if ln not in sel_set]
+    base_textos = [texto for linha, texto, _ in elegiveis if linha not in selecionados_set]
+    base_categorias = [categoria for linha, _, categoria in elegiveis if linha not in selecionados_set]
+
     memoria_cfg = config.get("memoria_validada", {})
-    memoria = mv.carregar_memoria_validada(sh, config["abas_experimento"]["validacao_humana"]) \
-        if memoria_cfg.get("habilitada", True) else []
-    base_textos, base_cats = mv.expandir_treino_com_memoria(
-        base_textos, base_cats, memoria, peso=int(memoria_cfg.get("peso_treino", 3)))
+    if memoria_cfg.get("habilitada", True):
+        aba_memoria = memoria_cfg.get("aba_origem") or aba
+        memoria = mv.carregar_memoria_validada(sh, aba_memoria)
+        memoria = [
+            item
+            for item in memoria
+            if int(item.get("linha_planilha") or 0) not in selecionados_set
+        ]
+    else:
+        memoria = []
 
-    print(f"lote={len(sel)} | base_treino={len(base_textos)} | memoria_validada={len(memoria)} | treinando (robusto)...")
-    predict_fn, tag = treinar_reclass(args.modelo, base_textos, base_cats, config=config)
-    preds, confs = predict_fn([info[ln]["texto"] for ln in sel])
+    base_textos, base_categorias = mv.expandir_treino_com_memoria(
+        base_textos,
+        base_categorias,
+        memoria,
+        peso=int(memoria_cfg.get("peso_treino", 3)),
+    )
+
+    print(
+        f"lote={len(selecionados)} | base_treino={len(base_textos)} | "
+        f"memoria_validada={len(memoria)} | treinando"
+    )
+    predict_fn, tag = treinar_reclass(
+        args.modelo,
+        base_textos,
+        base_categorias,
+        config=config,
+    )
+    predicoes, confiancas = predict_fn([str(info[linha]["texto"]) for linha in selecionados])
 
     registros = []
-    for ln, pred, conf in zip(sel, preds, confs):
-        d = info[ln]
-        c = conferencias[str(ln)]
-        v_ia, v_glpi = c.get("ia"), c.get("glpi")           # N, M
-        if v_ia == "Correto":
-            verdade = d["cat_G"]
-        elif v_glpi == "Correto":
-            verdade = d["cat_C"]
-        else:
-            verdade = None
-        cat_o = str(pred)
-        acertou = None if not verdade else (cat_o == verdade)
-        registros.append({"linha": ln, "id": d["id"], "cat_C": d["cat_C"], "cat_G": d["cat_G"],
-                          "conf_ia_N": v_ia, "conf_glpi_M": v_glpi, "verdade": verdade or "",
-                          "cat_o": cat_o, "acertou": acertou, "conf_o": round(float(conf), 4)})
+    for linha, predicao, confianca in zip(selecionados, predicoes, confiancas):
+        dados = info[linha]
+        decisao = decisoes[linha]
+        verdade = str(decisao.get("decidida") or "")
+        cat_o = str(predicao)
+        conferencia = conferencias.get(str(linha), {})
+        registros.append({
+            "linha": linha,
+            "id": dados["id"],
+            "cat_C": dados["cat_C"],
+            "cat_G": dados["cat_G"],
+            "conf_ia_N": conferencia.get("ia"),
+            "conf_glpi_M": conferencia.get("glpi"),
+            "verdade": verdade,
+            "fonte_verdade": decisao.get("fonte_decisao", ""),
+            "cat_o": cat_o,
+            "acertou": cat_o == verdade,
+            "conf_o": round(float(confianca), 4),
+        })
 
-    com_verdade = [r for r in registros if r["acertou"] is not None]
-    acertos = sum(1 for r in com_verdade if r["acertou"])
-    acertos_g = sum(1 for r in com_verdade if r["cat_G"] == r["verdade"])
+    acertos = sum(1 for registro in registros if registro["acertou"])
+    acertos_g = sum(1 for registro in registros if registro["cat_G"] == registro["verdade"])
     ganho_vs_g = acertos - acertos_g
-    print(f"reclassificados={len(registros)} | com_verdade={len(com_verdade)} | "
-          f"acertos_robusto={acertos}/{len(com_verdade)} | "
-          f"acertos_ia_original={acertos_g}/{len(com_verdade)} | "
-          f"ganho_vs_g={ganho_vs_g} | executor=Reclass_{tag}")
+    print(
+        f"reclassificados={len(registros)} | acertos_reclass={acertos}/{len(registros)} | "
+        f"acertos_ia_original={acertos_g}/{len(registros)} | ganho_vs_g={ganho_vs_g} | "
+        f"executor=Reclass_{tag}"
+    )
 
     if not args.aplicar:
         print("modo=dry-run (nada gravado).")
         return 0
 
-    if com_verdade and ganho_vs_g < 0:
+    if ganho_vs_g < 0:
         print(
-            "ABORTADO: reclassificacao pioraria a IA original G nas linhas com verdade derivada "
-            f"({acertos}/{len(com_verdade)} vs {acertos_g}/{len(com_verdade)}). "
-            "Coluna O nao foi alterada.",
+            "ABORTADO: a reclassificacao pioraria a IA original nas linhas com verdade decidida. "
+            "A coluna O nao foi alterada.",
             file=sys.stderr,
         )
         return 1
 
-    # 1) Grava a reclassificacao na coluna O (Classificacao IA - 2), sem tocar em G/M/N.
-    mapa_o = {r["linha"]: r["cat_o"] for r in registros}
+    mapa_o = {registro["linha"]: registro["cat_o"] for registro in registros}
     for tentativa in range(1, 4):
         try:
             pl.escrever_coluna_por_linha(ws, col_o, mapa_o)
             break
-        except Exception as e:  # noqa: BLE001
+        except Exception as erro:  # noqa: BLE001
             if tentativa >= 3:
-                print(f"FALHA ao gravar coluna O: {type(e).__name__}: {e}", file=sys.stderr); return 1
-            print(f"coluna O: falha transitoria ({type(e).__name__}); retry {tentativa}/3 em {10*tentativa}s",
-                  file=sys.stderr)
+                print(
+                    f"FALHA ao gravar coluna O: {type(erro).__name__}: {erro}",
+                    file=sys.stderr,
+                )
+                return 1
+            print(
+                f"coluna O: falha transitoria ({type(erro).__name__}); "
+                f"retry {tentativa}/3 em {10 * tentativa}s",
+                file=sys.stderr,
+            )
             time.sleep(10 * tentativa)
 
-    # 2) Auditoria por chamado em RECLASS_VALIDADOS.
-    cab_a = ["run_id", "linha_planilha", "id_chamado", "categoria_C", "categoria_G",
-             "conferencia_ia_N", "conferencia_glpi_M", "verdade_derivada",
-             "categoria_reclass_O", "reclass_correto", "confianca_reclass", "modelo", "data"]
-    linhas_a = [[run_id, r["linha"], r["id"], r["cat_C"], r["cat_G"], r["conf_ia_N"],
-                 r["conf_glpi_M"], r["verdade"], r["cat_o"],
-                 ("" if r["acertou"] is None else str(r["acertou"])), r["conf_o"],
-                 f"Reclass_{tag}", gerado] for r in registros]
-    for tentativa in range(1, 4):
-        try:
-            pl.append_aba(sh, ABA_AUDITORIA, cab_a, linhas_a)
-            break
-        except Exception as e:  # noqa: BLE001
-            if tentativa >= 3:
-                print(f"[aviso] coluna O gravada, mas auditoria falhou: {type(e).__name__}: {e}", file=sys.stderr)
-                break
-            time.sleep(10 * tentativa)
+    cab_auditoria = [
+        "run_id",
+        "linha_planilha",
+        "id_chamado",
+        "categoria_C",
+        "categoria_G",
+        "conferencia_ia_N",
+        "conferencia_glpi_M",
+        "verdade_derivada",
+        "categoria_reclass_O",
+        "reclass_correto",
+        "confianca_reclass",
+        "modelo",
+        "data",
+    ]
+    linhas_auditoria = [
+        [
+            run_id,
+            registro["linha"],
+            registro["id"],
+            registro["cat_C"],
+            registro["cat_G"],
+            registro["conf_ia_N"],
+            registro["conf_glpi_M"],
+            registro["verdade"],
+            registro["cat_o"],
+            str(registro["acertou"]),
+            registro["conf_o"],
+            f"Reclass_{tag}",
+            gerado,
+        ]
+        for registro in registros
+    ]
+    try:
+        pl.append_aba(sh, ABA_AUDITORIA, cab_auditoria, linhas_auditoria)
+    except Exception as erro:  # noqa: BLE001
+        print(
+            f"[aviso] coluna O gravada, mas auditoria falhou: {type(erro).__name__}: {erro}",
+            file=sys.stderr,
+        )
 
-    # 3) Historico consolidado comparavel com a reclassificacao multimodelo.
     aba_historico = config.get("multimodelo", {}).get(
-        "aba_historico_reclassificacao", "RECLASS_HISTORICO")
-    cab_h = ["data", "run_id", "modelo", "tipo_rodada", "linha_planilha", "id_chamado",
-             "categoria_referencia", "categoria_antes", "confianca_antes", "acerto_antes",
-             "categoria_depois", "confianca_depois", "acerto_depois", "mudou",
-             "delta_confianca", "resultado", "base_comparacao", "metodo_reclassificacao",
-             "limiar_alta_confianca", "usar_calibrado", "so_validados", "max_turnos",
-             "tamanho_turno", "gravou_coluna_2"]
-    linhas_h = []
-    for r in registros:
-        verdade = r["verdade"]
-        antes_ok = "" if not verdade else str(r["cat_G"] == verdade)
-        depois_ok = "" if r["acertou"] is None else str(r["acertou"])
-        if not verdade:
-            resultado = "sem_referencia"
-        elif r["cat_G"] != verdade and r["acertou"]:
+        "aba_historico_reclassificacao",
+        "RECLASS_HISTORICO",
+    )
+    cab_historico = [
+        "data",
+        "run_id",
+        "modelo",
+        "tipo_rodada",
+        "linha_planilha",
+        "id_chamado",
+        "categoria_referencia",
+        "categoria_antes",
+        "confianca_antes",
+        "acerto_antes",
+        "categoria_depois",
+        "confianca_depois",
+        "acerto_depois",
+        "mudou",
+        "delta_confianca",
+        "resultado",
+        "base_comparacao",
+        "metodo_reclassificacao",
+        "limiar_alta_confianca",
+        "usar_calibrado",
+        "so_validados",
+        "max_turnos",
+        "tamanho_turno",
+        "gravou_coluna_2",
+    ]
+    linhas_historico = []
+    for registro in registros:
+        antes_ok = registro["cat_G"] == registro["verdade"]
+        depois_ok = bool(registro["acertou"])
+        if not antes_ok and depois_ok:
             resultado = "corrigido"
-        elif r["cat_G"] == verdade and not r["acertou"]:
+        elif antes_ok and not depois_ok:
             resultado = "prejudicado"
-        elif r["cat_G"] == verdade and r["acertou"]:
+        elif antes_ok and depois_ok:
             resultado = "mantido_correto"
         else:
             resultado = "mantido_errado"
-        linhas_h.append([gerado, run_id, f"Reclass_{tag}", "validados_coluna_o",
-                         r["linha"], r["id"], verdade, r["cat_G"], "", antes_ok,
-                         r["cat_o"], r["conf_o"], depois_ok, str(r["cat_o"] != r["cat_G"]),
-                         "", resultado, "validada" if verdade else "sem_referencia",
-                         f"Reclass_{tag}", "", "False", "True", int(args.max_turnos),
-                         tam, "True"])
-    for tentativa in range(1, 4):
-        try:
-            pl.append_aba(sh, aba_historico, cab_h, linhas_h)
-            break
-        except Exception as e:  # noqa: BLE001
-            if tentativa >= 3:
-                print(f"[aviso] coluna O gravada, mas historico consolidado falhou: "
-                      f"{type(e).__name__}: {e}", file=sys.stderr)
-                break
-            time.sleep(10 * tentativa)
+        linhas_historico.append([
+            gerado,
+            run_id,
+            f"Reclass_{tag}",
+            "validados_coluna_o",
+            registro["linha"],
+            registro["id"],
+            registro["verdade"],
+            registro["cat_G"],
+            "",
+            str(antes_ok),
+            registro["cat_o"],
+            registro["conf_o"],
+            str(depois_ok),
+            str(registro["cat_o"] != registro["cat_G"]),
+            "",
+            resultado,
+            "validada",
+            f"Reclass_{tag}",
+            "",
+            "False",
+            "True",
+            int(args.max_turnos),
+            tamanho_turno,
+            "True",
+        ])
+    try:
+        pl.append_aba(sh, aba_historico, cab_historico, linhas_historico)
+    except Exception as erro:  # noqa: BLE001
+        print(
+            f"[aviso] coluna O gravada, mas historico consolidado falhou: "
+            f"{type(erro).__name__}: {erro}",
+            file=sys.stderr,
+        )
 
-    print(f"OK: {len(registros)} reclassificados na coluna O | acertos_robusto={acertos}/{len(com_verdade)} | "
-          f"restam {total - len(sel)} validados pendentes.")
+    print(
+        f"OK: {len(registros)} reclassificados na coluna O | "
+        f"acertos={acertos}/{len(registros)} | restam {total - len(selecionados)} pendentes."
+    )
     return 0
 
 
