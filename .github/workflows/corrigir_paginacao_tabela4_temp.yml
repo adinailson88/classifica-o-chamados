@@ -1,0 +1,58 @@
+name: Corrigir paginação da Tabela 4
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write
+
+jobs:
+  corrigir:
+    if: github.event.pull_request.title == 'Corrigir paginação da Tabela 4'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          fetch-depth: 50
+      - name: Aplicar correção localizada
+        run: python src/temporario_corrigir_paginacao_tabela4.py
+      - name: Verificar que apenas marcação de layout foi adicionada
+        run: |
+          grep -F '\enlargethispage{2\baselineskip}' 04_artigo/artigo_classificacao_chamados_v3.md
+          grep -F '**Tabela 4** Acerto validado por faixa de confiança.' 04_artigo/artigo_classificacao_chamados_v3.md
+      - name: Gerar PDF
+        uses: docker://pandoc/extra:latest
+        env:
+          TEXINPUTS: ".:./04_artigo/latex:"
+        with:
+          args: >-
+            04_artigo/artigo_classificacao_chamados_v3.md
+            -o docs/artigo_classificacao_chamados.pdf
+            --pdf-engine=xelatex
+            -V lang=pt-BR
+            -V geometry:margin=2.5cm
+            --standalone
+      - name: Renderizar páginas críticas
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y poppler-utils
+          mkdir -p diagnostico
+          pdfinfo docs/artigo_classificacao_chamados.pdf > diagnostico/pdfinfo.txt
+          pdftotext -f 10 -l 13 -layout docs/artigo_classificacao_chamados.pdf diagnostico/paginas_10_13.txt
+          pdftoppm -f 10 -l 13 -png -r 160 docs/artigo_classificacao_chamados.pdf diagnostico/pagina
+      - uses: actions/upload-artifact@v4
+        with:
+          name: verificacao-paginacao-tabela4
+          path: diagnostico
+      - name: Commitar fonte e PDF
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          rm src/temporario_corrigir_paginacao_tabela4.py
+          git add 04_artigo/artigo_classificacao_chamados_v3.md docs/artigo_classificacao_chamados.pdf src/temporario_corrigir_paginacao_tabela4.py
+          git commit -m "corrigir paginação da Tabela 4 sem alterar o texto"
+          git push origin HEAD:${{ github.event.pull_request.head.ref }}
