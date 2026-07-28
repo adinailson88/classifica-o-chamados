@@ -1,0 +1,165 @@
+name: TEMPORARIO - atualizar prompt pos-BERTimbau no README
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/temporario_atualizar_prompt_readme.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: atualizar-prompt-pos-bertimbau
+  cancel-in-progress: false
+
+jobs:
+  atualizar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: main
+
+      - name: Substituir prompts obsoletos pelo prompt de continuidade
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          caminho = Path("README.md")
+          texto = caminho.read_text(encoding="utf-8")
+
+          prompt = r'''<!-- PROMPT TEMPORARIO POS-BERTIMBAU — apagar depois de concluir a rodada -->
+
+## Prompt pronto — continuar assim que o workflow do BERTimbau terminar
+
+Copie integralmente o bloco abaixo para uma nova conversa somente depois que o workflow `Transformer fine-tuning (BERTimbau)` tiver encerrado.
+
+```text
+Repositorio: adinailson88/classificacao-chamados.
+
+Continue a rodada do BERTimbau iniciada pelos PRs #84 e #85. Antes de alterar qualquer arquivo, leia AGENTS.md, CONTEXTO.md, PLANO_ARTIGO_CAPITULO.md, o topo do README.md e os workflows .github/workflows/temporario_rodada_bertimbau.yml e .github/workflows/transformer_ft.yml.
+
+OBJETIVO
+Conferir o resultado real do fine-tuning do BERTimbau e concluir, sem presumir sucesso, toda a cadeia de atualização das métricas, da Tabela 3, do artigo e do PDF.
+
+REGRAS
+- Trabalhe em branch + Pull Request. Nunca faça push direto em main.
+- Não altere nem apague as colunas M, N, P ou Q da planilha principal.
+- Qualquer escrita em planilha viva exige dry-run documentado antes do uso de --aplicar, exceto quando o próprio workflow já tiver sido disparado anteriormente com aplicar=true; nesse caso, apenas audite o resultado.
+- Não invente resultado de workflow. Leia conclusão, jobs, logs e artefatos reais.
+- Não inicie outro treino enquanto existir execução do transformer_ft.yml em andamento ou na fila.
+- Antes de cada commit de código, rode python -m unittest discover -s tests e python -m py_compile nos arquivos Python alterados.
+- Um commit por etapa lógica.
+
+ETAPA 1 — verificar o BERTimbau
+1. Localize a execução de transformer_ft.yml iniciada por workflow_dispatch com:
+   modo=auto
+   acao=comparar
+   forcar_treino=true
+   limite=1000
+2. Registre run ID, início, fim, conclusão e jobs.
+3. Se falhou ou foi cancelada, leia os logs, identifique a causa exata e corrija somente o necessário em branch + PR. Não execute as etapas seguintes até existir treino concluído com sucesso.
+4. Se concluiu com sucesso, confirme em docs/dados/bertimbau_training_state.json:
+   - status == "ok";
+   - modo == "auto";
+   - acao == "comparar";
+   - commit e data correspondentes ao run concluído.
+5. Confira docs/dados/bertimbau_metr_full.json e a gravação correspondente em COMPARACAO_MODELOS. Não trate a janela held-out de 1.000 registros como concordância sobre os 13.965 chamados.
+
+ETAPA 2 — conferir a cadeia automática
+Verifique se o workflow temporario_rodada_bertimbau.yml executou, após o sucesso do Transformer, nesta ordem:
+1. avaliacao_final.yml;
+2. estatistica.yml, por workflow_run ou fallback manual;
+3. consolidar_validacao_classificacao_2.yml com aplicar=true.
+
+Para cada workflow, registre run ID, conclusão, horário e arquivos alterados. Se algum passo não ocorreu ou falhou, dispare apenas o passo faltante, respeitando a ordem e aguardando sua conclusão antes do seguinte.
+
+ETAPA 3 — validar os dados publicados
+Depois de toda a cadeia terminar, confira no mesmo estado de main:
+- docs/dados/avaliacao_final.json;
+- docs/dados/estatistica.json;
+- docs/dados/calibracao.json;
+- docs/dados/bertimbau_training_state.json;
+- docs/dados/bertimbau_metr_full.json;
+- dados/estado_automacao.json;
+- demais JSONs usados pelas Tabelas 1, 2 e 3 e pela Subseção 4.3.
+
+Confirme especificamente:
+- transformer_ft incluído ou excluído, com motivo verificável;
+- decididos e restritos atuais;
+- total deduplicado usado na calibração;
+- matriz_ia_x_glpi da Tabela 3;
+- ausência do total impossível de 17.790 para um corpus de 13.965 chamados;
+- coerência entre timestamps, denominadores e métricas.
+
+ETAPA 4 — concordância do BERTimbau sobre a base validada
+A execução acao=comparar avaliou apenas uma janela held-out. Verifique se o artigo ou o painel precisam da concordância do transformer_ft sobre toda a base validada. Se precisam, faça primeiro dry-run e depois execute transformer_ft.yml com acao=reclassificar_validados, sem novo treino desnecessário se o workflow permitir reutilizar o modelo treinado. Se o desenho atual sempre retreinar ou não persistir o modelo, não improvise: documente a limitação e proponha a menor correção reproduzível antes de executar.
+
+Após essa etapa, regenere avaliacao_final.yml e estatistica.yml somente se a nova materialização alterar as fontes usadas por eles.
+
+ETAPA 5 — reconciliar artigo e painel
+Compare os JSONs vigentes com 04_artigo/artigo_classificacao_chamados_v3.md. Atualize somente números, tabelas, figuras e afirmações efetivamente afetados, especialmente:
+- Tabelas 1, 2 e 3;
+- decididos/restritos;
+- Subseção 4.3;
+- Resumo, Abstract, Discussão, Limitações e Considerações Finais;
+- afirmação de ruído confirmado de 1,83%, que só pode permanecer se a matriz atual lhe der suporte.
+
+Toda assertiva teórica deve continuar referenciada. Não alterar o DOCX de proveniência. Regere e valide o PDF, conferindo páginas, figuras, tabelas e ausência de conteúdo fora da mancha.
+
+ETAPA 6 — limpeza e fechamento
+Quando tudo estiver validado:
+- remova .github/workflows/temporario_rodada_bertimbau.yml;
+- remova este bloco de prompt temporário do topo do README.md;
+- atualize o checklist do README sem acumular histórico redundante;
+- substitua a seção "Estado desta rodada" de PLANO_ARTIGO_CAPITULO.md com o resultado, os run IDs, os números finais e a próxima pendência real;
+- atualize CONTEXTO.md;
+- abra PR final com resumo verificável, testes executados e lista do que ainda permanecer pendente.
+
+Ao final, apresente uma tabela com: etapa, workflow/run, resultado, arquivos atualizados, números principais e pendências.
+```
+
+<!-- FIM DO PROMPT TEMPORARIO POS-BERTIMBAU -->'''
+
+          padrao_bloco = re.compile(
+              r'<!-- BLOCO TEMPORARIO .*?<!-- FIM DO BLOCO TEMPORARIO -->',
+              flags=re.DOTALL,
+          )
+          texto, n_bloco = padrao_bloco.subn(prompt, texto, count=1)
+          if n_bloco != 1:
+              raise SystemExit(f"Bloco temporario antigo nao encontrado ou ambiguo: {n_bloco}")
+
+          padrao_prompt_antigo = re.compile(
+              r'\n## Prompt pronto — continuar o artigo/capitulo da tese\n.*?(?=\n## Checklist do artigo)',
+              flags=re.DOTALL,
+          )
+          texto, n_prompt = padrao_prompt_antigo.subn("\n", texto, count=1)
+          if n_prompt != 1:
+              raise SystemExit(f"Prompt antigo nao encontrado ou ambiguo: {n_prompt}")
+
+          caminho.write_text(texto, encoding="utf-8")
+          print("README atualizado: bloco operacional antigo substituido e prompt generico removido.")
+          PY
+
+      - name: Remover este workflow temporario
+        run: rm -f .github/workflows/temporario_atualizar_prompt_readme.yml
+
+      - name: Commit da atualizacao
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add README.md .github/workflows/temporario_atualizar_prompt_readme.yml
+          git diff --cached --check
+          git diff --cached --quiet && { echo "Nenhuma alteracao encontrada."; exit 0; }
+          git commit -m "docs: prepara prompt de continuidade pos-BERTimbau [skip ci]"
+          for i in 1 2 3 4 5; do
+            git pull --rebase --autostash origin main && git push origin HEAD:main && exit 0
+            git rebase --abort 2>/dev/null || true
+            sleep 5
+          done
+          echo "Falha ao publicar a atualizacao do README." >&2
+          exit 1
