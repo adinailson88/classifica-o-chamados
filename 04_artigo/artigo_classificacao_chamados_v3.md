@@ -945,17 +945,27 @@ confiança bruta e acerto, quantificada por Spearman entre 0,46 e 0,64
 conforme o modelo (Subseção 4.9), mesmo sem calibração formal aplicada a
 essa camada.
 
-**Tabela 4** Acerto validado por faixa de confiança. A unidade é o
+```{=latex}
+\begin{minipage}{\linewidth}
+\small
+\noindent\textbf{Tabela 4} Acerto validado por faixa de confiança. A unidade é o
 chamado, 13.965 no total, 8.895 com conferência humana.
-
-| Faixa | n total | Concord. histórico | n validados | Acerto validado |
-|---|---|---|---|---|
-| < 50% | 3.673 | 43,42% | 634 | 55,05% |
-| 50–70% | 1.492 | 74,06% | 632 | 91,77% |
-| 70–80% | 912 | 83,99% | 522 | 96,93% |
-| 80–90% | 1.593 | 84,43% | 1.126 | 98,67% |
-| 90–95% | 1.234 | 94,98% | 1.087 | 99,17% |
-| >= 95% | 5.061 | 98,70% | 4.894 | 99,84% |
+\par\smallskip
+\centering
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+Faixa & n total & Concord. histórico & n validados & Acerto validado \\
+\midrule
+\textless{} 50\% & 3.673 & 43,42\% & 634 & 55,05\% \\
+50–70\% & 1.492 & 74,06\% & 632 & 91,77\% \\
+70–80\% & 912 & 83,99\% & 522 & 96,93\% \\
+80–90\% & 1.593 & 84,43\% & 1.126 & 98,67\% \\
+90–95\% & 1.234 & 94,98\% & 1.087 & 99,17\% \\
+\textgreater{}= 95\% & 5.061 & 98,70\% & 4.894 & 99,84\% \\
+\bottomrule
+\end{tabular}
+\end{minipage}
+```
 
 A Figura 2 apresenta esses mesmos valores em forma gráfica, tornando
 visível o descolamento entre concordância com o histórico e acerto
