@@ -1,5 +1,5 @@
 {
-  "gerado_em": "28/07/2026 05:14",
+  "gerado_em": "28/07/2026 04:01",
   "schema_version": "1.0",
   "run_id": "EXP_CLASSIFICACAO_CHAMADOS_2026_06_001",
   "script_origem": "src/avaliacao_final.py",
@@ -7,7 +7,7 @@
   "fonte_dados": "CHAMADOS_ESQUELETO_REDUZIDO",
   "escopo_validacao": "amostra parcial, não aleatória; prioriza divergências e casos críticos",
   "estado_bertimbau": "ok",
-  "natureza": "acerto contra a VERDADE VALIDADA pela conferencia humana (M/N/P); NAO e concordancia com o historico",
+  "natureza": "acerto contra a VERDADE VALIDADA pela conferencia humana (M/N/P/Q); NAO e concordancia com o historico",
   "validados": 8895,
   "minimo_recomendado": 50,
   "conferencias": {
@@ -16,7 +16,19 @@
     "restritos": 639,
     "conflitos": 201
   },
-  "modelos_excluidos": [],
+  "modelos_excluidos": [
+    "transformer_ft"
+  ],
+  "modelos_incluidos": [
+    "extra_trees",
+    "linear_svc",
+    "lstm",
+    "naive_bayes",
+    "random_forest",
+    "regressao_logistica",
+    "sgd"
+  ],
+  "protocolo_bertimbau": "treino concluido, mas sem CLASSIF__transformer_ft OOF na base completa; avaliado separadamente em docs/dados/avaliacao_bertimbau_holdout.json",
   "n_avaliado": 8895,
   "status": "ok",
   "por_modelo": [

@@ -4,9 +4,9 @@ de sensibilidade [limite inferior, limite superior] para o acerto validado
 de cada modelo, em vez de um numero pontual.
 
 MECANISMO DO VIES (achado do Adinailson, 2026-07-25): a "verdade validada"
-usada em avaliacao_final.py (dv.verdade_validada) so existe quando alguma
-conferencia humana marca 'Correto' (M=Correto -> historico; N=Correto -> IA;
-P=Correto -> reclassificacao). Chamados em que o avaliador julgou que TODAS
+usada em avaliacao_final.py (dv.verdade_validada) existe quando M, N ou P
+confirma uma fonte ou quando Q informa a categoria correta manual. Chamados
+sem categoria decidida, inclusive conflitos, permanecem restritos. Casos em que TODAS
 as fontes conferidas erraram (nenhum 'Correto', pelo menos um 'Errado')
 ficam com status='restrito' e sao EXCLUIDOS do denominador de qualquer
 metrica de acerto validado. Isso torna a amostra validada, por construcao,
@@ -57,7 +57,7 @@ def carregar_decisoes_com_veredito(sh, aba_principal: str) -> dict[int, dict[str
     (para poder caracterizar a COMPOSICAO dos 'restritos' — qual conferencia
     marcou Errado). Le a planilha 1 vez, independente de carregar_decisoes."""
     ws = sh.worksheet(aba_principal)
-    bloco = ws.get_values("A:P", value_render_option="UNFORMATTED_VALUE")
+    bloco = ws.get_values("A:Q", value_render_option="UNFORMATTED_VALUE")
     cab = bloco[0] if bloco else []
     col_historico = pl.localizar_coluna(cab, ("CATEGORIA COMPLETA",), 3)
     col_ia1 = pl.localizar_coluna(cab, ("Classificacao IA", "Classificação IA"), 7)
@@ -65,6 +65,7 @@ def carregar_decisoes_com_veredito(sh, aba_principal: str) -> dict[int, dict[str
     col_conf_glpi = pl.localizar_coluna(cab, ("CONFERENCIA GLPI", "CONFERÊNCIA GLPI"), 13)
     col_conf_ia = pl.localizar_coluna(cab, ("CONFERENCIA IA", "CONFERÊNCIA IA"), 14)
     col_conf_reclass = pl.localizar_coluna(cab, ("CONFERENCIA IA - 2", "CONFERÊNCIA IA - 2"), 16)
+    col_categoria_manual = pl.localizar_coluna(cab, ("CATEGORIA CORRETA MANUAL",), 17)
 
     def cel(linha: list[Any], c1: int) -> str:
         i = c1 - 1
@@ -75,10 +76,12 @@ def carregar_decisoes_com_veredito(sh, aba_principal: str) -> dict[int, dict[str
         v_glpi = dv._norm_veredito(cel(linha, col_conf_glpi))  # noqa: SLF001
         v_ia = dv._norm_veredito(cel(linha, col_conf_ia))  # noqa: SLF001
         v_reclass = dv._norm_veredito(cel(linha, col_conf_reclass))  # noqa: SLF001
-        if v_glpi is None and v_ia is None and v_reclass is None:
+        categoria_manual = pl.normalizar_categoria(cel(linha, col_categoria_manual))
+        if v_glpi is None and v_ia is None and v_reclass is None and not categoria_manual:
             continue
         decisao = dv.decidir(pl.normalizar_categoria(cel(linha, col_historico)), cel(linha, col_ia1),
-                             cel(linha, col_reclass), v_glpi, v_ia, v_reclass)
+                             cel(linha, col_reclass), v_glpi, v_ia, v_reclass,
+                             categoria_manual)
         decisao["v_glpi"] = v_glpi
         decisao["v_ia"] = v_ia
         decisao["v_reclass"] = v_reclass
@@ -164,10 +167,9 @@ def main() -> int:
             "como erro de todos os modelos"
         ),
         "mecanismo_do_vies": (
-            "a verdade validada so existe quando M, N ou P marca 'Correto'. Chamados em "
-            "que o avaliador julgou TODAS as fontes conferidas erradas (status='restrito') "
-            "ficam fora do denominador de avaliacao_final.json, inflando mecanicamente o "
-            "acerto de qualquer modelo que concorde com o historico ou a IA oficial"
+            "a verdade validada usa M/N/P/Q. Chamados sem categoria decidida, inclusive "
+            "fontes todas erradas sem Q e conflitos entre fontes, ficam fora do denominador "
+            "de avaliacao_final.json; o limite inferior os conta como erro de todos os modelos"
         ),
         "conferencias": resumo,
         "composicao_restritos": composicao_restritos,

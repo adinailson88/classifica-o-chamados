@@ -2,7 +2,7 @@
 """Avaliacao FINAL contra a verdade validada: qual IA usar, com que peso, e se
 vale a pena combinar.
 
-Responde, assim que a conferencia manual (M/N/P) tiver volume suficiente:
+Responde, assim que a conferencia manual (M/N/P/Q) tiver volume suficiente:
 1. qual IA/metodo e o mais apropriado para a reclassificacao;
 2. qual o peso de cada IA (acuracia validada e log-odds para voto ponderado);
 3. o quanto a melhor IA e melhor que as outras (delta + IC95 bootstrap);
@@ -10,8 +10,8 @@ Responde, assim que a conferencia manual (M/N/P) tiver volume suficiente:
    conjunto validado, com McNemar contra a melhor IA isolada).
 
 Verdade = categoria DECIDIDA pela conferencia humana (decisao_validada):
-N=Correto -> G; M=Correto -> C; P=Correto -> O. Concordancia com o historico NAO
-entra aqui como acerto. Enquanto validados < --min-validados, o JSON sai com
+N=Correto -> G; M=Correto -> C; P=Correto -> O; Q resolve manualmente casos
+sem fonte confirmada. Concordancia com o historico NAO entra aqui como acerto. Enquanto validados < --min-validados, o JSON sai com
 status 'aguardando_validacao' (o dashboard mostra o aviso, nao numeros vazios).
 
 Honestidade estatistica: os pesos do voto ponderado sao aprendidos APENAS nos
@@ -42,7 +42,7 @@ RAIZ = Path(__file__).resolve().parents[1]
 CONFIG_PADRAO = RAIZ / "config_experimento.json"
 SAIDA = RAIZ / "docs" / "dados" / "avaliacao_final.json"
 ESTADO_BERTIMBAU = RAIZ / "docs" / "dados" / "bertimbau_training_state.json"
-NATUREZA = ("acerto contra a VERDADE VALIDADA pela conferencia humana (M/N/P); "
+NATUREZA = ("acerto contra a VERDADE VALIDADA pela conferencia humana (M/N/P/Q); "
             "NAO e concordancia com o historico")
 
 
@@ -259,6 +259,10 @@ def main() -> int:
     args = parse_args()
     config = carregar_config(args.config)
     modelos, estado_bertimbau = modelos_comparaveis(config)
+    mm = config.get("multimodelo", {})
+    modelos_configurados = list(mm.get("modelos_leves", [])) + list(
+        mm.get("modelos_pesados", [])
+    )
     gerado = agora_bahia()
 
     try:
@@ -285,7 +289,7 @@ def main() -> int:
         "validados": validados,
         "minimo_recomendado": args.min_validados,
         "conferencias": res_dec,
-        "modelos_excluidos": (["transformer_ft"] if (estado_bertimbau or {}).get("status") != "ok" else []),
+        "modelos_excluidos": sorted(set(modelos_configurados) - set(modelos)),
         "estado_bertimbau": (estado_bertimbau or {}).get("status", "nao_publicado"),
     }
 
@@ -293,13 +297,20 @@ def main() -> int:
         saida["status"] = "aguardando_validacao"
         saida["mensagem"] = (f"Apenas {validados} chamados com decisao travada "
                              f"(minimo recomendado: {args.min_validados}). Termine a conferencia "
-                             "manual (M/N) para liberar a avaliacao final.")
+                             "manual (M/N/P/Q) para liberar a avaliacao final.")
         args.saida.parent.mkdir(parents=True, exist_ok=True)
         args.saida.write_text(json.dumps(saida, ensure_ascii=False, indent=2), encoding="utf-8")
         print(f"status=aguardando_validacao (validados={validados}); JSON gravado.")
         return 0
 
     preds = carregar_predicoes(sh, config, modelos)
+    saida["modelos_incluidos"] = sorted(preds)
+    saida["modelos_excluidos"] = sorted(set(modelos_configurados) - set(preds))
+    if "transformer_ft" in saida["modelos_excluidos"] and (estado_bertimbau or {}).get("status") == "ok":
+        saida["protocolo_bertimbau"] = (
+            "treino concluido, mas sem CLASSIF__transformer_ft OOF na base completa; "
+            "avaliado separadamente em docs/dados/avaliacao_bertimbau_holdout.json"
+        )
     if not preds:
         # Estado NORMAL: o multimodelo ainda nao materializou as abas CLASSIF__<modelo>
         # (mesma causa de "Menos de 2 modelos" na estatistica). Nao e erro de CI: grava
@@ -317,7 +328,7 @@ def main() -> int:
     # (paridade entre IAs — mesma base de comparacao, como na estatistica).
     linhas = sorted(ln for ln in verdade if all(ln in preds[m] for m in preds))
     n = len(linhas)
-    print(f"linhas avaliaveis (verdade + 7 predicoes): {n}")
+    print(f"linhas avaliaveis (verdade + {len(preds)} predicoes): {n}")
     saida["n_avaliado"] = n
     if n < args.min_validados:
         saida["status"] = "aguardando_validacao"

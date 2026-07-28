@@ -1,5 +1,5 @@
 {
-  "gerado_em": "28/07/2026 11:56",
+  "gerado_em": "28/07/2026 04:02",
   "schema_version": "1.0",
   "run_id": "EXP_CLASSIFICACAO_CHAMADOS_2026_06_001",
   "script_origem": "src/analise_estatistica.py",
@@ -17,7 +17,10 @@
     "random_forest",
     "lstm"
   ],
-  "modelos_excluidos": [],
+  "modelos_excluidos": [
+    "transformer_ft"
+  ],
+  "protocolo_bertimbau": "avaliacao held-out separada em docs/dados/avaliacao_bertimbau_holdout.json",
   "alpha": 0.05,
   "observacao": "Acerto = IA x categoria historica (preliminar; a validacao humana qualifica). Sem texto de chamado. Normalidade rejeitada (Shapiro) nos modelos avaliados: a analise assume pressupostos NAO parametricos (Spearman, Friedman/Nemenyi, Cochran Q, McNemar, bootstrap). Resultados sao contra o historico, nao contra validacao humana.",
   "correlacao_conf_acerto": [
@@ -1184,44 +1187,44 @@
     }
   ],
   "validacao_humana_modelos": {
-    "n_verdade_derivada": 9096,
-    "base": "conferencia dupla M/N (N=Correto->G; senao M=Correto->C)",
-    "nota": "Preliminar enquanto a amostra validada e pequena/nao aleatoria.",
+    "n_verdade_derivada": 8895,
+    "base": "decisao_validada M/N/P/Q; conflitos e restritos sem verdade excluidos",
+    "nota": "Amostra parcial e nao probabilistica; nao estima a base completa.",
     "por_modelo": [
       {
         "modelo": "linear_svc",
-        "n": 9096,
-        "acerto_validado": 0.9334
+        "n": 8895,
+        "acerto_validado": 0.9527
       },
       {
         "modelo": "sgd",
-        "n": 9096,
-        "acerto_validado": 0.9255
+        "n": 8895,
+        "acerto_validado": 0.9442
       },
       {
         "modelo": "regressao_logistica",
-        "n": 9096,
-        "acerto_validado": 0.9217
+        "n": 8895,
+        "acerto_validado": 0.9404
       },
       {
         "modelo": "extra_trees",
-        "n": 9096,
-        "acerto_validado": 0.9127
+        "n": 8895,
+        "acerto_validado": 0.9314
       },
       {
         "modelo": "random_forest",
-        "n": 9096,
-        "acerto_validado": 0.9082
+        "n": 8895,
+        "acerto_validado": 0.9268
       },
       {
         "modelo": "lstm",
-        "n": 9096,
-        "acerto_validado": 0.8699
+        "n": 8895,
+        "acerto_validado": 0.8872
       },
       {
         "modelo": "naive_bayes",
-        "n": 9096,
-        "acerto_validado": 0.848
+        "n": 8895,
+        "acerto_validado": 0.8659
       }
     ]
   },

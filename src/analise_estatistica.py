@@ -34,6 +34,7 @@ import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import planilha as pl  # noqa: E402
+import decisao_validada as dv  # noqa: E402
 from tempo import agora_bahia  # noqa: E402
 
 RAIZ = Path(__file__).resolve().parents[1]
@@ -198,6 +199,7 @@ def main() -> int:
         config = json.load(f)
     mm = config["multimodelo"]
     modelos = list(mm["modelos_leves"]) + list(mm.get("modelos_pesados", []))
+    modelos_configurados = list(modelos)
     try:
         estado_bertimbau = json.loads(ESTADO_BERTIMBAU.read_text(encoding="utf-8"))
     except Exception:  # noqa: BLE001
@@ -249,8 +251,10 @@ def main() -> int:
 
     out = {"gerado_em": agora_bahia(), **metadados_saida(config, estado_bertimbau),
            "n_linhas_comuns": n, "modelos": modelos,
-           "modelos_excluidos": (["transformer_ft"] if estado_bertimbau.get("status") != "ok" else []),
+           "modelos_excluidos": sorted(set(modelos_configurados) - set(modelos)),
            "estado_bertimbau": estado_bertimbau.get("status", "nao_publicado"),
+           "protocolo_bertimbau": ("avaliacao held-out separada em "
+               "docs/dados/avaliacao_bertimbau_holdout.json"),
            "alpha": 0.05, "observacao": "Acerto = IA x categoria historica (preliminar; "
            "a validacao humana qualifica). Sem texto de chamado. Normalidade rejeitada "
            "(Shapiro) nos modelos avaliados: a analise assume pressupostos NAO "
@@ -455,36 +459,20 @@ def main() -> int:
     except Exception as e:  # noqa: BLE001
         print(f"confusoes: {e}", file=sys.stderr)
 
-    # 11) Estatistica contra a VERDADE VALIDADA (conferencia dupla M/N), quando houver.
-    #     Verdade derivada: N (CONFERENCIA IA)=Correto -> categoria = G (Etapa 1);
-    #     senao M (CONFERENCIA GLPI)=Correto -> categoria = C (historico). Pronto para
-    #     popular automaticamente a medida que a validacao humana cresce.
+    # 11) Estatistica descritiva contra a mesma verdade M/N/P/Q da avaliacao final.
     try:
-        conferencias = pl.ler_conferencias(sh, config["aba_principal"])
-        regs = json.loads((RAIZ / "docs" / "dados" / "registros.json").read_text(encoding="utf-8"))
-        gc = {str(r.get("l")): {"G": r.get("p"), "C": r.get("o")} for r in regs}
-        verdade = {}
-        for ln, c in conferencias.items():
-            base = gc.get(ln, {})
-            if c.get("ia") == "Correto":
-                verdade[ln] = base.get("G")
-            elif c.get("glpi") == "Correto":
-                verdade[ln] = base.get("C")
-        verdade = {k: v for k, v in verdade.items() if v}
+        decisoes = dv.carregar_decisoes(sh, config["aba_principal"])
+        verdade = dv.verdade_validada(decisoes)
         val = {"n_verdade_derivada": len(verdade),
-               "base": "conferencia dupla M/N (N=Correto->G; senao M=Correto->C)",
-               "nota": "Preliminar enquanto a amostra validada e pequena/nao aleatoria.",
+               "base": "decisao_validada M/N/P/Q; conflitos e restritos sem verdade excluidos",
+               "nota": "Amostra parcial e nao probabilistica; nao estima a base completa.",
                "por_modelo": []}
         for m in modelos:
             nv = okv = 0
-            for ln, tru in verdade.items():
-                try:
-                    li = int(ln)
-                except (TypeError, ValueError):
-                    continue
-                if li in dados[m]:
+            for linha, categoria in verdade.items():
+                if linha in dados[m]:
                     nv += 1
-                    okv += int(dados[m][li]["ia"] == tru)
+                    okv += int(dados[m][linha]["ia"] == categoria)
             val["por_modelo"].append({"modelo": m, "n": nv,
                                       "acerto_validado": round(okv / nv, 4) if nv else None})
         val["por_modelo"].sort(key=lambda d: -(d["acerto_validado"] or 0))
