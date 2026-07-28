@@ -61,7 +61,7 @@ A fonte editável é `04_artigo/artigo_classificacao_chamados_v3.md`. O PDF publ
 
 **Onde está:** a reformulação editorial foi incorporada e o artigo está publicado. A próxima atualização é numérica e metodológica, não uma nova reescrita estrutural.
 
-**O que foi feito:** a documentação acumulada foi reduzida; `CONTEXTO.md` passou a registrar apenas o estado vigente; o README do artigo passou a conter somente arquivos oficiais e regras de atualização; referências bibliográficas foram consolidadas.
+**O que foi feito:** a documentação acumulada foi reduzida; workflows manuais substituídos ou redundantes foram removidos; o orquestrador temporário do BERTimbau e o prompt correspondente no README foram eliminados. A pendência do modelo passou a ser registrada somente nos documentos de estado.
 
 **Bloqueadores atuais:**
 
@@ -69,7 +69,7 @@ A fonte editável é `04_artigo/artigo_classificacao_chamados_v3.md`. O PDF publ
 - `avaliacao_final.json`, `estatistica.json` e `calibracao.json` precisam representar a mesma cadeia de geração antes de serem usados como fotografia única;
 - qualquer atualização numérica deve ser integral, não tabela a tabela.
 
-**Próximo passo:** concluir ou encerrar formalmente a rodada do BERTimbau, regenerar os JSONs canônicos na mesma sequência e somente então reconciliar artigo, figuras, tabelas e PDF.
+**Próximo passo:** decidir entre executar diretamente `transformer_ft.yml` em protocolo controlado ou documentar a exclusão definitiva do BERTimbau. Se houver treino, validar seus artefatos antes de disparar separadamente avaliação, estatística e consolidação. Somente depois reconciliar artigo, figuras, tabelas e PDF.
 
 ## Critérios para fechamento
 
