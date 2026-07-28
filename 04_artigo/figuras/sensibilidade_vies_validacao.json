@@ -1,84 +1,85 @@
 {
-  "gerado_em": "25/07/2026 11:14",
+  "gerado_em": "28/07/2026 04:18",
   "script_origem": "src/analise_sensibilidade_vies_validacao.py",
   "natureza": "sensibilidade do acerto validado ao vies estrutural de selecao da amostra: 'restritos' (nenhuma fonte conferida como Correto) sao excluidos do calculo padrao (limite_superior); limite_inferior mostra o pior caso, contando-os como erro de todos os modelos",
-  "mecanismo_do_vies": "a verdade validada so existe quando M, N ou P marca 'Correto'. Chamados em que o avaliador julgou TODAS as fontes conferidas erradas (status='restrito') ficam fora do denominador de avaliacao_final.json, inflando mecanicamente o acerto de qualquer modelo que concorde com o historico ou a IA oficial",
+  "mecanismo_do_vies": "a verdade validada usa M/N/P/Q. Chamados sem categoria decidida, inclusive fontes todas erradas sem Q e conflitos entre fontes, ficam fora do denominador de avaliacao_final.json; o limite inferior os conta como erro de todos os modelos",
   "conferencias": {
     "com_conferencia": 9534,
-    "decididos": 9096,
-    "restritos": 438,
-    "conflitos": 0
+    "decididos": 8895,
+    "restritos": 639,
+    "conflitos": 201
   },
   "composicao_restritos": {
-    "errado_glpi": 344,
-    "errado_glpi_e_ia": 94
+    "errado_glpi": 340,
+    "errado_glpi_e_ia": 98,
+    "conflito_correto_divergente": 201
   },
-  "n_decididas_avaliaveis": 9096,
-  "n_restritas_avaliaveis": 438,
+  "n_decididas_avaliaveis": 8895,
+  "n_restritas_avaliaveis": 639,
   "n_total_se_incluir_restritos": 9534,
   "por_modelo": [
     {
       "modelo": "linear_svc",
-      "corretos": 8628,
-      "n_limite_superior": 9096,
+      "corretos": 8474,
+      "n_limite_superior": 8895,
       "n_limite_inferior": 9534,
-      "limite_inferior": 0.905,
-      "limite_superior": 0.9485,
-      "amplitude": 0.0436
+      "limite_inferior": 0.8888,
+      "limite_superior": 0.9527,
+      "amplitude": 0.0639
     },
     {
       "modelo": "sgd",
-      "corretos": 8534,
-      "n_limite_superior": 9096,
+      "corretos": 8399,
+      "n_limite_superior": 8895,
       "n_limite_inferior": 9534,
-      "limite_inferior": 0.8951,
-      "limite_superior": 0.9382,
-      "amplitude": 0.0431
+      "limite_inferior": 0.881,
+      "limite_superior": 0.9442,
+      "amplitude": 0.0633
     },
     {
       "modelo": "regressao_logistica",
-      "corretos": 8496,
-      "n_limite_superior": 9096,
+      "corretos": 8365,
+      "n_limite_superior": 8895,
       "n_limite_inferior": 9534,
-      "limite_inferior": 0.8911,
-      "limite_superior": 0.934,
-      "amplitude": 0.0429
+      "limite_inferior": 0.8774,
+      "limite_superior": 0.9404,
+      "amplitude": 0.063
     },
     {
       "modelo": "extra_trees",
-      "corretos": 8420,
-      "n_limite_superior": 9096,
+      "corretos": 8285,
+      "n_limite_superior": 8895,
       "n_limite_inferior": 9534,
-      "limite_inferior": 0.8832,
-      "limite_superior": 0.9257,
-      "amplitude": 0.0425
+      "limite_inferior": 0.869,
+      "limite_superior": 0.9314,
+      "amplitude": 0.0624
     },
     {
       "modelo": "random_forest",
-      "corretos": 8371,
-      "n_limite_superior": 9096,
+      "corretos": 8244,
+      "n_limite_superior": 8895,
       "n_limite_inferior": 9534,
-      "limite_inferior": 0.878,
-      "limite_superior": 0.9203,
-      "amplitude": 0.0423
+      "limite_inferior": 0.8647,
+      "limite_superior": 0.9268,
+      "amplitude": 0.0621
     },
     {
       "modelo": "lstm",
-      "corretos": 8063,
-      "n_limite_superior": 9096,
+      "corretos": 7892,
+      "n_limite_superior": 8895,
       "n_limite_inferior": 9534,
-      "limite_inferior": 0.8457,
-      "limite_superior": 0.8864,
-      "amplitude": 0.0407
+      "limite_inferior": 0.8278,
+      "limite_superior": 0.8872,
+      "amplitude": 0.0595
     },
     {
       "modelo": "naive_bayes",
-      "corretos": 7829,
-      "n_limite_superior": 9096,
+      "corretos": 7702,
+      "n_limite_superior": 8895,
       "n_limite_inferior": 9534,
-      "limite_inferior": 0.8212,
-      "limite_superior": 0.8607,
-      "amplitude": 0.0395
+      "limite_inferior": 0.8078,
+      "limite_superior": 0.8659,
+      "amplitude": 0.058
     }
   ],
   "observacao": "o valor real do acerto validado esta em algum ponto do intervalo [limite_inferior, limite_superior]; nao e possivel apontar um numero exato sem uma verdade adicional para os 'restritos' (exigiria nova rodada de conferencia humana especificamente sobre eles)"
