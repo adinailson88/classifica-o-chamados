@@ -62,48 +62,43 @@ gh workflow run relevancia_termos.yml --repo adinailson88/classificacao-chamados
 `src/cruzamento_taxonomia.py` junta dois sinais que, sozinhos, não decidem taxonomia:
 
 - **confusão IA×histórico**: `P(IA prevê B | histórico = A)` — com que frequência os
-  chamados da categoria A acabam recebendo B pela IA (coluna G / Etapa 1);
-- **correlação vocabular**: o cosseno entre centróides (reaproveita `relevancia_termos`).
+  chamados da categoria A acabam recebendo B pela IA;
+- **correlação vocabular**: o cosseno entre centróides, reaproveitando a saída de
+  `relevancia_termos`.
 
-Ranqueia os pares (A→B) altos **nas duas** dimensões (`score_revisao` = média geométrica):
-são os **candidatos mais fortes a revisão de taxonomia** — confusão alta *sem* sobreposição
-de vocabulário tende a ser ruído; confusão alta *com* vocabulário sobreposto sugere fusão,
-renomeação ou critério de desambiguação (etapa 46 do roteiro). É **triagem**, não veredito:
-não funde categorias, não altera o histórico, não é acurácia validada.
+O cruzamento ranqueia pares altos nas duas dimensões por meio de uma média geométrica.
+Confusão alta sem sobreposição vocabular tende a indicar ruído; confusão alta com
+sobreposição sugere categoria duplicada, necessidade de renomeação ou critério de
+desambiguação. O resultado é triagem, não veredito automático.
 
 ```bash
 python src/cruzamento_taxonomia.py --top 40 --min-df 5 --min-chamados-categoria 10
 ```
 
-Verificado em corpus sintético: com a IA trocando HIDRAULICA↔HIDROSSANITARIO (par de
-vocabulário sobreposto), o cruzamento colocou esse par no topo e zerou o score de confusões
-sem sobreposição (ex.: ELETRICA→PREDIAL_CIVIL). ✅
-
 ## Saídas
 
-- `docs/dados/termos_relevantes.json` — `termos_por_categoria[cat] = {n_chamados, top_log_odds[], top_tfidf[]}`.
-- `docs/dados/correlacao_categorias.json` — `categorias[]`, `matriz[][]` (cosseno),
-  `pares_mais_proximos[]`.
-- `docs/dados/confusao_historico_ia.json` — matriz de confusão IA×histórico (bruta + normalizada).
-- `docs/dados/cruzamento_taxonomia.json` — `candidatos_revisao[]` (confusão × correlação × score).
-- `docs/mapa_correlacao.html` — visualizador standalone (mapa de calor + termos por
-  categoria + tabela de candidatos a revisão de taxonomia). Abre pelo GitHub Pages.
-- Abas privadas (só com `--aplicar`): `RELEVANCIA_TERMOS`, `CORRELACAO_CATEGORIAS`,
-  `CRUZAMENTO_TAXONOMIA`.
+- `docs/dados/termos_relevantes.json` — termos característicos e TF-IDF por categoria;
+- `docs/dados/correlacao_categorias.json` — matriz de cosseno e pares mais próximos;
+- `docs/dados/confusao_historico_ia.json` — matriz de confusão IA × histórico;
+- `docs/dados/cruzamento_taxonomia.json` — candidatos à revisão de taxonomia;
+- `docs/mapa_correlacao.html` — visualização do mapa, termos e candidatos;
+- abas privadas, somente com `--aplicar`: `RELEVANCIA_TERMOS`,
+  `CORRELACAO_CATEGORIAS` e `CRUZAMENTO_TAXONOMIA`.
 
-## Como ler no doutorado
+## Como interpretar
 
-- Termos característicos coerentes → evidência de que a categoria tem identidade textual.
-- Termos incoerentes ou genéricos → suspeita de categoria "lixeira" ou rotulagem ruidosa.
-- Pares de alta correlação → priorizar na **revisão da taxonomia** (etapa 46 do roteiro) e
-  cruzar com a matriz de confusão IA×histórico: se duas categorias têm vocabulário
-  sobreposto **e** se confundem muito, são candidatas a fusão ou a critério de desambiguação.
-- É **triagem**, não veredito: a decisão de fundir/renomear categorias permanece humana.
+- Termos coerentes indicam identidade textual da categoria.
+- Termos genéricos ou incoerentes sugerem rotulagem ruidosa ou categoria residual.
+- Pares com alta correlação e confusão devem ser priorizados na revisão humana da taxonomia.
+- A ferramenta não funde, renomeia ou corrige categorias automaticamente.
 
-## Verificação
+## Verificação atual
 
-Lógica validada localmente sobre corpus sintético (5 categorias temáticas, uma com
-sobreposição proposital): termos característicos corretos por categoria e o par
-`HIDRAULICA × HIDROSSANITARIO` corretamente apontado como o mais próximo. O estado real
-das abas/planilha **não** pôde ser verificado neste ambiente (sem credenciais da conta
-de serviço).
+A lógica foi validada em corpus sintético e aplicada aos dados reais do projeto. O arquivo
+`docs/dados/termos_relevantes.json`, gerado em 27/07/2026 às 05:56, registra os parâmetros
+`top_n=25`, `min_df=5`, `min_chamados_categoria=10`, representação TF-IDF com 9.029 termos,
+log-odds com prior de Dirichlet e correlação por cosseno entre centróides.
+
+Os resultados públicos estão versionados e são consumidos pelo painel. O estado das abas
+privadas só deve ser afirmado quando houver execução explícita com `--aplicar`; ele não é
+necessário para interpretar os JSONs agregados publicados.
