@@ -3,11 +3,15 @@
   "_uso": "python scripts/migracoes/migrar_categorias_canonicas.py aplica este mapa na coluna C da planilha viva (dry-run por padrao; --aplicar para gravar). src/planilha.py::normalizar_categoria() aplica o mesmo mapa em memoria, em toda execucao de classificacao/reclassificacao, para que classes novas nunca mais sejam aprendidas com nome antigo mesmo que a planilha ainda nao tenha sido migrada.",
   "mapa": {
     "Climatização > Ar condicionado": "Climatização > Ar condicionado split",
-    "Manutenção Preventiva > Sistemas de incêndio": "Manutenção Preventiva > Sistemas de combate a incêndio (extintores, hidrantes)"
+    "Manutenção Preventiva > Sistemas de incêndio": "Manutenção Preventiva > Sistemas de combate a incêndio (extintores, hidrantes)",
+    "Manutenção Preventiva > Extintor": "Manutenção Preventiva > Sistemas de combate a incêndio (extintores, hidrantes)",
+    "Área Externa e Ambiental > Poda de árvore / Roçagem": "Área Externa e Ambiental > Manutenção área externa / meio ambiente"
   },
   "_confirmado_por_adinailson_em": "2026-07-25",
   "_notas_por_caso": {
     "Climatização > Ar condicionado": "517 chamados historicos com esse nome bare, taxa de concordancia IA x historico de 59,96% (baixa). Migrado para 'split' porque essa e a variante dominante entre as nomeadas (1117 split vs 36 central) — usuario confirmou que nao ha necessidade de conferir caso a caso.",
-    "Manutenção Preventiva > Sistemas de incêndio": "9 chamados historicos com esse nome bare, taxa de concordancia 11,1% (muito baixa). Migrado para o nome completo sob o MESMO pai 'Manutenção Preventiva' (45 registros, 100% concordancia). NAO migrar para 'Segurança contra Incêndio > Sistemas de combate a incêndio (extintores, hidrantes)' (27 registros, 70,4% concordancia) — usuario confirmou que 'Segurança contra Incêndio' e um pai legitimo e diferente no GLPI, nao um nome obsoleto; nao mexer nesses 27 registros."
+    "Manutenção Preventiva > Sistemas de incêndio": "9 chamados historicos com esse nome bare, taxa de concordancia 11,1% (muito baixa). Migrado para o nome completo sob o MESMO pai 'Manutenção Preventiva' (45 registros, 100% concordancia). NAO migrar para 'Segurança contra Incêndio > Sistemas de combate a incêndio (extintores, hidrantes)' (27 registros, 70,4% concordancia) — usuario confirmou que 'Segurança contra Incêndio' e um pai legitimo e diferente no GLPI, nao um nome obsoleto; nao mexer nesses 27 registros.",
+    "Manutenção Preventiva > Extintor": "14 chamados historicos, taxa de concordancia 100%. Mesmo padrao do caso 'Sistemas de incendio' acima: nome truncado do mesmo pai 'Manutencao Preventiva', apontando para o mesmo destino ja migrado ('Sistemas de combate a incendio'). Usuario ja mesclou essa categoria diretamente no GLPI em 28/07/2026; entrada adicionada aqui como rede de seguranca para chamados historicos que o sync do GLPI nao corrigir retroativamente.",
+    "Área Externa e Ambiental > Poda de árvore / Roçagem": "18 chamados historicos, taxa de concordancia 88,9%, mas a categoria-alvo (188 chamados) tinha a pior combinacao de concordancia (54,3%) e confianca (40,9%) da base — analise de cruzamento de taxonomia (docs/dados/cruzamento_taxonomia.json, min_chamados_categoria=5) confirmou correlacao de vocabulario de 0,52 e confusao de 9,8% entre as duas, 6a colocada entre 40 pares candidatos. Usuario ja mesclou essa categoria diretamente no GLPI em 28/07/2026; entrada adicionada aqui como rede de seguranca."
   }
 }
