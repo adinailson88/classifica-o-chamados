@@ -1,10 +1,10 @@
 {
-  "gerado_em": "28/07/2026 05:14",
+  "gerado_em": "28/07/2026 19:03",
   "natureza": "exploratorio_triagem_taxonomia (NAO e metrica de acuracia validada)",
   "parametros": {
     "top_n": 25,
     "min_df": 5,
-    "min_chamados_categoria": 10,
+    "min_chamados_categoria": 5,
     "representacao": "tfidf_9029_termos",
     "metodo_termos": "log_odds_dirichlet_prior + centroide_tfidf",
     "metodo_correlacao": "cosseno_centroides_tfidf"
@@ -16,6 +16,7 @@
     "Elétrica > Iluminação",
     "Elétrica > Instalações elétricas",
     "Elétrica > Nobreak",
+    "Elétrica > Sistema Fotovoltaico (FV)",
     "Elétrica > Subestação",
     "Equipamentos de Transporte > Elevador",
     "Estrutura Predial > Alvenaria / Pisos / Estrutura",
@@ -41,6 +42,7 @@
     "Manutenção Preventiva > Quadros Elétricos",
     "Manutenção Preventiva > Reservatório",
     "Manutenção Preventiva > Sistemas de combate a incêndio (extintores, hidrantes)",
+    "Manutenção Preventiva > Sistemas de incêndio",
     "Manutenção Preventiva > Telhados, calhas, rufos, etc.",
     "Manutenção Preventiva > Vistoria em Instalações",
     "Outros > Erro de chamado",
@@ -53,7 +55,8 @@
     "Suprimentos / Apoio Técnico > Materiais",
     "TI / Dados / Rede > Coleta de dados",
     "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
-    "Área Externa e Ambiental > Manutenção área externa / meio ambiente"
+    "Área Externa e Ambiental > Manutenção área externa / meio ambiente",
+    "Área Externa e Ambiental > Poda de Árvore / Roçagem"
   ],
   "termos_por_categoria": {
     "Climatização > Ar condicionado central": {
@@ -1445,6 +1448,158 @@
         {
           "termo": "conserto",
           "peso": 0.0157
+        }
+      ]
+    },
+    "Elétrica > Sistema Fotovoltaico (FV)": {
+      "n_chamados": 7,
+      "top_log_odds": [
+        {
+          "termo": "fotovoltaico",
+          "z": 18.391,
+          "freq": 18
+        },
+        {
+          "termo": "sistema fotovoltaico",
+          "z": 15.452,
+          "freq": 14
+        },
+        {
+          "termo": "paineis",
+          "z": 15.266,
+          "freq": 13
+        },
+        {
+          "termo": "sistema",
+          "z": 11.34,
+          "freq": 15
+        },
+        {
+          "termo": "compra",
+          "z": 6.847,
+          "freq": 7
+        },
+        {
+          "termo": "sinalizacao",
+          "z": 6.71,
+          "freq": 5
+        },
+        {
+          "termo": "placa",
+          "z": 4.94,
+          "freq": 5
+        },
+        {
+          "termo": "cpf",
+          "z": 2.159,
+          "freq": 6
+        },
+        {
+          "termo": "cja",
+          "z": 1.735,
+          "freq": 5
+        }
+      ],
+      "top_tfidf": [
+        {
+          "termo": "fotovoltaico",
+          "peso": 0.3019
+        },
+        {
+          "termo": "sistema fotovoltaico",
+          "peso": 0.2516
+        },
+        {
+          "termo": "paineis",
+          "peso": 0.226
+        },
+        {
+          "termo": "sistema",
+          "peso": 0.1694
+        },
+        {
+          "termo": "compra",
+          "peso": 0.0806
+        },
+        {
+          "termo": "emissao",
+          "peso": 0.0761
+        },
+        {
+          "termo": "numero serie",
+          "peso": 0.0669
+        },
+        {
+          "termo": "conexao",
+          "peso": 0.0653
+        },
+        {
+          "termo": "serie",
+          "peso": 0.0601
+        },
+        {
+          "termo": "placa sinalizacao",
+          "peso": 0.0588
+        },
+        {
+          "termo": "sinalizacao",
+          "peso": 0.0546
+        },
+        {
+          "termo": "fotovoltaico cja",
+          "peso": 0.0535
+        },
+        {
+          "termo": "cpf",
+          "peso": 0.0532
+        },
+        {
+          "termo": "laudo",
+          "peso": 0.0517
+        },
+        {
+          "termo": "especificacao",
+          "peso": 0.0475
+        },
+        {
+          "termo": "placa",
+          "peso": 0.047
+        },
+        {
+          "termo": "numero",
+          "peso": 0.0464
+        },
+        {
+          "termo": "aquisicao",
+          "peso": 0.0385
+        },
+        {
+          "termo": "monitoramento",
+          "peso": 0.0342
+        },
+        {
+          "termo": "vistoria",
+          "peso": 0.0337
+        },
+        {
+          "termo": "cja",
+          "peso": 0.0334
+        },
+        {
+          "termo": "retirada",
+          "peso": 0.0321
+        },
+        {
+          "termo": "sendo",
+          "peso": 0.0314
+        },
+        {
+          "termo": "cpf verificacao",
+          "peso": 0.0313
+        },
+        {
+          "termo": "relatorio",
+          "peso": 0.0307
         }
       ]
     },
@@ -7133,6 +7288,238 @@
         }
       ]
     },
+    "Manutenção Preventiva > Sistemas de incêndio": {
+      "n_chamados": 9,
+      "top_log_odds": [
+        {
+          "termo": "incendio",
+          "z": 15.807,
+          "freq": 14
+        },
+        {
+          "termo": "mangueiras",
+          "z": 15.478,
+          "freq": 12
+        },
+        {
+          "termo": "teste",
+          "z": 15.232,
+          "freq": 12
+        },
+        {
+          "termo": "teste hidrostatico",
+          "z": 13.705,
+          "freq": 12
+        },
+        {
+          "termo": "hidrostatico",
+          "z": 13.705,
+          "freq": 12
+        },
+        {
+          "termo": "preventiva anual",
+          "z": 11.634,
+          "freq": 7
+        },
+        {
+          "termo": "hidrostatico mangueiras",
+          "z": 11.338,
+          "freq": 7
+        },
+        {
+          "termo": "ocas",
+          "z": 10.388,
+          "freq": 8
+        },
+        {
+          "termo": "anual",
+          "z": 10.142,
+          "freq": 7
+        },
+        {
+          "termo": "localizadas",
+          "z": 9.7,
+          "freq": 6
+        },
+        {
+          "termo": "considerar",
+          "z": 9.073,
+          "freq": 5
+        },
+        {
+          "termo": "utilizar documentos",
+          "z": 8.612,
+          "freq": 5
+        },
+        {
+          "termo": "equipamentos utilizar",
+          "z": 8.612,
+          "freq": 5
+        },
+        {
+          "termo": "documentos anexo",
+          "z": 8.536,
+          "freq": 5
+        },
+        {
+          "termo": "cadastro equipamentos",
+          "z": 8.428,
+          "freq": 5
+        },
+        {
+          "termo": "documentos",
+          "z": 8.098,
+          "freq": 5
+        },
+        {
+          "termo": "cadastro",
+          "z": 7.558,
+          "freq": 5
+        },
+        {
+          "termo": "utilizar",
+          "z": 4.251,
+          "freq": 5
+        },
+        {
+          "termo": "cja",
+          "z": 1.735,
+          "freq": 5
+        },
+        {
+          "termo": "manutencao",
+          "z": 1.535,
+          "freq": 13
+        },
+        {
+          "termo": "manutencao preventiva",
+          "z": 1.512,
+          "freq": 9
+        },
+        {
+          "termo": "preventiva",
+          "z": 1.509,
+          "freq": 9
+        },
+        {
+          "termo": "equipamentos",
+          "z": 1.416,
+          "freq": 5
+        },
+        {
+          "termo": "mangueiras incendio",
+          "z": 1.352,
+          "freq": 7
+        },
+        {
+          "termo": "hidrostatico mangeiras",
+          "z": 1.143,
+          "freq": 5
+        }
+      ],
+      "top_tfidf": [
+        {
+          "termo": "hidrostatico",
+          "peso": 0.2241
+        },
+        {
+          "termo": "teste hidrostatico",
+          "peso": 0.2241
+        },
+        {
+          "termo": "incendio",
+          "peso": 0.2204
+        },
+        {
+          "termo": "mangueiras",
+          "peso": 0.2026
+        },
+        {
+          "termo": "teste",
+          "peso": 0.19
+        },
+        {
+          "termo": "ocas",
+          "peso": 0.1505
+        },
+        {
+          "termo": "preventiva anual",
+          "peso": 0.1391
+        },
+        {
+          "termo": "mangueiras incendio",
+          "peso": 0.135
+        },
+        {
+          "termo": "hidrostatico mangueiras",
+          "peso": 0.1329
+        },
+        {
+          "termo": "anual",
+          "peso": 0.1204
+        },
+        {
+          "termo": "mangueiras localizadas",
+          "peso": 0.0943
+        },
+        {
+          "termo": "incendio considerar",
+          "peso": 0.0943
+        },
+        {
+          "termo": "mangeiras incendio",
+          "peso": 0.0943
+        },
+        {
+          "termo": "mangeiras",
+          "peso": 0.0943
+        },
+        {
+          "termo": "hidrostatico mangeiras",
+          "peso": 0.0943
+        },
+        {
+          "termo": "anual teste",
+          "peso": 0.0943
+        },
+        {
+          "termo": "considerar mangueiras",
+          "peso": 0.0943
+        },
+        {
+          "termo": "localizadas",
+          "peso": 0.0886
+        },
+        {
+          "termo": "considerar",
+          "peso": 0.075
+        },
+        {
+          "termo": "equipamentos utilizar",
+          "peso": 0.0721
+        },
+        {
+          "termo": "utilizar documentos",
+          "peso": 0.0721
+        },
+        {
+          "termo": "documentos anexo",
+          "peso": 0.0717
+        },
+        {
+          "termo": "cadastro equipamentos",
+          "peso": 0.071
+        },
+        {
+          "termo": "documentos",
+          "peso": 0.0691
+        },
+        {
+          "termo": "cadastro",
+          "peso": 0.0674
+        }
+      ]
+    },
     "Manutenção Preventiva > Telhados, calhas, rufos, etc.": {
       "n_chamados": 44,
       "top_log_odds": [
@@ -10081,6 +10468,148 @@
         {
           "termo": "complexo",
           "peso": 0.0191
+        }
+      ]
+    },
+    "Área Externa e Ambiental > Poda de Árvore / Roçagem": {
+      "n_chamados": 9,
+      "top_log_odds": [
+        {
+          "termo": "rocagem",
+          "z": 13.316,
+          "freq": 11
+        },
+        {
+          "termo": "arvore",
+          "z": 12.717,
+          "freq": 10
+        },
+        {
+          "termo": "usadas",
+          "z": 10.891,
+          "freq": 6
+        },
+        {
+          "termo": "rocagem area",
+          "z": 9.807,
+          "freq": 5
+        },
+        {
+          "termo": "poda",
+          "z": 7.536,
+          "freq": 5
+        },
+        {
+          "termo": "area",
+          "z": 5.792,
+          "freq": 7
+        },
+        {
+          "termo": "retirada",
+          "z": 4.874,
+          "freq": 5
+        }
+      ],
+      "top_tfidf": [
+        {
+          "termo": "arvore",
+          "peso": 0.2071
+        },
+        {
+          "termo": "rocagem",
+          "peso": 0.1557
+        },
+        {
+          "termo": "poda",
+          "peso": 0.0939
+        },
+        {
+          "termo": "rocagem area",
+          "peso": 0.0787
+        },
+        {
+          "termo": "retirada",
+          "peso": 0.0765
+        },
+        {
+          "termo": "poda arvore",
+          "peso": 0.074
+        },
+        {
+          "termo": "area",
+          "peso": 0.0688
+        },
+        {
+          "termo": "corte",
+          "peso": 0.0589
+        },
+        {
+          "termo": "usadas",
+          "peso": 0.0587
+        },
+        {
+          "termo": "contratacao",
+          "peso": 0.0572
+        },
+        {
+          "termo": "caida",
+          "peso": 0.052
+        },
+        {
+          "termo": "jorge costa",
+          "peso": 0.0487
+        },
+        {
+          "termo": "capina",
+          "peso": 0.0485
+        },
+        {
+          "termo": "cobertura",
+          "peso": 0.0462
+        },
+        {
+          "termo": "arvores",
+          "peso": 0.0454
+        },
+        {
+          "termo": "remocao",
+          "peso": 0.0436
+        },
+        {
+          "termo": "meliponario",
+          "peso": 0.0426
+        },
+        {
+          "termo": "pecas madeira",
+          "peso": 0.0417
+        },
+        {
+          "termo": "cortar",
+          "peso": 0.0411
+        },
+        {
+          "termo": "reaproveitamento",
+          "peso": 0.0411
+        },
+        {
+          "termo": "prof jorge",
+          "peso": 0.0397
+        },
+        {
+          "termo": "interacao",
+          "peso": 0.0369
+        },
+        {
+          "termo": "realizado",
+          "peso": 0.0368
+        },
+        {
+          "termo": "proxima",
+          "peso": 0.0342
+        },
+        {
+          "termo": "poda arvores",
+          "peso": 0.0331
         }
       ]
     }
