@@ -1,0 +1,159 @@
+name: TEMPORARIO - rodada BERTimbau e Tabela 3
+
+# Fluxo descartavel para executar a rodada registrada no topo do README.
+# Apagar este arquivo junto com o bloco TEMPORARIO depois de conferir os resultados.
+#
+# A inclusao deste arquivo em main dispara o primeiro passo uma unica vez.
+# Quando o Transformer termina com sucesso, o mesmo workflow continua a sequencia.
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/temporario_rodada_bertimbau.yml"
+  workflow_run:
+    workflows:
+      - "Transformer fine-tuning (BERTimbau)"
+    types:
+      - completed
+
+permissions:
+  actions: write
+  contents: read
+
+concurrency:
+  group: temporario-rodada-bertimbau
+  cancel-in-progress: false
+
+jobs:
+  iniciar-transformer:
+    if: ${{ github.event_name == 'push' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Disparar fine-tuning BERTimbau
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh workflow run transformer_ft.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref main \
+            -f modo=auto \
+            -f acao=comparar \
+            -f forcar_treino=true \
+            -f limite=1000
+          echo "transformer_ft.yml disparado em main."
+
+  continuar-apos-transformer:
+    if: >-
+      ${{
+        github.event_name == 'workflow_run' &&
+        github.event.workflow_run.conclusion == 'success' &&
+        github.event.workflow_run.head_branch == 'main'
+      }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REPO: ${{ github.repository }}
+      TRANSFORMER_CONCLUIDO_EM: ${{ github.event.workflow_run.updated_at }}
+    steps:
+      - name: Funcoes de controle da sequencia
+        run: |
+          cat > /tmp/rodada.sh <<'BASH'
+          set -euo pipefail
+
+          localizar_run_dispatch() {
+            local workflow="$1"
+            local desde="$2"
+            local run_id=""
+            for _ in $(seq 1 60); do
+              run_id=$(gh run list \
+                --repo "$REPO" \
+                --workflow "$workflow" \
+                --event workflow_dispatch \
+                --limit 20 \
+                --json databaseId,createdAt \
+                --jq ".[] | select(.createdAt >= \"$desde\") | .databaseId" \
+                | head -n 1 || true)
+              if [ -n "$run_id" ]; then
+                printf '%s\n' "$run_id"
+                return 0
+              fi
+              sleep 10
+            done
+            echo "Nao foi possivel localizar o run de $workflow disparado apos $desde." >&2
+            return 1
+          }
+
+          disparar_e_aguardar() {
+            local workflow="$1"
+            shift
+            local desde
+            local run_id
+            desde=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+            gh workflow run "$workflow" --repo "$REPO" --ref main "$@"
+            run_id=$(localizar_run_dispatch "$workflow" "$desde")
+            echo "Aguardando $workflow, run $run_id."
+            gh run watch "$run_id" --repo "$REPO" --exit-status
+          }
+
+          aguardar_estatistica_automatica() {
+            local run_id=""
+            for _ in $(seq 1 90); do
+              run_id=$(gh run list \
+                --repo "$REPO" \
+                --workflow estatistica.yml \
+                --event workflow_run \
+                --limit 30 \
+                --json databaseId,createdAt \
+                --jq ".[] | select(.createdAt >= \"$TRANSFORMER_CONCLUIDO_EM\") | .databaseId" \
+                | head -n 1 || true)
+              if [ -n "$run_id" ]; then
+                echo "Aguardando estatistica.yml automatica, run $run_id."
+                gh run watch "$run_id" --repo "$REPO" --exit-status
+                return 0
+              fi
+              sleep 10
+            done
+            echo "O gatilho automatico de estatistica.yml nao apareceu; disparando manualmente." >&2
+            disparar_e_aguardar estatistica.yml
+          }
+          BASH
+
+      - name: 2 - Avaliacao final validada
+        run: |
+          source /tmp/rodada.sh
+          disparar_e_aguardar avaliacao_final.yml
+
+      - name: 3 - Confirmar estatistica multimodelo automatica
+        run: |
+          source /tmp/rodada.sh
+          aguardar_estatistica_automatica
+
+      - name: 4 - Consolidar validacao e recalibrar
+        run: |
+          source /tmp/rodada.sh
+          disparar_e_aguardar consolidar_validacao_classificacao_2.yml -f aplicar=true
+
+      - name: Registrar fechamento da orquestracao
+        run: |
+          echo "Sequencia concluida: transformer_ft -> avaliacao_final -> estatistica -> consolidacao."
+          echo "O PDF sera regenerado pelos pushes de dados em main, quando aplicavel."
+
+  registrar-falha-transformer:
+    if: >-
+      ${{
+        github.event_name == 'workflow_run' &&
+        github.event.workflow_run.conclusion != 'success' &&
+        github.event.workflow_run.head_branch == 'main'
+      }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Interromper sequencia
+        run: |
+          echo "O transformer_ft.yml terminou com conclusao '${{ github.event.workflow_run.conclusion }}'."
+          echo "Os workflows seguintes nao foram disparados."
+          exit 1

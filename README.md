@@ -1,5 +1,77 @@
 # Classificacao de Chamados
 
+<!-- BLOCO TEMPORARIO — ordem de disparo para incorporar o BERTimbau e refazer a Tabela 3.
+     Apagar depois de concluida a rodada. -->
+
+## TEMPORARIO — ordem de disparo dos workflows (BERTimbau + Tabela 3)
+
+Por que esta rodada e necessaria: `avaliacao_final.json` esta congelado em 27/07 16:41
+com 8.928 decididos e 606 restritos, enquanto a auditoria das 22:27 ja marca 8.895 e 639.
+O `transformer_ft` segue em `modelos_excluidos` porque
+[`avaliacao_final.py:93`](src/avaliacao_final.py:93) so o inclui quando
+`docs/dados/bertimbau_training_state.json` tem `status == "ok"`, e esse arquivo esta em
+`sem_dados` desde 23/07. A matriz da Tabela 3 do artigo usa `n = 17.790`, que e o
+`validados` da calibracao antes da deduplicacao, numero impossivel para um corpus de
+13.965 chamados.
+
+**Dispare em ordem, esperando cada um terminar.**
+
+**1. Treino do BERTimbau.** E o unico passo que grava `status: ok` e destrava todo o resto.
+
+```bash
+gh workflow run transformer_ft.yml -f modo=auto -f acao=comparar -f forcar_treino=true -f limite=1000
+```
+
+Pode levar horas: o job usa `timeout-minutes=330` e um orcamento de tempo interno para
+encerrar sozinho antes do teto rigido de 6 h do runner. O modo `auto` subamostra de forma
+estratificada com early stopping, porque fine-tuning da base inteira em CPU nao cabe nesse
+teto. Acompanhe com `gh run watch`.
+
+**2. Avaliacao final.** O dispatch manual ignora o guard.
+
+```bash
+gh workflow run avaliacao_final.yml
+```
+
+Produz acerto validado e IC95% com oito modelos e atualiza decididos e restritos.
+
+**3. Estatistica.** Dispara sozinha ao fim do passo 1, via `workflow_run`. So rode manual
+se o gatilho automatico falhar.
+
+```bash
+gh workflow run estatistica.yml
+```
+
+**4. Consolidacao da validacao.** Refaz `calibracao.json` e a matriz `matriz_ia_x_glpi`,
+fonte da Tabela 3. Precisa de `aplicar=true`, senao roda em simulacao.
+
+```bash
+gh workflow run consolidar_validacao_classificacao_2.yml -f aplicar=true
+```
+
+**5. Regerar o PDF.** Automatico a cada push na `main`, via `artigo_pdf.yml`.
+
+### Ressalvas
+
+- `comparar_modelos.yml` **nao** serve para o BERTimbau: `transformer_ft` nao esta na lista
+  de opcoes do input `modelo`. A metrica dele sai do passo 1 com `acao=comparar`.
+- `acao=comparar` avalia uma janela held-out do tamanho de `limite`, nao a base inteira.
+  Para concordancia sobre os 13.965, ainda e preciso `acao=reclassificar_validados`.
+- O guard de `dados/estado_automacao.json` guardava `avaliacao_final: 17002`, contador da
+  era pre-deduplicacao e inalcancavel, o que matava o agendamento noturno. Ja corrigido
+  para 8.895.
+- Nao faca `git push` enquanto um desses workflows roda: o passo de commit dele falha.
+
+### Depois da rodada
+
+Reconciliar no artigo, contra as fontes ja com o mesmo carimbo: Tabelas 1, 2 e 3, o par
+8.928/606, as 17.790 conferencias e a Subsecao 4.3. Hoje a matriz vigente e
+8.510 / 0 / 385 / 0 sobre n = 8.895, com a coluna "historico incorreto" inteira zerada, o
+que remove o lastro da afirmacao de ruido confirmado de 1,83% no Resumo e na Conclusao.
+Ver `CONTEXTO.md` para o detalhamento.
+
+<!-- FIM DO BLOCO TEMPORARIO -->
+
 Repositorio experimental para avaliacao da classificacao e reclassificacao automatica de chamados, separado do repositorio operacional Malha IA.
 
 O objetivo e manter um experimento rastreavel, com processamento por turnos, logs, metricas, painel publico e preparacao para validacao humana.
