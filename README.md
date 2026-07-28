@@ -37,7 +37,7 @@ Os resultados alimentam o painel público e o artigo/capítulo da tese em Biossi
 | `transformer_ft.yml` | Fine-tuning e avaliação controlada do BERTimbau |
 | `avaliacao_final.yml` | Acerto validado, intervalos e análise de erros |
 | `estatistica.yml` | Estatísticas e comparações entre modelos |
-| `consolidar_validacao_classificacao_2.yml` | Memória validada, calibração e matriz IA × histórico |
+| `consolidar_validacao.yml` | Consolidação M/N/P/Q; cron em dry-run e aplicação somente manual |
 | `dashboard.yml` | Atualização do painel e dos dados publicados |
 | `artigo_pdf.yml` | Geração do PDF a partir do Markdown |
 
