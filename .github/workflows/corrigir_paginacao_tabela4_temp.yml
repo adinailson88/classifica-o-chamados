@@ -23,7 +23,7 @@ jobs:
       - name: Verificar integridade da Tabela 4
         run: |
           grep -F '\begin{tabular}{@{}lrrrr@{}}' 04_artigo/artigo_classificacao_chamados_v3.md
-          grep -F '**Tabela 4** Acerto validado por faixa de confiança.' 04_artigo/artigo_classificacao_chamados_v3.md
+          grep -F '\noindent\textbf{Tabela 4} Acerto validado por faixa de confiança.' 04_artigo/artigo_classificacao_chamados_v3.md
           if grep -F '\enlargethispage' 04_artigo/artigo_classificacao_chamados_v3.md; then exit 1; fi
           if grep -F '| Faixa | n total | Concord. histórico | n validados | Acerto validado |' 04_artigo/artigo_classificacao_chamados_v3.md; then exit 1; fi
       - name: Gerar PDF
