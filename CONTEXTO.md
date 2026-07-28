@@ -24,9 +24,8 @@ Os resultados alimentam o painel público e o artigo/capítulo da tese em Biossi
 
 Os JSONs são dinâmicos e devem ser conferidos por data de geração antes de qualquer atualização do artigo.
 
-- `docs/dados/avaliacao_final.json`, gerado em 27/07/2026 às 16:41, registra 8.928 decisões validadas, 606 casos restritos e 168 conflitos. Nesse recorte, o `linear_svc` lidera com acerto validado de 95,24%; os ensembles avaliados não superam o melhor modelo isolado.
-- `docs/dados/calibracao.json`, gerado em 28/07/2026 às 00:25, registra 13.965 chamados e 8.895 casos validados. A diferença de denominador em relação a `avaliacao_final.json` indica que os arquivos foram produzidos em momentos distintos e precisam ser regenerados na mesma cadeia antes de serem tratados como uma fotografia única.
-- `docs/dados/bertimbau_training_state.json` está com `status=sem_dados`. O BERTimbau permanece excluído da avaliação final enquanto não houver execução concluída e artefatos verificáveis.
+- `docs/dados/avaliacao_final.json`, gerado em 28/07/2026, registra 8.895 decisões validadas, 639 casos restritos e 201 conflitos, sobre 8.895 decisões. Nesse recorte, o `linear_svc` lidera com acerto validado de 95,27% (IC95%: 94,82%–95,69%); os ensembles avaliados não superam o melhor modelo isolado.
+- `docs/dados/bertimbau_training_state.json` está com `status=ok`: o treino do BERTimbau foi concluído em modo automático. `docs/dados/avaliacao_bertimbau_holdout.json` registra a avaliação held-out complementar, no mesmo lote de 1.000 chamados usado pelos outros sete modelos (639 com decisão M/N/P/Q): BERTimbau com acerto validado de 77,46% (IC95%: 74,02%–80,75%), segunda posição, contra 78,56% do LinearSVC (McNemar, *p* = 0,510, sem diferença significativa). O BERTimbau não integra o ranking integral dos sete modelos por não possuir predições *out-of-fold* sobre toda a base; é apresentado em subseção própria (4.3) do artigo.
 
 ## Arquitetura vigente
 
@@ -61,10 +60,9 @@ Os JSONs são dinâmicos e devem ser conferidos por data de geração antes de q
 
 ## Próxima ação
 
-1. Decidir entre executar um treino controlado do BERTimbau ou documentar sua exclusão definitiva da comparação final.
-2. Em caso de treino, validar `bertimbau_training_state.json` e `bertimbau_metr_full.json` antes de qualquer etapa posterior.
-3. Regenerar separadamente `avaliacao_final.json`, `estatistica.json` e `calibracao.json`, iniciando por dry-run quando houver possibilidade de escrita, para eliminar a divergência de denominadores.
-4. Atualizar o artigo integralmente somente depois dessa reconciliação.
+1. Preencher a categoria manual Q dos 639 casos restritos, priorizando os 201 conflitos entre fontes marcadas como corretas.
+2. Avaliar a viabilidade de uma execução *out-of-fold* integral do BERTimbau sobre toda a base, para permitir sua entrada no ranking principal.
+3. Considerar validação externa em outras instituições para testar a estabilidade dos resultados sob taxonomias e volumes distintos.
 
 ## Registro histórico
 
