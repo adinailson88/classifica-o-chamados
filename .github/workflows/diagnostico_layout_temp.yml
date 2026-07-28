@@ -1,0 +1,29 @@
+name: Diagnóstico temporário do layout do artigo
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  diagnosticar:
+    if: github.event.pull_request.title == 'Diagnosticar paginação do artigo'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+      - name: Instalar renderizador
+        run: sudo apt-get update && sudo apt-get install -y poppler-utils
+      - name: Renderizar páginas 10 a 15
+        run: |
+          mkdir -p diagnostico
+          pdfinfo docs/artigo_classificacao_chamados.pdf > diagnostico/pdfinfo.txt
+          pdftotext -f 10 -l 15 -layout docs/artigo_classificacao_chamados.pdf diagnostico/paginas_10_15.txt
+          pdftoppm -f 10 -l 15 -png -r 160 docs/artigo_classificacao_chamados.pdf diagnostico/pagina
+      - uses: actions/upload-artifact@v4
+        with:
+          name: diagnostico-layout-artigo
+          path: diagnostico
