@@ -397,7 +397,8 @@ pré-processamento e representação textual (SUNDARAM; ZEID, 2025).
 
 A base é dinâmica, pois novos chamados continuam a ser incorporados e a
 taxonomia institucional pode ser revisada ao longo do tempo. Os
-resultados da Seção 4 referem-se ao corpus descrito acima.
+resultados da Seção 4 referem-se ao corpus descrito acima. A distribuição completa dos chamados entre as 55 categorias
+históricas é apresentada no Apêndice A.
 
 **3.3 Pré-processamento textual**
 
@@ -1636,3 +1637,84 @@ label noise. Engineering Applications of Artificial Intelligence, v.
 ZUUR, A. F.; IENO, E. N.; ELPHICK, C. S. A protocol for data exploration
 to avoid common statistical problems. Methods in Ecology and Evolution,
 v. 1, n. 1, p. 3--14, 2010.
+
+```{=latex}
+\FloatBarrier
+\clearpage
+```
+
+**APÊNDICE A — DISTRIBUIÇÃO DAS CATEGORIAS HISTÓRICAS DO CORPUS**
+
+A Tabela A1 apresenta as 55 categorias históricas utilizadas na classificação
+dos 13.965 chamados, ordenadas por frequência decrescente.
+
+```{=latex}
+\small
+```
+
+**Tabela A1** Distribuição dos chamados por categoria histórica.
+
+| Categoria histórica | Quantidade de chamados |
+|:---|---:|
+| Manutenção Preventiva > Ar condicionado split | 1.795 |
+| Estrutura Predial > Alvenaria / Pisos / Estrutura | 1.300 |
+| Hidrossanitária > Hidráulica | 1.276 |
+| Manutenção Preventiva > Gerador | 1.211 |
+| Climatização > Ar condicionado split | 1.117 |
+| Estrutura Predial > Esquadrias, porta, portão e janelas | 969 |
+| Elétrica > Instalações elétricas | 940 |
+| Elétrica > Iluminação | 747 |
+| Manutenção Preventiva > Quadros Elétricos | 576 |
+| Climatização > Ar condicionado | 517 |
+| TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi | 399 |
+| Manutenção Preventiva > Reservatório | 279 |
+| Instalação de Acessórios e Mobiliário > Instalação/reparo de equipamentos (Suportes de TV, acessórios de banheiro e quadro branco) | 262 |
+| Manutenção Preventiva > Vistoria em Instalações | 247 |
+| Outros > Erro de chamado | 243 |
+| Estrutura Predial > Infiltração | 213 |
+| Estrutura Predial > Telhados, calhas, rufos, etc. | 206 |
+| Manutenção Preventiva > Ar condicionado central | 165 |
+| Estrutura Predial > Forro | 144 |
+| Manutenção Preventiva > Iluminação | 132 |
+| Elétrica > Nobreak | 127 |
+| Posto de trabalho > Contratação de Posto de trabalho | 102 |
+| Área Externa e Ambiental > Manutenção área externa / meio ambiente | 94 |
+| Manutenção Preventiva > Elevador | 86 |
+| Suprimentos / Apoio Técnico > Materiais | 85 |
+| Projetos e Reformas > Reforma | 83 |
+| Estrutura Predial > Pintura | 58 |
+| Instalação de Acessórios e Mobiliário > Placas de identificação | 54 |
+| Manutenção Preventiva > Sistemas de combate a incêndio (extintores, hidrantes) | 45 |
+| Manutenção Preventiva > Telhados, calhas, rufos, etc. | 44 |
+| TI / Dados / Rede > Coleta de dados | 40 |
+| Elétrica > Gerador | 38 |
+| Hidrossanitária > Bomba | 38 |
+| Climatização > Ar condicionado central | 36 |
+| Manutenção Preventiva > Esgoto | 33 |
+| Outros > Outros | 33 |
+| Manutenção Preventiva > Hidráulica | 32 |
+| Segurança contra Incêndio > Sistemas de combate a incêndio (extintores, hidrantes) | 27 |
+| Projetos e Reformas > Projeto | 25 |
+| Equipamentos de Transporte > Elevador | 22 |
+| Elétrica > Subestação | 18 |
+| Hidrossanitária > ETA / ETE | 16 |
+| Manutenção Preventiva > Extintor | 14 |
+| Suprimentos / Apoio Técnico > Limpeza de equipamentos, ambiente e mobiliário | 14 |
+| Manutenção Preventiva > Poços artesianos | 13 |
+| Manutenção Preventiva > Nobreak | 10 |
+| Manutenção Preventiva > Sistemas de incêndio | 9 |
+| Área Externa e Ambiental > Poda de Árvore / Roçagem | 9 |
+| Elétrica > Sistema Fotovoltaico (FV) | 7 |
+| Estrutura Predial > Instalações Especiais (gás, ar comprimido, etc.) | 3 |
+| Manutenção Preventiva > Aplicação cupinicida | 3 |
+| Manutenção Preventiva > Bomba | 3 |
+| Área Externa e Ambiental > Drenagem | 3 |
+| Manutenção Preventiva | 2 |
+| Suprimentos / Apoio Técnico > Transporte | 1 |
+| **Total** | **13.965** |
+
+*Fonte: elaboração própria a partir do corpus analisado.*
+
+```{=latex}
+\normalsize
+```
