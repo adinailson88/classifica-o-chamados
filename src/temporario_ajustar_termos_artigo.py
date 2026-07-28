@@ -33,7 +33,7 @@ substituicoes = [
         1,
     ),
     (
-        r"sem o preenchimento da categoria manual Q, não há referência final",
+        r"sem o\s+preenchimento da categoria manual Q, não há referência final",
         "sem a definição manual de uma categoria alternativa, não há referência final",
         1,
     ),
