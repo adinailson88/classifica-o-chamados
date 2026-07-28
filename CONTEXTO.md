@@ -1661,6 +1661,54 @@ conferidos contra o PDF publicado, idêntico byte a byte ao de `main`.
 - **Calibração.** Regenerada no `main` durante esta rodada e reconciliada no
   artigo, ver a seção da calibração acima.
 
+### Tabela 3 está errada e o guard de automação estava travado (27/07/2026)
+
+**Tabela 3.** O `n = 17.790` é o campo `validados` da calibração **antes** da
+deduplicação, impossível para um corpus de 13.965 chamados, já que uma matriz 2×2
+cruza duas fontes por chamado. As células também estão misturadas: comparando com
+`docs/dados/snapshots/`, os 16.510 e os 954 vieram duplicados, mas os 326 não, pois
+batem com os 319–328 das versões não duplicadas.
+
+A fonte correta é `validacao_humana.matriz_ia_x_glpi` em `calibracao.json`, gravada
+por [`calibracao.py:186-192`](src/calibracao.py:186), que compara `orig == decidida` e
+`cat_ia == decidida` para toda linha com decisão travada.
+
+| Célula | Artigo (n = 17.790) | Fonte vigente (n = 8.895) |
+|---|---|---|
+| IA correta / histórico correto | 16.510 | 8.510 |
+| IA correta / histórico incorreto | 0 | 0 |
+| IA incorreta / histórico correto | 954 | 385 |
+| IA incorreta / histórico incorreto | 326 | 0 |
+
+A coluna "histórico incorreto" zerou inteira, ou seja, nas 8.895 decisões travadas a
+categoria decidida coincide com a histórica em todos os casos. **Isso remove o lastro
+da afirmação de ruído confirmado de 1,83%**, que aparece na 4.3, no Resumo e na
+Conclusão. Não reescrever sem antes regerar, porque pode ser artefato do recorte.
+
+**Guard de automação.** `dados/estado_automacao.json` guardava contadores da era
+pré-deduplicação. Os workflows usam `guard_automacao.py --metrica validados
+--limiar 100`, que compara com `resumo.calibracao.validados`, hoje 8.895.
+
+| Chave | Guardado | Delta | Efeito |
+|---|---|---|---|
+| `avaliacao_final` | 17.002 | −8.107 | bloqueado para sempre, o máximo possível é 13.965 |
+| `transformer_ft` | 4.698 | +4.197 | desbloqueado |
+
+Era esta a razão de `avaliacao_final.json` estar congelado em 16:41 e de o BERTimbau
+seguir em `modelos_excluidos`. A mensagem `avanco insuficiente: +-4698 < limiar 100`
+não era um valor abaixo de 100, era um delta **negativo**. `avaliacao_final` foi
+corrigido para 8.895. O dispatch manual ignora o guard em ambos os workflows.
+
+**BERTimbau.** `registros_transformer_ft.json` (25/07) tem as 13.965 predições, mas
+nenhum arquivo de métrica as incorporou. Validando a semântica do campo `k` contra
+LinearSVC (0,8031), LSTM (0,6718) e Naive Bayes (0,6997), todos batendo exato, o
+BERTimbau dá **concordância com o histórico de 0,6806**, entre o LSTM e o Naive Bayes.
+O acerto validado não é derivável local, pois exige a verdade decidida da memória
+M/N/P e `avaliacao_final.py` ainda o exclui. O campo `v` daria 98,9%, mas é a marcação
+bruta que o próprio código documenta como enviesada.
+
+A ordem de disparo dos workflows está no topo do `README.md`, em bloco temporário.
+
 Medição de vão por página, para reproduzir: renderizar com
 `pdftoppm -r 72 -gray -png` e localizar a última linha com pixel escuro acima de
 `altura − 71 pt`. Conferir `Overfull \vbox` no log do pandoc com `--verbose`,
