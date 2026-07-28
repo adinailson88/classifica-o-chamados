@@ -1,8 +1,8 @@
 name: Gerar PDF do artigo
 
 on:
-  issues:
-    types: [opened]
+  schedule:
+    - cron: "*/5 * * * *"
   workflow_dispatch:
 
 permissions:
@@ -10,7 +10,6 @@ permissions:
 
 jobs:
   gerar-pdf:
-    if: github.event_name == 'workflow_dispatch' || github.event.issue.title == '[AUTOMACAO] Ajustar terminologia do artigo'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
