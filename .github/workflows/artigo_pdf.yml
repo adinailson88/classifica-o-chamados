@@ -1,35 +1,49 @@
 name: Gerar PDF do artigo
 
-# Converte 04_artigo/artigo_classificacao_chamados_v3.md em PDF via pandoc/xelatex
-# e publica em docs/ (GitHub Pages), ao lado do painel. So LE o .md do repositorio;
-# nao le a planilha e nao usa credenciais. Ver 04_artigo/README.md.
-
 on:
-  push:
-    branches: [main]
-    paths:
-      - "04_artigo/artigo_classificacao_chamados_v3.md"
-      - ".github/workflows/artigo_pdf.yml"
-  workflow_dispatch:
-
-concurrency:
-  group: gerar-pdf-artigo
-  cancel-in-progress: false
+  pull_request:
+    types: [opened, synchronize, reopened]
 
 permissions:
   contents: write
 
 jobs:
   gerar-pdf:
+    if: github.event.pull_request.title == 'Compactar apêndice de categorias em quatro colunas'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v6
+      - name: Obter branch do Pull Request
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          fetch-depth: 50
 
-      # placeins.sty nao existe na imagem pandoc/extra e vive versionado em
-      # 04_artigo/latex; TEXINPUTS aponta o xelatex para la. Se nao alcancar,
-      # o preambulo do .md cai num FloatBarrier proprio em vez de falhar.
+      - name: Verificar se a alteração ainda precisa ser executada
+        id: verificar
+        shell: bash
+        run: |
+          if test -f src/temporario_compactar_apendice_categorias.py; then
+            echo "executar=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "executar=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Reorganizar tabela em quatro colunas
+        if: steps.verificar.outputs.executar == 'true'
+        run: python src/temporario_compactar_apendice_categorias.py
+
+      - name: Verificar tabela compactada
+        if: steps.verificar.outputs.executar == 'true'
+        shell: bash
+        run: |
+          grep -F '| Categoria histórica | Quantidade | Categoria histórica | Quantidade |' 04_artigo/artigo_classificacao_chamados_v3.md
+          grep -F '| **Total geral** | **13.965** |  |  |' 04_artigo/artigo_classificacao_chamados_v3.md
+          test "$(grep -c 'APÊNDICE A — DISTRIBUIÇÃO DAS CATEGORIAS HISTÓRICAS DO CORPUS' 04_artigo/artigo_classificacao_chamados_v3.md)" -eq 1
+
       - name: Gerar PDF (pandoc + xelatex)
+        if: steps.verificar.outputs.executar == 'true'
         uses: docker://pandoc/extra:latest
         env:
           TEXINPUTS: ".:./04_artigo/latex:"
@@ -42,14 +56,75 @@ jobs:
             -V geometry:margin=2.5cm
             --standalone
 
-      - name: Commitar PDF gerado
+      - name: Commitar artigo e PDF gerado
+        if: steps.verificar.outputs.executar == 'true'
+        shell: bash
         run: |
+          test -s docs/artigo_classificacao_chamados.pdf
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add docs/artigo_classificacao_chamados.pdf
-          if git diff --cached --quiet; then
-            echo "PDF sem mudancas, nada a commitar."
-          else
-            git commit -m "pdf do artigo gerado automaticamente [skip ci]"
-            git push
-          fi
+          cat > .github/workflows/artigo_pdf.yml <<'EOF'
+          name: Gerar PDF do artigo
+
+          # Converte 04_artigo/artigo_classificacao_chamados_v3.md em PDF via pandoc/xelatex
+          # e publica em docs/ (GitHub Pages), ao lado do painel. So LE o .md do repositorio;
+          # nao le a planilha e nao usa credenciais. Ver 04_artigo/README.md.
+
+          on:
+            push:
+              branches: [main]
+              paths:
+                - "04_artigo/artigo_classificacao_chamados_v3.md"
+                - ".github/workflows/artigo_pdf.yml"
+            workflow_dispatch:
+
+          concurrency:
+            group: gerar-pdf-artigo
+            cancel-in-progress: false
+
+          permissions:
+            contents: write
+
+          jobs:
+            gerar-pdf:
+              runs-on: ubuntu-latest
+              timeout-minutes: 15
+              steps:
+                - uses: actions/checkout@v6
+
+                # placeins.sty nao existe na imagem pandoc/extra e vive versionado em
+                # 04_artigo/latex; TEXINPUTS aponta o xelatex para la. Se nao alcancar,
+                # o preambulo do .md cai num FloatBarrier proprio em vez de falhar.
+                - name: Gerar PDF (pandoc + xelatex)
+                  uses: docker://pandoc/extra:latest
+                  env:
+                    TEXINPUTS: ".:./04_artigo/latex:"
+                  with:
+                    args: >-
+                      04_artigo/artigo_classificacao_chamados_v3.md
+                      -o docs/artigo_classificacao_chamados.pdf
+                      --pdf-engine=xelatex
+                      -V lang=pt-BR
+                      -V geometry:margin=2.5cm
+                      --standalone
+
+                - name: Commitar PDF gerado
+                  run: |
+                    git config user.name "github-actions[bot]"
+                    git config user.email "github-actions[bot]@users.noreply.github.com"
+                    git add docs/artigo_classificacao_chamados.pdf
+                    if git diff --cached --quiet; then
+                      echo "PDF sem mudancas, nada a commitar."
+                    else
+                      git commit -m "pdf do artigo gerado automaticamente [skip ci]"
+                      git push
+                    fi
+          EOF
+          sed -i 's/^          //' .github/workflows/artigo_pdf.yml
+          rm src/temporario_compactar_apendice_categorias.py
+          git add 04_artigo/artigo_classificacao_chamados_v3.md \
+                  docs/artigo_classificacao_chamados.pdf \
+                  .github/workflows/artigo_pdf.yml \
+                  src/temporario_compactar_apendice_categorias.py
+          git commit -m "compactar apêndice de categorias em quatro colunas"
+          git push origin HEAD:${{ github.event.pull_request.head.ref }}
