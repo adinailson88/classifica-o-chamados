@@ -5,7 +5,8 @@
 > (removidos; histórico preservado no git). **Atualizar este arquivo** a cada
 > etapa importante, em vez de criar arquivos novos.
 >
-> Última consolidação: 2026-06-06 (America/Bahia, UTC-03:00) — Etapa 1 CONCLUÍDA (0 pendentes),
+> Última consolidação: 2026-07-27 (America/Bahia, UTC-03:00) — reformulação editorial do
+> artigo e resposta ao parecer; ver a última seção. Consolidação anterior: 2026-06-06 — Etapa 1 CONCLUÍDA (0 pendentes),
 > dashboard atualizado, robustez de workflows, estatística não paramétrica explícita e plano
 > de calibração. Ver a última seção deste arquivo para o estado final.
 
@@ -1445,3 +1446,222 @@ desempenho supervisionado, confiabilidade/calibracao, robustez estatistica e amb
 informacional. Para o artigo, a camada sustenta uma conclusao mais forte: o painel nao
 apenas compara IAs, mas tambem orienta governanca da taxonomia, priorizacao da validacao
 humana e selecao mais segura de modelos.
+
+---
+
+## 2026-07-27 — Reformulação editorial do artigo e resposta ao parecer
+
+Repositório: **GitHub, `adinailson88/classificacao-chamados`**
+(https://github.com/adinailson88/classificacao-chamados). Branch de trabalho:
+`docs/reformulacao-artigo-enxuto`, já mesclada na `main` (PRs #76 a #82).
+
+### Onde está o artigo
+
+- Fonte: `04_artigo/artigo_classificacao_chamados_v3.md` (Markdown, sem `.tex`).
+- PDF publicado: `docs/artigo_classificacao_chamados.pdf`, servido pelo GitHub
+  Pages em https://adinailson88.github.io/classificacao-chamados/artigo_classificacao_chamados.pdf
+  (Pages lê `main`, pasta `/docs`; o link só muda depois de merge na `main`).
+- Build: `.github/workflows/artigo_pdf.yml`, pandoc/xelatex, dispara em push na
+  `main`. Compilação local equivalente:
+  `TEXINPUTS=".;./04_artigo/latex;" pandoc 04_artigo/artigo_classificacao_chamados_v3.md -o docs/artigo_classificacao_chamados.pdf --pdf-engine=xelatex -V lang=pt-BR -V geometry:margin=2.5cm --standalone`
+
+### Estado do artigo
+
+23 páginas, ~12.400 palavras. Estrutura: Resumo/Abstract, 1 Introdução,
+2 Referencial (2.1–2.4), 3 Método (3.1–3.9), 4 Resultados (4.1–4.9),
+5 Discussão (5.1–5.4, com Limitações em 5.3), 6 Considerações finais,
+Referências. **Sem apêndices** e sem bloco de declarações (ética, LGPD, autoria,
+financiamento) — decisão do autor: só incluir se a revista exigir.
+
+Oito figuras, todas geradas por script a partir de JSON versionado, em PDF
+vetorial e PNG 300 dpi. Arquivos nomeados por conteúdo (`fig_top_confusoes`,
+não `fig3_...`): a numeração vive só no artigo, então reordenar não quebra nada.
+Geradores em `src/gerar_figura*.py`, estilo comum em `src/estilo_figuras.py`
+(paleta Okabe-Ito). Tarefa `figuras_artigo` no workflow `lstm_artigo.yml`.
+
+### Regras editoriais firmadas com o autor
+
+- **Artigo não é relatório de pesquisa.** Nunca narrar versões descartadas,
+  materializações desatualizadas, auditorias internas ou comparações com rodadas
+  anteriores do próprio trabalho. Regra completa, com tabela de conversão, na
+  skill `artigo-metodologia-biossistemas`.
+- Sem "Fonte: elaborado pelos autores" em figuras e tabelas.
+- Dois-pontos só onde introduzem enumeração ou explicação; caso contrário,
+  vírgula ou frase separada.
+- Estilo autoral: voz impessoal, frases de 18 a 32 palavras, sem travessão longo,
+  negrito só em títulos e termos definidos. Ver skill `meu-estilo-textual`.
+- Biossistemas é o mote e deve permanecer operacionalizado (memória de decisão
+  em 3.7 como retroalimentação; entropia em 3.8 como desordem informacional).
+- Material suplementar citado sem código interno de tabela.
+
+### Números: recortes se movem
+
+Os JSONs de `docs/dados` avançam a cada consolidação. O artigo foi reconciliado
+contra o painel de **2026-07-27**: 13.965 chamados, 9.534 conferidos, 8.928 com
+decisão validada, 606 restritos, 168 conflitos, 17.790 conferências na matriz.
+LinearSVC com 0,8031 de concordância e 0,9524 de acerto validado. Amplitude da
+análise de sensibilidade: 5,50 a 6,05 p.p.
+
+O autor pretende **congelar tudo quando a base chegar a 14 mil chamados**.
+Antes de citar qualquer número, reconferir contra a fonte vigente.
+
+### Vazamento textual: medido, não suposto
+
+Parecer externo apontou que as Tabelas 1 e 2 usavam `KFold` por linha enquanto o
+ablation já usava `GroupKFold`. Criado `src/comparacao_kfold_groupkfold.py`
+(somente leitura, não toca abas de produção) e a tarefa `kfold_vs_groupkfold` no
+workflow. Resultado: 32,67% das linhas têm duplicata textual; a queda média sob
+`GroupKFold` é de 0,58 p.p., máxima de 1,10; o ranking se preserva **exceto** a
+troca SGD ↔ Random Forest, justamente o único par sem significância no McNemar
+corrigido por Holm-Bonferroni. Reportado em 3.5 e declarado como limitação em 5.3.
+
+### Calibração regenerada e reconciliada (27/07/2026)
+
+`src/calibracao.py` foi corrigido para deduplicar. A aba `SNAPSHOT_ETAPA_1` é
+append-only: cada execução da Etapa 1 acrescenta uma linha por chamado sem
+substituir a anterior, e o script contava todas, inflando o denominador para
+27.930 classificações sobre 13.965 chamados e permitindo que um chamado caísse
+em duas faixas de confiança. Agora mantém só a última classificação de cada
+chamado. **A regeneração rodou** e `docs/dados/calibracao.json` (27/07 22:45)
+traz `linhas_snapshot_brutas=27930`, `linhas_descartadas_por_deduplicacao=13965`
+e `unidade=chamado`.
+
+A Subseção 4.4, a Tabela 4, a Figura 2 e a frase da 5.2 foram reconciliadas
+contra essa fonte. A unidade passou a ser o chamado, 13.965 no total e 8.895 com
+conferência humana. ECE de 0,0555 para 0,0549. Faixa igual ou superior a 95%: de
+9.869 para 5.061 chamados, de 35,3% para 36,2% do corpus, concordância de 98,89%
+para 98,70% e acerto validado de 98,35% para 99,84% sobre 4.894 chamados.
+**A inversão de monotonia desapareceu** (55,05 → 91,77 → 96,93 → 98,67 → 99,17 →
+99,84), e o parágrafo que a discutia saiu por perda de objeto.
+
+**Divergência de carimbo, ainda aberta.** As fontes não compartilham horário:
+
+| Arquivo | Gerado em | Decididos | Restritos |
+|---|---|---|---|
+| `sensibilidade_vies_validacao.json` | 25/07 11:14 | 9.096 | 438 |
+| `avaliacao_final.json` | 27/07 16:41 | 8.928 | 606 |
+| `auditoria_conferencias.json` | 27/07 22:27 | 8.895 | 639 |
+| `calibracao.json` | 27/07 22:45 | 8.895 | — |
+
+O artigo cita 8.928 e 606, que vêm do **mesmo** arquivo e sustentam a aritmética
+do limite inferior da Tabela 2 (0,9524 × 8.928 ÷ 9.534 = 0,8919). Trocar 606 por
+639 sem regerar `avaliacao_final.json` quebraria essa tabela, então o par ficou
+intacto. O mesmo vale para as 17.790 conferências da Tabela 3, cujas células não
+saem de nenhum JSON versionado. **Ao congelar a base nos 14 mil chamados, rodar
+`avaliacao_final` e a matriz de conferência e reconciliar esse bloco de uma vez.**
+`analise_sensibilidade_vies_validacao.py` lê a planilha e exige credencial, não
+roda local.
+
+Cuidado relacionado: `LSTM_BAIXA_CONF` **não** é uma segunda passagem. É o mesmo
+classificador; o nome do executor apenas codifica a faixa de confiança
+(`conf >= 0,95` vira `LSTM`, entre 0,70 e 0,95 vira `LSTM_BAIXA_CONF`, abaixo de
+0,70 mantém a categoria humana). A correspondência executor↔faixa é tautológica.
+
+### Layout LaTeX: onde está e qual o impasse
+
+Não existe arquivo de template. A formatação vive em três lugares:
+o bloco `header-includes` no topo do próprio `.md`, os argumentos do pandoc em
+`artigo_pdf.yml`, e `04_artigo/latex/placeins.sty` (domínio público, versionado
+porque não existe na imagem `pandoc/extra`; `TEXINPUTS` aponta para lá e o
+preâmbulo tem `\IfFileExists` como alternativa para não quebrar o build).
+
+Configuração atual: `\def\fps@figure{tp}` (figura nunca no rodapé, senão estoura
+a margem), `topfraction 0.85`, `textfraction 0.10`, `floatpagefraction 0.90`,
+`raggedbottom`, e `\FloatBarrier` apenas onde é estrutural.
+
+**Impasse resolvido em 27/07/2026, sem tocar na carga de figuras.** O artigo
+passou de 23 para 22 páginas, com vão interno total de 939 pt para 290 pt e
+nenhum texto fora da margem. As oito figuras permanecem, cada uma na subseção
+que a discute.
+
+| Configuração | Páginas | Vão total | Texto fora da margem |
+|---|---|---|---|
+| Barreira antes de cada título (anterior) | 23 | 939 pt | nenhum |
+| Sem as barreiras que cercam tabelas | 22 | 181 pt | páginas 14–15 |
+| Barreira depois da Tabela 6 | 23 | 477 pt | nenhum |
+| Barreiras só onde são estruturais (atual) | 22 | 202 pt | nenhum |
+
+Três achados sustentam a configuração atual.
+
+1. **A causa do estouro de margem é `longtable`, não a posição do float.** O
+   pandoc emite `longtable` para toda tabela, e `longtable` não é float, não se
+   divide em torno de figura e estoura a margem inferior quando divide página
+   com uma. Toda barreira que cerca tabela é obrigatória. As barreiras que
+   apenas antecedem títulos podem sair, e cada uma que sai devolve o vão que o
+   `\clearpage` cobrava.
+2. **A posição `b` continua proibida.** Reabilitá-la fecha o vão da página 16
+   mas põe figura sobre a margem inferior, qualquer que seja `bottomfraction`.
+3. **Âncora de float só anda para a frente, e barreira tem de vir antes da
+   tabela.** O vão da antiga página 16 vinha da Figura 6 esperar a barreira do
+   fim da 4.7. Com a marcação da Figura 6 movida para junto da Figura 5, ao fim
+   da 4.6, as duas ocupam o topo da mesma página e o texto da 4.7 preenche o
+   resto. A barreira precisa ficar **entre o par de figuras e a Tabela 6**, não
+   depois dela, senão o float é despejado na mesma página em que a `longtable`
+   já está sendo composta e o texto estoura a margem. Só a marcação mudou de
+   lugar, o texto não.
+
+Barreiras removidas: antes de 3.2, ao fim de 3.2, ao fim de 4.8. A do fim de 4.6
+subiu para antes da Tabela 6. As demais ficaram.
+
+Vãos remanescentes: 30 pt na página 11, 24 pt na 4, o resto em 20 pt ou menos.
+Nenhuma página interna passa de 30 pt.
+
+**O arranjo é sensível ao comprimento do texto.** Ao remover ou acrescentar
+parágrafo nas Subseções 4.4 a 4.8, refazer a medição de vão e conferir
+`Overfull \vbox` no log antes de publicar. Uma reconciliação numérica que
+encurtou a 4.4 em um parágrafo já foi suficiente para reintroduzir o estouro.
+
+### Referências
+
+59 verbetes, todos citados, nenhuma órfã. Onze obras que haviam ficado órfãs no
+enxugamento foram religadas ao texto na 4.9 e na 4.1 (Tukey, Hodge e Austin,
+Razali e Wah, Ogunleye, O'Brien, Kornbrot, Minderer, Durbin e Watson, Landis e
+Koch, Wongpakaran). Box e Jenkins removido, pois sustentava a menção a ARIMA
+que saiu.
+
+Cohen (1960) foi conferido em 27/07/2026 e está correto no artigo (Educational
+and Psychological Measurement, v. 20, n. 1, p. 37–46, DOI
+10.1177/001316446002000104). A ficha foi criada em
+`04_artigo/referencias/fichas/`. O PDF ainda não integra o acervo do Drive, e a
+ficha registra essa lacuna; ao incorporá-lo, acrescentar o link permanente.
+
+### Armadilhas observadas nesta rodada
+
+- Verificação por contagem de palavras por página **não detecta** vão no rodapé;
+  medir a distância entre o último elemento e a margem inferior.
+- Ao editar o `.md` por script Python, usar arquivo auxiliar em vez de heredoc:
+  sequências como `\u` em comandos LaTeX quebram o parser.
+- `git push` na branch enquanto um workflow roda faz o passo de commit dele
+  falhar; os resultados ficam recuperáveis no log da execução.
+- O build do Pages falha de forma intermitente quando há pushes em sequência;
+  basta solicitar novo build.
+- O `.docx` em `04_artigo/artigo_classificacao_chamados_v3.docx` está defasado
+  (23/07) e **não contém nenhuma figura**. Ler o artigo por ele induz a erro.
+  Ou regenerar a cada build, ou tirar do repositório.
+
+## Rodada de 27/07/2026, itens de parecer
+
+Quatro pontos vieram de parecer externo. Dois eram improcedentes e foram
+conferidos contra o PDF publicado, idêntico byte a byte ao de `main`.
+
+- **Figuras 6 e 8 não faltavam.** Estavam presentes, com imagem e legenda. O que
+  havia de anômalo é que eram as duas únicas geradas com `LARGURA_COLUNA`, o que
+  as deixava com metade da largura do texto num artigo de coluna única. Os dois
+  geradores passaram a usar `LARGURA_DUPLA`, com a mesma altura, e as marcações
+  ganharam `{width=95%}` como as outras seis. A mudança devolve altura em vez de
+  consumir, porque a escala de 95% encolhe a figura mais larga.
+- **GRIMM et al. (2008) não faltava** na lista de referências, e os dados estão
+  corretos.
+- **Calibração formal.** A Conclusão passou a nomear Platt e regressão isotônica
+  e a declarar a calibração por modelo como condição para liberar a faixa igual
+  ou superior a 95% à decisão automática em produção. A afirmação já estava
+  sustentada pela 5.2 e pelo `PLANO_CALIBRACAO.md`. A menção que ficava dentro
+  da agenda de validação externa saiu, para não repetir.
+- **Vãos das páginas 4 e 16.** Resolvidos, ver a seção de layout acima.
+- **Calibração.** Regenerada no `main` durante esta rodada e reconciliada no
+  artigo, ver a seção da calibração acima.
+
+Medição de vão por página, para reproduzir: renderizar com
+`pdftoppm -r 72 -gray -png` e localizar a última linha com pixel escuro acima de
+`altura − 71 pt`. Conferir `Overfull \vbox` no log do pandoc com `--verbose`,
+porque texto fora da margem não aparece na contagem de páginas.

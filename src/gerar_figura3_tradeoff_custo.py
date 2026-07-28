@@ -23,7 +23,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from estilo_figuras import COR, LARGURA_COLUNA, aplicar_estilo, salvar  # noqa: E402
+from estilo_figuras import COR, LARGURA_DUPLA, aplicar_estilo, salvar  # noqa: E402
 
 RAIZ = Path(__file__).resolve().parents[1]
 CUSTO_PADRAO = RAIZ / "docs" / "dados" / "comparacao_modelos.json"
@@ -64,7 +64,7 @@ def gerar(custo_path: Path, avaliacao_path: Path, saida: Path) -> None:
     labels = [NOMES_EXIBICAO.get(m, m) for m in modelos]
 
     aplicar_estilo()
-    fig, ax = plt.subplots(figsize=(LARGURA_COLUNA, 2.8))
+    fig, ax = plt.subplots(figsize=(LARGURA_DUPLA, 2.8))
     ax.scatter(xs, ys, s=45, color=COR["azul"], edgecolor="white", linewidth=0.8, zorder=3)
     # Rotulos dos pontos mais a direita viram para dentro, para nao vazar da figura.
     limite = sorted(xs)[len(xs) // 2]

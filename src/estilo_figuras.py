@@ -6,19 +6,19 @@ gerador de figura:
 
 1. Paleta segura para daltonismo (Okabe-Ito). Nenhuma informacao da figura
    depende so da cor: series distintas variam tambem em forma ou posicao.
-2. Tamanho de figura pensado para a pagina do artigo. `LARGURA_COLUNA`
-   (~8,5 cm) serve para figuras simples de uma coluna; `LARGURA_DUPLA`
-   (~17,5 cm) serve para as figuras com muitos rotulos categoricos, que
-   ficariam ilegiveis reduzidas a uma coluna.
+2. Tamanho de figura pensado para a pagina do artigo. O artigo compoe em
+   coluna unica, entao todas as figuras usam `LARGURA_DUPLA` (~17,5 cm) e
+   entram no texto a 95% da largura util. `LARGURA_COLUNA` (~8,5 cm) fica
+   disponivel para um eventual leiaute de duas colunas.
 3. Gravacao simultanea em PDF vetorial (usado pelo build do artigo) e PNG a
    300 dpi (exigido por submissao em periodico).
 
 Uso tipico:
 
-    from estilo_figuras import COR, LARGURA_COLUNA, aplicar_estilo, salvar
+    from estilo_figuras import COR, LARGURA_DUPLA, aplicar_estilo, salvar
 
     aplicar_estilo()
-    fig, ax = plt.subplots(figsize=(LARGURA_COLUNA, 2.6))
+    fig, ax = plt.subplots(figsize=(LARGURA_DUPLA, 2.6))
     ...
     salvar(fig, RAIZ / "04_artigo" / "figuras" / "fig_confianca_desfecho")
 """

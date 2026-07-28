@@ -15,9 +15,13 @@ header-includes:
     \raggedbottom
     % O texto usa titulos em negrito, nao comandos de secao, entao o LaTeX nao
     % tem ancora para esvaziar a fila de floats e acaba despejando figuras em
-    % paginas onde nao cabem. As barreiras resolvem isso. O placeins vive em
-    % 04_artigo/latex porque nao existe na imagem pandoc/extra do workflow; o
-    % ramo alternativo evita falha de build caso o TEXINPUTS nao o alcance.
+    % paginas onde nao cabem. As barreiras resolvem isso, mas cobram vao no
+    % rodape a cada \clearpage, entao ficaram so onde sao estruturais. As que
+    % cercam tabelas sao obrigatorias: o pandoc emite longtable, que nao e
+    % float e estoura a margem inferior quando divide pagina com figura.
+    % O placeins vive em 04_artigo/latex porque nao existe na imagem
+    % pandoc/extra do workflow; o ramo alternativo evita falha de build caso o
+    % TEXINPUTS nao o alcance.
     \IfFileExists{placeins.sty}{%
       \usepackage{placeins}%
     }{%
@@ -375,10 +379,6 @@ apresenta esse fluxo como *pipeline* de governança preditiva.
 
 ![Pipeline de governança preditiva, do fluxo de extração da base à retroalimentação por validação humana.](04_artigo/figuras/fig_pipeline_governanca.pdf){width=95%}
 
-```{=latex}
-\FloatBarrier
-```
-
 **3.2 Corpus e variáveis**
 
 O corpus experimental é composto por 13.965 chamados de manutenção
@@ -397,10 +397,6 @@ pré-processamento e representação textual (SUNDARAM; ZEID, 2025).
 A base é dinâmica, pois novos chamados continuam a ser incorporados e a
 taxonomia institucional pode ser revisada ao longo do tempo. Os
 resultados da Seção 4 referem-se ao corpus descrito acima.
-
-```{=latex}
-\FloatBarrier
-```
 
 **3.3 Pré-processamento textual**
 
@@ -945,19 +941,16 @@ permite.
 **4.4 Confiança, calibração e faixas de decisão**
 
 A classificação automática em produção mantém erro de calibração
-esperado (ECE) de 0,0555 sobre a confiança bruta. A unidade desta
-subseção é a classificação emitida, não o chamado: o registro da
-classificação em produção é acumulativo, de modo que cada execução
-acrescenta uma classificação por chamado sem substituir a anterior. Daí
-as 27.930 classificações sobre 13.965 chamados, das quais 17.790 têm
-conferência humana. Um chamado reclassificado com confiança diferente
-entre execuções contribui para mais de uma faixa, o que recomenda ler a
-Tabela 4 como distribuição de classificações por faixa, e não como curva
-de calibração de uma passagem única. Segmentada por faixa de confiança e cruzada com a
-decisão validada, a faixa igual ou superior a 95% concentra 9.869
-predições, 35,3% do conjunto calibrado, com concordância de 98,89% frente
-ao histórico e acerto validado de 98,35% sobre as 9.582 predições já
-decididas nessa faixa.
+esperado (ECE) de 0,0549 sobre a confiança bruta. A unidade desta
+subseção é o chamado. O registro da classificação em produção é
+acumulativo, pois cada execução acrescenta uma linha por chamado sem
+substituir a anterior, e a leitura considera apenas a última
+classificação de cada chamado, de modo que os 13.965 chamados do corpus
+entram uma única vez e 8.895 deles têm conferência humana. Segmentada
+por faixa de confiança e cruzada com a decisão validada, a faixa igual
+ou superior a 95% concentra 5.061 chamados, 36,2% do corpus, com
+concordância de 98,70% frente ao histórico e acerto validado de 99,84%
+sobre os 4.894 chamados já decididos nessa faixa.
 O resultado cumpre a meta de referência do experimento, que associa
 confiança igual ou superior a 95% a acerto real igual ou superior a 95%.
 Cabe a ressalva de que a confiança empregada é bruta, sem calibração
@@ -965,26 +958,24 @@ formal, de modo que a meta é atingida na métrica disponível, não em
 confiança calibrada em sentido estrito.
 
 Nas faixas inferiores (Tabela 4), a degradação de desempenho acompanha a
-queda de confiança, do patamar de 95,43% na faixa de 90 a 95% até 49,83%
-abaixo de 50%. Esse comportamento corrobora a correlação positiva entre
+queda de confiança, do patamar de 99,17% na faixa de 90 a 95% até 55,05%
+abaixo de 50%. A progressão é monótona nas seis faixas, sem inversão
+entre faixas vizinhas, e corrobora a correlação positiva entre
 confiança bruta e acerto, quantificada por Spearman entre 0,46 e 0,64
 conforme o modelo (Subseção 4.9), mesmo sem calibração formal aplicada a
-essa camada. A monotonia não é perfeita, pois a faixa de 80 a 90%
-(96,25%) supera a de 90 a 95% (95,43%). Essa inversão é plausível em dados reais com amostras desse tamanho, mas
-merece acompanhamento em recortes futuros antes de ser tratada como
-padrão estável.
+essa camada.
 
-**Tabela 4** Acerto validado por faixa de confiança. A unidade é a
-classificação emitida: 27.930 no total, 17.790 com conferência humana.
+**Tabela 4** Acerto validado por faixa de confiança. A unidade é o
+chamado, 13.965 no total, 8.895 com conferência humana.
 
 | Faixa | n total | Concord. histórico | n validados | Acerto validado |
 |---|---|---|---|---|
-| < 50% | 7.645 | 42,86% | 1.443 | 49,83% |
-| 50–70% | 2.996 | 73,73% | 1.320 | 87,05% |
-| 70–80% | 1.884 | 85,77% | 1.151 | 95,74% |
-| 80–90% | 3.092 | 86,16% | 2.216 | 96,25% |
-| 90–95% | 2.444 | 93,99% | 2.078 | 95,43% |
-| >= 95% | 9.869 | 98,89% | 9.582 | 98,35% |
+| < 50% | 3.673 | 43,42% | 634 | 55,05% |
+| 50–70% | 1.492 | 74,06% | 632 | 91,77% |
+| 70–80% | 912 | 83,99% | 522 | 96,93% |
+| 80–90% | 1.593 | 84,43% | 1.126 | 98,67% |
+| 90–95% | 1.234 | 94,98% | 1.087 | 99,17% |
+| >= 95% | 5.061 | 98,70% | 4.894 | 99,84% |
 
 A Figura 2 apresenta esses mesmos valores em forma gráfica, tornando
 visível o descolamento entre concordância com o histórico e acerto
@@ -1108,6 +1099,12 @@ internas de estrutura predial.
 
 ![Quinze pares de categorias com maior confusão recíproca, agregados entre modelos. Os códigos do eixo vertical estão descritos no material suplementar.](04_artigo/figuras/fig_top_confusoes.pdf){width=95%}
 
+![Trade-off entre acerto validado e tempo de treino, modelos clássicos.](04_artigo/figuras/fig_tradeoff_custo.pdf){width=95%}
+
+```{=latex}
+\FloatBarrier
+```
+
 **Tabela 6** Entropia de Shannon e divergência de Jensen-Shannon por
 fonte de classificação.
 
@@ -1121,10 +1118,6 @@ fonte de classificação.
 | Extra Trees | 46 | 0,7217 | 0,0212 |
 | Random Forest | 43 | 0,7279 | 0,0260 |
 | Naive Bayes | 17 | 0,8157 | 0,1024 |
-
-```{=latex}
-\FloatBarrier
-```
 
 **4.7 Custo computacional**
 
@@ -1149,8 +1142,6 @@ refere-se ao lote, não à base completa.
 A Figura 6 cruza essas medições de custo com o acerto validado da Tabela
 2 e mostra que o LinearSVC ocupa a posição mais favorável, com o maior
 acerto validado a um custo de treino próximo do menor observado.
-
-![Trade-off entre acerto validado e tempo de treino, modelos clássicos.](04_artigo/figuras/fig_tradeoff_custo.pdf)
 
 ```{=latex}
 \FloatBarrier
@@ -1186,11 +1177,7 @@ sensibilidade do LSTM ao número de unidades recorrentes e à taxa de
 ajuste desses hiperparâmetros, mas na ausência de *embeddings*
 pré-treinados discutida na Subseção 3.4.1.
 
-![*Ablation* do LSTM, quatro variantes de unidades recorrentes e *dropout*, avaliadas por *GroupKFold* contra a decisão validada.](04_artigo/figuras/fig_ablation_lstm.pdf)
-
-```{=latex}
-\FloatBarrier
-```
+![*Ablation* do LSTM, quatro variantes de unidades recorrentes e *dropout*, avaliadas por *GroupKFold* contra a decisão validada.](04_artigo/figuras/fig_ablation_lstm.pdf){width=95%}
 
 **4.9 Robustez estatística: pressupostos e testes de sensibilidade**
 
@@ -1336,13 +1323,13 @@ acurácia ou validação humana.
 A meta estabelecida como critério de sucesso do protocolo associa
 confiança calibrada igual ou superior a 95% a acerto real igual ou
 superior a 95% (Subseção 4.4). A faixa alta de confiança da classificação
-automática atinge 98,35% de acerto validado sobre 9.582 predições
-conferidas, o que cumpre o critério na métrica disponível. Duas ressalvas
+automática atinge 99,84% de acerto validado sobre 4.894 chamados
+conferidos, o que cumpre o critério na métrica disponível. Duas ressalvas
 qualificam essa leitura. A confiança utilizada é bruta (*softmax* ou
 *decision_function*), sem calibração formal por Platt ou isotônica
 (PLATT, 1999; GUO *et al.*, 2017), de modo que o requisito de confiança
 calibrada permanece pendente em sentido estrito. Além disso, a faixa
-concentra 35,3% das predições e é justamente aquela em que a
+concentra 36,2% dos chamados e é justamente aquela em que a
 conferência tende a confirmar o esperado.
 
 O cumprimento da meta deve ser lido como propriedade do corpus
@@ -1425,9 +1412,12 @@ triagem e à auditoria, mas não dispensa a conferência humana. Sobre
 acerto validado (IC95%: 94,80%--95,68%), à frente dos demais seis
 modelos, e nenhum dos três *ensembles* avaliados o superou com
 significância estatística. A recomendação operacional é usar o LinearSVC
-isolado, com calibração, escolha que o custo computacional reforça, já
-que os modelos lineares treinam em uma fração do tempo exigido pelos
-*ensembles* de árvores sem perder acerto. A matriz de confusão mostra
+isolado, escolha que o custo computacional reforça, já que os modelos
+lineares treinam em uma fração do tempo exigido pelos *ensembles* de
+árvores sem perder acerto. A confiança utilizada neste artigo é bruta,
+e liberar a faixa igual ou superior a 95% para decisão automática em
+produção exige calibração formal por modelo, por Platt ou por regressão
+isotônica (PLATT, 1999; GUO *et al.*, 2017). A matriz de confusão mostra
 por que a conferência continua necessária, pois o histórico
 administrativo também contém erros confirmados, em 1,83% das
 conferências. Esses valores descrevem a amostra conferida, com a ressalva
@@ -1439,10 +1429,10 @@ sinalizados por alto desacordo estrutural entre as fontes.
 Duas frentes dão continuidade ao trabalho. A primeira é a validação
 externa em outras instituições federais de ensino superior, para testar
 se o padrão observado se mantém sob taxonomias e volumes distintos, com
-o BERTimbau incorporado à comparação e a calibração formal aplicada por
-modelo. A segunda é o uso desta camada classificada como entrada de
-modelos de previsão de demanda e de priorização multicritério de
-intervenções, lacuna já apontada na literatura de gestão de manutenção,
+o BERTimbau incorporado à comparação. A segunda é o uso desta camada
+classificada como entrada de modelos de previsão de demanda e de
+priorização multicritério de intervenções, lacuna já apontada na
+literatura de gestão de manutenção,
 que raramente incorpora dados operacionais de chamados. Nas duas
 direções, o protocolo aqui descrito funciona como pré-requisito, pois
 previsão e priorização só são confiáveis sobre uma base cuja
