@@ -1,1 +1,151 @@
-placeholder
+name: TEMPORARIO - incorporar BERTimbau na avaliacao final
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/temporario_incorporar_bertimbau.yml"
+
+permissions:
+  actions: write
+  contents: write
+
+concurrency:
+  group: temporario-incorporar-bertimbau
+  cancel-in-progress: false
+
+jobs:
+  incorporar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REPO: ${{ github.repository }}
+      ESTADO: dados/finalizacao_bertimbau_state.json
+    steps:
+      - name: Executar cadeia controlada
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          ETAPA="inicio"
+          LAST_RUN_ID=""
+
+          registrar_estado() {
+            local status="$1"
+            local etapa="$2"
+            local detalhe="$3"
+            local atualizado
+            local conteudo
+            local sha
+            atualizado=$(TZ=America/Bahia date '+%d/%m/%Y %H:%M:%S')
+            conteudo=$(jq -n \
+              --arg status "$status" \
+              --arg etapa "$etapa" \
+              --arg detalhe "$detalhe" \
+              --arg atualizado_em "$atualizado" \
+              --arg workflow_run "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" \
+              '{status:$status, etapa:$etapa, detalhe:$detalhe, atualizado_em:$atualizado_em, workflow_run:$workflow_run}' \
+              | base64 -w0)
+
+            set +e
+            for _ in $(seq 1 5); do
+              sha=$(gh api "repos/$REPO/contents/$ESTADO?ref=main" --jq .sha 2>/dev/null || true)
+              if [ -n "$sha" ]; then
+                gh api --method PUT "repos/$REPO/contents/$ESTADO" \
+                  -f message="estado da incorporacao do BERTimbau [skip ci]" \
+                  -f content="$conteudo" \
+                  -f sha="$sha" \
+                  -f branch=main >/dev/null && break
+              else
+                gh api --method PUT "repos/$REPO/contents/$ESTADO" \
+                  -f message="inicia incorporacao do BERTimbau [skip ci]" \
+                  -f content="$conteudo" \
+                  -f branch=main >/dev/null && break
+              fi
+              sleep 3
+            done
+            set -e
+          }
+
+          ao_falhar() {
+            local codigo=$?
+            trap - ERR
+            registrar_estado "falhou" "$ETAPA" "Execucao interrompida com codigo $codigo."
+            exit "$codigo"
+          }
+          trap ao_falhar ERR
+
+          disparar_e_aguardar() {
+            local workflow="$1"
+            shift
+            local desde
+            local run_id=""
+            desde=$(date -u '+%Y-%m-%dT%H:%M:%SZ')
+            gh workflow run "$workflow" --repo "$REPO" --ref main "$@"
+            for _ in $(seq 1 60); do
+              run_id=$(gh run list \
+                --repo "$REPO" \
+                --workflow "$workflow" \
+                --event workflow_dispatch \
+                --limit 30 \
+                --json databaseId,createdAt \
+                --jq ".[] | select(.createdAt >= \"$desde\") | .databaseId" \
+                | head -n 1 || true)
+              if [ -n "$run_id" ]; then
+                break
+              fi
+              sleep 5
+            done
+            if [ -z "$run_id" ]; then
+              echo "Nao foi possivel localizar a execucao de $workflow." >&2
+              return 1
+            fi
+            echo "Aguardando $workflow, run $run_id."
+            gh run watch "$run_id" --repo "$REPO" --exit-status
+            LAST_RUN_ID="$run_id"
+          }
+
+          obter_json_main() {
+            local caminho="$1"
+            local destino="$2"
+            gh api "repos/$REPO/contents/$caminho?ref=main" --jq .content \
+              | tr -d '\n' \
+              | base64 -d > "$destino"
+          }
+
+          ETAPA="verificar_treino"
+          obter_json_main "docs/dados/bertimbau_training_state.json" /tmp/bertimbau_state.json
+          jq -e '.status == "ok" and .motivo == "treino concluido (modo auto)"' /tmp/bertimbau_state.json >/dev/null
+          registrar_estado "em_execucao" "$ETAPA" "Treino concluido e validado; iniciando avaliacao final."
+
+          ETAPA="avaliacao_final"
+          disparar_e_aguardar avaliacao_final.yml
+          obter_json_main "docs/dados/avaliacao_final.json" /tmp/avaliacao_final.json
+          jq -e '
+            .status == "ok"
+            and .estado_bertimbau == "ok"
+            and ((.modelos_excluidos // []) | index("transformer_ft") | not)
+            and any(.por_modelo[]?; .modelo == "transformer_ft")
+          ' /tmp/avaliacao_final.json >/dev/null
+          BERT_ACC=$(jq -r '.por_modelo[] | select(.modelo == "transformer_ft") | .acerto_validado' /tmp/avaliacao_final.json)
+          registrar_estado "em_execucao" "$ETAPA" "BERTimbau incorporado na avaliacao final; acerto_validado=$BERT_ACC."
+
+          ETAPA="estatistica"
+          disparar_e_aguardar estatistica.yml
+          obter_json_main "docs/dados/estatistica.json" /tmp/estatistica.json
+          jq -e '(.modelos // []) | index("transformer_ft") != null' /tmp/estatistica.json >/dev/null
+          registrar_estado "em_execucao" "$ETAPA" "BERTimbau incorporado na estatistica multimodelo."
+
+          ETAPA="consolidacao_dry_run"
+          disparar_e_aguardar consolidar_validacao.yml -f aplicar=false
+          gh run view "$LAST_RUN_ID" --repo "$REPO" --log > /tmp/consolidacao_dry_run.log
+          grep -q 'modo=dry-run (nada gravado na planilha)' /tmp/consolidacao_dry_run.log
+          registrar_estado "em_execucao" "$ETAPA" "Dry-run concluido com sucesso; nenhuma escrita realizada."
+
+          ETAPA="consolidacao_aplicar"
+          disparar_e_aguardar consolidar_validacao.yml -f aplicar=true
+          registrar_estado "em_execucao" "$ETAPA" "Abas privadas consolidadas pela regra M/N/P/Q; aba principal preservada."
+
+          ETAPA="dashboard"
+          disparar_e_aguardar dashboard.yml
+          registrar_estado "concluido" "$ETAPA" "Avaliacao, estatistica, consolidacao e dashboard concluidos; BERTimbau incorporado aos dados finais."
