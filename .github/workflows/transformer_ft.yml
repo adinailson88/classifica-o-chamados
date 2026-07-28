@@ -287,27 +287,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-python@v6
-        with:
-          python-version: "3.11"
-      - name: Registrar que o treino foi adiado (sem dados novos suficientes)
+      - name: Preservar o ultimo estado valido quando nao ha dados novos
         run: |
           echo "Sem 100 novas conferencias desde o ultimo treino — encerrando com sucesso."
-          python src/escrever_estado_bertimbau.py \
-            --status sem_dados \
-            --modo auto \
-            --motivo "Treino adiado: ${{ needs.preparar.outputs.motivo }}"
-      - name: Commit do estado (se mudou)
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add docs/dados/bertimbau_training_state.json
-          git diff --cached --quiet && { echo "estado inalterado"; exit 0; }
-          git commit -m "estado BERTimbau: treino adiado (sem dados novos) [skip ci]"
-          for i in 1 2 3 4 5; do
-            git pull --rebase --autostash -X theirs origin main && git push && exit 0
-            git rebase --abort 2>/dev/null || true
-            echo "push rejeitado (tentativa $i/5); novo rebase em 5s"; sleep 5
-          done
-          echo "push falhou apos 5 tentativas" >&2; exit 1
+          echo "bertimbau_training_state.json nao sera rebaixado para 'sem_dados'."
+          echo "O ultimo status 'ok' continua sendo a referencia ate existir novo treino concluido."
