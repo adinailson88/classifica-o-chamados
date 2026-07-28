@@ -31,7 +31,7 @@ Antes de alterar qualquer arquivo, leia:
 4. Verifique se a sequência automática concluiu, nesta ordem: avaliacao_final.yml, estatistica.yml e consolidar_validacao_classificacao_2.yml com aplicar=true. Dispare apenas o passo ausente ou que falhou.
 5. Valide os JSONs vigentes usados nas Tabelas 1, 2 e 3: avaliacao_final.json, estatistica.json, calibracao.json, bertimbau_training_state.json, bertimbau_metr_full.json e estado_automacao.json. Confira denominadores, timestamps, decididos, restritos e matriz_ia_x_glpi.
 6. Avalie separadamente se é necessário executar acao=reclassificar_validados para obter concordância do BERTimbau sobre toda a base validada. Antes, confirme se o modelo treinado é persistido e reutilizável; não provoque novo treino sem necessidade.
-7. Reconcile os resultados com o artigo e o painel. Atualize apenas números, tabelas, figuras e afirmações efetivamente afetados. Verifique especialmente Tabelas 1–3, Subseção 4.3, Resumo, Abstract, Discussão, Limitações e Considerações Finais.
+7. Reconcilie os resultados com o artigo e o painel. Atualize apenas números, tabelas, figuras e afirmações efetivamente afetados. Verifique especialmente Tabelas 1–3, Subseção 4.3, Resumo, Abstract, Discussão, Limitações e Considerações Finais.
 8. Regere e valide o PDF. Depois, remova o workflow temporario_rodada_bertimbau.yml e este prompt do README, atualize CONTEXTO.md e substitua "Estado desta rodada" no PLANO_ARTIGO_CAPITULO.md.
 
 Regras:
