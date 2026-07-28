@@ -945,6 +945,10 @@ confiança bruta e acerto, quantificada por Spearman entre 0,46 e 0,64
 conforme o modelo (Subseção 4.9), mesmo sem calibração formal aplicada a
 essa camada.
 
+```{=latex}
+\enlargethispage{2\baselineskip}
+```
+
 **Tabela 4** Acerto validado por faixa de confiança. A unidade é o
 chamado, 13.965 no total, 8.895 com conferência humana.
 
