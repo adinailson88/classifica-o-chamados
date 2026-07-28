@@ -61,7 +61,7 @@ Os JSONs são dinâmicos e devem ser conferidos por data de geração antes de q
 ## Próxima ação
 
 1. Preencher a categoria manual Q dos 639 casos restritos, priorizando os 201 conflitos entre fontes marcadas como corretas.
-2. Avaliar a viabilidade de uma execução *out-of-fold* integral do BERTimbau sobre toda a base, para permitir sua entrada no ranking principal.
+2. Avaliar a viabilidade de uma execução *out-of-fold* integral do BERTimbau sobre toda a base, para permitir sua entrada no ranking principal. O treino atual roda em CPU no runner do GitHub Actions (teto de 6h), o que obriga o modo `auto` a usar subamostragem estratificada (`.github/workflows/transformer_ft.yml`); a base inteira (~13,8 mil chamados) não cabe nesse limite. **Ideia registrada, ainda não decidida:** rodar o fine-tuning em notebook Google Colab (GPU T4/A100), fora do fluxo automatizado por Actions, trazendo os artefatos de volta ao repositório manualmente. Ganho esperado: viabilizar o treino sobre a base inteira. Trade-off: sai do fluxo 100% reprodutível por Action; exige atenção ao levar a credencial da conta de serviço para dentro do notebook.
 3. Considerar validação externa em outras instituições para testar a estabilidade dos resultados sob taxonomias e volumes distintos.
 
 ## Registro histórico
