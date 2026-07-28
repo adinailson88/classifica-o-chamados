@@ -47,12 +47,14 @@ Os JSONs são dinâmicos e devem ser conferidos por data de geração antes de q
 4. Não confundir concordância com o histórico e acerto validado.
 5. Não publicar texto livre de chamados nos arquivos do GitHub Pages.
 6. Não copiar números antigos para o artigo sem conferir os JSONs vigentes e seus timestamps.
+7. Novas execuções do BERTimbau devem usar diretamente `transformer_ft.yml`. Avaliação, estatística e consolidação devem ser verificadas e disparadas separadamente; não existe mais orquestrador temporário.
 
 ## Próxima ação
 
-1. Verificar ou concluir a rodada do BERTimbau descrita no README.
-2. Regenerar, na mesma sequência, `avaliacao_final.json`, `estatistica.json` e `calibracao.json` para eliminar a divergência de denominadores.
-3. Atualizar o artigo de forma integral — Resumo, Abstract, tabelas, figuras, discussão e conclusão — somente depois dessa reconciliação.
+1. Decidir entre executar um treino controlado do BERTimbau ou documentar sua exclusão definitiva da comparação final.
+2. Em caso de treino, validar `bertimbau_training_state.json` e `bertimbau_metr_full.json` antes de qualquer etapa posterior.
+3. Regenerar separadamente `avaliacao_final.json`, `estatistica.json` e `calibracao.json`, iniciando por dry-run quando houver possibilidade de escrita, para eliminar a divergência de denominadores.
+4. Atualizar o artigo de forma integral — Resumo, Abstract, tabelas, figuras, discussão e conclusão — somente depois dessa reconciliação.
 
 ## Registro histórico
 
