@@ -37,6 +37,7 @@
   @media(max-width:980px){.grid,.grid.three{grid-template-columns:1fr}.meta{text-align:left}}
   .card{background:var(--panel);border:1px solid var(--bd);border-radius:6px;padding:14px;min-width:0}
   .card.full{grid-column:1/-1}
+  .grid>.kpis{grid-column:1/-1;margin-bottom:0}
   .card h2,.card h3{margin:0 0 10px;color:var(--ink);font-size:15px;line-height:1.25}
   .card p{margin:0 0 10px;color:var(--tx)}
   canvas{max-height:320px;max-width:100%}
@@ -106,6 +107,9 @@
   @media(max-width:560px){.fluxo-ia{grid-template-columns:1fr}}
   .alerta{border:1px solid #e7c9a3;background:#fdf4e7;color:#7a4d12;border-radius:6px;padding:10px 12px;margin-bottom:12px;font-size:13px}
   .alerta.bad{border-color:#e2b3ad;background:#fbeae8;color:#7a1d14}
+  .artref{display:inline-block;background:var(--panel-soft);border:1px solid var(--bd);color:var(--mut);border-radius:999px;padding:3px 10px;font-size:11.5px;margin-bottom:10px}
+  .tabs-divider{display:flex;align-items:center;gap:8px;width:100%;margin:2px 6px;color:var(--mut);font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+  .tabs-divider::after{content:"";flex:1;border-top:1px dashed var(--bd)}
   .class-brief{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px;margin-bottom:12px}
   .briefitem{border:1px solid var(--bd);background:var(--panel);border-radius:6px;padding:11px 12px}
   .briefitem b{display:block;color:var(--ink);font-size:13px;margin-bottom:4px}
@@ -153,20 +157,22 @@
   </div>
 
   <nav class="tabs" aria-label="Navegacao do painel">
-    <button data-t="class" class="on">Classificacao</button>
-    <button data-t="cat">Categorias</button>
-    <button data-t="metrics">Metricas</button>
-    <button data-t="modelos">Modelos</button>
-    <button data-t="estat">Estatistica</button>
-    <button data-t="taxon">Taxonomia</button>
-    <button data-t="shannon">Shannon</button>
-    <button data-t="reclass">Reclassificacao</button>
-    <button data-t="decisao">Decisao</button>
+    <button data-t="class" class="on">Classificacao (ao vivo)</button>
     <button data-t="fluxo">Fluxo de atualizacao</button>
-    <button data-t="docs">Documentacao</button>
+    <span class="tabs-divider">Resultados do artigo, na ordem do texto</span>
+    <button data-t="docs">Metodo</button>
+    <button data-t="modelos">Modelos (4.1)</button>
+    <button data-t="estat">Estatistica (4.1&ndash;4.9)</button>
+    <button data-t="bertimbau">BERTimbau (4.3)</button>
+    <button data-t="metrics">Validacao e calibracao (4.2/4.4)</button>
+    <button data-t="reclass">Reclassificacao (4.5)</button>
+    <button data-t="taxon">Taxonomia e ambiguidade (4.6)</button>
+    <button data-t="cat">Categorias (suplementar)</button>
+    <button data-t="decisao">Decisao (5.4)</button>
   </nav>
 
   <section id="tab-class">
+    <span class="artref">Visao operacional ao vivo &mdash; nao e um resultado numerado do artigo; acompanha a producao corrente (Etapa 1)</span>
     <div class="class-brief" id="classBrief"></div>
     <div class="grid">
       <div class="card full">
@@ -189,6 +195,7 @@
   </section>
 
   <section id="tab-cat" class="hide">
+    <span class="artref">Material suplementar citado no artigo (desempenho por categoria), sem numero de subsecao proprio</span>
     <div class="grid">
       <div class="card full">
         <h2>Concordancia por categoria</h2>
@@ -223,6 +230,7 @@
   </section>
 
   <section id="tab-metrics" class="hide">
+    <span class="artref">&#8627; Subsecoes 4.2 e 4.4 do artigo &mdash; Ranking validado por conferencia humana; Confianca, calibracao e faixas de decisao</span>
     <div class="alerta bad" id="metaAviso">Carregando estado da meta...</div>
     <div class="card full" style="margin-bottom:12px">
       <h2>Validacao humana (conferencia dupla M x N)</h2>
@@ -265,6 +273,7 @@
   </section>
 
   <section id="tab-modelos" class="hide">
+    <span class="artref">&#8627; Subsecao 4.1 do artigo &mdash; Concordancia com o historico (base completa)</span>
     <p class="muted">Comparacao entre IAs locais. Quando os JSONs multimodelo estao publicados, esta aba mostra a base materializada por modelo; se eles ainda estiverem vazios, usa <code>estatistica.json</code> como fallback e identifica os resultados como concordancia contra historico.</p>
     <div class="grid">
       <div class="card">
@@ -306,6 +315,7 @@
   </section>
 
   <section id="tab-taxon" class="hide">
+    <span class="artref">&#8627; Subsecao 4.6 do artigo &mdash; Diagnostico de taxonomia e ambiguidade estrutural (Shannon/Jensen-Shannon)</span>
     <div class="alerta" id="taxonAviso">Analise exploratoria de vocabulario. Os termos e a correlacao sao agregados sobre o texto dos chamados; o cruzamento usa a confianca/previsao da IA contra a categoria historica. E triagem de taxonomia (prioriza revisao humana), NAO metrica de acuracia validada.</div>
     <div class="grid">
       <div class="card full">
@@ -352,13 +362,11 @@
         <p class="muted" id="taxonMapasInfo">Cada mapa mostra as correlacoes mais relevantes da categoria no recorte atual; categorias menos relevantes ficam agrupadas em "Outros".</p>
         <div id="taxonMapas" class="taxon-mapas"></div>
       </div>
-    </div>
-  </section>
-
-  <section id="tab-shannon" class="hide">
-    <div class="alerta" id="shannonAviso">Shannon mede dispersao/ambiguidade das classificacoes; Jensen-Shannon mede distancia entre distribuicoes. Nao e metrica de acuracia e nao substitui validacao humana.</div>
-    <div class="kpis" id="kpisShannon"></div>
-    <div class="grid">
+      <div class="card full" style="border-top:2px dashed var(--bd);padding-top:14px">
+        <h2 style="margin-top:0">Entropia de Shannon e divergencia de Jensen-Shannon</h2>
+        <p class="muted" id="shannonAviso">Shannon mede dispersao/ambiguidade das classificacoes; Jensen-Shannon mede distancia entre distribuicoes. Nao e metrica de acuracia e nao substitui validacao humana.</p>
+      </div>
+      <div class="kpis" id="kpisShannon"></div>
       <div class="card">
         <h2>Entropia de Shannon por IA</h2>
         <canvas id="cShannonModelos"></canvas>
@@ -384,7 +392,31 @@
     </div>
   </section>
 
+  <section id="tab-bertimbau" class="hide">
+    <span class="artref">&#8627; Subsecao 4.3 do artigo &mdash; BERTimbau no holdout comum de oito modelos</span>
+    <div class="alerta" id="bertimbauHoldoutAviso">Avaliacao held-out complementar: os 8 modelos (7 classicos/LSTM + BERTimbau) sao comparados no mesmo lote de 1.000 chamados, com os 7 primeiros retreinados fora dessas linhas. Nao substitui a avaliacao integral <em>out-of-fold</em> dos 7 modelos sobre toda a base (abas Modelos e Estatistica) nem insere o BERTimbau nesse ranking &mdash; ele nao possui predicoes <em>out-of-fold</em> materializadas para o corpus integral.</div>
+    <div class="kpis" id="kpisBertimbauHoldout"></div>
+    <div class="grid">
+      <div class="card full">
+        <h2>Comparacao dos oito modelos no holdout comum</h2>
+        <p class="muted" id="bertimbauHoldoutInfo"></p>
+        <div class="tablebox"><table id="tabBertimbauHoldout"><thead><tr>
+          <th>Posicao</th><th>Modelo</th><th>Concordancia historica</th><th>Acerto validado</th><th>IC95% validado</th>
+        </tr></thead><tbody></tbody></table></div>
+      </div>
+      <div class="card full">
+        <h2>Acerto validado por modelo (holdout comum)</h2>
+        <canvas id="cBertimbauHoldout"></canvas>
+      </div>
+      <div class="card full">
+        <h2>BERTimbau vs LinearSVC</h2>
+        <p class="muted" id="bertimbauMcNemar"></p>
+      </div>
+    </div>
+  </section>
+
   <section id="tab-reclass" class="hide">
+    <span class="artref">&#8627; Subsecao 4.5 do artigo &mdash; Reclassificacao e ganho liquido</span>
     <div class="alerta" id="reclassAviso">Etapa 2 (reclassificacao) ainda nao executada apos o reset. Nao iniciar a validacao humana ainda; o proximo passo tecnico e um dry-run ou aplicacao controlada da reclassificacao.</div>
     <div class="kpis" id="kpisRM"></div>
     <div class="grid">
@@ -419,6 +451,7 @@
   </section>
 
   <section id="tab-decisao" class="hide">
+    <span class="artref">&#8627; Subsecao 5.4 do artigo &mdash; Contribuicao para a governanca preditiva da manutencao</span>
     <div class="alerta" id="decisaoAviso">Aguardando a conferencia manual (colunas M/N) para liberar a resposta final.</div>
     <div class="grid">
       <div class="card full">
@@ -461,6 +494,7 @@
   </section>
 
   <section id="tab-estat" class="hide">
+    <span class="artref">&#8627; Subsecoes 4.1, 4.2 e 4.9 do artigo &mdash; concordancia e IC95%, ranking validado, robustez estatistica (Kappa, McNemar/Holm, pressupostos)</span>
     <div class="alerta" id="estatAviso">Carregando estatísticas. A interpretação deve separar concordância com o histórico de acerto na amostra humana parcial e não aleatória.</div>
     <div class="grid">
       <div class="card">
@@ -547,6 +581,7 @@
   </section>
 
   <section id="tab-docs" class="hide">
+    <span class="artref">&#8627; Corresponde a Secao 3 do artigo (Metodo) &mdash; delineamento, corpus, pre-processamento e modelos</span>
     <div class="card full" style="margin-bottom:12px;border-left:3px solid #1d4ed8">
       <h2>Exportar e reproduzir as analises</h2>
       <p><a href="exportar_analises.py" download="exportar_analises.py" style="font-weight:600">⬇ Baixar script Python (exportar_analises.py)</a> — reproduz os calculos de TODAS as abas direto da planilha, com cada calculo comentado (o que e, como e calculado, como ler). Requisitos: voce precisa ter a planilha do experimento, uma credencial de conta de servico Google (JSON, somente leitura) e o ID da planilha. Uso: <code>python exportar_analises.py --credenciais credenciais_sa.json --planilha SEU_ID</code>. O script e somente-leitura.</p>
@@ -1952,7 +1987,7 @@ function ajustarFiltros(aba){
 document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{
   document.querySelectorAll(".tabs button").forEach(x=>x.classList.remove("on"));
   b.classList.add("on");
-  ["class","cat","metrics","modelos","estat","taxon","shannon","reclass","decisao","fluxo","docs"].forEach(t=>document.getElementById("tab-"+t).classList.toggle("hide",t!==b.dataset.t));
+  ["class","cat","metrics","modelos","estat","taxon","reclass","decisao","fluxo","docs","bertimbau"].forEach(t=>document.getElementById("tab-"+t).classList.toggle("hide",t!==b.dataset.t));
   ajustarFiltros(b.dataset.t);
 });
 document.getElementById("filtroCat").addEventListener("input",renderCat);
@@ -2074,6 +2109,60 @@ function renderBertimbau(st){
   if(mot) mot.textContent = st.motivo ? ("Motivo: "+st.motivo) : "";
 }
 
+function renderBertimbauHoldout(d){
+  const kb=document.getElementById("kpisBertimbauHoldout");
+  const info=document.getElementById("bertimbauHoldoutInfo");
+  const tb=document.querySelector("#tabBertimbauHoldout tbody");
+  const mcn=document.getElementById("bertimbauMcNemar");
+  if(!kb||!tb) return;
+  if(!d || typeof d!=="object" || !Array.isArray(d.modelos) || !d.modelos.length){
+    kb.innerHTML = kpi("sem dados","Holdout BERTimbau");
+    tb.innerHTML = `<tr><td colspan="5" class="muted">Arquivo docs/dados/avaliacao_bertimbau_holdout.json ainda nao publicado. Rode o workflow que gera a avaliacao held-out do BERTimbau.</td></tr>`;
+    if(info) info.textContent="";
+    destroy("cBertimbauHoldout");
+    return;
+  }
+  const bt = d.bertimbau || {};
+  const protocolo = d.protocolo || {};
+  const nLote = protocolo.n_lote!=null ? fmt(protocolo.n_lote) : "1.000";
+  const nValidado = protocolo.n_validado_no_lote!=null ? fmt(protocolo.n_validado_no_lote) : "—";
+  const sig = N(bt.p_mcnemar) < 0.05;
+  kb.innerHTML =
+    kpi(bt.posicao_validada!=null?("#"+bt.posicao_validada+" de 8"):"—","Posicao do BERTimbau")+
+    kpi(bt.acerto_validado!=null?pct(bt.acerto_validado):"—","Acerto validado (BERTimbau)")+
+    kpi(bt.delta_validado!=null?(pct(Math.abs(bt.delta_validado))+" "+(bt.delta_validado<0?"abaixo":"acima")):"—","Diferenca vs "+esc(bt.comparado_a||"melhor modelo"))+
+    kpi(bt.p_mcnemar!=null?("p = "+N(bt.p_mcnemar).toFixed(3).replace(".",",")):"—","McNemar (BERTimbau x "+esc(bt.comparado_a||"—")+")")+
+    kpi(nValidado,"Chamados com decisao M/N/P/Q no lote");
+  if(info) info.textContent = `Lote comum de ${nLote} chamados; ${nValidado} com decisao humana travada formam o denominador do acerto validado. Os outros sete modelos foram retreinados fora dessas linhas.`;
+  const ord = [...d.modelos].sort((a,b)=>N(a.posicao_validada)-N(b.posicao_validada));
+  tb.innerHTML = ord.map(m=>{
+    const ic = Array.isArray(m.ic95_validado) ? `${pct(m.ic95_validado[0])} &ndash; ${pct(m.ic95_validado[1])}` : "—";
+    const destaque = m.modelo==="transformer_ft";
+    return `<tr${destaque?' style="font-weight:700;background:rgba(124,58,237,.08)"':''}><td>${fmt(m.posicao_validada)}</td>`
+      +`<td>${destaque?"BERTimbau":esc(m.modelo)}</td><td>${pct(m.concordancia_historico)}</td>`
+      +`<td>${pct(m.acerto_validado)}</td><td>${ic}</td></tr>`;
+  }).join("");
+  if(mcn){
+    if(bt.p_mcnemar!=null){
+      mcn.innerHTML = sig
+        ? `Diferenca estatisticamente <strong class="status-bad">significativa</strong> (McNemar, p = ${N(bt.p_mcnemar).toFixed(3).replace(".",",")}).`
+        : `Diferenca <strong class="status-ok">nao estatisticamente significativa</strong> (McNemar, p = ${N(bt.p_mcnemar).toFixed(3).replace(".",",")}). O BERTimbau e competitivo neste recorte, mas nao ha evidencia de superioridade sobre o ${esc(bt.comparado_a||"LinearSVC")}.`;
+      const disc = bt.discordantes||{};
+      if(disc.so_bertimbau_acerta!=null || disc.so_melhor_outro_acerta!=null){
+        mcn.innerHTML += ` Discordancias: ${fmt(disc.so_bertimbau_acerta)} casos em que so o BERTimbau acerta; ${fmt(disc.so_melhor_outro_acerta)} em que so o ${esc(bt.comparado_a||"outro modelo")} acerta.`;
+      }
+    } else {
+      mcn.textContent = "Sem teste de McNemar publicado para este par.";
+    }
+  }
+  destroy("cBertimbauHoldout");
+  charts.cBertimbauHoldout = new Chart(cBertimbauHoldout,{type:"bar",
+    data:{labels:ord.map(m=>m.modelo==="transformer_ft"?"BERTimbau":m.modelo),
+      datasets:[{label:"Acerto validado",data:ord.map(m=>N(m.acerto_validado)*100),
+        backgroundColor:ord.map(m=>m.modelo==="transformer_ft"?"#7c3aed":"#2563eb")}]},
+    options:chartOpts("%")});
+}
+
 function renderBertimbauCoreset(cs){
   const kb=document.getElementById("kpisBertimbauCoreset"), mot=document.getElementById("bertimbauCoresetMotivo");
   if(!kb) return;
@@ -2111,10 +2200,11 @@ function renderBertimbauCoreset(cs){
     getJSON("estatistica.json"),
     getJSON("correlacao_categorias.json"), getJSON("termos_relevantes.json"), getJSON("cruzamento_taxonomia.json")
   ]);
-  const [avFinal, anErros, reclassResumo, shResumo, shModelos, jsModelos, shCategorias, shVotos, bertState] = await Promise.all([
+  const [avFinal, anErros, reclassResumo, shResumo, shModelos, jsModelos, shCategorias, shVotos, bertState, bertHoldout] = await Promise.all([
     getJSON("avaliacao_final.json"), getJSON("analise_erros.json"), getJSON("reclass_resumo.json"),
     getJSON("shannon_resumo.json"), getJSON("shannon_modelos.json"), getJSON("jensen_shannon_modelos.json"),
-    getJSON("shannon_categorias.json"), getJSON("shannon_votos.json"), getJSON("bertimbau_training_state.json")
+    getJSON("shannon_categorias.json"), getJSON("shannon_votos.json"), getJSON("bertimbau_training_state.json"),
+    getJSON("avaliacao_bertimbau_holdout.json")
   ]);
   BERT_COMPARAVEL=!!(bertState && bertState.status==="ok");
   MODELOS_EXCLUIDOS=BERT_COMPARAVEL ? new Set() : new Set(["transformer_ft"]);
@@ -2161,6 +2251,7 @@ function renderBertimbauCoreset(cs){
   if(filtroFluxo) filtroFluxo.addEventListener("input", ()=>renderFluxo(filtroFluxo.value));
   renderFluxo();
   renderBertimbau(Array.isArray(bertState)?null:bertState);
+  renderBertimbauHoldout(Array.isArray(bertHoldout)?null:bertHoldout);
   const bertCoreset = await getJSON("bertimbau_coreset_resumo.json");
   renderBertimbauCoreset(Array.isArray(bertCoreset)?null:bertCoreset);
   instalarBotoesPNG();
