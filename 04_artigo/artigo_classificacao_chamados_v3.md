@@ -1646,75 +1646,53 @@ v. 1, n. 1, p. 3--14, 2010.
 **APÊNDICE A — DISTRIBUIÇÃO DAS CATEGORIAS HISTÓRICAS DO CORPUS**
 
 A Tabela A1 apresenta as 55 categorias históricas utilizadas na classificação
-dos 13.965 chamados, ordenadas por frequência decrescente.
+dos 13.965 chamados, ordenadas por frequência decrescente e distribuídas em
+dois blocos paralelos para reduzir a extensão do apêndice.
 
 ```{=latex}
-\small
+\scriptsize
+\setlength{\tabcolsep}{2.5pt}
+\renewcommand{\arraystretch}{0.92}
 ```
 
 **Tabela A1** Distribuição dos chamados por categoria histórica.
 
-| Categoria histórica | Quantidade de chamados |
-|:---|---:|
-| Manutenção Preventiva > Ar condicionado split | 1.795 |
-| Estrutura Predial > Alvenaria / Pisos / Estrutura | 1.300 |
-| Hidrossanitária > Hidráulica | 1.276 |
-| Manutenção Preventiva > Gerador | 1.211 |
-| Climatização > Ar condicionado split | 1.117 |
-| Estrutura Predial > Esquadrias, porta, portão e janelas | 969 |
-| Elétrica > Instalações elétricas | 940 |
-| Elétrica > Iluminação | 747 |
-| Manutenção Preventiva > Quadros Elétricos | 576 |
-| Climatização > Ar condicionado | 517 |
-| TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi | 399 |
-| Manutenção Preventiva > Reservatório | 279 |
-| Instalação de Acessórios e Mobiliário > Instalação/reparo de equipamentos (Suportes de TV, acessórios de banheiro e quadro branco) | 262 |
-| Manutenção Preventiva > Vistoria em Instalações | 247 |
-| Outros > Erro de chamado | 243 |
-| Estrutura Predial > Infiltração | 213 |
-| Estrutura Predial > Telhados, calhas, rufos, etc. | 206 |
-| Manutenção Preventiva > Ar condicionado central | 165 |
-| Estrutura Predial > Forro | 144 |
-| Manutenção Preventiva > Iluminação | 132 |
-| Elétrica > Nobreak | 127 |
-| Posto de trabalho > Contratação de Posto de trabalho | 102 |
-| Área Externa e Ambiental > Manutenção área externa / meio ambiente | 94 |
-| Manutenção Preventiva > Elevador | 86 |
-| Suprimentos / Apoio Técnico > Materiais | 85 |
-| Projetos e Reformas > Reforma | 83 |
-| Estrutura Predial > Pintura | 58 |
-| Instalação de Acessórios e Mobiliário > Placas de identificação | 54 |
-| Manutenção Preventiva > Sistemas de combate a incêndio (extintores, hidrantes) | 45 |
-| Manutenção Preventiva > Telhados, calhas, rufos, etc. | 44 |
-| TI / Dados / Rede > Coleta de dados | 40 |
-| Elétrica > Gerador | 38 |
-| Hidrossanitária > Bomba | 38 |
-| Climatização > Ar condicionado central | 36 |
-| Manutenção Preventiva > Esgoto | 33 |
-| Outros > Outros | 33 |
-| Manutenção Preventiva > Hidráulica | 32 |
-| Segurança contra Incêndio > Sistemas de combate a incêndio (extintores, hidrantes) | 27 |
-| Projetos e Reformas > Projeto | 25 |
-| Equipamentos de Transporte > Elevador | 22 |
-| Elétrica > Subestação | 18 |
-| Hidrossanitária > ETA / ETE | 16 |
-| Manutenção Preventiva > Extintor | 14 |
-| Suprimentos / Apoio Técnico > Limpeza de equipamentos, ambiente e mobiliário | 14 |
-| Manutenção Preventiva > Poços artesianos | 13 |
-| Manutenção Preventiva > Nobreak | 10 |
-| Manutenção Preventiva > Sistemas de incêndio | 9 |
-| Área Externa e Ambiental > Poda de Árvore / Roçagem | 9 |
-| Elétrica > Sistema Fotovoltaico (FV) | 7 |
-| Estrutura Predial > Instalações Especiais (gás, ar comprimido, etc.) | 3 |
-| Manutenção Preventiva > Aplicação cupinicida | 3 |
-| Manutenção Preventiva > Bomba | 3 |
-| Área Externa e Ambiental > Drenagem | 3 |
-| Manutenção Preventiva | 2 |
-| Suprimentos / Apoio Técnico > Transporte | 1 |
-| **Total** | **13.965** |
+| Categoria histórica | Quantidade | Categoria histórica | Quantidade |
+|:---|---:|:---|---:|
+| Manutenção Preventiva > Ar condicionado split | 1.795 | Manutenção Preventiva > Sistemas de combate a incêndio (extintores, hidrantes) | 45 |
+| Estrutura Predial > Alvenaria / Pisos / Estrutura | 1.300 | Manutenção Preventiva > Telhados, calhas, rufos, etc. | 44 |
+| Hidrossanitária > Hidráulica | 1.276 | TI / Dados / Rede > Coleta de dados | 40 |
+| Manutenção Preventiva > Gerador | 1.211 | Elétrica > Gerador | 38 |
+| Climatização > Ar condicionado split | 1.117 | Hidrossanitária > Bomba | 38 |
+| Estrutura Predial > Esquadrias, porta, portão e janelas | 969 | Climatização > Ar condicionado central | 36 |
+| Elétrica > Instalações elétricas | 940 | Manutenção Preventiva > Esgoto | 33 |
+| Elétrica > Iluminação | 747 | Outros > Outros | 33 |
+| Manutenção Preventiva > Quadros Elétricos | 576 | Manutenção Preventiva > Hidráulica | 32 |
+| Climatização > Ar condicionado | 517 | Segurança contra Incêndio > Sistemas de combate a incêndio (extintores, hidrantes) | 27 |
+| TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi | 399 | Projetos e Reformas > Projeto | 25 |
+| Manutenção Preventiva > Reservatório | 279 | Equipamentos de Transporte > Elevador | 22 |
+| Instalação de Acessórios e Mobiliário > Instalação/reparo de equipamentos (Suportes de TV, acessórios de banheiro e quadro branco) | 262 | Elétrica > Subestação | 18 |
+| Manutenção Preventiva > Vistoria em Instalações | 247 | Hidrossanitária > ETA / ETE | 16 |
+| Outros > Erro de chamado | 243 | Manutenção Preventiva > Extintor | 14 |
+| Estrutura Predial > Infiltração | 213 | Suprimentos / Apoio Técnico > Limpeza de equipamentos, ambiente e mobiliário | 14 |
+| Estrutura Predial > Telhados, calhas, rufos, etc. | 206 | Manutenção Preventiva > Poços artesianos | 13 |
+| Manutenção Preventiva > Ar condicionado central | 165 | Manutenção Preventiva > Nobreak | 10 |
+| Estrutura Predial > Forro | 144 | Manutenção Preventiva > Sistemas de incêndio | 9 |
+| Manutenção Preventiva > Iluminação | 132 | Área Externa e Ambiental > Poda de Árvore / Roçagem | 9 |
+| Elétrica > Nobreak | 127 | Elétrica > Sistema Fotovoltaico (FV) | 7 |
+| Posto de trabalho > Contratação de Posto de trabalho | 102 | Estrutura Predial > Instalações Especiais (gás, ar comprimido, etc.) | 3 |
+| Área Externa e Ambiental > Manutenção área externa / meio ambiente | 94 | Manutenção Preventiva > Aplicação cupinicida | 3 |
+| Manutenção Preventiva > Elevador | 86 | Manutenção Preventiva > Bomba | 3 |
+| Suprimentos / Apoio Técnico > Materiais | 85 | Área Externa e Ambiental > Drenagem | 3 |
+| Projetos e Reformas > Reforma | 83 | Manutenção Preventiva | 2 |
+| Estrutura Predial > Pintura | 58 | Suprimentos / Apoio Técnico > Transporte | 1 |
+| Instalação de Acessórios e Mobiliário > Placas de identificação | 54 |  |  |
+| **Total geral** | **13.965** |  |  |
 
 *Fonte: elaboração própria a partir do corpus analisado.*
 
 ```{=latex}
 \normalsize
+\setlength{\tabcolsep}{6pt}
+\renewcommand{\arraystretch}{1}
 ```
