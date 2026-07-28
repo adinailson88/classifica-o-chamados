@@ -1,6 +1,6 @@
 name: Finalizar artigo com BERTimbau (temporario)
 
-# Disparo controlado após a instalação do workflow na main.
+# Publica a branch e o run_id antes das validacoes para permitir diagnostico.
 on:
   push:
     branches: [main]
@@ -23,8 +23,29 @@ jobs:
           ref: main
           fetch-depth: 0
 
-      - name: Criar branch exclusiva do artigo
-        run: git checkout -B "$BRANCH_FINAL"
+      - name: Publicar estado inicial na branch final
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -B "$BRANCH_FINAL"
+          mkdir -p dados
+          python - <<PY
+          import json
+          from pathlib import Path
+          Path('dados/finalizacao_artigo_bertimbau.json').write_text(
+              json.dumps({
+                  'status': 'em_execucao',
+                  'etapa': 'inicio',
+                  'branch': '${BRANCH_FINAL}',
+                  'workflow_run': '${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}'
+              }, ensure_ascii=False, indent=2) + '\n',
+              encoding='utf-8'
+          )
+          PY
+          git add dados/finalizacao_artigo_bertimbau.json
+          git commit -m "estado: inicia finalizacao do artigo [skip ci]"
+          git push --force origin HEAD:"$BRANCH_FINAL"
 
       - uses: actions/setup-python@v6
         with:
@@ -158,9 +179,8 @@ jobs:
             artefatos_pdf/render/*.png
           if-no-files-found: error
 
-      - name: Registrar estado e remover orquestracao temporaria
+      - name: Registrar estado final e remover orquestracao temporaria
         run: |
-          mkdir -p dados
           PAGINAS=$(pdfinfo docs/artigo_classificacao_chamados.pdf | awk '/^Pages:/ {print $2}')
           TAMANHO=$(stat -c%s docs/artigo_classificacao_chamados.pdf)
           python - <<PY
@@ -169,6 +189,7 @@ jobs:
           Path('dados/finalizacao_artigo_bertimbau.json').write_text(
               json.dumps({
                   'status': 'concluido',
+                  'etapa': 'pdf_validado',
                   'branch': '${BRANCH_FINAL}',
                   'paginas_pdf': int('${PAGINAS}'),
                   'tamanho_pdf_bytes': int('${TAMANHO}'),
@@ -189,8 +210,6 @@ jobs:
 
       - name: Commitar resultado na branch final
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
           git add 04_artigo/artigo_classificacao_chamados_v3.md \
             docs/artigo_classificacao_chamados.pdf \
             dados/finalizacao_artigo_bertimbau.json
