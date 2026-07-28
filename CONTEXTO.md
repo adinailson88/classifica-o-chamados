@@ -28,6 +28,14 @@ Os JSONs são dinâmicos e devem ser conferidos por data de geração antes de q
 - `docs/dados/calibracao.json`, gerado em 28/07/2026 às 00:25, registra 13.965 chamados e 8.895 casos validados. A diferença de denominador em relação a `avaliacao_final.json` indica que os arquivos foram produzidos em momentos distintos e precisam ser regenerados na mesma cadeia antes de serem tratados como uma fotografia única.
 - `docs/dados/bertimbau_training_state.json` está com `status=sem_dados`. O BERTimbau permanece excluído da avaliação final enquanto não houver execução concluída e artefatos verificáveis.
 
+## Arquitetura vigente
+
+- A aba principal é lida em `A:Q`.
+- A verdade validada é derivada por `src/decisao_validada.py` a partir de M, N, P e, quando necessário, Q.
+- A memória de treino validada é lida diretamente da aba principal por `src/memoria_validada.py`; a antiga aba separada `VALIDACAO_HUMANA` não é mais fonte operacional.
+- Modelos compartilhados de reclassificação ficam em `src/modelos_reclassificacao.py`.
+- Rotinas destrutivas de reset e executores legados da Etapa 2 não integram mais o fluxo vigente.
+
 ## Fontes canônicas
 
 | Assunto | Fonte |
@@ -35,6 +43,7 @@ Os JSONs são dinâmicos e devem ser conferidos por data de geração antes de q
 | Resultado validado por modelo | `docs/dados/avaliacao_final.json` |
 | Estatística comparativa | `docs/dados/estatistica.json` |
 | Calibração e faixas de confiança | `docs/dados/calibracao.json` e `docs/dados/calibracao_ajustada_modelos.json` |
+| Verdade e memória validadas | `src/decisao_validada.py` e `src/memoria_validada.py` |
 | Estado do BERTimbau | `docs/dados/bertimbau_training_state.json` e `docs/dados/bertimbau_metr_full.json` |
 | Texto científico | `04_artigo/artigo_classificacao_chamados_v3.md` |
 | Regras operacionais | `AGENTS.md` e `README.md` |
@@ -43,18 +52,18 @@ Os JSONs são dinâmicos e devem ser conferidos por data de geração antes de q
 
 1. Trabalhar em branch e Pull Request; não fazer push direto em `main`.
 2. Qualquer escrita na planilha viva exige opção explícita de aplicação e dry-run prévio quando cabível.
-3. Preservar as colunas de conferência humana, especialmente M, N, P e Q.
+3. Preservar as colunas de conferência humana M, N, P e Q.
 4. Não confundir concordância com o histórico e acerto validado.
 5. Não publicar texto livre de chamados nos arquivos do GitHub Pages.
 6. Não copiar números antigos para o artigo sem conferir os JSONs vigentes e seus timestamps.
-7. Novas execuções do BERTimbau devem usar diretamente `transformer_ft.yml`. Avaliação, estatística e consolidação devem ser verificadas e disparadas separadamente; não existe mais orquestrador temporário.
+7. Novas execuções do BERTimbau devem usar diretamente `transformer_ft.yml`. Avaliação, estatística e consolidação devem ser verificadas e disparadas separadamente.
 
 ## Próxima ação
 
 1. Decidir entre executar um treino controlado do BERTimbau ou documentar sua exclusão definitiva da comparação final.
 2. Em caso de treino, validar `bertimbau_training_state.json` e `bertimbau_metr_full.json` antes de qualquer etapa posterior.
 3. Regenerar separadamente `avaliacao_final.json`, `estatistica.json` e `calibracao.json`, iniciando por dry-run quando houver possibilidade de escrita, para eliminar a divergência de denominadores.
-4. Atualizar o artigo de forma integral — Resumo, Abstract, tabelas, figuras, discussão e conclusão — somente depois dessa reconciliação.
+4. Atualizar o artigo integralmente somente depois dessa reconciliação.
 
 ## Registro histórico
 
