@@ -391,9 +391,9 @@
       <div class="card full">
         <h2>Reclassificacao por modelo (inclui casos validados pelo humano)</h2>
         <div class="tablebox"><table id="tabReclassModelo"><thead><tr>
-          <th>Modelo</th><th>Reclassificados</th><th>Reuso decisao humana</th><th>Corrigidos</th><th>Prejudicados</th><th>Ganho liquido</th><th>Mudou categoria</th><th>Sem referencia</th><th>Base validada</th><th>Ultima execucao</th>
+          <th>Modelo</th><th>Avaliados</th><th>Reuso decisao humana</th><th>Corrigidos</th><th>Prejudicados</th><th>Ganho liquido</th><th>Mudou categoria</th><th>Sem referencia</th><th>Base validada</th><th>Ultima execucao</th>
         </tr></thead><tbody></tbody></table></div>
-        <p class="muted">"Reuso decisao humana" = chamados com conferencia 'Correto' reaproveitados sem reprocessar (regra de memoria). "Sem referencia" = historico conferido como errado e ainda sem verdade travada (nao conta em corrigidos/prejudicados). "Base validada" = registros cuja comparacao usou a verdade conferida por humano.</p>
+        <p class="muted">"Avaliados" = quantos chamados o modelo processou nesta rodada de reclassificacao (proximo da base inteira, ~13.965; nao e quantos mudaram de categoria — isso e "Mudou categoria"). "Reuso decisao humana" = chamados com conferencia 'Correto' reaproveitados sem reprocessar (regra de memoria). "Sem referencia" = historico conferido como errado e ainda sem verdade travada (nao conta em corrigidos/prejudicados). "Base validada" = registros cuja comparacao usou a verdade conferida por humano.</p>
       </div>
       <div class="card"><h2>Ganho liquido por modelo</h2><canvas id="cReclassModelo"></canvas></div>
       <div class="card"><h2>Composicao dos resultados por modelo</h2><canvas id="cReclassComp"></canvas></div>
@@ -943,7 +943,7 @@ function instalarBotoesPNG(){
 
 let CAT=[], MET=[], TURNOS=[], RESUMO={}, COMP_CAT=[], sortK="qtd_classificados", sortDir=-1, charts={};
 let MODELOS_ROWS=[];
-function kpi(v,l){ return `<div class="kpi"><div class="v">${esc(v)}</div><div class="l">${esc(l)}</div></div>`; }
+function kpi(v,l,sub){ return `<div class="kpi"><div class="v">${esc(v)}</div><div class="l">${esc(l)}</div>${sub?`<div class="l" style="margin-top:2px;opacity:.75">${esc(sub)}</div>`:""}</div>`; }
 function metric(k){ const m=(MET||[]).find(x=>x.metrica===k); return m ? m.valor : ""; }
 function destroy(id){ if(charts[id]) charts[id].destroy(); }
 function chartOpts(suf){return{responsive:true,plugins:{legend:{labels:{color:"#24303a",boxWidth:12}}},scales:{x:{ticks:{color:"#68737d"},grid:{color:"#edf0ea"}},y:{ticks:{color:"#68737d",callback:v=>v+(suf||"")},grid:{color:"#edf0ea"}}}};}
@@ -1273,11 +1273,11 @@ function renderReclassModelo(rr){
     return false;
   }
   const tot=k=>lin.reduce((s,m)=>s+N(m[k]),0);
-  if(box) box.innerHTML = kpi(fmt(tot("total_reclassificado")),"Reclassificados (todas as IAs)")
-    +kpi(fmt(tot("reuso_decisao_humana")),"Reuso de decisao humana")
+  if(box) box.innerHTML = kpi(fmt(tot("ganho_liquido")),"Ganho liquido (soma dos 7 modelos)")
     +kpi(fmt(tot("corrigidos")),"Corrigidos")
     +kpi(fmt(tot("prejudicados")),"Prejudicados")
-    +kpi(fmt(tot("ganho_liquido")),"Ganho liquido");
+    +kpi(fmt(tot("reuso_decisao_humana")),"Reuso de decisao humana")
+    +kpi(fmt(tot("total_reclassificado")),"Avaliacoes de reclassificacao","soma dos 7 modelos, ~13.965 chamados cada — nao e contagem de chamados distintos");
   const ord=[...lin].sort((a,b)=>N(b.ganho_liquido)-N(a.ganho_liquido));
   tb.innerHTML = ord.map(m=>{
     const bc=m.por_base_comparacao||{};
