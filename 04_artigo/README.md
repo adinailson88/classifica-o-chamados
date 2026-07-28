@@ -1,66 +1,38 @@
-# 04_artigo — rascunho do artigo/capítulo
+# Artigo — classificação automática de chamados
 
-Réplica do padrão usado em `revisao-bibliografica` (ver `PLANO_ARTIGO_CAPITULO.md`,
-Seção 2): o texto do artigo/capítulo passa a morar dentro deste repositório, sob
-controle de versão.
+Este diretório contém o texto científico associado ao experimento de classificação e reclassificação de chamados de manutenção predial.
 
-## Arquivos
+## Arquivos oficiais
 
-- `artigo_classificacao_chamados_v3.docx` — rascunho original, trazido de fora do
-  git em 2026-07-23 (fonte: `Downloads/artigo_classificacao_chamados_v3.docx`,
-  datado de 2026-07-16). Mantido como referência binária/formatação.
-- `artigo_classificacao_chamados_v3.md` — conversão via `pandoc -t markdown` do
-  docx acima, feita em 2026-07-23. Nesta mesma data, a estrutura de títulos foi
-  realinhada à estrutura fixa de `PLANO_ARTIGO_CAPITULO.md` (Seção 2 renomeada
-  para "Referencial conceitual", Seção 3 para "Método" com nova Subseção 3.9
-  "Disponibilidade de dados e scripts", nova Subseção 4.8 "Figuras" destacada do
-  texto que já existia em 4.7, Seção 6 renomeada para "Considerações finais", e
-  Apêndices A–C acrescentados ao final). **Nenhum parágrafo de conteúdo já escrito
-  foi reescrito ou teve números alterados** — só títulos, numeração e três blocos
-  novos que eram exigidos pela estrutura do plano e ainda não existiam (Apêndice A
-  é fatual, extraído de `AGENTS.md`; Apêndices B e C ficam marcados como
-  pendência explícita, sem conteúdo inventado). O `.docx` original **não foi
-  alterado** — permanece como registro de proveniência.
+| Arquivo | Função |
+|---|---|
+| `artigo_classificacao_chamados_v3.md` | Fonte editável e versionada do artigo/capítulo |
+| `artigo_classificacao_chamados_v3.docx` | Arquivo original preservado como referência de proveniência e formatação |
+| `figuras/` | Figuras vetoriais e imagens em 300 dpi geradas pelos scripts do repositório |
+| `referencias/` | Fichas analíticas e links para o acervo bibliográfico |
+| `../docs/artigo_classificacao_chamados.pdf` | PDF publicado no GitHub Pages |
 
-## Estado atual (após a reformulação editorial enxuta)
+PDF público: <https://adinailson88.github.io/classificacao-chamados/artigo_classificacao_chamados.pdf>
 
-Estrutura: Resumo/Abstract → 1. Introdução → 2. Referencial conceitual (2.1–2.4) →
-3. Método (3.1–3.9) → 4. Resultados (4.1–4.9) → 5. Discussão (com Limitações) →
-6. Considerações finais → Declarações → Referências. **Sem apêndices.**
+## Geração do PDF
 
-Extensão: ~12.100 palavras, 22 páginas no formato do workflow de PDF.
+O workflow `.github/workflows/artigo_pdf.yml` converte o Markdown em PDF e publica o resultado em `docs/`. Ele não acessa a planilha nem substitui automaticamente números no corpo do texto.
 
-O que a rodada de reformulação fez:
+As figuras são geradas a partir dos JSONs versionados em `docs/dados/`. Para regenerá-las, use os scripts `src/gerar_figura*.py` e as tarefas correspondentes do workflow `lstm_artigo.yml`.
 
-- Removeu o ruído técnico do texto (colunas de planilha, executores, "Etapa 1
-  oficial", rematerialização, JSON, painel). Termos internos foram substituídos
-  por linguagem de artigo: "classificação automática em produção" e "decisão
-  validada pela conferência humana".
-- Eliminou a subseção 4.8 "Figuras". As seis figuras passaram para as subseções
-  onde o resultado é discutido, e as antigas 4.9/4.10 viraram 4.8/4.9.
-- Removeu os Apêndices A (checklist) e B (matriz M/N/P), e as citações à Tabela
-  Suplementar S4, cujo arquivo nunca foi gerado.
-- Condensou Limitações e Considerações Finais em três parágrafos cada.
+## Regra para atualização de resultados
 
-### Figuras
+Os dados do painel são dinâmicos. Antes de alterar números ou conclusões no artigo:
 
-As seis figuras são geradas por script a partir de JSON versionado, em **PDF
-vetorial** (usado pelo build) e **PNG a 300 dpi** (submissão), com paleta
-Okabe-Ito. O estilo comum vive em `src/estilo_figuras.py`. A numeração dos
-arquivos acompanha a ordem de leitura (`fig3_top_confusoes`,
-`fig4_tradeoff_custo`). Para regerar tudo, use a tarefa `figuras_artigo` do
-workflow `lstm_artigo.yml` ou rode os seis `src/gerar_figura*.py`.
+1. conferir os timestamps e denominadores dos JSONs utilizados;
+2. garantir que `avaliacao_final.json`, `estatistica.json` e `calibracao.json` representam a mesma rodada;
+3. atualizar em conjunto Resumo, Abstract, tabelas, figuras, resultados, discussão e conclusão;
+4. regenerar o PDF e revisar visualmente a paginação.
 
-### Pendências que permanecem
+Não atualizar uma tabela isoladamente quando o mesmo resultado aparece em outras partes do texto.
 
-- **8º modelo (BERTimbau)**: sem treino concluído; declarado no texto como
-  extensão planejada e excluído de todas as comparações.
-- **Referências**: a auditoria de 2026-07-16 encontrou 1 erro de autoria e 1
-  inconsistência de ano. A lista ainda não foi integralmente reconferida.
-- **Números congelados em n = 9.096.** O artigo descreve um recorte da
-  conferência humana. Os JSONs vigentes já registram cobertura maior, então
-  qualquer atualização de números precisa ser feita no artigo inteiro de uma vez,
-  não tabela a tabela.
-- Os números do Resumo e do Abstract foram conferidos contra as Tabelas 1 e 2 e
-  batem. O Abstract em inglês trazia valores anteriores ao reprocessamento dos
-  modelos (79.89% e 74.71%) e foi corrigido.
+## Estado atual
+
+- O BERTimbau permanece fora das comparações finais porque `docs/dados/bertimbau_training_state.json` está com `status=sem_dados`.
+- `avaliacao_final.json` e `calibracao.json` apresentam denominadores diferentes por terem sido gerados em horários distintos. Eles devem ser reconciliados antes da próxima atualização numérica do artigo.
+- O histórico detalhado das rodadas editoriais e técnicas permanece no Git e nos Pull Requests; não deve ser acumulado neste README.
