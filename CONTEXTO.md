@@ -5,7 +5,8 @@
 > (removidos; histórico preservado no git). **Atualizar este arquivo** a cada
 > etapa importante, em vez de criar arquivos novos.
 >
-> Última consolidação: 2026-06-06 (America/Bahia, UTC-03:00) — Etapa 1 CONCLUÍDA (0 pendentes),
+> Última consolidação: 2026-07-27 (America/Bahia, UTC-03:00) — reformulação editorial do
+> artigo e resposta ao parecer; ver a última seção. Consolidação anterior: 2026-06-06 — Etapa 1 CONCLUÍDA (0 pendentes),
 > dashboard atualizado, robustez de workflows, estatística não paramétrica explícita e plano
 > de calibração. Ver a última seção deste arquivo para o estado final.
 
@@ -1445,3 +1446,142 @@ desempenho supervisionado, confiabilidade/calibracao, robustez estatistica e amb
 informacional. Para o artigo, a camada sustenta uma conclusao mais forte: o painel nao
 apenas compara IAs, mas tambem orienta governanca da taxonomia, priorizacao da validacao
 humana e selecao mais segura de modelos.
+
+---
+
+## 2026-07-27 — Reformulação editorial do artigo e resposta ao parecer
+
+Repositório: **GitHub, `adinailson88/classificacao-chamados`**
+(https://github.com/adinailson88/classificacao-chamados). Branch de trabalho:
+`docs/reformulacao-artigo-enxuto`, já mesclada na `main` (PRs #76 a #82).
+
+### Onde está o artigo
+
+- Fonte: `04_artigo/artigo_classificacao_chamados_v3.md` (Markdown, sem `.tex`).
+- PDF publicado: `docs/artigo_classificacao_chamados.pdf`, servido pelo GitHub
+  Pages em https://adinailson88.github.io/classificacao-chamados/artigo_classificacao_chamados.pdf
+  (Pages lê `main`, pasta `/docs`; o link só muda depois de merge na `main`).
+- Build: `.github/workflows/artigo_pdf.yml`, pandoc/xelatex, dispara em push na
+  `main`. Compilação local equivalente:
+  `TEXINPUTS=".;./04_artigo/latex;" pandoc 04_artigo/artigo_classificacao_chamados_v3.md -o docs/artigo_classificacao_chamados.pdf --pdf-engine=xelatex -V lang=pt-BR -V geometry:margin=2.5cm --standalone`
+
+### Estado do artigo
+
+23 páginas, ~12.400 palavras. Estrutura: Resumo/Abstract, 1 Introdução,
+2 Referencial (2.1–2.4), 3 Método (3.1–3.9), 4 Resultados (4.1–4.9),
+5 Discussão (5.1–5.4, com Limitações em 5.3), 6 Considerações finais,
+Referências. **Sem apêndices** e sem bloco de declarações (ética, LGPD, autoria,
+financiamento) — decisão do autor: só incluir se a revista exigir.
+
+Oito figuras, todas geradas por script a partir de JSON versionado, em PDF
+vetorial e PNG 300 dpi. Arquivos nomeados por conteúdo (`fig_top_confusoes`,
+não `fig3_...`): a numeração vive só no artigo, então reordenar não quebra nada.
+Geradores em `src/gerar_figura*.py`, estilo comum em `src/estilo_figuras.py`
+(paleta Okabe-Ito). Tarefa `figuras_artigo` no workflow `lstm_artigo.yml`.
+
+### Regras editoriais firmadas com o autor
+
+- **Artigo não é relatório de pesquisa.** Nunca narrar versões descartadas,
+  materializações desatualizadas, auditorias internas ou comparações com rodadas
+  anteriores do próprio trabalho. Regra completa, com tabela de conversão, na
+  skill `artigo-metodologia-biossistemas`.
+- Sem "Fonte: elaborado pelos autores" em figuras e tabelas.
+- Dois-pontos só onde introduzem enumeração ou explicação; caso contrário,
+  vírgula ou frase separada.
+- Estilo autoral: voz impessoal, frases de 18 a 32 palavras, sem travessão longo,
+  negrito só em títulos e termos definidos. Ver skill `meu-estilo-textual`.
+- Biossistemas é o mote e deve permanecer operacionalizado (memória de decisão
+  em 3.7 como retroalimentação; entropia em 3.8 como desordem informacional).
+- Material suplementar citado sem código interno de tabela.
+
+### Números: recortes se movem
+
+Os JSONs de `docs/dados` avançam a cada consolidação. O artigo foi reconciliado
+contra o painel de **2026-07-27**: 13.965 chamados, 9.534 conferidos, 8.928 com
+decisão validada, 606 restritos, 168 conflitos, 17.790 conferências na matriz.
+LinearSVC com 0,8031 de concordância e 0,9524 de acerto validado. Amplitude da
+análise de sensibilidade: 5,50 a 6,05 p.p.
+
+O autor pretende **congelar tudo quando a base chegar a 14 mil chamados**.
+Antes de citar qualquer número, reconferir contra a fonte vigente.
+
+### Vazamento textual: medido, não suposto
+
+Parecer externo apontou que as Tabelas 1 e 2 usavam `KFold` por linha enquanto o
+ablation já usava `GroupKFold`. Criado `src/comparacao_kfold_groupkfold.py`
+(somente leitura, não toca abas de produção) e a tarefa `kfold_vs_groupkfold` no
+workflow. Resultado: 32,67% das linhas têm duplicata textual; a queda média sob
+`GroupKFold` é de 0,58 p.p., máxima de 1,10; o ranking se preserva **exceto** a
+troca SGD ↔ Random Forest, justamente o único par sem significância no McNemar
+corrigido por Holm-Bonferroni. Reportado em 3.5 e declarado como limitação em 5.3.
+
+### Pendência aberta: regenerar a calibração
+
+`src/calibracao.py` foi corrigido para deduplicar. A aba `SNAPSHOT_ETAPA_1` é
+append-only: cada execução da Etapa 1 acrescenta uma linha por chamado sem
+substituir a anterior, e o script contava todas, inflando o denominador para
+27.930 classificações sobre 13.965 chamados e permitindo que um chamado caísse
+em duas faixas de confiança. Agora mantém só a última classificação de cada
+chamado. **A regeneração ainda não rodou** (precisa do workflow com credencial).
+Enquanto isso, a Subseção 4.4 declara que a unidade da Tabela 4 é a classificação
+emitida, não o chamado. Depois de regenerar, reconciliar 4.4 e a Tabela 4.
+
+Cuidado relacionado: `LSTM_BAIXA_CONF` **não** é uma segunda passagem. É o mesmo
+classificador; o nome do executor apenas codifica a faixa de confiança
+(`conf >= 0,95` vira `LSTM`, entre 0,70 e 0,95 vira `LSTM_BAIXA_CONF`, abaixo de
+0,70 mantém a categoria humana). A correspondência executor↔faixa é tautológica.
+
+### Layout LaTeX: onde está e qual o impasse
+
+Não existe arquivo de template. A formatação vive em três lugares:
+o bloco `header-includes` no topo do próprio `.md`, os argumentos do pandoc em
+`artigo_pdf.yml`, e `04_artigo/latex/placeins.sty` (domínio público, versionado
+porque não existe na imagem `pandoc/extra`; `TEXINPUTS` aponta para lá e o
+preâmbulo tem `\IfFileExists` como alternativa para não quebrar o build).
+
+Configuração atual: `\def\fps@figure{tp}` (figura nunca no rodapé, senão estoura
+a margem), `topfraction 0.85`, `textfraction 0.10`, `floatpagefraction 0.90`,
+`raggedbottom`, e `\FloatBarrier` antes de cada título numerado. As barreiras são
+necessárias porque o texto usa títulos em negrito, não comandos de seção, então
+o LaTeX não tem âncora para esvaziar a fila de floats.
+
+**Impasse não resolvido, com medições.** Existe desperdício real de espaço
+(página 4 com 141 pt de vão, página 16 com 204 pt; total 856 pt):
+
+| Configuração | Páginas | Vão total | Texto fora da margem |
+|---|---|---|---|
+| Sem barreiras | 22 | 408 pt | página 15 |
+| Com barreiras (atual) | 23 | 856 pt | nenhum |
+| Barreiras só em 4.7–4.9 | 23 | 860 pt | nenhum |
+| Com `flafter` | 24 | — | nenhum |
+
+Remover a barreira antes de 3.2 elimina o vão da página 4, mas cria um maior na
+página 5: o vazio anda, não some. `flafter` custa uma página e não agrega, pois
+nenhuma figura hoje aparece antes da própria chamada.
+
+Causa real: **oito figuras em 23 páginas, seis concentradas entre 4.6 e 4.8**,
+sem texto suficiente entre elas para absorvê-las. O caminho que de fato
+economiza folha é reduzir a carga de figuras nesse trecho — fundir as Figuras 3
+e 4 (mapa de calor e matriz de confusão contam a mesma história), encolher a
+Figura 5 ou mover uma para o suplementar. Isso muda conteúdo, então depende de
+decisão do autor.
+
+### Referências
+
+59 verbetes, todos citados, nenhuma órfã. Onze obras que haviam ficado órfãs no
+enxugamento foram religadas ao texto na 4.9 e na 4.1 (Tukey, Hodge e Austin,
+Razali e Wah, Ogunleye, O'Brien, Kornbrot, Minderer, Durbin e Watson, Landis e
+Koch, Wongpakaran). Cohen (1960) foi acrescentado e é **o único verbete sem
+ficha no repositório** — conferir os dados bibliográficos antes de submeter.
+Box e Jenkins removido, pois sustentava a menção a ARIMA que saiu.
+
+### Armadilhas observadas nesta rodada
+
+- Verificação por contagem de palavras por página **não detecta** vão no rodapé;
+  medir a distância entre o último elemento e a margem inferior.
+- Ao editar o `.md` por script Python, usar arquivo auxiliar em vez de heredoc:
+  sequências como `\u` em comandos LaTeX quebram o parser.
+- `git push` na branch enquanto um workflow roda faz o passo de commit dele
+  falhar; os resultados ficam recuperáveis no log da execução.
+- O build do Pages falha de forma intermitente quando há pushes em sequência;
+  basta solicitar novo build.
