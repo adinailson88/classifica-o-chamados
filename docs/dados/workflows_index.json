@@ -168,7 +168,7 @@
       "saida": "Estado de treino, metricas e resultados experimentais",
       "abas": ["Modelos", "Reclassificacao"],
       "quando": "Somente quando a guarda de avanco permite ou por comando manual explicito.",
-      "obs": "O modelo so entra no artigo apos treino concluido e artefatos verificaveis.",
+      "obs": "O modelo so entra no artigo apos treino concluido e artefatos verificaveis. Etapas posteriores devem ser disparadas e verificadas separadamente.",
       "tipo": "Gera dados",
       "automacao": "Automatico condicionado",
       "condicao": "Avanco suficiente, modo forcado ou diagnostico manual"
@@ -242,25 +242,11 @@
       "tipo": "Operacional controlado",
       "automacao": "Manual",
       "condicao": "workflow_dispatch com aplicar explicito"
-    },
-    {
-      "workflow": "Rodada BERTimbau e Tabela 3",
-      "arquivo": "temporario_rodada_bertimbau.yml",
-      "gatilho": "push de trigger + workflow_run",
-      "faz": "Orquestra uma rodada especifica do BERTimbau e as consolidacoes posteriores.",
-      "entrada": "Conclusao do transformer_ft e arquivo de trigger",
-      "saida": "Disparo encadeado de avaliacao, estatistica e consolidacao",
-      "abas": ["Modelos", "Decisao", "Artigo"],
-      "quando": "Somente durante a rodada temporaria registrada no README.",
-      "obs": "Descartavel: remover apos verificar a rodada e reconciliar os resultados.",
-      "tipo": "Orquestra",
-      "automacao": "Temporario",
-      "condicao": "Existe apenas enquanto a rodada BERTimbau estiver aberta"
     }
   ],
   "legenda": {
-    "tipo": "Gera dados = produz resultados; Publica = atualiza GitHub Pages ou PDF; Operacional controlado = pode alterar a planilha e exige dry-run/confirmacao; Orquestra = dispara outros workflows.",
-    "automacao": "Automatico = cron, push ou workflow_run; Automatico condicionado = depende de guarda de avanco; Manual = workflow_dispatch; Temporario = fluxo descartavel com prazo de remocao.",
+    "tipo": "Gera dados = produz resultados; Publica = atualiza GitHub Pages ou PDF; Operacional controlado = pode alterar a planilha e exige dry-run/confirmacao.",
+    "automacao": "Automatico = cron, push ou workflow_run; Automatico condicionado = depende de guarda de avanco; Manual = workflow_dispatch.",
     "manual_isolado": "Arquivos em .github/manual_workflows/ nao sao executados pelo GitHub Actions e nao integram esta lista."
   }
 }
