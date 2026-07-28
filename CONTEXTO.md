@@ -1515,16 +1515,42 @@ workflow. Resultado: 32,67% das linhas têm duplicata textual; a queda média so
 troca SGD ↔ Random Forest, justamente o único par sem significância no McNemar
 corrigido por Holm-Bonferroni. Reportado em 3.5 e declarado como limitação em 5.3.
 
-### Pendência aberta: regenerar a calibração
+### Calibração regenerada e reconciliada (27/07/2026)
 
 `src/calibracao.py` foi corrigido para deduplicar. A aba `SNAPSHOT_ETAPA_1` é
 append-only: cada execução da Etapa 1 acrescenta uma linha por chamado sem
 substituir a anterior, e o script contava todas, inflando o denominador para
 27.930 classificações sobre 13.965 chamados e permitindo que um chamado caísse
 em duas faixas de confiança. Agora mantém só a última classificação de cada
-chamado. **A regeneração ainda não rodou** (precisa do workflow com credencial).
-Enquanto isso, a Subseção 4.4 declara que a unidade da Tabela 4 é a classificação
-emitida, não o chamado. Depois de regenerar, reconciliar 4.4 e a Tabela 4.
+chamado. **A regeneração rodou** e `docs/dados/calibracao.json` (27/07 22:45)
+traz `linhas_snapshot_brutas=27930`, `linhas_descartadas_por_deduplicacao=13965`
+e `unidade=chamado`.
+
+A Subseção 4.4, a Tabela 4, a Figura 2 e a frase da 5.2 foram reconciliadas
+contra essa fonte. A unidade passou a ser o chamado, 13.965 no total e 8.895 com
+conferência humana. ECE de 0,0555 para 0,0549. Faixa igual ou superior a 95%: de
+9.869 para 5.061 chamados, de 35,3% para 36,2% do corpus, concordância de 98,89%
+para 98,70% e acerto validado de 98,35% para 99,84% sobre 4.894 chamados.
+**A inversão de monotonia desapareceu** (55,05 → 91,77 → 96,93 → 98,67 → 99,17 →
+99,84), e o parágrafo que a discutia saiu por perda de objeto.
+
+**Divergência de carimbo, ainda aberta.** As fontes não compartilham horário:
+
+| Arquivo | Gerado em | Decididos | Restritos |
+|---|---|---|---|
+| `sensibilidade_vies_validacao.json` | 25/07 11:14 | 9.096 | 438 |
+| `avaliacao_final.json` | 27/07 16:41 | 8.928 | 606 |
+| `auditoria_conferencias.json` | 27/07 22:27 | 8.895 | 639 |
+| `calibracao.json` | 27/07 22:45 | 8.895 | — |
+
+O artigo cita 8.928 e 606, que vêm do **mesmo** arquivo e sustentam a aritmética
+do limite inferior da Tabela 2 (0,9524 × 8.928 ÷ 9.534 = 0,8919). Trocar 606 por
+639 sem regerar `avaliacao_final.json` quebraria essa tabela, então o par ficou
+intacto. O mesmo vale para as 17.790 conferências da Tabela 3, cujas células não
+saem de nenhum JSON versionado. **Ao congelar a base nos 14 mil chamados, rodar
+`avaliacao_final` e a matriz de conferência e reconciliar esse bloco de uma vez.**
+`analise_sensibilidade_vies_validacao.py` lê a planilha e exige credencial, não
+roda local.
 
 Cuidado relacionado: `LSTM_BAIXA_CONF` **não** é uma segunda passagem. É o mesmo
 classificador; o nome do executor apenas codifica a faixa de confiança
@@ -1552,7 +1578,8 @@ que a discute.
 |---|---|---|---|
 | Barreira antes de cada título (anterior) | 23 | 939 pt | nenhum |
 | Sem as barreiras que cercam tabelas | 22 | 181 pt | páginas 14–15 |
-| Barreiras só onde são estruturais (atual) | 22 | 290 pt | nenhum |
+| Barreira depois da Tabela 6 | 23 | 477 pt | nenhum |
+| Barreiras só onde são estruturais (atual) | 22 | 202 pt | nenhum |
 
 Três achados sustentam a configuração atual.
 
@@ -1564,18 +1591,25 @@ Três achados sustentam a configuração atual.
    `\clearpage` cobrava.
 2. **A posição `b` continua proibida.** Reabilitá-la fecha o vão da página 16
    mas põe figura sobre a margem inferior, qualquer que seja `bottomfraction`.
-3. **Âncora de float só anda para a frente.** O vão da antiga página 16 vinha da
-   Figura 6 esperar a barreira do fim da 4.7. Com a marcação da Figura 6 movida
-   para junto da Figura 5, ao fim da 4.6, as duas ocupam o topo da mesma página
-   e o texto da 4.7 preenche o resto. Só a marcação mudou de lugar, o texto não.
+3. **Âncora de float só anda para a frente, e barreira tem de vir antes da
+   tabela.** O vão da antiga página 16 vinha da Figura 6 esperar a barreira do
+   fim da 4.7. Com a marcação da Figura 6 movida para junto da Figura 5, ao fim
+   da 4.6, as duas ocupam o topo da mesma página e o texto da 4.7 preenche o
+   resto. A barreira precisa ficar **entre o par de figuras e a Tabela 6**, não
+   depois dela, senão o float é despejado na mesma página em que a `longtable`
+   já está sendo composta e o texto estoura a margem. Só a marcação mudou de
+   lugar, o texto não.
 
-Barreiras removidas: antes de 3.2, ao fim de 3.2, ao fim de 4.8. Barreiras
-mantidas: todas as demais, com destaque para as que cercam as Tabelas 6 e 7.
+Barreiras removidas: antes de 3.2, ao fim de 3.2, ao fim de 4.8. A do fim de 4.6
+subiu para antes da Tabela 6. As demais ficaram.
 
-Vãos remanescentes: 90 pt na página 16 e 39 pt na 14, o resto abaixo de 25 pt.
-A página 16 fecha antes porque as Figuras 7 e 8 aguardam a barreira do fim da
-4.9. Fechar esse resto exigiria reduzir a carga de figuras, o que muda conteúdo
-e continua dependendo de decisão do autor.
+Vãos remanescentes: 30 pt na página 11, 24 pt na 4, o resto em 20 pt ou menos.
+Nenhuma página interna passa de 30 pt.
+
+**O arranjo é sensível ao comprimento do texto.** Ao remover ou acrescentar
+parágrafo nas Subseções 4.4 a 4.8, refazer a medição de vão e conferir
+`Overfull \vbox` no log antes de publicar. Uma reconciliação numérica que
+encurtou a 4.4 em um parágrafo já foi suficiente para reintroduzir o estouro.
 
 ### Referências
 
@@ -1624,6 +1658,8 @@ conferidos contra o PDF publicado, idêntico byte a byte ao de `main`.
   sustentada pela 5.2 e pelo `PLANO_CALIBRACAO.md`. A menção que ficava dentro
   da agenda de validação externa saiu, para não repetir.
 - **Vãos das páginas 4 e 16.** Resolvidos, ver a seção de layout acima.
+- **Calibração.** Regenerada no `main` durante esta rodada e reconciliada no
+  artigo, ver a seção da calibração acima.
 
 Medição de vão por página, para reproduzir: renderizar com
 `pdftoppm -r 72 -gray -png` e localizar a última linha com pixel escuro acima de
