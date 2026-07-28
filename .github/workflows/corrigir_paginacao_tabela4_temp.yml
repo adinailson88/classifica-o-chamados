@@ -20,10 +20,12 @@ jobs:
           fetch-depth: 50
       - name: Aplicar correção localizada
         run: python src/temporario_corrigir_paginacao_tabela4.py
-      - name: Verificar que apenas marcação de layout foi adicionada
+      - name: Verificar integridade da Tabela 4
         run: |
-          grep -F '\enlargethispage{2\baselineskip}' 04_artigo/artigo_classificacao_chamados_v3.md
+          grep -F '\begin{tabular}{@{}lrrrr@{}}' 04_artigo/artigo_classificacao_chamados_v3.md
           grep -F '**Tabela 4** Acerto validado por faixa de confiança.' 04_artigo/artigo_classificacao_chamados_v3.md
+          if grep -F '\enlargethispage' 04_artigo/artigo_classificacao_chamados_v3.md; then exit 1; fi
+          if grep -F '| Faixa | n total | Concord. histórico | n validados | Acerto validado |' 04_artigo/artigo_classificacao_chamados_v3.md; then exit 1; fi
       - name: Gerar PDF
         uses: docker://pandoc/extra:latest
         env:
@@ -54,5 +56,5 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           rm src/temporario_corrigir_paginacao_tabela4.py
           git add 04_artigo/artigo_classificacao_chamados_v3.md docs/artigo_classificacao_chamados.pdf src/temporario_corrigir_paginacao_tabela4.py
-          git commit -m "corrigir paginação da Tabela 4 sem alterar o texto"
+          git commit -m "impedir divisão da Tabela 4 sem alterar o texto"
           git push origin HEAD:${{ github.event.pull_request.head.ref }}
