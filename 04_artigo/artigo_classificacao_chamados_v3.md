@@ -39,11 +39,11 @@ header-includes:
     ```
 ---
 
-**CLASSIFICAÇÃO MULTIMODELO DE CHAMADOS DE MANUTENÇÃO PREDIAL
-UNIVERSITÁRIA EM PORTUGUÊS BRASILEIRO SOB RÓTULOS HISTÓRICOS RUIDOSOS**
+**CLASSIFICAÇÃO AUTOMÁTICA MULTIMODELO DE CHAMADOS DE MANUTENÇÃO PREDIAL
+UNIVERSITÁRIA EM PORTUGUÊS BRASILEIRO COM VALIDAÇÃO HUMANA**
 
-*Multi-model classification of university building maintenance work
-orders in Brazilian Portuguese under noisy historical labels*
+*Multi-model automatic classification of university building maintenance work
+orders in Brazilian Portuguese with human validation*
 
 **Adinailson Guimarães de Oliveira** - adinailson.oliveira@cja.ufsb.edu.br
 **Fabrício Berton Zanchi** - fabricio.berton@ufsb.edu.br
@@ -64,21 +64,25 @@ equipes. Este artigo propõe um protocolo multimodelo para classificação
 de chamados reais de manutenção predial universitária em português
 brasileiro, extraídos do sistema institucional da Universidade Federal do
 Sul da Bahia. O experimento utiliza 13.965 chamados não vazios,
-organizados em 55 categorias históricas, e compara seis classificadores
-clássicos baseados em TF-IDF com uma rede neural LSTM bidirecional. O
+organizados em 55 categorias históricas. A comparação principal avalia
+seis classificadores clássicos baseados em TF-IDF e uma rede neural LSTM
+bidirecional por predições *out-of-fold* sobre toda a base. O BERTimbau,
+transformador pré-treinado em português, é ajustado e avaliado
+separadamente em um *holdout* comum de 1.000 chamados, pois não dispõe de
+predições *out-of-fold* materializadas para o corpus integral. O
 diferencial metodológico reside na distinção entre concordância com o
-histórico administrativo e acerto validado por revisão humana, tratando a
-categoria histórica como referência preliminar imperfeita. A distinção
-altera a leitura do desempenho, pois o acerto validado por conferência
-humana, apurado sobre 8.928 decisões, descreve apenas a amostra conferida
-e constitui limite superior por construção amostral. Os resultados
-indicam superioridade do LinearSVC tanto na concordância com o histórico
-(80,31%) quanto no acerto validado (95,24%), ao passo que o LSTM alcança
-67,18% e 88,58%. A normalidade da concordância por turno é rejeitada para
-todos os modelos, o que justifica a bateria não paramétrica adotada. O
-custo computacional entra como dimensão de avaliação e evidencia que
-modelos lineares oferecem melhor relação entre desempenho e viabilidade
-operacional em cenários de texto curto, ruidoso e desbalanceado.
+histórico administrativo e acerto validado por revisão humana. O acerto
+validado, apurado sobre 8.895 decisões, descreve apenas a amostra
+conferida e constitui limite superior por construção amostral, dado que
+639 casos sem categoria decidida permanecem fora do denominador. Na
+comparação integral, o LinearSVC lidera a concordância com o histórico
+(80,31%) e o acerto validado (95,27%). No *holdout* comum, o LinearSVC
+alcança 78,56% e o BERTimbau 77,46%, sem diferença estatisticamente
+significativa pelo teste de McNemar (*p* = 0,510). Os resultados indicam
+que o modelo contextual é competitivo no recorte avaliado, mas não há
+evidência de superioridade sobre o classificador linear. O custo
+computacional permanece dimensão relevante da decisão e favorece modelos
+lineares em cenários de texto curto, ruidoso e desbalanceado.
 
 **Palavras-chave:** manutenção predial; classificação de chamados;
 processamento de linguagem natural; rótulos ruidosos; validação humana.
@@ -86,37 +90,33 @@ processamento de linguagem natural; rótulos ruidosos; validação humana.
 **ABSTRACT**
 
 *Automatic classification of building maintenance work orders is a
-strategic resource for qualifying operational triage and enhancing
-evidence-based governance in public institutions. However, in historical
-databases from computerized service management systems, the originally
-assigned category should not be treated as an unquestionable ground
-truth, since it may reflect noisy operational decisions, overlapping
-taxonomies, incomplete records, and heterogeneous interpretations across
-maintenance teams. This paper proposes a multi-model protocol for
+strategic resource for improving operational triage and evidence-based
+governance in public institutions. However, the originally assigned
+category in historical service-management databases should not be treated
+as unquestionable ground truth because it may reflect noisy operational
+decisions, overlapping taxonomies, incomplete records, and heterogeneous
+interpretations. This paper proposes a multi-model protocol for
 classifying real university building maintenance requests in Brazilian
-Portuguese, extracted from the GLPI system at the Federal University of
-Southern Bahia. The experiment uses 13,965 non-empty records organized
-into 55 historical categories and compares TF-IDF-based classical
-classifiers (Naive Bayes, Logistic Regression, LinearSVC, SGD, Random
-Forest, and Extra Trees) and a bidirectional LSTM neural network. The
-Portuguese pre-trained transformer (BERTimbau) remains a planned
-extension, with neither completed training nor its own metric. The
-methodological contribution lies in distinguishing agreement with
-administrative history from human-validated accuracy, treating the
-historical category as an imperfect preliminary reference. This
-distinction proved decisive, since human-validated accuracy (8,928
-decisions) describes only the reviewed sample and is an upper bound by
-sampling construction. Because the sample prioritizes divergences and
-critical cases rather than sampling at random, these results do not
-estimate performance over the full database (COCHRAN, 1977).
-Results indicate LinearSVC superiority both in agreement with history
-(80.31% accuracy, 95%CI: 79.63%--80.97%) and in human-validated accuracy
-(95.24%, 95%CI: 94.80%--95.68%), while LSTM achieved 67.18% agreement
-and 88.58% validated accuracy. Normality was rejected for all models, supporting
-non-parametric tests (Friedman, Cochran Q, McNemar, bootstrap).
-Computational cost is incorporated as an evaluation dimension, showing
-that linear models can offer a better balance between performance and
-operational feasibility in short, noisy, and imbalanced text.*
+Portuguese from the Federal University of Southern Bahia. The experiment
+uses 13,965 non-empty records organized into 55 historical categories.
+The main comparison evaluates six TF-IDF-based classical classifiers and
+a bidirectional LSTM through out-of-fold predictions over the complete
+corpus. BERTimbau, a Portuguese pre-trained transformer, is fine-tuned and
+evaluated separately on a common holdout of 1,000 work orders because
+full-corpus out-of-fold predictions are not available for this model. The
+methodological contribution is the distinction between agreement with the
+administrative history and human-validated accuracy. Human-validated
+accuracy is calculated over 8,895 decisions and describes only the
+reviewed sample; it is an upper bound by sampling construction because
+639 cases without a decided category remain outside the denominator. In
+the full-corpus comparison, LinearSVC leads both agreement with history
+(80.31%) and human-validated accuracy (95.27%). In the common holdout,
+LinearSVC reaches 78.56% and BERTimbau 77.46%, with no statistically
+significant difference under McNemar's test (p = 0.510). The contextual
+model is therefore competitive in the evaluated subset, but there is no
+evidence that it outperforms the linear classifier. Computational cost
+remains a relevant decision dimension and favors linear models in short,
+noisy, and imbalanced text settings.*
 
 ***Keywords:** building maintenance; work-order classification; natural
 language processing; noisy labels; human validation.*
@@ -210,8 +210,9 @@ considerados agregam título e descrição do chamado, além de informações
 associadas à ordem de serviço. O estudo compara modelos clássicos
 baseados em TF-IDF (Naive Bayes, Regressão Logística, LinearSVC, SGD,
 Random Forest e Extra Trees) com uma rede neural LSTM bidirecional. O
-BERTimbau é mantido como extensão planejada e não integra as comparações
-enquanto não houver treino concluído e métricas próprias rastreáveis. O
+BERTimbau também é ajustado, mas sua avaliação permanece em protocolo
+*holdout* separado, com métricas próprias rastreáveis, porque não há
+predições *out-of-fold* desse modelo sobre toda a base. O
 objeto de avaliação, portanto, não é o classificador isolado, mas o
 protocolo de governança preditiva que articula aprendizado de máquina,
 auditoria estatística, custo computacional e validação humana. Essa
@@ -449,11 +450,14 @@ automática em produção opera com uma regra de contingência que aciona o
 Random Forest quando a base rotulada disponível é insuficiente para
 treinar a rede neural.
 
-Um oitavo modelo, o transformador pré-treinado em português BERTimbau,
-permanece como extensão planejada. Seu ajuste fino depende do avanço da
-base validada e ainda não foi concluído, razão pela qual o modelo não
-integra tabelas, rankings, testes inferenciais nem conclusões
-comparativas deste artigo.
+Um oitavo modelo, o BERTimbau-Base, incorpora representações contextuais
+pré-treinadas em português brasileiro e é ajustado para as 55 categorias
+do corpus (DEVLIN *et al.*, 2019; SOUZA; NOGUEIRA; LOTUFO, 2020). O
+treino foi concluído em modo automático, com subamostragem estratificada
+e parada antecipada por restrição computacional. Como o modelo não possui
+predições *out-of-fold* materializadas sobre toda a base, ele não é
+inserido artificialmente no ranking integral dos sete modelos. Sua
+comparação é apresentada em protocolo *holdout* comum na Subseção 4.3.
 
 ```{=latex}
 \FloatBarrier
@@ -480,7 +484,7 @@ como ocorre aqui, em que termos técnicos do domínio (*bomba*, *split*,
 *disjuntor*, *vazamento*, *infiltração*, *ar-condicionado*; Subseção 3.3)
 funcionam como âncoras semânticas de categoria. Essa combinação é
 consistente com o LinearSVC liderando tanto a concordância com o
-histórico (0,8031; Tabela 1) quanto o acerto validado (0,9524; Tabela 2).
+histórico (0,8031; Tabela 1) quanto o acerto validado (0,9527; Tabela 2).
 
 O Naive Bayes assume independência condicional entre atributos dada
 a classe, suposição estrutural violada em texto de manutenção predial,
@@ -488,7 +492,7 @@ onde termos técnicos co-ocorrem de forma sistemática dentro de uma mesma
 categoria. Essa divergência entre a suposição do modelo e a estrutura
 real dos dados explica de forma plausível a última posição do Naive
 Bayes, tanto na concordância com o histórico (0,6997; Tabela 1) quanto
-no acerto validado (0,8617; Tabela 2). Trata-se do comportamento
+no acerto validado (0,8659; Tabela 2). Trata-se do comportamento
 esperado do modelo mais simples da comparação, e não de problema de
 implementação.
 
@@ -620,6 +624,17 @@ Holm-Bonferroni já apontava como estatisticamente indistinguível
 coerência com a materialização em produção, e o material suplementar
 traz a comparação completa entre os dois.
 
+A avaliação do BERTimbau segue protocolo adicional e não substitui a
+comparação *out-of-fold*. A execução completa mais recente do transformador
+define um lote de 1.000 chamados. Os outros sete modelos são retreinados
+fora exatamente dessas linhas e avaliados no mesmo conjunto, evitando
+sobreposição entre treino e teste. O lote contém 639 chamados com decisão
+humana M/N/P/Q. Reportam-se concordância com o histórico, acerto validado,
+intervalos por *bootstrap* e McNemar entre o BERTimbau e o melhor modelo
+alternativo. Como o lote corresponde aos primeiros registros elegíveis e
+não a uma amostra probabilística, os resultados descrevem esse recorte e
+não substituem a avaliação integral da base.
+
 ```{=latex}
 \FloatBarrier
 ```
@@ -640,21 +655,17 @@ categoria travada.
 
 Duas unidades de análise convivem no protocolo e não devem ser
 confundidas. O **chamado** é o registro individual de manutenção, unidade
-das Tabelas 1, 2 e 5. A **conferência** é cada julgamento humano emitido
-sobre uma fonte de classificação de um chamado, de modo que um mesmo
-chamado gera mais de uma conferência quando o avaliador julga tanto a
-categoria histórica quanto a classificação automática. Daí decorrem os
-três denominadores usados na Seção 4: 9.534 chamados receberam ao menos
-uma conferência, 8.928 deles chegaram a decisão validada e os 606
-restantes ficaram restritos, ao passo que o total de conferências
-emitidas sobre as duas fontes chega a 17.790, denominador da Tabela 3. A priorização recai sobre chamados em que há
-divergência entre modelos, alta confiança da IA contra histórico, baixa
-confiança generalizada, classes raras e pares de categorias com alta
-confusão recíproca. A decisão humana pode produzir quatro resultados, a saber, manter o
-histórico, aceitar a sugestão do modelo, definir terceira categoria ou
-marcar o caso como ambíguo ou taxonômico. Essa estrutura
-permite mensurar se a IA errou, se o histórico estava inconsistente ou
-se a própria taxonomia institucional necessita de revisão, em
+das Tabelas 1, 2 e 3. A **conferência** é cada julgamento humano emitido
+sobre uma fonte de classificação. A decisão M/N/P/Q pode manter o
+histórico, aceitar uma classificação automática, aceitar a
+reclassificação ou registrar manualmente uma categoria distinta. Dos
+13.965 chamados, 9.534 receberam ao menos uma conferência; 8.895 chegaram
+a uma categoria decidida e 639 permaneceram restritos, incluindo 201
+conflitos entre fontes marcadas como corretas. A priorização recai sobre
+chamados em que há divergência entre modelos, alta confiança da IA contra
+o histórico, baixa confiança generalizada, classes raras e pares de
+categorias com alta confusão recíproca. Essa estrutura permite separar
+uma decisão validada de casos ainda sem referência suficiente, em
 consonância com a perspectiva de que a verdade operacional deve ser
 construída progressivamente (ZHANG *et al.*, 2025).
 
@@ -742,29 +753,25 @@ neste artigo. Nenhum identificador pessoal, título ou texto livre de chamado
 
 **4. RESULTADOS**
 
-Esta seção apresenta dois conjuntos de resultados, deliberadamente
-segregados. O primeiro é a concordância com a categoria histórica
-(Subseção 4.1), que trata o registro do GLPI como referência preliminar,
-não como verdade absoluta. O segundo é o desempenho validado por
-conferência humana (Subseções 4.2
-e 4.3), calculado exclusivamente sobre os chamados com decisão validada
-pela conferência humana. A base elegível contém 13.965 chamados. A
-conferência humana cobre 9.534 chamados (68,3% da base), dos quais
-8.928 com decisão validada (63,9% da base) e 606 casos restritos, em que
-o avaliador eliminou as categorias conferidas sem indicar a correta.
-Entre os chamados conferidos, 168 registram conflito entre conferências.
+Esta seção apresenta três conjuntos de resultados deliberadamente
+segregados. O primeiro é a concordância dos sete modelos com a categoria
+histórica na base completa (Subseção 4.1), em que o registro do GLPI é
+referência preliminar, não verdade absoluta. O segundo é o desempenho
+desses mesmos modelos contra a decisão humana M/N/P/Q (Subseção 4.2). O
+terceiro é a comparação dos oito modelos no *holdout* comum que inclui o
+BERTimbau (Subseção 4.3). A base elegível contém 13.965 chamados. A
+conferência humana cobre 9.534 chamados (68,3% da base), dos quais 8.895
+têm decisão validada (63,7% da base) e 639 permanecem restritos. Entre os
+restritos, 201 apresentam conflito entre fontes marcadas como corretas.
 
-Três achados resumem esta seção. Primeiro, os classificadores lineares
-(liderados pelo LinearSVC) superam tanto os *ensembles* de árvores
-quanto a rede neural LSTM em concordância e em acerto validado, com
-vantagem adicional de custo computacional (Subseções 4.1, 4.2 e 4.7).
-Segundo, a validação humana confirma que o próprio rótulo histórico
-contém ruído real, cerca de 1,8% dos casos conferidos, o que
-justifica metodologicamente todo o protocolo de conferência dupla
-(Subseção 4.3). Terceiro, a meta de calibração do estudo, que associa
-confiança igual ou superior a 95% a acerto real igual ou superior a 95%,
-é alcançada na faixa alta de confiança, com a ressalva de calibração
-discutida na Subseção 4.4.
+Três achados resumem a seção. Primeiro, o LinearSVC lidera a comparação
+integral, tanto em concordância histórica quanto em acerto validado, e
+mantém vantagem operacional de custo. Segundo, no *holdout* comum, o
+BERTimbau ocupa a segunda posição e não difere significativamente do
+LinearSVC, o que caracteriza competitividade sem demonstrar
+superioridade. Terceiro, a faixa de confiança igual ou superior a 95%
+alcança acerto validado superior a 95%, com as ressalvas de calibração e
+seleção amostral discutidas na Subseção 4.4.
 
 ```{=latex}
 \FloatBarrier
@@ -778,8 +785,9 @@ LinearSVC na liderança, com acurácia de 0,8031 (IC95%:
 0,7963--0,8097), seguido por Extra Trees (0,7894), Random Forest
 (0,7816), SGD (0,7767), Regressão Logística (0,7682), Naive Bayes
 (0,6997) e LSTM (0,6718). O teste de Cochran Q confirma diferença global
-entre os sete modelos avaliados (Q = 2984,07; p < 0,001). A comparação exclui o BERTimbau,
-cujo treino não foi concluído. O Kappa de Cohen (COHEN, 1960) entre cada
+entre os sete modelos avaliados (Q = 2984,07; p < 0,001). A comparação integral exclui o BERTimbau porque o modelo não possui
+predições *out-of-fold* sobre as 13.965 linhas; o treino concluído é
+avaliado separadamente na Subseção 4.3. O Kappa de Cohen (COHEN, 1960) entre cada
 modelo e o histórico reproduz a mesma ordenação, variando de
 0,7881 (LinearSVC) a 0,6496 (LSTM), faixa que Landis e Koch (1977)
 classificam como concordância substancial. Cabe a ressalva de que o
@@ -822,117 +830,86 @@ que pequena variação absoluta altera fortemente a métrica.
 
 **4.2 Ranking validado por conferência humana**
 
-A avaliação contra a decisão validada pela conferência humana (n = 9.070
-decisões) confirma a mesma liderança da Subseção 4.1. O LinearSVC
-permanece o melhor modelo isolado, com acerto validado de 0,9524 (IC95%:
-0,9480--0,9568), seguido por SGD (0,9441), Regressão Logística (0,9404),
-Extra Trees (0,9312), Random Forest (0,9266), LSTM (0,8858) e Naive
-Bayes (0,8647). A diferença entre o primeiro e o segundo colocado é
-pequena em termos absolutos, de 0,83 ponto percentual, mas
+A avaliação contra a decisão humana M/N/P/Q utiliza 8.895 chamados com
+categoria decidida. O LinearSVC permanece o melhor modelo isolado, com
+acerto validado de 0,9527 (IC95%: 0,9482--0,9569), seguido por SGD
+(0,9442), Regressão Logística (0,9404), Extra Trees (0,9314), Random
+Forest (0,9268), LSTM (0,8872) e Naive Bayes (0,8659). A diferença entre
+o primeiro e o segundo colocado é de 0,85 ponto percentual e é
 estatisticamente significativa (McNemar, *p* < 0,001). Foram avaliados
-também três *ensembles*, maioria ponderada (0,9494), confiança calibrada
-máxima (0,9483) e maioria simples (0,9467). Nenhum supera o LinearSVC
-isolado com significância, e o McNemar aponta *p* < 0,05 em favor do
-modelo isolado nos três casos. Não compensa combinar modelos nestes
-dados. A recomendação é usar o LinearSVC isolado, com calibração.
+também três *ensembles*: maioria ponderada (0,9493), confiança calibrada
+máxima (0,9484) e maioria simples (0,9467). Todos ficam abaixo do
+LinearSVC, com McNemar *p* < 0,05 em favor do modelo isolado. A
+recomendação é, portanto, usar o LinearSVC isolado, com calibração.
 
-A seleção da amostra validada carrega viés estrutural, de modo que o
-número pontual de acerto validado acima constitui o limite superior
-de um intervalo, e não uma estimativa isenta de viés. A verdade validada usada neste cálculo
-só existe para um chamado quando o avaliador confirma pelo menos uma
-fonte como correta, seja o histórico, seja a classificação automática,
-seja a reclassificação. Dos 9.534 chamados conferidos, 606 (6,4%) caem no
-status restrito, em que o avaliador julgou todas as fontes erradas
-para aquele chamado sem indicar qual seria a categoria certa. Esses casos
-são excluídos do denominador de qualquer acerto validado por modelo,
-porque não existe categoria de referência contra a qual comparar a
-predição. Isso torna a amostra de 8.928 decisões, por construção, um
-subconjunto em que pelo menos uma fonte já estava correta, o que infla
-mecanicamente o acerto validado de qualquer modelo que tenda a concordar
-com o histórico ou com a classificação automática, independentemente da
-qualidade real do modelo nos casos mais difíceis, exatamente os que
-ficaram de fora.
+O número pontual constitui limite superior condicionado ao desenho da
+validação. Dos 9.534 chamados conferidos, 639 (6,7%) permanecem sem
+categoria decidida. Esse conjunto reúne 340 casos em que apenas o
+histórico foi marcado como errado, 98 em que histórico e classificação
+automática foram marcados como errados e 201 conflitos entre fontes
+marcadas como corretas. Sem categoria manual adicional, esses registros
+não oferecem referência contra a qual medir o acerto e ficam fora do
+denominador de 8.895 decisões.
 
-Para tornar esse viés visível sem descartar a métrica, calculou-se um
-limite inferior de sensibilidade, correspondente ao acerto de cada
-modelo caso os 606 restritos entrassem no denominador contados como erro
-para todos os modelos. Trata-se do pior caso possível, pois a
-categoria certa desses chamados é desconhecida e nenhum modelo pode
-receber crédito neles. O intervalo entre limite inferior e superior
-substitui o número pontual como leitura honesta do acerto validado, com
-LinearSVC em 0,8919--0,9524 (amplitude 6,05 p.p.), SGD 0,8841--0,9441
-(6,00 p.p.), Regressão Logística 0,8806--0,9404 (5,98 p.p.), Extra Trees
-0,8720--0,9312 (5,92 p.p.), Random Forest 0,8677--0,9266 (5,89 p.p.),
-LSTM 0,8295--0,8858 (5,63 p.p.) e Naive Bayes 0,8097--0,8647 (5,50
-p.p.). O achado metodologicamente mais importante desta análise de
-sensibilidade é que o ranking relativo entre os sete modelos não muda
-em nenhum ponto do intervalo. Mesmo no pior caso, o LinearSVC permanece
-à frente e o Naive Bayes atrás de todos. A conclusão qualitativa sobre
-qual modelo usar é, portanto, robusta ao viés identificado, ao passo que
-o valor absoluto do acerto validado exige essa ressalva sempre que for
-citado isoladamente.
+A análise de sensibilidade incorpora os 639 restritos ao denominador como
+erro de todos os modelos, cenário conservador que produz um limite
+inferior. O LinearSVC varia de 0,8888 a 0,9527, o SGD de 0,8810 a 0,9442,
+a Regressão Logística de 0,8774 a 0,9404, o Extra Trees de 0,8690 a
+0,9314, o Random Forest de 0,8647 a 0,9268, o LSTM de 0,8278 a 0,8872 e
+o Naive Bayes de 0,8078 a 0,8659. A amplitude varia de 5,80 a 6,39
+pontos percentuais, mas o ranking relativo permanece inalterado. A
+conclusão sobre qual modelo priorizar é robusta ao cenário conservador;
+os valores absolutos exigem a ressalva amostral.
 
 **Tabela 2** Acerto validado por modelo e limite inferior de
-sensibilidade ao viés de seleção (n = 8.928). O limite inferior conta os
-606 casos restritos como erro de todos os modelos.
+sensibilidade ao viés de seleção (n = 8.895). O limite inferior inclui os
+639 casos restritos como erro de todos os modelos.
 
 | Modelo | Acerto validado | IC95% | Limite inferior |
 |---|---|---|---|
-| LinearSVC | 0,9524 | 0,9480 -- 0,9568 | 0,8919 |
-| SGD | 0,9441 | 0,9396 -- 0,9488 | 0,8841 |
-| Regressão Logística | 0,9404 | 0,9357 -- 0,9452 | 0,8806 |
-| Extra Trees | 0,9312 | 0,9259 -- 0,9365 | 0,8720 |
-| Random Forest | 0,9266 | 0,9213 -- 0,9319 | 0,8677 |
-| LSTM | 0,8858 | 0,8795 -- 0,8921 | 0,8295 |
-| Naive Bayes | 0,8647 | 0,8578 -- 0,8720 | 0,8097 |
+| LinearSVC | 0,9527 | 0,9482 -- 0,9569 | 0,8888 |
+| SGD | 0,9442 | 0,9394 -- 0,9490 | 0,8810 |
+| Regressão Logística | 0,9404 | 0,9355 -- 0,9453 | 0,8774 |
+| Extra Trees | 0,9314 | 0,9261 -- 0,9365 | 0,8690 |
+| Random Forest | 0,9268 | 0,9213 -- 0,9320 | 0,8647 |
+| LSTM | 0,8872 | 0,8805 -- 0,8940 | 0,8278 |
+| Naive Bayes | 0,8659 | 0,8588 -- 0,8731 | 0,8078 |
 
-**4.3 A classificação automática frente ao histórico: matriz de confusão
-validada**
+**4.3 BERTimbau no holdout comum de oito modelos**
 
-Um resultado adicional, obtido comparando a categoria histórica e a
-classificação automática em produção contra a mesma decisão validada
-pela conferência humana, qualifica a tese de rótulos ruidosos
-apresentada na Introdução. O cruzamento abrange as 17.790 conferências
-em que ambas as fontes foram avaliadas. A categoria histórica coincide
-com a decisão em 98,17% dos casos (17.464 de 17.790), acima do acerto da
-classificação automática frente à mesma referência (92,80%; 16.510 de
-17.790). A matriz
-de confusão (Tabela 3) mostra 16.510 casos em que ambas as fontes
-coincidem com a decisão, 326 em que nenhuma coincide, 954 em que o
-histórico acerta e a classificação automática erra, e nenhum caso em
-que a classificação automática corrige uma categoria histórica
-considerada incorreta. Essa ausência total tem explicação estrutural,
-discutida adiante.
+O BERTimbau foi comparado aos sete modelos no mesmo lote de 1.000
+chamados, com treino realizado fora dessas linhas. Entre os registros do
+lote, 639 possuem decisão humana M/N/P/Q e formam o denominador do acerto
+validado. O LinearSVC ocupa a primeira posição, com 0,7856 (IC95%:
+0,7527--0,8185), e o BERTimbau a segunda, com 0,7746 (IC95%:
+0,7402--0,8075). A diferença é de 1,10 ponto percentual em favor do
+LinearSVC e não é estatisticamente significativa (McNemar, *p* = 0,510;
+38 discordâncias em que somente o BERTimbau acerta e 45 em que somente o
+LinearSVC acerta).
 
-O que o resultado sustenta com mais segurança é a outra metade da
-premissa. Existe ruído real no histórico, pois 326 das 17.790
-conferências (1,83%) têm categoria histórica que não coincide com a
-decisão final. Esse ruído é proporcionalmente menor do que o risco de
-erro isolado da classificação automática na mesma amostra (954
-conferências, 5,36%). A
-implicação prática permanece: a classificação automática deve ser
-tratada como instrumento de triagem e auditoria complementar ao
-histórico, não como substituto ou árbitro superior a ele.
+O resultado indica que o pré-treinamento contextual em português torna o
+BERTimbau competitivo neste corpus, mas não sustenta superioridade sobre
+o classificador linear. A leitura deve permanecer separada do ranking da
+Subseção 4.2: o lote corresponde aos primeiros registros elegíveis, não é
+probabilístico e não cobre o corpus integral. Além disso, o modo
+automático do BERTimbau usa subamostragem estratificada e parada
+antecipada por limite computacional. A comparação responde se o modelo é
+competitivo em um recorte comum, mas não substitui uma execução
+*out-of-fold* integral.
 
-**Tabela 3** Matriz de confusão entre classificação automática e
-histórico, contra a decisão validada (n = 17.790 conferências).
+**Tabela 3** Comparação dos oito modelos no mesmo holdout (n = 1.000;
+n = 639 com decisão validada).
 
-| | Histórico correto | Histórico incorreto |
-|---|---|---|
-| **Classificação automática correta** | 16.510 | 0 |
-| **Classificação automática incorreta** | 954 | 326 |
-
-A ausência total de casos na célula "classificação automática correta /
-histórico incorreto" tem explicação estrutural. Quando a categoria
-decidida vem da confirmação da própria categoria histórica, a coluna
-"histórico incorreto" fica descartada para aquela linha por construção.
-A memória de decisão (Subseção 3.7) reforça esse efeito ao reaproveitar
-categorias já validadas, o que alinha a classificação automática às
-decisões confirmadas. A célula-zero mede, portanto, uma propriedade do
-desenho da conferência, e não a incapacidade de a classificação
-automática corrigir o histórico. Separar as duas coisas exigiria
-rastrear a origem de cada decisão validada, o que o desenho atual não
-permite.
+| Modelo | Concordância histórica | Acerto validado | IC95% validado |
+|---|---|---|---|
+| LinearSVC | 0,6560 | 0,7856 | 0,7527 -- 0,8185 |
+| BERTimbau | 0,6520 | 0,7746 | 0,7402 -- 0,8075 |
+| Regressão Logística | 0,6280 | 0,7653 | 0,7324 -- 0,7981 |
+| SGD | 0,6250 | 0,7621 | 0,7293 -- 0,7950 |
+| Extra Trees | 0,6120 | 0,7167 | 0,6808 -- 0,7527 |
+| Random Forest | 0,5950 | 0,6948 | 0,6604 -- 0,7308 |
+| LSTM | 0,5190 | 0,6526 | 0,6166 -- 0,6886 |
+| Naive Bayes | 0,5390 | 0,6354 | 0,5978 -- 0,6714 |
 
 ```{=latex}
 \FloatBarrier
@@ -1019,8 +996,9 @@ atualização da base.
 (Shannon/Jensen-Shannon)**
 
 O diagnóstico de Shannon abrange oito fontes comparáveis, a
-classificação automática em produção e os sete modelos avaliados. O
-BERTimbau foi excluído por não ter treino concluído. Duas leituras
+classificação automática em produção e os sete modelos com predições
+sobre toda a base. O BERTimbau foi excluído dessa análise porque não
+possui predições integrais materializadas. Duas leituras
 distintas emergem da Tabela 6. O LSTM apresenta a maior diversidade de
 categorias previstas, com entropia normalizada de 0,8213, ao passo que o
 LinearSVC exibe a menor divergência de Jensen-Shannon frente à
@@ -1123,8 +1101,8 @@ fonte de classificação.
 
 Nos recortes de comparação por lote (1.000 registros cada), os seis
 modelos clássicos tiveram tempos de treino entre 1,14 s e 21,30 s. Não
-há medição comparável de custo para LSTM ou BERTimbau, portanto não é
-possível ordenar esses dois modelos frente aos demais. A tabela informa
+há medição padronizada de custo para LSTM ou BERTimbau no mesmo ambiente
+e protocolo, portanto não é possível ordená-los frente aos demais. A tabela informa
 exclusivamente as medições disponíveis para os modelos clássicos.
 
 **Tabela 7** Custo computacional por lote de 1.000 registros. A acurácia
@@ -1230,61 +1208,43 @@ Suplementar.
 \FloatBarrier
 ```
 
-**5.1 Concordância histórica frente ao acerto validado**
+**5.1 Concordância histórica, acerto validado e BERTimbau**
 
 A comparação entre concordância histórica (Subseção 4.1) e desempenho
-validado (Subseção 4.2) revela um descolamento sistemático entre as duas
-grandezas. O acerto validado do LinearSVC (95,24%) supera sua concordância com o
-histórico (80,31%) em 14,93 pontos percentuais, diferença que mede o
-quanto o rótulo administrativo subestima o classificador. Nenhuma dessas
-grandezas estima o desempenho da base completa, conforme a ressalva
-amostral detalhada na Subseção 5.3.
+validado (Subseção 4.2) revela que as duas grandezas não são
+intercambiáveis. O acerto validado do LinearSVC (95,27%) supera sua
+concordância com o histórico (80,31%) em 14,96 pontos percentuais. Essa
+diferença não pode ser interpretada como taxa de erro do histórico, pois
+a amostra conferida é não probabilística e a própria regra de decisão
+condiciona quais casos recebem categoria de referência.
 
-Um segundo mecanismo de viés, estrutural e mais específico, soma-se à
-não aleatoriedade da amostra. A regra de decisão da verdade validada
-(Subseção 3.7) exclui do denominador do acerto validado os chamados em
-que o avaliador julgou erradas todas as fontes conferidas, designados
-"restritos". Dos 9.534 chamados conferidos, 606 (6,4%) estão nessa
-condição e ficam fora dos 8.928 usados na Subseção 4.2. Como esses casos
-não têm categoria de referência contra a qual comparar a predição de
-cada modelo, o acerto validado reportado como número pontual constitui um
-limite superior, pois mede o desempenho apenas onde pelo menos uma fonte
-já estava correta por construção.
+O mecanismo estrutural aparece nos 639 chamados restritos, equivalentes a
+6,7% dos 9.534 conferidos. Eles incluem casos em que todas as fontes
+avaliadas foram rejeitadas e 201 conflitos entre fontes marcadas como
+corretas. A análise de sensibilidade os trata como erro de todos os
+modelos e encontra amplitudes entre 5,80 e 6,39 pontos percentuais, sem
+alterar o ranking. Assim, a escolha qualitativa do LinearSVC permanece
+robusta, mas o valor pontual de acerto validado deve ser sempre
+acompanhado da ressalva amostral.
 
-A análise de sensibilidade recalcula um limite inferior, tratando os 606
-restritos como erro de todos os modelos, e apura amplitude de 5,50 a
-6,05 pontos percentuais conforme o modelo. A amplitude é relevante em
-termos absolutos, mas o *ranking* relativo entre os sete modelos
-permanece inalterado em qualquer ponto do intervalo. Duas implicações
-decorrem daí. A conclusão qualitativa sobre qual modelo priorizar é
-robusta a esse viés, ao passo que o valor pontual de acerto validado
-exige a ressalva do intervalo sempre que for citado isoladamente ou
-comparado a *benchmarks* externos. Esse mecanismo também explica a
-célula zerada da matriz de confusão (Subseção 4.3). Os casos em que o
-avaliador não confirma nenhuma fonte como correta, justamente onde a
-classificação automática teria mais chance de acertar sozinha, ficam
-fora da amostra decidida por construção.
+O desenho atual também não permite estimar uma taxa empírica de erro do
+rótulo histórico. Quando o histórico é marcado como errado e nenhuma
+categoria alternativa é decidida, o chamado permanece restrito; sem o
+preenchimento da categoria manual Q, não há referência final para afirmar
+qual fonte acertou. A hipótese de rótulos potencialmente ruidosos continua
+fundamentada na literatura e justifica a conferência, mas não deve ser
+apresentada como taxa confirmada por esta amostra (KEJRIWAL *et al.*,
+2024; ZHANG *et al.*, 2025).
 
-A distinção entre concordância e acerto validado permanece
-metodologicamente necessária, e a matriz da Subseção 4.3 mostra por quê.
-Quando as duas fontes divergem da decisão final, o histórico está correto
-em 954 conferências, contra nenhuma em que a classificação automática
-corrige um erro genuíno do registro original, com a ressalva estrutural
-já discutida sobre a célula zerada. O achado preserva a premissa de que
-a categoria histórica não é verdade absoluta, já que persiste taxa real
-de erro confirmado no registro original, em 1,83% das conferências.
-Ao mesmo tempo, o resultado adverte contra a leitura oposta e igualmente
-equivocada, de que baixa
-concordância com o histórico implicaria acerto da classificação
-automática. Cabe destacar que a validação humana cumpre aqui função
-insubstituível, pois só ela distingue as duas situações, que a taxa de
-concordância isolada confunde.
-
-Na amostra conferida, o LinearSVC lidera tanto a concordância histórica
-quanto o acerto validado (Subseções 4.1 e 4.2). O resultado descreve
-esta base e esta amostra, sem estabelecer superioridade generalizável de
-classificadores lineares sobre arquiteturas neurais. A comparação de
-custo permanece restrita aos seis modelos clássicos da Tabela 7.
+A avaliação do BERTimbau acrescenta uma terceira perspectiva. No mesmo
+*holdout*, o transformador alcança 77,46% de acerto validado, contra
+78,56% do LinearSVC, sem diferença significativa. O pré-treinamento
+contextual reduz a distância observada entre modelos lineares e a LSTM
+que aprende *embeddings* do zero, mas não produz ganho demonstrável sobre
+o LinearSVC. Como os protocolos são distintos, a métrica do BERTimbau não
+deve ser comparada diretamente aos 95,27% da avaliação integral. O
+resultado sustenta sua competitividade e justifica uma futura execução
+*out-of-fold* completa, não sua adoção preferencial imediata.
 
 ```{=latex}
 \FloatBarrier
@@ -1345,34 +1305,40 @@ essa conferência e aplicar calibração formal por modelo.
 
 **5.3 Limitações**
 
-Os dados provêm de uma única instituição federal de ensino superior,
-com textos em português brasileiro e taxonomia institucional própria.
+Os dados provêm de uma única instituição federal de ensino superior, com
+textos em português brasileiro e taxonomia institucional própria.
 Estender o desempenho relatado a outras instituições, taxonomias ou
-idiomas exige validação externa, ainda não realizada.
+idiomas exige validação externa.
 
-A amostra conferida por avaliadores humanos não é probabilística, porque
+A amostra conferida por avaliadores humanos não é probabilística, pois
 prioriza divergências entre modelo e histórico e casos de maior
-criticidade. Os números de acerto validado descrevem, portanto, a
-amostra conferida, e não estimam por inferência o desempenho da base
-completa (COCHRAN, 1977). Uma regra de decisão adicional exclui do
-denominador os casos em que nenhuma fonte conferida foi confirmada como
-correta, 6,4% dos chamados conferidos. A análise de sensibilidade
-correspondente mostra amplitude de 5,50 a 6,05 pontos percentuais entre
-o cenário mais otimista e o mais conservador, sem alterar o ranking
-relativo entre os modelos.
+criticidade. Os números de acerto validado descrevem a amostra conferida,
+e não estimam por inferência o desempenho da base completa (COCHRAN,
+1977). Dos 9.534 chamados conferidos, 639 permanecem sem categoria
+decidida e ficam fora do denominador padrão. A análise de sensibilidade
+apura amplitude de 5,80 a 6,39 pontos percentuais entre o cenário
+conservador e o valor pontual, sem alterar o ranking relativo.
 
-As Tabelas 1 e 2 usam particionamento por linha, e não por grupo
-textual. A comparação da Subseção 3.5 mostra que isso superestima a
-acurácia em 0,58 ponto percentual em média, sem alterar a ordenação dos
-modelos, exceto entre SGD e Random Forest, cuja diferença já não era
-significativa. Os valores absolutos devem ser lidos com essa margem.
+A regra M/N/P/Q ainda depende do preenchimento manual de uma categoria
+quando todas as fontes são rejeitadas ou entram em conflito. Enquanto
+essa categoria não é informada, o protocolo não permite quantificar a
+taxa de erro do histórico nem atribuir acerto a um modelo nesses casos.
+A validação confirma a necessidade de governança sobre os rótulos, mas
+não autoriza estimar, com o desenho atual, a prevalência de categorias
+históricas incorretas.
 
-Duas limitações dizem respeito aos modelos. O BERTimbau, único
-classificador contextual previsto no protocolo, não teve o ajuste fino
-concluído e ficou fora de todas as comparações. O LSTM treina seus
-*embeddings* do zero, sem vetores pré-treinados em português, condição
-que penaliza redes neurais em corpora de porte médio e ajuda a explicar
-seu desempenho inferior ao dos modelos lineares.
+As Tabelas 1 e 2 usam particionamento por linha, e não por grupo textual.
+A comparação da Subseção 3.5 mostra superestimação média de 0,58 ponto
+percentual, sem alteração relevante da ordenação. Os valores absolutos
+devem ser lidos com essa margem.
+
+O BERTimbau teve o ajuste fino concluído, mas foi avaliado apenas em um
+*holdout* comum de 1.000 chamados, dos quais 639 possuem decisão humana.
+Não há predições *out-of-fold* integrais nem medição de custo executada no
+mesmo ambiente dos demais modelos, o que impede inseri-lo no ranking
+principal ou comparar eficiência computacional de forma direta. A LSTM,
+por sua vez, treina *embeddings* do zero, sem vetores pré-treinados em
+português, condição que limita a comparação entre arquiteturas neurais.
 
 ```{=latex}
 \FloatBarrier
@@ -1396,47 +1362,38 @@ demonstra que ela exige conferência humana para se sustentar.
 
 **6. CONSIDERAÇÕES FINAIS**
 
-A contribuição central deste artigo é metodológica. Em vez de apenas
-eleger o melhor classificador, o protocolo separa duas grandezas que a
-literatura de classificação de chamados costuma tratar como uma só, a
-concordância com o rótulo histórico e o acerto validado por conferência
-humana. Essa separação depende de uma camada de validação que registra a
-decisão do avaliador, veta categorias já rejeitadas e trava as
-confirmadas, convertendo cada conferência em conhecimento persistente.
-Foi ela que permitiu medir o desempenho contra uma referência construída,
-e não contra um rótulo administrativo aceito por conveniência.
+A contribuição central deste artigo é metodológica. O protocolo separa a
+concordância com o rótulo histórico do acerto validado por conferência
+humana e registra decisões, vetos e categorias manuais como conhecimento
+persistente. Essa camada evita tratar o histórico como verdade automática
+e, ao mesmo tempo, impede concluir que toda divergência da IA representa
+correção do registro original.
 
-O resultado prático confirma que a classificação automática serve à
-triagem e à auditoria, mas não dispensa a conferência humana. Sobre
-8.928 chamados com decisão validada, o LinearSVC alcançou 95,24% de
-acerto validado (IC95%: 94,80%--95,68%), à frente dos demais seis
-modelos, e nenhum dos três *ensembles* avaliados o superou com
-significância estatística. A recomendação operacional é usar o LinearSVC
-isolado, escolha que o custo computacional reforça, já que os modelos
-lineares treinam em uma fração do tempo exigido pelos *ensembles* de
-árvores sem perder acerto. A confiança utilizada neste artigo é bruta,
-e liberar a faixa igual ou superior a 95% para decisão automática em
-produção exige calibração formal por modelo, por Platt ou por regressão
-isotônica (PLATT, 1999; GUO *et al.*, 2017). A matriz de confusão mostra
-por que a conferência continua necessária, pois o histórico
-administrativo também contém erros confirmados, em 1,83% das
-conferências. Esses valores descrevem a amostra conferida, com a ressalva
-de representatividade já registrada nas Limitações. As divergências
-entre modelos e histórico, por sua vez, deixaram de ser ruído descartado
-e passaram a alimentar a fila de revisão taxonômica, com 3.268 chamados
-sinalizados por alto desacordo estrutural entre as fontes.
+Na avaliação integral de 8.895 chamados com decisão M/N/P/Q, o LinearSVC
+alcança 95,27% de acerto validado (IC95%: 94,82%--95,69%) e nenhum dos
+três *ensembles* o supera. A análise conservadora que inclui 639 casos
+restritos reduz o limite do LinearSVC para 88,88%, sem modificar a
+ordenação dos modelos. A recomendação operacional permanece usar o
+LinearSVC isolado, com calibração formal antes de automatizar decisões de
+alta confiança.
 
-Duas frentes dão continuidade ao trabalho. A primeira é a validação
-externa em outras instituições federais de ensino superior, para testar
-se o padrão observado se mantém sob taxonomias e volumes distintos, com
-o BERTimbau incorporado à comparação. A segunda é o uso desta camada
-classificada como entrada de modelos de previsão de demanda e de
-priorização multicritério de intervenções, lacuna já apontada na
-literatura de gestão de manutenção,
-que raramente incorpora dados operacionais de chamados. Nas duas
-direções, o protocolo aqui descrito funciona como pré-requisito, pois
-previsão e priorização só são confiáveis sobre uma base cuja
-classificação seja, ela própria, auditável.
+O BERTimbau foi efetivamente treinado e avaliado. No *holdout* comum de
+1.000 chamados, com 639 decisões validadas, alcança 77,46%, contra 78,56%
+do LinearSVC, sem diferença significativa. O resultado mostra que o
+transformador é competitivo, mas não demonstra superioridade e não pode
+ser combinado ao ranking integral sem uma execução *out-of-fold* sobre
+toda a base.
+
+A finalização metodológica também exige reconhecer o que os dados não
+respondem. Como casos sem categoria decidida permanecem restritos, o
+desenho atual não estima a taxa de erro do histórico. A próxima etapa de
+validação deve preencher a categoria manual Q nesses casos, com prioridade
+para conflitos e rejeição de todas as fontes. Em paralelo, a validação
+externa em outras instituições e a execução integral do BERTimbau poderão
+testar a estabilidade dos resultados sob taxonomias e volumes distintos.
+A camada classificada poderá então alimentar modelos de previsão de
+demanda e de priorização multicritério de intervenções sobre uma base cuja
+incerteza e origem das decisões permanecem auditáveis.
 
 **REFERÊNCIAS**
 
@@ -1471,6 +1428,12 @@ Psychological Measurement, v. 20, n. 1, p. 37--46, 1960.
 
 DEMŠAR, J. Statistical comparisons of classifiers over multiple data
 sets. Journal of Machine Learning Research, v. 7, p. 1--30, 2006.
+
+DEVLIN, J.; CHANG, M.-W.; LEE, K.; TOUTANOVA, K. BERT:
+Pre-training of deep bidirectional transformers for language
+understanding. In: CONFERENCE OF THE NORTH AMERICAN CHAPTER OF THE
+ASSOCIATION FOR COMPUTATIONAL LINGUISTICS, 2019, Minneapolis.
+Proceedings [...]. Minneapolis: ACL, 2019. p. 4171--4186.
 
 DICICCIO, T. J.; EFRON, B. Bootstrap confidence intervals. Statistical
 Science, v. 11, n. 3, p. 189--228, 1996.
@@ -1633,6 +1596,11 @@ SHAPIRO, S. S.; WILK, M. B. An analysis of variance test for normality
 SOKOLOVA, M.; LAPALME, G. A systematic analysis of performance measures
 for classification tasks. Information Processing & Management, v. 45, n.
 4, p. 427--437, 2009.
+
+SOUZA, F.; NOGUEIRA, R.; LOTUFO, R. BERTimbau: pretrained BERT
+models for Brazilian Portuguese. In: BRAZILIAN CONFERENCE ON INTELLIGENT
+SYSTEMS, 9., 2020. Proceedings [...]. Cham: Springer, 2020. p. 403--417.
+DOI: 10.1007/978-3-030-61377-8_28.
 
 SPEARMAN, C. The proof and measurement of association between two
 things. American Journal of Psychology, v. 15, n. 1, p. 72--101, 1904.
