@@ -3,15 +3,17 @@ name: TEMPORARIO - rodada BERTimbau e Tabela 3
 # Fluxo descartavel para executar a rodada registrada no topo do README.
 # Apagar este arquivo junto com o bloco TEMPORARIO depois de conferir os resultados.
 #
-# A inclusao deste arquivo em main dispara o primeiro passo uma unica vez.
-# Quando o Transformer termina com sucesso, o mesmo workflow continua a sequencia.
+# O primeiro disparo foi feito pelo push que incluiu este arquivo em main.
+# Edicoes posteriores neste workflow nao reiniciam o Transformer.
+# Somente o Transformer iniciado por workflow_dispatch pode continuar a sequencia;
+# execucoes do cron noturno ficam fora desta rodada temporaria.
 
 on:
   push:
     branches:
       - main
     paths:
-      - ".github/workflows/temporario_rodada_bertimbau.yml"
+      - ".github/rodada_bertimbau.trigger"
   workflow_run:
     workflows:
       - "Transformer fine-tuning (BERTimbau)"
@@ -50,6 +52,7 @@ jobs:
     if: >-
       ${{
         github.event_name == 'workflow_run' &&
+        github.event.workflow_run.event == 'workflow_dispatch' &&
         github.event.workflow_run.conclusion == 'success' &&
         github.event.workflow_run.head_branch == 'main'
       }}
@@ -147,6 +150,7 @@ jobs:
     if: >-
       ${{
         github.event_name == 'workflow_run' &&
+        github.event.workflow_run.event == 'workflow_dispatch' &&
         github.event.workflow_run.conclusion != 'success' &&
         github.event.workflow_run.head_branch == 'main'
       }}
