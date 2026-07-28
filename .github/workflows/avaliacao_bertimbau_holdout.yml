@@ -1,0 +1,65 @@
+name: Avaliacao held-out do BERTimbau
+
+on:
+  workflow_dispatch:
+    inputs:
+      min_lote:
+        description: "Minimo de previsoes no lote comum"
+        default: "500"
+      min_validados:
+        description: "Minimo de decisoes humanas no lote"
+        default: "50"
+      n_boot:
+        description: "Reamostragens bootstrap"
+        default: "2000"
+
+concurrency:
+  group: avaliacao-bertimbau-holdout
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  avaliar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: requirements-estatistica.txt
+      - name: Instalar dependencias estatisticas
+        run: python -m pip install --retries 5 --timeout 120 -r requirements-estatistica.txt
+      - name: Recriar chave da conta de servico
+        env:
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+        run: |
+          if [ -z "$GCP_SA_KEY" ]; then echo "Secret GCP_SA_KEY ausente." >&2; exit 1; fi
+          printf '%s' "$GCP_SA_KEY" > credenciais_sa.json
+      - name: Avaliar oito modelos no mesmo holdout
+        run: |
+          python src/avaliacao_bertimbau_holdout.py \
+            --min-lote "${{ github.event.inputs.min_lote || '500' }}" \
+            --min-validados "${{ github.event.inputs.min_validados || '50' }}" \
+            --n-boot "${{ github.event.inputs.n_boot || '2000' }}"
+      - name: Remover credenciais
+        if: always()
+        run: rm -f credenciais_sa.json
+      - name: Commit da avaliacao agregada
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/dados/avaliacao_bertimbau_holdout.json
+          git diff --cached --quiet && { echo "sem mudanca na avaliacao"; exit 0; }
+          git commit -m "avaliacao held-out do BERTimbau [skip ci]"
+          for i in 1 2 3 4 5; do
+            git pull --rebase --autostash -X theirs origin main && git push && exit 0
+            git rebase --abort 2>/dev/null || true
+            echo "push rejeitado (tentativa $i/5); novo rebase em 5s"; sleep 5
+          done
+          echo "push falhou apos 5 tentativas" >&2; exit 1

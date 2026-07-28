@@ -1,13 +1,9 @@
 name: Comparar modelos (lote)
 
 # Roda 1 modelo (ou 'todos' os leves) sobre o MESMO lote [inicio, inicio+limite),
-# na mesma ordem, e grava metricas comparaveis (COMPARACAO_MODELOS / _CATEGORIA /
+# na mesma ordem, e produz metricas comparaveis (COMPARACAO_MODELOS / _CATEGORIA /
 # _PREVISOES). Nao altera o fluxo de classificacao (etapa1/etapa2).
-#
-# AUTOMATICO CONDICIONADO: 1x/dia, mas a comparacao so roda quando a base cresceu
-# >= 1000 chamados desde a ultima vez OU quando ainda nao ha comparacao publicada.
-# No cron usa o lote padrao (leves, 200) para custo baixo; varreduras completas
-# (passo>0, lstm) continuam manuais. Disparo manual ignora a guarda e sempre roda.
+# Manual: dry-run por padrao. Gravacao exige aplicar=true apos revisao do diagnostico.
 
 on:
   schedule:
@@ -34,12 +30,15 @@ on:
         description: "Tamanho do lote (0 = todos)"
         default: "200"
       passo:
-        description: "Se >0, ladrilha TODA a base nesse passo e substitui a tabela (cobertura completa)"
+        description: "Se >0, ladrilha TODA a base nesse passo e substitui a tabela"
         default: "0"
+      aplicar:
+        description: "Gravar somente nas abas privadas COMPARACAO_*"
+        type: boolean
+        default: false
 
-# Grupo PROPRIO: o tiling completo pode levar bastante tempo e NAO deve bloquear os
-# fluxos de 15 min (Etapa 1/LSTM, multimodelo, dashboard). Escreve so as abas
-# COMPARACAO_* (worksheets separadas), entao nao conflita com as colunas principais.
+# Grupo proprio: comparacoes escrevem apenas nas abas COMPARACAO_* e nao devem
+# bloquear classificacao principal ou dashboard.
 concurrency:
   group: comparacao-modelos
   cancel-in-progress: false
@@ -58,7 +57,7 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
-      - name: Avaliar avanco da base (>=1000 chamados ou comparacao vazia)
+      - name: Avaliar avanco da base
         id: g
         run: python src/guard_automacao.py --chave comparar_modelos --metrica registros --limiar 1000 --forcar-se-aba-zero comparacao_modelos
 
@@ -78,9 +77,9 @@ jobs:
           cache-dependency-path: |
             requirements-leves.txt
             requirements.txt
-      - name: Dependencias (leves)
+      - name: Dependencias leves
         run: python -m pip install --retries 5 --timeout 120 -r requirements-leves.txt
-      - name: TensorFlow (apenas se modelo=lstm)
+      - name: TensorFlow apenas para LSTM
         if: ${{ github.event.inputs.modelo == 'lstm' }}
         run: python -m pip install --retries 5 --timeout 120 tensorflow==2.17.0
       - name: Recriar chave da conta de servico
@@ -89,22 +88,27 @@ jobs:
         run: |
           if [ -z "$GCP_SA_KEY" ]; then echo "Secret GCP_SA_KEY ausente." >&2; exit 1; fi
           printf '%s' "$GCP_SA_KEY" > credenciais_sa.json
-      - name: Comparar
+      - name: Comparar no lote comum
         run: |
-          # No cron, ladrilha TODA a base em janelas de 1.000 (cobertura held-out completa,
-          # nao so 0-200). No manual respeita o input 'passo'.
           PASSO="${{ github.event.inputs.passo || '0' }}"
-          if [ "${{ github.event_name }}" = "schedule" ]; then PASSO="1000"; fi
+          APLICAR=""
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            PASSO="1000"
+            APLICAR="--aplicar"
+          elif [ "${{ github.event.inputs.aplicar }}" = "true" ]; then
+            APLICAR="--aplicar"
+          fi
           python src/comparar_modelos_lote.py \
             --modelo "${{ github.event.inputs.modelo || 'todos' }}" \
             --inicio "${{ github.event.inputs.inicio || '0' }}" \
             --limite "${{ github.event.inputs.limite || '200' }}" \
             --passo "$PASSO" \
-            --aplicar
+            $APLICAR
       - name: Remover credenciais
         if: always()
         run: rm -f credenciais_sa.json
-      - name: Registrar marcador e commit do estado
+      - name: Registrar marcador da aplicacao
+        if: ${{ github.event_name == 'schedule' || github.event.inputs.aplicar == 'true' }}
         run: |
           python src/guard_automacao.py --registrar --chave comparar_modelos --valor '${{ needs.guard.outputs.valor_atual || '0' }}'
           git config user.name "github-actions[bot]"

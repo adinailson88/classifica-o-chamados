@@ -1,4 +1,4 @@
-name: TEMPORARIO - incorporar BERTimbau na avaliacao final
+name: TEMPORARIO - concluir avaliacao held-out do BERTimbau
 
 on:
   push:
@@ -17,7 +17,7 @@ concurrency:
 jobs:
   incorporar:
     runs-on: ubuntu-latest
-    timeout-minutes: 240
+    timeout-minutes: 300
     env:
       GH_TOKEN: ${{ github.token }}
       REPO: ${{ github.repository }}
@@ -34,9 +34,7 @@ jobs:
             local status="$1"
             local etapa="$2"
             local detalhe="$3"
-            local atualizado
-            local conteudo
-            local sha
+            local atualizado conteudo sha
             atualizado=$(TZ=America/Bahia date '+%d/%m/%Y %H:%M:%S')
             conteudo=$(jq -n \
               --arg status "$status" \
@@ -46,21 +44,17 @@ jobs:
               --arg workflow_run "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" \
               '{status:$status, etapa:$etapa, detalhe:$detalhe, atualizado_em:$atualizado_em, workflow_run:$workflow_run}' \
               | base64 -w0)
-
             set +e
             for _ in $(seq 1 5); do
               sha=$(gh api "repos/$REPO/contents/$ESTADO?ref=main" --jq .sha 2>/dev/null || true)
               if [ -n "$sha" ]; then
                 gh api --method PUT "repos/$REPO/contents/$ESTADO" \
-                  -f message="estado da incorporacao do BERTimbau [skip ci]" \
-                  -f content="$conteudo" \
-                  -f sha="$sha" \
-                  -f branch=main >/dev/null && break
+                  -f message="estado da avaliacao do BERTimbau [skip ci]" \
+                  -f content="$conteudo" -f sha="$sha" -f branch=main >/dev/null && break
               else
                 gh api --method PUT "repos/$REPO/contents/$ESTADO" \
-                  -f message="inicia incorporacao do BERTimbau [skip ci]" \
-                  -f content="$conteudo" \
-                  -f branch=main >/dev/null && break
+                  -f message="inicia avaliacao do BERTimbau [skip ci]" \
+                  -f content="$conteudo" -f branch=main >/dev/null && break
               fi
               sleep 3
             done
@@ -78,22 +72,15 @@ jobs:
           disparar_e_aguardar() {
             local workflow="$1"
             shift
-            local desde
-            local run_id=""
+            local desde run_id=""
             desde=$(date -u '+%Y-%m-%dT%H:%M:%SZ')
             gh workflow run "$workflow" --repo "$REPO" --ref main "$@"
             for _ in $(seq 1 60); do
-              run_id=$(gh run list \
-                --repo "$REPO" \
-                --workflow "$workflow" \
-                --event workflow_dispatch \
-                --limit 30 \
-                --json databaseId,createdAt \
+              run_id=$(gh run list --repo "$REPO" --workflow "$workflow" \
+                --event workflow_dispatch --limit 30 --json databaseId,createdAt \
                 --jq ".[] | select(.createdAt >= \"$desde\") | .databaseId" \
                 | head -n 1 || true)
-              if [ -n "$run_id" ]; then
-                break
-              fi
+              [ -n "$run_id" ] && break
               sleep 5
             done
             if [ -z "$run_id" ]; then
@@ -105,47 +92,82 @@ jobs:
             LAST_RUN_ID="$run_id"
           }
 
+          exigir_dry_run() {
+            local run_id="$1"
+            local padrao="$2"
+            gh run view "$run_id" --repo "$REPO" --log > /tmp/dry_run.log
+            grep -q "$padrao" /tmp/dry_run.log
+          }
+
           obter_json_main() {
             local caminho="$1"
             local destino="$2"
             gh api "repos/$REPO/contents/$caminho?ref=main" --jq .content \
-              | tr -d '\n' \
-              | base64 -d > "$destino"
+              | tr -d '\n' | base64 -d > "$destino"
           }
 
           ETAPA="verificar_treino"
           obter_json_main "docs/dados/bertimbau_training_state.json" /tmp/bertimbau_state.json
-          jq -e '.status == "ok" and .motivo == "treino concluido (modo auto)"' /tmp/bertimbau_state.json >/dev/null
-          registrar_estado "em_execucao" "$ETAPA" "Treino concluido e validado; iniciando avaliacao final."
+          jq -e '.status == "ok" and .acao == "comparar"' /tmp/bertimbau_state.json >/dev/null
+          registrar_estado "em_execucao" "$ETAPA" "Treino BERTimbau concluido; preparando o mesmo holdout para os oito modelos."
 
-          ETAPA="avaliacao_final"
-          disparar_e_aguardar avaliacao_final.yml
-          obter_json_main "docs/dados/avaliacao_final.json" /tmp/avaliacao_final.json
+          ETAPA="leves_dry_run"
+          disparar_e_aguardar comparar_modelos.yml \
+            -f modelo=todos -f inicio=0 -f limite=1000 -f passo=0 -f aplicar=false
+          exigir_dry_run "$LAST_RUN_ID" 'modo=dry-run (nada gravado)'
+          registrar_estado "em_execucao" "$ETAPA" "Dry-run dos seis modelos leves concluido; nenhuma escrita realizada."
+
+          ETAPA="leves_aplicar"
+          disparar_e_aguardar comparar_modelos.yml \
+            -f modelo=todos -f inicio=0 -f limite=1000 -f passo=0 -f aplicar=true
+          registrar_estado "em_execucao" "$ETAPA" "Previsoes dos seis modelos leves gravadas somente nas abas COMPARACAO_*."
+
+          ETAPA="lstm_dry_run"
+          disparar_e_aguardar comparar_modelos.yml \
+            -f modelo=lstm -f inicio=0 -f limite=1000 -f passo=0 -f aplicar=false
+          exigir_dry_run "$LAST_RUN_ID" 'modo=dry-run (nada gravado)'
+          registrar_estado "em_execucao" "$ETAPA" "Dry-run do LSTM concluido; nenhuma escrita realizada."
+
+          ETAPA="lstm_aplicar"
+          disparar_e_aguardar comparar_modelos.yml \
+            -f modelo=lstm -f inicio=0 -f limite=1000 -f passo=0 -f aplicar=true
+          registrar_estado "em_execucao" "$ETAPA" "Previsoes LSTM gravadas somente nas abas COMPARACAO_*."
+
+          ETAPA="avaliacao_holdout"
+          disparar_e_aguardar avaliacao_bertimbau_holdout.yml \
+            -f min_lote=500 -f min_validados=50 -f n_boot=2000
+          obter_json_main "docs/dados/avaliacao_bertimbau_holdout.json" /tmp/holdout.json
           jq -e '
             .status == "ok"
-            and .estado_bertimbau == "ok"
-            and ((.modelos_excluidos // []) | index("transformer_ft") | not)
-            and any(.por_modelo[]?; .modelo == "transformer_ft")
-          ' /tmp/avaliacao_final.json >/dev/null
-          BERT_ACC=$(jq -r '.por_modelo[] | select(.modelo == "transformer_ft") | .acerto_validado' /tmp/avaliacao_final.json)
-          registrar_estado "em_execucao" "$ETAPA" "BERTimbau incorporado na avaliacao final; acerto_validado=$BERT_ACC."
+            and .protocolo.n_lote == 1000
+            and .protocolo.n_validado_no_lote >= 50
+            and (.modelos | length) == 8
+            and any(.modelos[]; .modelo == "transformer_ft")
+          ' /tmp/holdout.json >/dev/null
+          BERT_ACC=$(jq -r '.bertimbau.acerto_validado' /tmp/holdout.json)
+          BERT_POS=$(jq -r '.bertimbau.posicao_validada' /tmp/holdout.json)
+          registrar_estado "em_execucao" "$ETAPA" "Avaliacao comum concluida: BERTimbau acerto_validado=$BERT_ACC, posicao=$BERT_POS/8."
+
+          ETAPA="avaliacao_principal"
+          disparar_e_aguardar avaliacao_final.yml
+          registrar_estado "em_execucao" "$ETAPA" "Ranking integral dos sete modelos materializados reconciliado separadamente."
+
+          ETAPA="dashboard_intermediario"
+          disparar_e_aguardar dashboard.yml
 
           ETAPA="estatistica"
           disparar_e_aguardar estatistica.yml
-          obter_json_main "docs/dados/estatistica.json" /tmp/estatistica.json
-          jq -e '(.modelos // []) | index("transformer_ft") != null' /tmp/estatistica.json >/dev/null
-          registrar_estado "em_execucao" "$ETAPA" "BERTimbau incorporado na estatistica multimodelo."
+          registrar_estado "em_execucao" "$ETAPA" "Estatistica integral dos modelos materializados regenerada."
 
           ETAPA="consolidacao_dry_run"
           disparar_e_aguardar consolidar_validacao.yml -f aplicar=false
-          gh run view "$LAST_RUN_ID" --repo "$REPO" --log > /tmp/consolidacao_dry_run.log
-          grep -q 'modo=dry-run (nada gravado na planilha)' /tmp/consolidacao_dry_run.log
-          registrar_estado "em_execucao" "$ETAPA" "Dry-run concluido com sucesso; nenhuma escrita realizada."
+          exigir_dry_run "$LAST_RUN_ID" 'modo=dry-run (nada gravado na planilha)'
+          registrar_estado "em_execucao" "$ETAPA" "Dry-run da consolidacao M/N/P/Q concluido; nenhuma escrita realizada."
 
           ETAPA="consolidacao_aplicar"
           disparar_e_aguardar consolidar_validacao.yml -f aplicar=true
-          registrar_estado "em_execucao" "$ETAPA" "Abas privadas consolidadas pela regra M/N/P/Q; aba principal preservada."
+          registrar_estado "em_execucao" "$ETAPA" "Abas privadas consolidadas; aba principal e M/N/O/P/Q preservadas."
 
-          ETAPA="dashboard"
+          ETAPA="dashboard_final"
           disparar_e_aguardar dashboard.yml
-          registrar_estado "concluido" "$ETAPA" "Avaliacao, estatistica, consolidacao e dashboard concluidos; BERTimbau incorporado aos dados finais."
+          registrar_estado "concluido" "$ETAPA" "Dados finais prontos: avaliacao principal de sete modelos e avaliacao held-out comum com BERTimbau."
