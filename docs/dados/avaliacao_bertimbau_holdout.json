@@ -1,0 +1,166 @@
+{
+  "gerado_em": "28/07/2026 03:27",
+  "schema_version": "1.0",
+  "status": "ok",
+  "natureza": "comparacao held-out no mesmo lote; concordancia historica e acerto humano M/N/P/Q apresentados separadamente",
+  "protocolo": {
+    "aba_origem": "COMPARACAO_PREVISOES",
+    "lote_bertimbau": "27/07/2026 23:37",
+    "n_lote": 1000,
+    "n_validado_no_lote": 639,
+    "selecao": "mesmo conjunto de linhas da execucao BERTimbau; cada modelo treinado fora do lote pelo protocolo comparar_modelos_lote.py",
+    "separado_da_avaliacao_principal": true,
+    "motivo_separacao": "BERTimbau nao possui CLASSIF__transformer_ft OOF sobre toda a base; nao deve ser inserido artificialmente no ranking integral de sete modelos"
+  },
+  "decisoes_base_completa": {
+    "com_conferencia": 9534,
+    "decididos": 8895,
+    "restritos": 639,
+    "conflitos": 201
+  },
+  "modelos": [
+    {
+      "modelo": "linear_svc",
+      "execucao": "28/07/2026 03:19",
+      "n_total": 1000,
+      "concordancia_historico": 0.656,
+      "f1_macro_historico": 0.3659,
+      "n_validado": 639,
+      "acerto_validado": 0.7856,
+      "ic95_validado": [
+        0.7527,
+        0.8185
+      ],
+      "confianca_media": 0.0714,
+      "posicao_validada": 1
+    },
+    {
+      "modelo": "transformer_ft",
+      "execucao": "27/07/2026 23:37",
+      "n_total": 1000,
+      "concordancia_historico": 0.652,
+      "f1_macro_historico": 0.2763,
+      "n_validado": 639,
+      "acerto_validado": 0.7746,
+      "ic95_validado": [
+        0.7402,
+        0.8075
+      ],
+      "confianca_media": 0.7199,
+      "posicao_validada": 2
+    },
+    {
+      "modelo": "regressao_logistica",
+      "execucao": "28/07/2026 03:19",
+      "n_total": 1000,
+      "concordancia_historico": 0.628,
+      "f1_macro_historico": 0.3501,
+      "n_validado": 639,
+      "acerto_validado": 0.7653,
+      "ic95_validado": [
+        0.7324,
+        0.7981
+      ],
+      "confianca_media": 0.3039,
+      "posicao_validada": 3
+    },
+    {
+      "modelo": "sgd",
+      "execucao": "28/07/2026 03:19",
+      "n_total": 1000,
+      "concordancia_historico": 0.625,
+      "f1_macro_historico": 0.3247,
+      "n_validado": 639,
+      "acerto_validado": 0.7621,
+      "ic95_validado": [
+        0.7293,
+        0.795
+      ],
+      "confianca_media": 0.2436,
+      "posicao_validada": 4
+    },
+    {
+      "modelo": "extra_trees",
+      "execucao": "28/07/2026 03:19",
+      "n_total": 1000,
+      "concordancia_historico": 0.612,
+      "f1_macro_historico": 0.2945,
+      "n_validado": 639,
+      "acerto_validado": 0.7167,
+      "ic95_validado": [
+        0.6808,
+        0.7527
+      ],
+      "confianca_media": 0.5622,
+      "posicao_validada": 5
+    },
+    {
+      "modelo": "random_forest",
+      "execucao": "28/07/2026 03:19",
+      "n_total": 1000,
+      "concordancia_historico": 0.595,
+      "f1_macro_historico": 0.2707,
+      "n_validado": 639,
+      "acerto_validado": 0.6948,
+      "ic95_validado": [
+        0.6604,
+        0.7308
+      ],
+      "confianca_media": 0.5466,
+      "posicao_validada": 6
+    },
+    {
+      "modelo": "lstm",
+      "execucao": "28/07/2026 03:24",
+      "n_total": 1000,
+      "concordancia_historico": 0.519,
+      "f1_macro_historico": 0.2352,
+      "n_validado": 639,
+      "acerto_validado": 0.6526,
+      "ic95_validado": [
+        0.6166,
+        0.6886
+      ],
+      "confianca_media": 0.654,
+      "posicao_validada": 7
+    },
+    {
+      "modelo": "naive_bayes",
+      "execucao": "28/07/2026 03:19",
+      "n_total": 1000,
+      "concordancia_historico": 0.539,
+      "f1_macro_historico": 0.16,
+      "n_validado": 639,
+      "acerto_validado": 0.6354,
+      "ic95_validado": [
+        0.5978,
+        0.6714
+      ],
+      "confianca_media": 0.5774,
+      "posicao_validada": 8
+    }
+  ],
+  "bertimbau": {
+    "posicao_validada": 2,
+    "acerto_validado": 0.7746,
+    "ic95_validado": [
+      0.7402,
+      0.8075
+    ],
+    "concordancia_historico": 0.652,
+    "f1_macro_historico": 0.2763,
+    "comparado_a": "linear_svc",
+    "delta_validado": -0.011,
+    "p_mcnemar": 0.5104099416812344,
+    "discordantes": {
+      "so_bertimbau_acerta": 38,
+      "so_melhor_outro_acerta": 45
+    }
+  },
+  "limitacoes": [
+    "O lote corresponde aos primeiros registros elegiveis, nao a uma amostra probabilistica.",
+    "O acerto validado descreve somente as linhas do lote que possuem decisao humana travada.",
+    "Os resultados held-out nao substituem a avaliacao integral OOF dos sete modelos materializados.",
+    "O modo automatico do BERTimbau usa subamostragem estratificada e early stopping por limite computacional."
+  ]
+}
