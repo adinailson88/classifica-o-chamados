@@ -1,5 +1,5 @@
 {
-  "gerado_em": "28/07/2026 04:01",
+  "gerado_em": "29/07/2026 05:05",
   "schema_version": "1.0",
   "run_id": "EXP_CLASSIFICACAO_CHAMADOS_2026_06_001",
   "script_origem": "src/avaliacao_final.py",
@@ -8,13 +8,13 @@
   "escopo_validacao": "amostra parcial, não aleatória; prioriza divergências e casos críticos",
   "estado_bertimbau": "ok",
   "natureza": "acerto contra a VERDADE VALIDADA pela conferencia humana (M/N/P/Q); NAO e concordancia com o historico",
-  "validados": 8895,
+  "validados": 1927,
   "minimo_recomendado": 50,
   "conferencias": {
-    "com_conferencia": 9534,
-    "decididos": 8895,
-    "restritos": 639,
-    "conflitos": 201
+    "com_conferencia": 9547,
+    "decididos": 1927,
+    "restritos": 7620,
+    "conflitos": 7469
   },
   "modelos_excluidos": [
     "transformer_ft"
@@ -29,129 +29,129 @@
     "sgd"
   ],
   "protocolo_bertimbau": "treino concluido, mas sem CLASSIF__transformer_ft OOF na base completa; avaliado separadamente em docs/dados/avaliacao_bertimbau_holdout.json",
-  "n_avaliado": 8895,
+  "n_avaliado": 1927,
   "status": "ok",
   "por_modelo": [
     {
-      "modelo": "linear_svc",
-      "n": 8895,
-      "acerto_validado": 0.9527,
-      "ic95": [
-        0.9482,
-        0.9569
-      ],
-      "peso_log_odds": 3.0021,
-      "peso_normalizado": 0.1477
-    },
-    {
-      "modelo": "sgd",
-      "n": 8895,
-      "acerto_validado": 0.9442,
-      "ic95": [
-        0.9394,
-        0.949
-      ],
-      "peso_log_odds": 2.8293,
-      "peso_normalizado": 0.1464
-    },
-    {
-      "modelo": "regressao_logistica",
-      "n": 8895,
-      "acerto_validado": 0.9404,
-      "ic95": [
-        0.9355,
-        0.9453
-      ],
-      "peso_log_odds": 2.7589,
-      "peso_normalizado": 0.1458
-    },
-    {
       "modelo": "extra_trees",
-      "n": 8895,
-      "acerto_validado": 0.9314,
+      "n": 1927,
+      "acerto_validado": 0.534,
       "ic95": [
-        0.9261,
-        0.9365
+        0.5127,
+        0.5568
       ],
-      "peso_log_odds": 2.6087,
+      "peso_log_odds": 0.1362,
       "peso_normalizado": 0.1444
     },
     {
-      "modelo": "random_forest",
-      "n": 8895,
-      "acerto_validado": 0.9268,
+      "modelo": "linear_svc",
+      "n": 1927,
+      "acerto_validado": 0.5335,
       "ic95": [
-        0.9213,
-        0.932
+        0.5117,
+        0.5558
       ],
-      "peso_log_odds": 2.5387,
-      "peso_normalizado": 0.1437
-    },
-    {
-      "modelo": "lstm",
-      "n": 8895,
-      "acerto_validado": 0.8872,
-      "ic95": [
-        0.8805,
-        0.894
-      ],
-      "peso_log_odds": 2.0629,
-      "peso_normalizado": 0.1376
+      "peso_log_odds": 0.1341,
+      "peso_normalizado": 0.1442
     },
     {
       "modelo": "naive_bayes",
-      "n": 8895,
-      "acerto_validado": 0.8659,
+      "n": 1927,
+      "acerto_validado": 0.5324,
       "ic95": [
-        0.8588,
-        0.8731
+        0.5101,
+        0.5553
       ],
-      "peso_log_odds": 1.865,
-      "peso_normalizado": 0.1343
+      "peso_log_odds": 0.1299,
+      "peso_normalizado": 0.144
+    },
+    {
+      "modelo": "random_forest",
+      "n": 1927,
+      "acerto_validado": 0.5319,
+      "ic95": [
+        0.5101,
+        0.5553
+      ],
+      "peso_log_odds": 0.1278,
+      "peso_normalizado": 0.1438
+    },
+    {
+      "modelo": "sgd",
+      "n": 1927,
+      "acerto_validado": 0.5288,
+      "ic95": [
+        0.5065,
+        0.5516
+      ],
+      "peso_log_odds": 0.1153,
+      "peso_normalizado": 0.143
+    },
+    {
+      "modelo": "regressao_logistica",
+      "n": 1927,
+      "acerto_validado": 0.5241,
+      "ic95": [
+        0.5029,
+        0.5464
+      ],
+      "peso_log_odds": 0.0966,
+      "peso_normalizado": 0.1417
+    },
+    {
+      "modelo": "lstm",
+      "n": 1927,
+      "acerto_validado": 0.5138,
+      "ic95": [
+        0.492,
+        0.5366
+      ],
+      "peso_log_odds": 0.055,
+      "peso_normalizado": 0.1389
     }
   ],
-  "melhor_ia": "linear_svc",
+  "melhor_ia": "extra_trees",
   "melhor_vs_segundo": {
-    "segundo": "sgd",
-    "delta": 0.0085,
-    "p_mcnemar": 3.028072362602062e-07
+    "segundo": "linear_svc",
+    "delta": 0.0005,
+    "p_mcnemar": 1.0
   },
   "ensembles": [
     {
-      "metodo": "maioria_ponderada",
-      "acerto_validado": 0.9493,
+      "metodo": "confianca_calibrada_max",
+      "acerto_validado": 0.5407,
       "ic95": [
-        0.9447,
-        0.9539
+        0.5184,
+        0.5631
       ],
-      "delta_vs_melhor_ia": -0.0034,
-      "p_mcnemar_vs_melhor_ia": 0.015370514949913759
+      "delta_vs_melhor_ia": 0.0067,
+      "p_mcnemar_vs_melhor_ia": 0.05958388801809633
     },
     {
-      "metodo": "confianca_calibrada_max",
-      "acerto_validado": 0.9484,
+      "metodo": "maioria_ponderada",
+      "acerto_validado": 0.5355,
       "ic95": [
-        0.9437,
-        0.9528
+        0.5127,
+        0.5573
       ],
-      "delta_vs_melhor_ia": -0.0043,
-      "p_mcnemar_vs_melhor_ia": 0.005140858089237949
+      "delta_vs_melhor_ia": 0.0015,
+      "p_mcnemar_vs_melhor_ia": 0.720100131817162
     },
     {
       "metodo": "maioria_simples",
-      "acerto_validado": 0.9467,
+      "acerto_validado": 0.5345,
       "ic95": [
-        0.9422,
-        0.9512
+        0.5117,
+        0.5563
       ],
-      "delta_vs_melhor_ia": -0.006,
-      "p_mcnemar_vs_melhor_ia": 0.00011944598083062388
+      "delta_vs_melhor_ia": 0.0005,
+      "p_mcnemar_vs_melhor_ia": 1.0
     }
   ],
   "vale_combinar": {
     "veredicto": false,
-    "recomendacao": "linear_svc",
-    "justificativa": "Nenhum ensemble supera a melhor IA isolada com significancia (McNemar p>=0,05) — combinar nao compensa o custo adicional; use 'linear_svc' com calibracao."
+    "recomendacao": "extra_trees",
+    "justificativa": "Nenhum ensemble supera a melhor IA isolada com significancia (McNemar p>=0,05) — combinar nao compensa o custo adicional; use 'extra_trees' com calibracao."
   },
   "observacoes": [
     "Pesos do voto ponderado aprendidos out-of-fold (k-fold nos validados).",
