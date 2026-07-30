@@ -1,5 +1,5 @@
 {
-  "gerado_em": "29/07/2026 05:05",
+  "gerado_em": "30/07/2026 04:57",
   "schema_version": "1.0",
   "run_id": "EXP_CLASSIFICACAO_CHAMADOS_2026_06_001",
   "script_origem": "src/avaliacao_final.py",
@@ -33,6 +33,17 @@
   "status": "ok",
   "por_modelo": [
     {
+      "modelo": "random_forest",
+      "n": 1927,
+      "acerto_validado": 0.9564,
+      "ic95": [
+        0.9471,
+        0.9652
+      ],
+      "peso_log_odds": 3.0883,
+      "peso_normalizado": 0.232
+    },
+    {
       "modelo": "extra_trees",
       "n": 1927,
       "acerto_validado": 0.534,
@@ -41,7 +52,7 @@
         0.5568
       ],
       "peso_log_odds": 0.1362,
-      "peso_normalizado": 0.1444
+      "peso_normalizado": 0.1295
     },
     {
       "modelo": "linear_svc",
@@ -52,7 +63,7 @@
         0.5558
       ],
       "peso_log_odds": 0.1341,
-      "peso_normalizado": 0.1442
+      "peso_normalizado": 0.1294
     },
     {
       "modelo": "naive_bayes",
@@ -63,18 +74,7 @@
         0.5553
       ],
       "peso_log_odds": 0.1299,
-      "peso_normalizado": 0.144
-    },
-    {
-      "modelo": "random_forest",
-      "n": 1927,
-      "acerto_validado": 0.5319,
-      "ic95": [
-        0.5101,
-        0.5553
-      ],
-      "peso_log_odds": 0.1278,
-      "peso_normalizado": 0.1438
+      "peso_normalizado": 0.1291
     },
     {
       "modelo": "sgd",
@@ -85,7 +85,7 @@
         0.5516
       ],
       "peso_log_odds": 0.1153,
-      "peso_normalizado": 0.143
+      "peso_normalizado": 0.1283
     },
     {
       "modelo": "regressao_logistica",
@@ -96,7 +96,7 @@
         0.5464
       ],
       "peso_log_odds": 0.0966,
-      "peso_normalizado": 0.1417
+      "peso_normalizado": 0.1271
     },
     {
       "modelo": "lstm",
@@ -107,51 +107,51 @@
         0.5366
       ],
       "peso_log_odds": 0.055,
-      "peso_normalizado": 0.1389
+      "peso_normalizado": 0.1246
     }
   ],
-  "melhor_ia": "extra_trees",
+  "melhor_ia": "random_forest",
   "melhor_vs_segundo": {
-    "segundo": "linear_svc",
-    "delta": 0.0005,
-    "p_mcnemar": 1.0
+    "segundo": "extra_trees",
+    "delta": 0.4224,
+    "p_mcnemar": 5.390233969425691e-178
   },
   "ensembles": [
     {
       "metodo": "confianca_calibrada_max",
-      "acerto_validado": 0.5407,
+      "acerto_validado": 0.9652,
       "ic95": [
-        0.5184,
-        0.5631
+        0.9574,
+        0.973
       ],
-      "delta_vs_melhor_ia": 0.0067,
-      "p_mcnemar_vs_melhor_ia": 0.05958388801809633
+      "delta_vs_melhor_ia": 0.0088,
+      "p_mcnemar_vs_melhor_ia": 0.16508338915578719
     },
     {
       "metodo": "maioria_ponderada",
-      "acerto_validado": 0.5355,
+      "acerto_validado": 0.9564,
       "ic95": [
-        0.5127,
-        0.5573
+        0.9471,
+        0.9647
       ],
-      "delta_vs_melhor_ia": 0.0015,
-      "p_mcnemar_vs_melhor_ia": 0.720100131817162
+      "delta_vs_melhor_ia": 0.0,
+      "p_mcnemar_vs_melhor_ia": null
     },
     {
       "metodo": "maioria_simples",
-      "acerto_validado": 0.5345,
+      "acerto_validado": 0.5656,
       "ic95": [
-        0.5117,
-        0.5563
+        0.5439,
+        0.5874
       ],
-      "delta_vs_melhor_ia": 0.0005,
-      "p_mcnemar_vs_melhor_ia": 1.0
+      "delta_vs_melhor_ia": -0.3908,
+      "p_mcnemar_vs_melhor_ia": 2.758367168199476e-160
     }
   ],
   "vale_combinar": {
     "veredicto": false,
-    "recomendacao": "extra_trees",
-    "justificativa": "Nenhum ensemble supera a melhor IA isolada com significancia (McNemar p>=0,05) — combinar nao compensa o custo adicional; use 'extra_trees' com calibracao."
+    "recomendacao": "random_forest",
+    "justificativa": "Nenhum ensemble supera a melhor IA isolada com significancia (McNemar p>=0,05) — combinar nao compensa o custo adicional; use 'random_forest' com calibracao."
   },
   "observacoes": [
     "Pesos do voto ponderado aprendidos out-of-fold (k-fold nos validados).",
