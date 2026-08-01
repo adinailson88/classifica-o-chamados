@@ -1,0 +1,77 @@
+{
+ "total_chamados": 14094,
+ "com_conferencia_glpi": 9547,
+ "verdade_glpi": 9305,
+ "verdade_manual": 0,
+ "pendente_glpi_errado_sem_q": 242,
+ "sem_conferencia": 4547,
+ "por_modelo": {
+  "naive_bayes": {
+   "correto": 6854,
+   "errado": 2451,
+   "pendente": 242,
+   "sem_predicao": 0,
+   "avaliados": 9305,
+   "acuracia": 0.7366
+  },
+  "regressao_logistica": {
+   "correto": 7517,
+   "errado": 1788,
+   "pendente": 242,
+   "sem_predicao": 0,
+   "avaliados": 9305,
+   "acuracia": 0.8078
+  },
+  "linear_svc": {
+   "correto": 7811,
+   "errado": 1494,
+   "pendente": 242,
+   "sem_predicao": 0,
+   "avaliados": 9305,
+   "acuracia": 0.8394
+  },
+  "sgd": {
+   "correto": 7500,
+   "errado": 1805,
+   "pendente": 242,
+   "sem_predicao": 0,
+   "avaliados": 9305,
+   "acuracia": 0.806
+  },
+  "extra_trees": {
+   "correto": 7688,
+   "errado": 1617,
+   "pendente": 242,
+   "sem_predicao": 0,
+   "avaliados": 9305,
+   "acuracia": 0.8262
+  },
+  "random_forest": {
+   "correto": 7632,
+   "errado": 1673,
+   "pendente": 242,
+   "sem_predicao": 0,
+   "avaliados": 9305,
+   "acuracia": 0.8202
+  },
+  "lstm": {
+   "correto": 6890,
+   "errado": 2415,
+   "pendente": 242,
+   "sem_predicao": 0,
+   "avaliados": 9305,
+   "acuracia": 0.7405
+  },
+  "transformer_ft": {
+   "correto": 7834,
+   "errado": 1471,
+   "pendente": 242,
+   "sem_predicao": 0,
+   "avaliados": 9305,
+   "acuracia": 0.8419
+  }
+ },
+ "gerado_em": "01/08/2026 15:07",
+ "aba": "CONFERENCIA_MULTIMODELO",
+ "regra": "M='Correto' -> verdade = C; M='Errado' + Q preenchida -> verdade = Q; M='Errado' sem Q -> pendente; M vazio -> ignorado"
+}
