@@ -98,13 +98,37 @@ def main() -> int:
         return str(linha[i] or "").strip() if len(linha) > i else ""
 
     conflito, ok = [], []
+    n_cg = n_cg_igual = 0          # C vs G, onde ambos preenchidos
+    n_co = n_co_igual = 0          # C vs O, onde ambos preenchidos
+    n_m_ok = n_m_ok_c_eq_o = 0     # M='Correto': C bate com O?
     for pos, linha in enumerate(bloco[1:], start=2):
         m = cel(linha, idx["CONFERENCIA GLPI"]).casefold()
         n = cel(linha, idx["CONFERENCIA IA"]).casefold()
         c = cel(linha, idx["CATEGORIA COMPLETA"])
         g = cel(linha, idx["Classificacao IA"])
+        o = cel(linha, idx["Classificacao IA - 2"])
+        if c and g:
+            n_cg += 1
+            n_cg_igual += (c == g)
+        if c and o:
+            n_co += 1
+            n_co_igual += (c == o)
+        if m == "correto" and c and o:
+            n_m_ok += 1
+            n_m_ok_c_eq_o += (c == o)
         if m == "correto" and n == "correto":
             (conflito if c != g else ok).append((pos, linha))
+
+    def taxa(a, b):
+        return f"{a}/{b} = {(100.0 * a / b if b else 0):.1f}%"
+
+    print("\n=== TAXAS DE CONCORDANCIA (diagnostico de alinhamento) ===")
+    print(f"  C == G (historico vs IA):   {taxa(n_cg_igual, n_cg)}")
+    print(f"  C == O (historico vs IA-2): {taxa(n_co_igual, n_co)}")
+    print(f"  C == O onde M='Correto':    {taxa(n_m_ok_c_eq_o, n_m_ok)}")
+    print("  Referencia: a concordancia historica do LSTM ficava entre 67% e 71%.")
+    print("  Uma taxa C==G MUITO abaixo disso indica que G nao pertence mais a")
+    print("  mesma linha que C (coluna literal que nao acompanhou o IMPORTRANGE).")
 
     print(f"\n=== M='Correto' E N='Correto' ===")
     print(f"  com C != G (conflito): {len(conflito)}")
