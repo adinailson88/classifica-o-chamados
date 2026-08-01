@@ -1,0 +1,83 @@
+name: Conferencia derivada por IA (aba CONFERENCIA_MULTIMODELO)
+
+# Deriva a conferencia de CADA IA a partir da conferencia humana do GLPI
+# (coluna M), em vez da coluna N -- que conferia uma unica IA (a de producao,
+# coluna G) e nao representa um experimento com 7 modelos + BERTimbau.
+#
+#   M='Correto'          -> verdade = C; cada IA e comparada com C
+#   M='Errado' + Q pree. -> verdade = Q
+#   M='Errado' sem Q     -> PENDENTE (nada afirmado)
+#   M vazio              -> chamado ignorado
+#
+# Indexa por id_chamado, nunca por numero de linha. Escreve SOMENTE a aba de
+# saida; nao toca em nenhuma coluna da aba principal.
+#
+# Sem aplicar=true: dry-run (imprime o resumo e gera o JSON, sem gravar a aba).
+
+on:
+  workflow_dispatch:
+    inputs:
+      aba_saida:
+        description: "Nome da aba de saida"
+        default: "CONFERENCIA_MULTIMODELO"
+      aplicar:
+        description: "Gravar a aba na planilha (sem isso, so dry-run)"
+        type: boolean
+        default: false
+
+concurrency:
+  group: conferencia-derivada
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  derivar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: requirements-leves.txt
+      - name: Dependencias
+        run: python -m pip install --retries 5 --timeout 120 -r requirements-leves.txt
+      - name: Teste offline da regra de derivacao
+        run: python -m unittest discover -s tests -p "test_conferencia_derivada.py" -t tests
+      - name: Recriar chave da conta de servico
+        env:
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+        run: |
+          if [ -z "$GCP_SA_KEY" ]; then echo "Secret GCP_SA_KEY ausente." >&2; exit 1; fi
+          printf '%s' "$GCP_SA_KEY" > credenciais_sa.json
+      - name: Derivar conferencias
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: credenciais_sa.json
+        run: |
+          FLAGS=""
+          if [ "${{ github.event.inputs.aplicar }}" = "true" ]; then FLAGS="--aplicar"; fi
+          python src/conferencia_derivada.py \
+            --aba-saida "${{ github.event.inputs.aba_saida || 'CONFERENCIA_MULTIMODELO' }}" \
+            $FLAGS
+      - name: Remover credenciais
+        if: always()
+        run: rm -f credenciais_sa.json
+      - name: Commitar resumo
+        if: success()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/dados/conferencia_derivada.json
+          git diff --cached --quiet && { echo "sem mudanca"; exit 0; }
+          git commit -m "conferencia derivada por IA [skip ci]"
+          for i in 1 2 3 4 5; do
+            git pull --rebase --autostash origin main && git push && exit 0
+            git rebase --abort 2>/dev/null || true
+            echo "push rejeitado (tentativa $i/5); novo rebase em 5s"; sleep 5
+          done
+          echo "push falhou apos 5 tentativas" >&2; exit 1
