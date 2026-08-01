@@ -128,7 +128,8 @@ def decidir(historico: str, ia1: str, reclass: str,
 def carregar_decisoes(sh, aba_principal: str,
                       col_historico: int = 3, col_ia1: int = 7, col_reclass: int = 15,
                       col_conf_glpi: int = 13, col_conf_ia: int = 14,
-                      col_conf_reclass: int = 16, col_categoria_manual: int = 17
+                      col_conf_reclass: int = 16, col_categoria_manual: int = 17,
+                      so_conferencia_glpi: bool = False
                       ) -> dict[int, dict[str, Any]]:
     """Le a aba principal UMA vez (A:Q) e monta a memoria de decisao por linha.
 
@@ -159,8 +160,15 @@ def carregar_decisoes(sh, aba_principal: str,
     out: dict[int, dict[str, Any]] = {}
     for pos, linha in enumerate(bloco[1:], start=2):
         v_glpi = _norm_veredito(cel(linha, col_conf_glpi))
-        v_ia = _norm_veredito(cel(linha, col_conf_ia))
-        v_reclass = _norm_veredito(cel(linha, col_conf_reclass))
+        # so_conferencia_glpi: deriva a verdade APENAS de M (+ Q), ignorando N e P.
+        # Decisao do pesquisador em 2026-08-01: N (CONFERENCIA IA) conferia uma
+        # unica IA -- a de producao, na coluna G -- e nao representa um
+        # experimento com 7 modelos mais o BERTimbau. Com M e Q, a verdade e
+        # julgada uma vez e cada modelo e comparado contra ela por igualdade,
+        # sem depender de o avaliador ter olhado a predicao de cada um.
+        # Ver src/conferencia_derivada.py, que aplica a mesma regra por id_chamado.
+        v_ia = None if so_conferencia_glpi else _norm_veredito(cel(linha, col_conf_ia))
+        v_reclass = None if so_conferencia_glpi else _norm_veredito(cel(linha, col_conf_reclass))
         categoria_manual = pl.normalizar_categoria(cel(linha, col_categoria_manual))
         if v_glpi is None and v_ia is None and v_reclass is None and not categoria_manual:
             continue

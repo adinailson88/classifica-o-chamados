@@ -370,3 +370,75 @@ class TestNormalizacaoSimetricaEmCarregarDecisoes(unittest.TestCase):
         d = decisoes[2]
         self.assertTrue(d["conflito"])
         self.assertIsNone(d["decidida"])
+
+
+class TestVerdadeSoPelaConferenciaGlpi(unittest.TestCase):
+    """so_conferencia_glpi=True: a verdade vem apenas de M (+Q).
+
+    Decisao do pesquisador em 2026-08-01: N (CONFERENCIA IA) conferia UMA unica
+    IA -- a de producao, na coluna G -- e nao representa um experimento com 7
+    modelos mais o BERTimbau. Mesma regra de src/conferencia_derivada.py.
+    """
+
+    CABECALHO = ["ID Chamado", "TITULO", "CATEGORIA COMPLETA", "d", "e", "f",
+                 "Classificação IA", "h", "i", "j", "k", "l",
+                 "CONFERENCIA GLPI", "CONFERENCIA IA", "Classificação IA - 2",
+                 "CONFERENCIA IA - 2", "CATEGORIA CORRETA MANUAL"]
+
+    def _bloco(self, c, g, m, n, o="", p="", q=""):
+        linha = [""] * len(self.CABECALHO)
+        linha[0] = "1693"; linha[2] = c; linha[6] = g
+        linha[12] = m; linha[13] = n; linha[14] = o; linha[15] = p; linha[16] = q
+        return [self.CABECALHO, linha]
+
+    def _decidir(self, bloco, so_glpi):
+        """None quando a linha nem entra no mapa (nenhuma conferencia
+        considerada = 'sem_validacao' implicito, ver carregar_decisoes)."""
+        return dv.carregar_decisoes(_PlanilhaFalsa(bloco), "X",
+                                    so_conferencia_glpi=so_glpi).get(2)
+
+    def test_m_correto_trava_a_categoria_historica(self):
+        b = self._bloco("Elétrica > Gerador", "Hidráulica > Vazamento",
+                        m="Correto", n="")
+        d = self._decidir(b, True)
+        self.assertEqual(d["status"], dv.STATUS_DECIDIDO)
+        self.assertEqual(d["decidida"], "Elétrica > Gerador")
+
+    def test_n_deixa_de_gerar_conflito(self):
+        """O caso que travava 7.469 chamados: M e N Corretos com C != G."""
+        b = self._bloco("Elétrica > Gerador", "Hidráulica > Vazamento",
+                        m="Correto", n="Correto")
+        antigo = self._decidir(b, False)
+        novo = self._decidir(b, True)
+        self.assertTrue(antigo["conflito"])
+        self.assertIsNone(antigo["decidida"])
+        self.assertFalse(novo["conflito"])
+        self.assertEqual(novo["decidida"], "Elétrica > Gerador")
+
+    def test_n_sozinho_nao_produz_mais_verdade(self):
+        """Sem M, N nao decide nada: a IA de producao nao e mais fonte."""
+        b = self._bloco("Elétrica > Gerador", "Hidráulica > Vazamento",
+                        m="", n="Correto")
+        self.assertIsNone(self._decidir(b, True))
+        self.assertEqual(self._decidir(b, False)["decidida"], "Hidráulica > Vazamento")
+
+    def test_m_errado_com_q_trava_a_categoria_manual(self):
+        b = self._bloco("Elétrica > Gerador", "", m="Errado", n="",
+                        q="Hidráulica > Vazamento")
+        d = self._decidir(b, True)
+        self.assertEqual(d["status"], dv.STATUS_DECIDIDO)
+        self.assertEqual(d["decidida"], "Hidráulica > Vazamento")
+        self.assertEqual(d["fonte_decisao"], "manual")
+
+    def test_m_errado_sem_q_fica_restrito(self):
+        b = self._bloco("Elétrica > Gerador", "", m="Errado", n="")
+        d = self._decidir(b, True)
+        self.assertEqual(d["status"], dv.STATUS_RESTRITO)
+        self.assertIsNone(d["decidida"])
+
+    def test_p_tambem_e_ignorado(self):
+        b = self._bloco("Elétrica > Gerador", "", m="", n="",
+                        o="TI / Dados / Rede > Ponto de rede", p="Correto")
+        self.assertIsNone(self._decidir(b, True))
+        self.assertEqual(self._decidir(b, False)["decidida"],
+                         "TI / Dados / Rede > Ponto de rede")
