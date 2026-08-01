@@ -459,12 +459,17 @@ def main() -> int:
     except Exception as e:  # noqa: BLE001
         print(f"confusoes: {e}", file=sys.stderr)
 
-    # 11) Estatistica descritiva contra a mesma verdade M/N/P/Q da avaliacao final.
+    # 11) Estatistica descritiva contra a MESMA verdade da avaliacao final, que
+    # desde 2026-08-01 vem so da conferencia do GLPI (coluna M) e da categoria
+    # manual (Q). Manter M/N/P/Q aqui faria esta secao divergir de
+    # avaliacao_final.json sem aviso. Ver src/avaliacao_final.py --verdade.
     try:
-        decisoes = dv.carregar_decisoes(sh, config["aba_principal"])
+        decisoes = dv.carregar_decisoes(sh, config["aba_principal"],
+                                        so_conferencia_glpi=True)
         verdade = dv.verdade_validada(decisoes)
         val = {"n_verdade_derivada": len(verdade),
-               "base": "decisao_validada M/N/P/Q; conflitos e restritos sem verdade excluidos",
+               "base": "conferencia do GLPI (coluna M) + categoria manual (Q); "
+                       "restritos sem verdade excluidos",
                "nota": "Amostra parcial e nao probabilistica; nao estima a base completa.",
                "por_modelo": []}
         for m in modelos:
