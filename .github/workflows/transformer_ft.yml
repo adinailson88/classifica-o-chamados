@@ -248,14 +248,29 @@ jobs:
             [ "$SEL" = "cluster_coreset" ] && METR="docs/dados/bertimbau_metr_coreset.json" || METR="docs/dados/bertimbau_metr_full.json"
             python src/comparar_modelos_lote.py --modelo transformer_ft --inicio 0 --limite "${{ github.event.inputs.limite || '500' }}" --aplicar --metricas-json "$METR"
             echo "METR_JSON=$METR" >> "$GITHUB_ENV"
+            echo "houve_treino=true" >> "$GITHUB_OUTPUT"
           else
-            python src/reclassificar_validados.py --modelo transformer_ft --max-turnos 0 --aplicar
+            # reclassificar_validados so processa linhas com a coluna O VAZIA. Quando
+            # nao ha nenhuma, ele encerra com exito sem treinar nada -- e o passo
+            # seguinte gravava 'status=ok / treino concluido' assim mesmo, corrompendo
+            # bertimbau_training_state.json (evidencia usada pelo artigo). Detecta o
+            # no-op pela linha que o script imprime e propaga a informacao.
+            set -o pipefail
+            python src/reclassificar_validados.py --modelo transformer_ft --max-turnos 0 --aplicar \
+              | tee saida_reclassificacao.txt
+            if grep -q "coluna O pendente" saida_reclassificacao.txt; then
+              echo "houve_treino=false" >> "$GITHUB_OUTPUT"
+              echo "::warning::Nenhum chamado pendente na coluna O — nao houve treino. O estado do BERTimbau NAO sera atualizado."
+            else
+              echo "houve_treino=true" >> "$GITHUB_OUTPUT"
+            fi
           fi
       - name: Remover credenciais
         if: always()
         run: rm -f credenciais_sa.json
       - name: Registrar estado do treino + marcador da guarda
-        if: success()
+        # Exige treino REAL, nao apenas um passo que terminou sem erro.
+        if: ${{ success() && steps.treino.outputs.houve_treino == 'true' }}
         run: |
           python src/escrever_estado_bertimbau.py \
             --status ok \
@@ -265,7 +280,7 @@ jobs:
             --motivo "treino concluido (modo ${{ needs.preparar.outputs.modo }})"
           python src/guard_automacao.py --registrar --chave transformer_ft --valor "${{ needs.preparar.outputs.valor_atual || '0' }}"
       - name: Commit do estado
-        if: success()
+        if: ${{ success() && steps.treino.outputs.houve_treino == 'true' }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"

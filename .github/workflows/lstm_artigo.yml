@@ -174,5 +174,17 @@ jobs:
             echo "Sem resultados novos para commitar."
           else
             git commit -m "Atualiza resultados LSTM do artigo"
-            git push origin "HEAD:${GITHUB_REF_NAME}"
+            # Rebase antes do push: a branch pode ter avancado durante a execucao
+            # (os fluxos de 15 min commitam dados). Sem isso o push e rejeitado por
+            # non-fast-forward e o resultado do run e perdido -- ver run de 27/07.
+            # Mesmo laco ja usado em transformer_ft.yml.
+            for i in 1 2 3 4 5; do
+              git pull --rebase --autostash origin "${GITHUB_REF_NAME}" \
+                && git push origin "HEAD:${GITHUB_REF_NAME}" && exit 0
+              git rebase --abort 2>/dev/null || true
+              echo "push rejeitado (tentativa $i/5); novo rebase em 5s"
+              sleep 5
+            done
+            echo "push falhou apos 5 tentativas" >&2
+            exit 1
           fi
