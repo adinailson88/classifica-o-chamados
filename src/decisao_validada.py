@@ -164,8 +164,17 @@ def carregar_decisoes(sh, aba_principal: str,
         categoria_manual = pl.normalizar_categoria(cel(linha, col_categoria_manual))
         if v_glpi is None and v_ia is None and v_reclass is None and not categoria_manual:
             continue
-        out[pos] = decidir(pl.normalizar_categoria(cel(linha, col_historico)), cel(linha, col_ia1),
-                           cel(linha, col_reclass), v_glpi, v_ia, v_reclass, categoria_manual)
+        # Todas as quatro categorias passam pelo mapa canonico. Antes, so C e Q
+        # eram normalizadas: G e O entravam cruas. Como `decidir` decide conflito
+        # por igualdade de STRING, um chamado cuja categoria o GLPI mesclou
+        # aparecia com C ja no nome novo e G/O ainda no nome antigo -- duas
+        # conferencias 'Correto' apontando para strings diferentes, ou seja,
+        # conflito artificial. Ver o salto de 201 para 7.469 conflitos em
+        # 2026-08-01, apos a mesclagem de categorias no GLPI.
+        out[pos] = decidir(pl.normalizar_categoria(cel(linha, col_historico)),
+                           pl.normalizar_categoria(cel(linha, col_ia1)),
+                           pl.normalizar_categoria(cel(linha, col_reclass)),
+                           v_glpi, v_ia, v_reclass, categoria_manual)
     return out
 
 

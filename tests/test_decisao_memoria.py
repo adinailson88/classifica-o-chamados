@@ -286,3 +286,87 @@ class TestAnaliseErros(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
+
+
+class _WorksheetFalsa:
+    def __init__(self, bloco):
+        self._bloco = bloco
+
+    def get_values(self, *_a, **_k):
+        return self._bloco
+
+
+class _PlanilhaFalsa:
+    """Stub minimo: carregar_decisoes so chama sh.worksheet(nome).get_values()."""
+
+    def __init__(self, bloco):
+        self._ws = _WorksheetFalsa(bloco)
+
+    def worksheet(self, _nome):
+        return self._ws
+
+
+class TestNormalizacaoSimetricaEmCarregarDecisoes(unittest.TestCase):
+    """Regressao do incidente de 2026-08-01.
+
+    `decidir` decide conflito por igualdade de STRING. Enquanto so C e Q
+    passavam pelo mapa canonico em carregar_decisoes, um chamado cuja categoria
+    o GLPI mesclou aparecia com C ja no nome novo e G/O ainda no nome antigo --
+    duas conferencias 'Correto' apontando para strings diferentes, ou seja,
+    conflito artificial. Os conflitos saltaram de 201 para 7.469 e os decididos
+    cairam de 8.895 para 1.927.
+    """
+
+    ANTIGO = "Área Externa e Ambiental > Manutenção área externa / meio ambiente"
+    NOVO = ("Área Externa e Ambiental > Manutenção área externa / meio ambiente"
+            " / Poda de árvore / Roçagem")
+
+    CABECALHO = ["ID Chamado", "TITULO", "CATEGORIA COMPLETA", "d", "e", "f",
+                 "Classificação IA", "h", "i", "j", "k", "l",
+                 "CONFERENCIA GLPI", "CONFERENCIA IA", "Classificação IA - 2",
+                 "CONFERENCIA IA - 2", "CATEGORIA CORRETA MANUAL"]
+
+    def _linha(self, categoria_c, categoria_g, conf_glpi, conf_ia,
+               categoria_o="", conf_reclass=""):
+        linha = [""] * len(self.CABECALHO)
+        linha[0] = "1693"
+        linha[2] = categoria_c
+        linha[6] = categoria_g
+        linha[12] = conf_glpi
+        linha[13] = conf_ia
+        linha[14] = categoria_o
+        linha[15] = conf_reclass
+        return linha
+
+    def test_mapa_real_cobre_o_caso(self):
+        self.assertEqual(pl.normalizar_categoria(self.ANTIGO), self.NOVO)
+
+    def test_c_mesclado_e_g_antigo_nao_geram_conflito(self):
+        """O caso do incidente: GLPI ja mesclou C, G ainda tem o nome antigo,
+        e o avaliador marcou as duas fontes como Corretas."""
+        bloco = [self.CABECALHO,
+                 self._linha(self.NOVO, self.ANTIGO, "Correto", "Correto")]
+        decisoes = dv.carregar_decisoes(_PlanilhaFalsa(bloco), "QUALQUER")
+        d = decisoes[2]
+        self.assertFalse(d["conflito"])
+        self.assertEqual(d["status"], dv.STATUS_DECIDIDO)
+        self.assertEqual(d["decidida"], self.NOVO)
+
+    def test_coluna_o_tambem_normalizada(self):
+        bloco = [self.CABECALHO,
+                 self._linha(self.NOVO, "", "Correto", "",
+                             categoria_o=self.ANTIGO, conf_reclass="Correto")]
+        decisoes = dv.carregar_decisoes(_PlanilhaFalsa(bloco), "QUALQUER")
+        d = decisoes[2]
+        self.assertFalse(d["conflito"])
+        self.assertEqual(d["decidida"], self.NOVO)
+
+    def test_categorias_realmente_diferentes_ainda_conflitam(self):
+        """A correcao nao pode mascarar conflito legitimo."""
+        bloco = [self.CABECALHO,
+                 self._linha("Elétrica > Gerador", "Hidráulica > Vazamento",
+                             "Correto", "Correto")]
+        decisoes = dv.carregar_decisoes(_PlanilhaFalsa(bloco), "QUALQUER")
+        d = decisoes[2]
+        self.assertTrue(d["conflito"])
+        self.assertIsNone(d["decidida"])
