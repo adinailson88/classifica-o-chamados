@@ -607,17 +607,17 @@ literatura antecipa para corpora pequenos e desbalanceados (KOHAVI,
 1995).
 
 A partição por linha, contudo, carrega uma limitação própria neste
-corpus. Chamados de manutenção repetem-se, e 32,67% das 14.094 linhas
+corpus. Chamados de manutenção repetem-se, e 32,58% das 14.094 linhas
 compartilham texto normalizado com outra linha, de modo que a base
-contém 9.714 grupos textuais distintos. Sob particionamento por linha, o
+contém 9.815 grupos textuais distintos. Sob particionamento por linha, o
 mesmo texto pode cair em treino e em teste, o que superestima o
 desempenho. Para dimensionar esse efeito, os sete modelos foram
 reexecutados sob *GroupKFold* por hash de texto normalizado, protocolo
 que mantém todo grupo textual em uma única partição, e comparados com o
 *KFold* por linha sobre a mesma base e o mesmo alvo. O vazamento existe,
-mas é pequeno: a queda média de acurácia é de 0,58 ponto percentual e a
-máxima de 1,10, no Random Forest. O LinearSVC passa de 0,8031 para
-0,7967. A ordenação dos modelos permanece a mesma sob os dois
+mas é pequeno: a queda média de acurácia é de 1,32 ponto percentual e a
+máxima de 1,84, no Random Forest. O LinearSVC passa de 0,8004 para
+0,7852. A ordenação dos modelos permanece a mesma sob os dois
 protocolos, com uma única exceção, a troca de posição entre SGD e Random
 Forest, justamente o par que o teste de McNemar corrigido por
 Holm-Bonferroni já apontava como estatisticamente indistinguível
@@ -1337,7 +1337,7 @@ não autoriza estimar, com o desenho atual, a prevalência de categorias
 históricas incorretas.
 
 As Tabelas 1 e 2 usam particionamento por linha, e não por grupo textual.
-A comparação da Subseção 3.5 mostra superestimação média de 0,58 ponto
+A comparação da Subseção 3.5 mostra superestimação média de 1,32 ponto
 percentual, sem alteração relevante da ordenação. Os valores absolutos
 devem ser lidos com essa margem.
 

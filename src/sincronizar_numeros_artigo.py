@@ -388,6 +388,47 @@ def construir_trocas(texto: str) -> list[tuple[str, str, int, str]]:
         f"{num(100*melhor['acerto_validado'] - 100*lider['acuracia'], 2)} pontos percentuais.",
         1, "discussão: diferença entre as grandezas"))
 
+    # --- Subsecao 3.5: KFold por linha x GroupKFold por hash de texto. ---
+    kg = json.loads((RAIZ / "04_artigo" / "figuras" /
+                     "comparacao_kfold_groupkfold.json").read_text(encoding="utf-8"))
+    assert kg["k_folds"] == 5, (
+        f"comparacao_kfold_groupkfold.json foi gerado com k={kg['k_folds']}; "
+        "o artigo descreve k=5. Reexecute lstm_artigo.yml com k_folds=5.")
+    assert kg["duplicatas_textuais"]["n_linhas"] == base, (
+        "comparacao_kfold_groupkfold.json foi gerado sobre outra base.")
+    dup = kg["duplicatas_textuais"]
+    deltas = [r["delta_acuracia_kfold_menos_groupkfold"] for r in kg["resultados"]]
+    pior = max(kg["resultados"], key=lambda r: r["delta_acuracia_kfold_menos_groupkfold"])
+    media_pp = 100 * sum(deltas) / len(deltas)
+    kg_svc = next(r for r in kg["resultados"] if r["modelo"] == "linear_svc")
+
+    t.append((
+        "corpus. Chamados de manutenção repetem-se, e 32,67% das 14.094 linhas\n"
+        "compartilham texto normalizado com outra linha, de modo que a base\n"
+        "contém 9.714 grupos textuais distintos.",
+        f"corpus. Chamados de manutenção repetem-se, e "
+        f"{num(100*dup['proporcao_com_duplicata'], 2)}% das {mil(base)} linhas\n"
+        "compartilham texto normalizado com outra linha, de modo que a base\n"
+        f"contém {mil(dup['n_grupos_textuais'])} grupos textuais distintos.",
+        1, "3.5: duplicatas textuais"))
+
+    t.append((
+        "mas é pequeno: a queda média de acurácia é de 0,58 ponto percentual e a\n"
+        "máxima de 1,10, no Random Forest. O LinearSVC passa de 0,8031 para\n"
+        "0,7967.",
+        f"mas é pequeno: a queda média de acurácia é de {num(media_pp, 2)} ponto percentual e a\n"
+        f"máxima de {num(100*pior['delta_acuracia_kfold_menos_groupkfold'], 2)}, "
+        f"no {ROTULOS[pior['modelo']]}. O LinearSVC passa de "
+        f"{num(kg_svc['kfold']['acuracia'])} para\n"
+        f"{num(kg_svc['groupkfold']['acuracia'])}.",
+        1, "3.5: vazamento entre partições"))
+
+    t.append((
+        "A comparação da Subseção 3.5 mostra superestimação média de 0,58 ponto",
+        f"A comparação da Subseção 3.5 mostra superestimação média de "
+        f"{num(media_pp, 2)} ponto",
+        1, "limitações: superestimação média"))
+
     # --- Base: todas as ocorrencias restantes de 13.965. ---
     restantes = texto.count("13.965")
     # Descontar as que ja serao trocadas pelos trechos acima.
@@ -408,10 +449,18 @@ def main() -> int:
     original = texto
     trocas = construir_trocas(texto)
 
-    falhas = []
+    falhas, ja_aplicadas = [], 0
     for de, para, esperado, rotulo in trocas:
         achou = texto.count(de)
         if achou != esperado:
+            # Idempotencia: se o trecho de origem sumiu mas o de destino ja esta
+            # la, esta troca so foi aplicada numa execucao anterior. O script
+            # precisa ser reexecutavel a cada mudanca de dado; abortar nesse caso
+            # obrigaria a reverter o artigo antes de cada sincronizacao.
+            if achou == 0 and de != para and texto.count(para) >= 1:
+                print(f"  --  [{rotulo}] ja aplicada")
+                ja_aplicadas += 1
+                continue
             falhas.append(f"  [{rotulo}] esperava {esperado} ocorrencia(s), achou {achou}")
             continue
         texto = texto.replace(de, para)
