@@ -47,12 +47,15 @@ CONFIG_PADRAO = RAIZ / "config_experimento.json"
 ABA_HISTORICO_PADRAO = "RECLASS_HISTORICO"
 COLUNA_ALVO = "Classificacao IA - 2"
 COLUNA_ALVO_DEFAULT_1BASED = 15
+COLUNA_ID = "ID Chamado"
+COLUNA_ID_DEFAULT_1BASED = 1
 COLUNAS_PROIBIDAS = {"categoria completa", "categoria compelta"}
 
 # Indices 0-based em RECLASS_HISTORICO (ver cab_historico em
 # src/reclassificar_validados.py -- manter em sincronia).
 I_DATA = 0
 I_LINHA = 4
+I_ID = 5
 I_CATEGORIA_DEPOIS = 10
 
 FORMATOS_DATA = ("%d/%m/%Y %H:%M:%S", "%d/%m/%Y %H:%M", "%d/%m/%Y")
@@ -84,10 +87,28 @@ def parse_args() -> argparse.Namespace:
     return p.parse_args()
 
 
-def ultimo_valor_por_linha(valores: list[list[Any]], corte: datetime
-                           ) -> tuple[dict[int, str], dict[str, int]]:
-    """Para cada linha_planilha, a categoria da entrada mais recente < corte."""
-    melhor: dict[int, tuple[datetime, str]] = {}
+def normalizar_id(valor: Any) -> str:
+    """UNFORMATTED_VALUE devolve numero; padroniza para string sem .0."""
+    s = str(valor or "").strip()
+    if not s:
+        return ""
+    try:
+        return str(int(float(s)))
+    except (TypeError, ValueError):
+        return s
+
+
+def ultimo_valor_por_id(valores: list[list[Any]], corte: datetime
+                        ) -> tuple[dict[str, str], dict[str, int]]:
+    """Para cada id_chamado, a categoria da entrada mais recente < corte.
+
+    Indexa por ID, NAO por linha_planilha: a redefinicao do IMPORTRANGE
+    deslocou as linhas (10.410 de 14.094 divergem -- ver
+    scripts/migracoes/verificar_alinhamento_linhas.py), entao o numero de linha
+    registrado no historico nao aponta mais para o mesmo chamado. Restaurar por
+    linha grava o valor de um chamado em cima de outro.
+    """
+    melhor: dict[str, tuple[datetime, str]] = {}
     diag = defaultdict(int)
 
     for reg in valores[1:]:
@@ -101,21 +122,20 @@ def ultimo_valor_por_linha(valores: list[list[Any]], corte: datetime
         if data >= corte:
             diag["posterior_ao_corte"] += 1
             continue
-        try:
-            linha = int(float(str(reg[I_LINHA]).strip()))
-        except (TypeError, ValueError):
-            diag["linha_invalida"] += 1
+        id_chamado = normalizar_id(reg[I_ID])
+        if not id_chamado:
+            diag["id_vazio"] += 1
             continue
         categoria = str(reg[I_CATEGORIA_DEPOIS] or "").strip()
         if not categoria:
             diag["categoria_vazia"] += 1
             continue
-        anterior = melhor.get(linha)
+        anterior = melhor.get(id_chamado)
         if anterior is None or data > anterior[0]:
-            melhor[linha] = (data, categoria)
+            melhor[id_chamado] = (data, categoria)
         diag["consideradas"] += 1
 
-    return {ln: cat for ln, (_, cat) in melhor.items()}, dict(diag)
+    return {i: cat for i, (_, cat) in melhor.items()}, dict(diag)
 
 
 def confirmar_nao_e_formula(ws, col_1based: int, linhas_amostra: list[int]) -> bool:
@@ -169,17 +189,40 @@ def main() -> int:
         return 1
     print(f"{args.aba_historico}: {max(0, len(hist) - 1)} entradas | corte < {args.corte}")
 
-    restaurar, diag = ultimo_valor_por_linha(hist, corte)
+    por_id, diag = ultimo_valor_por_id(hist, corte)
     print(f"diagnostico do historico: {diag}")
-    print(f"linhas com valor restauravel: {len(restaurar)}")
-    if not restaurar:
+    print(f"chamados (por ID) com valor restauravel: {len(por_id)}")
+    if not por_id:
         print("Nada a restaurar.", file=sys.stderr)
         return 1
+
+    # Mapeia ID -> linha ATUAL. Indispensavel: as linhas se deslocaram.
+    col_id = pl.indice_coluna_por_cabecalho(ws, COLUNA_ID, COLUNA_ID_DEFAULT_1BASED)
+    letra_id = pl._coluna_letra(col_id)  # noqa: SLF001
+    ids_col = ws.get_values(f"{letra_id}:{letra_id}",
+                            value_render_option="UNFORMATTED_VALUE")
+    id_por_linha = {i: normalizar_id(v[0] if v else "")
+                    for i, v in enumerate(ids_col, start=1)}
+    print(f"coluna de ID='{COLUNA_ID}' ({letra_id}, {col_id}) | "
+          f"linhas com ID: {sum(1 for v in id_por_linha.values() if v)}")
 
     atuais_col = ws.get_values(f"{letra_o}:{letra_o}",
                                value_render_option="UNFORMATTED_VALUE")
     atual_por_linha = {i: str(v[0]).strip() if v else ""
                        for i, v in enumerate(atuais_col, start=1)}
+
+    restaurar: dict[int, str] = {}
+    sem_historico = 0
+    for linha, id_chamado in id_por_linha.items():
+        if linha == 1 or not id_chamado:
+            continue
+        cat = por_id.get(id_chamado)
+        if cat is None:
+            sem_historico += 1
+            continue
+        restaurar[linha] = cat
+    print(f"linhas casadas por ID: {len(restaurar)} | "
+          f"sem historico para o ID: {sem_historico}")
 
     mudar = {ln: cat for ln, cat in restaurar.items()
              if atual_por_linha.get(ln, "") != cat}

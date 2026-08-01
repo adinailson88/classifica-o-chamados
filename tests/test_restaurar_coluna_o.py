@@ -30,10 +30,11 @@ CAB = [
 ]
 
 
-def entrada(data: str, linha, categoria_depois: str) -> list:
+def entrada(data: str, id_chamado, categoria_depois: str, linha=999) -> list:
     reg = [""] * len(CAB)
     reg[rest.I_DATA] = data
     reg[rest.I_LINHA] = linha
+    reg[rest.I_ID] = id_chamado
     reg[rest.I_CATEGORIA_DEPOIS] = categoria_depois
     return reg
 
@@ -41,62 +42,92 @@ def entrada(data: str, linha, categoria_depois: str) -> list:
 CORTE = datetime(2026, 8, 1, 0, 0)
 
 
-class TestUltimoValorPorLinha(unittest.TestCase):
+class TestUltimoValorPorId(unittest.TestCase):
     def test_indices_batem_com_o_cabecalho_real(self):
         """Se reclassificar_validados.py mudar a ordem, este teste quebra."""
         self.assertEqual(CAB[rest.I_DATA], "data")
         self.assertEqual(CAB[rest.I_LINHA], "linha_planilha")
+        self.assertEqual(CAB[rest.I_ID], "id_chamado")
         self.assertEqual(CAB[rest.I_CATEGORIA_DEPOIS], "categoria_depois")
 
-    def test_toma_a_entrada_mais_recente_por_linha(self):
+    def test_toma_a_entrada_mais_recente_por_id(self):
         valores = [CAB,
-                   entrada("10/07/2026 03:00", 2, "Elétrica > Gerador"),
-                   entrada("25/07/2026 03:00", 2, "Elétrica > Iluminação"),
-                   entrada("18/07/2026 03:00", 2, "Elétrica > Tomada")]
-        restaurar, _ = rest.ultimo_valor_por_linha(valores, CORTE)
-        self.assertEqual(restaurar, {2: "Elétrica > Iluminação"})
+                   entrada("10/07/2026 03:00", 1607, "Elétrica > Gerador"),
+                   entrada("25/07/2026 03:00", 1607, "Elétrica > Iluminação"),
+                   entrada("18/07/2026 03:00", 1607, "Elétrica > Tomada")]
+        restaurar, _ = rest.ultimo_valor_por_id(valores, CORTE)
+        self.assertEqual(restaurar, {"1607": "Elétrica > Iluminação"})
+
+    def test_indexa_por_id_e_ignora_a_linha_registrada(self):
+        """O nucleo do incidente: a mesma linha_planilha pode ter servido a
+        chamados diferentes em epocas diferentes (o IMPORTRANGE deslocou as
+        linhas). A chave tem de ser o ID."""
+        valores = [CAB,
+                   entrada("10/07/2026 03:00", 1607, "Cat do 1607", linha=10),
+                   entrada("11/07/2026 03:00", 1693, "Cat do 1693", linha=10)]
+        restaurar, _ = rest.ultimo_valor_por_id(valores, CORTE)
+        self.assertEqual(restaurar, {"1607": "Cat do 1607",
+                                     "1693": "Cat do 1693"})
 
     def test_ignora_entradas_do_dia_do_incidente(self):
         """O objetivo e voltar ao estado ANTERIOR: o que foi gravado em 01/08
         pelo reprocessamento nao pode ser usado como fonte de restauracao."""
         valores = [CAB,
-                   entrada("28/07/2026 03:00", 7, "Hidráulica > Vazamento"),
-                   entrada("01/08/2026 05:10", 7, "PREDICAO NOVA DO BERTIMBAU")]
-        restaurar, diag = rest.ultimo_valor_por_linha(valores, CORTE)
-        self.assertEqual(restaurar, {7: "Hidráulica > Vazamento"})
+                   entrada("28/07/2026 03:00", 77, "Hidráulica > Vazamento"),
+                   entrada("01/08/2026 05:10", 77, "PREDICAO NOVA DO BERTIMBAU")]
+        restaurar, diag = rest.ultimo_valor_por_id(valores, CORTE)
+        self.assertEqual(restaurar, {"77": "Hidráulica > Vazamento"})
         self.assertEqual(diag.get("posterior_ao_corte"), 1)
 
-    def test_varias_linhas_independentes(self):
+    def test_varios_chamados_independentes(self):
         valores = [CAB,
                    entrada("10/07/2026 03:00", 2, "A"),
                    entrada("11/07/2026 03:00", 3, "B"),
                    entrada("12/07/2026 03:00", 2, "C")]
-        restaurar, _ = rest.ultimo_valor_por_linha(valores, CORTE)
-        self.assertEqual(restaurar, {2: "C", 3: "B"})
+        restaurar, _ = rest.ultimo_valor_por_id(valores, CORTE)
+        self.assertEqual(restaurar, {"2": "C", "3": "B"})
 
     def test_descarta_malformadas_sem_derrubar_o_lote(self):
         valores = [CAB,
                    entrada("data ruim", 2, "X"),
-                   entrada("10/07/2026 03:00", "nao numero", "Y"),
+                   entrada("10/07/2026 03:00", "", "Y"),
                    entrada("10/07/2026 03:00", 4, ""),
                    ["10/07/2026 03:00", "run"],
                    entrada("10/07/2026 03:00", 9, "Bom")]
-        restaurar, diag = rest.ultimo_valor_por_linha(valores, CORTE)
-        self.assertEqual(restaurar, {9: "Bom"})
+        restaurar, diag = rest.ultimo_valor_por_id(valores, CORTE)
+        self.assertEqual(restaurar, {"9": "Bom"})
         self.assertEqual(diag.get("data_invalida"), 1)
-        self.assertEqual(diag.get("linha_invalida"), 1)
+        self.assertEqual(diag.get("id_vazio"), 1)
         self.assertEqual(diag.get("categoria_vazia"), 1)
         self.assertEqual(diag.get("linha_curta"), 1)
 
-    def test_linha_aceita_valor_numerico_do_sheets(self):
-        """UNFORMATTED_VALUE devolve numero, nao string."""
+    def test_id_aceita_valor_numerico_do_sheets(self):
+        """UNFORMATTED_VALUE devolve numero (12.0), nao string."""
         valores = [CAB, entrada("10/07/2026 03:00", 12.0, "Z")]
-        restaurar, _ = rest.ultimo_valor_por_linha(valores, CORTE)
-        self.assertEqual(restaurar, {12: "Z"})
+        restaurar, _ = rest.ultimo_valor_por_id(valores, CORTE)
+        self.assertEqual(restaurar, {"12": "Z"})
+
+    def test_id_alfanumerico_preservado(self):
+        """Ha IDs longos no historico real (ex.: 2019050189)."""
+        valores = [CAB, entrada("10/07/2026 03:00", "2019050189", "W")]
+        restaurar, _ = rest.ultimo_valor_por_id(valores, CORTE)
+        self.assertEqual(restaurar, {"2019050189": "W"})
 
     def test_historico_so_com_cabecalho(self):
-        restaurar, _ = rest.ultimo_valor_por_linha([CAB], CORTE)
+        restaurar, _ = rest.ultimo_valor_por_id([CAB], CORTE)
         self.assertEqual(restaurar, {})
+
+
+class TestNormalizarId(unittest.TestCase):
+    def test_formas_equivalentes(self):
+        self.assertEqual(rest.normalizar_id(1693), "1693")
+        self.assertEqual(rest.normalizar_id(1693.0), "1693")
+        self.assertEqual(rest.normalizar_id(" 1693 "), "1693")
+        self.assertEqual(rest.normalizar_id("1693"), "1693")
+
+    def test_vazios(self):
+        for v in ("", None, "   "):
+            self.assertEqual(rest.normalizar_id(v), "")
 
 
 class TestParseData(unittest.TestCase):
