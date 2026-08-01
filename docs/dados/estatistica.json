@@ -1,5 +1,5 @@
 {
-  "gerado_em": "01/08/2026 13:31",
+  "gerado_em": "01/08/2026 16:40",
   "schema_version": "1.0",
   "run_id": "EXP_CLASSIFICACAO_CHAMADOS_2026_06_001",
   "script_origem": "src/analise_estatistica.py",
@@ -1183,44 +1183,44 @@
     }
   ],
   "validacao_humana_modelos": {
-    "n_verdade_derivada": 1927,
-    "base": "decisao_validada M/N/P/Q; conflitos e restritos sem verdade excluidos",
+    "n_verdade_derivada": 9305,
+    "base": "conferencia do GLPI (coluna M) + categoria manual (Q); restritos sem verdade excluidos",
     "nota": "Amostra parcial e nao probabilistica; nao estima a base completa.",
     "por_modelo": [
       {
+        "modelo": "linear_svc",
+        "n": 9305,
+        "acerto_validado": 0.8394
+      },
+      {
         "modelo": "extra_trees",
-        "n": 1927,
-        "acerto_validado": 0.9564
+        "n": 9305,
+        "acerto_validado": 0.8262
       },
       {
         "modelo": "random_forest",
-        "n": 1927,
-        "acerto_validado": 0.9564
-      },
-      {
-        "modelo": "linear_svc",
-        "n": 1927,
-        "acerto_validado": 0.9549
-      },
-      {
-        "modelo": "sgd",
-        "n": 1927,
-        "acerto_validado": 0.9056
+        "n": 9305,
+        "acerto_validado": 0.8202
       },
       {
         "modelo": "regressao_logistica",
-        "n": 1927,
-        "acerto_validado": 0.9045
+        "n": 9305,
+        "acerto_validado": 0.8078
+      },
+      {
+        "modelo": "sgd",
+        "n": 9305,
+        "acerto_validado": 0.806
       },
       {
         "modelo": "lstm",
-        "n": 1927,
-        "acerto_validado": 0.8791
+        "n": 9305,
+        "acerto_validado": 0.7405
       },
       {
         "modelo": "naive_bayes",
-        "n": 1927,
-        "acerto_validado": 0.8708
+        "n": 9305,
+        "acerto_validado": 0.7366
       }
     ]
   },
