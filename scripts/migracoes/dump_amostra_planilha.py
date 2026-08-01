@@ -101,6 +101,7 @@ def main() -> int:
     n_cg = n_cg_igual = 0          # C vs G, onde ambos preenchidos
     n_co = n_co_igual = 0          # C vs O, onde ambos preenchidos
     n_m_ok = n_m_ok_c_eq_o = 0     # M='Correto': C bate com O?
+    n_m_erro = n_m_erro_c_eq_o = 0  # M='Errado': C bate com O?
     for pos, linha in enumerate(bloco[1:], start=2):
         m = cel(linha, idx["CONFERENCIA GLPI"]).casefold()
         n = cel(linha, idx["CONFERENCIA IA"]).casefold()
@@ -116,6 +117,9 @@ def main() -> int:
         if m == "correto" and c and o:
             n_m_ok += 1
             n_m_ok_c_eq_o += (c == o)
+        if m and m != "correto" and c and o:
+            n_m_erro += 1
+            n_m_erro_c_eq_o += (c == o)
         if m == "correto" and n == "correto":
             (conflito if c != g else ok).append((pos, linha))
 
@@ -126,6 +130,10 @@ def main() -> int:
     print(f"  C == G (historico vs IA):   {taxa(n_cg_igual, n_cg)}")
     print(f"  C == O (historico vs IA-2): {taxa(n_co_igual, n_co)}")
     print(f"  C == O onde M='Correto':    {taxa(n_m_ok_c_eq_o, n_m_ok)}")
+    print(f"  C == O onde M='Errado':     {taxa(n_m_erro_c_eq_o, n_m_erro)}")
+    print("  TESTE DE ALINHAMENTO DE M: se M esta na linha certa, a taxa sob")
+    print("  M='Errado' tem de ser MUITO menor que sob M='Correto'. Se as duas")
+    print("  forem parecidas (e proximas da base), M nao se refere a esta linha.")
     print("  Referencia: a concordancia historica do LSTM ficava entre 67% e 71%.")
     print("  Uma taxa C==G MUITO abaixo disso indica que G nao pertence mais a")
     print("  mesma linha que C (coluna literal que nao acompanhou o IMPORTRANGE).")
