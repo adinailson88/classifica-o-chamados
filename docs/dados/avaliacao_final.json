@@ -1,5 +1,5 @@
 {
-  "gerado_em": "31/07/2026 05:28",
+  "gerado_em": "01/08/2026 04:45",
   "schema_version": "1.0",
   "run_id": "EXP_CLASSIFICACAO_CHAMADOS_2026_06_001",
   "script_origem": "src/avaliacao_final.py",
@@ -33,6 +33,17 @@
   "status": "ok",
   "por_modelo": [
     {
+      "modelo": "extra_trees",
+      "n": 1927,
+      "acerto_validado": 0.9564,
+      "ic95": [
+        0.9471,
+        0.9652
+      ],
+      "peso_log_odds": 3.0883,
+      "peso_normalizado": 0.1488
+    },
+    {
       "modelo": "random_forest",
       "n": 1927,
       "acerto_validado": 0.9564,
@@ -41,117 +52,106 @@
         0.9652
       ],
       "peso_log_odds": 3.0883,
-      "peso_normalizado": 0.232
-    },
-    {
-      "modelo": "extra_trees",
-      "n": 1927,
-      "acerto_validado": 0.534,
-      "ic95": [
-        0.5127,
-        0.5568
-      ],
-      "peso_log_odds": 0.1362,
-      "peso_normalizado": 0.1295
+      "peso_normalizado": 0.1488
     },
     {
       "modelo": "linear_svc",
       "n": 1927,
-      "acerto_validado": 0.5335,
+      "acerto_validado": 0.9549,
       "ic95": [
-        0.5117,
-        0.5558
+        0.9455,
+        0.9637
       ],
-      "peso_log_odds": 0.1341,
-      "peso_normalizado": 0.1294
-    },
-    {
-      "modelo": "naive_bayes",
-      "n": 1927,
-      "acerto_validado": 0.5324,
-      "ic95": [
-        0.5101,
-        0.5553
-      ],
-      "peso_log_odds": 0.1299,
-      "peso_normalizado": 0.1291
+      "peso_log_odds": 3.0516,
+      "peso_normalizado": 0.1486
     },
     {
       "modelo": "sgd",
       "n": 1927,
-      "acerto_validado": 0.5288,
+      "acerto_validado": 0.9056,
       "ic95": [
-        0.5065,
-        0.5516
+        0.8931,
+        0.918
       ],
-      "peso_log_odds": 0.1153,
-      "peso_normalizado": 0.1283
+      "peso_log_odds": 2.2605,
+      "peso_normalizado": 0.1409
     },
     {
       "modelo": "regressao_logistica",
       "n": 1927,
-      "acerto_validado": 0.5241,
+      "acerto_validado": 0.9045,
       "ic95": [
-        0.5029,
-        0.5464
+        0.8915,
+        0.917
       ],
-      "peso_log_odds": 0.0966,
-      "peso_normalizado": 0.1271
+      "peso_log_odds": 2.2484,
+      "peso_normalizado": 0.1407
     },
     {
       "modelo": "lstm",
       "n": 1927,
-      "acerto_validado": 0.5138,
+      "acerto_validado": 0.8791,
       "ic95": [
-        0.492,
-        0.5366
+        0.864,
+        0.8931
       ],
-      "peso_log_odds": 0.055,
-      "peso_normalizado": 0.1246
+      "peso_log_odds": 1.9838,
+      "peso_normalizado": 0.1368
+    },
+    {
+      "modelo": "naive_bayes",
+      "n": 1927,
+      "acerto_validado": 0.8708,
+      "ic95": [
+        0.8568,
+        0.8853
+      ],
+      "peso_log_odds": 1.9079,
+      "peso_normalizado": 0.1355
     }
   ],
-  "melhor_ia": "random_forest",
+  "melhor_ia": "extra_trees",
   "melhor_vs_segundo": {
-    "segundo": "extra_trees",
-    "delta": 0.4224,
-    "p_mcnemar": 5.390233969425691e-178
+    "segundo": "random_forest",
+    "delta": 0.0,
+    "p_mcnemar": null
   },
   "ensembles": [
     {
       "metodo": "confianca_calibrada_max",
-      "acerto_validado": 0.9652,
+      "acerto_validado": 0.9611,
       "ic95": [
-        0.9574,
-        0.973
+        0.9523,
+        0.9689
       ],
-      "delta_vs_melhor_ia": 0.0088,
-      "p_mcnemar_vs_melhor_ia": 0.16508338915578719
+      "delta_vs_melhor_ia": 0.0047,
+      "p_mcnemar_vs_melhor_ia": 0.063568115234375
     },
     {
       "metodo": "maioria_ponderada",
-      "acerto_validado": 0.9564,
+      "acerto_validado": 0.9549,
       "ic95": [
-        0.9471,
-        0.9647
+        0.945,
+        0.9637
       ],
-      "delta_vs_melhor_ia": 0.0,
-      "p_mcnemar_vs_melhor_ia": null
+      "delta_vs_melhor_ia": -0.0015,
+      "p_mcnemar_vs_melhor_ia": 0.25
     },
     {
       "metodo": "maioria_simples",
-      "acerto_validado": 0.5656,
+      "acerto_validado": 0.9476,
       "ic95": [
-        0.5439,
-        0.5874
+        0.9372,
+        0.9569
       ],
-      "delta_vs_melhor_ia": -0.3908,
-      "p_mcnemar_vs_melhor_ia": 2.758367168199476e-160
+      "delta_vs_melhor_ia": -0.0088,
+      "p_mcnemar_vs_melhor_ia": 1.52587890625e-05
     }
   ],
   "vale_combinar": {
     "veredicto": false,
-    "recomendacao": "random_forest",
-    "justificativa": "Nenhum ensemble supera a melhor IA isolada com significancia (McNemar p>=0,05) — combinar nao compensa o custo adicional; use 'random_forest' com calibracao."
+    "recomendacao": "extra_trees",
+    "justificativa": "Nenhum ensemble supera a melhor IA isolada com significancia (McNemar p>=0,05) — combinar nao compensa o custo adicional; use 'extra_trees' com calibracao."
   },
   "observacoes": [
     "Pesos do voto ponderado aprendidos out-of-fold (k-fold nos validados).",
