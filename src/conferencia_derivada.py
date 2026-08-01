@@ -47,12 +47,14 @@ from typing import Any
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+import matriz_confusao_multimodelo as mc  # noqa: E402
 import planilha as pl  # noqa: E402
 from tempo import agora_bahia  # noqa: E402
 
 RAIZ = Path(__file__).resolve().parents[1]
 CONFIG_PADRAO = RAIZ / "config_experimento.json"
 SAIDA_PADRAO = RAIZ / "docs" / "dados" / "conferencia_derivada.json"
+SAIDA_MATRIZ_PADRAO = RAIZ / "docs" / "dados" / "matriz_confusao.json"
 
 ABA_SAIDA_PADRAO = "CONFERENCIA_MULTIMODELO"
 MODELO_COLUNA_O = "transformer_ft"
@@ -266,6 +268,8 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--aba-saida", default=ABA_SAIDA_PADRAO)
     p.add_argument("--json", type=Path, default=SAIDA_PADRAO,
                    help="Resumo sanitizado para o dashboard.")
+    p.add_argument("--json-matriz", type=Path, default=SAIDA_MATRIZ_PADRAO,
+                   help="Matriz de confusao por modelo, para o dashboard.")
     p.add_argument("--aplicar", action="store_true",
                    help="Sem isso, nao grava a aba na planilha.")
     return p.parse_args()
@@ -309,6 +313,31 @@ def main() -> int:
         args.json.write_text(json.dumps(resumo, ensure_ascii=False, indent=1),
                              encoding="utf-8")
         print(f"\nresumo escrito em {args.json}")
+
+    # Matriz de confusao: mesma leitura da planilha, segundo artefato. A verdade
+    # cresce sozinha conforme M e Q sao preenchidas, entao nao ha recorte fixo.
+    if args.json_matriz:
+        verdades = {}
+        for ch in chamados:
+            verdade, _fonte = verdade_do_chamado(
+                ch["conf_glpi"], ch["categoria_glpi"], ch["categoria_manual"])
+            if verdade:
+                verdades[ch["id"]] = verdade
+        matriz = mc.construir(verdades, predicoes, modelos)
+        matriz["gerado_em"] = resumo["gerado_em"]
+        matriz["fonte_verdade"] = resumo["regra"]
+        matriz["pendente_glpi_errado_sem_q"] = resumo["pendente_glpi_errado_sem_q"]
+        matriz["verdade_glpi"] = resumo["verdade_glpi"]
+        matriz["verdade_manual"] = resumo["verdade_manual"]
+        cats = matriz["categorias"]
+        for m in modelos:
+            matriz["modelos"][m]["top_confusoes"] = mc.top_confusoes(
+                matriz["modelos"][m], cats)
+        args.json_matriz.parent.mkdir(parents=True, exist_ok=True)
+        args.json_matriz.write_text(
+            json.dumps(matriz, ensure_ascii=False), encoding="utf-8")
+        print(f"matriz de confusao escrita em {args.json_matriz} "
+              f"({len(cats)} categorias, {len(verdades)} chamados com verdade)")
 
     if not args.aplicar:
         print("\nDRY-RUN: aba nao gravada. Rode com --aplicar para gravar.")

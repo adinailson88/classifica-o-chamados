@@ -164,6 +164,7 @@
     <button data-t="modelos">Modelos (4.1)</button>
     <button data-t="estat">Estatistica (4.1&ndash;4.9)</button>
     <button data-t="bertimbau">BERTimbau (4.3)</button>
+    <button data-t="confusao">Matriz de confusao</button>
     <button data-t="metrics">Validacao e calibracao (4.2/4.4)</button>
     <button data-t="reclass">Reclassificacao (4.5)</button>
     <button data-t="taxon">Taxonomia e ambiguidade (4.6)</button>
@@ -415,6 +416,42 @@
     </div>
   </section>
 
+  <section id="tab-confusao" class="hide">
+    <span class="artref">&#8627; Comparacao entre modelos contra a verdade validada pela conferencia humana</span>
+    <div class="alerta" id="confusaoAviso">A verdade vem da conferencia humana do GLPI (coluna M): quando o avaliador marca a categoria do GLPI como <strong>Correta</strong>, ela vira a verdade e cada IA e comparada com ela; quando marca <strong>Errada</strong>, a verdade so existe se a categoria certa tiver sido informada na coluna Q. Casos sem Q ficam pendentes e <em>nao</em> entram em nenhuma metrica. A base cresce sozinha a cada conferencia nova.</div>
+    <div class="kpis" id="kpisConfusao"></div>
+    <div class="grid">
+      <div class="card full">
+        <h2>Ranking por acerto validado</h2>
+        <p class="muted" id="confusaoRankInfo"></p>
+        <div class="tablebox"><table id="tabConfusaoRank"><thead><tr>
+          <th>Posicao</th><th>Modelo</th><th>Avaliados</th><th>Acuracia</th><th>F1 macro</th><th>F1 ponderado</th>
+        </tr></thead><tbody></tbody></table></div>
+      </div>
+      <div class="card full">
+        <h2>Matriz de confusao</h2>
+        <p class="muted">Linha = categoria verdadeira; coluna = categoria prevista. A diagonal e o acerto. Passe o mouse para ver os valores. So as <span id="confusaoTopN">20</span> categorias com maior suporte sao exibidas, para manter a leitura possivel.</p>
+        <label for="selConfusaoModelo">Modelo:</label>
+        <select id="selConfusaoModelo"></select>
+        <div style="overflow:auto" id="confusaoHeat"><p class="muted">Sem <code>matriz_confusao.json</code> publicado ainda. Rode o workflow <code>conferencia_derivada.yml</code>.</p></div>
+      </div>
+      <div class="card full">
+        <h2>Maiores confusoes do modelo selecionado</h2>
+        <p class="muted">Pares (verdade &rarr; predito) fora da diagonal, ordenados por volume. Indicam fronteiras de taxonomia mal resolvidas.</p>
+        <div class="tablebox"><table id="tabConfusaoTop"><thead><tr>
+          <th>Categoria verdadeira</th><th>Predita pelo modelo</th><th>Casos</th>
+        </tr></thead><tbody></tbody></table></div>
+      </div>
+      <div class="card full">
+        <h2>Desempenho por categoria (modelo selecionado)</h2>
+        <p class="muted">Precisao, revocacao e F1 por categoria, com o suporte na verdade validada. Categorias de suporte baixo tem metrica instavel &mdash; leia junto com a coluna Suporte.</p>
+        <div class="tablebox"><table id="tabConfusaoCat"><thead><tr>
+          <th>Categoria</th><th>Suporte</th><th>Previstos</th><th>Precisao</th><th>Revocacao</th><th>F1</th>
+        </tr></thead><tbody></tbody></table></div>
+      </div>
+    </div>
+  </section>
+
   <section id="tab-reclass" class="hide">
     <span class="artref">&#8627; Subsecao 4.5 do artigo &mdash; Reclassificacao e ganho liquido</span>
     <div class="alerta" id="reclassAviso">Etapa 2 (reclassificacao) ainda nao executada apos o reset. Nao iniciar a validacao humana ainda; o proximo passo tecnico e um dry-run ou aplicacao controlada da reclassificacao.</div>
@@ -642,6 +679,10 @@
           <tr><td>Modelos</td><td>Evolucao por turno na base completa</td><td><a href="dados/multimodelo_turnos.json">multimodelo_turnos.json</a></td><td>Mostra a estabilidade de cada modelo por lote/janela.</td><td>Modelo bom deve manter desempenho sem oscilacoes grandes; queda em janelas pode indicar categorias ou textos dificeis.</td></tr>
           <tr><td>Modelos</td><td>Comparacao held-out por janela</td><td><a href="dados/comparacao_modelos.json">comparacao_modelos.json</a> e <a href="dados/multimodelo_turnos.json">multimodelo_turnos.json</a></td><td>Como os modelos se comportam em janelas sucessivas da base sem treinar na propria linha avaliada.</td><td>Procure consistencia entre janelas; desempenho alto em poucas janelas nao basta.</td></tr>
           <tr><td>Modelos</td><td>Reclassificacao multimodelo (ganho liquido por modelo)</td><td><a href="dados/multimodelo_reclass_turnos.json">multimodelo_reclass_turnos.json</a></td><td>Qual modelo melhora ou piora a classificacao ao reclassificar casos selecionados.</td><td>Ganho positivo indica correcao liquida; ganho zero pode esconder muitos reusos de decisao humana ou casos sem referencia.</td></tr>
+          <tr><td>Matriz de confusao</td><td>Ranking por acerto validado</td><td><a href="dados/matriz_confusao.json">matriz_confusao.json</a></td><td>Qual IA mais acerta contra a verdade confirmada pela conferencia humana, e nao contra o historico.</td><td>E a evidencia mais forte do painel, porque a referencia foi validada por pessoa. Compare junto com F1 macro: acuracia alta com F1 macro baixo indica modelo que acerta so as categorias volumosas.</td></tr>
+          <tr><td>Matriz de confusao</td><td>Matriz de confusao por modelo</td><td><a href="dados/matriz_confusao.json">matriz_confusao.json</a></td><td>Para cada categoria verdadeira, em quais categorias o modelo distribuiu suas predicoes.</td><td>Leia por linha: a cor mostra a fracao daquela categoria verdadeira. Massa concentrada fora da diagonal aponta par de categorias que o modelo nao separa.</td></tr>
+          <tr><td>Matriz de confusao</td><td>Maiores confusoes</td><td><a href="dados/matriz_confusao.json">matriz_confusao.json</a></td><td>Os pares (verdade &rarr; predito) de maior volume fora da diagonal.</td><td>Muitos desses pares sao ambiguidade de taxonomia, nao erro do modelo &mdash; categorias de mesmo nome sob pais diferentes, por exemplo. Use para revisar a taxonomia antes de culpar a IA.</td></tr>
+          <tr><td>Matriz de confusao</td><td>Desempenho por categoria</td><td><a href="dados/matriz_confusao.json">matriz_confusao.json</a></td><td>Precisao, revocacao e F1 por categoria, com o suporte na verdade validada.</td><td>Categoria com suporte baixo tem metrica instavel; nao conclua nada de F1 calculado sobre poucos chamados. A base cresce a cada conferencia nova.</td></tr>
           <tr><td>Taxonomia</td><td>Correlacao por categoria (mapa de calor)</td><td><a href="dados/correlacao_categorias.json">correlacao_categorias.json</a></td><td>Quais categorias usam vocabulario parecido no TF-IDF.</td><td>Celulas mais intensas sugerem sobreposicao semantica; use para revisar nomes, fronteiras e criterios de classificacao.</td></tr>
           <tr><td>Taxonomia</td><td>Termos caracteristicos</td><td><a href="dados/termos_relevantes.json">termos_relevantes.json</a></td><td>Quais palavras ou bigramas mais caracterizam a categoria selecionada.</td><td>Termos coerentes indicam categoria semanticamente bem formada; termos genericos ou misturados indicam ruido.</td></tr>
           <tr><td>Taxonomia</td><td>Pares mais proximos (vocabulario)</td><td><a href="dados/correlacao_categorias.json">correlacao_categorias.json</a></td><td>Quais pares de categorias sao semanticamente mais semelhantes.</td><td>Priorize pares de alta similaridade e alto volume para revisao metodologica.</td></tr>
@@ -1634,6 +1675,118 @@ function renderReclassMulti(rt){
 
 // ---- Taxonomia: mapa de correlacao + termos caracteristicos + cruzamento ----
 let TAXON_CORR=null, TAXON_TERMOS=null, TAXON_CRUZ=null;
+/* ---------- Matriz de confusao contra a verdade validada ----------
+   Fonte: docs/dados/matriz_confusao.json, gerado por src/conferencia_derivada.py.
+   A verdade vem da conferencia humana do GLPI (coluna M) e cresce sozinha; por
+   isso nada aqui e recortado por data ou por rodada. */
+let CONFUSAO = null;
+const CONFUSAO_TOP_CATS = 20;
+
+function confusaoModelos(){
+  if(!CONFUSAO || !CONFUSAO.modelos) return [];
+  return Object.entries(CONFUSAO.modelos)
+    .filter(([,m]) => m && m.n > 0)
+    .sort((a,b) => N(b[1].acuracia) - N(a[1].acuracia));
+}
+
+/* Recorte: as categorias com maior suporte na verdade, para a matriz caber na
+   tela. O suporte vem do modelo selecionado, mas e o mesmo da verdade. */
+function confusaoCatsRecorte(m){
+  const sup = (m.por_categoria||[]).filter(c => c.suporte > 0)
+    .sort((a,b) => b.suporte - a.suporte).slice(0, CONFUSAO_TOP_CATS);
+  return sup.map(c => c.c).sort((a,b) => a-b);
+}
+
+function renderConfusao(){
+  const kp = document.getElementById("kpisConfusao");
+  const sel = document.getElementById("selConfusaoModelo");
+  const heat = document.getElementById("confusaoHeat");
+  if(!CONFUSAO || !CONFUSAO.modelos || !confusaoModelos().length){
+    if(kp) kp.innerHTML = "";
+    return;
+  }
+  const ordenados = confusaoModelos();
+
+  if(kp) kp.innerHTML = [
+    kpi(fmt(CONFUSAO.n_verdade), "chamados com verdade validada", "base das metricas desta aba"),
+    kpi(fmt(CONFUSAO.verdade_glpi), "verdade vinda do GLPI", "avaliador marcou a categoria como Correta"),
+    kpi(fmt(CONFUSAO.verdade_manual), "verdade vinda da coluna Q", "GLPI errado, categoria corrigida a mao"),
+    kpi(fmt(CONFUSAO.pendente_glpi_errado_sem_q), "pendentes", "GLPI errado e coluna Q ainda vazia"),
+    kpi(fmt((CONFUSAO.categorias||[]).length), "categorias", "presentes na verdade ou nas predicoes")
+  ].join("");
+
+  const info = document.getElementById("confusaoRankInfo");
+  if(info) info.textContent = `Gerado em ${fmtData(CONFUSAO.gerado_em)}. `
+    + `Acerto contra a verdade validada pela conferencia humana, nao contra o historico.`;
+
+  const rb = document.querySelector("#tabConfusaoRank tbody");
+  if(rb) rb.innerHTML = ordenados.map(([nome,m],i) =>
+    `<tr><td>${i+1}</td><td>${esc(nome)}</td><td>${fmt(m.n)}</td>`
+    + `<td style="font-weight:600">${m.acuracia==null?"—":pct(m.acuracia)}</td>`
+    + `<td>${m.f1_macro==null?"—":N(m.f1_macro).toFixed(4).replace(".",",")}</td>`
+    + `<td>${m.f1_weighted==null?"—":N(m.f1_weighted).toFixed(4).replace(".",",")}</td></tr>`).join("");
+
+  if(sel && !sel.options.length){
+    sel.innerHTML = ordenados.map(([nome]) => `<option value="${esc(nome)}">${esc(nome)}</option>`).join("");
+    sel.onchange = renderConfusaoModelo;
+  }
+  renderConfusaoModelo();
+}
+
+function renderConfusaoModelo(){
+  const sel = document.getElementById("selConfusaoModelo");
+  const heat = document.getElementById("confusaoHeat");
+  if(!CONFUSAO || !sel) return;
+  const nome = sel.value || (confusaoModelos()[0]||[])[0];
+  const m = CONFUSAO.modelos[nome];
+  if(!m || !m.n){ if(heat) heat.innerHTML = '<p class="muted">Modelo sem predicoes avaliadas.</p>'; return; }
+
+  const cats = CONFUSAO.categorias || [];
+  const recorte = confusaoCatsRecorte(m);
+  const pos = new Map(recorte.map((c,k) => [c,k]));
+  const tn = document.getElementById("confusaoTopN");
+  if(tn) tn.textContent = String(recorte.length);
+
+  /* Densifica so o recorte. Normaliza por LINHA (verdade): cada linha vira a
+     distribuicao das predicoes daquela categoria, que e como se le uma matriz
+     de confusao. Sem isso, categorias volumosas dominariam a escala de cor. */
+  const M = recorte.map(() => recorte.map(() => 0));
+  (m.celulas||[]).forEach(([i,j,n]) => {
+    if(pos.has(i) && pos.has(j)) M[pos.get(i)][pos.get(j)] = n;
+  });
+  const somaLinha = M.map(r => r.reduce((a,b) => a+b, 0));
+
+  const curto = c => c.length > 22 ? c.slice(0,22)+"…" : c;
+  let h = '<table style="border-collapse:collapse"><tr><th style="font-size:11px;color:#68737d">verdade \\ predito</th>'
+    + recorte.map(c => `<th style="height:120px;white-space:nowrap;vertical-align:bottom;font-size:11px;color:#68737d"><span style="display:inline-block;transform:rotate(-60deg);transform-origin:left bottom;width:16px">${esc(curto(cats[c]))}</span></th>`).join('')
+    + '<th style="font-size:11px;color:#68737d;padding-left:6px">total</th></tr>';
+  recorte.forEach((ci,i) => {
+    h += `<tr><th style="text-align:right;padding-right:8px;color:#68737d;white-space:nowrap;max-width:240px;overflow:hidden;text-overflow:ellipsis;font-size:12px" title="${esc(cats[ci])}">${esc(curto(cats[ci]))}</th>`;
+    recorte.forEach((cj,j) => {
+      const v = M[i][j], frac = somaLinha[i] ? v/somaLinha[i] : 0;
+      const diag = i===j;
+      h += `<td title="verdade: ${esc(cats[ci])} → predito: ${esc(cats[cj])} = ${fmt(v)} (${pct(frac)} da linha)" `
+        + `style="width:20px;height:20px;background:${v?corHeat(frac):"transparent"};`
+        + `border:1px solid ${diag?"rgba(42,157,143,.9)":"rgba(0,0,0,.12)"}"></td>`;
+    });
+    h += `<td style="padding-left:6px;font-size:11px;color:#68737d">${fmt(somaLinha[i])}</td></tr>`;
+  });
+  h += '</table>';
+  if(heat) heat.innerHTML = h;
+
+  const tb = document.querySelector("#tabConfusaoTop tbody");
+  if(tb) tb.innerHTML = (m.top_confusoes||[]).map(t =>
+    `<tr><td>${esc(t.verdade)}</td><td>${esc(t.predito)}</td><td>${fmt(t.n)}</td></tr>`).join("")
+    || '<tr><td colspan="3" class="muted">Nenhuma confusao fora da diagonal.</td></tr>';
+
+  const cb = document.querySelector("#tabConfusaoCat tbody");
+  if(cb) cb.innerHTML = (m.por_categoria||[]).slice()
+    .sort((a,b) => b.suporte - a.suporte)
+    .map(c => `<tr><td>${esc(cats[c.c])}</td><td>${fmt(c.suporte)}</td><td>${fmt(c.previstos)}</td>`
+      + `<td>${pct(c.precision)}</td><td>${pct(c.recall)}</td>`
+      + `<td style="font-weight:600;color:${corHeat(N(c.f1))}">${N(c.f1).toFixed(3).replace(".",",")}</td></tr>`).join("");
+}
+
 function corHeat(v){
   v=Math.max(0,Math.min(1,N(v)));
   const stops=[[13,27,42],[27,73,101],[42,157,143],[233,196,106],[244,162,97],[231,111,81]];
@@ -1987,7 +2140,12 @@ function ajustarFiltros(aba){
 document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{
   document.querySelectorAll(".tabs button").forEach(x=>x.classList.remove("on"));
   b.classList.add("on");
-  ["class","cat","metrics","modelos","estat","taxon","reclass","decisao","fluxo","docs","bertimbau"].forEach(t=>document.getElementById("tab-"+t).classList.toggle("hide",t!==b.dataset.t));
+  // Derivado dos proprios botoes: uma lista fixa aqui ja fez uma aba nova
+  // ficar invisivel por esquecimento (aba "confusao", 01/08/2026).
+  document.querySelectorAll(".tabs button").forEach(x=>{
+    const sec=document.getElementById("tab-"+x.dataset.t);
+    if(sec) sec.classList.toggle("hide", x.dataset.t!==b.dataset.t);
+  });
   ajustarFiltros(b.dataset.t);
 });
 document.getElementById("filtroCat").addEventListener("input",renderCat);
@@ -2206,6 +2364,8 @@ function renderBertimbauCoreset(cs){
     getJSON("shannon_categorias.json"), getJSON("shannon_votos.json"), getJSON("bertimbau_training_state.json"),
     getJSON("avaliacao_bertimbau_holdout.json")
   ]);
+  CONFUSAO = await getJSON("matriz_confusao.json");
+  renderConfusao();
   BERT_COMPARAVEL=!!(bertState && bertState.status==="ok");
   MODELOS_EXCLUIDOS=BERT_COMPARAVEL ? new Set() : new Set(["transformer_ft"]);
   CAT = Array.isArray(cat) ? cat : [];
