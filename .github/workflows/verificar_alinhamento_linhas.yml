@@ -1,0 +1,53 @@
+name: Verificar alinhamento linha_planilha x id_chamado
+
+# Diagnostico READ-ONLY. A base cresceu de 13.965 para 14.094 apos a redefinicao
+# do IMPORTRANGE, e todo o pipeline indexa por numero de linha, nao por
+# id_chamado. Se as linhas novas tiverem sido inseridas no meio (em vez de
+# acrescentadas no fim), qualquer escrita indexada por linha grava no chamado
+# errado -- inclusive a restauracao da coluna O feita em 01/08/2026.
+#
+# Nao escreve nada. Falha (exit 2) se houver qualquer divergencia.
+
+on:
+  workflow_dispatch:
+    inputs:
+      amostra:
+        description: "Quantas divergencias listar"
+        default: "10"
+
+concurrency:
+  # Grupo proprio: e read-only e nao pode ser expulso da fila 'escrita-planilha'.
+  group: verificar-alinhamento
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  verificar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: requirements-leves.txt
+      - name: Dependencias
+        run: python -m pip install --retries 5 --timeout 120 -r requirements-leves.txt
+      - name: Recriar chave da conta de servico
+        env:
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+        run: |
+          if [ -z "$GCP_SA_KEY" ]; then echo "Secret GCP_SA_KEY ausente." >&2; exit 1; fi
+          printf '%s' "$GCP_SA_KEY" > credenciais_sa.json
+      - name: Verificar alinhamento
+        run: |
+          python scripts/migracoes/verificar_alinhamento_linhas.py \
+            --amostra "${{ github.event.inputs.amostra || '10' }}"
+      - name: Remover credenciais
+        if: always()
+        run: rm -f credenciais_sa.json
