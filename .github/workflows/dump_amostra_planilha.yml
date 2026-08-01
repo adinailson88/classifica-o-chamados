@@ -1,0 +1,54 @@
+name: Dump de amostra da planilha (read-only)
+
+# Diagnostico READ-ONLY, sem inferencia: mostra o cabecalho real com letra e
+# indice de cada coluna, quais colunas sao FORMULA (identifica o alcance real do
+# IMPORTRANGE em vez de assumir A:F) e amostras de linhas em conflito
+# (M='Correto' e N='Correto' com C != G) lado a lado.
+#
+# Serve para confirmar ou descartar, olhando dado cru, a hipotese de
+# desalinhamento entre as colunas importadas e as colunas literais.
+#
+# Nao escreve nada, em lugar nenhum.
+
+on:
+  workflow_dispatch:
+    inputs:
+      amostra:
+        description: "Quantas linhas mostrar em cada grupo"
+        default: "12"
+
+concurrency:
+  group: dump-amostra-planilha
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  dump:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: requirements-leves.txt
+      - name: Dependencias
+        run: python -m pip install --retries 5 --timeout 120 -r requirements-leves.txt
+      - name: Recriar chave da conta de servico
+        env:
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+        run: |
+          if [ -z "$GCP_SA_KEY" ]; then echo "Secret GCP_SA_KEY ausente." >&2; exit 1; fi
+          printf '%s' "$GCP_SA_KEY" > credenciais_sa.json
+      - name: Dump
+        run: |
+          python scripts/migracoes/dump_amostra_planilha.py \
+            --amostra "${{ github.event.inputs.amostra || '12' }}"
+      - name: Remover credenciais
+        if: always()
+        run: rm -f credenciais_sa.json
