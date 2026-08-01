@@ -1,307 +1,323 @@
 {
-  "gerado_em": "2026-07-28",
-  "fonte": "Indice documental dos workflows ativos em .github/workflows/.",
-  "repo": "adinailson88/classificacao-chamados",
-  "escopo": "Workflows que alimentam dados, painel, artigo ou operacoes metodologicas controladas.",
-  "concorrencia": "Escritas na planilha usam grupos de concorrencia para evitar sobreposicao. Gravacoes manuais exigem dry-run revisado e aplicacao explicita.",
-  "workflows": [
-    {
-      "workflow": "Etapa 1 - classificacao progressiva",
-      "arquivo": "etapa1_turnos.yml",
-      "gatilho": "cron a cada 15 min + manual",
-      "faz": "Classifica progressivamente os chamados pendentes e atualiza o estado da Etapa 1.",
-      "entrada": "Planilha e caches do experimento",
-      "saida": "Classificacao, metricas e logs agregados",
-      "abas": [
-        "Classificacao",
-        "Categorias",
-        "Metricas"
-      ],
-      "quando": "Motor recorrente da classificacao principal.",
-      "obs": "Escrita serializada; deve preservar as conferencias humanas.",
-      "tipo": "Gera dados",
-      "automacao": "Automatico",
-      "condicao": "Cron e execucao manual"
-    },
-    {
-      "workflow": "Multimodelo - classificacao completa",
-      "arquivo": "multimodelo_classificacao.yml",
-      "gatilho": "cron + manual",
-      "faz": "Materializa as previsoes dos modelos comparaveis sobre a base do experimento.",
-      "entrada": "Chamados e configuracao multimodelo",
-      "saida": "Resultados e metricas por modelo",
-      "abas": [
-        "Modelos",
-        "Categorias"
-      ],
-      "quando": "Atualizacao incremental e comparacao entre modelos.",
-      "obs": "Modelos pesados possuem fluxos proprios.",
-      "tipo": "Gera dados",
-      "automacao": "Automatico condicionado",
-      "condicao": "Executa quando ha dados pendentes ou por disparo manual"
-    },
-    {
-      "workflow": "Multimodelo - reclassificacao",
-      "arquivo": "multimodelo_reclassificacao.yml",
-      "gatilho": "cron diario + manual",
-      "faz": "Reclassifica casos selecionados por baixa confianca, por modelo.",
-      "entrada": "Previsoes, confianca e candidatos elegiveis",
-      "saida": "Resultados de reclassificacao e calibracao ajustada",
-      "abas": [
-        "Reclassificacao",
-        "Modelos"
-      ],
-      "quando": "Rotina diaria; aplicacao manual deve comecar por dry-run.",
-      "obs": "Nao aplicar sem revisar ganho liquido e preservacao das conferencias.",
-      "tipo": "Gera dados",
-      "automacao": "Automatico",
-      "condicao": "Cron diario ou disparo manual"
-    },
-    {
-      "workflow": "Atualizar dashboard",
-      "arquivo": "dashboard.yml",
-      "gatilho": "cron + manual + workflow_run",
-      "faz": "Republica os JSONs agregados e sanitizados consumidos pelo GitHub Pages.",
-      "entrada": "Planilha, caches e resultados versionados",
-      "saida": "docs/dados/*.json",
-      "abas": [
-        "Classificacao",
-        "Categorias",
-        "Metricas",
-        "Modelos",
-        "Reclassificacao",
-        "Decisao",
-        "Taxonomia"
-      ],
-      "quando": "Apos fluxos de dados e em atualizacoes periodicas.",
-      "obs": "Nao deve publicar texto livre dos chamados.",
-      "tipo": "Publica",
-      "automacao": "Automatico",
-      "condicao": "Cron, conclusao de workflows de dados ou disparo manual"
-    },
-    {
-      "workflow": "Avaliacao final validada",
-      "arquivo": "avaliacao_final.yml",
-      "gatilho": "cron + manual",
-      "faz": "Calcula acerto contra a decisao humana, intervalos, ensembles e analise de erros.",
-      "entrada": "Decisoes validadas e previsoes dos modelos",
-      "saida": "avaliacao_final.json e analise_erros.json",
-      "abas": [
-        "Decisao",
-        "Modelos"
-      ],
-      "quando": "Apos crescimento suficiente da base validada ou por disparo manual.",
-      "obs": "Concordancia historica e acerto validado devem permanecer separados.",
-      "tipo": "Gera dados",
-      "automacao": "Automatico condicionado",
-      "condicao": "Avanco de validacao humana ou execucao manual"
-    },
-    {
-      "workflow": "Estatistica multimodelo",
-      "arquivo": "estatistica.yml",
-      "gatilho": "cron + manual + workflow_run",
-      "faz": "Executa comparacoes estatisticas entre modelos e consolida metricas.",
-      "entrada": "Previsoes materializadas e decisoes validadas",
-      "saida": "estatistica.json e comparacao_modelos.json",
-      "abas": [
-        "Estatistica",
-        "Modelos"
-      ],
-      "quando": "Apos atualizacoes de modelos ou em ciclos periodicos.",
-      "obs": "Os denominadores devem ser reconciliados com a avaliacao final.",
-      "tipo": "Gera dados",
-      "automacao": "Automatico",
-      "condicao": "Cron, workflow_run ou disparo manual"
-    },
-    {
-      "workflow": "Consolidar validacao humana",
-      "arquivo": "consolidar_validacao.yml",
-      "gatilho": "cron diario em dry-run + manual",
-      "faz": "Consolida memoria, metricas de G/O e calibracao contra a verdade unica M/N/P/Q, excluindo conflitos.",
-      "entrada": "Aba principal A:Q, decisoes validadas e memoria de treino",
-      "saida": "Abas privadas de memoria, metricas, calibracao e controle",
-      "abas": [
-        "Decisao",
-        "Reclassificacao"
-      ],
-      "quando": "Diagnostico diario e aplicacao manual apos revisao.",
-      "obs": "O cron nao grava. Aplicacao exige workflow_dispatch com aplicar=true apos dry-run revisado.",
-      "tipo": "Gera dados",
-      "automacao": "Automatico condicionado",
-      "condicao": "Cron read-only; gravacao somente por disparo manual explicito"
-    },
-    {
-      "workflow": "Auditar conferencias humanas",
-      "arquivo": "auditar_conferencias.yml",
-      "gatilho": "cron + manual",
-      "faz": "Verifica cobertura, conflitos e consistencia das conferencias humanas.",
-      "entrada": "Colunas de conferencia humana",
-      "saida": "auditoria_conferencias.json",
-      "abas": [
-        "Decisao"
-      ],
-      "quando": "Antes de consolidacoes e avaliacoes finais.",
-      "obs": "Fluxo de leitura e diagnostico.",
-      "tipo": "Gera dados",
-      "automacao": "Automatico",
-      "condicao": "Cron ou disparo manual"
-    },
-    {
-      "workflow": "Validacao nao supervisionada",
-      "arquivo": "validacao_nao_supervisionada.yml",
-      "gatilho": "cron diario + manual",
-      "faz": "Produz diagnosticos exploratorios sem substituir a validacao humana.",
-      "entrada": "Textos, categorias e previsoes",
-      "saida": "Indicadores exploratorios de agrupamento e prioridade",
-      "abas": [
-        "Estatistica"
-      ],
-      "quando": "Analise complementar de qualidade e taxonomia.",
-      "obs": "Nao e evidencia de acuracia validada.",
-      "tipo": "Gera dados",
-      "automacao": "Automatico",
-      "condicao": "Cron diario ou disparo manual"
-    },
-    {
-      "workflow": "Relevancia de termos e taxonomia",
-      "arquivo": "relevancia_termos.yml",
-      "gatilho": "cron diario + manual",
-      "faz": "Calcula termos caracteristicos, correlacao vocabular e candidatos a revisao de taxonomia.",
-      "entrada": "Texto dos chamados e previsoes agregadas",
-      "saida": "termos_relevantes.json, correlacao_categorias.json e cruzamento_taxonomia.json",
-      "abas": [
-        "Taxonomia"
-      ],
-      "quando": "Triagem de sobreposicao e ruido entre categorias.",
-      "obs": "O cron publica somente JSONs agregados; aplicar=true deve ser deliberado.",
-      "tipo": "Gera dados",
-      "automacao": "Automatico",
-      "condicao": "Cron diario ou disparo manual"
-    },
-    {
-      "workflow": "Comparar modelos por lote",
-      "arquivo": "comparar_modelos.yml",
-      "gatilho": "cron diario + manual",
-      "faz": "Compara modelos em recortes held-out controlados.",
-      "entrada": "Base do experimento e configuracao de janelas",
-      "saida": "Metricas comparativas e tempos de execucao",
-      "abas": [
-        "Modelos",
-        "Categorias"
-      ],
-      "quando": "Quando ha crescimento suficiente da base ou por disparo manual.",
-      "obs": "Resultados por lote nao devem ser apresentados como avaliacao da base completa.",
-      "tipo": "Gera dados",
-      "automacao": "Automatico condicionado",
-      "condicao": "Guarda de crescimento da base ou execucao manual"
-    },
-    {
-      "workflow": "Transformer fine-tuning (BERTimbau)",
-      "arquivo": "transformer_ft.yml",
-      "gatilho": "cron noturno + manual",
-      "faz": "Executa treino, comparacao ou diagnosticos controlados do BERTimbau.",
-      "entrada": "Base de chamados, configuracao e conferencias humanas",
-      "saida": "Estado de treino, metricas e resultados experimentais",
-      "abas": [
-        "Modelos",
-        "Reclassificacao"
-      ],
-      "quando": "Somente quando a guarda de avanco permite ou por comando manual explicito.",
-      "obs": "O modelo so entra no artigo apos treino concluido e artefatos verificaveis. Etapas posteriores devem ser disparadas e verificadas separadamente.",
-      "tipo": "Gera dados",
-      "automacao": "Automatico condicionado",
-      "condicao": "Avanco suficiente, modo forcado ou diagnostico manual"
-    },
-    {
-      "workflow": "Lote noturno com cache",
-      "arquivo": "lote_noturno_cache.yml",
-      "gatilho": "cron diario + manual",
-      "faz": "Atualiza cache e executa uma sequencia de auditoria, publicacao e analise.",
-      "entrada": "Planilha e estado do experimento",
-      "saida": "Cache e republicacao de resultados agregados",
-      "abas": [
-        "Classificacao",
-        "Categorias",
-        "Metricas",
-        "Taxonomia",
-        "Decisao",
-        "Estatistica"
-      ],
-      "quando": "Refresh completo de madrugada ou sob demanda.",
-      "obs": "Reduz leituras repetidas da planilha.",
-      "tipo": "Publica + gera",
-      "automacao": "Automatico",
-      "condicao": "Cron diario ou disparo manual"
-    },
-    {
-      "workflow": "Gerar PDF do artigo",
-      "arquivo": "artigo_pdf.yml",
-      "gatilho": "push no Markdown do artigo + manual",
-      "faz": "Converte o Markdown em PDF e publica o arquivo em docs/.",
-      "entrada": "04_artigo/artigo_classificacao_chamados_v3.md",
-      "saida": "docs/artigo_classificacao_chamados.pdf",
-      "abas": [
-        "Artigo"
-      ],
-      "quando": "Apos alteracoes no texto-fonte ou por disparo manual.",
-      "obs": "Nao acessa a planilha nem usa credenciais.",
-      "tipo": "Publica",
-      "automacao": "Automatico",
-      "condicao": "Mudanca no artigo ou workflow_dispatch"
-    },
-    {
-      "workflow": "Pendencias do artigo com credencial",
-      "arquivo": "lstm_artigo.yml",
-      "gatilho": "manual",
-      "faz": "Executa tarefas especificas do artigo, como figuras, tabelas e diagnosticos.",
-      "entrada": "JSONs versionados e, conforme a tarefa, planilha viva",
-      "saida": "Figuras, tabelas e relatorios do artigo",
-      "abas": [
-        "Artigo",
-        "Modelos"
-      ],
-      "quando": "Somente para uma tarefa selecionada pelo operador.",
-      "obs": "Tarefas com escrita ou limpeza devem iniciar por dry-run.",
-      "tipo": "Operacional",
-      "automacao": "Manual",
-      "condicao": "workflow_dispatch"
-    },
-    {
-      "workflow": "Rematerializar Etapa 1 oficial",
-      "arquivo": "rematerializar_etapa1_oficial.yml",
-      "gatilho": "manual",
-      "faz": "Limpa e rematerializa G:K, preservando M, N, O, P e Q.",
-      "entrada": "Aba principal do experimento",
-      "saida": "Etapa 1 pronta para novo processamento",
-      "abas": [
-        "Classificacao"
-      ],
-      "quando": "Apenas em correcao metodologica deliberada.",
-      "obs": "Dry-run por padrao; aplicacao exige confirmacao REMATERIALIZAR.",
-      "tipo": "Operacional controlado",
-      "automacao": "Manual",
-      "condicao": "workflow_dispatch com confirmacao"
-    },
-    {
-      "workflow": "Migracao de categorias canonicas",
-      "arquivo": "migracao_categorias_canonicas.yml",
-      "gatilho": "manual",
-      "faz": "Aplica o mapa de-para de categorias na coluna historica da planilha.",
-      "entrada": "Configuracao de categorias canonicas e coluna C",
-      "saida": "Categorias historicas normalizadas",
-      "abas": [
-        "Classificacao"
-      ],
-      "quando": "Somente quando houver alteracao de taxonomia confirmada.",
-      "obs": "Dry-run por padrao; nao toca nas conferencias humanas.",
-      "tipo": "Operacional controlado",
-      "automacao": "Manual",
-      "condicao": "workflow_dispatch com aplicar explicito"
-    }
-  ],
-  "legenda": {
-    "tipo": "Gera dados = produz resultados; Publica = atualiza GitHub Pages ou PDF; Operacional controlado = pode alterar a planilha e exige dry-run/confirmacao.",
-    "automacao": "Automatico = cron, push ou workflow_run; Automatico condicionado = depende de guarda, modo read-only ou aplicacao explicita; Manual = workflow_dispatch.",
-    "seguranca": "O repositorio nao mantem workflows manuais isolados. Fluxos obsoletos permanecem apenas no historico do Git."
+ "gerado_em": "2026-08-01",
+ "fonte": "Indice documental dos workflows ativos em .github/workflows/.",
+ "repo": "adinailson88/classificacao-chamados",
+ "escopo": "Workflows que alimentam dados, painel, artigo ou operacoes metodologicas controladas.",
+ "concorrencia": "Escritas na planilha usam grupos de concorrencia para evitar sobreposicao. Gravacoes manuais exigem dry-run revisado e aplicacao explicita.",
+ "workflows": [
+  {
+   "workflow": "Etapa 1 - classificacao progressiva",
+   "arquivo": "etapa1_turnos.yml",
+   "gatilho": "cron a cada 15 min + manual",
+   "faz": "Classifica progressivamente os chamados pendentes e atualiza o estado da Etapa 1.",
+   "entrada": "Planilha e caches do experimento",
+   "saida": "Classificacao, metricas e logs agregados",
+   "abas": [
+    "Classificacao",
+    "Categorias",
+    "Metricas"
+   ],
+   "quando": "Motor recorrente da classificacao principal.",
+   "obs": "Escrita serializada; deve preservar as conferencias humanas.",
+   "tipo": "Gera dados",
+   "automacao": "Automatico",
+   "condicao": "Cron e execucao manual"
+  },
+  {
+   "workflow": "Multimodelo - classificacao completa",
+   "arquivo": "multimodelo_classificacao.yml",
+   "gatilho": "cron + manual",
+   "faz": "Materializa as previsoes dos modelos comparaveis sobre a base do experimento.",
+   "entrada": "Chamados e configuracao multimodelo",
+   "saida": "Resultados e metricas por modelo",
+   "abas": [
+    "Modelos",
+    "Categorias"
+   ],
+   "quando": "Atualizacao incremental e comparacao entre modelos.",
+   "obs": "Modelos pesados possuem fluxos proprios.",
+   "tipo": "Gera dados",
+   "automacao": "Automatico condicionado",
+   "condicao": "Executa quando ha dados pendentes ou por disparo manual"
+  },
+  {
+   "workflow": "Multimodelo - reclassificacao",
+   "arquivo": "multimodelo_reclassificacao.yml",
+   "gatilho": "cron diario + manual",
+   "faz": "Reclassifica casos selecionados por baixa confianca, por modelo.",
+   "entrada": "Previsoes, confianca e candidatos elegiveis",
+   "saida": "Resultados de reclassificacao e calibracao ajustada",
+   "abas": [
+    "Reclassificacao",
+    "Modelos"
+   ],
+   "quando": "Rotina diaria; aplicacao manual deve comecar por dry-run.",
+   "obs": "Nao aplicar sem revisar ganho liquido e preservacao das conferencias.",
+   "tipo": "Gera dados",
+   "automacao": "Automatico",
+   "condicao": "Cron diario ou disparo manual"
+  },
+  {
+   "workflow": "Atualizar dashboard",
+   "arquivo": "dashboard.yml",
+   "gatilho": "cron + manual + workflow_run",
+   "faz": "Republica os JSONs agregados e sanitizados consumidos pelo GitHub Pages.",
+   "entrada": "Planilha, caches e resultados versionados",
+   "saida": "docs/dados/*.json",
+   "abas": [
+    "Classificacao",
+    "Categorias",
+    "Metricas",
+    "Modelos",
+    "Reclassificacao",
+    "Decisao",
+    "Taxonomia"
+   ],
+   "quando": "Apos fluxos de dados e em atualizacoes periodicas.",
+   "obs": "Nao deve publicar texto livre dos chamados.",
+   "tipo": "Publica",
+   "automacao": "Automatico",
+   "condicao": "Cron, conclusao de workflows de dados ou disparo manual"
+  },
+  {
+   "workflow": "Avaliacao final validada",
+   "arquivo": "avaliacao_final.yml",
+   "gatilho": "cron + manual",
+   "faz": "Calcula acerto contra a decisao humana, intervalos, ensembles e analise de erros.",
+   "entrada": "Decisoes validadas e previsoes dos modelos",
+   "saida": "avaliacao_final.json e analise_erros.json",
+   "abas": [
+    "Decisao",
+    "Modelos"
+   ],
+   "quando": "Apos crescimento suficiente da base validada ou por disparo manual.",
+   "obs": "Concordancia historica e acerto validado devem permanecer separados.",
+   "tipo": "Gera dados",
+   "automacao": "Automatico condicionado",
+   "condicao": "Avanco de validacao humana ou execucao manual"
+  },
+  {
+   "workflow": "Estatistica multimodelo",
+   "arquivo": "estatistica.yml",
+   "gatilho": "cron + manual + workflow_run",
+   "faz": "Executa comparacoes estatisticas entre modelos e consolida metricas.",
+   "entrada": "Previsoes materializadas e decisoes validadas",
+   "saida": "estatistica.json e comparacao_modelos.json",
+   "abas": [
+    "Estatistica",
+    "Modelos"
+   ],
+   "quando": "Apos atualizacoes de modelos ou em ciclos periodicos.",
+   "obs": "Os denominadores devem ser reconciliados com a avaliacao final.",
+   "tipo": "Gera dados",
+   "automacao": "Automatico",
+   "condicao": "Cron, workflow_run ou disparo manual"
+  },
+  {
+   "workflow": "Consolidar validacao humana",
+   "arquivo": "consolidar_validacao.yml",
+   "gatilho": "cron diario em dry-run + manual",
+   "faz": "Consolida memoria, metricas de G/O e calibracao contra a verdade unica M/N/P/Q, excluindo conflitos.",
+   "entrada": "Aba principal A:Q, decisoes validadas e memoria de treino",
+   "saida": "Abas privadas de memoria, metricas, calibracao e controle",
+   "abas": [
+    "Decisao",
+    "Reclassificacao"
+   ],
+   "quando": "Diagnostico diario e aplicacao manual apos revisao.",
+   "obs": "O cron nao grava. Aplicacao exige workflow_dispatch com aplicar=true apos dry-run revisado.",
+   "tipo": "Gera dados",
+   "automacao": "Automatico condicionado",
+   "condicao": "Cron read-only; gravacao somente por disparo manual explicito"
+  },
+  {
+   "workflow": "Auditar conferencias humanas",
+   "arquivo": "auditar_conferencias.yml",
+   "gatilho": "cron + manual",
+   "faz": "Verifica cobertura, conflitos e consistencia das conferencias humanas.",
+   "entrada": "Colunas de conferencia humana",
+   "saida": "auditoria_conferencias.json",
+   "abas": [
+    "Decisao"
+   ],
+   "quando": "Antes de consolidacoes e avaliacoes finais.",
+   "obs": "Fluxo de leitura e diagnostico.",
+   "tipo": "Gera dados",
+   "automacao": "Automatico",
+   "condicao": "Cron ou disparo manual"
+  },
+  {
+   "workflow": "Validacao nao supervisionada",
+   "arquivo": "validacao_nao_supervisionada.yml",
+   "gatilho": "cron diario + manual",
+   "faz": "Produz diagnosticos exploratorios sem substituir a validacao humana.",
+   "entrada": "Textos, categorias e previsoes",
+   "saida": "Indicadores exploratorios de agrupamento e prioridade",
+   "abas": [
+    "Estatistica"
+   ],
+   "quando": "Analise complementar de qualidade e taxonomia.",
+   "obs": "Nao e evidencia de acuracia validada.",
+   "tipo": "Gera dados",
+   "automacao": "Automatico",
+   "condicao": "Cron diario ou disparo manual"
+  },
+  {
+   "workflow": "Relevancia de termos e taxonomia",
+   "arquivo": "relevancia_termos.yml",
+   "gatilho": "cron diario + manual",
+   "faz": "Calcula termos caracteristicos, correlacao vocabular e candidatos a revisao de taxonomia.",
+   "entrada": "Texto dos chamados e previsoes agregadas",
+   "saida": "termos_relevantes.json, correlacao_categorias.json e cruzamento_taxonomia.json",
+   "abas": [
+    "Taxonomia"
+   ],
+   "quando": "Triagem de sobreposicao e ruido entre categorias.",
+   "obs": "O cron publica somente JSONs agregados; aplicar=true deve ser deliberado.",
+   "tipo": "Gera dados",
+   "automacao": "Automatico",
+   "condicao": "Cron diario ou disparo manual"
+  },
+  {
+   "workflow": "Comparar modelos por lote",
+   "arquivo": "comparar_modelos.yml",
+   "gatilho": "cron diario + manual",
+   "faz": "Compara modelos em recortes held-out controlados.",
+   "entrada": "Base do experimento e configuracao de janelas",
+   "saida": "Metricas comparativas e tempos de execucao",
+   "abas": [
+    "Modelos",
+    "Categorias"
+   ],
+   "quando": "Quando ha crescimento suficiente da base ou por disparo manual.",
+   "obs": "Resultados por lote nao devem ser apresentados como avaliacao da base completa.",
+   "tipo": "Gera dados",
+   "automacao": "Automatico condicionado",
+   "condicao": "Guarda de crescimento da base ou execucao manual"
+  },
+  {
+   "workflow": "Transformer fine-tuning (BERTimbau)",
+   "arquivo": "transformer_ft.yml",
+   "gatilho": "cron noturno + manual",
+   "faz": "Executa treino, comparacao ou diagnosticos controlados do BERTimbau.",
+   "entrada": "Base de chamados, configuracao e conferencias humanas",
+   "saida": "Estado de treino, metricas e resultados experimentais",
+   "abas": [
+    "Modelos",
+    "Reclassificacao"
+   ],
+   "quando": "Somente quando a guarda de avanco permite ou por comando manual explicito.",
+   "obs": "O modelo so entra no artigo apos treino concluido e artefatos verificaveis. Etapas posteriores devem ser disparadas e verificadas separadamente.",
+   "tipo": "Gera dados",
+   "automacao": "Automatico condicionado",
+   "condicao": "Avanco suficiente, modo forcado ou diagnostico manual"
+  },
+  {
+   "workflow": "Lote noturno com cache",
+   "arquivo": "lote_noturno_cache.yml",
+   "gatilho": "cron diario + manual",
+   "faz": "Atualiza cache e executa uma sequencia de auditoria, publicacao e analise.",
+   "entrada": "Planilha e estado do experimento",
+   "saida": "Cache e republicacao de resultados agregados",
+   "abas": [
+    "Classificacao",
+    "Categorias",
+    "Metricas",
+    "Taxonomia",
+    "Decisao",
+    "Estatistica"
+   ],
+   "quando": "Refresh completo de madrugada ou sob demanda.",
+   "obs": "Reduz leituras repetidas da planilha.",
+   "tipo": "Publica + gera",
+   "automacao": "Automatico",
+   "condicao": "Cron diario ou disparo manual"
+  },
+  {
+   "workflow": "Gerar PDF do artigo",
+   "arquivo": "artigo_pdf.yml",
+   "gatilho": "push no Markdown do artigo + manual",
+   "faz": "Converte o Markdown em PDF e publica o arquivo em docs/.",
+   "entrada": "04_artigo/artigo_classificacao_chamados_v3.md",
+   "saida": "docs/artigo_classificacao_chamados.pdf",
+   "abas": [
+    "Artigo"
+   ],
+   "quando": "Apos alteracoes no texto-fonte ou por disparo manual.",
+   "obs": "Nao acessa a planilha nem usa credenciais.",
+   "tipo": "Publica",
+   "automacao": "Automatico",
+   "condicao": "Mudanca no artigo ou workflow_dispatch"
+  },
+  {
+   "workflow": "Pendencias do artigo com credencial",
+   "arquivo": "lstm_artigo.yml",
+   "gatilho": "manual",
+   "faz": "Executa tarefas especificas do artigo, como figuras, tabelas e diagnosticos.",
+   "entrada": "JSONs versionados e, conforme a tarefa, planilha viva",
+   "saida": "Figuras, tabelas e relatorios do artigo",
+   "abas": [
+    "Artigo",
+    "Modelos"
+   ],
+   "quando": "Somente para uma tarefa selecionada pelo operador.",
+   "obs": "Tarefas com escrita ou limpeza devem iniciar por dry-run.",
+   "tipo": "Operacional",
+   "automacao": "Manual",
+   "condicao": "workflow_dispatch"
+  },
+  {
+   "workflow": "Rematerializar Etapa 1 oficial",
+   "arquivo": "rematerializar_etapa1_oficial.yml",
+   "gatilho": "manual",
+   "faz": "Limpa e rematerializa G:K, preservando M, N, O, P e Q.",
+   "entrada": "Aba principal do experimento",
+   "saida": "Etapa 1 pronta para novo processamento",
+   "abas": [
+    "Classificacao"
+   ],
+   "quando": "Apenas em correcao metodologica deliberada.",
+   "obs": "Dry-run por padrao; aplicacao exige confirmacao REMATERIALIZAR.",
+   "tipo": "Operacional controlado",
+   "automacao": "Manual",
+   "condicao": "workflow_dispatch com confirmacao"
+  },
+  {
+   "workflow": "Migracao de categorias canonicas",
+   "arquivo": "migracao_categorias_canonicas.yml",
+   "gatilho": "manual",
+   "faz": "Aplica o mapa de-para de categorias na coluna historica da planilha.",
+   "entrada": "Configuracao de categorias canonicas e coluna C",
+   "saida": "Categorias historicas normalizadas",
+   "abas": [
+    "Classificacao"
+   ],
+   "quando": "Somente quando houver alteracao de taxonomia confirmada.",
+   "obs": "Dry-run por padrao; nao toca nas conferencias humanas.",
+   "tipo": "Operacional controlado",
+   "automacao": "Manual",
+   "condicao": "workflow_dispatch com aplicar explicito"
+  },
+  {
+   "workflow": "Conferencia derivada por IA + matriz de confusao",
+   "arquivo": "conferencia_derivada.yml",
+   "gatilho": "cron a cada 6 h + manual",
+   "faz": "Deriva a conferencia de CADA IA a partir da conferencia humana do GLPI (coluna M, mais a coluna Q quando o GLPI errou) e calcula a matriz de confusao por modelo.",
+   "entrada": "Coluna M/C/Q da aba principal e as abas CLASSIF__<modelo>; BERTimbau vem da coluna O",
+   "saida": "Aba CONFERENCIA_MULTIMODELO, conferencia_derivada.json e matriz_confusao.json",
+   "abas": [
+    "Matriz de confusao"
+   ],
+   "quando": "Substitui a coluna N, que conferia uma unica IA. A base de verdade cresce sozinha conforme a conferencia manual avanca.",
+   "obs": "Indexa por id_chamado, nunca por numero de linha. Grava somente a aba de saida; nao toca em coluna alguma da aba principal. Casos com GLPI errado e coluna Q vazia ficam pendentes e nao entram em metrica nenhuma.",
+   "tipo": "Gera dados",
+   "automacao": "Automatico",
+   "condicao": "Cron e execucao manual"
   }
+ ],
+ "legenda": {
+  "tipo": "Gera dados = produz resultados; Publica = atualiza GitHub Pages ou PDF; Operacional controlado = pode alterar a planilha e exige dry-run/confirmacao.",
+  "automacao": "Automatico = cron, push ou workflow_run; Automatico condicionado = depende de guarda, modo read-only ou aplicacao explicita; Manual = workflow_dispatch.",
+  "seguranca": "O repositorio nao mantem workflows manuais isolados. Fluxos obsoletos permanecem apenas no historico do Git."
+ }
 }

@@ -15,6 +15,12 @@ name: Conferencia derivada por IA (aba CONFERENCIA_MULTIMODELO)
 # Sem aplicar=true: dry-run (imprime o resumo e gera o JSON, sem gravar a aba).
 
 on:
+  # A base de verdade cresce sozinha conforme o pesquisador confere mais chamados
+  # na coluna M e preenche a coluna Q. O cron mantem a aba, o resumo e a matriz de
+  # confusao em dia sem exigir disparo manual. Minuto 25 para nao coincidir com os
+  # ciclos de :00/:15/:30/:45 dos demais fluxos.
+  schedule:
+    - cron: "25 */6 * * *"
   workflow_dispatch:
     inputs:
       aba_saida:
@@ -59,8 +65,13 @@ jobs:
         env:
           GOOGLE_APPLICATION_CREDENTIALS: credenciais_sa.json
         run: |
+          # No cron sempre grava a aba: o objetivo do agendamento e justamente
+          # refletir a conferencia nova sem intervencao. No disparo manual,
+          # respeita o checkbox (dry-run por padrao).
           FLAGS=""
-          if [ "${{ github.event.inputs.aplicar }}" = "true" ]; then FLAGS="--aplicar"; fi
+          if [ "${{ github.event_name }}" = "schedule" ] || [ "${{ github.event.inputs.aplicar }}" = "true" ]; then
+            FLAGS="--aplicar"
+          fi
           python src/conferencia_derivada.py \
             --aba-saida "${{ github.event.inputs.aba_saida || 'CONFERENCIA_MULTIMODELO' }}" \
             $FLAGS
@@ -72,9 +83,9 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add docs/dados/conferencia_derivada.json
+          git add docs/dados/conferencia_derivada.json docs/dados/matriz_confusao.json
           git diff --cached --quiet && { echo "sem mudanca"; exit 0; }
-          git commit -m "conferencia derivada por IA [skip ci]"
+          git commit -m "conferencia derivada + matriz de confusao [skip ci]"
           for i in 1 2 3 4 5; do
             git pull --rebase --autostash origin main && git push && exit 0
             git rebase --abort 2>/dev/null || true
