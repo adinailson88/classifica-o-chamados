@@ -252,6 +252,13 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--n-boot", type=int, default=2000)
     p.add_argument("--k-folds", type=int, default=5)
     p.add_argument("--saida", type=Path, default=SAIDA)
+    p.add_argument("--verdade", choices=("glpi", "conferencias"), default="glpi",
+                   help="Fonte da verdade validada. 'glpi' (padrao) usa apenas a "
+                        "conferencia do GLPI (coluna M) e a categoria manual (Q), "
+                        "mesma regra de src/conferencia_derivada.py. 'conferencias' "
+                        "e o comportamento antigo, que tambem considerava N "
+                        "(CONFERENCIA IA) e P -- N conferia uma unica IA e foi "
+                        "aposentada pelo pesquisador em 2026-08-01.")
     return p.parse_args()
 
 
@@ -274,8 +281,11 @@ def main() -> int:
         print(f"Falha ao acessar planilha: {type(e).__name__}: {e}", file=sys.stderr)
         return 1
 
-    decisoes = dv.carregar_decisoes(sh, config["aba_principal"])
+    decisoes = dv.carregar_decisoes(sh, config["aba_principal"],
+                                    so_conferencia_glpi=(args.verdade == "glpi"))
     verdade = dv.verdade_validada(decisoes)
+    print(f"fonte da verdade: {args.verdade}"
+          + (" (coluna M + Q; N e P ignoradas)" if args.verdade == "glpi" else " (M, N, P e Q)"))
     vetos = {ln: set(d.get("eliminadas") or set()) for ln, d in decisoes.items()}
     res_dec = dv.resumo_decisoes(decisoes)
     validados = len(verdade)
@@ -286,6 +296,13 @@ def main() -> int:
         "gerado_em": gerado,
         **metadados_saida(config, estado_bertimbau),
         "natureza": NATUREZA,
+        "fonte_verdade": args.verdade,
+        "fonte_verdade_regra": (
+            "conferencia do GLPI (coluna M): 'Correto' trava a categoria historica; "
+            "'Errado' trava a categoria manual (coluna Q) quando preenchida. "
+            "As colunas N (CONFERENCIA IA) e P nao entram."
+            if args.verdade == "glpi" else
+            "conferencias M, N, P e Q combinadas (comportamento anterior a 2026-08-01)"),
         "validados": validados,
         "minimo_recomendado": args.min_validados,
         "conferencias": res_dec,
