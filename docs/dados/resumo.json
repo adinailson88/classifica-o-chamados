@@ -1,5 +1,5 @@
 {
-  "gerado_em": "01/08/2026 01:26",
+  "gerado_em": "01/08/2026 01:54",
   "run_id": "EXP_CLASSIFICACAO_CHAMADOS_2026_06_001",
   "abas": {
     "log_turnos_classificacao": 1872,
@@ -9,8 +9,8 @@
     "comparacao_modelos": 92,
     "comparacao_categoria": 3404,
     "comparacao_previsoes": 8000,
-    "multimodelo_turnos": 3760,
-    "multimodelo_metricas": 1,
+    "multimodelo_turnos": 6580,
+    "multimodelo_metricas": 8,
     "multimodelo_reclass_turnos": 7137,
     "reclass_resumo": 7
   },
@@ -24,17 +24,20 @@
     "naive_bayes": 14094,
     "regressao_logistica": 14094,
     "linear_svc": 14094,
-    "sgd": 14094
+    "sgd": 14094,
+    "extra_trees": 14094,
+    "random_forest": 14094,
+    "lstm": 14094
   },
   "calibracao_modelos": {
-    "modelos": 4,
+    "modelos": 7,
     "melhor_ece": "naive_bayes",
     "melhor_faixa_95": "regressao_logistica",
     "calibrador_ajustado": false
   },
   "calibracao_ajustada_modelos": {
-    "modelos": 4,
-    "melhor_ece_ajustado": "sgd",
+    "modelos": 7,
+    "melhor_ece_ajustado": "extra_trees",
     "alvo": "categoria historica; validacao humana ainda nao iniciada"
   }
 }
