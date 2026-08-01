@@ -1,0 +1,67 @@
+name: Restaurar coluna O do RECLASS_HISTORICO
+
+# Reconstroi a coluna O (Classificacao IA - 2) da aba principal a partir da
+# trilha append-only RECLASS_HISTORICO, tomando a ultima entrada por linha
+# ANTERIOR ao corte.
+#
+# Motivo (incidente de 2026-08-01): a coluna O foi apagada manualmente para
+# permitir reprocessar o BERTimbau -- src/reclassificar_validados.py so atua em
+# linhas com O VAZIA. O efeito colateral: a coluna P (CONFERENCIA IA - 2) guarda
+# o veredito humano SOBRE O VALOR DE O; ao repreencher O, os vereditos passaram
+# a se referir a predicoes que o avaliador nunca revisou. Os decididos cairam de
+# 8.895 para 1.927 e os conflitos subiram de 201 para 7.469.
+#
+# So escreve na coluna O. NUNCA em CATEGORIA COMPLETA (C, IMPORTRANGE) -- ha
+# guarda explicita no script, alem da recusa de escrever em coluna com formula.
+# Sem aplicar=true = dry-run.
+
+on:
+  workflow_dispatch:
+    inputs:
+      corte:
+        description: "So usa entradas do historico ANTERIORES a esta data/hora (dd/mm/aaaa hh:mm)"
+        default: "01/08/2026 00:00"
+      aplicar:
+        description: "Gravar na coluna O (sem isso, so relata em dry-run)"
+        type: boolean
+        default: false
+
+concurrency:
+  group: escrita-planilha
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  restaurar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: requirements-leves.txt
+      - name: Dependencias
+        run: python -m pip install --retries 5 --timeout 120 -r requirements-leves.txt
+      - name: Teste offline da logica de reconstrucao
+        run: python -m pytest tests/test_restaurar_coluna_o.py -q
+      - name: Recriar chave da conta de servico
+        env:
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+        run: |
+          if [ -z "$GCP_SA_KEY" ]; then echo "Secret GCP_SA_KEY ausente." >&2; exit 1; fi
+          printf '%s' "$GCP_SA_KEY" > credenciais_sa.json
+      - name: Restaurar coluna O
+        run: |
+          FLAGS=""
+          if [ "${{ github.event.inputs.aplicar }}" = "true" ]; then FLAGS="--aplicar"; fi
+          python scripts/migracoes/restaurar_coluna_o.py \
+            --corte "${{ github.event.inputs.corte }}" $FLAGS
+      - name: Remover credenciais
+        if: always()
+        run: rm -f credenciais_sa.json
