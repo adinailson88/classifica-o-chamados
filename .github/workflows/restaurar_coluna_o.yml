@@ -27,7 +27,14 @@ on:
         default: false
 
 concurrency:
-  group: escrita-planilha
+  # Grupo proprio, NAO 'escrita-planilha': aquela fila e saturada pelos crons de
+  # 15 min e o GitHub so mantem 1 run pendente por grupo, entao a restauracao era
+  # expulsa da fila antes de rodar (run 30708443410, cancelled). Nao ha corrida
+  # real: nenhum cron de 15 min escreve na coluna O -- etapa1_turnos escreve G e o
+  # snapshot, multimodelo escreve as abas CLASSIF__, dashboard so le. O unico
+  # escritor de O e src/reclassificar_validados.py (workflow transformer_ft), que
+  # nao roda a cada 15 min.
+  group: restaurar-coluna-o
   cancel-in-progress: false
 
 permissions:
