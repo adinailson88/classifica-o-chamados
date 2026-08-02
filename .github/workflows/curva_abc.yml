@@ -1,0 +1,116 @@
+name: Curva ABC das categorias e F1 por tipo de manutencao
+
+# Recorta o F1 por volume de categoria (curva ABC) e por tipo de manutencao
+# (Preventiva, Corretiva, Nao manutencao), respondendo por que o F1 macro de
+# 0,55 convive com acuracia de 0,82: a media macro e dominada pela cauda de
+# categorias com suporte de 2 a 7 chamados.
+#
+# Produz tres recortes, alem do global:
+#   - curva ABC global, com F1 macro por classe A, B e C;
+#   - F1 por tipo de manutencao, em duas leituras: o F1 macro das categorias
+#     agrupadas por tipo e a matriz de confusao projetada para o tipo, que mede
+#     se o modelo distingue preventivo de corretivo;
+#   - curva ABC DENTRO de cada tipo, com o acumulado relativo ao volume do tipo.
+#
+# FONTE: docs/dados/matriz_confusao.json, gerado por conferencia_derivada.yml.
+# O calculo e offline e nao le a planilha. A planilha so entra na gravacao da
+# aba, que exige aplicar=true; sem isso o workflow e dry-run e apenas comita o
+# JSON publicavel.
+#
+# Rodar DEPOIS de conferencia_derivada.yml sempre que a verdade mudar, porque
+# a matriz e a unica entrada deste calculo.
+
+on:
+  workflow_dispatch:
+    inputs:
+      aba_saida:
+        description: "Nome da aba de saida"
+        default: "CURVA_ABC_CATEGORIAS"
+      corte_a:
+        description: "Fracao do volume acumulado que fecha a classe A"
+        default: "0.80"
+      corte_b:
+        description: "Fracao do volume acumulado que fecha a classe B"
+        default: "0.95"
+      aplicar:
+        description: "Gravar a aba na planilha (sem isso, so dry-run)"
+        type: boolean
+        default: false
+
+concurrency:
+  group: curva-abc
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  curva:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: requirements-leves.txt
+      - name: Dependencias
+        run: python -m pip install --retries 5 --timeout 120 -r requirements-leves.txt
+      - name: Teste offline do calculo
+        run: |
+          python -m unittest discover -s tests -p "test_curva_abc_categorias.py" -t tests
+          python -m unittest discover -s tests -p "test_tipo_manutencao.py" -t tests
+      - name: Conferir a data da matriz de origem
+        run: |
+          python - <<'PY'
+          import json, pathlib, sys
+          p = pathlib.Path("docs/dados/matriz_confusao.json")
+          if not p.exists():
+              sys.exit("matriz_confusao.json ausente: rode conferencia_derivada.yml antes.")
+          m = json.loads(p.read_text(encoding="utf-8"))
+          print(f"matriz gerada em {m.get('gerado_em')} | n_verdade={m.get('n_verdade')} "
+                f"| pendentes={m.get('pendente_glpi_errado_sem_q')}")
+          if m.get("pendente_glpi_errado_sem_q"):
+              print("[aviso] ha chamados com M='Errado' e Q vazia: eles estao FORA "
+                    "da verdade e portanto fora deste recorte.")
+          PY
+      - name: Recriar chave da conta de servico
+        if: ${{ github.event.inputs.aplicar == 'true' }}
+        env:
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+        run: |
+          if [ -z "$GCP_SA_KEY" ]; then echo "Secret GCP_SA_KEY ausente." >&2; exit 1; fi
+          printf '%s' "$GCP_SA_KEY" > credenciais_sa.json
+      - name: Calcular a curva
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: credenciais_sa.json
+        run: |
+          FLAGS=""
+          if [ "${{ github.event.inputs.aplicar }}" = "true" ]; then
+            FLAGS="--aplicar"
+          fi
+          python src/curva_abc_categorias.py \
+            --aba "${{ github.event.inputs.aba_saida || 'CURVA_ABC_CATEGORIAS' }}" \
+            --corte-a "${{ github.event.inputs.corte_a || '0.80' }}" \
+            --corte-b "${{ github.event.inputs.corte_b || '0.95' }}" \
+            $FLAGS
+      - name: Remover credenciais
+        if: always()
+        run: rm -f credenciais_sa.json
+      - name: Commitar o JSON
+        if: success()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/dados/curva_abc_categorias.json
+          git diff --cached --quiet && { echo "sem mudanca"; exit 0; }
+          git commit -m "curva ABC de categorias e F1 por tipo [skip ci]"
+          for i in 1 2 3 4 5; do
+            git pull --rebase --autostash origin "${GITHUB_REF_NAME}" && git push origin "HEAD:${GITHUB_REF_NAME}" && exit 0
+            git rebase --abort 2>/dev/null || true
+            echo "push rejeitado (tentativa $i/5); novo rebase em 5s"; sleep 5
+          done
+          echo "push falhou apos 5 tentativas" >&2; exit 1
