@@ -71,6 +71,13 @@ Os JSONs são dinâmicos e devem ser conferidos por data de geração antes de q
 
 0.3. **RESOLVIDO em 01/08/2026: workflows de escrita reabilitados.** Os oito haviam sido desabilitados durante o diagnostico e voltaram ao ar apos o realinhamento de G.
 
+0.35. **RESOLVIDO em 02/08/2026: a base saiu de 14.094 para 14.058 chamados e dois scripts quebraram em silêncio.** A fonte do IMPORTRANGE passou a filtrar a entidade estritamente (`UFSB > Dinfra`), removendo 54 chamados de `UFSB > Dinfra > Projetos e Obras`, que estavam fora do escopo, mais 2 excluídos no GLPI, e entraram 20 novos de julho. O total bate com o GLPI.
+    - **Bug encontrado:** `avaliacao_final.py` e `avaliacao_bertimbau_holdout.py` cruzavam as abas materializadas (`CLASSIF__<modelo>`, `COMPARACAO_PREVISOES`) com a planilha principal **pelo número da linha**. Com a base menor, passaram a comparar a predição de um chamado com a verdade de outro: a avaliação final reportou **0,08** de acerto e o held-out **0,13**, ambos com o Naive Bayes em primeiro lugar. Os números eram plausíveis o bastante para serem publicados sem chamar atenção.
+    - **O que salvou:** a matriz de confusão indexa por `id_chamado` e continuou marcando 0,8228 para o LinearSVC. A divergência entre as duas ferramentas foi o sinal.
+    - **Correção:** PRs #152 e #153. `dv.carregar_decisoes` ganhou o parâmetro `chave` (padrão `'linha'`, para não quebrar os outros onze consumidores); as duas avaliações passam a pedir `'id'`. Regressão fixada em `tests/test_avaliacao_final_indexa_por_id.py`.
+    - **PENDÊNCIA:** os outros nove consumidores de `carregar_decisoes` continuam casando por linha. Não deram problema porque não cruzam com abas materializadas, mas o risco é latente.
+    - **PENDÊNCIA:** as abas `CLASSIF__<modelo>` ainda têm 14.094 predições da base antiga. Por isso `n_avaliado` é 14.038 e não 14.058: os 20 novos não têm predição out-of-fold. Rematerializar exige rodar `multimodelo_classificacao.yml`.
+
 0.4. **CONCLUÍDO em 01/08/2026: a conferência manual das categorias GLPI cobre a base inteira.** Auditoria e regeneração da cadeia feitas na mesma data. Totais finais, medidos por `conferencia_derivada.yml` (run 30726343256):
 
 | campo | antes (15:33) | final |
