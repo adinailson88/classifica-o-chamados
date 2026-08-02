@@ -75,19 +75,50 @@ def carregar_elegiveis(ws, config) -> list[dict[str, Any]]:
     return elig
 
 
-def linhas_ja_classificadas(sh, aba: str) -> set[int]:
-    """Le a coluna linha_planilha (B) de CLASSIF__<modelo>; vazio se a aba nao existe."""
+def normalizar_id(valor: Any) -> str:
+    """UNFORMATTED_VALUE devolve numero (1693.0); padroniza para string.
+
+    Mesma regra de conferencia_derivada.py e decisao_validada.py, para que as
+    ferramentas produzam a MESMA chave a partir da mesma celula.
+    """
+    s = str(valor or "").strip()
+    if not s:
+        return ""
     try:
-        vals = sh.worksheet(aba).get_values("B:B", value_render_option="UNFORMATTED_VALUE")
+        return str(int(float(s)))
+    except (TypeError, ValueError):
+        return s
+
+
+def ids_ja_classificados(sh, aba: str) -> set[str]:
+    """Le a coluna id_chamado (C) de CLASSIF__<modelo>; vazio se a aba nao existe.
+
+    POR id_chamado, NUNCA por linha_planilha. A aba principal muda de tamanho
+    quando o GLPI ganha ou perde chamados, e todo chamado passa a ocupar outra
+    linha. Lendo a coluna B, chamados JA classificados apareciam como pendentes,
+    eram reclassificados e ACRESCENTADOS a aba.
+
+    Foi o que ocorreu em 02/08/2026: a base caiu de 14.094 para 14.058 e
+    CLASSIF__extra_trees terminou com 28.152 registros, duas predicoes por
+    chamado. Como a leitura monta {id_chamado: categoria}, a segunda venceu, e
+    ela havia sido treinada com a conferencia humana no treino, elevando o
+    acerto validado de 0,7958 para 0,9816.
+    """
+    try:
+        vals = sh.worksheet(aba).get_values("C:C", value_render_option="UNFORMATTED_VALUE")
     except Exception:  # noqa: BLE001
         return set()
-    feitas = set()
+    feitos = set()
     for r in vals[1:]:
-        try:
-            feitas.add(int(r[0]))
-        except (IndexError, ValueError, TypeError):
+        bruto = r[0] if r else ""
+        s = str(bruto or "").strip()
+        if not s:
             continue
-    return feitas
+        try:
+            feitos.add(str(int(float(s))))
+        except (TypeError, ValueError):
+            feitos.add(s)
+    return feitos
 
 
 def _prever_com_veto(m, textos, vetos):
@@ -241,19 +272,19 @@ def classificar_modelo(sh, config, modelo, elegiveis, cap, base_extra, args) -> 
     tam = int(mm.get("tamanho_turno", 15))
     aba_classif = nome_aba(mm["aba_classificacao"], modelo)
 
-    feitas = linhas_ja_classificadas(sh, aba_classif)
-    pendentes = [e for e in elegiveis if e["linha"] not in feitas]
-    classificados = [e for e in elegiveis if e["linha"] in feitas]
+    feitos = ids_ja_classificados(sh, aba_classif)
+    pendentes = [e for e in elegiveis if normalizar_id(e["id"]) not in feitos]
+    classificados = [e for e in elegiveis if normalizar_id(e["id"]) in feitos]
     if not pendentes:
         # Ja classificou tudo: NAO ha novo lote, mas precisamos preservar a
         # concordancia acumulada (senao a tabela de metricas zera). Recalcula a partir
         # da aba de turnos (que tem o historico completo por modelo).
         _t, acum_proc, acum_true = cumulativo_turnos(sh, mm["aba_turnos"], modelo)
         concord_acum = round(acum_true / acum_proc, 4) if acum_proc else ""
-        print(f"[{modelo}] 0 pendentes (ja classificou {len(feitas)}); "
+        print(f"[{modelo}] 0 pendentes (ja classificou {len(feitos)}); "
               f"concordancia_acumulada={concord_acum} (de {acum_proc} turnos).")
         return {"modelo": modelo, "processados": 0, "pendentes": 0,
-                "feitos_total": len(feitas), "concordancia_acumulada": concord_acum}
+                "feitos_total": len(feitos), "concordancia_acumulada": concord_acum}
 
     n_lote = len(pendentes) if cap <= 0 else min(len(pendentes), cap)
     lote = pendentes[:n_lote]
@@ -264,7 +295,7 @@ def classificar_modelo(sh, config, modelo, elegiveis, cap, base_extra, args) -> 
     base_textos += list(base_extra[0])
     base_cats += list(base_extra[1])
 
-    print(f"[{modelo}] elegiveis={len(elegiveis)} | ja_feitos={len(feitas)} | "
+    print(f"[{modelo}] elegiveis={len(elegiveis)} | ja_feitos={len(feitos)} | "
           f"pendentes={len(pendentes)} | lote_agora={len(lote)} | base_treino_fixa={len(base_textos)}")
 
     preds, scores, metodo, usou_fallback = prever_out_of_fold(
@@ -284,7 +315,7 @@ def classificar_modelo(sh, config, modelo, elegiveis, cap, base_extra, args) -> 
               "dependencias reais instaladas (ver .github/workflows/transformer_ft.yml) "
               "para classificar de verdade.", file=sys.stderr)
         return {"modelo": modelo, "processados": 0, "pendentes": len(pendentes),
-                "feitos_total": len(feitas), "pulado_fallback": True}
+                "feitos_total": len(feitos), "pulado_fallback": True}
 
     aproveitados = []
     for e, p, s in zip(lote, preds, scores):
@@ -300,7 +331,7 @@ def classificar_modelo(sh, config, modelo, elegiveis, cap, base_extra, args) -> 
 
     if not aproveitados:
         print(f"[{modelo}] nada previsto (metodo={metodo}; base insuficiente).")
-        return {"modelo": modelo, "processados": 0, "pendentes": len(pendentes), "feitos_total": len(feitas)}
+        return {"modelo": modelo, "processados": 0, "pendentes": len(pendentes), "feitos_total": len(feitos)}
 
     n_true = sum(1 for e in aproveitados if e["acerto"])
     concord = round(n_true / len(aproveitados), 4)
@@ -310,7 +341,7 @@ def classificar_modelo(sh, config, modelo, elegiveis, cap, base_extra, args) -> 
     if not args.aplicar:
         return {"modelo": modelo, "processados": len(aproveitados), "concordancia_lote": concord,
                 "metodo": metodo, "pendentes": len(pendentes) - len(aproveitados),
-                "feitos_total": len(feitas), "dry_run": True}
+                "feitos_total": len(feitos), "dry_run": True}
 
     gravar_classificacao(sh, aba_classif, run_id, aproveitados, gerado)
 
@@ -324,7 +355,7 @@ def classificar_modelo(sh, config, modelo, elegiveis, cap, base_extra, args) -> 
 
     return {"modelo": modelo, "processados": len(aproveitados), "concordancia_lote": concord,
             "metodo": metodo, "concordancia_acumulada": round(acum_true / acum_proc, 4),
-            "feitos_total": len(feitas) + len(aproveitados),
+            "feitos_total": len(feitos) + len(aproveitados),
             "pendentes": len(pendentes) - len(aproveitados)}
 
 

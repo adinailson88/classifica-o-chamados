@@ -13,26 +13,25 @@ name: Multimodelo - classificacao completa
 # (um escritor por vez).
 
 on:
-  # CRON DESABILITADO em 02/08/2026, por decisao do pesquisador, ate os numeros
-  # do artigo estarem fechados.
+  # Cron reativado em 02/08/2026, depois de corrigidas as DUAS causas do
+  # incidente daquele dia:
   #
-  # Dois motivos:
-  # 1. O run agendado das 12:16 de 02/08 foi CANCELADO no meio e deixou
-  #    CLASSIF__extra_trees com 28.152 registros (o dobro), duplicando cada
-  #    chamado. Como a leitura monta {id_chamado: categoria}, o registro mais
-  #    recente venceu e o acerto validado do modelo saltou de 0,7958 para 0,9816.
-  # 2. A segunda leva foi treinada com `memoria_validada=13703 (peso 3)`, ou
-  #    seja, com a conferencia humana inteira dentro do treino. Isso e correto
-  #    para o classificador de PRODUCAO, que nao deve repetir erro ja corrigido,
-  #    e e vazamento para as predicoes que sustentam o acerto validado do artigo.
-  #    Rematerializar qualquer modelo hoje o deixaria no mesmo estado.
+  # 1. DUPLICACAO. `ids_ja_classificados` lia a coluna B (linha_planilha).
+  #    Quando a base caiu de 14.094 para 14.058, todo chamado mudou de linha,
+  #    apareceu como pendente e foi reclassificado e ACRESCENTADO:
+  #    CLASSIF__extra_trees terminou com 28.152 registros. Agora le a coluna C
+  #    (id_chamado), entao mudanca de tamanho da base nao gera reclassificacao.
   #
-  # As predicoes vigentes sao de 01/08, quando a memoria validada tinha 1.927
-  # decisoes. Reativar o cron so depois de resolver o vazamento, sob pena de
-  # contaminar os sete modelos comparaveis.
+  # 2. VAZAMENTO. A memoria validada entrava no treino com peso 3, e o acerto
+  #    validado do extra_trees saltou de 0,7958 para 0,9816 porque o modelo via
+  #    a conferencia humana antes de prever. O cron agora roda SEMPRE com
+  #    --sem-memoria-validada: estas predicoes existem para serem avaliadas
+  #    contra a conferencia humana, e nao podem te-la no treino.
   #
-  # schedule:
-  #   - cron: "5,20,35,50 * * * *"
+  # O classificador de PRODUCAO (Etapa 1) segue usando a memoria validada, que
+  # e onde ela faz sentido: nao repetir erro ja corrigido.
+  schedule:
+    - cron: "5,20,35,50 * * * *"
   workflow_dispatch:
     inputs:
       modelos:
@@ -122,8 +121,11 @@ jobs:
           fi
           # Sem memoria validada, as predicoes ficam limpas para a avaliacao
           # contra a conferencia humana. Ver o incidente de 02/08/2026.
+          # No cron, SEMPRE sem memoria validada: estas predicoes alimentam a
+          # avaliacao contra a conferencia humana. No disparo manual, respeita
+          # o input (para quem quiser reproduzir o comportamento de producao).
           SEM_MEM=""
-          if [ "${{ github.event.inputs.sem_memoria_validada }}" = "true" ]; then
+          if [ "${{ github.event.inputs.sem_memoria_validada }}" = "true" ] || [ "${{ github.event_name }}" = "schedule" ]; then
             SEM_MEM="--sem-memoria-validada"
           fi
           python src/classificacao_multimodelo.py --modelos "$MODELOS" --max-turnos "$MAX_TURNOS" $APLICAR $SEM_MEM
