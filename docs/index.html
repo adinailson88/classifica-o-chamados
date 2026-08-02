@@ -449,6 +449,30 @@
           <th>Categoria</th><th>Suporte</th><th>Previstos</th><th>Precisao</th><th>Revocacao</th><th>F1</th>
         </tr></thead><tbody></tbody></table></div>
       </div>
+      <div class="card full">
+        <h2>Curva ABC: F1 por classe de volume</h2>
+        <p class="muted" id="abcInfo"></p>
+        <p class="muted">Classe A reune as categorias que acumulam ate 80% do volume; B vai de 80% a 95%; C e o restante. O F1 macro e a media simples do F1 das categorias da classe. Serve para separar o desempenho nas categorias que concentram o servico do ruido estatistico da cauda, onde poucas dezenas de chamados produzem F1 instavel ou nulo.</p>
+        <div class="tablebox"><table id="tabAbcClasse"><thead><tr>
+          <th>Modelo</th><th>Classe A</th><th>Classe B</th><th>Classe C</th><th>Global</th>
+        </tr></thead><tbody></tbody></table></div>
+      </div>
+      <div class="card full">
+        <h2>Tipo de manutencao: preventiva, corretiva e nao manutencao</h2>
+        <p class="muted">Verdade e predicao de categoria projetadas para o tipo. Nao e um modelo novo: e a mesma predicao lida em granularidade menor, que mede se o classificador distingue preventivo de corretivo. O criterio esta em <code>src/tipo_manutencao.py</code>: familia <code>Manutencao Preventiva</code> e preventiva; <code>Outros</code>, <code>Suprimentos / Apoio Tecnico</code>, <code>Posto de trabalho</code>, <code>Projetos e Reformas</code> e as raizes legadas <code>Projeto</code> e <code>Revisao</code> nao sao manutencao; o restante e corretiva.</p>
+        <div class="tablebox"><table id="tabAbcTipo"><thead><tr>
+          <th>Modelo</th><th>Acuracia de tipo</th><th>F1 macro</th><th>F1 preventiva</th><th>F1 corretiva</th><th>F1 nao manutencao</th>
+        </tr></thead><tbody></tbody></table></div>
+      </div>
+      <div class="card full">
+        <h2>Curva ABC dentro de cada tipo</h2>
+        <p class="muted">A curva e recalculada sobre o volume do proprio tipo, de modo que cada tipo tenha sua classe A. Uma categoria de volume medio pode ser B no total e A dentro do tipo.</p>
+        <label for="selAbcModelo">Modelo:</label>
+        <select id="selAbcModelo"></select>
+        <div class="tablebox"><table id="tabAbcNoTipo"><thead><tr>
+          <th>Tipo</th><th>Categorias</th><th>Chamados</th><th>% da base</th><th>Classe A</th><th>Classe B</th><th>Classe C</th><th>Tipo inteiro</th>
+        </tr></thead><tbody></tbody></table></div>
+      </div>
     </div>
   </section>
 
@@ -683,6 +707,9 @@
           <tr><td>Matriz de confusao</td><td>Matriz de confusao por modelo</td><td><a href="dados/matriz_confusao.json">matriz_confusao.json</a></td><td>Para cada categoria verdadeira, em quais categorias o modelo distribuiu suas predicoes.</td><td>Leia por linha: a cor mostra a fracao daquela categoria verdadeira. Massa concentrada fora da diagonal aponta par de categorias que o modelo nao separa.</td></tr>
           <tr><td>Matriz de confusao</td><td>Maiores confusoes</td><td><a href="dados/matriz_confusao.json">matriz_confusao.json</a></td><td>Os pares (verdade &rarr; predito) de maior volume fora da diagonal.</td><td>Muitos desses pares sao ambiguidade de taxonomia, nao erro do modelo &mdash; categorias de mesmo nome sob pais diferentes, por exemplo. Use para revisar a taxonomia antes de culpar a IA.</td></tr>
           <tr><td>Matriz de confusao</td><td>Desempenho por categoria</td><td><a href="dados/matriz_confusao.json">matriz_confusao.json</a></td><td>Precisao, revocacao e F1 por categoria, com o suporte na verdade validada.</td><td>Categoria com suporte baixo tem metrica instavel; nao conclua nada de F1 calculado sobre poucos chamados. A base cresce a cada conferencia nova.</td></tr>
+          <tr><td>Matriz de confusao</td><td>Curva ABC: F1 por classe de volume</td><td><a href="dados/curva_abc_categorias.json">curva_abc_categorias.json</a></td><td>Quanto do F1 macro baixo vem da cauda de categorias raras e quanto vem das categorias que concentram o servico.</td><td>Compare a classe A com o global do mesmo modelo: distancia grande significa que a media macro esta sendo puxada por categorias de suporte irrisorio, nao por falha nas categorias operacionalmente relevantes.</td></tr>
+          <tr><td>Matriz de confusao</td><td>Tipo de manutencao (preventiva, corretiva, nao manutencao)</td><td><a href="dados/curva_abc_categorias.json">curva_abc_categorias.json</a></td><td>Se o modelo distingue manutencao preventiva de corretiva, lendo a mesma predicao em granularidade menor.</td><td>E a leitura que sustenta contagem automatica de preventivas. F1 alto aqui com F1 macro baixo por categoria significa que o erro ocorre dentro do tipo, entre categorias irmas, e nao entre tipos.</td></tr>
+          <tr><td>Matriz de confusao</td><td>Curva ABC dentro de cada tipo</td><td><a href="dados/curva_abc_categorias.json">curva_abc_categorias.json</a></td><td>Quais categorias concentram o volume dentro de cada tipo e qual o F1 nelas.</td><td>Use para priorizar: a classe A da preventiva e o conjunto minimo que precisa estar correto para um indicador de manutencao preventiva ser confiavel.</td></tr>
           <tr><td>Taxonomia</td><td>Correlacao por categoria (mapa de calor)</td><td><a href="dados/correlacao_categorias.json">correlacao_categorias.json</a></td><td>Quais categorias usam vocabulario parecido no TF-IDF.</td><td>Celulas mais intensas sugerem sobreposicao semantica; use para revisar nomes, fronteiras e criterios de classificacao.</td></tr>
           <tr><td>Taxonomia</td><td>Termos caracteristicos</td><td><a href="dados/termos_relevantes.json">termos_relevantes.json</a></td><td>Quais palavras ou bigramas mais caracterizam a categoria selecionada.</td><td>Termos coerentes indicam categoria semanticamente bem formada; termos genericos ou misturados indicam ruido.</td></tr>
           <tr><td>Taxonomia</td><td>Pares mais proximos (vocabulario)</td><td><a href="dados/correlacao_categorias.json">correlacao_categorias.json</a></td><td>Quais pares de categorias sao semanticamente mais semelhantes.</td><td>Priorize pares de alta similaridade e alto volume para revisao metodologica.</td></tr>
@@ -1796,6 +1823,83 @@ function renderConfusaoModelo(){
       + `<td style="font-weight:600;color:${corHeat(N(c.f1))}">${N(c.f1).toFixed(3).replace(".",",")}</td></tr>`).join("");
 }
 
+/* ---------- Curva ABC e recorte por tipo de manutencao ----------
+   Fonte: docs/dados/curva_abc_categorias.json, gerado por
+   src/curva_abc_categorias.py no workflow curva_abc.yml, a partir da mesma
+   matriz de confusao lida acima. Nao le a planilha. */
+let ABC = null;
+const ABC_TIPOS = ["Preventiva", "Corretiva", "Não manutenção"];
+
+const f3 = v => (v===null||v===undefined) ? "&ndash;" : N(v).toFixed(3).replace(".", ",");
+const celF1 = v => (v===null||v===undefined)
+  ? '<td class="muted">&ndash;</td>'
+  : `<td style="font-weight:600;color:${corHeat(N(v))}">${f3(v)}</td>`;
+
+function abcModelosOrdenados(chave){
+  if(!ABC) return [];
+  const fonte = chave==="tarefa" ? (ABC.tarefa_tipo||{}) : (ABC.por_modelo||{});
+  return Object.entries(fonte).sort((a,b) => chave==="tarefa"
+    ? N(b[1].acuracia) - N(a[1].acuracia)
+    : N(b[1].A && b[1].A.f1_macro) - N(a[1].A && a[1].A.f1_macro));
+}
+
+function renderAbc(){
+  if(!ABC || !ABC.categorias) return;
+  const info = document.getElementById("abcInfo");
+  if(info){
+    const c = ABC.classes || {};
+    info.innerHTML = ABC_CLASSES_TXT(c) + ` Base de ${fmt(ABC.total_chamados)} chamados em `
+      + `${fmt(ABC.n_categorias)} categorias com suporte na verdade validada.`;
+  }
+
+  const tb = document.querySelector("#tabAbcClasse tbody");
+  if(tb) tb.innerHTML = abcModelosOrdenados("classe").map(([nome, d]) =>
+    `<tr><td>${esc(nome)}</td>${celF1(d.A&&d.A.f1_macro)}${celF1(d.B&&d.B.f1_macro)}`
+    + `${celF1(d.C&&d.C.f1_macro)}${celF1(d.global&&d.global.f1_macro)}</tr>`).join("");
+
+  const tt = document.querySelector("#tabAbcTipo tbody");
+  if(tt) tt.innerHTML = abcModelosOrdenados("tarefa").map(([nome, d]) => {
+    const p = d.por_tipo || {};
+    return `<tr><td>${esc(nome)}</td><td>${pct(d.acuracia)}</td>${celF1(d.f1_macro)}`
+      + ABC_TIPOS.map(t => celF1(p[t] && p[t].f1)).join("") + '</tr>';
+  }).join("");
+
+  const sel = document.getElementById("selAbcModelo");
+  if(sel && !sel.options.length){
+    sel.innerHTML = Object.keys(ABC.por_modelo||{}).sort()
+      .map(m => `<option value="${esc(m)}">${esc(m)}</option>`).join("");
+    if([...sel.options].some(o => o.value==="linear_svc")) sel.value = "linear_svc";
+    sel.addEventListener("change", renderAbcNoTipo);
+  }
+  renderAbcNoTipo();
+}
+
+function ABC_CLASSES_TXT(c){
+  return ABC_ORDEM_CLASSES.map(k => {
+    const d = c[k] || {};
+    return `<strong>Classe ${k}</strong>: ${fmt(d.n_categorias)} categorias, `
+      + `${fmt(d.suporte)} chamados (${String(N(d.percentual_volume).toFixed(2)).replace(".",",")}% do volume).`;
+  }).join(" ");
+}
+const ABC_ORDEM_CLASSES = ["A", "B", "C"];
+
+function renderAbcNoTipo(){
+  const tb = document.querySelector("#tabAbcNoTipo tbody");
+  if(!tb || !ABC || !ABC.por_tipo) return;
+  const sel = document.getElementById("selAbcModelo");
+  const modelo = (sel && sel.value) || "linear_svc";
+  tb.innerHTML = ABC_TIPOS.map(t => {
+    const b = ABC.por_tipo[t];
+    if(!b) return "";
+    const d = (b.por_modelo||{})[modelo] || {};
+    return `<tr><td>${esc(t)} <span class="muted">(${esc(b.sigla)})</span></td>`
+      + `<td>${fmt(b.n_categorias)}</td><td>${fmt(b.suporte)}</td>`
+      + `<td>${String(N(b.percentual_da_base).toFixed(2)).replace(".",",")}%</td>`
+      + `${celF1(d.A&&d.A.f1_macro)}${celF1(d.B&&d.B.f1_macro)}${celF1(d.C&&d.C.f1_macro)}`
+      + `${celF1(d.global&&d.global.f1_macro)}</tr>`;
+  }).join("");
+}
+
 function corHeat(v){
   v=Math.max(0,Math.min(1,N(v)));
   const stops=[[13,27,42],[27,73,101],[42,157,143],[233,196,106],[244,162,97],[231,111,81]];
@@ -2375,6 +2479,8 @@ function renderBertimbauCoreset(cs){
   ]);
   CONFUSAO = await getJSON("matriz_confusao.json");
   renderConfusao();
+  ABC = await getJSON("curva_abc_categorias.json");
+  renderAbc();
   BERT_COMPARAVEL=!!(bertState && bertState.status==="ok");
   MODELOS_EXCLUIDOS=BERT_COMPARAVEL ? new Set() : new Set(["transformer_ft"]);
   CAT = Array.isArray(cat) ? cat : [];
