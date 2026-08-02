@@ -13,10 +13,26 @@ name: Multimodelo - classificacao completa
 # (um escritor por vez).
 
 on:
-  # A cada 15 min, mas DESLOCADO 5 min da Etapa 1/LSTM (que roda em :00/:15/:30/:45)
-  # para nao baterem na API da planilha ao mesmo tempo (reduz erros 5xx/429 transitorios).
-  schedule:
-    - cron: "5,20,35,50 * * * *"
+  # CRON DESABILITADO em 02/08/2026, por decisao do pesquisador, ate os numeros
+  # do artigo estarem fechados.
+  #
+  # Dois motivos:
+  # 1. O run agendado das 12:16 de 02/08 foi CANCELADO no meio e deixou
+  #    CLASSIF__extra_trees com 28.152 registros (o dobro), duplicando cada
+  #    chamado. Como a leitura monta {id_chamado: categoria}, o registro mais
+  #    recente venceu e o acerto validado do modelo saltou de 0,7958 para 0,9816.
+  # 2. A segunda leva foi treinada com `memoria_validada=13703 (peso 3)`, ou
+  #    seja, com a conferencia humana inteira dentro do treino. Isso e correto
+  #    para o classificador de PRODUCAO, que nao deve repetir erro ja corrigido,
+  #    e e vazamento para as predicoes que sustentam o acerto validado do artigo.
+  #    Rematerializar qualquer modelo hoje o deixaria no mesmo estado.
+  #
+  # As predicoes vigentes sao de 01/08, quando a memoria validada tinha 1.927
+  # decisoes. Reativar o cron so depois de resolver o vazamento, sob pena de
+  # contaminar os sete modelos comparaveis.
+  #
+  # schedule:
+  #   - cron: "5,20,35,50 * * * *"
   workflow_dispatch:
     inputs:
       modelos:
