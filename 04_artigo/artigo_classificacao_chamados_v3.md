@@ -2025,6 +2025,7 @@ dois blocos paralelos para reduzir a extensão do apêndice.
 
 ```{=latex}
 \FloatBarrier
+\clearpage
 \scriptsize
 \setlength{\tabcolsep}{2.5pt}
 \renewcommand{\arraystretch}{0.9}
