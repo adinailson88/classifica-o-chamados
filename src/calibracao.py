@@ -112,7 +112,10 @@ def calcular(sh, config: dict) -> dict:
     # inconsistente com avaliacao_final.py. Comparar contra a categoria DECIDIDA
     # (travada por M, N ou P, qualquer uma que tenha confirmado) corrige a metrica e
     # a torna consistente com o restante do pipeline.
-    decisoes = dv.carregar_decisoes(sh, config["aba_principal"])
+    # chave="id": a verdade cruza com o SNAPSHOT_ETAPA_1, que e materializado num
+    # momento enquanto a aba principal muda de tamanho depois. Ver o incidente de
+    # 02/08/2026 em tests/test_avaliacao_final_indexa_por_id.py.
+    decisoes = dv.carregar_decisoes(sh, config["aba_principal"], chave="id")
     verdade = dv.verdade_validada(decisoes)
     # Conferencias brutas (M/N/P), mantidas so para os diagnosticos auxiliares
     # (cobertura por coluna, matriz IA x GLPI) — nao usadas mais para "acerto_validado".
@@ -135,11 +138,14 @@ def calcular(sh, config: dict) -> dict:
     # permitia que um chamado caisse em duas faixas de confianca diferentes,
     # descaracterizando a curva de calibracao. Mantem-se apenas a ultima
     # classificacao de cada chamado, na ordem de escrita, que e a vigente.
+    # A chave e o id_chamado (coluna 2), NAO a linha_planilha (coluna 1): quando a
+    # base muda de tamanho, uma mesma linha passa a designar outro chamado e dois
+    # chamados distintos colidiriam nesta dedup.
     ultima_por_chamado = {}
     for r in vals[1:]:
         if len(r) < 6:
             continue
-        chave = str(r[1]).strip()
+        chave = dv._normalizar_id(r[2] if len(r) > 2 else "")  # noqa: SLF001
         if not chave:
             continue
         ultima_por_chamado[chave] = r
@@ -149,11 +155,11 @@ def calcular(sh, config: dict) -> dict:
     for r in linhas_dedup:
         if len(r) < 6:
             continue
+        # `ln` continua sendo a linha, porque as conferencias brutas (auxiliares)
+        # ainda vem indexadas por linha da mesma leitura da aba principal. A
+        # VERDADE, que produz o acerto validado, e buscada por id_chamado.
         ln = str(r[1]).strip()
-        try:
-            ln_int = int(float(ln)) if ln else None
-        except ValueError:
-            ln_int = None
+        id_chamado = dv._normalizar_id(r[2] if len(r) > 2 else "")  # noqa: SLF001
         orig = str(r[3]).strip()
         cat_ia = str(r[4]).strip()
         if not cat_ia:
@@ -163,7 +169,7 @@ def calcular(sh, config: dict) -> dict:
         ok_hist = int(cat_ia == orig)
         # Acerto validado: a classificacao deste executor (col G) bate com a
         # categoria decidida pela memoria de conferencia (M/N/P, o que travou).
-        decidida = verdade.get(ln_int) if ln_int is not None else None
+        decidida = verdade.get(id_chamado) if id_chamado else None
         tem_val = decidida is not None
         ok_val = int(cat_ia == decidida) if tem_val else 0
         # Conferencia humana bruta: M => acerto do historico (GLPI); N => acerto da IA.

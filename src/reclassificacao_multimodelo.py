@@ -145,14 +145,18 @@ def carregar_classif(sh, aba: str, limiar: float | None = None,
         vals = sh.worksheet(aba).get_values("A:K", value_render_option="UNFORMATTED_VALUE")
     except Exception:  # noqa: BLE001
         return {}
-    # CLASSIF cols: 1 linha,3 cat_original,4 cat_ia,5 confianca
+    # CLASSIF cols: 1 linha, 2 id_chamado, 3 cat_original, 4 cat_ia, 5 confianca
+    #
+    # Indexado por id_chamado: este mapa e cruzado com os elegiveis lidos da aba
+    # principal, que muda de tamanho quando o GLPI ganha ou perde chamados. Casar
+    # por linha faria a reclassificacao ser GRAVADA no chamado errado (incidente
+    # de 02/08/2026, quando a base caiu de 14.094 para 14.058).
     out = {}
     for r in vals[1:]:
         if len(r) < 6:
             continue
-        try:
-            ln = int(r[1])
-        except (ValueError, TypeError):
+        ln = dv._normalizar_id(r[2] if len(r) > 2 else "")  # noqa: SLF001
+        if not ln:
             continue
         conf = parse_conf(r[5])
         conf_sel = aplicar_calibrado(calibrador, conf) if calibrador else conf
@@ -161,17 +165,17 @@ def carregar_classif(sh, aba: str, limiar: float | None = None,
     return out
 
 
-def linhas_ja_reclass(sh, aba: str) -> set[int]:
+def ids_ja_reclass(sh, aba: str) -> set[str]:
+    """Ids ja reclassificados. A coluna C da aba RECLASS_ e o id_chamado."""
     try:
         vals = sh.worksheet(aba).get_values("C:C", value_render_option="UNFORMATTED_VALUE")
     except Exception:  # noqa: BLE001
         return set()
     feitas = set()
     for r in vals[1:]:
-        try:
-            feitas.add(int(r[0]))
-        except (IndexError, ValueError, TypeError):
-            continue
+        i = dv._normalizar_id(r[0] if r else "")  # noqa: SLF001
+        if i:
+            feitas.add(i)
     return feitas
 
 
@@ -194,7 +198,7 @@ def reclassificar_modelo(sh, config, modelo, elegiveis, por_linha, cap, base_ext
     # Modo padrao: candidatos = baixa confianca. Modo --so-validados: candidatos =
     # chamados COM conferencia humana (independente da confianca).
     baixa = carregar_classif(sh, aba_classif, None if so_validados else lim_alta, calibrador)
-    feitas = linhas_ja_reclass(sh, aba_reclass)
+    feitas = ids_ja_reclass(sh, aba_reclass)
 
     universo = [ln for ln in baixa if ln not in feitas and ln in por_linha]
     if so_validados:
@@ -222,7 +226,8 @@ def reclassificar_modelo(sh, config, modelo, elegiveis, por_linha, cap, base_ext
 
     # REGRA DE MEMORIA 2 (erro conferido): categorias ja marcadas como ERRADAS
     # para o chamado sao vetadas na predicao (nao repetir o erro).
-    vetos = [set(decisoes.get(e["linha"], {}).get("eliminadas") or set()) for e in lote]
+    vetos = [set(decisoes.get(dv._normalizar_id(e["id"]), {}).get("eliminadas")  # noqa: SLF001
+                 or set()) for e in lote]
     n_com_veto = sum(1 for v in vetos if v)
     if n_com_veto:
         print(f"[{modelo}] {n_com_veto} chamados do lote com categorias vetadas pela conferencia.")
@@ -233,10 +238,10 @@ def reclassificar_modelo(sh, config, modelo, elegiveis, por_linha, cap, base_ext
     sel_set = set(sel)
     base_textos, base_cats = [], []
     for e in elegiveis:
-        if e["linha"] in sel_set:
+        if dv._normalizar_id(e["id"]) in sel_set:  # noqa: SLF001
             continue
         base_textos.append(e["texto"])
-        d = decisoes.get(e["linha"], {})
+        d = decisoes.get(dv._normalizar_id(e["id"]), {})  # noqa: SLF001
         base_cats.append(d.get("decidida") or e["categoria_original"])
     base_textos += list(base_extra[0])
     base_cats += list(base_extra[1])
@@ -264,14 +269,14 @@ def reclassificar_modelo(sh, config, modelo, elegiveis, por_linha, cap, base_ext
         for e, p, s in zip(lote, preds, scores):
             if p is None:
                 continue
-            d = decisoes.get(e["linha"], {})
+            d = decisoes.get(dv._normalizar_id(e["id"]), {})  # noqa: SLF001
             # Referencia de comparacao: verdade validada quando travada; senao o
             # historico — INVALIDO quando a conferencia marcou o historico como errado.
             alvo = d.get("decidida") or e["categoria_original"]
             alvo_confiavel = bool(d.get("decidida")) or \
                 (e["categoria_original"] not in (d.get("eliminadas") or set()))
-            cat_1 = baixa[e["linha"]]["cat_1"]
-            conf_1 = baixa[e["linha"]]["conf_1"]
+            cat_1 = baixa[ln]["cat_1"]
+            conf_1 = baixa[ln]["conf_1"]
             cat_2, conf_2 = str(p), round(float(s), 4)
             if not alvo_confiavel:
                 # historico conferido como ERRADO e sem verdade travada: nao ha
@@ -447,7 +452,9 @@ def main() -> int:
     except Exception as e:  # noqa: BLE001
         print(f"Falha ao acessar a planilha: {type(e).__name__}: {e}", file=sys.stderr); return 1
 
-    por_linha = {e["linha"]: e for e in elegiveis}
+    # Por id_chamado: cruzado com as abas CLASSIF__/RECLASS_, materializadas
+    # antes e imunes a mudanca de tamanho da base.
+    por_linha = {dv._normalizar_id(e["id"]): e for e in elegiveis}  # noqa: SLF001
     memoria_cfg = config.get("memoria_validada", {})
     memoria = mv.carregar_memoria_validada(sh, config["abas_experimento"]["validacao_humana"]) \
         if memoria_cfg.get("habilitada", True) else []
@@ -455,7 +462,9 @@ def main() -> int:
 
     # Memoria de DECISAO das conferencias M/N/P: trava acertos conferidos e veta
     # categorias conferidas como erradas (regras do pesquisador, 2026-06-10).
-    decisoes = dv.carregar_decisoes(sh, config["aba_principal"])
+    # chave="id": `decisoes` e cruzado com o universo vindo das abas CLASSIF__,
+    # que sao materializadas antes e nao acompanham mudanca de linha.
+    decisoes = dv.carregar_decisoes(sh, config["aba_principal"], chave="id")
     res_dec = dv.resumo_decisoes(decisoes)
     print(f"modelos={modelos} | elegiveis={len(elegiveis)} | memoria_validada={len(memoria)} | "
           f"conferencias={res_dec['com_conferencia']} (decididos={res_dec['decididos']}, "

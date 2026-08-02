@@ -74,11 +74,14 @@ class TestCalibracaoAcertoValidado(unittest.TestCase):
         ]
         snap = [
             ["cab"] * 7,
-            # r[1]=linha, r[3]=cat_original, r[4]=cat_ia, r[5]=conf, r[6]=executor
-            _linha_snapshot("x", "2", "x", "HID", "ELE", "0.97", "lstm"),
-            _linha_snapshot("x", "3", "x", "HID", "HID", "0.97", "lstm"),
-            _linha_snapshot("x", "4", "x", "AGUA", "AGUA", "0.97", "lstm"),
-            _linha_snapshot("x", "5", "x", "ELETRICA", "STRUCT", "0.97", "lstm"),
+            # r[1]=linha, r[2]=id_chamado, r[3]=cat_original, r[4]=cat_ia,
+            # r[5]=conf, r[6]=executor. O id e o que casa com a aba principal:
+            # a linha nao serve, porque a base muda de tamanho (incidente de
+            # 2026-08-02).
+            _linha_snapshot("x", "2", "1", "HID", "ELE", "0.97", "lstm"),
+            _linha_snapshot("x", "3", "2", "HID", "HID", "0.97", "lstm"),
+            _linha_snapshot("x", "4", "3", "AGUA", "AGUA", "0.97", "lstm"),
+            _linha_snapshot("x", "5", "4", "ELETRICA", "STRUCT", "0.97", "lstm"),
         ]
         self.sh = _SpreadsheetFalsa({"PRINCIPAL": linhas_principal, "SNAP": snap})
         self.config = {

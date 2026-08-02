@@ -364,7 +364,8 @@ def localizar_coluna(cabecalho: list[Any], nomes: list[str] | tuple[str, ...],
 
 
 def ler_conferencias(sh, aba_principal: str, col_glpi_1based: int = 13,
-                     col_ia_1based: int = 14, col_reclass_1based: int = 16) -> dict:
+                     col_ia_1based: int = 14, col_reclass_1based: int = 16,
+                     chave: str = "linha") -> dict:
     """Le as CONFERENCIAS HUMANAS da aba principal (modo de validacao atual).
 
     Convencao definida pelo usuario, em CHAMADOS_ESQUELETO_REDUZIDO:
@@ -401,7 +402,17 @@ def ler_conferencias(sh, aba_principal: str, col_glpi_1based: int = 13,
         v_reclass = _cel(col_reclass_1based)
         if v_ia is None and v_glpi is None and v_reclass is None:
             continue
-        out[str(pos)] = {"ia": v_ia, "glpi": v_glpi, "reclass": v_reclass}
+        if chave == "id":
+            bruto = str(linha[0] or "").strip() if linha else ""
+            try:
+                k = str(int(float(bruto))) if bruto else ""
+            except (TypeError, ValueError):
+                k = bruto
+            if not k:
+                continue
+        else:
+            k = str(pos)
+        out[k] = {"ia": v_ia, "glpi": v_glpi, "reclass": v_reclass}
     return out
 
 

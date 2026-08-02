@@ -111,15 +111,21 @@ def carregar_votos_modelos(sh, config: dict[str, Any], modelos: list[str]) -> di
             continue
         cab = vals[0]
         idx = {norm(n): i for i, n in enumerate(cab)}
-        i_linha = idx.get(norm("linha_planilha"))
+        # id_chamado, nunca linha_planilha: os votos agregados aqui sao cruzados
+        # com a aba principal, que muda de tamanho quando o GLPI ganha ou perde
+        # chamados (incidente de 2026-08-02).
+        i_linha = idx.get(norm("id_chamado"))
         i_pred = idx.get(norm("categoria_ia"))
         i_conf = idx.get(norm("confianca"))
         if i_linha is None or i_pred is None:
             continue
         for r in vals[1:]:
+            linha = cel(r, i_linha).strip()
             try:
-                linha = int(cel(r, i_linha))
+                linha = str(int(float(linha))) if linha else ""
             except (ValueError, TypeError):
+                pass
+            if not linha:
                 continue
             pred = cel(r, i_pred)
             if not pred:
