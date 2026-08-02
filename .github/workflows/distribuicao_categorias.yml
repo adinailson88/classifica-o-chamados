@@ -1,0 +1,63 @@
+name: Distribuicao das categorias historicas (coluna C)
+
+# Apura quantas categorias sao EFETIVAMENTE utilizadas na coluna C, separando
+# as folhas (com '>', servico real) das raizes (sem '>', existentes apenas para
+# sustentar a hierarquia do GLPI). Necessario para corrigir a contagem de
+# categorias no corpo do artigo e reconstruir a Tabela A1 do Apendice A.
+#
+# READ-ONLY na planilha. Nenhum texto de chamado entra no JSON publicado.
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: distribuicao-categorias
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  apurar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: requirements-leves.txt
+      - name: Dependencias
+        run: python -m pip install --retries 5 --timeout 120 -r requirements-leves.txt
+      - name: Teste offline
+        run: python -m unittest discover -s tests -p "test_distribuicao_categorias.py" -t tests
+      - name: Recriar chave da conta de servico
+        env:
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+        run: |
+          if [ -z "$GCP_SA_KEY" ]; then echo "Secret GCP_SA_KEY ausente." >&2; exit 1; fi
+          printf '%s' "$GCP_SA_KEY" > credenciais_sa.json
+      - name: Apurar distribuicao
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: credenciais_sa.json
+        run: python src/distribuicao_categorias.py
+      - name: Remover credenciais
+        if: always()
+        run: rm -f credenciais_sa.json
+      - name: Commitar resultado
+        if: success()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/dados/distribuicao_categorias.json
+          git diff --cached --quiet && { echo "sem mudanca"; exit 0; }
+          git commit -m "distribuicao das categorias historicas [skip ci]"
+          for i in 1 2 3 4 5; do
+            git pull --rebase --autostash origin main && git push && exit 0
+            git rebase --abort 2>/dev/null || true
+            echo "push rejeitado (tentativa $i/5); novo rebase em 5s"; sleep 5
+          done
+          echo "push falhou apos 5 tentativas" >&2; exit 1
