@@ -27,9 +27,11 @@ header-includes:
     % \NaoQuebrar reserva espaco vertical antes do bloco: se nao couber, a
     % tabela inteira desce para a pagina seguinte. O ramo alternativo mantem o
     % build caso needspace nao exista na imagem.
+    % Os ramos do \IfFileExists sao guardados com \def, entao o parametro
+    % precisa aparecer duplicado.
     \IfFileExists{needspace.sty}{%
       \usepackage{needspace}%
-      \newcommand{\NaoQuebrar}[1]{\Needspace*{#1\baselineskip}}%
+      \newcommand{\NaoQuebrar}[1]{\Needspace*{##1\baselineskip}}%
     }{%
       \newcommand{\NaoQuebrar}[1]{\par}%
     }
