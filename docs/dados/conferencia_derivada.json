@@ -1,44 +1,44 @@
 {
- "total_chamados": 14058,
+ "total_chamados": 14059,
  "com_conferencia_glpi": 14058,
- "verdade_glpi": 13452,
- "verdade_manual": 606,
+ "verdade_glpi": 13450,
+ "verdade_manual": 608,
  "pendente_glpi_errado_sem_q": 0,
- "sem_conferencia": 0,
+ "sem_conferencia": 1,
  "correto_com_q_preenchida": 0,
  "errado_com_q_igual_a_c": 0,
  "por_modelo": {
   "naive_bayes": {
-   "correto": 9965,
-   "errado": 4093,
+   "correto": 9967,
+   "errado": 4091,
    "pendente": 0,
    "sem_predicao": 0,
    "avaliados": 14058,
-   "acuracia": 0.7088
+   "acuracia": 0.709
   },
   "regressao_logistica": {
-   "correto": 11195,
-   "errado": 2863,
+   "correto": 11193,
+   "errado": 2865,
    "pendente": 0,
    "sem_predicao": 0,
    "avaliados": 14058,
-   "acuracia": 0.7963
+   "acuracia": 0.7962
   },
   "linear_svc": {
-   "correto": 11525,
-   "errado": 2533,
+   "correto": 11523,
+   "errado": 2535,
    "pendente": 0,
    "sem_predicao": 0,
    "avaliados": 14058,
-   "acuracia": 0.8198
+   "acuracia": 0.8197
   },
   "sgd": {
-   "correto": 11264,
-   "errado": 2794,
+   "correto": 11262,
+   "errado": 2796,
    "pendente": 0,
    "sem_predicao": 0,
    "avaliados": 14058,
-   "acuracia": 0.8013
+   "acuracia": 0.8011
   },
   "extra_trees": {
    "correto": 11224,
@@ -49,20 +49,20 @@
    "acuracia": 0.7984
   },
   "random_forest": {
-   "correto": 11102,
-   "errado": 2956,
+   "correto": 11104,
+   "errado": 2954,
    "pendente": 0,
    "sem_predicao": 0,
    "avaliados": 14058,
-   "acuracia": 0.7897
+   "acuracia": 0.7899
   },
   "lstm": {
-   "correto": 9989,
-   "errado": 4069,
+   "correto": 9991,
+   "errado": 4067,
    "pendente": 0,
    "sem_predicao": 0,
    "avaliados": 14058,
-   "acuracia": 0.7106
+   "acuracia": 0.7107
   },
   "transformer_ft": {
    "correto": 7924,
@@ -74,7 +74,7 @@
   }
  },
  "distribuicao_q": {
-  "Manutenção Preventiva > Ar condicionado split": 189,
+  "Manutenção Preventiva > Ar condicionado split": 191,
   "Instalação de Acessórios e Mobiliário > Instalação/reparo de equipamentos (Suportes de TV, acessórios de banheiro e quadro branco)": 78,
   "Instalação de Acessórios e Mobiliário > Instalação/reparo de equipamentos": 45,
   "Estrutura Predial > Esquadrias, porta, portão e janelas": 39,
@@ -110,7 +110,7 @@
  "categorias_distintas_q": 32,
  "ids_correto_com_q_preenchida": [],
  "ids_errado_com_q_igual_a_c": [],
- "gerado_em": "02/08/2026 13:32",
+ "gerado_em": "02/08/2026 16:41",
  "aba": "CONFERENCIA_MULTIMODELO",
  "regra": "M='Correto' -> verdade = C; M='Errado' + Q preenchida -> verdade = Q; M='Errado' sem Q -> pendente; M vazio -> ignorado"
 }
