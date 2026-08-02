@@ -96,15 +96,29 @@ def ler_categorias(sh, config: dict) -> Counter[str]:
     norm = lambda s: " ".join(str(s or "").split()).casefold()  # noqa: E731
     idx = {norm(n): i for i, n in enumerate(cab)}
     i_cat = idx.get(norm("CATEGORIA COMPLETA"))
+    i_id = idx.get(norm("ID Chamado"))
     if i_cat is None:
         raise SystemExit("coluna 'CATEGORIA COMPLETA' nao encontrada no cabecalho")
+    if i_id is None:
+        raise SystemExit("coluna 'ID Chamado' nao encontrada no cabecalho")
 
+    # Exige id_chamado, como as demais ferramentas. Sem isso, uma linha com
+    # categoria e sem id entra aqui e nao entra no corpus, e a distribuicao
+    # fecha em 14.059 para uma base de 14.058 (apurado em 02/08/2026).
     contagem: Counter[str] = Counter()
+    sem_id = 0
     for linha in valores[1:]:
+        id_chamado = str(linha[i_id] or "").strip() if len(linha) > i_id else ""
         bruto = str(linha[i_cat] or "").strip() if len(linha) > i_cat else ""
         cat = pl.normalizar_categoria(bruto)
+        if cat and not id_chamado:
+            sem_id += 1
+            continue
         if cat:
             contagem[cat] += 1
+    if sem_id:
+        print(f"[aviso] {sem_id} linha(s) com categoria e SEM id_chamado, "
+              "descartada(s) da distribuicao")
     return contagem
 
 

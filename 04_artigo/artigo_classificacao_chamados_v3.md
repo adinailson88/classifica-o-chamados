@@ -63,26 +63,26 @@ sobrepostas, registros incompletos e interpretações heterogêneas entre
 equipes. Este artigo propõe um protocolo multimodelo para classificação
 de chamados reais de manutenção predial universitária em português
 brasileiro, extraídos do sistema institucional da Universidade Federal do
-Sul da Bahia. O experimento utiliza 14.094 chamados não vazios,
-organizados em 55 categorias históricas. A comparação principal avalia
+Sul da Bahia. O experimento utiliza 14.058 chamados não vazios,
+organizados em 50 categorias históricas. A comparação principal avalia
 seis classificadores clássicos baseados em TF-IDF e uma rede neural LSTM
 bidirecional por predições *out-of-fold* sobre toda a base. O BERTimbau,
 transformador pré-treinado em português, é ajustado e avaliado
 separadamente em um *holdout* comum de 1.000 chamados, pois não dispõe de
 predições *out-of-fold* materializadas para o corpus integral. O
 diferencial metodológico reside na distinção entre concordância com o
-histórico administrativo e acerto validado por revisão humana. O acerto
-validado, apurado sobre 9.305 decisões, descreve apenas a amostra
-conferida e constitui limite superior por construção amostral, dado que
-242 casos sem categoria decidida permanecem fora do denominador. Na
+histórico administrativo e acerto validado por revisão humana. A
+conferência humana cobre a totalidade do corpus, de modo que o acerto
+validado é apurado sobre as 14.058 decisões e não sobre uma amostra. Na
 comparação integral, o LinearSVC lidera a concordância com o histórico
-(80,89%) e o acerto validado (83,94%). No *holdout* comum, o LinearSVC
-alcança 73,96% e o BERTimbau 76,04%, sem diferença estatisticamente
-significativa pelo teste de McNemar (*p* = 0,377). Os resultados indicam
-que o modelo contextual é competitivo no recorte avaliado, mas não há
-evidência de superioridade sobre o classificador linear. O custo
-computacional permanece dimensão relevante da decisão e favorece modelos
-lineares em cenários de texto curto, ruidoso e desbalanceado.
+(80,49%) e o acerto validado (81,98%). No *holdout* comum, o LinearSVC
+alcança 67,34% e o BERTimbau 67,85%, sem diferença estatisticamente
+significativa pelo teste de McNemar. Os resultados indicam que o modelo
+contextual é competitivo no recorte avaliado, mas não há evidência de
+superioridade sobre o classificador linear. O custo computacional
+permanece dimensão relevante da decisão e favorece modelos lineares em
+cenários de texto curto, ruidoso e desbalanceado: o LinearSVC treina em
+2,68 s, contra 161 a 304 min do transformador no mesmo ambiente.
 
 **Palavras-chave:** manutenção predial; classificação de chamados;
 processamento de linguagem natural; rótulos ruidosos; validação humana.
@@ -98,25 +98,25 @@ decisions, overlapping taxonomies, incomplete records, and heterogeneous
 interpretations. This paper proposes a multi-model protocol for
 classifying real university building maintenance requests in Brazilian
 Portuguese from the Federal University of Southern Bahia. The experiment
-uses 13,965 non-empty records organized into 55 historical categories.
+uses 14,058 non-empty records organized into 50 historical categories.
 The main comparison evaluates six TF-IDF-based classical classifiers and
 a bidirectional LSTM through out-of-fold predictions over the complete
 corpus. BERTimbau, a Portuguese pre-trained transformer, is fine-tuned and
 evaluated separately on a common holdout of 1,000 work orders because
 full-corpus out-of-fold predictions are not available for this model. The
 methodological contribution is the distinction between agreement with the
-administrative history and human-validated accuracy. Human-validated
-accuracy is calculated over 8,895 decisions and describes only the
-reviewed sample; it is an upper bound by sampling construction because
-242 cases without a decided category remain outside the denominator. In
-the full-corpus comparison, LinearSVC leads both agreement with history
-(80.31%) and human-validated accuracy (95.27%). In the common holdout,
-LinearSVC reaches 78.56% and BERTimbau 77.46%, with no statistically
-significant difference under McNemar's test (p = 0.510). The contextual
-model is therefore competitive in the evaluated subset, but there is no
-evidence that it outperforms the linear classifier. Computational cost
-remains a relevant decision dimension and favors linear models in short,
-noisy, and imbalanced text settings.*
+administrative history and human-validated accuracy. Human review covers
+the entire corpus, so human-validated accuracy is calculated over all
+14,058 decisions rather than over a sample. In the full-corpus
+comparison, LinearSVC leads both agreement with history (80.49%) and
+human-validated accuracy (81.98%). In the common holdout, LinearSVC
+reaches 67.34% and BERTimbau 67.85%, with no statistically significant
+difference under McNemar's test. The contextual model is therefore
+competitive in the evaluated subset, but there is no evidence that it
+outperforms the linear classifier. Computational cost remains a relevant
+decision dimension and favors linear models in short, noisy, and
+imbalanced text settings: LinearSVC trains in 2.68 s, against 161 to 304
+min for the transformer in the same environment.*
 
 ***Keywords:** building maintenance; work-order classification; natural
 language processing; noisy labels; human validation.*
@@ -204,8 +204,8 @@ revisão taxonômica, e não como ruído a descartar.
 Com base em chamados reais da Universidade Federal do Sul da Bahia
 (UFSB), este artigo propõe uma comparação multimodelo de
 classificadores de texto aplicada a chamados de manutenção predial em
-português brasileiro. A base experimental contém 14.094 chamados não
-vazios, distribuídos em 55 categorias históricas; os campos textuais
+português brasileiro. A base experimental contém 14.058 chamados não
+vazios, distribuídos em 50 categorias históricas; os campos textuais
 considerados agregam título e descrição do chamado, além de informações
 associadas à ordem de serviço. O estudo compara modelos clássicos
 baseados em TF-IDF (Naive Bayes, Regressão Logística, LinearSVC, SGD,
@@ -351,6 +351,31 @@ que um modelo que demanda dezenas de minutos exige *checkpoint*,
 controle de versão de pesos e justificativa robusta de ganho marginal
 (TREVISO *et al.*, 2023).
 
+Os modelos de linguagem de grande porte não integram a comparação
+conduzida neste estudo. Tais modelos operam sobre representações
+contextuais em arquitetura de transformador (VASWANI *et al.*, 2017) e
+dispõem de bilhões de parâmetros, contra os aproximadamente 110 milhões
+do BERTimbau (SOUZA; NOGUEIRA; LOTUFO, 2020). Dispensam ainda o ajuste
+supervisionado, pois inferem a tarefa a partir de instruções e de poucos
+exemplos apresentados no próprio enunciado (BROWN *et al.*, 2020). Dessa
+configuração decorre a expectativa de maior acurácia em chamados de
+redação atípica ou de categorias de baixa frequência, situações nas quais
+a representação esparsa por TF-IDF oferece evidência limitada.
+
+A adoção desses modelos encontra três restrições diante do critério de
+eficiência que orienta esta avaliação (SCHWARTZ *et al.*, 2020; TREVISO
+*et al.*, 2023). A execução exige aceleradores dedicados ou serviços
+externos tarifados por uso, incompatíveis com a reexecução frequente que
+o fluxo institucional pressupõe. O processamento em serviços de terceiros
+desloca as descrições dos chamados para fora do domínio da universidade.
+A variabilidade das respostas entre execuções e entre versões do serviço
+compromete, por fim, a reprodutibilidade exigida pelo delineamento
+(BENDER *et al.*, 2021). Tendo em vista que a tarefa aqui tratada é
+fechada e institucionalmente delimitada, condição na qual classificadores
+baseados em *bag-of-words* permanecem competitivos frente a arquiteturas
+neurais (GALKE; SCHERP, 2022), a avaliação desses modelos permanece
+indicada como desdobramento futuro da pesquisa.
+
 ```{=latex}
 \FloatBarrier
 ```
@@ -382,8 +407,8 @@ apresenta esse fluxo como *pipeline* de governança preditiva.
 
 **3.2 Corpus e variáveis**
 
-O corpus experimental é composto por 14.094 chamados de manutenção
-predial não vazios, organizados em 55 categorias históricas, extraídos
+O corpus experimental é composto por 14.058 chamados de manutenção
+predial não vazios, organizados em 50 categorias históricas, extraídos
 do ambiente institucional da UFSB. Os campos textuais previstos no
 protocolo incluem título do chamado, descrição GLPI, título da ordem de
 serviço e descrição da ordem de serviço, concatenados em uma única
@@ -397,7 +422,7 @@ pré-processamento e representação textual (SUNDARAM; ZEID, 2025).
 
 A base é dinâmica, pois novos chamados continuam a ser incorporados e a
 taxonomia institucional pode ser revisada ao longo do tempo. Os
-resultados da Seção 4 referem-se ao corpus descrito acima. A distribuição completa dos chamados entre as 55 categorias
+resultados da Seção 4 referem-se ao corpus descrito acima. A distribuição completa dos chamados entre as 50 categorias
 históricas é apresentada no Apêndice A.
 
 **3.3 Pré-processamento textual**
@@ -452,7 +477,7 @@ Random Forest quando a base rotulada disponível é insuficiente para
 treinar a rede neural.
 
 Um oitavo modelo, o BERTimbau-Base, incorpora representações contextuais
-pré-treinadas em português brasileiro e é ajustado para as 55 categorias
+pré-treinadas em português brasileiro e é ajustado para as 50 categorias
 do corpus (DEVLIN *et al.*, 2019; SOUZA; NOGUEIRA; LOTUFO, 2020). O
 treino foi concluído em modo automático, com subamostragem estratificada
 e parada antecipada por restrição computacional. Como o modelo não possui
@@ -517,7 +542,7 @@ aleatoriamente e treinados do zero, sem incorporação de vetores
 pré-treinados em português. A camada de *embedding* (8.000 termos × 128
 dimensões) concentra sozinha cerca de 1,02 milhão de parâmetros, ordem
 de grandeza próxima do número de exemplos disponíveis por partição de
-treino, já que dos 14.094 chamados cerca de 11.275 compõem cada partição
+treino, já que dos 14.058 chamados cerca de 11.275 compõem cada partição
 em `k=5` *folds* (Subseção 3.5). Esse cenário é consistente com a
 hipótese de que modelos lineares igualam ou superam redes neurais em
 corpora de porte médio e ruidosos, quando não há *embeddings*
@@ -587,7 +612,7 @@ modelos indica que a validação cruzada produz estimativas de menor
 variância que um único *holdout*, sobretudo em bases pequenas ou
 desbalanceadas, por avaliar cada exemplo em algum *fold* em vez de
 descartar uma fração fixa dos dados do treino (KOHAVI, 1995). Esta base
-é desbalanceada por natureza, com várias das 55 categorias históricas
+é desbalanceada por natureza, com várias das 50 categorias históricas
 apresentando suporte de dígito único.
 
 A recomendação foi verificada empiricamente. Comparou-se o protocolo
@@ -607,7 +632,7 @@ literatura antecipa para corpora pequenos e desbalanceados (KOHAVI,
 1995).
 
 A partição por linha, contudo, carrega uma limitação própria neste
-corpus. Chamados de manutenção repetem-se, e 32,58% das 14.094 linhas
+corpus. Chamados de manutenção repetem-se, e 32,58% das 14.058 linhas
 compartilham texto normalizado com outra linha, de modo que a base
 contém 9.815 grupos textuais distintos. Sob particionamento por linha, o
 mesmo texto pode cair em treino e em teste, o que superestima o
@@ -629,7 +654,7 @@ A avaliação do BERTimbau segue protocolo adicional e não substitui a
 comparação *out-of-fold*. A execução completa mais recente do transformador
 define um lote de 1.000 chamados. Os outros sete modelos são retreinados
 fora exatamente dessas linhas e avaliados no mesmo conjunto, evitando
-sobreposição entre treino e teste. O lote contém 288 chamados com categoria de referência estabelecida por
+sobreposição entre treino e teste. O lote contém 983 chamados com categoria de referência estabelecida por
 validação humana. Reportam-se concordância com o histórico, acerto validado,
 intervalos por *bootstrap* e McNemar entre o BERTimbau e o melhor modelo
 alternativo. Como o lote corresponde aos primeiros registros elegíveis e
@@ -662,10 +687,12 @@ Quando a categoria histórica é confirmada, ela constitui a referência;
 quando é rejeitada, o avaliador registra manualmente a categoria correta. A categoria resultante desse processo
 constitui a referência validada utilizada na avaliação dos modelos. Quando
 nenhuma das fontes é confirmada e não há categoria alternativa definida
-pelo avaliador, o chamado permanece sem categoria de referência. Dos
-14.094 chamados, 9.547 receberam conferência; 9.305 chegaram
-a uma categoria decidida e 242 permaneceram restritos, por
-rejeição da categoria histórica sem categoria manual registrada. A priorização recai sobre
+pelo avaliador, o chamado permanece sem categoria de referência. A
+conferência foi conduzida até cobrir a totalidade do corpus: os 14.058
+chamados receberam veredito e chegaram a uma categoria decidida, sendo
+13.452 por confirmação da categoria histórica e 606 por registro manual
+de categoria distinta. Não restaram chamados sem referência. A
+priorização da ordem de conferência recaiu sobre
 chamados em que há divergência entre modelos, alta confiança da IA contra
 o histórico, baixa confiança generalizada, classes raras e pares de
 categorias com alta confusão recíproca. Essa estrutura permite separar
@@ -763,10 +790,10 @@ histórica na base completa (Subseção 4.1), em que o registro do GLPI é
 referência preliminar, não verdade absoluta. O segundo é o desempenho
 desses mesmos modelos contra a categoria de referência estabelecida por validação humana (Subseção 4.2). O
 terceiro é a comparação dos oito modelos no *holdout* comum que inclui o
-BERTimbau (Subseção 4.3). A base elegível contém 14.094 chamados. A
-conferência humana cobre 9.547 chamados (67,7% da base), dos quais 9.305
-têm decisão validada (66,0% da base) e 242 permanecem restritos. Entre os
-restritos, 201 apresentam conflito entre fontes marcadas como corretas.
+BERTimbau (Subseção 4.3). A base elegível contém 14.058 chamados. A
+conferência humana cobre a totalidade dos 14.058 chamados, dos quais
+13.452 tiveram a categoria histórica confirmada e 606 receberam categoria
+corrigida manualmente. Não há chamado sem categoria de referência.
 
 Três achados resumem a seção. Primeiro, o LinearSVC lidera a comparação
 integral, tanto em concordância histórica quanto em acerto validado, e
@@ -784,12 +811,12 @@ seleção amostral discutidas na Subseção 4.4.
 **4.1 Concordância com o histórico (base completa)**
 
 A comparação contra a categoria histórica, sobre a base completa (n =
-14.094, com intervalo de confiança por bootstrap a 95%), mantém o
-LinearSVC na liderança, com acurácia de 0,8089 (IC95%:
-0,8024--0,8152), seguido por Extra Trees (0,7958), Random Forest (0,7893), Regressão Logística (0,7777), SGD (0,7758), LSTM (0,7109), Naive Bayes (0,7059).
+14.058, com intervalo de confiança por bootstrap a 95%), mantém o
+LinearSVC na liderança, com acurácia de 0,8049 (IC95%:
+0,7981--0,8113), seguido por Extra Trees (0,7880), Random Forest (0,7786), SGD (0,7769), Regressão Logística (0,7717), Naive Bayes (0,6987), LSTM (0,6921).
 O teste de Cochran Q confirma diferença global
-entre os sete modelos avaliados (Q = 2124,20; p < 0,001). A comparação integral exclui o BERTimbau porque o modelo não possui
-predições *out-of-fold* sobre as 14.094 linhas; o treino concluído é
+entre os sete modelos avaliados (Q = 2446,95; p < 0,001). A comparação integral exclui o BERTimbau porque o modelo não possui
+predições *out-of-fold* sobre as 14.058 linhas; o treino concluído é
 avaliado separadamente na Subseção 4.3. O Kappa de Cohen (COHEN, 1960) entre cada
 modelo e o histórico reproduz a mesma ordenação, variando de
 0,7881 (LinearSVC) a 0,6496 (LSTM), faixa que Landis e Koch (1977)
@@ -803,19 +830,19 @@ Tabela 1 não é apropriada porque essa fonte combina a rede neural com a
 regra de contingência do Random Forest (Subseção 3.4), em vez de um
 único modelo isolado.
 
-**Tabela 1** Concordância com a categoria histórica por modelo (n = 14.094).
+**Tabela 1** Concordância com a categoria histórica por modelo (n = 14.058).
 
 | Modelo | Acurácia | IC95% |
 |---|---|---|
-| LinearSVC | 0,8089 | 0,8024 -- 0,8152 |
-| Extra Trees | 0,7958 | 0,7891 -- 0,8025 |
-| Random Forest | 0,7893 | 0,7826 -- 0,7962 |
-| Regressão Logística | 0,7777 | 0,7711 -- 0,7846 |
-| SGD | 0,7758 | 0,7690 -- 0,7826 |
-| LSTM (out-of-fold) | 0,7109 | 0,7031 -- 0,7187 |
-| Naive Bayes | 0,7059 | 0,6984 -- 0,7134 |
+| LinearSVC | 0,8049 | 0,7981 -- 0,8113 |
+| Extra Trees | 0,7880 | 0,7811 -- 0,7949 |
+| Random Forest | 0,7786 | 0,7714 -- 0,7856 |
+| SGD | 0,7769 | 0,7701 -- 0,7843 |
+| Regressão Logística | 0,7717 | 0,7650 -- 0,7788 |
+| Naive Bayes | 0,6987 | 0,6911 -- 0,7064 |
+| LSTM (out-of-fold) | 0,6921 | 0,6842 -- 0,6997 |
 
-A concordância com o histórico não é uniforme entre as 55 categorias. O
+A concordância com o histórico não é uniforme entre as 50 categorias. O
 desempenho por categoria, incluindo suporte, precisão, revocação e F1,
 está disponível no material suplementar. O desempenho concentra-se nas classes de maior volume. As
 cinco categorias com maior F1 pertencem todas à Manutenção Preventiva,
@@ -833,58 +860,61 @@ que pequena variação absoluta altera fortemente a métrica.
 
 **4.2 Ranking validado por conferência humana**
 
-A avaliação contra a categoria de referência validada utiliza 9.305 chamados
-para os quais a conferência humana estabeleceu uma categoria final. O LinearSVC permanece o melhor modelo isolado, com
-acerto validado de 0,8394 (IC95%: 0,8318--0,8465), seguido por
-Extra Trees (0,8262), Random Forest (0,8202), Regressão Logística (0,8078), SGD (0,8060), LSTM (0,7405), Naive Bayes (0,7366). A diferença entre
-o primeiro e o segundo colocado é de 1,32 ponto percentual e é
+A avaliação contra a categoria de referência validada utiliza os 14.058
+chamados do corpus, uma vez que a conferência humana estabeleceu categoria
+final para todos eles. O LinearSVC permanece o melhor modelo isolado, com
+acerto validado de 0,8198 (IC95%: 0,8138--0,8260), seguido por
+SGD (0,8013), Extra Trees (0,7984), Regressão Logística (0,7963), Random Forest (0,7897), LSTM (0,7106), Naive Bayes (0,7088). A diferença entre
+o primeiro e o segundo colocado é de 1,85 ponto percentual e é
 estatisticamente significativa (McNemar, *p* < 0,001). Foram avaliados
-também três *ensembles*: maioria ponderada (0,9493), confiança calibrada
-máxima (0,9484) e maioria simples (0,9467). Todos ficam abaixo do
-LinearSVC, com McNemar *p* < 0,05 em favor do modelo isolado. A
-recomendação é, portanto, usar o LinearSVC isolado, com calibração.
+também três *ensembles*: maioria ponderada (0,8217), maioria simples
+(0,8204) e confiança calibrada máxima (0,8184). Nenhum deles supera o
+LinearSVC de forma estatisticamente significativa, com *p* entre 0,32 e
+0,82 no teste de McNemar. Tendo em vista que o ganho pontual da maioria
+ponderada é de 0,19 ponto percentual e exige manter sete modelos em
+operação, a recomendação é usar o LinearSVC isolado, com calibração.
 
-O número pontual constitui limite superior condicionado ao desenho da
-validação. Dos 9.547 chamados conferidos, 242 (2,5%) permanecem sem
-categoria decidida. Esse conjunto reúne 340 casos em que apenas o
-histórico foi marcado como errado, 98 em que histórico e classificação
-automática foram marcados como errados e 201 conflitos entre fontes
-marcadas como corretas. Sem categoria manual adicional, esses registros
-não oferecem referência contra a qual medir o acerto e ficam fora do
-denominador de 9.305 decisões.
+A cobertura integral da conferência elimina o viés de seleção que
+condicionava as versões anteriores desta métrica. Não há chamado sem
+categoria de referência, de modo que o denominador coincide com o corpus e
+a acurácia relatada deixa de constituir limite superior de amostra
+conferida. A ressalva remanescente é de outra natureza: a categoria de
+referência resulta de julgamento humano sobre uma taxonomia que apresenta
+pares sobrepostos, discutidos na Subseção 4.6.
 
-A análise de sensibilidade incorpora os 242 restritos ao denominador como
-erro de todos os modelos, cenário conservador que produz um limite
-inferior. Considerando o LinearSVC de 0,8181 a 0,8394, o Extra Trees de 0,8053 a 0,8262, o Random Forest de 0,7994 a 0,8202, o Regressão Logística de 0,7873 a 0,8078, o SGD de 0,7856 a 0,8060, o LSTM de 0,7217 a 0,7405, o Naive Bayes de 0,7179 a 0,7366.
-A amplitude varia de 1,87 a 2,13
-pontos percentuais, mas o ranking relativo permanece inalterado. A
-conclusão sobre qual modelo priorizar é robusta ao cenário conservador;
-os valores absolutos exigem a ressalva amostral.
+A leitura por acurácia deve ser acompanhada do F1 macro, que pondera
+igualmente todas as categorias e revela comportamento distinto entre os
+modelos. O SGD alcança o maior F1 macro (0,5598), ligeiramente acima do
+LinearSVC (0,5567), ainda que perca 1,85 ponto percentual em acurácia.
+Infere-se que o SGD distribui melhor o acerto entre categorias de baixa
+frequência, ao passo que o LinearSVC concentra desempenho nas classes
+volumosas. No extremo oposto, o Naive Bayes combina acurácia de 0,7088 com
+F1 macro de 0,2382, o que caracteriza um classificador que acerta as
+categorias frequentes e falha de modo sistemático nas demais.
 
-**Tabela 2** Acerto validado por modelo e limite inferior de
-sensibilidade ao viés de seleção (n = 9.305). O limite inferior inclui os
-242 casos restritos como erro de todos os modelos.
+**Tabela 2** Acerto validado e F1 macro por modelo (n = 14.058). O F1
+macro pondera igualmente todas as categorias, independentemente do
+suporte.
 
-| Modelo | Acerto validado | IC95% | Limite inferior |
+| Modelo | Acerto validado | IC95% | F1 macro |
 |---|---|---|---|
-| LinearSVC | 0,8394 | 0,8318 -- 0,8465 | 0,8181 |
-| Extra Trees | 0,8262 | 0,8186 -- 0,8335 | 0,8053 |
-| Random Forest | 0,8202 | 0,8120 -- 0,8277 | 0,7994 |
-| Regressão Logística | 0,8078 | 0,7995 -- 0,8158 | 0,7873 |
-| SGD | 0,8060 | 0,7976 -- 0,8141 | 0,7856 |
-| LSTM | 0,7405 | 0,7309 -- 0,7490 | 0,7217 |
-| Naive Bayes | 0,7366 | 0,7278 -- 0,7455 | 0,7179 |
+| LinearSVC | 0,8198 | 0,8138 -- 0,8260 | 0,5567 |
+| SGD | 0,8013 | 0,7949 -- 0,8079 | 0,5598 |
+| Extra Trees | 0,7984 | 0,7920 -- 0,8053 | 0,4967 |
+| Regressão Logística | 0,7963 | 0,7899 -- 0,8030 | 0,5549 |
+| Random Forest | 0,7897 | 0,7834 -- 0,7966 | 0,4700 |
+| LSTM | 0,7106 | 0,7032 -- 0,7182 | 0,4017 |
+| Naive Bayes | 0,7088 | 0,7014 -- 0,7164 | 0,2382 |
 
 **4.3 BERTimbau no holdout comum de oito modelos**
 
 O BERTimbau foi comparado aos sete modelos no mesmo lote de 1.000
-chamados, com treino realizado fora dessas linhas. Entre os registros do lote, 288 possuem categoria de referência estabelecida
-por validação humana e formam o denominador do acerto validado. O LinearSVC ocupa a primeira posição, com 0,7856 (IC95%:
-0,7527--0,8185), e o BERTimbau a segunda, com 0,7746 (IC95%:
-0,7402--0,8075). A diferença é de 1,10 ponto percentual em favor do
-LinearSVC e não é estatisticamente significativa (McNemar, *p* = 0,510;
-38 discordâncias em que somente o BERTimbau acerta e 45 em que somente o
-LinearSVC acerta).
+chamados, com treino realizado fora dessas linhas. Entre os registros do lote, 983 possuem categoria de referência estabelecida
+por validação humana e formam o denominador do acerto validado. O BERTimbau ocupa a primeira posição, com 0,6785 (IC95%:
+0,6490--0,7060), e o LinearSVC a segunda, com 0,6734 (IC95%:
+0,6450--0,7019). A diferença é de 0,51 ponto percentual em favor do
+transformador e não é estatisticamente significativa pelo teste de
+McNemar.
 
 O resultado indica que o pré-treinamento contextual em português torna o
 BERTimbau competitivo neste corpus, mas não sustenta superioridade sobre
@@ -897,18 +927,18 @@ competitivo em um recorte comum, mas não substitui uma execução
 *out-of-fold* integral.
 
 **Tabela 3** Comparação dos oito modelos no mesmo holdout (n = 1.000;
-n = 288 com decisão validada).
+n = 983 com decisão validada).
 
 | Modelo | Concordância histórica | Acerto validado | IC95% validado |
 |---|---|---|---|
-| BERTimbau | 0,6650 | 0,7604 | 0,7118 -- 0,8090 |
-| LinearSVC | 0,6500 | 0,7396 | 0,6909 -- 0,7918 |
-| Regressão Logística | 0,6210 | 0,7361 | 0,6875 -- 0,7847 |
-| SGD | 0,6210 | 0,7222 | 0,6701 -- 0,7743 |
-| Extra Trees | 0,5950 | 0,7049 | 0,6528 -- 0,7569 |
-| Random Forest | 0,5880 | 0,7014 | 0,6493 -- 0,7535 |
-| Naive Bayes | 0,5230 | 0,6389 | 0,5799 -- 0,6944 |
-| LSTM | 0,4560 | 0,5278 | 0,4722 -- 0,5903 |
+| BERTimbau | 0,6650 | 0,6785 | 0,6490 -- 0,7060 |
+| LinearSVC | 0,6500 | 0,6734 | 0,6450 -- 0,7019 |
+| Regressão Logística | 0,6210 | 0,6511 | 0,6236 -- 0,6816 |
+| SGD | 0,6210 | 0,6511 | 0,6205 -- 0,6806 |
+| Extra Trees | 0,5950 | 0,6022 | 0,5727 -- 0,6328 |
+| Random Forest | 0,5880 | 0,6002 | 0,5717 -- 0,6307 |
+| Naive Bayes | 0,5230 | 0,5209 | 0,4903 -- 0,5493 |
+| LSTM | 0,4560 | 0,4802 | 0,4486 -- 0,5107 |
 
 ```{=latex}
 \FloatBarrier
@@ -917,16 +947,15 @@ n = 288 com decisão validada).
 **4.4 Confiança, calibração e faixas de decisão**
 
 A classificação automática em produção mantém erro de calibração
-esperado (ECE) de 0,0549 sobre a confiança bruta. A unidade desta
+esperado (ECE) de 0,0208 sobre a confiança bruta. A unidade desta
 subseção é o chamado. O registro da classificação em produção é
 acumulativo, pois cada execução acrescenta uma linha por chamado sem
 substituir a anterior, e a leitura considera apenas a última
-classificação de cada chamado, de modo que os 14.094 chamados do corpus
-entram uma única vez e 9.305 deles têm conferência humana. Segmentada
-por faixa de confiança e cruzada com a decisão validada, a faixa igual
-ou superior a 95% concentra 5.061 chamados, 36,2% do corpus, com
-concordância de 98,70% frente ao histórico e acerto validado de 99,84%
-sobre os 4.894 chamados já decididos nessa faixa.
+classificação de cada chamado, de modo que os 14.058 chamados do corpus
+entram uma única vez e todos têm conferência humana. Segmentada por
+faixa de confiança e cruzada com a decisão validada, a faixa igual ou
+superior a 95% concentra 10.555 chamados, 75,1% do corpus, com
+concordância de 97,50% frente ao histórico e acerto validado de 98,15%.
 O resultado cumpre a meta de referência do experimento, que associa
 confiança igual ou superior a 95% a acerto real igual ou superior a 95%.
 Cabe a ressalva de que a confiança empregada é bruta, sem calibração
@@ -934,30 +963,33 @@ formal, de modo que a meta é atingida na métrica disponível, não em
 confiança calibrada em sentido estrito.
 
 Nas faixas inferiores (Tabela 4), a degradação de desempenho acompanha a
-queda de confiança, do patamar de 99,17% na faixa de 90 a 95% até 55,05%
+queda de confiança, do patamar de 90,87% na faixa de 90 a 95% até 37,43%
 abaixo de 50%. A progressão é monótona nas seis faixas, sem inversão
-entre faixas vizinhas, e corrobora a correlação positiva entre
-confiança bruta e acerto, quantificada por Spearman entre 0,46 e 0,64
-conforme o modelo (Subseção 4.9), mesmo sem calibração formal aplicada a
-essa camada.
+entre faixas vizinhas, e corrobora a correlação positiva entre confiança
+bruta e acerto, quantificada por Spearman entre 0,46 e 0,64 conforme o
+modelo (Subseção 4.9), mesmo sem calibração formal aplicada a essa
+camada. Com a conferência estendida ao corpus integral, o número de
+chamados validados coincide com o total de cada faixa, o que elimina a
+diferença entre os dois denominadores presente nas versões anteriores
+desta tabela.
 
 ```{=latex}
 \begin{minipage}{\linewidth}
 \small
 \noindent\textbf{Tabela 4} Acerto validado por faixa de confiança. A unidade é o
-chamado, 14.094 no total, 9.305 com conferência humana.
+chamado, 14.058 no total, todos com conferência humana.
 \par\smallskip
 \centering
 \begin{tabular}{@{}lrrrr@{}}
 \toprule
 Faixa & n total & Concord. histórico & n validados & Acerto validado \\
 \midrule
-\textless{} 50\% & 3.673 & 43,42\% & 634 & 55,05\% \\
-50–70\% & 1.492 & 74,06\% & 632 & 91,77\% \\
-70–80\% & 912 & 83,99\% & 522 & 96,93\% \\
-80–90\% & 1.593 & 84,43\% & 1.126 & 98,67\% \\
-90–95\% & 1.234 & 94,98\% & 1.087 & 99,17\% \\
-\textgreater{}= 95\% & 5.061 & 98,70\% & 4.894 & 99,84\% \\
+\textless{} 50\% & 366 & 38,80\% & 366 & 37,43\% \\
+50–70\% & 718 & 63,51\% & 718 & 61,00\% \\
+70–80\% & 462 & 75,32\% & 462 & 72,29\% \\
+80–90\% & 884 & 83,94\% & 884 & 82,35\% \\
+90–95\% & 1.073 & 87,51\% & 1.073 & 90,87\% \\
+\textgreater{}= 95\% & 10.555 & 97,50\% & 10.555 & 98,15\% \\
 \bottomrule
 \end{tabular}
 \end{minipage}
@@ -1014,7 +1046,7 @@ LinearSVC exibe a menor divergência de Jensen-Shannon frente à
 distribuição histórica (0,0043). Dispersão de predições e aderência
 distributiva ao histórico, portanto, não caminham juntas, e o modelo de
 melhor acerto validado é justamente o de distribuição mais próxima da
-base. No nível de chamado individual, 3.268 dos 14.094 registros (23,4%)
+base. No nível de chamado individual, 3.268 dos 14.058 registros (23,4%)
 apresentam alta entropia de votos entre as oito fontes, ou seja,
 desacordo estrutural relevante entre arquiteturas distintas. Constitui
 critério de priorização de auditoria distinto e complementar à baixa
@@ -1108,27 +1140,47 @@ fonte de classificação.
 
 **4.7 Custo computacional**
 
-Nos recortes de comparação por lote (1.000 registros cada), os seis
-modelos clássicos tiveram tempos de treino entre 1,14 s e 21,30 s. Não
-há medição padronizada de custo para LSTM ou BERTimbau no mesmo ambiente
-e protocolo, portanto não é possível ordená-los frente aos demais. A tabela informa
-exclusivamente as medições disponíveis para os modelos clássicos.
+O custo de treino e de inferência foi medido para os sete modelos sobre a
+base completa, no mesmo ambiente computacional (processador de quatro
+núcleos, sem acelerador gráfico), com mediana de três execuções por
+modelo. Os tempos absolutos variam conforme a máquina, mas as razões
+entre modelos permanecem estáveis e constituem o dado relevante para a
+decisão de adoção.
 
-**Tabela 7** Custo computacional por lote de 1.000 registros. A acurácia
-refere-se ao lote, não à base completa.
+Os modelos lineares treinam em poucos segundos, de 1,21 s no Naive Bayes
+a 9,54 s na Regressão Logística. Os ensembles de árvores exigem cerca de
+vinte segundos, e a rede neural LSTM consome 133,65 s, aproximadamente
+cinquenta vezes o tempo do LinearSVC. O BERTimbau situa-se em outra ordem
+de grandeza: as duas execuções concluídas de ajuste fino levaram 161 e
+304 minutos no mesmo tipo de ambiente, o que corresponde a cerca de 4.650
+vezes o tempo de treino do LinearSVC. Cabe destacar que essa razão
+constitui piso, e não teto, uma vez que o ajuste do transformador operou
+sobre subconjunto do corpus por restrição de tempo de execução, enquanto
+os demais tempos referem-se à base integral.
 
-| Modelo | Tempo de treino (s) | Tempo de inferência (s) | Acurácia neste lote |
-|---|---|---|---|
-| Naive Bayes | 1,14 | 0,07 | 0,539 |
-| LinearSVC | 2,55 | 0,06 | 0,655 |
-| SGD | 2,60 | 0,09 | 0,624 |
-| Regressão Logística | 9,43 | 0,09 | 0,624 |
-| Random Forest | 19,45 | 0,13 | 0,597 |
-| Extra Trees | 21,30 | 0,14 | 0,610 |
+**Tabela 7** Custo computacional por modelo sobre a base completa
+(n = 14.058), mediana de três execuções em processador de quatro núcleos.
+
+| Modelo | Tempo de treino (s) | Tempo de inferência (s) |
+|---|---|---|
+| Naive Bayes | 1,21 | 0,95 |
+| LinearSVC | 2,68 | 0,96 |
+| SGD | 2,87 | 1,01 |
+| Regressão Logística | 9,54 | 0,97 |
+| Random Forest | 20,56 | 1,35 |
+| Extra Trees | 24,40 | 1,46 |
+| LSTM | 133,65 | 5,82 |
+| BERTimbau | 9.660 a 18.240 | não medido |
 
 A Figura 6 cruza essas medições de custo com o acerto validado da Tabela
 2 e mostra que o LinearSVC ocupa a posição mais favorável, com o maior
-acerto validado a um custo de treino próximo do menor observado.
+acerto validado a um custo de treino próximo do menor observado. A
+confrontação com a Subseção 4.3 é o argumento central desta seção: no
+*holdout* comum, único protocolo em que os dois modelos são comparáveis,
+o transformador supera o LinearSVC em 0,51 ponto percentual, sem
+significância estatística, ao custo de aproximadamente quatro mil vezes
+mais tempo de treino. Sob o critério de eficiência computacional
+discutido na Subseção 2.4, o ganho não justifica a adoção.
 
 ```{=latex}
 \FloatBarrier
@@ -1136,7 +1188,7 @@ acerto validado a um custo de treino próximo do menor observado.
 
 **4.8 Comportamento do LSTM: curva de aprendizado e *ablation***
 
-A Figura 7 mostra a curva real de aprendizado do LSTM sobre os 14.094
+A Figura 7 mostra a curva real de aprendizado do LSTM sobre os 14.058
 exemplos e 53 categorias. O treino parou por interrupção antecipada após
 11 épocas, com menor perda de validação na época 8 e maior acurácia de
 validação na época 10 (0,6722). O padrão indica saturação precoce,
@@ -1174,7 +1226,7 @@ AUSTIN, 2004), homogeneidade de variância, normalidade, desbalanceamento
 entre categorias, colinearidade entre modelos, relação entre confiança e
 acerto e independência das observações, adaptando o protocolo de
 exploração de dados de Zuur, Ieno e Elphick (2010) da resposta contínua da ecologia para a resposta
-categórica de classificação de chamados (n = 14.094). O teste de
+categórica de classificação de chamados (n = 14.058). O teste de
 Shapiro-Wilk (SHAPIRO; WILK, 1965) foi escolhido por reunir o maior
 poder entre os testes de normalidade usuais nas comparações de Razali e
 Wah (2011) e de Ogunleye, Oyejola e Obisesan (2018). Ele rejeita a
@@ -1211,6 +1263,77 @@ Suplementar.
 \FloatBarrier
 ```
 
+**4.10 Análise de erro por categoria e matriz de confusão**
+
+A avaliação por acurácia global descreve o desempenho médio, mas oculta a
+distribuição do acerto entre categorias. Esta subseção examina a matriz de
+confusão de cada modelo contra a categoria de referência validada, apurada
+sobre os 14.058 chamados e envolvendo 59 categorias distintas, somadas as
+que aparecem na referência e as que aparecem apenas nas predições.
+
+O contraste entre acurácia e F1 macro é o primeiro achado. Os sete
+modelos apresentam acurácia entre 0,7088 e 0,8198, faixa de 11 pontos
+percentuais, ao passo que o F1 macro varia de 0,2382 a 0,5598, faixa de
+32 pontos. A dispersão muito maior na segunda métrica indica que os
+modelos se diferenciam sobretudo no tratamento das categorias de baixa
+frequência. O Naive Bayes ilustra o caso extremo, pois combina acurácia
+de 0,7088 com F1 macro de 0,2382, o que corresponde a um classificador
+que resolve as categorias volumosas e colapsa nas demais. O SGD e a
+Regressão Logística, embora percam em acurácia para o LinearSVC,
+alcançam F1 macro equivalente ou superior, o que sugere fronteira de
+decisão mais distribuída entre classes.
+
+A leitura dos pares de maior confusão revela que parte substancial do
+erro não é aleatória, mas concentrada em fronteiras específicas da
+taxonomia. No LinearSVC, o par de maior volume ocorre entre `Instalação
+de Acessórios e Mobiliário > Instalação/reparo de equipamentos` e
+`Estrutura Predial > Alvenaria / Pisos / Estrutura`, com 129 casos em um
+sentido e 117 no sentido inverso. A simetria aproximada indica fronteira
+mal definida entre as duas categorias, e não viés do classificador em
+favor de uma delas. Seguem-se `Alvenaria` contra `Esquadrias, porta,
+portão e janelas` (101 casos), `Alvenaria` contra `Hidrossanitária >
+Hidráulica` (64) e `Elétrica > Iluminação` contra `Elétrica > Instalações
+elétricas` (50).
+
+Observa-se ainda a categoria `Outros > Erro de chamado` entre os pares de
+maior volume, com 58 casos preditos como `TI / Dados / Rede > Ponto de
+rede / fibra ótica / Wi-fi` e 54 no sentido inverso a partir de
+`Alvenaria`. Trata-se de categoria residual, cuja atribuição depende de
+juízo sobre a pertinência do próprio chamado, e não de sua natureza
+técnica, o que a torna estruturalmente difícil para qualquer modelo
+baseado em texto.
+
+Soma-se a esse quadro o problema de duplicação taxonômica discutido na
+Subseção 4.6. A categoria `Ar condicionado split` existe simultaneamente
+sob `Manutenção Preventiva`, com 1.795 chamados, e sob `Climatização`,
+com 1.640, e o mesmo desdobramento ocorre com `Ar condicionado central`,
+`Gerador`, `Nobreak`, `Elevador`, `Telhados, calhas, rufos` e `Sistemas
+de combate a incêndio`. O critério que separa esses pares é a natureza
+preventiva ou corretiva da intervenção, informação que o texto do chamado
+frequentemente não explicita. Depreende-se que uma fração do erro medido
+não decorre de limitação do classificador, mas da exigência de inferir do
+texto uma distinção que nele não está registrada.
+
+A cauda de categorias raras impõe a segunda restrição. Das 50 categorias
+históricas em uso, 14 reúnem menos de 30 chamados e 6 reúnem menos de
+dez. Métricas por categoria calculadas sobre suporte dessa ordem são
+instáveis, pois um único acerto ou erro desloca o F1 em dezenas de pontos
+percentuais, o que recomenda restringir a leitura por categoria àquelas
+com suporte suficiente e tratar o F1 macro como indicador agregado, não
+como média interpretável classe a classe.
+
+O conjunto dessas observações sustenta uma recomendação de governança
+anterior à escolha do modelo. Antes de perseguir ganho adicional de
+acurácia por meio de arquiteturas mais custosas, convém revisar a
+taxonomia institucional, unificando os pares que nomeiam o mesmo objeto e
+explicitando o critério de natureza da manutenção no formulário de
+abertura do chamado. Essa intervenção atua sobre a origem do erro,
+enquanto a substituição do classificador atua apenas sobre seu efeito.
+
+```{=latex}
+\FloatBarrier
+```
+
 **5. DISCUSSÃO**
 
 ```{=latex}
@@ -1221,36 +1344,36 @@ Suplementar.
 
 A comparação entre concordância histórica (Subseção 4.1) e desempenho
 validado (Subseção 4.2) revela que as duas grandezas não são
-intercambiáveis. O acerto validado do LinearSVC (83,94%) supera sua
-concordância com o histórico (80,89%) em 3,05 pontos percentuais. Essa
-diferença não pode ser interpretada como taxa de erro do histórico, pois
-a amostra conferida é não probabilística e a própria regra de decisão
-condiciona quais casos recebem categoria de referência.
+intercambiáveis. O acerto validado do LinearSVC (81,98%) supera sua
+concordância com o histórico (80,49%) em 1,49 ponto percentual. A
+diferença mede o efeito das 606 correções manuais sobre a avaliação: ao
+substituir a categoria histórica pela categoria conferida, parte das
+divergências que seriam contabilizadas como erro do modelo passa a ser
+reconhecida como erro do registro administrativo.
 
-O mecanismo estrutural aparece nos 242 chamados restritos, equivalentes a
-2,5% dos 9.547 conferidos. Eles incluem casos em que todas as fontes
-avaliadas foram rejeitadas e 201 conflitos entre fontes marcadas como
-corretas. A análise de sensibilidade os trata como erro de todos os
-modelos e encontra amplitudes entre 5,80 e 6,39 pontos percentuais, sem
-alterar o ranking. Assim, a escolha qualitativa do LinearSVC permanece
-robusta, mas o valor pontual de acerto validado deve ser sempre
-acompanhado da ressalva amostral.
+Com a conferência estendida ao corpus integral, a diferença deixa de
+depender de qualquer recorte amostral e passa a ser uma propriedade
+medida da base. O mecanismo que a produz concentra-se nas 606 correções,
+equivalentes a 4,3% dos chamados, proporção que estima a taxa de erro do
+rótulo histórico neste corpus e que não era observável enquanto a
+conferência cobria apenas parte dos registros.
 
-O desenho atual também não permite estimar uma taxa empírica de erro do
-rótulo histórico. Quando o histórico é marcado como errado e nenhuma
-categoria alternativa é decidida, o chamado permanece restrito; sem a definição manual de uma categoria alternativa, não há referência final para afirmar
-qual fonte acertou. A hipótese de rótulos potencialmente ruidosos continua
-fundamentada na literatura e justifica a conferência, mas não deve ser
-apresentada como taxa confirmada por esta amostra (KEJRIWAL *et al.*,
-2024; ZHANG *et al.*, 2025).
+A cobertura integral permite estimar a taxa empírica de erro do rótulo
+histórico, o que os desenhos parciais anteriores não autorizavam. Em 606
+dos 14.058 chamados, ou 4,3%, o avaliador rejeitou a categoria registrada
+e definiu manualmente outra, o que confirma nos dados a hipótese de
+rótulos ruidosos sustentada pela literatura (KEJRIWAL *et al.*, 2024;
+ZHANG *et al.*, 2025). A estimativa é específica deste corpus e desta
+taxonomia, e sua transposição a outras instituições exige nova
+conferência.
 
 A avaliação do BERTimbau acrescenta uma terceira perspectiva. No mesmo
-*holdout*, o transformador alcança 76,04% de acerto validado, contra
-73,96% do LinearSVC, sem diferença significativa. O pré-treinamento
+*holdout*, o transformador alcança 67,85% de acerto validado, contra
+67,34% do LinearSVC, sem diferença significativa. O pré-treinamento
 contextual reduz a distância observada entre modelos lineares e a LSTM
 que aprende *embeddings* do zero, mas não produz ganho demonstrável sobre
 o LinearSVC. Como os protocolos são distintos, a métrica do BERTimbau não
-deve ser comparada diretamente aos 83,94% da avaliação integral. O
+deve ser comparada diretamente aos 81,98% da avaliação integral. O
 resultado sustenta sua competitividade e justifica uma futura execução
 *out-of-fold* completa, não sua adoção preferencial imediata.
 
@@ -1291,7 +1414,7 @@ acurácia ou validação humana.
 A meta estabelecida como critério de sucesso do protocolo associa
 confiança calibrada igual ou superior a 95% a acerto real igual ou
 superior a 95% (Subseção 4.4). A faixa alta de confiança da classificação
-automática atinge 99,84% de acerto validado sobre 4.894 chamados
+automática atinge 98,15% de acerto validado sobre 10.555 chamados
 conferidos, o que cumpre o critério na métrica disponível. Duas ressalvas
 qualificam essa leitura. A confiança utilizada é bruta (*softmax* ou
 *decision_function*), sem calibração formal por Platt ou isotônica
@@ -1318,20 +1441,20 @@ textos em português brasileiro e taxonomia institucional própria.
 Estender o desempenho relatado a outras instituições, taxonomias ou
 idiomas exige validação externa.
 
-A amostra conferida por avaliadores humanos não é probabilística, pois
-prioriza divergências entre modelo e histórico e casos de maior
-criticidade. Os números de acerto validado descrevem a amostra conferida,
-e não estimam por inferência o desempenho da base completa (COCHRAN,
-1977). Dos 9.547 chamados conferidos, 242 permanecem sem categoria
-decidida e ficam fora do denominador padrão. A análise de sensibilidade
-apura amplitude de 5,80 a 6,39 pontos percentuais entre o cenário
-conservador e o valor pontual, sem alterar o ranking relativo.
+A conferência humana cobre o corpus integral, o que afasta o viés de
+seleção que limitaria a leitura caso apenas parte dos chamados tivesse
+sido revista. Permanece, contudo, a limitação de que a categoria de
+referência é produto de julgamento humano realizado por um único
+avaliador, sem medida de concordância entre revisores independentes. A
+literatura registra variabilidade relevante entre anotadores em tarefas
+dessa natureza, de modo que a referência aqui utilizada não deve ser
+tratada como isenta de erro.
 
-O protocolo de validação ainda depende da definição manual de uma categoria
-alternativa quando todas as fontes avaliadas são rejeitadas ou quando há
-conflito entre classificações consideradas corretas. Enquanto
-essa categoria não é informada, o protocolo não permite quantificar a
-taxa de erro do histórico nem atribuir acerto a um modelo nesses casos.
+A taxonomia institucional apresenta pares de categorias que nomeiam o
+mesmo objeto sob famílias distintas, discutidos na Subseção 4.6. Nesses
+pares, a atribuição depende de um critério de natureza da manutenção que
+o texto do chamado nem sempre permite inferir, o que impõe teto ao
+desempenho alcançável por qualquer classificador.
 A validação confirma a necessidade de governança sobre os rótulos, mas
 não autoriza estimar, com o desenho atual, a prevalência de categorias
 históricas incorretas.
@@ -1342,7 +1465,7 @@ percentual, sem alteração relevante da ordenação. Os valores absolutos
 devem ser lidos com essa margem.
 
 O BERTimbau teve o ajuste fino concluído, mas foi avaliado apenas em um
-*holdout* comum de 1.000 chamados, dos quais 288 possuem decisão humana.
+*holdout* comum de 1.000 chamados, dos quais 983 possuem decisão humana.
 Não há predições *out-of-fold* integrais nem medição de custo executada no
 mesmo ambiente dos demais modelos, o que impede inseri-lo no ranking
 principal ou comparar eficiência computacional de forma direta. A LSTM,
@@ -1365,6 +1488,19 @@ leitura territorial do parque edificado dependem, todas, de uma base
 classificada de modo confiável. Este artigo entrega essa fundação e
 demonstra que ela exige conferência humana para se sustentar.
 
+A exigência de confiabilidade tem razão específica quando a camada
+classificada alimenta modelos de série temporal por categoria. Um chamado
+atribuído à categoria incorreta não produz apenas um erro de rótulo:
+subtrai uma ocorrência da série de uma categoria e a acrescenta à série
+de outra, deslocando duas séries em sentidos opostos. O efeito propaga-se
+à estimativa de demanda e de custo por categoria e, em seguida, ao
+ordenamento de prioridades que dela deriva, de modo que o erro de
+classificação se converte em erro de alocação de recurso. Sob essa
+perspectiva, o acerto validado deixa de ser métrica de comparação entre
+modelos e passa a operar como requisito de engenharia da camada
+preditiva, o que justifica o esforço de conferência integral aqui
+descrito.
+
 ```{=latex}
 \FloatBarrier
 ```
@@ -1378,29 +1514,32 @@ persistente. Essa camada evita tratar o histórico como verdade automática
 e, ao mesmo tempo, impede concluir que toda divergência da IA representa
 correção do registro original.
 
-Na avaliação integral dos 9.305 chamados com categoria de referência
-estabelecida por validação humana, o LinearSVC
-alcança 83,94% de acerto validado (IC95%: 83,18%--84,65%) e nenhum dos
-três *ensembles* o supera. A análise conservadora que inclui 242 casos
-restritos reduz o limite do LinearSVC para 81,81%, sem modificar a
-ordenação dos modelos. A recomendação operacional permanece usar o
-LinearSVC isolado, com calibração formal antes de automatizar decisões de
-alta confiança.
+Na avaliação integral dos 14.058 chamados com categoria de referência
+estabelecida por validação humana, o LinearSVC alcança 81,98% de acerto
+validado (IC95%: 81,38%--82,60%), e nenhum dos três *ensembles* o supera
+com significância estatística. Como a conferência cobre o corpus inteiro,
+o valor não depende de recorte amostral. A recomendação operacional
+permanece usar o LinearSVC isolado, com calibração formal antes de
+automatizar decisões de alta confiança.
 
 O BERTimbau foi efetivamente treinado e avaliado. No *holdout* comum de
-1.000 chamados, com 288 decisões validadas, alcança 76,04%, contra 73,96%
+1.000 chamados, com 983 decisões validadas, alcança 67,85%, contra 67,34%
 do LinearSVC, sem diferença significativa. O resultado mostra que o
 transformador é competitivo, mas não demonstra superioridade e não pode
 ser combinado ao ranking integral sem uma execução *out-of-fold* sobre
 toda a base.
 
 A finalização metodológica também exige reconhecer o que os dados não
-respondem. Como casos sem categoria decidida permanecem restritos, o
-desenho atual não estima a taxa de erro do histórico. A próxima etapa de validação deve definir manualmente uma categoria de
-referência nesses casos, priorizando os conflitos entre fontes e as situações
-em que todas as classificações avaliadas foram rejeitadas. Em paralelo, a validação
-externa em outras instituições e a execução integral do BERTimbau poderão
-testar a estabilidade dos resultados sob taxonomias e volumes distintos.
+respondem. A categoria de referência provém de avaliador único, sem
+medida de concordância entre revisores independentes, e a taxonomia
+institucional mantém pares de categorias que nomeiam o mesmo objeto sob
+famílias distintas. A próxima etapa de validação deve incorporar
+conferência por mais de um avaliador nos pares ambíguos identificados na
+Subseção 4.6 e submeter a própria taxonomia a revisão. Em paralelo, a
+validação externa em outras instituições e uma execução *out-of-fold*
+integral do BERTimbau, viável em infraestrutura com acelerador gráfico,
+poderão testar a estabilidade dos resultados sob taxonomias e volumes
+distintos.
 A camada classificada poderá então alimentar modelos de previsão de
 demanda e de priorização multicritério de intervenções sobre uma base cuja
 incerteza e origem das decisões permanecem auditáveis.
@@ -1415,9 +1554,19 @@ BENAVOLI, A.; CORANI, G.; MANGILI, F. Should we really use post-hoc
 tests based on mean-ranks? Journal of Machine Learning Research, v. 17,
 n. 5, p. 1--10, 2016.
 
+BENDER, E. M.; GEBRU, T.; McMILLAN-MAJOR, A.; SHMITCHELL, S. On the
+dangers of stochastic parrots: can language models be too big? In:
+Proceedings of the 2021 ACM Conference on Fairness, Accountability, and
+Transparency (FAccT '21). New York: ACM, 2021. p. 610--623.
+
 BOUABDALLAOUI, Y.; LAFHAJ, Z.; YIM, P.; DUCOULOMBIER, L.; BENNADJI, B.
 Natural Language Processing Model for Managing Maintenance Requests in
 Buildings. Buildings, v. 10, n. 9, art. 160, 2020.
+
+BROWN, T. B.; MANN, B.; RYDER, N.; SUBBIAH, M.; KAPLAN, J.; DHARIWAL,
+P.; NEELAKANTAN, A. et al. Language models are few-shot learners. In:
+Advances in Neural Information Processing Systems 33 (NeurIPS 2020).
+Red Hook: Curran Associates, 2020. p. 1877--1901.
 
 CAPRA, F. A teia da vida: uma nova compreensão científica dos sistemas
 vivos. São Paulo: Cultrix, 1996.
@@ -1630,6 +1779,11 @@ v. 11, p. 826--860, 2023.
 
 TUKEY, J. W. Exploratory data analysis. Reading: Addison-Wesley, 1977.
 
+VASWANI, A.; SHAZEER, N.; PARMAR, N.; USZKOREIT, J.; JONES, L.; GOMEZ,
+A. N.; KAISER, L.; POLOSUKHIN, I. Attention is all you need. In:
+Advances in Neural Information Processing Systems 30 (NIPS 2017).
+Red Hook: Curran Associates, 2017. p. 5998--6008.
+
 WONGPAKARAN, N.; WONGPAKARAN, T.; WEDDING, D.; GWET, K. L. A comparison
 of Cohen's Kappa and Gwet's AC1 when calculating inter-rater reliability
 coefficients: a study conducted with personality disorder samples. BMC
@@ -1651,8 +1805,8 @@ v. 1, n. 1, p. 3--14, 2010.
 
 **APÊNDICE A — DISTRIBUIÇÃO DAS CATEGORIAS HISTÓRICAS DO CORPUS**
 
-A Tabela A1 apresenta as 55 categorias históricas utilizadas na classificação
-dos 14.094 chamados, ordenadas por frequência decrescente e distribuídas em
+A Tabela A1 apresenta as 50 categorias históricas utilizadas na classificação
+dos 14.058 chamados, ordenadas por frequência decrescente e distribuídas em
 dois blocos paralelos para reduzir a extensão do apêndice.
 
 ```{=latex}
@@ -1665,35 +1819,33 @@ dois blocos paralelos para reduzir a extensão do apêndice.
 
 | Categoria histórica | Quantidade | Categoria histórica | Quantidade |
 |:---|---:|:---|---:|
-| Manutenção Preventiva > Ar condicionado split | 1.795 | Manutenção Preventiva > Sistemas de combate a incêndio (extintores, hidrantes) | 45 |
-| Estrutura Predial > Alvenaria / Pisos / Estrutura | 1.300 | Manutenção Preventiva > Telhados, calhas, rufos, etc. | 44 |
-| Hidrossanitária > Hidráulica | 1.276 | TI / Dados / Rede > Coleta de dados | 40 |
-| Manutenção Preventiva > Gerador | 1.211 | Elétrica > Gerador | 38 |
-| Climatização > Ar condicionado split | 1.117 | Hidrossanitária > Bomba | 38 |
-| Estrutura Predial > Esquadrias, porta, portão e janelas | 969 | Climatização > Ar condicionado central | 36 |
-| Elétrica > Instalações elétricas | 940 | Manutenção Preventiva > Esgoto | 33 |
-| Elétrica > Iluminação | 747 | Outros > Outros | 33 |
-| Manutenção Preventiva > Quadros Elétricos | 576 | Manutenção Preventiva > Hidráulica | 32 |
-| Climatização > Ar condicionado | 517 | Segurança contra Incêndio > Sistemas de combate a incêndio (extintores, hidrantes) | 27 |
-| TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi | 399 | Projetos e Reformas > Projeto | 25 |
-| Manutenção Preventiva > Reservatório | 279 | Equipamentos de Transporte > Elevador | 22 |
-| Instalação de Acessórios e Mobiliário > Instalação/reparo de equipamentos (Suportes de TV, acessórios de banheiro e quadro branco) | 262 | Elétrica > Subestação | 18 |
-| Manutenção Preventiva > Vistoria em Instalações | 247 | Hidrossanitária > ETA / ETE | 16 |
-| Outros > Erro de chamado | 243 | Manutenção Preventiva > Extintor | 14 |
-| Estrutura Predial > Infiltração | 213 | Suprimentos / Apoio Técnico > Limpeza de equipamentos, ambiente e mobiliário | 14 |
-| Estrutura Predial > Telhados, calhas, rufos, etc. | 206 | Manutenção Preventiva > Poços artesianos | 13 |
-| Manutenção Preventiva > Ar condicionado central | 165 | Manutenção Preventiva > Nobreak | 10 |
-| Estrutura Predial > Forro | 144 | Manutenção Preventiva > Sistemas de incêndio | 9 |
-| Manutenção Preventiva > Iluminação | 132 | Área Externa e Ambiental > Poda de Árvore / Roçagem | 9 |
-| Elétrica > Nobreak | 127 | Elétrica > Sistema Fotovoltaico (FV) | 7 |
-| Posto de trabalho > Contratação de Posto de trabalho | 102 | Estrutura Predial > Instalações Especiais (gás, ar comprimido, etc.) | 3 |
-| Área Externa e Ambiental > Manutenção área externa / meio ambiente | 94 | Manutenção Preventiva > Aplicação cupinicida | 3 |
+| Manutenção Preventiva > Ar condicionado split | 1.795 | Estrutura Predial > Pintura | 58 |
+| Climatização > Ar condicionado split | 1.640 | Instalação de Acessórios e Mobiliário > Placas de identificação | 54 |
+| Estrutura Predial > Alvenaria / Pisos / Estrutura | 1.302 | Manutenção Preventiva > Telhados, calhas, rufos, etc. | 44 |
+| Hidrossanitária > Hidráulica | 1.282 | TI / Dados / Rede > Coleta de dados | 40 |
+| Manutenção Preventiva > Gerador | 1.215 | Elétrica > Gerador | 38 |
+| Estrutura Predial > Esquadrias, porta, portão e janelas | 977 | Hidrossanitária > Bomba | 38 |
+| Elétrica > Instalações elétricas | 945 | Climatização > Ar condicionado central | 37 |
+| Elétrica > Iluminação | 758 | Manutenção Preventiva > Esgoto | 33 |
+| Manutenção Preventiva > Quadros Elétricos | 578 | Manutenção Preventiva > Hidráulica | 33 |
+| TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi | 404 | Outros > Outros | 33 |
+| Instalação de Acessórios e Mobiliário > Instalação/reparo de equipamentos (Suportes de TV, acessórios de banheiro e quadro branco) | 290 | Segurança contra Incêndio > Sistemas de combate a incêndio (extintores, hidrantes) | 29 |
+| Manutenção Preventiva > Reservatório | 279 | Projetos e Reformas > Projeto | 25 |
+| Manutenção Preventiva > Vistoria em Instalações | 247 | Equipamentos de Transporte > Elevador | 22 |
+| Outros > Erro de chamado | 245 | Elétrica > Subestação | 18 |
+| Estrutura Predial > Infiltração | 215 | Hidrossanitária > ETA / ETE | 16 |
+| Estrutura Predial > Telhados, calhas, rufos, etc. | 207 | Suprimentos / Apoio Técnico > Limpeza de equipamentos, ambiente e mobiliário | 14 |
+| Manutenção Preventiva > Ar condicionado central | 165 | Manutenção Preventiva > Poços artesianos | 13 |
+| Estrutura Predial > Forro | 146 | Manutenção Preventiva > Nobreak | 10 |
+| Manutenção Preventiva > Iluminação | 132 | Elétrica > Sistema Fotovoltaico (FV) | 7 |
+| Elétrica > Nobreak | 128 | Área Externa e Ambiental > Drenagem | 4 |
+| Área Externa e Ambiental > Manutenção área externa / meio ambiente / Poda de árvore / Roçagem | 109 | Estrutura Predial > Instalações Especiais (gás, ar comprimido, etc.) | 3 |
+| Posto de trabalho > Contratação de Posto de trabalho | 102 | Manutenção Preventiva > Aplicação cupinicida | 3 |
 | Manutenção Preventiva > Elevador | 86 | Manutenção Preventiva > Bomba | 3 |
-| Suprimentos / Apoio Técnico > Materiais | 85 | Área Externa e Ambiental > Drenagem | 3 |
-| Projetos e Reformas > Reforma | 83 | Manutenção Preventiva | 2 |
-| Estrutura Predial > Pintura | 58 | Suprimentos / Apoio Técnico > Transporte | 1 |
-| Instalação de Acessórios e Mobiliário > Placas de identificação | 54 |  |  |
-| **Total geral** | **14.094** |  |  |
+| Suprimentos / Apoio Técnico > Materiais | 85 | Suprimentos / Apoio Técnico > Transporte | 1 |
+| Projetos e Reformas > Reforma | 83 | Manutenção Preventiva (nível raiz) | 2 |
+| Manutenção Preventiva > Sistemas de combate a incêndio (extintores, hidrantes) | 66 |  |  |
+| **Total geral** | **14.059** |  |  |
 
 *Fonte: elaboração própria a partir do corpus analisado.*
 
