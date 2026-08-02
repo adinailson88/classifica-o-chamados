@@ -59,11 +59,11 @@ A fonte editável é `04_artigo/artigo_classificacao_chamados_v3.md`. O PDF publ
 
 ## Estado desta rodada
 
-**Onde está:** o artigo permanece cientificamente fechado, com resultados e conclusões inalterados. A redação metodológica foi revisada para retirar do corpo científico os identificadores internos das colunas de conferência da planilha.
+**Onde está:** o artigo ganhou uma subseção de resultados e teve os números reconciliados com os JSONs canônicos vigentes. A conferência humana cobre o corpus integral, de modo que a limitação de recorte amostral deixou de existir.
 
-**O que foi feito:** as referências a M/N/P/Q e à categoria manual Q foram substituídas, apenas no artigo, por categorias conceituais de decisão: confirmação da categoria histórica, aceitação da classificação automática, aceitação da reclassificação, definição manual de categoria alternativa e categoria de referência validada. Nenhum dado, cálculo, denominador, resultado, regra operacional da planilha ou código de processamento foi alterado. O PDF público foi regenerado a partir da fonte Markdown revisada.
+**O que foi feito:** acrescentou-se a Subseção 4.11, que recorta o desempenho por volume de categoria, mediante curva ABC, e por natureza da manutenção, em três tipos. As Tabelas 8, 9 e 10 são novas, assim como a Tabela A2 do Apêndice A, que discrimina as 56 categorias da referência validada com marcação P, C ou NM e classe ABC interna ao tipo. A Subseção 5.4 passou a declarar a ordem de incorporação da camada classificada a indicadores institucionais, decorrente da hierarquia de confiabilidade medida. Os números do corte foram atualizados após a correção, no GLPI, da categoria raiz `Manutenção Preventiva`: acerto validado do LinearSVC de 0,8197, F1 macro de 0,5523, Cochran Q de 2448,55 e 56 categorias com suporte na referência. O Kappa de Cohen, desatualizado desde rodada anterior, passou a 0,7902 a 0,6694, e a afirmação de que ele reproduzia a mesma ordenação da acurácia foi corrigida, porque há duas trocas de posição.
 
-**Próximo passo:** preencher a categoria manual Q dos 639 casos restritos (201 deles em conflito) e avaliar a viabilidade de uma execução *out-of-fold* integral do BERTimbau sobre toda a base.
+**Próximo passo:** avaliar a viabilidade de uma execução *out-of-fold* integral do BERTimbau sobre toda a base e considerar validação externa em outra instituição.
 
 ## Critérios para fechamento
 
