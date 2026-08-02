@@ -1,77 +1,117 @@
 {
  "total_chamados": 14094,
- "com_conferencia_glpi": 9547,
- "verdade_glpi": 9305,
- "verdade_manual": 0,
- "pendente_glpi_errado_sem_q": 242,
- "sem_conferencia": 4547,
+ "com_conferencia_glpi": 14094,
+ "verdade_glpi": 13491,
+ "verdade_manual": 603,
+ "pendente_glpi_errado_sem_q": 0,
+ "sem_conferencia": 0,
+ "correto_com_q_preenchida": 0,
+ "errado_com_q_igual_a_c": 1,
  "por_modelo": {
   "naive_bayes": {
-   "correto": 6854,
-   "errado": 2451,
-   "pendente": 242,
+   "correto": 10099,
+   "errado": 3995,
+   "pendente": 0,
    "sem_predicao": 0,
-   "avaliados": 9305,
-   "acuracia": 0.7366
+   "avaliados": 14094,
+   "acuracia": 0.7165
   },
   "regressao_logistica": {
-   "correto": 7517,
-   "errado": 1788,
-   "pendente": 242,
+   "correto": 11263,
+   "errado": 2831,
+   "pendente": 0,
    "sem_predicao": 0,
-   "avaliados": 9305,
-   "acuracia": 0.8078
+   "avaliados": 14094,
+   "acuracia": 0.7991
   },
   "linear_svc": {
-   "correto": 7811,
-   "errado": 1494,
-   "pendente": 242,
+   "correto": 11585,
+   "errado": 2509,
+   "pendente": 0,
    "sem_predicao": 0,
-   "avaliados": 9305,
-   "acuracia": 0.8394
+   "avaliados": 14094,
+   "acuracia": 0.822
   },
   "sgd": {
-   "correto": 7500,
-   "errado": 1805,
-   "pendente": 242,
+   "correto": 11262,
+   "errado": 2832,
+   "pendente": 0,
    "sem_predicao": 0,
-   "avaliados": 9305,
-   "acuracia": 0.806
+   "avaliados": 14094,
+   "acuracia": 0.7991
   },
   "extra_trees": {
-   "correto": 7688,
-   "errado": 1617,
-   "pendente": 242,
+   "correto": 11312,
+   "errado": 2782,
+   "pendente": 0,
    "sem_predicao": 0,
-   "avaliados": 9305,
-   "acuracia": 0.8262
+   "avaliados": 14094,
+   "acuracia": 0.8026
   },
   "random_forest": {
-   "correto": 7632,
-   "errado": 1673,
-   "pendente": 242,
+   "correto": 11232,
+   "errado": 2862,
+   "pendente": 0,
    "sem_predicao": 0,
-   "avaliados": 9305,
-   "acuracia": 0.8202
+   "avaliados": 14094,
+   "acuracia": 0.7969
   },
   "lstm": {
-   "correto": 6890,
-   "errado": 2415,
-   "pendente": 242,
+   "correto": 10238,
+   "errado": 3856,
+   "pendente": 0,
    "sem_predicao": 0,
-   "avaliados": 9305,
-   "acuracia": 0.7405
+   "avaliados": 14094,
+   "acuracia": 0.7264
   },
   "transformer_ft": {
-   "correto": 7834,
-   "errado": 1471,
-   "pendente": 242,
-   "sem_predicao": 0,
-   "avaliados": 9305,
-   "acuracia": 0.8419
+   "correto": 7925,
+   "errado": 1625,
+   "pendente": 0,
+   "sem_predicao": 4544,
+   "avaliados": 9550,
+   "acuracia": 0.8298
   }
  },
- "gerado_em": "01/08/2026 15:33",
+ "distribuicao_q": {
+  "Manutenção Preventiva > Ar condicionado split": 189,
+  "Instalação de Acessórios e Mobiliário > Instalação/reparo de equipamentos (Suportes de TV, acessórios de banheiro e quadro branco)": 78,
+  "Instalação de Acessórios e Mobiliário > Instalação/reparo de equipamentos": 45,
+  "Estrutura Predial > Esquadrias, porta, portão e janelas": 39,
+  "Manutenção Preventiva > Reservatório": 39,
+  "Hidrossanitária > Hidráulica": 26,
+  "Estrutura Predial > Forro": 23,
+  "Elétrica > Nobreak": 22,
+  "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi": 21,
+  "Outros > Erro de chamado": 18,
+  "Instalação de Acessórios e Mobiliário > Placas de identificação": 16,
+  "Suprimentos / Apoio Técnico > Materiais": 15,
+  "Elétrica > Iluminação": 12,
+  "Estrutura Predial > Telhados, calhas, rufos, etc.": 12,
+  "Projeto > Elétrico (tomada e iluminação)": 7,
+  "Elétrica > Gerador": 6,
+  "Elétrica > Instalações elétricas": 6,
+  "Hidrossanitária > Bomba": 5,
+  "Estrutura Predial > Alvenaria / Pisos / Estrutura": 3,
+  "Estrutura Predial > Telhados": 3,
+  "Manutenção Preventiva > Ar condicionado central": 3,
+  "Revisão > Telecomunicações": 3,
+  "Estrutura Predial > Instalações Especiais (gás, ar comprimido, etc.)": 2,
+  "Hidrossanitária > Esgoto": 2,
+  "Outros > Materiais": 2,
+  "Elétrica > Subestação": 1,
+  "Estrutura Predial > Infiltração": 1,
+  "Manutenção Preventiva > Telhados, calhas, rufos, etc.": 1,
+  "Projetos e Reformas > Reforma": 1,
+  "Suprimentos / Apoio Técnico > Transporte": 1,
+  "Área Externa e Ambiental > Manutenção área externa / meio ambiente / Poda de árvore / Roçagem": 1
+ },
+ "categorias_distintas_q": 31,
+ "ids_correto_com_q_preenchida": [],
+ "ids_errado_com_q_igual_a_c": [
+  "6167"
+ ],
+ "gerado_em": "01/08/2026 21:57",
  "aba": "CONFERENCIA_MULTIMODELO",
  "regra": "M='Correto' -> verdade = C; M='Errado' + Q preenchida -> verdade = Q; M='Errado' sem Q -> pendente; M vazio -> ignorado"
 }
