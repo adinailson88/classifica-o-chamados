@@ -1,10 +1,10 @@
 {
  "total_chamados": 14058,
- "com_conferencia_glpi": 14038,
- "verdade_glpi": 13436,
- "verdade_manual": 602,
+ "com_conferencia_glpi": 14058,
+ "verdade_glpi": 13452,
+ "verdade_manual": 606,
  "pendente_glpi_errado_sem_q": 0,
- "sem_conferencia": 20,
+ "sem_conferencia": 0,
  "correto_com_q_preenchida": 0,
  "errado_com_q_igual_a_c": 0,
  "por_modelo": {
@@ -12,7 +12,7 @@
    "correto": 10097,
    "errado": 3941,
    "pendente": 0,
-   "sem_predicao": 0,
+   "sem_predicao": 20,
    "avaliados": 14038,
    "acuracia": 0.7193
   },
@@ -20,7 +20,7 @@
    "correto": 11234,
    "errado": 2804,
    "pendente": 0,
-   "sem_predicao": 0,
+   "sem_predicao": 20,
    "avaliados": 14038,
    "acuracia": 0.8003
   },
@@ -28,7 +28,7 @@
    "correto": 11551,
    "errado": 2487,
    "pendente": 0,
-   "sem_predicao": 0,
+   "sem_predicao": 20,
    "avaliados": 14038,
    "acuracia": 0.8228
   },
@@ -36,7 +36,7 @@
    "correto": 11238,
    "errado": 2800,
    "pendente": 0,
-   "sem_predicao": 0,
+   "sem_predicao": 20,
    "avaliados": 14038,
    "acuracia": 0.8005
   },
@@ -44,7 +44,7 @@
    "correto": 11293,
    "errado": 2745,
    "pendente": 0,
-   "sem_predicao": 0,
+   "sem_predicao": 20,
    "avaliados": 14038,
    "acuracia": 0.8045
   },
@@ -52,7 +52,7 @@
    "correto": 11213,
    "errado": 2825,
    "pendente": 0,
-   "sem_predicao": 0,
+   "sem_predicao": 20,
    "avaliados": 14038,
    "acuracia": 0.7988
   },
@@ -60,7 +60,7 @@
    "correto": 10216,
    "errado": 3822,
    "pendente": 0,
-   "sem_predicao": 0,
+   "sem_predicao": 20,
    "avaliados": 14038,
    "acuracia": 0.7277
   },
@@ -68,7 +68,7 @@
    "correto": 7924,
    "errado": 1583,
    "pendente": 0,
-   "sem_predicao": 4531,
+   "sem_predicao": 4551,
    "avaliados": 9507,
    "acuracia": 0.8335
   }
@@ -79,11 +79,11 @@
   "Instalação de Acessórios e Mobiliário > Instalação/reparo de equipamentos": 45,
   "Estrutura Predial > Esquadrias, porta, portão e janelas": 39,
   "Manutenção Preventiva > Reservatório": 39,
-  "Hidrossanitária > Hidráulica": 26,
+  "Hidrossanitária > Hidráulica": 27,
   "Estrutura Predial > Forro": 23,
   "Elétrica > Nobreak": 22,
   "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi": 21,
-  "Outros > Erro de chamado": 18,
+  "Outros > Erro de chamado": 19,
   "Instalação de Acessórios e Mobiliário > Placas de identificação": 16,
   "Suprimentos / Apoio Técnico > Materiais": 15,
   "Elétrica > Iluminação": 12,
@@ -99,16 +99,18 @@
   "Estrutura Predial > Instalações Especiais (gás, ar comprimido, etc.)": 2,
   "Hidrossanitária > Esgoto": 2,
   "Outros > Materiais": 2,
+  "Climatização > Ar condicionado split": 1,
   "Elétrica > Subestação": 1,
   "Estrutura Predial > Infiltração": 1,
+  "Estrutura Predial > Pintura": 1,
   "Manutenção Preventiva > Telhados, calhas, rufos, etc.": 1,
   "Suprimentos / Apoio Técnico > Transporte": 1,
   "Área Externa e Ambiental > Manutenção área externa / meio ambiente / Poda de árvore / Roçagem": 1
  },
- "categorias_distintas_q": 30,
+ "categorias_distintas_q": 32,
  "ids_correto_com_q_preenchida": [],
  "ids_errado_com_q_igual_a_c": [],
- "gerado_em": "02/08/2026 01:03",
+ "gerado_em": "02/08/2026 01:16",
  "aba": "CONFERENCIA_MULTIMODELO",
  "regra": "M='Correto' -> verdade = C; M='Errado' + Q preenchida -> verdade = Q; M='Errado' sem Q -> pendente; M vazio -> ignorado"
 }
