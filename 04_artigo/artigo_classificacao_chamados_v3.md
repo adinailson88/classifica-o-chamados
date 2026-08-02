@@ -2041,7 +2041,7 @@ Dados / Rede` permanece em manutenção corretiva por consistir
 predominantemente em reparo de infraestrutura predial.
 
 | Categoria histórica | Tipo | n | % do tipo | Classe | F1 |
-|:---|:---:|---:|---:|:---:|---:|
+|:------------------------------------------------------------------------|:-:|----:|-----:|:-:|-----:|
 | **Preventiva** | **P** | **4.917** | **100,00** | | |
 | Manutenção Preventiva > Ar condicionado split | P | 1.986 | 40,39 | A | 0,9939 |
 | Manutenção Preventiva > Gerador | P | 1.208 | 24,57 | A | 0,9938 |
