@@ -110,12 +110,14 @@ class TestAblationLSTM(unittest.TestCase):
                 self.nome = nome
                 return FakeWorksheet()
 
+        # A aba CLASSIF__ traz os ids "1" e "2"; a verdade e indexada pelos
+        # mesmos ids, nunca pela linha (incidente de 2026-08-02).
         linhas = [
-            {"linha": 2, "texto": "x", "historico": "A"},
-            {"linha": 3, "texto": "y", "historico": "A"},
-            {"linha": 4, "texto": "z", "historico": "B"},
+            {"linha": 2, "id": "1", "texto": "x", "historico": "A"},
+            {"linha": 3, "id": "2", "texto": "y", "historico": "A"},
+            {"linha": 4, "id": "3", "texto": "z", "historico": "B"},
         ]
-        verdade = {2: "A", 3: "B", 4: "B"}
+        verdade = {"1": "A", "2": "B", "3": "B"}
         config = {
             "multimodelo": {"aba_classificacao": "CLASSIF__{modelo}", "k_folds": 5},
             "memoria_validada": {"habilitada": True, "peso_treino": 3},
@@ -147,11 +149,13 @@ class TestAblationLSTM(unittest.TestCase):
                         return [[]]
                 return FakeWorksheet()
 
+        # id_chamado e a chave: a aba CLASSIF__ e materializada antes e a base
+        # muda de tamanho depois (incidente de 2026-08-02).
         linhas = [
-            {"linha": 2, "texto": "x", "historico": "A"},
-            {"linha": 3, "texto": "y", "historico": "B"},
+            {"linha": 2, "id": "1", "texto": "x", "historico": "A"},
+            {"linha": 3, "id": "2", "texto": "y", "historico": "B"},
         ]
-        verdade = {2: "A", 3: "B"}
+        verdade = {"1": "A", "2": "B"}
         config = {
             "multimodelo": {
                 "aba_classificacao": "CLASSIF__{modelo}",

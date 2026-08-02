@@ -81,20 +81,25 @@ def parse_conf(v) -> float:
 
 
 def carregar_modelo(sh, aba):
-    """linha -> {orig, ia, conf, acerto} a partir de CLASSIF__<modelo>."""
+    """id_chamado -> {orig, ia, conf, acerto} a partir de CLASSIF__<modelo>.
+
+    Por id_chamado, NUNCA por linha_planilha: a secao de validacao humana cruza
+    este mapa com a verdade lida da aba principal, que muda de tamanho quando o
+    GLPI ganha ou perde chamados. Casar por linha compara a predicao de um
+    chamado com a verdade de outro (incidente de 02/08/2026).
+    """
     try:
         vals = _retry(f"ler {aba}", lambda: sh.worksheet(aba).get_values(
             "A:K", value_render_option="UNFORMATTED_VALUE"))
     except Exception:  # noqa: BLE001
         return {}
-    # cols: 1 linha, 3 cat_original, 4 cat_ia, 5 confianca, 8 acerto_historico
+    # cols: 1 linha, 2 id_chamado, 3 cat_original, 4 cat_ia, 5 confianca, 8 acerto
     out = {}
     for r in vals[1:]:
         if len(r) < 6:
             continue
-        try:
-            ln = int(r[1])
-        except (ValueError, TypeError):
+        ln = dv._normalizar_id(r[2] if len(r) > 2 else "")  # noqa: SLF001
+        if not ln:
             continue
         orig = str(r[3]).strip(); ia = str(r[4]).strip()
         if not ia:
@@ -464,8 +469,10 @@ def main() -> int:
     # manual (Q). Manter M/N/P/Q aqui faria esta secao divergir de
     # avaliacao_final.json sem aviso. Ver src/avaliacao_final.py --verdade.
     try:
+        # chave="id": a verdade tem de casar com as abas CLASSIF__ por
+        # id_chamado. Ver carregar_modelo.
         decisoes = dv.carregar_decisoes(sh, config["aba_principal"],
-                                        so_conferencia_glpi=True)
+                                        so_conferencia_glpi=True, chave="id")
         verdade = dv.verdade_validada(decisoes)
         val = {"n_verdade_derivada": len(verdade),
                "base": "conferencia do GLPI (coluna M) + categoria manual (Q); "

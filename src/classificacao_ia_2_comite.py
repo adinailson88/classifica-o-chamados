@@ -127,15 +127,21 @@ def carregar_classificacoes_modelos(sh, config: dict[str, Any], modelos: list[st
         if not vals:
             continue
         idx = {norm(n): i for i, n in enumerate(vals[0])}
-        i_linha = idx.get(norm("linha_planilha"))
+        # id_chamado, nunca linha_planilha: os votos agregados aqui sao cruzados
+        # com a aba principal, que muda de tamanho quando o GLPI ganha ou perde
+        # chamados (incidente de 2026-08-02).
+        i_linha = idx.get(norm("id_chamado"))
         i_pred = idx.get(norm("categoria_ia"))
         i_conf = idx.get(norm("confianca"))
         i_acc = idx.get(norm("acerto_historico"))
         acertos = total = 0
         for r in vals[1:]:
+            linha = cel(r, i_linha).strip()
             try:
-                linha = int(cel(r, i_linha))
+                linha = str(int(float(linha))) if linha else ""
             except (ValueError, TypeError):
+                pass
+            if not linha:
                 continue
             pred = cel(r, i_pred)
             if not pred:
@@ -292,7 +298,8 @@ def main() -> int:
         return 1
 
     prioridades = carregar_prioridades_ns(sh)
-    conferencias = pl.ler_conferencias(sh, config["aba_principal"])
+    # chave="id": os votos vem das abas CLASSIF__ indexados por id_chamado.
+    conferencias = pl.ler_conferencias(sh, config["aba_principal"], chave="id")
     candidatos = selecionar_candidatos(chamados, prioridades, conferencias, args.incluir_sem_mn, args.limite)
 
     votos_modelos, pesos = carregar_classificacoes_modelos(sh, config, modelos)

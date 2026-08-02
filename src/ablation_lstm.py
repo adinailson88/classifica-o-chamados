@@ -60,6 +60,7 @@ def carregar_elegiveis(config: dict, credenciais=None):
     cab = valores[0] if valores else []
     norm = lambda s: " ".join(str(s or "").split()).casefold()  # noqa: E731
     idx = {norm(nome): i for i, nome in enumerate(cab)}
+    i_id = idx.get(norm("ID Chamado"))
     i_tit = idx.get(norm("TÍTULO"))
     i_cat = idx.get(norm("CATEGORIA COMPLETA"))
     i_dg = idx.get(norm("DESCRIÇÃO GLPI"))
@@ -72,7 +73,10 @@ def carregar_elegiveis(config: dict, credenciais=None):
             c for c in [_cel(linha, i_tit), _cel(linha, i_dg), _cel(linha, i_to), _cel(linha, i_do)] if c
         )
         if cat and texto:
-            linhas.append({"linha": pos, "texto": texto, "historico": cat})
+            # O id acompanha a linha porque tudo que cruza com abas
+            # materializadas precisa casar por id_chamado, nao por posicao.
+            linhas.append({"linha": pos, "id": dv._normalizar_id(_cel(linha, i_id)),  # noqa: SLF001
+                           "texto": texto, "historico": cat})
     return sh, linhas
 
 
@@ -201,9 +205,11 @@ def carregar_predicoes_oficiais_lstm(sh, config: dict) -> dict[int, dict]:
     for r in vals[1:]:
         if len(r) < 6:
             continue
-        try:
-            linha = int(r[1])
-        except (ValueError, TypeError):
+        # id_chamado (coluna 2), nunca linha_planilha: este mapa e cruzado com a
+        # verdade lida da aba principal, que muda de tamanho quando o GLPI ganha
+        # ou perde chamados (incidente de 02/08/2026).
+        linha = dv._normalizar_id(r[2] if len(r) > 2 else "")  # noqa: SLF001
+        if not linha:
             continue
         pred = str(r[4] or "").strip()
         if not pred:
@@ -299,7 +305,9 @@ def diagnosticar_protocolos_lstm(sh, config: dict, linhas: list[dict], verdade: 
     performa na mesma intersecao e quais diferencas de protocolo sao observaveis
     no codigo/configuracao.
     """
-    por_linha = {item["linha"]: item for item in linhas}
+    # Por id_chamado: `verdade` e a aba CLASSIF__lstm sao ambas indexadas por id,
+    # e a posicao na planilha muda quando a base muda de tamanho.
+    por_linha = {(item.get("id") or item["linha"]): item for item in linhas}
     validadas = sorted(ln for ln in verdade if ln in por_linha)
     historico_igual = [ln for ln in validadas if por_linha[ln]["historico"] == verdade[ln]]
     historico_diferente = [ln for ln in validadas if por_linha[ln]["historico"] != verdade[ln]]
@@ -399,7 +407,7 @@ def diagnosticar_materializacao_oficial_nova(sh, config: dict, linhas: list[dict
     lote = [
         {
             "linha": item["linha"],
-            "id": "",
+            "id": item.get("id", ""),
             "titulo": "",
             "categoria_original": item["historico"],
             "texto": item["texto"],
@@ -424,7 +432,7 @@ def diagnosticar_materializacao_oficial_nova(sh, config: dict, linhas: list[dict
         fracao_topup=float(mm.get("fracao_topup", 0.25)),
     )
     pred_nova = {
-        item["linha"]: {"pred": str(pred), "conf": float(score)}
+        (item.get("id") or item["linha"]): {"pred": str(pred), "conf": float(score)}
         for item, pred, score in zip(lote, preds, scores)
         if pred is not None
     }
@@ -530,7 +538,8 @@ def main() -> int:
     except Exception as exc:  # noqa: BLE001
         print(f"Falha ao acessar a planilha: {type(exc).__name__}: {exc}", file=sys.stderr)
         return 1
-    verdade = dv.verdade_validada(dv.carregar_decisoes(sh, config["aba_principal"]))
+    verdade = dv.verdade_validada(
+        dv.carregar_decisoes(sh, config["aba_principal"], chave="id"))
     if len(verdade) < 2:
         print("Informação insuficiente para verificar.")
         return 1
