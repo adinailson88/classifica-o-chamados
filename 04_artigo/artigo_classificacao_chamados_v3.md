@@ -420,10 +420,11 @@ técnicos, nomes de ambientes, abreviações locais e descrições
 incompletas, características que impõem desafios específicos de
 pré-processamento e representação textual (SUNDARAM; ZEID, 2025).
 
-A base é dinâmica, pois novos chamados continuam a ser incorporados e a
-taxonomia institucional pode ser revisada ao longo do tempo. Por essa
-razão, todos os resultados da Seção 4 referem-se a um corte fixo da base,
-realizado em 2 de agosto de 2026, com 14.058 chamados elegíveis. Os
+A base é dinâmica, pois a planilha de trabalho é alimentada continuamente
+pelo sistema de atendimento e novos chamados são incorporados a cada
+sincronização. Por essa razão, todos os resultados da Seção 4 referem-se
+a um corte por data de abertura, que compreende os chamados registrados
+até 1º de agosto de 2026 e totaliza 14.058 registros elegíveis. Os
 artefatos que sustentam cada número, incluindo predições por modelo e
 matrizes de confusão, foram materializados sobre esse mesmo corte e estão
 versionados no repositório indicado na Subseção 3.9, de modo que a
@@ -1472,11 +1473,13 @@ devem ser lidos com essa margem.
 
 O BERTimbau teve o ajuste fino concluído, mas foi avaliado apenas em um
 *holdout* comum de 1.000 chamados, dos quais 983 possuem decisão humana.
-Não há predições *out-of-fold* integrais nem medição de custo executada no
-mesmo ambiente dos demais modelos, o que impede inseri-lo no ranking
-principal ou comparar eficiência computacional de forma direta. A LSTM,
-por sua vez, treina *embeddings* do zero, sem vetores pré-treinados em
-português, condição que limita a comparação entre arquiteturas neurais.
+A ausência de predições *out-of-fold* integrais impede inseri-lo no
+ranking principal da Subseção 4.2. O custo de treino relatado na Subseção
+4.7 provém de execuções conduzidas sobre subconjunto do corpus, por
+restrição do tempo máximo de execução disponível, de modo que a razão ali
+apresentada constitui piso e não medida exata. A LSTM, por sua vez,
+treina *embeddings* do zero, sem vetores pré-treinados em português,
+condição que limita a comparação entre arquiteturas neurais.
 
 ```{=latex}
 \FloatBarrier
