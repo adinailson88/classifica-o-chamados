@@ -1,0 +1,162 @@
+{
+ "gerado_em": "01/08/2026 23:02",
+ "script_origem": "src/benchmark_custo_modelos.py",
+ "n_chamados": 14094,
+ "n_categorias": 67,
+ "natureza": "custo de treino e inferencia medido no mesmo ambiente (runner CPU) em que o BERTimbau foi treinado; a comparacao e de ordem de grandeza, nao de milissegundos",
+ "ambiente": {
+  "python": "3.11.15",
+  "sistema": "Linux 6.17.0-1020-azure",
+  "processador": "x86_64",
+  "cpus_disponiveis": 4,
+  "sklearn": "1.5.2",
+  "observacao": "runner compartilhado; tempos absolutos variam entre execucoes, as RAZOES entre modelos sao o dado estavel"
+ },
+ "por_modelo": [
+  {
+   "modelo": "naive_bayes",
+   "n": 14094,
+   "treino": {
+    "mediana_s": 0.98,
+    "min_s": 0.959,
+    "max_s": 1.002,
+    "desvio_s": 0.021
+   },
+   "inferencia": {
+    "mediana_s": 0.767,
+    "min_s": 0.761,
+    "max_s": 0.779,
+    "desvio_s": 0.009
+   },
+   "inferencia_ms_por_mil": 54.42,
+   "repeticoes": 3,
+   "treinado_neste_benchmark": true
+  },
+  {
+   "modelo": "sgd",
+   "n": 14094,
+   "treino": {
+    "mediana_s": 2.841,
+    "min_s": 2.84,
+    "max_s": 2.883,
+    "desvio_s": 0.025
+   },
+   "inferencia": {
+    "mediana_s": 0.811,
+    "min_s": 0.806,
+    "max_s": 0.842,
+    "desvio_s": 0.019
+   },
+   "inferencia_ms_por_mil": 57.54,
+   "repeticoes": 3,
+   "treinado_neste_benchmark": true
+  },
+  {
+   "modelo": "linear_svc",
+   "n": 14094,
+   "treino": {
+    "mediana_s": 3.003,
+    "min_s": 2.904,
+    "max_s": 3.02,
+    "desvio_s": 0.063
+   },
+   "inferencia": {
+    "mediana_s": 0.763,
+    "min_s": 0.762,
+    "max_s": 0.765,
+    "desvio_s": 0.002
+   },
+   "inferencia_ms_por_mil": 54.14,
+   "repeticoes": 3,
+   "treinado_neste_benchmark": true
+  },
+  {
+   "modelo": "regressao_logistica",
+   "n": 14094,
+   "treino": {
+    "mediana_s": 11.994,
+    "min_s": 11.868,
+    "max_s": 12.008,
+    "desvio_s": 0.077
+   },
+   "inferencia": {
+    "mediana_s": 0.794,
+    "min_s": 0.788,
+    "max_s": 0.798,
+    "desvio_s": 0.005
+   },
+   "inferencia_ms_por_mil": 56.34,
+   "repeticoes": 3,
+   "treinado_neste_benchmark": true
+  },
+  {
+   "modelo": "random_forest",
+   "n": 14094,
+   "treino": {
+    "mediana_s": 26.278,
+    "min_s": 26.266,
+    "max_s": 26.444,
+    "desvio_s": 0.099
+   },
+   "inferencia": {
+    "mediana_s": 1.217,
+    "min_s": 1.205,
+    "max_s": 1.266,
+    "desvio_s": 0.032
+   },
+   "inferencia_ms_por_mil": 86.35,
+   "repeticoes": 3,
+   "treinado_neste_benchmark": true
+  },
+  {
+   "modelo": "extra_trees",
+   "n": 14094,
+   "treino": {
+    "mediana_s": 28.874,
+    "min_s": 28.759,
+    "max_s": 28.945,
+    "desvio_s": 0.094
+   },
+   "inferencia": {
+    "mediana_s": 1.342,
+    "min_s": 1.339,
+    "max_s": 1.358,
+    "desvio_s": 0.01
+   },
+   "inferencia_ms_por_mil": 95.22,
+   "repeticoes": 3,
+   "treinado_neste_benchmark": true
+  },
+  {
+   "modelo": "lstm",
+   "n": 14094,
+   "treino": {
+    "mediana_s": 92.433,
+    "min_s": 85.658,
+    "max_s": 106.446,
+    "desvio_s": 10.602
+   },
+   "inferencia": {
+    "mediana_s": 4.423,
+    "min_s": 4.279,
+    "max_s": 4.471,
+    "desvio_s": 0.1
+   },
+   "inferencia_ms_por_mil": 313.82,
+   "repeticoes": 3,
+   "treinado_neste_benchmark": true
+  }
+ ],
+ "transformer_ft": {
+  "modelo": "transformer_ft",
+  "treino_segundos_medido": [
+   9660,
+   18240
+  ],
+  "fonte": "duracao dos jobs 'treinar' do workflow transformer_ft.yml (runner ubuntu-latest, CPU), execucoes de 01/08/2026",
+  "ressalva": "treino sobre subconjunto (estado registra validados=1927), nao sobre a base inteira; o custo da base inteira seria maior, e por isso nao cabe no teto de 6 h do GitHub Actions",
+  "treinado_neste_benchmark": false
+ },
+ "razao_bertimbau_vs_mais_rapido": 14234.7,
+ "mais_rapido": "naive_bayes"
+}
