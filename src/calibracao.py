@@ -141,14 +141,35 @@ def calcular(sh, config: dict) -> dict:
     # A chave e o id_chamado (coluna 2), NAO a linha_planilha (coluna 1): quando a
     # base muda de tamanho, uma mesma linha passa a designar outro chamado e dois
     # chamados distintos colidiriam nesta dedup.
+    # O snapshot tambem guarda chamados que SAIRAM da base (54 de 'UFSB > Dinfra >
+    # Projetos e Obras' e 2 excluidos no GLPI, em 02/08/2026). Sem filtrar, o
+    # total sai maior que a base: 14.114 para 14.058 chamados.
+    ids_atuais: set[str] = set()
+    try:
+        col_a = sh.worksheet(config["aba_principal"]).get_values(
+            "A:A", value_render_option="UNFORMATTED_VALUE")
+        for rr in col_a[1:]:
+            i = dv._normalizar_id(rr[0] if rr else "")  # noqa: SLF001
+            if i:
+                ids_atuais.add(i)
+    except Exception:  # noqa: BLE001
+        ids_atuais = set()
+
     ultima_por_chamado = {}
+    fora_da_base = 0
     for r in vals[1:]:
         if len(r) < 6:
             continue
         chave = dv._normalizar_id(r[2] if len(r) > 2 else "")  # noqa: SLF001
         if not chave:
             continue
+        if ids_atuais and chave not in ids_atuais:
+            fora_da_base += 1
+            continue
         ultima_por_chamado[chave] = r
+    if fora_da_base:
+        print(f"calibracao: {fora_da_base} registro(s) de chamados fora da base "
+              "atual foram descartados")
     linhas_dedup = list(ultima_por_chamado.values())
     n_bruto = max(0, len(vals) - 1)
 
