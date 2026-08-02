@@ -63,8 +63,12 @@ jobs:
           if [ -z "$GCP_SA_KEY" ]; then echo "Secret GCP_SA_KEY ausente." >&2; exit 1; fi
           printf '%s' "$GCP_SA_KEY" > credenciais_sa.json
       - name: Mostrar e-mail da conta de servico
+        # utf-8-sig: o secret vem com BOM, e json.load com utf-8 puro falha.
+        # E so informativo (serve para saber com quem compartilhar a planilha B),
+        # entao nao pode derrubar o job.
+        continue-on-error: true
         run: |
-          python -c "import json;print('conta de servico:',json.load(open('credenciais_sa.json'))['client_email'])"
+          python -c "import json;print('conta de servico:',json.load(open('credenciais_sa.json',encoding='utf-8-sig'))['client_email'])"
       - name: Comparar
         env:
           GOOGLE_APPLICATION_CREDENTIALS: credenciais_sa.json
