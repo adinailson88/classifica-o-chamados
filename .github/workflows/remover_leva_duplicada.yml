@@ -1,0 +1,65 @@
+name: Remover leva duplicada de CLASSIF__<modelo>
+
+# Um run cancelado no meio pode gravar uma SEGUNDA leva de predicoes na mesma
+# aba CLASSIF__<modelo>. Como a leitura monta {id_chamado: categoria}, o
+# registro mais recente vence, e a leva nova nasce com a conferencia humana
+# dentro do treino (memoria validada), o que inflaciona o acerto validado.
+#
+# Sem aplicar=true: dry-run (lista as levas e o que sairia, sem gravar).
+
+on:
+  workflow_dispatch:
+    inputs:
+      modelo:
+        description: "Modelo, ex.: extra_trees"
+        required: true
+      manter:
+        description: "Carimbo da leva a preservar (vazio = a mais antiga)"
+        default: ""
+      aplicar:
+        description: "Reescrever a aba"
+        type: boolean
+        default: false
+
+concurrency:
+  group: escrita-planilha
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  remover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: requirements-leves.txt
+      - name: Dependencias
+        run: python -m pip install --retries 5 --timeout 120 -r requirements-leves.txt
+      - name: Teste offline
+        run: python -m unittest discover -s tests -p "test_remover_leva_duplicada_classif.py" -t tests
+      - name: Recriar chave da conta de servico
+        env:
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+        run: |
+          if [ -z "$GCP_SA_KEY" ]; then echo "Secret GCP_SA_KEY ausente." >&2; exit 1; fi
+          printf '%s' "$GCP_SA_KEY" > credenciais_sa.json
+      - name: Remover leva
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: credenciais_sa.json
+        run: |
+          ARGS=""
+          [ -n "${{ github.event.inputs.manter }}" ] && ARGS="$ARGS --manter '${{ github.event.inputs.manter }}'"
+          [ "${{ github.event.inputs.aplicar }}" = "true" ] && ARGS="$ARGS --aplicar"
+          eval python scripts/migracoes/remover_leva_duplicada_classif.py \
+            --modelo "${{ github.event.inputs.modelo }}" $ARGS
+      - name: Remover credenciais
+        if: always()
+        run: rm -f credenciais_sa.json
