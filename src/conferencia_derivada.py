@@ -124,8 +124,18 @@ def montar_linhas(chamados: list[dict[str, Any]], modelos: list[str],
         "verdade_manual": 0,
         "pendente_glpi_errado_sem_q": 0,
         "sem_conferencia": 0,
+        # Anomalias de preenchimento. Q so faz sentido quando M='Errado'; com
+        # M='Correto' a verdade ja e C e um Q preenchido indica engano de
+        # digitacao ou criterio. Nao altera a derivacao (verdade_do_chamado
+        # ignora Q quando M='Correto'), mas precisa ser visto pelo pesquisador.
+        "correto_com_q_preenchida": 0,
+        # M='Errado' com Q identica a C: contradiz o proprio veredito.
+        "errado_com_q_igual_a_c": 0,
         "por_modelo": {},
     }
+    ids_correto_com_q: list[str] = []
+    ids_errado_com_q_igual_c: list[str] = []
+    distribuicao_q: defaultdict[str, int] = defaultdict(int)
     contagem = {m: defaultdict(int) for m in modelos}
 
     for ch in chamados:
@@ -134,6 +144,16 @@ def montar_linhas(chamados: list[dict[str, Any]], modelos: list[str],
             resumo["sem_conferencia"] += 1
             continue
         resumo["com_conferencia_glpi"] += 1
+
+        manual = ch["categoria_manual"]
+        if veredito == CORRETO and manual:
+            resumo["correto_com_q_preenchida"] += 1
+            ids_correto_com_q.append(ch["id"])
+        if veredito == ERRADO and manual:
+            distribuicao_q[manual] += 1
+            if manual == ch["categoria_glpi"]:
+                resumo["errado_com_q_igual_a_c"] += 1
+                ids_errado_com_q_igual_c.append(ch["id"])
 
         verdade, fonte = verdade_do_chamado(
             ch["conf_glpi"], ch["categoria_glpi"], ch["categoria_manual"])
@@ -171,6 +191,17 @@ def montar_linhas(chamados: list[dict[str, Any]], modelos: list[str],
             "avaliados": avaliados,
             "acuracia": round(c["correto"] / avaliados, 4) if avaliados else None,
         }
+
+    # Distribuicao das categorias que o avaliador escreveu em Q (so as que viram
+    # verdade, isto e, com M='Errado'). Ordenada por frequencia para o
+    # pesquisador ver de imediato para onde as correcoes puxaram a base.
+    resumo["distribuicao_q"] = dict(
+        sorted(distribuicao_q.items(), key=lambda kv: (-kv[1], kv[0])))
+    resumo["categorias_distintas_q"] = len(distribuicao_q)
+    # Amostra dos IDs anomalos: o suficiente para o pesquisador ir na planilha
+    # conferir, sem inchar o JSON publicado no painel.
+    resumo["ids_correto_com_q_preenchida"] = ids_correto_com_q[:50]
+    resumo["ids_errado_com_q_igual_a_c"] = ids_errado_com_q_igual_c[:50]
     return linhas, resumo
 
 
@@ -301,6 +332,22 @@ def main() -> int:
     print(f"  verdade vinda da coluna Q     : {resumo['verdade_manual']}")
     print(f"  pendente (M=Errado, Q vazia)  : {resumo['pendente_glpi_errado_sem_q']}")
     print(f"  sem conferencia               : {resumo['sem_conferencia']}")
+
+    print("\n=== ANOMALIAS DE PREENCHIMENTO ===")
+    print(f"  M='Correto' com Q preenchida  : {resumo['correto_com_q_preenchida']}")
+    if resumo["ids_correto_com_q_preenchida"]:
+        print(f"    IDs (ate 50): "
+              f"{', '.join(resumo['ids_correto_com_q_preenchida'])}")
+    print(f"  M='Errado' com Q igual a C    : {resumo['errado_com_q_igual_a_c']}")
+    if resumo["ids_errado_com_q_igual_a_c"]:
+        print(f"    IDs (ate 50): "
+              f"{', '.join(resumo['ids_errado_com_q_igual_a_c'])}")
+
+    print(f"\n=== DISTRIBUICAO DE Q ({resumo['categorias_distintas_q']} "
+          "categorias distintas) ===")
+    for cat, n in resumo["distribuicao_q"].items():
+        print(f"  {n:>6}  {cat}")
+
     print("\n  modelo                  correto  errado  s/pred  acuracia")
     for m in modelos:
         r = resumo["por_modelo"][m]
