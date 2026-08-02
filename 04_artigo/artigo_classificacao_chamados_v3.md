@@ -22,6 +22,17 @@ header-includes:
     % O placeins vive em 04_artigo/latex porque nao existe na imagem
     % pandoc/extra do workflow; o ramo alternativo evita falha de build caso o
     % TEXINPUTS nao o alcance.
+    % As tabelas curtas do pandoc sao longtable e podem partir a poucas linhas
+    % do fim da pagina, separando a legenda ou as primeiras linhas do corpo.
+    % \NaoQuebrar reserva espaco vertical antes do bloco: se nao couber, a
+    % tabela inteira desce para a pagina seguinte. O ramo alternativo mantem o
+    % build caso needspace nao exista na imagem.
+    \IfFileExists{needspace.sty}{%
+      \usepackage{needspace}%
+      \newcommand{\NaoQuebrar}[1]{\Needspace*{#1\baselineskip}}%
+    }{%
+      \newcommand{\NaoQuebrar}[1]{\par}%
+    }
     \IfFileExists{placeins.sty}{%
       \usepackage{placeins}%
     }{%
@@ -1380,6 +1391,10 @@ ainda que o Naive Bayes é o único modelo cujo colapso alcança a classe
 B, com 0,3263, enquanto os demais preservam desempenho superior a 0,63
 nas duas primeiras classes.
 
+```{=latex}
+\NaoQuebrar{14}
+```
+
 **Tabela 8** F1 macro por classe da curva ABC de volume (n = 14.058;
 56 categorias com suporte na referência validada).
 
@@ -1417,6 +1432,10 @@ agregada. A distinção entre preventivo e corretivo foi apontada na
 Subseção 4.10 como origem taxonômica de parte do erro por categoria.
 Verifica-se, portanto, que ela é resolvida com margem estreita quando
 lida no nível em que a decisão de gestão efetivamente ocorre.
+
+```{=latex}
+\NaoQuebrar{15}
+```
 
 **Tabela 9** Desempenho na tarefa de tipo de manutenção, obtida por
 projeção da referência validada e das predições de categoria (n =
@@ -1458,6 +1477,10 @@ anterior. No conjunto de não manutenção, as quatro categorias que
 cobrem 86,89% do tipo alcançam apenas 0,4831, o que confirma a
 dificuldade como propriedade do tipo e não da cauda de baixa
 frequência.
+
+```{=latex}
+\NaoQuebrar{12}
+```
 
 **Tabela 10** Curva ABC interna a cada tipo de manutenção e F1 macro
 do LinearSVC por classe. As classes A, B e C foram atribuídas pelo
