@@ -158,6 +158,77 @@ class TestMontarLinhas(unittest.TestCase):
         self.assertEqual(resumo["por_modelo"]["lstm"]["acuracia"], 0.5)
 
 
+class TestAuditoriaDePreenchimento(unittest.TestCase):
+    """Verificacoes pedidas na auditoria de 2026-08-01, que as ferramentas
+    anteriores nao cobriam: Q preenchida onde nao devia e distribuicao de Q."""
+
+    def test_correto_com_q_preenchida_e_contado_sem_mudar_a_verdade(self):
+        chamados = [chamado("1", "Correto", "Cat A", categoria_manual="Cat B")]
+        predicoes = {"lstm": {"1": "Cat A"}, "random_forest": {}, "transformer_ft": {}}
+        linhas, resumo = cd.montar_linhas(chamados, MODELOS, predicoes)
+        self.assertEqual(resumo["correto_com_q_preenchida"], 1)
+        self.assertEqual(resumo["ids_correto_com_q_preenchida"], ["1"])
+        # A verdade continua sendo C: Q e ignorada quando M='Correto'.
+        self.assertEqual(resumo["verdade_glpi"], 1)
+        self.assertEqual(resumo["verdade_manual"], 0)
+        self.assertEqual(linhas[0][5], "Cat A")
+        self.assertEqual(resumo["por_modelo"]["lstm"]["correto"], 1)
+
+    def test_correto_sem_q_nao_e_anomalia(self):
+        chamados = [chamado("1", "Correto", "Cat A")]
+        _, resumo = cd.montar_linhas(chamados, MODELOS, {})
+        self.assertEqual(resumo["correto_com_q_preenchida"], 0)
+        self.assertEqual(resumo["ids_correto_com_q_preenchida"], [])
+
+    def test_errado_com_q_igual_a_c_e_sinalizado(self):
+        """M='Errado' dizendo que C esta errada, mas Q repete C."""
+        chamados = [chamado("1", "Errado", "Cat A", categoria_manual="Cat A")]
+        _, resumo = cd.montar_linhas(chamados, MODELOS, {})
+        self.assertEqual(resumo["errado_com_q_igual_a_c"], 1)
+        self.assertEqual(resumo["ids_errado_com_q_igual_a_c"], ["1"])
+
+    def test_errado_com_q_diferente_nao_e_anomalia(self):
+        chamados = [chamado("1", "Errado", "Cat A", categoria_manual="Cat B")]
+        _, resumo = cd.montar_linhas(chamados, MODELOS, {})
+        self.assertEqual(resumo["errado_com_q_igual_a_c"], 0)
+        self.assertEqual(resumo["verdade_manual"], 1)
+
+    def test_distribuicao_q_conta_so_as_que_viram_verdade(self):
+        chamados = [
+            chamado("1", "Errado", "Cat A", categoria_manual="Cat B"),
+            chamado("2", "Errado", "Cat C", categoria_manual="Cat B"),
+            chamado("3", "Errado", "Cat A", categoria_manual="Cat D"),
+            chamado("4", "Correto", "Cat A", categoria_manual="Cat Z"),  # anomalia
+            chamado("5", "Errado", "Cat A"),                             # pendente
+            chamado("6", "", "Cat A", categoria_manual="Cat Y"),         # ignorado
+        ]
+        _, resumo = cd.montar_linhas(chamados, MODELOS, {})
+        self.assertEqual(resumo["distribuicao_q"], {"Cat B": 2, "Cat D": 1})
+        self.assertEqual(resumo["categorias_distintas_q"], 2)
+        self.assertEqual(resumo["correto_com_q_preenchida"], 1)
+        self.assertEqual(resumo["pendente_glpi_errado_sem_q"], 1)
+        self.assertEqual(resumo["sem_conferencia"], 1)
+
+    def test_distribuicao_q_ordenada_por_frequencia_depois_alfabetica(self):
+        chamados = (
+            [chamado(f"a{i}", "Errado", "C", categoria_manual="Raro")
+             for i in range(1)]
+            + [chamado(f"b{i}", "Errado", "C", categoria_manual="Zebra")
+               for i in range(3)]
+            + [chamado(f"c{i}", "Errado", "C", categoria_manual="Alfa")
+               for i in range(3)]
+        )
+        _, resumo = cd.montar_linhas(chamados, MODELOS, {})
+        self.assertEqual(list(resumo["distribuicao_q"]), ["Alfa", "Zebra", "Raro"])
+
+    def test_ids_anomalos_sao_truncados_em_50(self):
+        chamados = [chamado(str(i), "Correto", "Cat A", categoria_manual="Cat B")
+                    for i in range(60)]
+        _, resumo = cd.montar_linhas(chamados, MODELOS, {})
+        self.assertEqual(resumo["correto_com_q_preenchida"], 60)
+        self.assertEqual(len(resumo["ids_correto_com_q_preenchida"]), 50)
+
+
 class TestNormalizarId(unittest.TestCase):
     def test_numero_do_sheets(self):
         self.assertEqual(cd.normalizar_id(1693.0), "1693")
