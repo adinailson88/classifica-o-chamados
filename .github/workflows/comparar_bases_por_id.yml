@@ -1,0 +1,86 @@
+name: Comparar duas bases de chamados por id (diagnostico)
+
+# READ-ONLY nas duas planilhas. Responde QUAIS ids divergem entre duas bases,
+# em vez de apenas contar linhas. Indexa por id_chamado, nunca por linha.
+#
+# A planilha B precisa estar compartilhada com o e-mail da conta de servico
+# (papel de leitor basta); sem isso o script aborta explicando.
+
+on:
+  workflow_dispatch:
+    inputs:
+      planilha_a:
+        description: "ID da planilha A (vazio = a do experimento, via secret)"
+        default: ""
+      gid_a:
+        description: "gid da aba A (vazio = primeira aba)"
+        default: "1090243921"
+      coluna_a:
+        description: "Coluna de id em A"
+        default: "A"
+      planilha_b:
+        description: "ID da planilha B"
+        required: true
+      gid_b:
+        description: "gid da aba B (vazio = primeira aba)"
+        default: "0"
+      coluna_b:
+        description: "Coluna de id em B"
+        default: "A"
+      sem_cabecalho:
+        description: "Tratar a primeira linha como dado"
+        type: boolean
+        default: false
+
+concurrency:
+  group: comparar-bases
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  comparar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: requirements-leves.txt
+      - name: Dependencias
+        run: python -m pip install --retries 5 --timeout 120 -r requirements-leves.txt
+      - name: Teste offline
+        run: python -m unittest discover -s tests -p "test_comparar_bases_por_id.py" -t tests
+      - name: Recriar chave da conta de servico
+        env:
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+        run: |
+          if [ -z "$GCP_SA_KEY" ]; then echo "Secret GCP_SA_KEY ausente." >&2; exit 1; fi
+          printf '%s' "$GCP_SA_KEY" > credenciais_sa.json
+      - name: Mostrar e-mail da conta de servico
+        run: |
+          python -c "import json;print('conta de servico:',json.load(open('credenciais_sa.json'))['client_email'])"
+      - name: Comparar
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: credenciais_sa.json
+        run: |
+          A="${{ github.event.inputs.planilha_a }}"
+          [ -z "$A" ] && A="$SPREADSHEET_ID"
+          ARGS=""
+          [ -n "${{ github.event.inputs.gid_a }}" ] && ARGS="$ARGS --gid-a ${{ github.event.inputs.gid_a }}"
+          [ -n "${{ github.event.inputs.gid_b }}" ] && ARGS="$ARGS --gid-b ${{ github.event.inputs.gid_b }}"
+          [ "${{ github.event.inputs.sem_cabecalho }}" = "true" ] && ARGS="$ARGS --sem-cabecalho"
+          python scripts/migracoes/comparar_bases_por_id.py \
+            --planilha-a "$A" \
+            --coluna-a "${{ github.event.inputs.coluna_a || 'A' }}" \
+            --planilha-b "${{ github.event.inputs.planilha_b }}" \
+            --coluna-b "${{ github.event.inputs.coluna_b || 'A' }}" \
+            $ARGS
+      - name: Remover credenciais
+        if: always()
+        run: rm -f credenciais_sa.json
