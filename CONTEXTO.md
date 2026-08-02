@@ -71,7 +71,28 @@ Os JSONs são dinâmicos e devem ser conferidos por data de geração antes de q
 
 0.3. **RESOLVIDO em 01/08/2026: workflows de escrita reabilitados.** Os oito haviam sido desabilitados durante o diagnostico e voltaram ao ar apos o realinhamento de G.
 
-1. Preencher a categoria manual Q dos 639 casos restritos, priorizando os 201 conflitos entre fontes marcadas como corretas.
+0.4. **CONCLUÍDO em 01/08/2026: a conferência manual das categorias GLPI cobre a base inteira.** Auditoria e regeneração da cadeia feitas na mesma data. Totais finais, medidos por `conferencia_derivada.yml` (run 30726343256):
+
+| campo | antes (15:33) | final |
+|---|---|---|
+| com conferência GLPI (M) | 9.547 | 14.094 |
+| sem conferência (M vazia) | 4.547 | 0 |
+| pendente (M=Errado, Q vazia) | 242 | 0 |
+| verdade do GLPI (M=Correto) | 9.305 | 13.492 |
+| verdade da coluna Q | 0 | 602 |
+| **base com verdade** | **9.305** | **14.094** |
+
+   Duas verificações novas foram acrescentadas a `src/conferencia_derivada.py` (PR #147): `correto_com_q_preenchida` e `distribuicao_q`, mais `errado_com_q_igual_a_c`, que apareceu na prática. Estado final: **0 em ambas as anomalias**; 30 categorias distintas em Q, concentradas em `Manutenção Preventiva > Ar condicionado split` (189) e `Instalação de Acessórios e Mobiliário > Instalação/reparo de equipamentos` (78 + 45 em duas grafias — verificar se são a mesma categoria).
+
+   Cadeia regerada: conferência derivada, avaliação final, estatística, held-out do BERTimbau e painel. Números vigentes (n = 14.094, acerto validado): LinearSVC 0,8220 [0,8155–0,8283], Extra Trees 0,8026, Regressão Logística 0,7991, SGD 0,7991, Random Forest 0,7969, LSTM 0,7264, Naive Bayes 0,7165. O LinearSVC segue líder (McNemar contra o segundo, *p* = 3,1×10⁻¹⁴; rank médio de Friedman 1,679). A ressalva do BERTimbau permanece: 0,8298 sobre 9.550 chamados da coluna O, contra 14.094 out-of-fold dos demais — vantagem de protocolo, não de modelo.
+
+0.5. **BLOQUEADO: o artigo não pode ser sincronizado por substituição de números.** `src/sincronizar_numeros_artigo.py` aborta, corretamente. Dois motivos, e o segundo não se resolve editando o script:
+    - Os trechos esperados estão duas gerações atrás do texto (o script procura 13.965/8.895/639; o artigo está em 14.094/9.305/242).
+    - **`restritos` passou de 242 para 0.** Com cobertura de 100% e nenhum caso pendente, deixam de existir os objetos sobre os quais o artigo constrói sua principal limitação: a amostra conferida não é mais parcial, o acerto validado deixa de ser "limite superior por construção amostral", a análise de sensibilidade fica sem objeto e a coluna "Limite inferior" da Tabela 2 vira cópia do acerto validado. Passagens afetadas: linhas 76, 667, 768–769, 847, 856–866, 1227–1241, 1321–1326, 1385, 1398.
+
+   Isso é reescrita de argumento, não troca de dado, e por decisão registrada cabe a uma pessoa. A limitação foi **eliminada**, não alterada — é ganho metodológico a ser redigido, não número a substituir.
+
+1. ~~Preencher a categoria manual Q dos 639 casos restritos~~ — concluído, ver 0.4.
 2. Avaliar a viabilidade de uma execução *out-of-fold* integral do BERTimbau sobre toda a base, para permitir sua entrada no ranking principal. O treino atual roda em CPU no runner do GitHub Actions (teto de 6h), o que obriga o modo `auto` a usar subamostragem estratificada (`.github/workflows/transformer_ft.yml`); a base inteira (~13,8 mil chamados) não cabe nesse limite. **Ideia registrada, ainda não decidida:** rodar o fine-tuning em notebook Google Colab (GPU T4/A100), fora do fluxo automatizado por Actions, trazendo os artefatos de volta ao repositório manualmente. Ganho esperado: viabilizar o treino sobre a base inteira. Trade-off: sai do fluxo 100% reprodutível por Action; exige atenção ao levar a credencial da conta de serviço para dentro do notebook.
 3. Considerar validação externa em outras instituições para testar a estabilidade dos resultados sob taxonomias e volumes distintos.
 
