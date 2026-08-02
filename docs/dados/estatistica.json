@@ -1,5 +1,5 @@
 {
-  "gerado_em": "02/08/2026 11:59",
+  "gerado_em": "02/08/2026 13:07",
   "schema_version": "1.0",
   "run_id": "EXP_CLASSIFICACAO_CHAMADOS_2026_06_001",
   "script_origem": "src/analise_estatistica.py",
@@ -58,9 +58,9 @@
     },
     {
       "modelo": "extra_trees",
-      "pointbiserial_r": 0.3952,
+      "pointbiserial_r": 0.5337,
       "p_pb": 0.0,
-      "spearman_r": 0.4324,
+      "spearman_r": 0.5221,
       "p_sp": 0.0,
       "interpretacao": "positiva = mais confianca -> mais acerto"
     },
@@ -216,16 +216,16 @@
   },
   "acuracia_bootstrap": [
     {
-      "modelo": "extra_trees",
-      "acuracia": 0.9393,
-      "ic95_min": 0.9355,
-      "ic95_max": 0.9432
-    },
-    {
       "modelo": "linear_svc",
       "acuracia": 0.8089,
       "ic95_min": 0.8024,
       "ic95_max": 0.8152
+    },
+    {
+      "modelo": "extra_trees",
+      "acuracia": 0.7958,
+      "ic95_min": 0.7891,
+      "ic95_max": 0.8025
     },
     {
       "modelo": "random_forest",
@@ -264,6 +264,10 @@
       "kappa": 0.7947
     },
     {
+      "modelo": "extra_trees",
+      "kappa": 0.779
+    },
+    {
       "modelo": "random_forest",
       "kappa": 0.772
     },
@@ -282,15 +286,11 @@
     {
       "modelo": "naive_bayes",
       "kappa": 0.6776
-    },
-    {
-      "modelo": "extra_trees",
-      "kappa": 0.021
     }
   ],
-  "fleiss_kappa_entre_ias": 0.5555,
+  "fleiss_kappa_entre_ias": 0.783,
   "cochran_q": {
-    "Q": 5771.281,
+    "Q": 2124.198,
     "p": 0.0,
     "df": 6,
     "conclusao": "acuracias diferentes (p<0,05)"
@@ -311,7 +311,7 @@
         2.56e-78,
         1.53e-175,
         1.2e-77,
-        0.0,
+        1.23e-155,
         2.32e-133,
         0.22
       ],
@@ -320,7 +320,7 @@
         null,
         1.24e-40,
         0.184,
-        0.0,
+        2.67e-10,
         7.2e-05,
         1.31e-94
       ],
@@ -329,7 +329,7 @@
         1.24e-40,
         null,
         1.94e-42,
-        8.23e-238,
+        4.11e-07,
         2.11e-13,
         3.5e-194
       ],
@@ -338,25 +338,25 @@
         0.184,
         1.94e-42,
         null,
-        0.0,
+        4.46e-12,
         3.93e-06,
         1.45e-88
       ],
       [
-        0.0,
-        0.0,
-        8.23e-238,
-        0.0,
+        1.23e-155,
+        2.67e-10,
+        4.11e-07,
+        4.46e-12,
         null,
-        2.33e-288,
-        0.0
+        1.15e-05,
+        6.11e-127
       ],
       [
         2.32e-133,
         7.2e-05,
         2.11e-13,
         3.93e-06,
-        2.33e-288,
+        1.15e-05,
         null,
         6.59e-108
       ],
@@ -365,7 +365,7 @@
         1.31e-94,
         3.5e-194,
         1.45e-88,
-        0.0,
+        6.11e-127,
         6.59e-108,
         null
       ]
@@ -434,65 +434,11 @@
     "pares": [
       {
         "par": [
-          "naive_bayes",
-          "extra_trees"
-        ],
-        "p": 0.0,
-        "limiar_holm": 0.00238,
-        "significativo": true
-      },
-      {
-        "par": [
-          "regressao_logistica",
-          "extra_trees"
-        ],
-        "p": 0.0,
-        "limiar_holm": 0.0025,
-        "significativo": true
-      },
-      {
-        "par": [
-          "sgd",
-          "extra_trees"
-        ],
-        "p": 0.0,
-        "limiar_holm": 0.00263,
-        "significativo": true
-      },
-      {
-        "par": [
-          "extra_trees",
-          "lstm"
-        ],
-        "p": 0.0,
-        "limiar_holm": 0.00278,
-        "significativo": true
-      },
-      {
-        "par": [
-          "extra_trees",
-          "random_forest"
-        ],
-        "p": 2.33e-288,
-        "limiar_holm": 0.00294,
-        "significativo": true
-      },
-      {
-        "par": [
-          "linear_svc",
-          "extra_trees"
-        ],
-        "p": 8.23e-238,
-        "limiar_holm": 0.00313,
-        "significativo": true
-      },
-      {
-        "par": [
           "linear_svc",
           "lstm"
         ],
         "p": 3.5e-194,
-        "limiar_holm": 0.00333,
+        "limiar_holm": 0.00238,
         "significativo": true
       },
       {
@@ -501,7 +447,16 @@
           "linear_svc"
         ],
         "p": 1.53e-175,
-        "limiar_holm": 0.00357,
+        "limiar_holm": 0.0025,
+        "significativo": true
+      },
+      {
+        "par": [
+          "naive_bayes",
+          "extra_trees"
+        ],
+        "p": 1.23e-155,
+        "limiar_holm": 0.00263,
         "significativo": true
       },
       {
@@ -510,7 +465,16 @@
           "random_forest"
         ],
         "p": 2.32e-133,
-        "limiar_holm": 0.00385,
+        "limiar_holm": 0.00278,
+        "significativo": true
+      },
+      {
+        "par": [
+          "extra_trees",
+          "lstm"
+        ],
+        "p": 6.11e-127,
+        "limiar_holm": 0.00294,
         "significativo": true
       },
       {
@@ -519,7 +483,7 @@
           "lstm"
         ],
         "p": 6.59e-108,
-        "limiar_holm": 0.00417,
+        "limiar_holm": 0.00313,
         "significativo": true
       },
       {
@@ -528,7 +492,7 @@
           "lstm"
         ],
         "p": 1.31e-94,
-        "limiar_holm": 0.00455,
+        "limiar_holm": 0.00333,
         "significativo": true
       },
       {
@@ -537,7 +501,7 @@
           "lstm"
         ],
         "p": 1.45e-88,
-        "limiar_holm": 0.005,
+        "limiar_holm": 0.00357,
         "significativo": true
       },
       {
@@ -546,7 +510,7 @@
           "regressao_logistica"
         ],
         "p": 2.56e-78,
-        "limiar_holm": 0.00556,
+        "limiar_holm": 0.00385,
         "significativo": true
       },
       {
@@ -555,7 +519,7 @@
           "sgd"
         ],
         "p": 1.2e-77,
-        "limiar_holm": 0.00625,
+        "limiar_holm": 0.00417,
         "significativo": true
       },
       {
@@ -564,7 +528,7 @@
           "sgd"
         ],
         "p": 1.94e-42,
-        "limiar_holm": 0.00714,
+        "limiar_holm": 0.00455,
         "significativo": true
       },
       {
@@ -573,7 +537,7 @@
           "linear_svc"
         ],
         "p": 1.24e-40,
-        "limiar_holm": 0.00833,
+        "limiar_holm": 0.005,
         "significativo": true
       },
       {
@@ -582,7 +546,34 @@
           "random_forest"
         ],
         "p": 2.11e-13,
-        "limiar_holm": 0.01,
+        "limiar_holm": 0.00556,
+        "significativo": true
+      },
+      {
+        "par": [
+          "sgd",
+          "extra_trees"
+        ],
+        "p": 4.46e-12,
+        "limiar_holm": 0.00625,
+        "significativo": true
+      },
+      {
+        "par": [
+          "regressao_logistica",
+          "extra_trees"
+        ],
+        "p": 2.67e-10,
+        "limiar_holm": 0.00714,
+        "significativo": true
+      },
+      {
+        "par": [
+          "linear_svc",
+          "extra_trees"
+        ],
+        "p": 4.11e-07,
+        "limiar_holm": 0.00833,
         "significativo": true
       },
       {
@@ -591,6 +582,15 @@
           "random_forest"
         ],
         "p": 3.93e-06,
+        "limiar_holm": 0.01,
+        "significativo": true
+      },
+      {
+        "par": [
+          "extra_trees",
+          "random_forest"
+        ],
+        "p": 1.15e-05,
         "limiar_holm": 0.0125,
         "significativo": true
       },
@@ -624,30 +624,6 @@
     ],
     "pares_significativos": [
       [
-        "naive_bayes",
-        "extra_trees"
-      ],
-      [
-        "regressao_logistica",
-        "extra_trees"
-      ],
-      [
-        "sgd",
-        "extra_trees"
-      ],
-      [
-        "extra_trees",
-        "lstm"
-      ],
-      [
-        "extra_trees",
-        "random_forest"
-      ],
-      [
-        "linear_svc",
-        "extra_trees"
-      ],
-      [
         "linear_svc",
         "lstm"
       ],
@@ -657,7 +633,15 @@
       ],
       [
         "naive_bayes",
+        "extra_trees"
+      ],
+      [
+        "naive_bayes",
         "random_forest"
+      ],
+      [
+        "extra_trees",
+        "lstm"
       ],
       [
         "random_forest",
@@ -693,6 +677,22 @@
       ],
       [
         "sgd",
+        "extra_trees"
+      ],
+      [
+        "regressao_logistica",
+        "extra_trees"
+      ],
+      [
+        "linear_svc",
+        "extra_trees"
+      ],
+      [
+        "sgd",
+        "random_forest"
+      ],
+      [
+        "extra_trees",
         "random_forest"
       ],
       [
@@ -743,6 +743,19 @@
       ]
     },
     {
+      "modelo": "extra_trees",
+      "f1_macro": 0.4909,
+      "f1_ic95": [
+        0.4682,
+        0.5338
+      ],
+      "recall_macro": 0.4768,
+      "recall_ic95": [
+        0.4588,
+        0.5251
+      ]
+    },
+    {
       "modelo": "random_forest",
       "f1_macro": 0.4743,
       "f1_ic95": [
@@ -779,19 +792,6 @@
       "recall_ic95": [
         0.2096,
         0.2305
-      ]
-    },
-    {
-      "modelo": "extra_trees",
-      "f1_macro": 0.0218,
-      "f1_ic95": [
-        0.0202,
-        0.0248
-      ],
-      "recall_macro": 0.022,
-      "recall_ic95": [
-        0.0204,
-        0.0253
       ]
     }
   ],
@@ -1020,54 +1020,54 @@
       "modelo": "extra_trees",
       "pares": [
         {
-          "de": "Climatização > Ar condicionado split",
-          "para": "Manutenção Preventiva > Ar condicionado split",
-          "n": 226
-        },
-        {
-          "de": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-          "para": "Manutenção Preventiva > Ar condicionado split",
-          "n": 200
-        },
-        {
-          "de": "Manutenção Preventiva > Ar condicionado split",
-          "para": "Climatização > Ar condicionado split",
-          "n": 196
-        },
-        {
-          "de": "Manutenção Preventiva > Ar condicionado split",
-          "para": "Hidrossanitária > Hidráulica",
-          "n": 182
-        },
-        {
-          "de": "Hidrossanitária > Hidráulica",
-          "para": "Manutenção Preventiva > Ar condicionado split",
-          "n": 175
-        },
-        {
-          "de": "Manutenção Preventiva > Ar condicionado split",
+          "de": "Instalação de Acessórios e Mobiliário > Instalação/reparo de equipamentos (Suportes de TV, acessórios de banheiro e quadro branco)",
           "para": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-          "n": 162
-        },
-        {
-          "de": "Climatização > Ar condicionado split",
-          "para": "Hidrossanitária > Hidráulica",
-          "n": 153
+          "n": 195
         },
         {
           "de": "Estrutura Predial > Esquadrias, porta, portão e janelas",
-          "para": "Manutenção Preventiva > Ar condicionado split",
-          "n": 143
+          "para": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
+          "n": 161
         },
         {
-          "de": "Manutenção Preventiva > Gerador",
-          "para": "Manutenção Preventiva > Ar condicionado split",
-          "n": 140
+          "de": "Elétrica > Instalações elétricas",
+          "para": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
+          "n": 155
         },
         {
-          "de": "Manutenção Preventiva > Ar condicionado split",
-          "para": "Manutenção Preventiva > Gerador",
-          "n": 139
+          "de": "Climatização > Ar condicionado split",
+          "para": "Manutenção Preventiva > Ar condicionado split",
+          "n": 151
+        },
+        {
+          "de": "Outros > Erro de chamado",
+          "para": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
+          "n": 115
+        },
+        {
+          "de": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
+          "para": "Hidrossanitária > Hidráulica",
+          "n": 91
+        },
+        {
+          "de": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
+          "para": "Estrutura Predial > Esquadrias, porta, portão e janelas",
+          "n": 88
+        },
+        {
+          "de": "Hidrossanitária > Hidráulica",
+          "para": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
+          "n": 88
+        },
+        {
+          "de": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
+          "para": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
+          "n": 80
+        },
+        {
+          "de": "Estrutura Predial > Telhados, calhas, rufos, etc.",
+          "para": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
+          "n": 57
         }
       ]
     },
@@ -1188,11 +1188,6 @@
     "nota": "Amostra parcial e nao probabilistica; nao estima a base completa.",
     "por_modelo": [
       {
-        "modelo": "extra_trees",
-        "n": 14058,
-        "acerto_validado": 0.9816
-      },
-      {
         "modelo": "naive_bayes",
         "n": 14058,
         "acerto_validado": 0.0997
@@ -1201,6 +1196,11 @@
         "modelo": "random_forest",
         "n": 14058,
         "acerto_validado": 0.0908
+      },
+      {
+        "modelo": "extra_trees",
+        "n": 14058,
+        "acerto_validado": 0.0888
       },
       {
         "modelo": "linear_svc",
@@ -1279,11 +1279,11 @@
             {
               "modelo": "extra_trees",
               "n": 14094,
-              "min": 0.155,
+              "min": 0.12,
               "max": 1.0,
-              "q1": 1.0,
+              "q1": 0.455,
               "q3": 1.0,
-              "outliers_baixos": 1156,
+              "outliers_baixos": 0,
               "outliers_altos": 0
             },
             {
@@ -1307,7 +1307,7 @@
               "outliers_altos": 0
             }
           ],
-          "total_outliers_confianca": 1219,
+          "total_outliers_confianca": 63,
           "interpretacao": "confianca extrema sinaliza casos a inspecionar; nao se removem observacoes, registra-se sua presenca (Zuur 2010, passo 1)."
         }
       },
@@ -1359,23 +1359,23 @@
             },
             {
               "covariavel": "regressao_logistica",
-              "vif": 17.715
+              "vif": 17.869
             },
             {
               "covariavel": "linear_svc",
-              "vif": 4.289
+              "vif": 4.293
             },
             {
               "covariavel": "sgd",
-              "vif": 13.558
+              "vif": 13.719
             },
             {
               "covariavel": "extra_trees",
-              "vif": 1.0
+              "vif": 23.06
             },
             {
               "covariavel": "random_forest",
-              "vif": 3.592
+              "vif": 25.014
             },
             {
               "covariavel": "lstm",
