@@ -1,0 +1,53 @@
+name: Inspecionar chamados por id (diagnostico)
+
+# READ-ONLY. Mostra o conteudo de cada coluna da aba principal para ids
+# especificos, incluindo valores de erro do Sheets (#N/D, #REF!) que uma
+# leitura comum esconderia.
+#
+# Texto livre (titulo e descricoes) e reportado apenas como preenchido ou
+# vazio, com tamanho, para nao vazar texto de chamado no log publico.
+
+on:
+  workflow_dispatch:
+    inputs:
+      ids:
+        description: "Ids separados por virgula ou espaco"
+        required: true
+
+concurrency:
+  group: inspecionar-chamados
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  inspecionar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: requirements-leves.txt
+      - name: Dependencias
+        run: python -m pip install --retries 5 --timeout 120 -r requirements-leves.txt
+      - name: Teste offline
+        run: python -m unittest discover -s tests -p "test_inspecionar_chamados.py" -t tests
+      - name: Recriar chave da conta de servico
+        env:
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+        run: |
+          if [ -z "$GCP_SA_KEY" ]; then echo "Secret GCP_SA_KEY ausente." >&2; exit 1; fi
+          printf '%s' "$GCP_SA_KEY" > credenciais_sa.json
+      - name: Inspecionar
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: credenciais_sa.json
+        run: python scripts/migracoes/inspecionar_chamados.py --ids "${{ github.event.inputs.ids }}"
+      - name: Remover credenciais
+        if: always()
+        run: rm -f credenciais_sa.json
