@@ -61,12 +61,14 @@ class TestCalibracaoAcertoValidado(unittest.TestCase):
             # historico e N fica em branco -- erro da IA capturado via M, nao via N.
             _linha_principal("1", "", "HID", "", "", "", "ELE",
                              "", "", "", "", "", "Correto", "", "", ""),
-            # linha 3: IA confirmada certa via N.
+            # linha 3: historico confirmado certo (M=Correto) e a IA coincide.
+            # N tambem esta marcada, mas desde 2026-08-01 ela NAO deriva verdade;
+            # esta aqui so para o teste da coluna N isolada, mais abaixo.
             _linha_principal("2", "", "HID", "", "", "", "HID",
-                             "", "", "", "", "", "", "Correto", "", ""),
-            # linha 4: IA confirmada certa via N.
+                             "", "", "", "", "", "Correto", "Correto", "", ""),
+            # linha 4: idem.
             _linha_principal("3", "", "AGUA", "", "", "", "AGUA",
-                             "", "", "", "", "", "", "Correto", "", ""),
+                             "", "", "", "", "", "Correto", "Correto", "", ""),
             # linha 5: historico confirmado certo (M=Correto), IA diverge, N em
             # branco -- mesmo padrao da linha 2.
             _linha_principal("4", "", "ELETRICA", "", "", "", "STRUCT",
@@ -94,8 +96,9 @@ class TestCalibracaoAcertoValidado(unittest.TestCase):
     def test_acerto_validado_nao_fica_preso_em_1_0(self):
         dados = cb.calcular(self.sh, self.config)
         faixa = dados["faixa_alvo_95"]
-        # 4 linhas decididas (M ou N), 2 corretas (linhas 3 e 4) e 2 erradas
-        # (linhas 2 e 5, capturadas via M) -> acerto real = 0.5, nao 1.0.
+        # 4 linhas decididas por M, 2 corretas (linhas 3 e 4) e 2 erradas
+        # (linhas 2 e 5) -> acerto real = 0.5, nao 1.0. Desde 2026-08-01 a
+        # verdade vem so de M e Q, alinhada a avaliacao final e a estatistica.
         self.assertEqual(faixa["n_validados"], 4)
         self.assertAlmostEqual(faixa["acerto_validado"], 0.5)
 
@@ -103,7 +106,8 @@ class TestCalibracaoAcertoValidado(unittest.TestCase):
         # Mesma correcao aplicada a matriz_ia_x_glpi (2026-07-23): linhas 2 e 5
         # tem decisao travada via M (glpi_ok), mas a IA diverge (ia_erro) --
         # antes da correcao essas linhas eram ignoradas por N estar em branco,
-        # e a matriz so contava linhas com M E N ambas marcadas.
+        # e a matriz so contava linhas com M E N ambas marcadas. A verdade
+        # continua vindo de M, agora sem N na derivacao.
         dados = cb.calcular(self.sh, self.config)
         matriz = dados["validacao_humana"]["matriz_ia_x_glpi"]
         self.assertEqual(matriz["ia_ok_glpi_ok"], 2)     # linhas 3 e 4

@@ -102,20 +102,23 @@ def calcular(sh, config: dict) -> dict:
             "A:J", value_render_option="UNFORMATTED_VALUE")
     except Exception:  # noqa: BLE001
         vals = []
-    # Verdade validada: a MESMA memoria de decisao M/N/P usada em avaliacao_final.py
-    # (decisao_validada.verdade_validada), nao a marcacao bruta da coluna N isolada.
-    # Motivo (achado de 2026-07-23): a coluna N (CONFERENCIA IA) isolada, na pratica,
-    # so acumula marcacoes "Correto" (o fluxo humano atual raramente marca N como
-    # "Errado" — o erro da IA tende a ser registrado via M ou via a reclassificacao),
-    # o que fazia "acerto_validado" por faixa de confianca sair sempre 1.0, inclusive
-    # em faixas de confianca baixa — resultado estatisticamente implausivel e
-    # inconsistente com avaliacao_final.py. Comparar contra a categoria DECIDIDA
-    # (travada por M, N ou P, qualquer uma que tenha confirmado) corrige a metrica e
-    # a torna consistente com o restante do pipeline.
+    # Verdade validada: a MESMA regra do restante do pipeline, ou seja, apenas a
+    # conferencia do GLPI (coluna M) e a categoria manual (Q).
+    #
+    # Historico da decisao. Em 2026-07-23 apurou-se que a coluna N (CONFERENCIA
+    # IA) isolada so acumulava "Correto" na pratica, o que fazia o acerto validado
+    # por faixa sair sempre 1,0, inclusive em faixa de confianca baixa. A solucao
+    # de entao foi comparar contra a categoria decidida por M, N ou P, qualquer uma
+    # que tivesse confirmado. Em 2026-08-01 a coluna N foi APOSENTADA da derivacao
+    # da verdade, e manter M/N/P aqui passou a produzir um denominador diferente do
+    # resto: 13.703 contra 14.058, sem que nada avisasse, porque os 355 chamados de
+    # diferenca ficavam restritos por conflito entre colunas.
+    #
     # chave="id": a verdade cruza com o SNAPSHOT_ETAPA_1, que e materializado num
     # momento enquanto a aba principal muda de tamanho depois. Ver o incidente de
     # 02/08/2026 em tests/test_avaliacao_final_indexa_por_id.py.
-    decisoes = dv.carregar_decisoes(sh, config["aba_principal"], chave="id")
+    decisoes = dv.carregar_decisoes(sh, config["aba_principal"], chave="id",
+                                    so_conferencia_glpi=True)
     verdade = dv.verdade_validada(decisoes)
     # Conferencias brutas (M/N/P), mantidas so para os diagnosticos auxiliares
     # (cobertura por coluna, matriz IA x GLPI) — nao usadas mais para "acerto_validado".
