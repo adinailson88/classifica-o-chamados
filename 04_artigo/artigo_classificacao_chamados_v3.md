@@ -831,16 +831,18 @@ seleção amostral discutidas na Subseção 4.4.
 A comparação contra a categoria histórica, sobre a base completa (n =
 14.058, com intervalo de confiança por bootstrap a 95%), mantém o
 LinearSVC na liderança, com acurácia de 0,8049 (IC95%:
-0,7981--0,8113), seguido por Extra Trees (0,7880), Random Forest (0,7786), SGD (0,7769), Regressão Logística (0,7717), Naive Bayes (0,6987), LSTM (0,6921).
+0,7985--0,8117), seguido por Extra Trees (0,7880), Random Forest (0,7785), SGD (0,7769), Regressão Logística (0,7716), Naive Bayes (0,6987), LSTM (0,6920).
 O teste de Cochran Q confirma diferença global
 entre os sete modelos avaliados (Q = 2448,55; p < 0,001). A comparação integral exclui o BERTimbau porque o modelo não possui
 predições *out-of-fold* sobre as 14.058 linhas; o treino concluído é
 avaliado separadamente na Subseção 4.3. O Kappa de Cohen (COHEN, 1960) entre cada
-modelo e o histórico reproduz a mesma ordenação, variando de
-0,7881 (LinearSVC) a 0,6496 (LSTM), faixa que Landis e Koch (1977)
-classificam como concordância substancial. Cabe a ressalva de que o
-coeficiente é sensível à prevalência das categorias, o que recomenda
-lê-lo ao lado do acordo bruto (WONGPAKARAN *et al.*, 2013). A oitava fonte de classificação, a
+modelo e o histórico reproduz ordenação semelhante, variando de
+0,7902 (LinearSVC) a 0,6694 (Naive Bayes), faixa que Landis e Koch (1977)
+classificam como concordância substancial. As duas medidas divergem
+apenas em duas trocas de posição, entre SGD e Random Forest e entre LSTM
+e Naive Bayes. A divergência decorre da sensibilidade do coeficiente à
+prevalência das categorias, o que recomenda lê-lo ao lado do acordo bruto
+(WONGPAKARAN *et al.*, 2013). A oitava fonte de classificação, a
 classificação automática em produção, mantém concordância de 78,61% e
 confiança média de 73,49%, posicionando-se entre Regressão Logística e
 SGD nesta métrica. A comparação direta com o LSTM *out-of-fold* da
@@ -852,13 +854,13 @@ regra de contingência do Random Forest (Subseção 3.4), em vez de um
 
 | Modelo | Acurácia | IC95% |
 |---|---|---|
-| LinearSVC | 0,8049 | 0,7981 -- 0,8113 |
-| Extra Trees | 0,7880 | 0,7811 -- 0,7949 |
-| Random Forest | 0,7786 | 0,7714 -- 0,7856 |
-| SGD | 0,7769 | 0,7701 -- 0,7843 |
-| Regressão Logística | 0,7717 | 0,7650 -- 0,7788 |
-| Naive Bayes | 0,6987 | 0,6911 -- 0,7064 |
-| LSTM (out-of-fold) | 0,6921 | 0,6842 -- 0,6997 |
+| LinearSVC | 0,8049 | 0,7985 -- 0,8117 |
+| Extra Trees | 0,7880 | 0,7815 -- 0,7950 |
+| Random Forest | 0,7785 | 0,7714 -- 0,7854 |
+| SGD | 0,7769 | 0,7700 -- 0,7836 |
+| Regressão Logística | 0,7716 | 0,7646 -- 0,7783 |
+| Naive Bayes | 0,6987 | 0,6910 -- 0,7066 |
+| LSTM (out-of-fold) | 0,6920 | 0,6845 -- 0,6998 |
 
 A concordância com o histórico não é uniforme entre as 50 categorias. O
 desempenho por categoria, incluindo suporte, precisão, revocação e F1,
@@ -1498,7 +1500,7 @@ sustenta.
 A comparação entre concordância histórica (Subseção 4.1) e desempenho
 validado (Subseção 4.2) revela que as duas grandezas não são
 intercambiáveis. O acerto validado do LinearSVC (81,97%) supera sua
-concordância com o histórico (80,49%) em 1,49 ponto percentual. A
+concordância com o histórico (80,49%) em 1,48 ponto percentual. A
 diferença mede o efeito das 606 correções manuais sobre a avaliação: ao
 substituir a categoria histórica pela categoria conferida, parte das
 divergências que seriam contabilizadas como erro do modelo passa a ser
@@ -1684,7 +1686,7 @@ correção do registro original.
 
 Na avaliação integral dos 14.058 chamados com categoria de referência
 estabelecida por validação humana, o LinearSVC alcança 81,97% de acerto
-validado (IC95%: 81,38%--82,60%), e nenhum dos três *ensembles* o supera
+validado (IC95%: 81,36%--82,58%), e nenhum dos três *ensembles* o supera
 com significância estatística. Como a conferência cobre o corpus inteiro,
 o valor não depende de recorte amostral. A recomendação operacional
 permanece usar o LinearSVC isolado, com calibração formal antes de
