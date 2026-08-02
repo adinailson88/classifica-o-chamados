@@ -268,6 +268,17 @@ def main() -> int:
     except Exception:  # noqa: BLE001
         pass
 
+    def _id(x) -> str:
+        """UNFORMATTED_VALUE devolve numero (1693.0); padroniza para string.
+        Mesma regra das demais ferramentas, para produzir a MESMA chave."""
+        t = str(x or "").strip()
+        if not t:
+            return ""
+        try:
+            return str(int(float(t)))
+        except (TypeError, ValueError):
+            return t
+
     def _conf(x):
         try:
             f = float(str(x).replace("%", "").replace(",", ".").strip())
@@ -276,25 +287,57 @@ def main() -> int:
             return 0.0
 
     # SNAPSHOT_ETAPA_1 e' append-only: uma rematerializacao (G:K) forca reclassificar
-    # linhas ja presentes no snapshot, sem apagar o registro antigo (decisao da rodada
-    # 20, ver src/rematerializar_etapa1_oficial.py). Sem dedup por linha, uma linha
-    # reprocessada apareceria duas vezes em registros.json, inflando "classificados".
-    por_linha = {}
+    # chamados ja presentes no snapshot, sem apagar o registro antigo (decisao da
+    # rodada 20, ver src/rematerializar_etapa1_oficial.py). Sem dedup, um chamado
+    # reprocessado apareceria duas vezes em registros.json.
+    #
+    # A dedup e por id_chamado (coluna 2), NUNCA por linha_planilha (coluna 1). A
+    # aba principal muda de tamanho quando o GLPI ganha ou perde chamados, e uma
+    # mesma linha passa a designar outro chamado; deduplicar por linha faz dois
+    # chamados distintos colidirem e o painel mostrar um total que nao existe mais.
+    # Em 02/08/2026 o painel exibia 14.094 registros enquanto a base tinha 14.058.
+    #
+    # O snapshot tambem guarda chamados que SAIRAM da base (54 de 'UFSB > Dinfra >
+    # Projetos e Obras' e 2 excluidos no GLPI). Eles nao podem entrar no painel,
+    # entao a lista e filtrada pelos ids que existem hoje na aba principal.
+    ids_atuais: set[str] = set()
+    try:
+        bloco_principal = com_retentativa(
+            "ler ids da aba principal",
+            lambda: sh.worksheet(config["aba_principal"]).get_values(
+                "A:A", value_render_option="UNFORMATTED_VALUE"),
+        )
+        for rr in bloco_principal[1:]:
+            i = _id(rr[0] if rr else "")
+            if i:
+                ids_atuais.add(i)
+    except Exception:  # noqa: BLE001
+        ids_atuais = set()
+
+    por_id = {}
+    descartados_fora_da_base = 0
     for rr in snap[1:]:
         if len(rr) < 6:
             continue
         ln = str(rr[1]).strip()
+        idc = _id(rr[2] if len(rr) > 2 else "")
         orig = str(rr[3]).strip()
         cia = str(rr[4]).strip()
-        if not cia:
+        if not cia or not idc:
+            continue
+        if ids_atuais and idc not in ids_atuais:
+            descartados_fora_da_base += 1
             continue
         c = _conf(rr[5])
         ex = str(rr[6]).strip() if len(rr) > 6 else ""
         fa = "acima_95" if c >= 0.95 else ("entre_70_95" if c >= 0.70 else "abaixo_70")
-        por_linha[ln] = {"l": ln, "g": (orig.split(" > ")[0].strip() if orig else "(sem)"),
-                         "m": tipo_manutencao(orig), "o": orig, "p": cia, "c": round(c, 4), "f": fa, "e": ex,
-                         "k": 1 if cia == orig else 0, "v": valida.get(ln, "")}
-    regs = list(por_linha.values())
+        por_id[idc] = {"l": ln, "g": (orig.split(" > ")[0].strip() if orig else "(sem)"),
+                       "m": tipo_manutencao(orig), "o": orig, "p": cia, "c": round(c, 4), "f": fa, "e": ex,
+                       "k": 1 if cia == orig else 0, "v": valida.get(ln, "")}
+    if descartados_fora_da_base:
+        print(f"snapshot: {descartados_fora_da_base} registro(s) de chamados que "
+              "nao estao mais na base foram descartados")
+    regs = list(por_id.values())
     (SAIDA / "registros.json").write_text(json.dumps(regs, ensure_ascii=False), encoding="utf-8")
     resumo["registros"] = len(regs)
     print(f"registros={len(regs)}")
