@@ -382,6 +382,10 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--max-turnos", type=int, default=0,
                    help="Cap de turnos de 15 por execucao e por modelo (0 = todos os pendentes).")
     p.add_argument("--aplicar", action="store_true")
+    p.add_argument("--sem-memoria-validada", action="store_true",
+                   help="Nao usa as decisoes humanas no treino. OBRIGATORIO "
+                        "quando as predicoes forem alimentar a avaliacao contra "
+                        "a conferencia humana, sob pena de vazamento.")
     return p.parse_args()
 
 
@@ -408,15 +412,26 @@ def main() -> int:
     if len(elegiveis) < 2:
         print("Informacao insuficiente para verificar."); return 1
 
-    # Memoria validada (entra sempre no treino, com peso).
+    # Memoria validada: decisoes ja conferidas por pessoa, que entram no treino
+    # com peso para o classificador de PRODUCAO nao repetir erro ja corrigido.
+    #
+    # Para as predicoes que sustentam o ACERTO VALIDADO do artigo, ela precisa
+    # ser desligada: a verdade humana estaria dos dois lados da conta. Em
+    # 02/08/2026 uma rematerializacao com memoria_validada=13703 (peso 3) elevou
+    # o acerto do extra_trees de 0,7958 para 0,9816, que e vazamento e nao
+    # desempenho. Use --sem-memoria-validada sempre que o resultado for alimentar
+    # a avaliacao contra a conferencia humana.
     memoria_cfg = config.get("memoria_validada", {})
     memoria = []
-    if memoria_cfg.get("habilitada", True):
+    if memoria_cfg.get("habilitada", True) and not args.sem_memoria_validada:
         memoria = mv.carregar_memoria_validada(sh, config["abas_experimento"]["validacao_humana"])
     peso_mem = int(memoria_cfg.get("peso_treino", 3))
     mem_textos, mem_cats = mv.expandir_treino_com_memoria([], [], memoria, peso=peso_mem)
+    protocolo = ("SEM memoria validada (predicao limpa para avaliacao)"
+                 if args.sem_memoria_validada else
+                 f"memoria_validada={len(memoria)} (peso {peso_mem})")
     print(f"modelos={modelos} | elegiveis={len(elegiveis)} | cap_por_run={cap or 'todos'} | "
-          f"memoria_validada={len(memoria)} (peso {peso_mem})")
+          f"{protocolo}")
 
     resumos = []
     for modelo in modelos:
