@@ -30,10 +30,12 @@ MODELOS = [
 ]
 
 
-def registro(modelo, linha, prevista, original="A", execucao="28/07/2026 02:00"):
+def registro(modelo, chave, prevista, original="A", execucao="28/07/2026 02:00"):
+    """`chave` e o id_chamado. Antes era linha_planilha; ver o incidente de
+    2026-08-02 em tests/test_avaliacao_final_indexa_por_id.py."""
     return {
         "modelo": modelo,
-        "linha": linha,
+        "chave": chave,
         "original": original,
         "prevista": prevista,
         "score": 0.8,

@@ -76,14 +76,19 @@ def carregar_registros_comparacao(sh, nome_aba: str) -> list[dict[str, Any]]:
         return None
 
     i_modelo = indice("modelo")
-    i_linha = indice("linha_planilha")
+    # id_chamado, nunca linha_planilha: COMPARACAO_PREVISOES e materializada num
+    # momento e a aba principal muda de tamanho depois. Casar por linha faz a
+    # predicao de um chamado ser comparada com a verdade de outro. Em 02/08/2026
+    # a base caiu de 14.094 para 14.058 linhas e o held-out reportou 0,13 de
+    # acerto onde media 0,68.
+    i_id = indice("id_chamado")
     i_original = indice("categoria_original")
     i_prevista = indice("categoria_prevista")
     i_score = indice("score")
     i_execucao = indice("executado_em")
     obrigatorios = {
         "modelo": i_modelo,
-        "linha_planilha": i_linha,
+        "id_chamado": i_id,
         "categoria_original": i_original,
         "categoria_prevista": i_prevista,
         "executado_em": i_execucao,
@@ -103,16 +108,15 @@ def carregar_registros_comparacao(sh, nome_aba: str) -> list[dict[str, Any]]:
         prevista = pl.normalizar_categoria(cel(linha, i_prevista))
         original = pl.normalizar_categoria(cel(linha, i_original))
         execucao = cel(linha, i_execucao)
-        try:
-            linha_planilha = int(float(cel(linha, i_linha)))
-        except (TypeError, ValueError):
+        chave = dv._normalizar_id(cel(linha, i_id))  # noqa: SLF001
+        if not chave:
             continue
         if not modelo or not prevista or not original or not execucao:
             continue
         saida.append(
             {
                 "modelo": modelo,
-                "linha": linha_planilha,
+                "chave": chave,
                 "original": original,
                 "prevista": prevista,
                 "score": parse_float(cel(linha, i_score)),
@@ -129,7 +133,7 @@ def agrupar_execucoes(
         lambda: defaultdict(dict)
     )
     for registro in registros:
-        grupos[registro["modelo"]][registro["execucao"]][registro["linha"]] = registro
+        grupos[registro["modelo"]][registro["execucao"]][registro["chave"]] = registro
     return {modelo: dict(execus) for modelo, execus in grupos.items()}
 
 
@@ -337,7 +341,9 @@ def main() -> int:
         sh = pl.abrir_planilha(pl.id_planilha(config), args.credenciais)
         aba_comparacao = config["abas_experimento"]["comparacao_previsoes"]
         registros = carregar_registros_comparacao(sh, aba_comparacao)
-        decisoes = dv.carregar_decisoes(sh, config["aba_principal"])
+        # chave="id": a verdade tem de casar com COMPARACAO_PREVISOES por
+        # id_chamado. Ver o comentario em carregar_registros_comparacao.
+        decisoes = dv.carregar_decisoes(sh, config["aba_principal"], chave="id")
         modelos = list(config["multimodelo"]["modelos_leves"]) + list(
             config["multimodelo"].get("modelos_pesados", [])
         )
