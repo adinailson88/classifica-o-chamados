@@ -44,6 +44,21 @@ STATUS_RESTRITO = "restrito"
 STATUS_SEM_VALIDACAO = "sem_validacao"
 
 
+def _normalizar_id(valor: Any) -> str:
+    """UNFORMATTED_VALUE devolve numero (1693.0); padroniza para string.
+
+    Mesma regra de src/conferencia_derivada.py, para que as duas ferramentas
+    produzam a MESMA chave a partir da mesma celula.
+    """
+    s = str(valor or "").strip()
+    if not s:
+        return ""
+    try:
+        return str(int(float(s)))
+    except (TypeError, ValueError):
+        return s
+
+
 def _norm_veredito(valor: Any) -> str | None:
     s = str(valor or "").strip()
     if not s:
@@ -129,14 +144,27 @@ def carregar_decisoes(sh, aba_principal: str,
                       col_historico: int = 3, col_ia1: int = 7, col_reclass: int = 15,
                       col_conf_glpi: int = 13, col_conf_ia: int = 14,
                       col_conf_reclass: int = 16, col_categoria_manual: int = 17,
-                      so_conferencia_glpi: bool = False
-                      ) -> dict[int, dict[str, Any]]:
-    """Le a aba principal UMA vez (A:Q) e monta a memoria de decisao por linha.
+                      so_conferencia_glpi: bool = False,
+                      chave: str = "linha"
+                      ) -> dict[Any, dict[str, Any]]:
+    """Le a aba principal UMA vez (A:Q) e monta a memoria de decisao.
 
-    Retorna {linha_planilha (int, 1-based): decisao} apenas para linhas com pelo
-    menos uma conferencia preenchida OU com categoria manual preenchida. Linhas
-    sem nenhuma das duas ficam fora do mapa (status implicitamente
-    'sem_validacao').
+    Retorna {chave: decisao} apenas para linhas com pelo menos uma conferencia
+    preenchida OU com categoria manual preenchida. Linhas sem nenhuma das duas
+    ficam fora do mapa (status implicitamente 'sem_validacao').
+
+    chave='linha' (padrao): a chave e o numero da linha, 1-based. Mantido como
+    padrao porque varios consumidores casam com abas cuja unica referencia e a
+    linha.
+
+    chave='id': a chave e o id_chamado da coluna A. USE ESTE quando for cruzar
+    com as abas CLASSIF__<modelo>, que guardam id_chamado. Cruzar por linha
+    quebra silenciosamente sempre que a base muda de tamanho: em 2026-08-02 a
+    base caiu de 14.094 para 14.058 linhas (saida de 'UFSB > Dinfra > Projetos
+    e Obras' e de 2 chamados excluidos no GLPI) e a avaliacao final passou a
+    reportar 0,08 de acerto para modelos que a matriz de confusao, indexada por
+    id, media em 0,82. O numero errado era plausivel o bastante para ser
+    publicado sem que ninguem notasse.
     """
     try:
         ws = sh.worksheet(aba_principal)
@@ -179,10 +207,16 @@ def carregar_decisoes(sh, aba_principal: str,
         # conferencias 'Correto' apontando para strings diferentes, ou seja,
         # conflito artificial. Ver o salto de 201 para 7.469 conflitos em
         # 2026-08-01, apos a mesclagem de categorias no GLPI.
-        out[pos] = decidir(pl.normalizar_categoria(cel(linha, col_historico)),
-                           pl.normalizar_categoria(cel(linha, col_ia1)),
-                           pl.normalizar_categoria(cel(linha, col_reclass)),
-                           v_glpi, v_ia, v_reclass, categoria_manual)
+        if chave == "id":
+            k: Any = _normalizar_id(cel(linha, 1))
+            if not k:
+                continue
+        else:
+            k = pos
+        out[k] = decidir(pl.normalizar_categoria(cel(linha, col_historico)),
+                         pl.normalizar_categoria(cel(linha, col_ia1)),
+                         pl.normalizar_categoria(cel(linha, col_reclass)),
+                         v_glpi, v_ia, v_reclass, categoria_manual)
     return out
 
 

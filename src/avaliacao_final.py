@@ -95,8 +95,16 @@ def modelos_comparaveis(config: dict) -> tuple[list[str], dict | None]:
     return modelos, estado
 
 
-def carregar_predicoes(sh, config, modelos) -> dict[str, dict[int, dict]]:
-    """{modelo: {linha: {'pred': cat, 'conf': float}}} das abas CLASSIF__<m>."""
+def carregar_predicoes(sh, config, modelos) -> dict[str, dict[str, dict]]:
+    """{modelo: {id_chamado: {'pred': cat, 'conf': float}}} das abas CLASSIF__.
+
+    INDEXA POR id_chamado (coluna C das abas CLASSIF__), nunca pela coluna B
+    (linha_planilha). As abas sao materializadas num momento e a aba principal
+    muda de tamanho depois; casar por linha faz a predicao de um chamado ser
+    comparada com a verdade de outro. Em 2026-08-02 isso levou a avaliacao final
+    a reportar 0,08 de acerto onde a matriz de confusao, indexada por id, media
+    0,82.
+    """
     template = config["multimodelo"]["aba_classificacao"]
     out = {}
     for m in modelos:
@@ -109,13 +117,12 @@ def carregar_predicoes(sh, config, modelos) -> dict[str, dict[int, dict]]:
         for r in vals[1:]:
             if len(r) < 6:
                 continue
-            try:
-                ln = int(r[1])
-            except (ValueError, TypeError):
+            id_chamado = dv._normalizar_id(r[2])  # noqa: SLF001
+            if not id_chamado:
                 continue
             pred = str(r[4] or "").strip()
             if pred:
-                d[ln] = {"pred": pred, "conf": parse_conf(r[5])}
+                d[id_chamado] = {"pred": pred, "conf": parse_conf(r[5])}
         if d:
             out[m] = d
     return out
@@ -210,36 +217,39 @@ def confianca_maxima(preds_linha: dict[str, dict], calibradores: dict,
     return melhor
 
 
-def avaliar_ensembles_oof(linhas: list[int], verdade: dict[int, str],
-                          preds: dict[str, dict[int, dict]], vetos: dict[int, set],
+def avaliar_ensembles_oof(chaves: list[str], verdade: dict[str, str],
+                          preds: dict[str, dict[str, dict]], vetos: dict[str, set],
                           calibradores: dict, k: int, seed: int = 42) -> dict[str, np.ndarray]:
-    """Acertos (0/1) por linha de cada metodo de combinacao, com pesos aprendidos
-    OUT-OF-FOLD: o peso usado na linha i vem so dos outros folds."""
+    """Acertos (0/1) por chamado de cada metodo de combinacao, com pesos
+    aprendidos OUT-OF-FOLD: o peso usado no chamado i vem so dos outros folds.
+
+    `chaves` sao id_chamado, nao numeros de linha. Ver carregar_predicoes.
+    """
     modelos = sorted(preds)
-    n = len(linhas)
+    n = len(chaves)
     res = {"maioria_simples": np.zeros(n), "maioria_ponderada": np.zeros(n),
            "confianca_calibrada_max": np.zeros(n)}
     from sklearn.model_selection import KFold
     kk = max(2, min(k, n))
     kf = KFold(n_splits=kk, shuffle=True, random_state=seed)
     for tr_idx, te_idx in kf.split(range(n)):
-        # pesos do fold: acuracia validada APENAS nas linhas de treino
+        # pesos do fold: acuracia validada APENAS nos chamados de treino
         pesos = {}
         for m in modelos:
-            oks = [1.0 if preds[m].get(linhas[i], {}).get("pred") == verdade[linhas[i]] else 0.0
-                   for i in tr_idx if linhas[i] in preds[m]]
+            oks = [1.0 if preds[m].get(chaves[i], {}).get("pred") == verdade[chaves[i]] else 0.0
+                   for i in tr_idx if chaves[i] in preds[m]]
             acc = float(np.mean(oks)) if oks else 0.5
             pesos[m] = max(0.0, peso_log_odds(acc))
         for i in te_idx:
-            ln = linhas[i]
-            pl_ = {m: preds[m][ln] for m in modelos if ln in preds[m]}
-            vet = vetos.get(ln, set())
+            ch = chaves[i]
+            pl_ = {m: preds[m][ch] for m in modelos if ch in preds[m]}
+            vet = vetos.get(ch, set())
             v = votar_maioria(pl_, None, vet)
-            res["maioria_simples"][i] = 1.0 if v == verdade[ln] else 0.0
+            res["maioria_simples"][i] = 1.0 if v == verdade[ch] else 0.0
             v = votar_maioria(pl_, pesos, vet, calibradores)
-            res["maioria_ponderada"][i] = 1.0 if v == verdade[ln] else 0.0
+            res["maioria_ponderada"][i] = 1.0 if v == verdade[ch] else 0.0
             v = confianca_maxima(pl_, calibradores, vet)
-            res["confianca_calibrada_max"][i] = 1.0 if v == verdade[ln] else 0.0
+            res["confianca_calibrada_max"][i] = 1.0 if v == verdade[ch] else 0.0
     return res
 
 
@@ -281,8 +291,11 @@ def main() -> int:
         print(f"Falha ao acessar planilha: {type(e).__name__}: {e}", file=sys.stderr)
         return 1
 
+    # chave='id': a verdade precisa casar com as abas CLASSIF__ por id_chamado.
+    # Ver o comentario em carregar_predicoes sobre o incidente de 2026-08-02.
     decisoes = dv.carregar_decisoes(sh, config["aba_principal"],
-                                    so_conferencia_glpi=(args.verdade == "glpi"))
+                                    so_conferencia_glpi=(args.verdade == "glpi"),
+                                    chave="id")
     verdade = dv.verdade_validada(decisoes)
     print(f"fonte da verdade: {args.verdade}"
           + (" (coluna M + Q; N e P ignoradas)" if args.verdade == "glpi" else " (M, N, P e Q)"))
@@ -341,11 +354,12 @@ def main() -> int:
         return 0
     calibradores = _carregar_calibradores()
 
-    # Linhas avaliaveis: verdade conhecida e TODOS os modelos com predicao
+    # Chamados avaliaveis: verdade conhecida e TODOS os modelos com predicao
     # (paridade entre IAs — mesma base de comparacao, como na estatistica).
-    linhas = sorted(ln for ln in verdade if all(ln in preds[m] for m in preds))
-    n = len(linhas)
-    print(f"linhas avaliaveis (verdade + {len(preds)} predicoes): {n}")
+    # As chaves sao id_chamado; ver carregar_predicoes.
+    chaves = sorted(ch for ch in verdade if all(ch in preds[m] for m in preds))
+    n = len(chaves)
+    print(f"chamados avaliaveis (verdade + {len(preds)} predicoes): {n}")
     saida["n_avaliado"] = n
     if n < args.min_validados:
         saida["status"] = "aguardando_validacao"
@@ -359,7 +373,7 @@ def main() -> int:
     por_modelo = []
     acertos_modelo: dict[str, np.ndarray] = {}
     for m in sorted(preds):
-        oks = np.array([1.0 if preds[m][ln]["pred"] == verdade[ln] else 0.0 for ln in linhas])
+        oks = np.array([1.0 if preds[m][ch]["pred"] == verdade[ch] else 0.0 for ch in chaves])
         acertos_modelo[m] = oks
         acc = float(oks.mean())
         lo, hi = ic_bootstrap(oks, args.n_boot)
@@ -387,7 +401,7 @@ def main() -> int:
         melhor_vs_segundo = None
 
     # ---- ensembles (out-of-fold) ----
-    ens = avaliar_ensembles_oof(linhas, verdade, preds, vetos, calibradores, args.k_folds)
+    ens = avaliar_ensembles_oof(chaves, verdade, preds, vetos, calibradores, args.k_folds)
     ensembles = []
     a_melhor = acertos_modelo[melhor["modelo"]]
     for nome, oks in ens.items():
