@@ -1,76 +1,76 @@
 {
- "total_chamados": 14094,
- "com_conferencia_glpi": 14094,
- "verdade_glpi": 13492,
+ "total_chamados": 14058,
+ "com_conferencia_glpi": 14038,
+ "verdade_glpi": 13436,
  "verdade_manual": 602,
  "pendente_glpi_errado_sem_q": 0,
- "sem_conferencia": 0,
+ "sem_conferencia": 20,
  "correto_com_q_preenchida": 0,
  "errado_com_q_igual_a_c": 0,
  "por_modelo": {
   "naive_bayes": {
-   "correto": 10099,
-   "errado": 3995,
+   "correto": 10097,
+   "errado": 3941,
    "pendente": 0,
    "sem_predicao": 0,
-   "avaliados": 14094,
-   "acuracia": 0.7165
+   "avaliados": 14038,
+   "acuracia": 0.7193
   },
   "regressao_logistica": {
-   "correto": 11263,
-   "errado": 2831,
+   "correto": 11234,
+   "errado": 2804,
    "pendente": 0,
    "sem_predicao": 0,
-   "avaliados": 14094,
-   "acuracia": 0.7991
+   "avaliados": 14038,
+   "acuracia": 0.8003
   },
   "linear_svc": {
-   "correto": 11585,
-   "errado": 2509,
+   "correto": 11551,
+   "errado": 2487,
    "pendente": 0,
    "sem_predicao": 0,
-   "avaliados": 14094,
-   "acuracia": 0.822
+   "avaliados": 14038,
+   "acuracia": 0.8228
   },
   "sgd": {
-   "correto": 11262,
-   "errado": 2832,
+   "correto": 11238,
+   "errado": 2800,
    "pendente": 0,
    "sem_predicao": 0,
-   "avaliados": 14094,
-   "acuracia": 0.7991
+   "avaliados": 14038,
+   "acuracia": 0.8005
   },
   "extra_trees": {
-   "correto": 11312,
-   "errado": 2782,
+   "correto": 11293,
+   "errado": 2745,
    "pendente": 0,
    "sem_predicao": 0,
-   "avaliados": 14094,
-   "acuracia": 0.8026
+   "avaliados": 14038,
+   "acuracia": 0.8045
   },
   "random_forest": {
-   "correto": 11232,
-   "errado": 2862,
+   "correto": 11213,
+   "errado": 2825,
    "pendente": 0,
    "sem_predicao": 0,
-   "avaliados": 14094,
-   "acuracia": 0.7969
+   "avaliados": 14038,
+   "acuracia": 0.7988
   },
   "lstm": {
-   "correto": 10238,
-   "errado": 3856,
+   "correto": 10216,
+   "errado": 3822,
    "pendente": 0,
    "sem_predicao": 0,
-   "avaliados": 14094,
-   "acuracia": 0.7264
+   "avaliados": 14038,
+   "acuracia": 0.7277
   },
   "transformer_ft": {
-   "correto": 7925,
-   "errado": 1625,
+   "correto": 7924,
+   "errado": 1583,
    "pendente": 0,
-   "sem_predicao": 4544,
-   "avaliados": 9550,
-   "acuracia": 0.8298
+   "sem_predicao": 4531,
+   "avaliados": 9507,
+   "acuracia": 0.8335
   }
  },
  "distribuicao_q": {
@@ -108,7 +108,7 @@
  "categorias_distintas_q": 30,
  "ids_correto_com_q_preenchida": [],
  "ids_errado_com_q_igual_a_c": [],
- "gerado_em": "01/08/2026 22:03",
+ "gerado_em": "02/08/2026 00:34",
  "aba": "CONFERENCIA_MULTIMODELO",
  "regra": "M='Correto' -> verdade = C; M='Errado' + Q preenchida -> verdade = Q; M='Errado' sem Q -> pendente; M vazio -> ignorado"
 }
