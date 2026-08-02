@@ -78,6 +78,16 @@ def main() -> int:
             tipo = "FORMULA" if s.startswith("=") else "literal"
             print(f"  {pl._coluna_letra(i):>3} ({i:>2}) {tipo:>7}: "  # noqa: SLF001
                   f"{corta(cab[i-1], 28):<28} {corta(s, 40)}")
+        # As formulas de A:F definem o alcance do IMPORTRANGE e precisam ser
+        # lidas por inteiro para que qualquer alteracao da fonte seja montada
+        # sobre o mapeamento real, e nao sobre suposicao de qual coluna da aba
+        # de origem alimenta cada coluna daqui.
+        print("\n=== FORMULAS COMPLETAS DE A ATE F ===")
+        for i, val in enumerate(linha_f[:6], start=1):
+            s = str(val or "")
+            if s.startswith("="):
+                print(f"  {pl._coluna_letra(i)} ({cab[i-1]!r}):")  # noqa: SLF001
+                print(f"    {s}")
     except Exception as exc:  # noqa: BLE001
         print(f"  falha ao ler formulas: {type(exc).__name__}: {exc}")
 
