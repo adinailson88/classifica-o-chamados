@@ -14,12 +14,12 @@ from __future__ import annotations
 import json
 import sys
 import time
-import unicodedata
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import planilha as pl  # noqa: E402
 from tempo import agora_bahia  # noqa: E402
+from tipo_manutencao import tipo_manutencao  # noqa: E402,F401
 
 RAIZ = Path(__file__).resolve().parents[1]
 CONFIG_PADRAO = RAIZ / "config_experimento.json"
@@ -68,20 +68,6 @@ def com_retentativa(rotulo, func, tentativas=5, espera_inicial=20):
             espera = espera_inicial * tentativa
             print(f"{rotulo}: falha transitoria ({type(e).__name__}); nova tentativa em {espera}s", file=sys.stderr)
             time.sleep(espera)
-
-
-def _normalizar_categoria(valor):
-    texto = unicodedata.normalize("NFKD", str(valor or ""))
-    texto = "".join(c for c in texto if not unicodedata.combining(c))
-    return " ".join(texto.split()).casefold()
-
-
-def tipo_manutencao(categoria):
-    """Classifica o chamado pelo prefixo da categoria historica."""
-    normalizada = _normalizar_categoria(categoria)
-    if normalizada.startswith("manutencao preventiva >") or normalizada.startswith("manutencao preventiva>"):
-        return "Preventiva"
-    return "Corretiva"
 
 
 def aba_para_objetos(sh, nome):

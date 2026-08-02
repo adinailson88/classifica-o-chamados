@@ -1041,9 +1041,18 @@ const ROT_FAIXA={acima_95:">=95%",entre_70_95:"70-95%",abaixo_70:"<70%"};
 function normFiltro(v){
   return String(v ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\s+/g," ").trim().toLowerCase();
 }
+// Espelho de src/tipo_manutencao.py. Alterar os dois juntos: este e o fallback
+// para registros antigos, sem o campo "m" ja calculado no Python.
+const FAMILIAS_NAO_MANUTENCAO = new Set([
+  "outros","suprimentos/apoio tecnico","posto de trabalho",
+  "projetos e reformas","projeto","revisao"
+]);
 function tipoManutencao(cat){
-  const n = normFiltro(cat);
-  return (n.startsWith("manutencao preventiva >") || n.startsWith("manutencao preventiva>")) ? "Preventiva" : "Corretiva";
+  const fam = normFiltro(String(cat ?? "").split(">")[0])
+    .split("/").map(p=>p.trim()).join("/");
+  if(fam === "manutencao preventiva") return "Preventiva";
+  if(FAMILIAS_NAO_MANUTENCAO.has(fam)) return "Não manutenção";
+  return "Corretiva";
 }
 function valDe(x,c){ if(c==="k")return x.k?"concorda":"diverge"; if(c==="v")return x.v||"(sem validacao)"; if(c==="m")return x.m||tipoManutencao(x.o); return x[c]||""; }
 function rotDe(c,v){ return c==="f" ? (ROT_FAIXA[v]||v) : v; }
