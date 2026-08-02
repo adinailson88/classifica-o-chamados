@@ -41,6 +41,10 @@ on:
       max_turnos:
         description: "Turnos de 15 por modelo (0 = todos os pendentes)"
         default: "0"
+      sem_memoria_validada:
+        description: "Treinar SEM as decisoes humanas (obrigatorio para avaliacao)"
+        type: boolean
+        default: false
       aplicar:
         description: "Gravar na planilha"
         type: boolean
@@ -116,7 +120,13 @@ jobs:
           if [ "${{ github.event.inputs.aplicar }}" = "true" ] || [ "${{ github.event_name }}" = "schedule" ]; then
             APLICAR="--aplicar"
           fi
-          python src/classificacao_multimodelo.py --modelos "$MODELOS" --max-turnos "$MAX_TURNOS" $APLICAR
+          # Sem memoria validada, as predicoes ficam limpas para a avaliacao
+          # contra a conferencia humana. Ver o incidente de 02/08/2026.
+          SEM_MEM=""
+          if [ "${{ github.event.inputs.sem_memoria_validada }}" = "true" ]; then
+            SEM_MEM="--sem-memoria-validada"
+          fi
+          python src/classificacao_multimodelo.py --modelos "$MODELOS" --max-turnos "$MAX_TURNOS" $APLICAR $SEM_MEM
       - name: Remover credenciais
         if: always()
         run: rm -f credenciais_sa.json
