@@ -1,7 +1,7 @@
 {
-  "gerado_em": "01/08/2026 21:59",
+  "gerado_em": "02/08/2026 00:47",
   "natureza": "analise exploratoria de erros da IA contra a conferencia humana; orienta a qualidade da ABERTURA do chamado, nao e metrica de producao",
-  "n_conferidos_ia": 8703,
+  "n_conferidos_ia": 8661,
   "minimo_recomendado": 30,
   "campos_formulario_sugeridos": [
     {
@@ -23,56 +23,64 @@
   ],
   "status": "ok",
   "n_erros_ia": 258,
-  "n_acertos_ia": 8445,
+  "n_acertos_ia": 8403,
   "comparacao_erros_vs_acertos": [
     {
       "caracteristica": "comprimento_titulo",
       "n_erros": 258,
-      "n_acertos": 8445,
+      "n_acertos": 8403,
       "mediana_erros": 54.0,
       "mediana_acertos": 53.0,
-      "p_mann_whitney": 0.40025314405104173,
-      "delta_cliff": -0.0307
+      "p_mann_whitney": 0.4156780691345252,
+      "delta_cliff": -0.0297
     },
     {
       "caracteristica": "comprimento_descricao",
       "n_erros": 258,
-      "n_acertos": 8445,
+      "n_acertos": 8403,
       "mediana_erros": 132.5,
       "mediana_acertos": 186.0,
-      "p_mann_whitney": 1.3311699728016666e-13,
-      "delta_cliff": -0.2699
+      "p_mann_whitney": 6.814074864050297e-14,
+      "delta_cliff": -0.2732
     },
     {
       "caracteristica": "n_tokens",
       "n_erros": 258,
-      "n_acertos": 8445,
+      "n_acertos": 8403,
       "mediana_erros": 32.0,
       "mediana_acertos": 39.0,
-      "p_mann_whitney": 6.550950920195046e-09,
-      "delta_cliff": -0.2117
+      "p_mann_whitney": 4.425956360847759e-09,
+      "delta_cliff": -0.2141
     },
     {
       "caracteristica": "campos_preenchidos",
       "n_erros": 258,
-      "n_acertos": 8445,
+      "n_acertos": 8403,
       "mediana_erros": 1.0,
       "mediana_acertos": 1.0,
-      "p_mann_whitney": 7.803665141166843e-06,
-      "delta_cliff": -0.1059
+      "p_mann_whitney": 6.868205763002929e-06,
+      "delta_cliff": -0.1067
     },
     {
       "caracteristica": "cobertura_termos_categoria",
       "n_erros": 258,
-      "n_acertos": 8090,
+      "n_acertos": 8048,
       "mediana_erros": 0.12,
       "mediana_acertos": 0.16,
-      "p_mann_whitney": 2.2493103427905327e-17,
-      "delta_cliff": -0.3081
+      "p_mann_whitney": 5.4207307445373085e-18,
+      "delta_cliff": -0.3141
     }
   ],
   "leitura": "Se 'cobertura_termos_categoria' e comprimentos forem significativamente menores nos ERROS (p<0,05 e |delta de Cliff|>=0,147), a hipotese se confirma: texto pobre -> erro de categoria. O checklist por categoria lista os termos discriminativos ausentes nos erros — e a informacao que o formulario deve induzir o solicitante a fornecer, sem nunca pedir a categoria em si.",
   "por_categoria": [
+    {
+      "categoria": "Projeto > Elétrico (tomada e iluminação)",
+      "n_conferidos": 1,
+      "erros_ia": 1,
+      "taxa_erro_ia": 1.0,
+      "termos_que_faltaram_nos_erros": [],
+      "informacao_a_solicitar": null
+    },
     {
       "categoria": "Projetos e Reformas > Reforma",
       "n_conferidos": 48,
@@ -113,14 +121,6 @@
         }
       ],
       "informacao_a_solicitar": "Pedir que o solicitante descreva o problema citando o objeto e o sintoma (vocabulario tipico desta categoria: iluminacao emergencia, fisica, cameras, atendimento numero, instalacao iluminacao)."
-    },
-    {
-      "categoria": "Projeto > Elétrico (tomada e iluminação)",
-      "n_conferidos": 7,
-      "erros_ia": 1,
-      "taxa_erro_ia": 0.1429,
-      "termos_que_faltaram_nos_erros": [],
-      "informacao_a_solicitar": null
     },
     {
       "categoria": "Hidrossanitária > Bomba",
@@ -971,7 +971,7 @@
     },
     {
       "categoria": "Manutenção Preventiva > Reservatório",
-      "n_conferidos": 208,
+      "n_conferidos": 207,
       "erros_ia": 1,
       "taxa_erro_ia": 0.0048,
       "termos_que_faltaram_nos_erros": [],
@@ -1018,14 +1018,6 @@
       "informacao_a_solicitar": null
     },
     {
-      "categoria": "Posto de trabalho > Contratação de Posto de trabalho",
-      "n_conferidos": 77,
-      "erros_ia": 0,
-      "taxa_erro_ia": 0.0,
-      "termos_que_faltaram_nos_erros": [],
-      "informacao_a_solicitar": null
-    },
-    {
       "categoria": "Estrutura Predial > Instalações Especiais (gás, ar comprimido, etc.)",
       "n_conferidos": 2,
       "erros_ia": 0,
@@ -1036,6 +1028,14 @@
     {
       "categoria": "Manutenção Preventiva > Nobreak",
       "n_conferidos": 7,
+      "erros_ia": 0,
+      "taxa_erro_ia": 0.0,
+      "termos_que_faltaram_nos_erros": [],
+      "informacao_a_solicitar": null
+    },
+    {
+      "categoria": "Posto de trabalho > Contratação de Posto de trabalho",
+      "n_conferidos": 77,
       "erros_ia": 0,
       "taxa_erro_ia": 0.0,
       "termos_que_faltaram_nos_erros": [],
@@ -1082,128 +1082,8 @@
       "informacao_a_solicitar": null
     },
     {
-      "categoria": "Revisão > Telecomunicações",
-      "n_conferidos": 1,
-      "erros_ia": 0,
-      "taxa_erro_ia": 0.0,
-      "termos_que_faltaram_nos_erros": [],
-      "informacao_a_solicitar": null
-    },
-    {
-      "categoria": "Projeto > Climatização",
-      "n_conferidos": 3,
-      "erros_ia": 0,
-      "taxa_erro_ia": 0.0,
-      "termos_que_faltaram_nos_erros": [],
-      "informacao_a_solicitar": null
-    },
-    {
-      "categoria": "Projeto > Hidrossanitário",
-      "n_conferidos": 6,
-      "erros_ia": 0,
-      "taxa_erro_ia": 0.0,
-      "termos_que_faltaram_nos_erros": [],
-      "informacao_a_solicitar": null
-    },
-    {
-      "categoria": "Projeto > Combate à Incêndio",
-      "n_conferidos": 3,
-      "erros_ia": 0,
-      "taxa_erro_ia": 0.0,
-      "termos_que_faltaram_nos_erros": [],
-      "informacao_a_solicitar": null
-    },
-    {
-      "categoria": "Revisão > Comunicação Visual e Sinalização Tátil",
-      "n_conferidos": 1,
-      "erros_ia": 0,
-      "taxa_erro_ia": 0.0,
-      "termos_que_faltaram_nos_erros": [],
-      "informacao_a_solicitar": null
-    },
-    {
-      "categoria": "Memorial > Memorial Descritivo",
-      "n_conferidos": 1,
-      "erros_ia": 0,
-      "taxa_erro_ia": 0.0,
-      "termos_que_faltaram_nos_erros": [],
-      "informacao_a_solicitar": null
-    },
-    {
-      "categoria": "Memorial > Memorial de Especificações",
-      "n_conferidos": 2,
-      "erros_ia": 0,
-      "taxa_erro_ia": 0.0,
-      "termos_que_faltaram_nos_erros": [],
-      "informacao_a_solicitar": null
-    },
-    {
-      "categoria": "Orçamento",
-      "n_conferidos": 4,
-      "erros_ia": 0,
-      "taxa_erro_ia": 0.0,
-      "termos_que_faltaram_nos_erros": [],
-      "informacao_a_solicitar": null
-    },
-    {
-      "categoria": "Projeto > Arquitetônico",
-      "n_conferidos": 4,
-      "erros_ia": 0,
-      "taxa_erro_ia": 0.0,
-      "termos_que_faltaram_nos_erros": [],
-      "informacao_a_solicitar": null
-    },
-    {
-      "categoria": "Projeto > Infraestrutura",
-      "n_conferidos": 1,
-      "erros_ia": 0,
-      "taxa_erro_ia": 0.0,
-      "termos_que_faltaram_nos_erros": [],
-      "informacao_a_solicitar": null
-    },
-    {
-      "categoria": "Projeto > Superestrutura",
-      "n_conferidos": 1,
-      "erros_ia": 0,
-      "taxa_erro_ia": 0.0,
-      "termos_que_faltaram_nos_erros": [],
-      "informacao_a_solicitar": null
-    },
-    {
-      "categoria": "Projeto > Telecomunicações",
-      "n_conferidos": 4,
-      "erros_ia": 0,
-      "taxa_erro_ia": 0.0,
-      "termos_que_faltaram_nos_erros": [],
-      "informacao_a_solicitar": null
-    },
-    {
-      "categoria": "Projeto > Comunicação Visual e Sinalização Tátil",
-      "n_conferidos": 1,
-      "erros_ia": 0,
-      "taxa_erro_ia": 0.0,
-      "termos_que_faltaram_nos_erros": [],
-      "informacao_a_solicitar": null
-    },
-    {
       "categoria": "Manutenção Preventiva > Elevador",
       "n_conferidos": 48,
-      "erros_ia": 0,
-      "taxa_erro_ia": 0.0,
-      "termos_que_faltaram_nos_erros": [],
-      "informacao_a_solicitar": null
-    },
-    {
-      "categoria": "Projeto > Fotovoltaico",
-      "n_conferidos": 2,
-      "erros_ia": 0,
-      "taxa_erro_ia": 0.0,
-      "termos_que_faltaram_nos_erros": [],
-      "informacao_a_solicitar": null
-    },
-    {
-      "categoria": "Projeto > Subestação",
-      "n_conferidos": 1,
       "erros_ia": 0,
       "taxa_erro_ia": 0.0,
       "termos_que_faltaram_nos_erros": [],

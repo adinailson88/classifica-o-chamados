@@ -1,5 +1,5 @@
 {
-  "gerado_em": "01/08/2026 21:59",
+  "gerado_em": "02/08/2026 00:46",
   "schema_version": "1.0",
   "run_id": "EXP_CLASSIFICACAO_CHAMADOS_2026_06_001",
   "script_origem": "src/avaliacao_final.py",
@@ -10,150 +10,117 @@
   "natureza": "acerto contra a VERDADE VALIDADA pela conferencia humana (M/N/P/Q); NAO e concordancia com o historico",
   "fonte_verdade": "glpi",
   "fonte_verdade_regra": "conferencia do GLPI (coluna M): 'Correto' trava a categoria historica; 'Errado' trava a categoria manual (coluna Q) quando preenchida. As colunas N (CONFERENCIA IA) e P nao entram.",
-  "validados": 14094,
+  "validados": 14038,
   "minimo_recomendado": 50,
   "conferencias": {
-    "com_conferencia": 14094,
-    "decididos": 14094,
+    "com_conferencia": 14038,
+    "decididos": 14038,
     "restritos": 0,
     "conflitos": 0
   },
   "modelos_excluidos": [
+    "extra_trees",
+    "lstm",
+    "random_forest",
     "transformer_ft"
   ],
   "modelos_incluidos": [
-    "extra_trees",
     "linear_svc",
-    "lstm",
     "naive_bayes",
-    "random_forest",
     "regressao_logistica",
     "sgd"
   ],
   "protocolo_bertimbau": "treino concluido, mas sem CLASSIF__transformer_ft OOF na base completa; avaliado separadamente em docs/dados/avaliacao_bertimbau_holdout.json",
-  "n_avaliado": 14094,
+  "n_avaliado": 14038,
   "status": "ok",
   "por_modelo": [
     {
+      "modelo": "naive_bayes",
+      "n": 14038,
+      "acerto_validado": 0.0997,
+      "ic95": [
+        0.0948,
+        0.1046
+      ],
+      "peso_log_odds": -2.2002,
+      "peso_normalizado": 0.2876
+    },
+    {
       "modelo": "linear_svc",
-      "n": 14094,
-      "acerto_validado": 0.822,
+      "n": 14038,
+      "acerto_validado": 0.0844,
       "ic95": [
-        0.8155,
-        0.8283
+        0.08,
+        0.089
       ],
-      "peso_log_odds": 1.5298,
-      "peso_normalizado": 0.1505
-    },
-    {
-      "modelo": "extra_trees",
-      "n": 14094,
-      "acerto_validado": 0.8026,
-      "ic95": [
-        0.7959,
-        0.8093
-      ],
-      "peso_log_odds": 1.4027,
-      "peso_normalizado": 0.1469
-    },
-    {
-      "modelo": "regressao_logistica",
-      "n": 14094,
-      "acerto_validado": 0.7991,
-      "ic95": [
-        0.7926,
-        0.8055
-      ],
-      "peso_log_odds": 1.3809,
-      "peso_normalizado": 0.1463
+      "peso_log_odds": -2.3838,
+      "peso_normalizado": 0.2434
     },
     {
       "modelo": "sgd",
-      "n": 14094,
-      "acerto_validado": 0.7991,
+      "n": 14038,
+      "acerto_validado": 0.0821,
       "ic95": [
-        0.7925,
-        0.8057
+        0.0776,
+        0.0866
       ],
-      "peso_log_odds": 1.3805,
-      "peso_normalizado": 0.1463
+      "peso_log_odds": -2.4146,
+      "peso_normalizado": 0.2368
     },
     {
-      "modelo": "random_forest",
-      "n": 14094,
-      "acerto_validado": 0.7969,
+      "modelo": "regressao_logistica",
+      "n": 14038,
+      "acerto_validado": 0.0805,
       "ic95": [
-        0.7905,
-        0.8039
+        0.0759,
+        0.085
       ],
-      "peso_log_odds": 1.3672,
-      "peso_normalizado": 0.1459
-    },
-    {
-      "modelo": "lstm",
-      "n": 14094,
-      "acerto_validado": 0.7264,
-      "ic95": [
-        0.7189,
-        0.7342
-      ],
-      "peso_log_odds": 0.9765,
-      "peso_normalizado": 0.133
-    },
-    {
-      "modelo": "naive_bayes",
-      "n": 14094,
-      "acerto_validado": 0.7165,
-      "ic95": [
-        0.7091,
-        0.724
-      ],
-      "peso_log_odds": 0.9274,
-      "peso_normalizado": 0.1312
+      "peso_log_odds": -2.4356,
+      "peso_normalizado": 0.2322
     }
   ],
-  "melhor_ia": "linear_svc",
+  "melhor_ia": "naive_bayes",
   "melhor_vs_segundo": {
-    "segundo": "extra_trees",
-    "delta": 0.0194,
-    "p_mcnemar": 3.145912290177051e-14
+    "segundo": "linear_svc",
+    "delta": 0.0153,
+    "p_mcnemar": 1.3237107057340136e-25
   },
   "ensembles": [
     {
       "metodo": "confianca_calibrada_max",
-      "acerto_validado": 0.824,
+      "acerto_validado": 0.085,
       "ic95": [
-        0.8174,
-        0.8301
+        0.0802,
+        0.0895
       ],
-      "delta_vs_melhor_ia": 0.002,
-      "p_mcnemar_vs_melhor_ia": 0.3775037149796062
-    },
-    {
-      "metodo": "maioria_ponderada",
-      "acerto_validado": 0.8232,
-      "ic95": [
-        0.8169,
-        0.8294
-      ],
-      "delta_vs_melhor_ia": 0.0012,
-      "p_mcnemar_vs_melhor_ia": 0.5188422760767281
+      "delta_vs_melhor_ia": -0.0147,
+      "p_mcnemar_vs_melhor_ia": 1.0861367121437743e-25
     },
     {
       "metodo": "maioria_simples",
-      "acerto_validado": 0.8227,
+      "acerto_validado": 0.0847,
       "ic95": [
-        0.8163,
-        0.8289
+        0.0799,
+        0.0891
       ],
-      "delta_vs_melhor_ia": 0.0007,
-      "p_mcnemar_vs_melhor_ia": 0.746971982775282
+      "delta_vs_melhor_ia": -0.015,
+      "p_mcnemar_vs_melhor_ia": 5.500044003898713e-28
+    },
+    {
+      "metodo": "maioria_ponderada",
+      "acerto_validado": 0.0835,
+      "ic95": [
+        0.0789,
+        0.0878
+      ],
+      "delta_vs_melhor_ia": -0.0162,
+      "p_mcnemar_vs_melhor_ia": 2.94965147492942e-29
     }
   ],
   "vale_combinar": {
     "veredicto": false,
-    "recomendacao": "linear_svc",
-    "justificativa": "Nenhum ensemble supera a melhor IA isolada com significancia (McNemar p>=0,05) — combinar nao compensa o custo adicional; use 'linear_svc' com calibracao."
+    "recomendacao": "naive_bayes",
+    "justificativa": "Nenhum ensemble supera a melhor IA isolada com significancia (McNemar p>=0,05) — combinar nao compensa o custo adicional; use 'naive_bayes' com calibracao."
   },
   "observacoes": [
     "Pesos do voto ponderado aprendidos out-of-fold (k-fold nos validados).",
