@@ -421,9 +421,15 @@ incompletas, características que impõem desafios específicos de
 pré-processamento e representação textual (SUNDARAM; ZEID, 2025).
 
 A base é dinâmica, pois novos chamados continuam a ser incorporados e a
-taxonomia institucional pode ser revisada ao longo do tempo. Os
-resultados da Seção 4 referem-se ao corpus descrito acima. A distribuição completa dos chamados entre as 50 categorias
-históricas é apresentada no Apêndice A.
+taxonomia institucional pode ser revisada ao longo do tempo. Por essa
+razão, todos os resultados da Seção 4 referem-se a um corte fixo da base,
+realizado em 2 de agosto de 2026, com 14.058 chamados elegíveis. Os
+artefatos que sustentam cada número, incluindo predições por modelo e
+matrizes de confusão, foram materializados sobre esse mesmo corte e estão
+versionados no repositório indicado na Subseção 3.9, de modo que a
+reprodução não depende do estado corrente do sistema institucional. A
+distribuição completa dos chamados entre as 50 categorias históricas é
+apresentada no Apêndice A.
 
 **3.3 Pré-processamento textual**
 
@@ -1828,7 +1834,7 @@ dois blocos paralelos para reduzir a extensão do apêndice.
 | Elétrica > Instalações elétricas | 945 | Climatização > Ar condicionado central | 37 |
 | Elétrica > Iluminação | 758 | Manutenção Preventiva > Esgoto | 33 |
 | Manutenção Preventiva > Quadros Elétricos | 578 | Manutenção Preventiva > Hidráulica | 33 |
-| TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi | 404 | Outros > Outros | 33 |
+| TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi | 403 | Outros > Outros | 33 |
 | Instalação de Acessórios e Mobiliário > Instalação/reparo de equipamentos (Suportes de TV, acessórios de banheiro e quadro branco) | 290 | Segurança contra Incêndio > Sistemas de combate a incêndio (extintores, hidrantes) | 29 |
 | Manutenção Preventiva > Reservatório | 279 | Projetos e Reformas > Projeto | 25 |
 | Manutenção Preventiva > Vistoria em Instalações | 247 | Equipamentos de Transporte > Elevador | 22 |
@@ -1845,7 +1851,7 @@ dois blocos paralelos para reduzir a extensão do apêndice.
 | Suprimentos / Apoio Técnico > Materiais | 85 | Suprimentos / Apoio Técnico > Transporte | 1 |
 | Projetos e Reformas > Reforma | 83 | Manutenção Preventiva (nível raiz) | 2 |
 | Manutenção Preventiva > Sistemas de combate a incêndio (extintores, hidrantes) | 66 |  |  |
-| **Total geral** | **14.059** |  |  |
+| **Total geral** | **14.058** |  |  |
 
 *Fonte: elaboração própria a partir do corpus analisado.*
 
