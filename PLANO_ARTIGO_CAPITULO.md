@@ -80,7 +80,7 @@ A fonte editável é `04_artigo/artigo_classificacao_chamados_v3.md`. O PDF publ
 
 **O que foi feito nesta rodada:** o workflow `Auditar base canonica (read-only)` foi executado novamente em `main`, sem escrita na planilha. Todos os bloqueadores ficaram zerados. O relatório e o JSON sanitizados foram preservados em `docs/`, com hash da base `e10c78e4db0026cfcbfa5267ddac034a3c8d3a7a0a1d63fa0cf2ce52f165b174` e hashes idênticos das duas taxonomias (`ec6f75ca0427d7a0bd224e019a0052ee4e50734bbda66a7fd45890f7c8b488cb`).
 
-**Próximo passo:** executar o Passo 2 em branch/PR própria: normalizar os quatro campos textuais, criar grupos reproduzíveis de textos idênticos, diagnosticar quase duplicados separadamente e salvar o identificador ou hash de grupo por registro. Nenhum retreinamento deve começar antes de verificar que os grupos idênticos poderão permanecer integralmente na mesma partição.
+**Próximo passo:** o Passo 2 está em execução em branch própria. A ferramenta `src/construir_grupos_textuais.py` normaliza os quatro campos textuais, agrupa por identidade exata do hash dos quatro campos separados, diagnostica quase duplicados por similaridade de cosseno sem fundi-los e grava o hash de grupo por registro. Falta executá-la contra a base congelada e registrar os números reais. Nenhum retreinamento deve começar antes de verificar que os grupos idênticos poderão permanecer integralmente na mesma partição.
 
 ## Critérios para novo fechamento científico
 
