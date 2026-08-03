@@ -1,0 +1,56 @@
+name: Gerar particoes canonicas (read-only)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  particionar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements-leves.txt
+      - name: Dependencias
+        run: python -m pip install --retries 5 --timeout 120 -r requirements-leves.txt
+      - name: Testes das particoes
+        run: python -m unittest discover -s tests -p "test_gerar_particoes_canonicas.py" -t tests
+      - name: Recriar chave da conta de servico
+        env:
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+        run: |
+          if [ -z "$GCP_SA_KEY" ]; then echo "Secret GCP_SA_KEY ausente." >&2; exit 1; fi
+          printf '%s' "$GCP_SA_KEY" > credenciais_sa.json
+      - name: Particionar sem escrever na planilha
+        id: particoes
+        continue-on-error: true
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: credenciais_sa.json
+        run: python src/gerar_particoes_canonicas.py
+      - name: Remover credenciais
+        if: always()
+        run: rm -f credenciais_sa.json
+      - name: Publicar relatorio como artefato
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: particoes-canonicas
+          path: |
+            docs/dados/particoes_canonicas.json
+            docs/dados/particoes_canonicas_mapa.csv
+            docs/PARTICOES_CANONICAS.md
+          if-no-files-found: error
+          retention-days: 30
+      - name: Aplicar criterio de aceite
+        if: steps.particoes.outcome == 'failure'
+        run: |
+          echo "Particionamento concluiu com bloqueios; consulte o artefato." >&2
+          exit 1
