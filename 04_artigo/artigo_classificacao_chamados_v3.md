@@ -22,6 +22,19 @@ header-includes:
     % O placeins vive em 04_artigo/latex porque nao existe na imagem
     % pandoc/extra do workflow; o ramo alternativo evita falha de build caso o
     % TEXINPUTS nao o alcance.
+    % As tabelas curtas do pandoc sao longtable e podem partir a poucas linhas
+    % do fim da pagina, separando a legenda ou as primeiras linhas do corpo.
+    % \NaoQuebrar reserva espaco vertical antes do bloco: se nao couber, a
+    % tabela inteira desce para a pagina seguinte. O ramo alternativo mantem o
+    % build caso needspace nao exista na imagem.
+    % Os ramos do \IfFileExists sao guardados com \def, entao o parametro
+    % precisa aparecer duplicado.
+    \IfFileExists{needspace.sty}{%
+      \usepackage{needspace}%
+      \newcommand{\NaoQuebrar}[1]{\Needspace*{##1\baselineskip}}%
+    }{%
+      \newcommand{\NaoQuebrar}[1]{\par}%
+    }
     \IfFileExists{placeins.sty}{%
       \usepackage{placeins}%
     }{%
@@ -75,14 +88,20 @@ histórico administrativo e acerto validado por revisão humana. A
 conferência humana cobre a totalidade do corpus, de modo que o acerto
 validado é apurado sobre as 14.058 decisões e não sobre uma amostra. Na
 comparação integral, o LinearSVC lidera a concordância com o histórico
-(80,49%) e o acerto validado (81,98%). No *holdout* comum, o LinearSVC
+(80,49%) e o acerto validado (81,97%). No *holdout* comum, o LinearSVC
 alcança 67,34% e o BERTimbau 67,85%, sem diferença estatisticamente
 significativa pelo teste de McNemar. Os resultados indicam que o modelo
 contextual é competitivo no recorte avaliado, mas não há evidência de
 superioridade sobre o classificador linear. O custo computacional
 permanece dimensão relevante da decisão e favorece modelos lineares em
 cenários de texto curto, ruidoso e desbalanceado: o LinearSVC treina em
-2,68 s, contra 161 a 304 min do transformador no mesmo ambiente.
+2,68 s, contra 161 a 304 min do transformador no mesmo ambiente. O
+recorte do desempenho por volume de categoria e por natureza da
+intervenção demonstra que o F1 macro de 0,5523 resulta da composição da
+métrica, pois o mesmo modelo alcança 0,8152 nas 12 categorias que
+concentram 80,92% do volume, e que a distinção entre manutenção
+preventiva e corretiva é obtida com F1 de 0,9724 e 0,9507,
+respectivamente.
 
 **Palavras-chave:** manutenção predial; classificação de chamados;
 processamento de linguagem natural; rótulos ruidosos; validação humana.
@@ -109,14 +128,19 @@ administrative history and human-validated accuracy. Human review covers
 the entire corpus, so human-validated accuracy is calculated over all
 14,058 decisions rather than over a sample. In the full-corpus
 comparison, LinearSVC leads both agreement with history (80.49%) and
-human-validated accuracy (81.98%). In the common holdout, LinearSVC
+human-validated accuracy (81.97%). In the common holdout, LinearSVC
 reaches 67.34% and BERTimbau 67.85%, with no statistically significant
 difference under McNemar's test. The contextual model is therefore
 competitive in the evaluated subset, but there is no evidence that it
 outperforms the linear classifier. Computational cost remains a relevant
 decision dimension and favors linear models in short, noisy, and
 imbalanced text settings: LinearSVC trains in 2.68 s, against 161 to 304
-min for the transformer in the same environment.*
+min for the transformer in the same environment. Breaking performance
+down by category volume and by the nature of the intervention shows that
+the macro F1 of 0.5523 stems from how the metric is composed, since the
+same model reaches 0.8152 on the 12 categories that concentrate 80.92% of
+the volume, and that preventive maintenance is told apart from corrective
+maintenance with F1 of 0.9724 and 0.9507, respectively.*
 
 ***Keywords:** building maintenance; work-order classification; natural
 language processing; noisy labels; human validation.*
@@ -420,10 +444,17 @@ técnicos, nomes de ambientes, abreviações locais e descrições
 incompletas, características que impõem desafios específicos de
 pré-processamento e representação textual (SUNDARAM; ZEID, 2025).
 
-A base é dinâmica, pois novos chamados continuam a ser incorporados e a
-taxonomia institucional pode ser revisada ao longo do tempo. Os
-resultados da Seção 4 referem-se ao corpus descrito acima. A distribuição completa dos chamados entre as 50 categorias
-históricas é apresentada no Apêndice A.
+A base é dinâmica, pois a planilha de trabalho é alimentada continuamente
+pelo sistema de atendimento e novos chamados são incorporados a cada
+sincronização. Por essa razão, todos os resultados da Seção 4 referem-se
+a um corte por data de abertura, que compreende os chamados registrados
+até 1º de agosto de 2026 e totaliza 14.058 registros elegíveis. Os
+artefatos que sustentam cada número, incluindo predições por modelo e
+matrizes de confusão, foram materializados sobre esse mesmo corte e estão
+versionados no repositório indicado na Subseção 3.9, de modo que a
+reprodução não depende do estado corrente do sistema institucional. A
+distribuição completa dos chamados entre as 50 categorias históricas é
+apresentada no Apêndice A.
 
 **3.3 Pré-processamento textual**
 
@@ -813,16 +844,18 @@ seleção amostral discutidas na Subseção 4.4.
 A comparação contra a categoria histórica, sobre a base completa (n =
 14.058, com intervalo de confiança por bootstrap a 95%), mantém o
 LinearSVC na liderança, com acurácia de 0,8049 (IC95%:
-0,7981--0,8113), seguido por Extra Trees (0,7880), Random Forest (0,7786), SGD (0,7769), Regressão Logística (0,7717), Naive Bayes (0,6987), LSTM (0,6921).
+0,7985--0,8117), seguido por Extra Trees (0,7880), Random Forest (0,7785), SGD (0,7769), Regressão Logística (0,7716), Naive Bayes (0,6987), LSTM (0,6920).
 O teste de Cochran Q confirma diferença global
-entre os sete modelos avaliados (Q = 2446,95; p < 0,001). A comparação integral exclui o BERTimbau porque o modelo não possui
+entre os sete modelos avaliados (Q = 2448,55; p < 0,001). A comparação integral exclui o BERTimbau porque o modelo não possui
 predições *out-of-fold* sobre as 14.058 linhas; o treino concluído é
 avaliado separadamente na Subseção 4.3. O Kappa de Cohen (COHEN, 1960) entre cada
-modelo e o histórico reproduz a mesma ordenação, variando de
-0,7881 (LinearSVC) a 0,6496 (LSTM), faixa que Landis e Koch (1977)
-classificam como concordância substancial. Cabe a ressalva de que o
-coeficiente é sensível à prevalência das categorias, o que recomenda
-lê-lo ao lado do acordo bruto (WONGPAKARAN *et al.*, 2013). A oitava fonte de classificação, a
+modelo e o histórico reproduz ordenação semelhante, variando de
+0,7902 (LinearSVC) a 0,6694 (Naive Bayes), faixa que Landis e Koch (1977)
+classificam como concordância substancial. As duas medidas divergem
+apenas em duas trocas de posição, entre SGD e Random Forest e entre LSTM
+e Naive Bayes. A divergência decorre da sensibilidade do coeficiente à
+prevalência das categorias, o que recomenda lê-lo ao lado do acordo bruto
+(WONGPAKARAN *et al.*, 2013). A oitava fonte de classificação, a
 classificação automática em produção, mantém concordância de 78,61% e
 confiança média de 73,49%, posicionando-se entre Regressão Logística e
 SGD nesta métrica. A comparação direta com o LSTM *out-of-fold* da
@@ -834,13 +867,13 @@ regra de contingência do Random Forest (Subseção 3.4), em vez de um
 
 | Modelo | Acurácia | IC95% |
 |---|---|---|
-| LinearSVC | 0,8049 | 0,7981 -- 0,8113 |
-| Extra Trees | 0,7880 | 0,7811 -- 0,7949 |
-| Random Forest | 0,7786 | 0,7714 -- 0,7856 |
-| SGD | 0,7769 | 0,7701 -- 0,7843 |
-| Regressão Logística | 0,7717 | 0,7650 -- 0,7788 |
-| Naive Bayes | 0,6987 | 0,6911 -- 0,7064 |
-| LSTM (out-of-fold) | 0,6921 | 0,6842 -- 0,6997 |
+| LinearSVC | 0,8049 | 0,7985 -- 0,8117 |
+| Extra Trees | 0,7880 | 0,7815 -- 0,7950 |
+| Random Forest | 0,7785 | 0,7714 -- 0,7854 |
+| SGD | 0,7769 | 0,7700 -- 0,7836 |
+| Regressão Logística | 0,7716 | 0,7646 -- 0,7783 |
+| Naive Bayes | 0,6987 | 0,6910 -- 0,7066 |
+| LSTM (out-of-fold) | 0,6920 | 0,6845 -- 0,6998 |
 
 A concordância com o histórico não é uniforme entre as 50 categorias. O
 desempenho por categoria, incluindo suporte, precisão, revocação e F1,
@@ -863,9 +896,9 @@ que pequena variação absoluta altera fortemente a métrica.
 A avaliação contra a categoria de referência validada utiliza os 14.058
 chamados do corpus, uma vez que a conferência humana estabeleceu categoria
 final para todos eles. O LinearSVC permanece o melhor modelo isolado, com
-acerto validado de 0,8198 (IC95%: 0,8138--0,8260), seguido por
-SGD (0,8013), Extra Trees (0,7984), Regressão Logística (0,7963), Random Forest (0,7897), LSTM (0,7106), Naive Bayes (0,7088). A diferença entre
-o primeiro e o segundo colocado é de 1,85 ponto percentual e é
+acerto validado de 0,8197 (IC95%: 0,8136--0,8258), seguido por
+SGD (0,8011), Extra Trees (0,7984), Regressão Logística (0,7962), Random Forest (0,7899), LSTM (0,7107), Naive Bayes (0,7090). A diferença entre
+o primeiro e o segundo colocado é de 1,86 ponto percentual e é
 estatisticamente significativa (McNemar, *p* < 0,001). Foram avaliados
 também três *ensembles*: maioria ponderada (0,8217), maioria simples
 (0,8204) e confiança calibrada máxima (0,8184). Nenhum deles supera o
@@ -884,12 +917,12 @@ pares sobrepostos, discutidos na Subseção 4.6.
 
 A leitura por acurácia deve ser acompanhada do F1 macro, que pondera
 igualmente todas as categorias e revela comportamento distinto entre os
-modelos. O SGD alcança o maior F1 macro (0,5598), ligeiramente acima do
-LinearSVC (0,5567), ainda que perca 1,85 ponto percentual em acurácia.
+modelos. O SGD alcança o maior F1 macro (0,5555), ligeiramente acima do
+LinearSVC (0,5523), ainda que perca 1,86 ponto percentual em acurácia.
 Infere-se que o SGD distribui melhor o acerto entre categorias de baixa
 frequência, ao passo que o LinearSVC concentra desempenho nas classes
-volumosas. No extremo oposto, o Naive Bayes combina acurácia de 0,7088 com
-F1 macro de 0,2382, o que caracteriza um classificador que acerta as
+volumosas. No extremo oposto, o Naive Bayes combina acurácia de 0,7090 com
+F1 macro de 0,2425, o que caracteriza um classificador que acerta as
 categorias frequentes e falha de modo sistemático nas demais.
 
 **Tabela 2** Acerto validado e F1 macro por modelo (n = 14.058). O F1
@@ -898,13 +931,13 @@ suporte.
 
 | Modelo | Acerto validado | IC95% | F1 macro |
 |---|---|---|---|
-| LinearSVC | 0,8198 | 0,8138 -- 0,8260 | 0,5567 |
-| SGD | 0,8013 | 0,7949 -- 0,8079 | 0,5598 |
-| Extra Trees | 0,7984 | 0,7920 -- 0,8053 | 0,4967 |
-| Regressão Logística | 0,7963 | 0,7899 -- 0,8030 | 0,5549 |
-| Random Forest | 0,7897 | 0,7834 -- 0,7966 | 0,4700 |
-| LSTM | 0,7106 | 0,7032 -- 0,7182 | 0,4017 |
-| Naive Bayes | 0,7088 | 0,7014 -- 0,7164 | 0,2382 |
+| LinearSVC | 0,8197 | 0,8136 -- 0,8258 | 0,5523 |
+| SGD | 0,8011 | 0,7948 -- 0,8078 | 0,5555 |
+| Extra Trees | 0,7984 | 0,7921 -- 0,8054 | 0,4967 |
+| Regressão Logística | 0,7962 | 0,7897 -- 0,8029 | 0,5505 |
+| Random Forest | 0,7899 | 0,7835 -- 0,7968 | 0,4784 |
+| LSTM | 0,7107 | 0,7034 -- 0,7183 | 0,4089 |
+| Naive Bayes | 0,7090 | 0,7015 -- 0,7165 | 0,2425 |
 
 **4.3 BERTimbau no holdout comum de oito modelos**
 
@@ -1272,12 +1305,12 @@ sobre os 14.058 chamados e envolvendo 59 categorias distintas, somadas as
 que aparecem na referência e as que aparecem apenas nas predições.
 
 O contraste entre acurácia e F1 macro é o primeiro achado. Os sete
-modelos apresentam acurácia entre 0,7088 e 0,8198, faixa de 11 pontos
-percentuais, ao passo que o F1 macro varia de 0,2382 a 0,5598, faixa de
-32 pontos. A dispersão muito maior na segunda métrica indica que os
+modelos apresentam acurácia entre 0,7090 e 0,8197, faixa de 11 pontos
+percentuais, ao passo que o F1 macro varia de 0,2425 a 0,5555, faixa de
+31 pontos. A dispersão muito maior na segunda métrica indica que os
 modelos se diferenciam sobretudo no tratamento das categorias de baixa
 frequência. O Naive Bayes ilustra o caso extremo, pois combina acurácia
-de 0,7088 com F1 macro de 0,2382, o que corresponde a um classificador
+de 0,7090 com F1 macro de 0,2425, o que corresponde a um classificador
 que resolve as categorias volumosas e colapsa nas demais. O SGD e a
 Regressão Logística, embora percam em acurácia para o LinearSVC,
 alcançam F1 macro equivalente ou superior, o que sugere fronteira de
@@ -1305,7 +1338,7 @@ baseado em texto.
 
 Soma-se a esse quadro o problema de duplicação taxonômica discutido na
 Subseção 4.6. A categoria `Ar condicionado split` existe simultaneamente
-sob `Manutenção Preventiva`, com 1.795 chamados, e sob `Climatização`,
+sob `Manutenção Preventiva`, com 1.797 chamados, e sob `Climatização`,
 com 1.640, e o mesmo desdobramento ocorre com `Ar condicionado central`,
 `Gerador`, `Nobreak`, `Elevador`, `Telhados, calhas, rufos` e `Sistemas
 de combate a incêndio`. O critério que separa esses pares é a natureza
@@ -1334,6 +1367,153 @@ enquanto a substituição do classificador atua apenas sobre seu efeito.
 \FloatBarrier
 ```
 
+**4.11 Desempenho por volume de categoria e por natureza da manutenção**
+
+O F1 macro atribui o mesmo peso a uma categoria de dois chamados e a
+outra de dois mil, o que torna a métrica agregada pouco informativa
+quando a distribuição de volume é acentuadamente desigual. Aplicou-se,
+por conseguinte, uma curva ABC sobre o suporte das 56 categorias
+presentes na referência validada. A classe A reúne o menor conjunto de
+categorias que acumula ao menos 80% do volume, a classe B corresponde
+ao intervalo entre 80% e 95%, e a classe C abrange o restante. A
+partição resultante concentra 11.376 chamados, equivalentes a 80,92%
+do corpus, em apenas 12 categorias; a classe B reúne 14 categorias e
+2.040 chamados; a classe C reúne 30 categorias e 642 chamados, ou
+4,57% do total.
+
+O F1 macro recalculado dentro de cada classe (Tabela 8) demonstra que
+a distância entre acurácia e F1 macro decorre da composição da
+métrica, e não de falha generalizada do classificador. O LinearSVC
+alcança 0,8152 na classe A e 0,3571 na classe C, de modo que o valor
+agregado de 0,5523 constitui média entre dois regimes distintos de
+desempenho. A ordenação dos modelos permanece estável nas três
+classes, o que indica que o recorte não altera a comparação entre
+arquiteturas, mas apenas a interpretação de sua magnitude. Constata-se
+ainda que o Naive Bayes é o único modelo cujo colapso alcança a classe
+B, com 0,3263, enquanto os demais preservam desempenho superior a 0,63
+nas duas primeiras classes.
+
+```{=latex}
+\NaoQuebrar{14}
+```
+
+**Tabela 8** F1 macro por classe da curva ABC de volume (n = 14.058;
+56 categorias com suporte na referência validada).
+
+| Modelo | Classe A | Classe B | Classe C | Global |
+|---|---|---|---|---|
+| LinearSVC | 0,8152 | 0,7454 | 0,3571 | 0,5523 |
+| SGD | 0,7971 | 0,7501 | 0,3680 | 0,5555 |
+| Regressão Logística | 0,7943 | 0,7499 | 0,3600 | 0,5505 |
+| Extra Trees | 0,7821 | 0,7371 | 0,2703 | 0,4967 |
+| Random Forest | 0,7726 | 0,7253 | 0,2455 | 0,4784 |
+| LSTM | 0,7219 | 0,6384 | 0,1766 | 0,4089 |
+| Naive Bayes | 0,6756 | 0,3263 | 0,0301 | 0,2425 |
+
+O segundo recorte separa os chamados pela natureza da intervenção.
+Adotou-se classificação em três tipos, e não a dicotomia usual entre
+preventivo e corretivo, porque a taxonomia institucional abriga
+famílias que não descrevem serviço de manutenção. Encontram-se nessa
+condição o registro indevido de chamado, a contratação de posto de
+trabalho, o fornecimento de materiais e a execução de reformas. Essas
+famílias somam 595 chamados, correspondentes a 4,23% da base, e sua
+atribuição indiscriminada à manutenção corretiva elevaria o
+denominador desta em cerca de 7% relativos, com efeito direto sobre
+qualquer razão calculada entre as duas naturezas. Sob o critério
+adotado, a manutenção preventiva responde por 4.917 chamados (34,98%)
+e a corretiva por 8.546 (60,79%).
+
+A projeção da referência validada e das predições para o nível de tipo
+produz a avaliação reunida na Tabela 9. O LinearSVC alcança acurácia
+de 0,9393 nessa granularidade, contra 0,8197 na tarefa de 56
+categorias, com F1 de 0,9724 na manutenção preventiva e de 0,9507 na
+corretiva. A precisão na classe preventiva é de 0,980 e a revocação de
+0,965, o que se traduz em 4.842 chamados atribuídos a esse tipo contra
+4.917 efetivamente preventivos, diferença de 1,5% na contagem
+agregada. A distinção entre preventivo e corretivo foi apontada na
+Subseção 4.10 como origem taxonômica de parte do erro por categoria.
+Verifica-se, portanto, que ela é resolvida com margem estreita quando
+lida no nível em que a decisão de gestão efetivamente ocorre.
+
+```{=latex}
+\NaoQuebrar{15}
+```
+
+**Tabela 9** Desempenho na tarefa de tipo de manutenção, obtida por
+projeção da referência validada e das predições de categoria (n =
+14.058). P, preventiva; C, corretiva; NM, não manutenção.
+
+| Modelo | Acurácia | F1 macro | F1 (P) | F1 (C) | F1 (NM) |
+|---|---|---|---|---|---|
+| Extra Trees | 0,9495 | 0,7921 | 0,9738 | 0,9600 | 0,4426 |
+| Random Forest | 0,9478 | 0,7810 | 0,9736 | 0,9586 | 0,4108 |
+| Naive Bayes | 0,9410 | 0,7265 | 0,9656 | 0,9537 | 0,2602 |
+| LinearSVC | 0,9393 | 0,8057 | 0,9724 | 0,9507 | 0,4940 |
+| SGD | 0,9296 | 0,8097 | 0,9687 | 0,9421 | 0,5184 |
+| Regressão Logística | 0,9252 | 0,8036 | 0,9694 | 0,9381 | 0,5032 |
+| LSTM | 0,8709 | 0,7170 | 0,9373 | 0,8899 | 0,3239 |
+
+Toda a perda de desempenho observada nessa projeção concentra-se no
+terceiro tipo, cujo F1 não ultrapassa 0,5184 em nenhum dos sete
+modelos e recua a 0,2602 no Naive Bayes. O resultado é coerente com a
+natureza dessas categorias, cuja atribuição depende de juízo
+administrativo sobre a pertinência do próprio chamado e não de sua
+descrição técnica, conforme já observado a respeito de `Outros > Erro
+de chamado`. Cabe registrar que a ordenação dos modelos difere daquela
+obtida na tarefa de 56 categorias. Extra Trees e Random Forest,
+terceiro e quinto colocados no acerto validado por categoria, lideram
+a classificação por tipo, ao passo que o SGD apresenta o maior F1
+macro nessa granularidade sem liderar a acurácia. Depreende-se que a
+escolha do classificador depende do nível de agregação em que a
+decisão será tomada.
+
+A curva ABC recalculada dentro de cada tipo, com o acumulado relativo
+ao volume do próprio tipo, delimita o conjunto mínimo de categorias
+que sustenta cada leitura (Tabela 10). Na manutenção preventiva,
+quatro categorias concentram 83,18% do volume do tipo, e nelas o
+LinearSVC alcança F1 macro de 0,9743. Na manutenção corretiva são
+necessárias sete categorias para cobrir 81,02% do tipo, com F1 macro
+de 0,7841, valor sensivelmente inferior ao obtido na preventiva e
+compatível com a ambiguidade de fronteira descrita na subseção
+anterior. No conjunto de não manutenção, as quatro categorias que
+cobrem 86,89% do tipo alcançam apenas 0,4831, o que confirma a
+dificuldade como propriedade do tipo e não da cauda de baixa
+frequência.
+
+```{=latex}
+\NaoQuebrar{12}
+```
+
+**Tabela 10** Curva ABC interna a cada tipo de manutenção e F1 macro
+do LinearSVC por classe. As classes A, B e C foram atribuídas pelo
+volume acumulado dentro do próprio tipo; a coluna de percentual
+refere-se à base completa.
+
+| Tipo | Categorias | Chamados | % da base | F1 (A) | F1 (B) | F1 (C) | F1 (tipo) |
+|---|---|---|---|---|---|---|---|
+| Preventiva | 16 | 4.917 | 34,98 | 0,9743 | 0,9697 | 0,4768 | 0,7244 |
+| Corretiva | 29 | 8.546 | 60,79 | 0,7841 | 0,6124 | 0,4635 | 0,5768 |
+| Não manutenção | 11 | 595 | 4,23 | 0,4831 | 0,2364 | 0,0414 | 0,2375 |
+
+Depreende-se do conjunto dessas medições uma hierarquia de
+confiabilidade que orienta a incorporação da classificação automática
+a indicadores institucionais de infraestrutura. A contagem por tipo de
+manutenção constitui a leitura mais segura, com erro agregado inferior
+a 2% na classe preventiva, e prescinde de revisão caso a caso. A
+leitura por categoria mostra-se confiável apenas nas categorias de
+classe A do respectivo tipo, condição satisfeita por quatro categorias
+preventivas e sete corretivas, que reúnem 11.014 chamados e estão
+discriminadas na Tabela A2. Nas classes B e C, e em toda a família de
+não manutenção, o desempenho medido não autoriza uso automático.
+Recomenda-se, nesses casos, o encaminhamento a revisão humana ou a
+agregação em rubrica única, procedimento que preserva a totalidade do
+volume sem atribuir às frações menores uma precisão que a medição não
+sustenta.
+
+```{=latex}
+\FloatBarrier
+```
+
 **5. DISCUSSÃO**
 
 ```{=latex}
@@ -1344,8 +1524,8 @@ enquanto a substituição do classificador atua apenas sobre seu efeito.
 
 A comparação entre concordância histórica (Subseção 4.1) e desempenho
 validado (Subseção 4.2) revela que as duas grandezas não são
-intercambiáveis. O acerto validado do LinearSVC (81,98%) supera sua
-concordância com o histórico (80,49%) em 1,49 ponto percentual. A
+intercambiáveis. O acerto validado do LinearSVC (81,97%) supera sua
+concordância com o histórico (80,49%) em 1,48 ponto percentual. A
 diferença mede o efeito das 606 correções manuais sobre a avaliação: ao
 substituir a categoria histórica pela categoria conferida, parte das
 divergências que seriam contabilizadas como erro do modelo passa a ser
@@ -1373,7 +1553,7 @@ A avaliação do BERTimbau acrescenta uma terceira perspectiva. No mesmo
 contextual reduz a distância observada entre modelos lineares e a LSTM
 que aprende *embeddings* do zero, mas não produz ganho demonstrável sobre
 o LinearSVC. Como os protocolos são distintos, a métrica do BERTimbau não
-deve ser comparada diretamente aos 81,98% da avaliação integral. O
+deve ser comparada diretamente aos 81,97% da avaliação integral. O
 resultado sustenta sua competitividade e justifica uma futura execução
 *out-of-fold* completa, não sua adoção preferencial imediata.
 
@@ -1466,11 +1646,13 @@ devem ser lidos com essa margem.
 
 O BERTimbau teve o ajuste fino concluído, mas foi avaliado apenas em um
 *holdout* comum de 1.000 chamados, dos quais 983 possuem decisão humana.
-Não há predições *out-of-fold* integrais nem medição de custo executada no
-mesmo ambiente dos demais modelos, o que impede inseri-lo no ranking
-principal ou comparar eficiência computacional de forma direta. A LSTM,
-por sua vez, treina *embeddings* do zero, sem vetores pré-treinados em
-português, condição que limita a comparação entre arquiteturas neurais.
+A ausência de predições *out-of-fold* integrais impede inseri-lo no
+ranking principal da Subseção 4.2. O custo de treino relatado na Subseção
+4.7 provém de execuções conduzidas sobre subconjunto do corpus, por
+restrição do tempo máximo de execução disponível, de modo que a razão ali
+apresentada constitui piso e não medida exata. A LSTM, por sua vez,
+treina *embeddings* do zero, sem vetores pré-treinados em português,
+condição que limita a comparação entre arquiteturas neurais.
 
 ```{=latex}
 \FloatBarrier
@@ -1501,6 +1683,19 @@ modelos e passa a operar como requisito de engenharia da camada
 preditiva, o que justifica o esforço de conferência integral aqui
 descrito.
 
+O recorte apresentado na Subseção 4.11 indica, ademais, em que ordem
+essa camada pode ser incorporada a indicadores institucionais de
+sustentabilidade e de desempenho da infraestrutura. A razão entre
+manutenção preventiva e corretiva, que expressa a maturidade da gestão
+do parque edificado e alimenta metas de conservação patrimonial e de uso
+eficiente de recursos, é justamente a leitura de menor erro medido,
+razão pela qual pode ser publicada sem revisão caso a caso. Já os
+indicadores desagregados por categoria exigem restrição às classes de
+maior volume dentro de cada tipo, sob pena de atribuir a frações
+residuais do corpus uma precisão que a medição não sustenta. Essa
+hierarquia converte o diagnóstico de desempenho em critério operacional
+de publicação de indicador, e não apenas em ressalva metodológica.
+
 ```{=latex}
 \FloatBarrier
 ```
@@ -1515,8 +1710,8 @@ e, ao mesmo tempo, impede concluir que toda divergência da IA representa
 correção do registro original.
 
 Na avaliação integral dos 14.058 chamados com categoria de referência
-estabelecida por validação humana, o LinearSVC alcança 81,98% de acerto
-validado (IC95%: 81,38%--82,60%), e nenhum dos três *ensembles* o supera
+estabelecida por validação humana, o LinearSVC alcança 81,97% de acerto
+validado (IC95%: 81,36%--82,58%), e nenhum dos três *ensembles* o supera
 com significância estatística. Como a conferência cobre o corpus inteiro,
 o valor não depende de recorte amostral. A recomendação operacional
 permanece usar o LinearSVC isolado, com calibração formal antes de
@@ -1819,7 +2014,7 @@ dois blocos paralelos para reduzir a extensão do apêndice.
 
 | Categoria histórica | Quantidade | Categoria histórica | Quantidade |
 |:---|---:|:---|---:|
-| Manutenção Preventiva > Ar condicionado split | 1.795 | Estrutura Predial > Pintura | 58 |
+| Manutenção Preventiva > Ar condicionado split | 1.797 | Estrutura Predial > Pintura | 58 |
 | Climatização > Ar condicionado split | 1.640 | Instalação de Acessórios e Mobiliário > Placas de identificação | 54 |
 | Estrutura Predial > Alvenaria / Pisos / Estrutura | 1.302 | Manutenção Preventiva > Telhados, calhas, rufos, etc. | 44 |
 | Hidrossanitária > Hidráulica | 1.282 | TI / Dados / Rede > Coleta de dados | 40 |
@@ -1828,7 +2023,7 @@ dois blocos paralelos para reduzir a extensão do apêndice.
 | Elétrica > Instalações elétricas | 945 | Climatização > Ar condicionado central | 37 |
 | Elétrica > Iluminação | 758 | Manutenção Preventiva > Esgoto | 33 |
 | Manutenção Preventiva > Quadros Elétricos | 578 | Manutenção Preventiva > Hidráulica | 33 |
-| TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi | 404 | Outros > Outros | 33 |
+| TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi | 403 | Outros > Outros | 33 |
 | Instalação de Acessórios e Mobiliário > Instalação/reparo de equipamentos (Suportes de TV, acessórios de banheiro e quadro branco) | 290 | Segurança contra Incêndio > Sistemas de combate a incêndio (extintores, hidrantes) | 29 |
 | Manutenção Preventiva > Reservatório | 279 | Projetos e Reformas > Projeto | 25 |
 | Manutenção Preventiva > Vistoria em Instalações | 247 | Equipamentos de Transporte > Elevador | 22 |
@@ -1843,9 +2038,9 @@ dois blocos paralelos para reduzir a extensão do apêndice.
 | Posto de trabalho > Contratação de Posto de trabalho | 102 | Manutenção Preventiva > Aplicação cupinicida | 3 |
 | Manutenção Preventiva > Elevador | 86 | Manutenção Preventiva > Bomba | 3 |
 | Suprimentos / Apoio Técnico > Materiais | 85 | Suprimentos / Apoio Técnico > Transporte | 1 |
-| Projetos e Reformas > Reforma | 83 | Manutenção Preventiva (nível raiz) | 2 |
+| Projetos e Reformas > Reforma | 83 |  |  |
 | Manutenção Preventiva > Sistemas de combate a incêndio (extintores, hidrantes) | 66 |  |  |
-| **Total geral** | **14.059** |  |  |
+| **Total geral** | **14.058** |  |  |
 
 *Fonte: elaboração própria a partir do corpus analisado.*
 
@@ -1854,3 +2049,92 @@ dois blocos paralelos para reduzir a extensão do apêndice.
 \setlength{\tabcolsep}{6pt}
 \renewcommand{\arraystretch}{1}
 ```
+
+```{=latex}
+\FloatBarrier
+\clearpage
+\scriptsize
+\setlength{\tabcolsep}{2.5pt}
+\renewcommand{\arraystretch}{0.9}
+```
+
+**Tabela A2** Categorias da referência validada por tipo de manutenção e
+classe da curva ABC interna ao tipo (n = 14.058). O percentual é relativo
+ao volume do próprio tipo e o F1 corresponde ao LinearSVC. P, preventiva;
+C, corretiva; NM, não manutenção. Enquadram-se em não manutenção as
+famílias que não descrevem serviço de manutenção predial, a saber,
+`Outros`, `Suprimentos / Apoio Técnico`, `Posto de trabalho`, `Projetos e
+Reformas` e as raízes residuais `Projeto` e `Revisão`. A família `TI /
+Dados / Rede` permanece em manutenção corretiva por consistir
+predominantemente em reparo de infraestrutura predial.
+
+| Categoria histórica | Tipo | n | % do tipo | Classe | F1 |
+|:------------------------------------------------------------------------|:-:|----:|-----:|:-:|-----:|
+| **Preventiva** | **P** | **4.917** | **100,00** | | |
+| Manutenção Preventiva > Ar condicionado split | P | 1.986 | 40,39 | A | 0,9939 |
+| Manutenção Preventiva > Gerador | P | 1.208 | 24,57 | A | 0,9938 |
+| Manutenção Preventiva > Quadros Elétricos | P | 578 | 11,76 | A | 0,9861 |
+| Manutenção Preventiva > Reservatório | P | 318 | 6,47 | A | 0,9236 |
+| Manutenção Preventiva > Vistoria em Instalações | P | 244 | 4,96 | B | 0,9504 |
+| Manutenção Preventiva > Ar condicionado central | P | 168 | 3,42 | B | 1,0000 |
+| Manutenção Preventiva > Iluminação | P | 132 | 2,68 | B | 0,9572 |
+| Manutenção Preventiva > Elevador | P | 86 | 1,75 | B | 0,9711 |
+| Manutenção Preventiva > Sistemas de combate a incêndio (extintores, hidrantes) | P | 66 | 1,34 | C | 0,9091 |
+| Manutenção Preventiva > Telhados, calhas, rufos, etc. | P | 45 | 0,92 | C | 0,2826 |
+| Manutenção Preventiva > Esgoto | P | 30 | 0,61 | C | 0,4333 |
+| Manutenção Preventiva > Hidráulica | P | 28 | 0,57 | C | 0,1702 |
+| Manutenção Preventiva > Poços artesianos | P | 13 | 0,26 | C | 1,0000 |
+| Manutenção Preventiva > Nobreak | P | 9 | 0,18 | C | 0,3529 |
+| Manutenção Preventiva > Aplicação cupinicida | P | 3 | 0,06 | C | 0,6667 |
+| Manutenção Preventiva > Bomba | P | 3 | 0,06 | C | 0,0000 |
+| **Corretiva** | **C** | **8.546** | **100,00** | | |
+| Climatização > Ar condicionado split | C | 1.448 | 16,94 | A | 0,9502 |
+| Hidrossanitária > Hidráulica | C | 1.261 | 14,76 | A | 0,8749 |
+| Estrutura Predial > Alvenaria / Pisos / Estrutura | C | 1.137 | 13,30 | A | 0,4781 |
+| Estrutura Predial > Esquadrias, porta, portão e janelas | C | 1.003 | 11,74 | A | 0,8700 |
+| Elétrica > Instalações elétricas | C | 909 | 10,64 | A | 0,7249 |
+| Elétrica > Iluminação | C | 757 | 8,86 | A | 0,8862 |
+| TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi | C | 409 | 4,79 | A | 0,7045 |
+| Instalação de Acessórios e Mobiliário > Instalação/reparo de equipamentos (Suportes de TV, acessórios de banheiro e quadro branco) | C | 362 | 4,24 | B | 0,3956 |
+| Estrutura Predial > Telhados, calhas, rufos, etc. | C | 202 | 2,36 | B | 0,4655 |
+| Estrutura Predial > Infiltração | C | 201 | 2,35 | B | 0,6588 |
+| Estrutura Predial > Forro | C | 167 | 1,95 | B | 0,7545 |
+| Elétrica > Nobreak | C | 150 | 1,76 | B | 0,7593 |
+| Área Externa e Ambiental > Manutenção área externa / meio ambiente / Poda de árvore / Roçagem | C | 103 | 1,21 | B | 0,6463 |
+| Instalação de Acessórios e Mobiliário > Placas de identificação | C | 69 | 0,81 | B | 0,6069 |
+| Estrutura Predial > Pintura | C | 59 | 0,69 | C | 0,5677 |
+| Instalação de Acessórios e Mobiliário > Instalação/reparo de equipamentos | C | 45 | 0,53 | C | 0,0000 |
+| Elétrica > Gerador | C | 43 | 0,50 | C | 0,7200 |
+| Hidrossanitária > Bomba | C | 43 | 0,50 | C | 0,7358 |
+| TI / Dados / Rede > Coleta de dados | C | 40 | 0,47 | C | 0,9487 |
+| Climatização > Ar condicionado central | C | 33 | 0,39 | C | 0,7838 |
+| Segurança contra Incêndio > Sistemas de combate a incêndio (extintores, hidrantes) | C | 29 | 0,34 | C | 0,5882 |
+| Equipamentos de Transporte > Elevador | C | 21 | 0,25 | C | 0,7619 |
+| Elétrica > Subestação | C | 19 | 0,22 | C | 0,6316 |
+| Hidrossanitária > ETA / ETE | C | 15 | 0,18 | C | 0,3571 |
+| Elétrica > Sistema Fotovoltaico (FV) | C | 7 | 0,08 | C | 0,8571 |
+| Estrutura Predial > Instalações Especiais (gás, ar comprimido, etc.) | C | 5 | 0,06 | C | 0,0000 |
+| Área Externa e Ambiental > Drenagem | C | 4 | 0,05 | C | 0,0000 |
+| Estrutura Predial > Telhados | C | 3 | 0,04 | C | 0,0000 |
+| Hidrossanitária > Esgoto | C | 2 | 0,02 | C | 0,0000 |
+| **Não manutenção** | **NM** | **595** | **100,00** | | |
+| Outros > Erro de chamado | NM | 256 | 43,03 | A | 0,3612 |
+| Posto de trabalho > Contratação de Posto de trabalho | NM | 102 | 17,14 | A | 0,9372 |
+| Suprimentos / Apoio Técnico > Materiais | NM | 94 | 15,80 | A | 0,4581 |
+| Projetos e Reformas > Reforma | NM | 65 | 10,92 | A | 0,1760 |
+| Outros > Outros | NM | 28 | 4,71 | B | 0,4727 |
+| Projetos e Reformas > Projeto | NM | 23 | 3,87 | B | 0,0000 |
+| Suprimentos / Apoio Técnico > Limpeza de equipamentos, ambiente e mobiliário | NM | 13 | 2,18 | C | 0,2069 |
+| Projeto > Elétrico (tomada e iluminação) | NM | 7 | 1,18 | C | 0,0000 |
+| Revisão > Telecomunicações | NM | 3 | 0,50 | C | 0,0000 |
+| Outros > Materiais | NM | 2 | 0,34 | C | 0,0000 |
+| Suprimentos / Apoio Técnico > Transporte | NM | 2 | 0,34 | C | 0,0000 |
+
+*Fonte: elaboração própria a partir do corpus analisado.*
+
+```{=latex}
+\normalsize
+\setlength{\tabcolsep}{6pt}
+\renewcommand{\arraystretch}{1}
+```
+
