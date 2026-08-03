@@ -1,0 +1,214 @@
+{
+  "schema_version": 1,
+  "criterio_agrupamento": "identidade exata do SHA-256 dos quatro campos normalizados (titulo, descricao GLPI, titulo O.S.M., descricao O.S.M.), separados e nao concatenados",
+  "normalizacao": "NFKD, remocao de diacriticos, casefold e colapso de espacos; identica a ablation_lstm.py e comparacao_kfold_groupkfold.py",
+  "corpus": {
+    "linhas_nao_vazias": 14060,
+    "linhas_sem_id": 0,
+    "linhas_sem_texto_em_todos_os_campos": 0,
+    "grupos_textuais": 9786,
+    "grupos_unitarios": 9474,
+    "linhas_com_duplicata": 4586,
+    "proporcao_linhas_com_duplicata": 0.3262,
+    "maior_grupo": 219
+  },
+  "distribuicao_tamanhos": [
+    {
+      "tamanho": 1,
+      "grupos": 9474
+    },
+    {
+      "tamanho": 2,
+      "grupos": 52
+    },
+    {
+      "tamanho": 3,
+      "grupos": 26
+    },
+    {
+      "tamanho": 4,
+      "grupos": 25
+    },
+    {
+      "tamanho": 5,
+      "grupos": 32
+    },
+    {
+      "tamanho": 6,
+      "grupos": 23
+    },
+    {
+      "tamanho": 7,
+      "grupos": 32
+    },
+    {
+      "tamanho": 8,
+      "grupos": 6
+    },
+    {
+      "tamanho": 9,
+      "grupos": 11
+    },
+    {
+      "tamanho": 10,
+      "grupos": 2
+    },
+    {
+      "tamanho": 11,
+      "grupos": 6
+    },
+    {
+      "tamanho": 12,
+      "grupos": 10
+    },
+    {
+      "tamanho": 13,
+      "grupos": 2
+    },
+    {
+      "tamanho": 16,
+      "grupos": 1
+    },
+    {
+      "tamanho": 17,
+      "grupos": 2
+    },
+    {
+      "tamanho": 21,
+      "grupos": 6
+    },
+    {
+      "tamanho": 22,
+      "grupos": 19
+    },
+    {
+      "tamanho": 23,
+      "grupos": 1
+    },
+    {
+      "tamanho": 25,
+      "grupos": 2
+    },
+    {
+      "tamanho": 26,
+      "grupos": 2
+    },
+    {
+      "tamanho": 33,
+      "grupos": 1
+    },
+    {
+      "tamanho": 35,
+      "grupos": 1
+    },
+    {
+      "tamanho": 36,
+      "grupos": 3
+    },
+    {
+      "tamanho": 37,
+      "grupos": 3
+    },
+    {
+      "tamanho": 38,
+      "grupos": 21
+    },
+    {
+      "tamanho": 39,
+      "grupos": 9
+    },
+    {
+      "tamanho": 40,
+      "grupos": 4
+    },
+    {
+      "tamanho": 47,
+      "grupos": 2
+    },
+    {
+      "tamanho": 50,
+      "grupos": 1
+    },
+    {
+      "tamanho": 63,
+      "grupos": 1
+    },
+    {
+      "tamanho": 64,
+      "grupos": 1
+    },
+    {
+      "tamanho": 79,
+      "grupos": 1
+    },
+    {
+      "tamanho": 123,
+      "grupos": 1
+    },
+    {
+      "tamanho": 178,
+      "grupos": 1
+    },
+    {
+      "tamanho": 218,
+      "grupos": 1
+    },
+    {
+      "tamanho": 219,
+      "grupos": 1
+    }
+  ],
+  "particionamento": {
+    "limite_por_dobra_k5": 2812,
+    "grupos_maiores_que_uma_dobra": 0
+  },
+  "rotulos_conflitantes": {
+    "grupos_com_referencia_divergente": 17,
+    "linhas_afetadas": 85,
+    "nota": "texto identico com referencia humana diferente; limita o teto de acuracia e nao e corrigido por este passo"
+  },
+  "mapa_sha256": "ab352b9424e31d2644ed6d075643adf562acc38767e0098eed77595e2dea0bb6",
+  "hash_grupos_sha256": "ad8557c109af55fd6f4a6cdd69d0eeb426c1602b66bade9473b6b8f0dc7dc32f",
+  "quase_duplicados": {
+    "executado": true,
+    "grupos_avaliados": 9786,
+    "vizinhos_por_grupo": 5,
+    "cobertura": "busca dos 5 vizinhos mais proximos por grupo; pares alem desse teto nao sao contados",
+    "representacao": "TF-IDF char_wb 3-4 gramas, similaridade de cosseno",
+    "similaridade_maxima_mediana": 0.5562,
+    "teste_de_sensibilidade": [
+      {
+        "limiar": 0.8,
+        "grupos_com_par_acima_do_limiar": 1450,
+        "proporcao_dos_grupos": 0.1482
+      },
+      {
+        "limiar": 0.85,
+        "grupos_com_par_acima_do_limiar": 1082,
+        "proporcao_dos_grupos": 0.1106
+      },
+      {
+        "limiar": 0.9,
+        "grupos_com_par_acima_do_limiar": 806,
+        "proporcao_dos_grupos": 0.0824
+      },
+      {
+        "limiar": 0.95,
+        "grupos_com_par_acima_do_limiar": 515,
+        "proporcao_dos_grupos": 0.0526
+      }
+    ],
+    "decisao": "nenhum limiar adotado; o agrupamento permanece restrito a identidade exata ate que um limiar seja justificado"
+  },
+  "problemas": {
+    "linhas_sem_id": 0,
+    "linhas_sem_texto_em_todos_os_campos": 0,
+    "grupos_maiores_que_uma_dobra": 0,
+    "grupos_com_referencia_divergente": 17
+  },
+  "bloqueios": [],
+  "status": "apto_para_particionar",
+  "gerado_em": "03/08/2026 01:30",
+  "fonte": "CHAMADOS_ESQUELETO_REDUZIDO",
+  "script_origem": "src/construir_grupos_textuais.py"
+}
