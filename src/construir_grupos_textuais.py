@@ -123,6 +123,42 @@ def referencia_humana(registro: dict[str, str]) -> str:
     return decisao["decidida"] or ""
 
 
+def detalhar_conflitos(registros: list[dict[str, str]]) -> list[dict[str, str]]:
+    """Lista os registros de grupos com referencia humana divergente.
+
+    Saida NAO sanitizada: contem IDs e o texto compartilhado pelo grupo. Existe
+    para revisao editorial local e nunca deve ser gravada dentro do repositorio,
+    que e publico, nem publicada como artefato de workflow.
+    """
+    membros: dict[str, list[int]] = defaultdict(list)
+    for pos, r in enumerate(registros):
+        normalizados = [normalizar_texto(r.get(c, "")) for c in CAMPOS_TEXTUAIS]
+        membros[hash_grupo(normalizados)].append(pos)
+
+    linhas: list[dict[str, str]] = []
+    for grupo, posicoes in sorted(membros.items()):
+        refs = {referencia_humana(registros[p]) for p in posicoes}
+        refs.discard("")
+        if len(refs) < 2:
+            continue
+        for p in posicoes:
+            r = registros[p]
+            linhas.append({
+                "grupo": grupo[:12],
+                "id": r.get("id", ""),
+                "categoria_historica": r.get("categoria_historica", ""),
+                "referencia_humana": referencia_humana(r),
+                "conferencia_glpi": r.get("conferencia_glpi", ""),
+                "categoria_manual": r.get("categoria_manual", ""),
+                "titulo": r.get("titulo", ""),
+                "descricao_glpi": r.get("descricao_glpi", ""),
+                "titulo_osm": r.get("titulo_osm", ""),
+                "descricao_osm": r.get("descricao_osm", ""),
+            })
+    linhas.sort(key=lambda x: (x["grupo"], x["id"]))
+    return linhas
+
+
 def agrupar(registros: list[dict[str, str]]) -> dict[str, Any]:
     """Agrupa por identidade exata dos quatro campos normalizados.
 
@@ -393,20 +429,43 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--mapa", type=Path, default=SAIDA_MAPA_PADRAO)
     p.add_argument("--sem-quase-duplicados", action="store_true",
                    help="pula o diagnostico de similaridade")
+    p.add_argument("--detalhar-conflitos", type=Path, default=None,
+                   metavar="CAMINHO",
+                   help=("grava CSV nao sanitizado, com IDs e textos dos grupos "
+                         "de referencia divergente, para revisao local; o "
+                         "caminho precisa terminar em .local.csv e ficar fora "
+                         "do repositorio publico"))
     return p.parse_args()
 
 
 def main() -> int:
     args = parse_args()
     config = json.loads(args.config.read_text(encoding="utf-8"))
+    if args.detalhar_conflitos and not args.detalhar_conflitos.name.endswith(".local.csv"):
+        print("O detalhamento de conflitos expoe IDs e textos; use um caminho "
+              "terminado em .local.csv, que o .gitignore ja protege.",
+              file=sys.stderr)
+        return 2
     sh = pl.abrir_planilha(pl.id_planilha(config), args.credenciais)
-    relatorio = montar_relatorio(ler_registros(sh, config),
+    registros = ler_registros(sh, config)
+    relatorio = montar_relatorio(registros,
                                  com_quase_duplicados=not args.sem_quase_duplicados)
     relatorio["gerado_em"] = agora_bahia()
     relatorio["fonte"] = config["aba_principal"]
     relatorio["script_origem"] = "src/construir_grupos_textuais.py"
 
     escrever_mapa(args.mapa, relatorio["_mapa"])
+    if args.detalhar_conflitos:
+        linhas = detalhar_conflitos(registros)
+        args.detalhar_conflitos.parent.mkdir(parents=True, exist_ok=True)
+        with args.detalhar_conflitos.open("w", encoding="utf-8-sig", newline="") as f:
+            escritor = csv.DictWriter(f, fieldnames=list(linhas[0]) if linhas else
+                                      ["grupo", "id"], delimiter=";")
+            escritor.writeheader()
+            escritor.writerows(linhas)
+        print(f"Conflitos detalhados: {len(linhas)} linhas em "
+              f"{args.detalhar_conflitos}. Arquivo nao sanitizado; nao versionar.",
+              file=sys.stderr)
     publicavel = {k: v for k, v in relatorio.items() if not k.startswith("_")}
     args.json.parent.mkdir(parents=True, exist_ok=True)
     args.markdown.parent.mkdir(parents=True, exist_ok=True)

@@ -97,6 +97,42 @@ class TestGruposTextuais(unittest.TestCase):
         self.assertGreaterEqual(limiares[0.5], 2)
         self.assertEqual(limiares[0.99], 0)
 
+    def test_detalhar_conflitos_lista_so_os_grupos_divergentes(self):
+        linhas = cgt.detalhar_conflitos([
+            registro("1", "porta emperrada", historico="Cat A", m="Correto"),
+            registro("2", "porta emperrada", historico="Cat A",
+                     m="Errado", q="Cat B"),
+            registro("3", "lampada queimada", historico="Cat A", m="Correto"),
+            registro("4", "lampada queimada", historico="Cat A", m="Correto"),
+        ])
+        self.assertEqual([l["id"] for l in linhas], ["1", "2"])
+        self.assertEqual({l["referencia_humana"] for l in linhas},
+                         {"Cat A", "Cat B"})
+        self.assertEqual(len({l["grupo"] for l in linhas}), 1)
+
+    def test_detalhar_conflitos_ignora_referencia_ausente(self):
+        # Um único rótulo presente mais um vazio não é divergência.
+        linhas = cgt.detalhar_conflitos([
+            registro("1", "porta emperrada", historico="Cat A", m="Correto"),
+            registro("2", "porta emperrada", historico="Cat A", m="Errado"),
+        ])
+        self.assertEqual(linhas, [])
+
+    def test_detalhamento_e_o_unico_caminho_com_id_e_texto(self):
+        registros = [
+            registro("2026079999", "vazamento no bloco b", historico="Cat A",
+                     m="Correto"),
+            registro("2026078888", "vazamento no bloco b", historico="Cat A",
+                     m="Errado", q="Cat B"),
+        ]
+        r = cgt.montar_relatorio(registros, com_quase_duplicados=False)
+        publicavel = str({k: v for k, v in r.items() if not k.startswith("_")})
+        self.assertNotIn("2026079999", publicavel)
+        self.assertNotIn("vazamento", publicavel)
+        detalhe = str(cgt.detalhar_conflitos(registros))
+        self.assertIn("2026079999", detalhe)
+        self.assertIn("vazamento", detalhe)
+
     def test_relatorio_publicavel_nao_expoe_textos_nem_ids(self):
         r = cgt.montar_relatorio(
             [registro("2026079999", "vazamento no bloco b")],
