@@ -1,0 +1,125 @@
+{
+  "k": 5,
+  "semente": 42,
+  "algoritmo": "sklearn.model_selection.StratifiedGroupKFold, shuffle=True",
+  "linhas_particionadas": 13972,
+  "grupos_particionados": 9734,
+  "linhas_sem_dobra": 0,
+  "grupos_divididos_entre_dobras": 0,
+  "dobras": [
+    {
+      "dobra": 1,
+      "linhas": 2758,
+      "grupos": 1951,
+      "categorias_com_suporte": 41,
+      "categorias_ausentes": []
+    },
+    {
+      "dobra": 2,
+      "linhas": 2556,
+      "grupos": 1950,
+      "categorias_com_suporte": 41,
+      "categorias_ausentes": []
+    },
+    {
+      "dobra": 3,
+      "linhas": 3045,
+      "grupos": 1949,
+      "categorias_com_suporte": 41,
+      "categorias_ausentes": []
+    },
+    {
+      "dobra": 4,
+      "linhas": 2884,
+      "grupos": 1944,
+      "categorias_com_suporte": 41,
+      "categorias_ausentes": []
+    },
+    {
+      "dobra": 5,
+      "linhas": 2729,
+      "grupos": 1940,
+      "categorias_com_suporte": 41,
+      "categorias_ausentes": []
+    }
+  ],
+  "mapa_sha256": "9465857d83ba76ec193974982835d91e03e783587153e26597051d4dfd9abcf2",
+  "categorias_excluidas_por_sorteio": [
+    {
+      "categoria": "Elétrica > Sistema Fotovoltaico (FV)",
+      "linhas": 7,
+      "rodada": 1
+    },
+    {
+      "categoria": "Estrutura Predial > Instalações Especiais (gás, ar comprimido, etc.)",
+      "linhas": 5,
+      "rodada": 1
+    },
+    {
+      "categoria": "Hidrossanitária > ETA / ETE",
+      "linhas": 15,
+      "rodada": 2
+    },
+    {
+      "categoria": "Manutenção Preventiva > Nobreak",
+      "linhas": 9,
+      "rodada": 2
+    },
+    {
+      "categoria": "TI / Dados / Rede > Coleta de dados",
+      "linhas": 40,
+      "rodada": 2
+    }
+  ],
+  "rodadas_de_exclusao": 2,
+  "registros_descartados": 0,
+  "base_congelada_aplicada": true,
+  "linhas_da_base_congelada": 14060,
+  "linhas_vivas_fora_da_base_congelada": 13,
+  "categorias_na_referencia": 50,
+  "categorias_particionadas": 41,
+  "minimo_grupos_por_categoria": 5,
+  "categorias_excluidas_por_suporte": [
+    {
+      "categoria": "Suprimentos / Apoio Técnico > Transporte",
+      "grupos_distintos": 2,
+      "linhas": 2,
+      "dobras_possiveis": 2
+    },
+    {
+      "categoria": "Manutenção Preventiva > Aplicação cupinicida",
+      "grupos_distintos": 3,
+      "linhas": 3,
+      "dobras_possiveis": 3
+    },
+    {
+      "categoria": "Manutenção Preventiva > Bomba",
+      "grupos_distintos": 3,
+      "linhas": 3,
+      "dobras_possiveis": 3
+    },
+    {
+      "categoria": "Área Externa e Ambiental > Drenagem",
+      "grupos_distintos": 4,
+      "linhas": 4,
+      "dobras_possiveis": 4
+    }
+  ],
+  "linhas_excluidas_por_suporte": 12,
+  "linhas_excluidas_por_sorteio": 76,
+  "linhas_excluidas_total": 88,
+  "criterio_exclusao": "categoria com menos de 5 grupos textuais distintos nao pode ter suporte nas 5 dobras, porque um grupo inteiro ocupa uma unica dobra; categorias que mesmo assim ficam sem suporte em alguma dobra saem em rodadas seguintes; a exclusao e nominal e nenhuma categoria e fundida com outra",
+  "problemas": {
+    "linhas_sem_dobra": 0,
+    "grupos_divididos_entre_dobras": 0,
+    "registros_descartados": 0,
+    "categorias_sem_suporte_em_alguma_dobra": 0
+  },
+  "bloqueios": [],
+  "categorias_sem_suporte_em_alguma_dobra": [],
+  "status": "apto_para_treinar",
+  "schema_version": 1,
+  "gerado_em": "03/08/2026 20:09",
+  "fonte": "CHAMADOS_ESQUELETO_REDUZIDO",
+  "script_origem": "src/gerar_particoes_canonicas.py"
+}
