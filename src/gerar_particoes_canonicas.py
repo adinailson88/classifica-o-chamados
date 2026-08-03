@@ -322,6 +322,10 @@ def renderizar_markdown(relatorio: dict[str, Any]) -> str:
         "",
         "- Grupos textuais: `src/construir_grupos_textuais.py`, Passo 2.",
         "- Referência humana: regra congelada no Passo 1.",
+        "- Precedente do corte por baixa frequência: Marcuzzo et al. (2022), "
+        "que descartam rótulos e subrótulos com menos de cem ocorrências em "
+        "classificação hierárquica de chamados; ficha em "
+        "`04_artigo/referencias/fichas/2022_ARTIGO_IA_Marcuzzo_et_al_Hierarchical_Ticket_Classification.md`.",
         "- Mapa por registro: `docs/dados/particoes_canonicas_mapa.csv`, com SHA-256 do ID.",
         "- Script: `src/gerar_particoes_canonicas.py`.",
         "- Nenhuma escrita foi realizada na planilha.",
