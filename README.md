@@ -1,5 +1,9 @@
 # Classificação de Chamados
 
+> ## [PLANO ATUAL E PONTO DE CONTINUIDADE](PLANO_EXECUCAO_ATUAL.md)
+>
+> **Leia este documento antes de alterar código, resultados ou artigo.** Ele registra por que a execução experimental precisa ser refeita, quais decisões científicas já foram aprovadas, o estado de cada passo e como outro agente deve continuar sem perder contexto.
+
 ## [Abrir o artigo em PDF](https://adinailson88.github.io/classificacao-chamados/artigo_classificacao_chamados.pdf)
 
 [Visualizar o painel](https://adinailson88.github.io/classificacao-chamados/) · [Acompanhar workflows](https://github.com/adinailson88/classificacao-chamados/actions) · [Abrir o texto-fonte do artigo](04_artigo/artigo_classificacao_chamados_v3.md)
@@ -20,11 +24,12 @@ Os resultados alimentam o painel público e o artigo/capítulo da tese em Biossi
 
 | Componente | Local |
 |---|---|
+| Plano atual e ponto de continuidade | [`PLANO_EXECUCAO_ATUAL.md`](PLANO_EXECUCAO_ATUAL.md) |
 | Artigo em Markdown | [`04_artigo/artigo_classificacao_chamados_v3.md`](04_artigo/artigo_classificacao_chamados_v3.md) |
 | Artigo em PDF | [`docs/artigo_classificacao_chamados.pdf`](docs/artigo_classificacao_chamados.pdf) |
 | Painel público | [`docs/index.html`](docs/index.html) |
 | Dados agregados | [`docs/dados/`](docs/dados/) |
-| Plano e estado da pesquisa | [`PLANO_ARTIGO_CAPITULO.md`](PLANO_ARTIGO_CAPITULO.md) |
+| Plano editorial do artigo | [`PLANO_ARTIGO_CAPITULO.md`](PLANO_ARTIGO_CAPITULO.md) |
 | Contexto técnico atual | [`CONTEXTO.md`](CONTEXTO.md) |
 | Regras do repositório | [`AGENTS.md`](AGENTS.md) |
 | Código do experimento | [`src/`](src/) |
