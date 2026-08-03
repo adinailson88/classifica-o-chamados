@@ -302,7 +302,7 @@ A preservação do snapshot permite auditoria histórica e comparação metodol�
 | PR | Escopo | Dependência | Estado |
 |---|---|---|---|
 | PR-0 | registrar plano, README e estado da rodada | nenhuma | concluído — [PR #164](https://github.com/adinailson88/classificacao-chamados/pull/164) |
-| PR-1 | Passo 1: base e taxonomia canônicas | PR-0 | pendente |
+| PR-1 | Passo 1: base e taxonomia canônicas | PR-0 | em execução — ferramenta e auditoria viva pendentes de fechamento |
 | PR-2 | Passos 2 e 3: grupos e partições | PR-1 | pendente |
 | PR-3 | Passos 4 e 5: sete modelos e regras | PR-2 | pendente |
 | PR-4 | Passo 6: BERTimbau | PR-2 | pendente |
@@ -316,6 +316,7 @@ A preservação do snapshot permite auditoria histórica e comparação metodol�
 | Data | Passo | Estado | Evidência | Próxima ação |
 |---|---|---|---|---|
 | 02/08/2026 | 0 | concluído | [PR #164](https://github.com/adinailson88/classificacao-chamados/pull/164), merge `e39338c` | iniciar o Passo 1 em nova branch: auditoria canônica da base e da taxonomia |
+| 02/08/2026 | 1 | em execução | auditoria read-only em implementação; 50 categorias históricas e 56 com suporte na referência devem ser reconciliadas nominalmente | executar o workflow `auditar_base_canonica.yml` e anexar o relatório sanitizado ao PR |
 
 Estados permitidos: `pendente`, `em execução`, `bloqueado`, `concluído`, `substituído`.
 
