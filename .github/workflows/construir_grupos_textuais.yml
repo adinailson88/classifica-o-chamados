@@ -1,0 +1,56 @@
+name: Construir grupos textuais (read-only)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  agrupar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements-leves.txt
+      - name: Dependencias
+        run: python -m pip install --retries 5 --timeout 120 -r requirements-leves.txt
+      - name: Testes dos grupos textuais
+        run: python -m unittest discover -s tests -p "test_construir_grupos_textuais.py" -t tests
+      - name: Recriar chave da conta de servico
+        env:
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+        run: |
+          if [ -z "$GCP_SA_KEY" ]; then echo "Secret GCP_SA_KEY ausente." >&2; exit 1; fi
+          printf '%s' "$GCP_SA_KEY" > credenciais_sa.json
+      - name: Agrupar sem escrever na planilha
+        id: grupos
+        continue-on-error: true
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: credenciais_sa.json
+        run: python src/construir_grupos_textuais.py
+      - name: Remover credenciais
+        if: always()
+        run: rm -f credenciais_sa.json
+      - name: Publicar relatorio como artefato
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: grupos-textuais
+          path: |
+            docs/dados/grupos_textuais.json
+            docs/dados/grupos_textuais_mapa.csv
+            docs/GRUPOS_TEXTUAIS.md
+          if-no-files-found: error
+          retention-days: 30
+      - name: Aplicar criterio de aceite
+        if: steps.grupos.outcome == 'failure'
+        run: |
+          echo "Agrupamento concluiu com bloqueios; consulte o artefato." >&2
+          exit 1
