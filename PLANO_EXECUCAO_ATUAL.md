@@ -302,8 +302,8 @@ A preservação do snapshot permite auditoria histórica e comparação metodol�
 | PR | Escopo | Dependência | Estado |
 |---|---|---|---|
 | PR-0 | registrar plano, README e estado da rodada | nenhuma | concluído — [PR #164](https://github.com/adinailson88/classificacao-chamados/pull/164) |
-| PR-1 | Passo 1: base e taxonomia canônicas | PR-0 | em execução — ferramenta e auditoria viva pendentes de fechamento |
-| PR-2 | Passos 2 e 3: grupos e partições | PR-1 | pendente |
+| PR-1 | Passo 1: base e taxonomia canônicas | PR-0 | concluído — ferramenta no [PR #166](https://github.com/adinailson88/classificacao-chamados/pull/166) e auditoria final `apto_para_congelar` |
+| PR-2 | Passos 2 e 3: grupos e partições | PR-1 | pendente — desbloqueado para iniciar pelos grupos textuais do Passo 2 |
 | PR-3 | Passos 4 e 5: sete modelos e regras | PR-2 | pendente |
 | PR-4 | Passo 6: BERTimbau | PR-2 | pendente |
 | PR-5 | Passos 7 e 8: calibração e estatística | PR-3 e PR-4 | pendente |
@@ -316,7 +316,7 @@ A preservação do snapshot permite auditoria histórica e comparação metodol�
 | Data | Passo | Estado | Evidência | Próxima ação |
 |---|---|---|---|---|
 | 02/08/2026 | 0 | concluído | [PR #164](https://github.com/adinailson88/classificacao-chamados/pull/164), merge `e39338c` | iniciar o Passo 1 em nova branch: auditoria canônica da base e da taxonomia |
-| 02/08/2026 | 1 | em execução | auditoria read-only em implementação; 50 categorias históricas e 56 com suporte na referência devem ser reconciliadas nominalmente | executar o workflow `auditar_base_canonica.yml` e anexar o relatório sanitizado ao PR |
+| 03/08/2026 | 1 | concluído | [workflow final](https://github.com/adinailson88/classificacao-chamados/actions/runs/30780457229), artefato `8844276140`, 14.060/14.060 referências válidas, 50/50 categorias e hash `e10c78e4db0026cfcbfa5267ddac034a3c8d3a7a0a1d63fa0cf2ce52f165b174` | executar o Passo 2: normalizar os quatro campos textuais e construir grupos de textos idênticos |
 
 Estados permitidos: `pendente`, `em execução`, `bloqueado`, `concluído`, `substituído`.
 

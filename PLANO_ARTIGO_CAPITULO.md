@@ -74,13 +74,13 @@ A fonte editável é `04_artigo/artigo_classificacao_chamados_v3.md`. O PDF publ
 
 ## Estado desta rodada
 
-**Onde está:** a avaliação científica e as 24 decisões autorais foram concluídas. Foi aprovado um novo desenho experimental com referência humana revisada, validação cruzada por grupos textuais, comparação entre modelos puros e camada de regras preventivas, automação seletiva por confiança e BERTimbau condicionado ao mesmo protocolo. O artigo e os JSONs publicados ainda representam a execução anterior.
+**Onde está:** o Passo 1 foi concluído. A auditoria canônica somente leitura declarou a base `apto_para_congelar`, com 14.060 IDs únicos, 14.060 referências humanas válidas e 50 categorias tanto na taxonomia histórica quanto na referência revisada. O artigo e os resultados experimentais publicados ainda representam a execução anterior e permanecem legados.
 
-**Por que a execução será refeita:** os modelos vigentes foram treinados com categorias históricas do GLPI; a divisão principal ocorreu por registro; textos repetidos podem atravessar treino e teste; o BERTimbau utiliza protocolo diferente; e a documentação ainda mistura 14.058 e 8.895 decisões, além de 50 categorias informadas pelo autor e 56 categorias com suporte nos artefatos atuais.
+**Por que a execução será refeita:** os modelos vigentes foram treinados com categorias históricas do GLPI; a divisão principal ocorreu por registro; textos repetidos podem atravessar treino e teste; e o BERTimbau utiliza protocolo diferente. As divergências de corpus e taxonomia que bloqueavam o redesenho foram resolvidas pela auditoria canônica, mas os modelos ainda precisam ser avaliados sob a nova referência e partições agrupadas comuns.
 
-**O que foi feito nesta rodada:** foi criado `PLANO_EXECUCAO_ATUAL.md` como registro operacional central, destacado no topo do README. O documento consolida decisões, justificativa, critérios de aceite, ordem de Pull Requests, dependências humanas, tratamento dos resultados legados e prompt de retomada para outro agente.
+**O que foi feito nesta rodada:** o workflow `Auditar base canonica (read-only)` foi executado novamente em `main`, sem escrita na planilha. Todos os bloqueadores ficaram zerados. O relatório e o JSON sanitizados foram preservados em `docs/`, com hash da base `e10c78e4db0026cfcbfa5267ddac034a3c8d3a7a0a1d63fa0cf2ce52f165b174` e hashes idênticos das duas taxonomias (`ec6f75ca0427d7a0bd224e019a0052ee4e50734bbda66a7fd45890f7c8b488cb`).
 
-**Próximo passo:** executar o Passo 1 do plano operacional em nova branch/PR: auditar e congelar corpus, referência humana e taxonomia, sem escrever na planilha. Antes do retreinamento, devem ser reconciliados por código os totais de 14.058/8.895 registros e 50/56 categorias.
+**Próximo passo:** executar o Passo 2 em branch/PR própria: normalizar os quatro campos textuais, criar grupos reproduzíveis de textos idênticos, diagnosticar quase duplicados separadamente e salvar o identificador ou hash de grupo por registro. Nenhum retreinamento deve começar antes de verificar que os grupos idênticos poderão permanecer integralmente na mesma partição.
 
 ## Critérios para novo fechamento científico
 
