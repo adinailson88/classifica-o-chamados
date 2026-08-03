@@ -84,7 +84,13 @@ A fonte editável é `04_artigo/artigo_classificacao_chamados_v3.md`. O PDF publ
 
 **Cuidado ao redigir os números:** os 32,62% deste passo não substituem nem contradizem os 46,72% citados na Subseção 4.8. Aquele valor é a taxa de vazamento sob KFold aleatório de três dobras no subconjunto validado, isto é, a fração de linhas de teste cujo texto reaparece no treino; este é a fração de linhas da base completa que pertencem a um grupo com mais de um membro. A convergência entre os 9.714 grupos do ablation e os 9.786 deste passo, sobre bases quase idênticas, confirma que as duas medidas partem do mesmo agrupamento.
 
-**Próximo passo:** executar o Passo 3, com `StratifiedGroupKFold` de cinco dobras e semente fixa sobre os grupos congelados, verificando o suporte das 50 categorias em cada dobra. Nenhum retreinamento deve começar antes que as partições estejam salvas e reproduzíveis.
+**Passo 3, concluído:** as partições canônicas usam `StratifiedGroupKFold` com cinco dobras e semente 42, sobre os grupos textuais do Passo 2 e estratificadas pela referência humana. São 13.972 linhas em 9.734 grupos, distribuídas em dobras de 2.556 a 3.045 linhas, sem nenhum grupo textual dividido entre dobras.
+
+**Denominador das métricas:** 41 das 50 categorias entraram nas partições. Quatro saíram por aritmética, tendo menos grupos textuais distintos que dobras, e cinco por ausência efetiva em alguma dobra após o sorteio; as nove somam 88 linhas. A prática de excluir rótulos de baixa frequência em classificação hierárquica de chamados tem precedente em Marcuzzo et al. (2022), fichado no acervo, com a ressalva de que o limiar deles é de cem ocorrências e o critério aqui é outro. Toda métrica da nova execução vale para essas 41 categorias, e o texto precisa declarar esse denominador sempre que reportar resultados, sem deixá-lo implícito.
+
+**Base congelada de fato:** a auditoria do Passo 1 documentou o corpus, mas a aba principal continua viva e recebeu treze chamados entre a auditoria e o particionamento. As partições passaram a ser fixadas pelo mapa de grupos textuais versionado, de modo que o crescimento operacional da planilha não altera o experimento. Essa distinção entre corpus documentado e corpus fixado merece uma frase no método.
+
+**Próximo passo:** executar o Passo 4, retreinando os sete modelos sobre estas partições, com a referência humana revisada como rótulo.
 
 ## Critérios para novo fechamento científico
 
