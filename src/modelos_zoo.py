@@ -79,7 +79,12 @@ class _ModeloMargem:
         return self.classes_[idx], p[np.arange(len(idx)), idx]
 
     def _proba(self, textos):
-        m = np.atleast_2d(self.pipe.decision_function(list(textos)))
+        m = np.asarray(self.pipe.decision_function(list(textos)))
+        # Com duas classes, decision_function devolve um vetor 1-D de margens.
+        # `atleast_2d` o transformaria em (1, n), invertendo amostras e classes;
+        # o reshape mantem uma linha por amostra.
+        if m.ndim == 1:
+            m = m.reshape(-1, 1)
         if m.shape[1] == 1:  # caso binário
             m = np.hstack([-m, m])
         e = np.exp(m - m.max(axis=1, keepdims=True))
