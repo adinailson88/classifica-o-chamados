@@ -38,6 +38,11 @@ SAIDA_MAPA_PADRAO = RAIZ / "docs" / "dados" / "particoes_canonicas_mapa.csv"
 K_PADRAO = 5
 SEMENTE_PADRAO = 42
 
+# Teto de rodadas de exclusao. Cada rodada retira ao menos uma categoria, e a
+# base tem 50; o teto e apenas uma trava contra laco infinito, nunca atingida
+# em operacao normal.
+RODADAS_MAXIMAS = 20
+
 
 def preparar(registros: list[dict[str, str]]) -> dict[str, list[str]]:
     """Extrai grupo textual e referencia humana de cada registro elegivel.
@@ -65,14 +70,15 @@ def preparar(registros: list[dict[str, str]]) -> dict[str, list[str]]:
 
 
 def classes_sem_estratificacao(grupos: list[str], rotulos: list[str],
-                               k: int) -> list[dict[str, Any]]:
-    """Categorias com menos grupos distintos que dobras.
+                               minimo: int) -> list[dict[str, Any]]:
+    """Categorias com menos grupos textuais distintos que o minimo exigido.
 
-    Uma categoria presente em `g` grupos textuais aparece em no maximo `g`
-    dobras, porque o grupo inteiro vai para uma unica dobra. Se `g < k`, o
-    suporte em todas as dobras e impossivel por construcao, e nao por defeito do
-    sorteio. O caso e reportado, nunca corrigido por fusao de categorias: a
-    taxonomia foi congelada no Passo 1.
+    Uma categoria presente em `g` grupos aparece em no maximo `g` dobras, porque
+    o grupo inteiro vai para uma unica dobra. Com `g < k` o suporte em todas as
+    dobras e impossivel por aritmetica, e nao por defeito do sorteio.
+
+    A funcao apenas identifica; nenhuma categoria e fundida com outra. A
+    taxonomia congelada no Passo 1 permanece intacta e a exclusao e nominal.
     """
     grupos_por_rotulo: dict[str, set[str]] = defaultdict(set)
     linhas_por_rotulo: Counter[str] = Counter()
@@ -82,7 +88,7 @@ def classes_sem_estratificacao(grupos: list[str], rotulos: list[str],
     faltantes = [
         {"categoria": rotulo, "grupos_distintos": len(gs),
          "linhas": linhas_por_rotulo[rotulo], "dobras_possiveis": len(gs)}
-        for rotulo, gs in grupos_por_rotulo.items() if len(gs) < k
+        for rotulo, gs in grupos_por_rotulo.items() if len(gs) < minimo
     ]
     faltantes.sort(key=lambda x: (x["grupos_distintos"], x["categoria"]))
     return faltantes
@@ -145,44 +151,88 @@ def particionar(ids: list[str], grupos: list[str], rotulos: list[str],
 
 
 def montar_relatorio(registros: list[dict[str, str]], k: int = K_PADRAO,
-                     semente: int = SEMENTE_PADRAO) -> dict[str, Any]:
-    dados = preparar(registros)
-    relatorio = particionar(dados["ids"], dados["grupos"], dados["rotulos"],
-                            k=k, semente=semente)
-    raras = classes_sem_estratificacao(dados["grupos"], dados["rotulos"], k)
-    relatorio["registros_descartados"] = dados["descartados"]
-    relatorio["categorias_totais"] = len(set(dados["rotulos"]))
-    relatorio["classes_sem_estratificacao_possivel"] = raras
+                     semente: int = SEMENTE_PADRAO,
+                     minimo_grupos: int | None = None) -> dict[str, Any]:
+    """Particiona somente as categorias com suporte defensavel em cada dobra.
 
-    dobras_incompletas = [d["dobra"] for d in relatorio["dobras"]
-                          if d["categorias_ausentes"]]
-    # Ausencia explicada por classe rara nao e defeito do sorteio: e limite
-    # aritmetico da base. Separar os dois casos evita que o relatorio pareca
-    # aprovado quando ha perda real de suporte.
-    explicadas = {r["categoria"] for r in raras}
-    ausencias_inesperadas = sorted({
-        c for d in relatorio["dobras"] for c in d["categorias_ausentes"]
-        if c not in explicadas
-    })
+    Categorias com menos de `minimo_grupos` grupos textuais distintos ficam fora
+    do particionamento. A exclusao e nominal e reproduzivel: cada categoria
+    retirada aparece no relatorio com o numero de grupos e de linhas.
+    """
+    minimo = k if minimo_grupos is None else minimo_grupos
+    dados = preparar(registros)
+    raras = classes_sem_estratificacao(dados["grupos"], dados["rotulos"], minimo)
+    excluidas = {r["categoria"] for r in raras}
+
+    # Ter ao menos `minimo` grupos e condicao necessaria, nao suficiente: o
+    # sorteio ainda pode reunir numa unica dobra todos os grupos de uma
+    # categoria. Excluir e reparticionar ate a convergencia deixa somente
+    # categorias com suporte verificado em todas as dobras, que era o criterio
+    # pedido. O laco e determinista e cada rodada fica registrada.
+    linhas_por_rotulo = Counter(dados["rotulos"])
+    rodadas: list[dict[str, Any]] = []
+    for _ in range(RODADAS_MAXIMAS):
+        elegiveis = [i for i, rotulo in enumerate(dados["rotulos"])
+                     if rotulo not in excluidas]
+        if not elegiveis:
+            break
+        relatorio = particionar([dados["ids"][i] for i in elegiveis],
+                                [dados["grupos"][i] for i in elegiveis],
+                                [dados["rotulos"][i] for i in elegiveis],
+                                k=k, semente=semente)
+        ausentes = sorted({c for d in relatorio["dobras"]
+                           for c in d["categorias_ausentes"]})
+        if not ausentes:
+            break
+        rodadas.append({"rodada": len(rodadas) + 1, "categorias_retiradas": ausentes})
+        excluidas.update(ausentes)
+
+    por_sorteio = [
+        {"categoria": c,
+         "linhas": linhas_por_rotulo[c],
+         "rodada": r["rodada"]}
+        for r in rodadas for c in r["categorias_retiradas"]
+    ]
+    relatorio["categorias_excluidas_por_sorteio"] = por_sorteio
+    relatorio["rodadas_de_exclusao"] = len(rodadas)
+    relatorio["registros_descartados"] = dados["descartados"]
+    relatorio["categorias_na_referencia"] = len(set(dados["rotulos"]))
+    relatorio["categorias_particionadas"] = len(
+        {dados["rotulos"][i] for i in elegiveis})
+    relatorio["minimo_grupos_por_categoria"] = minimo
+    relatorio["categorias_excluidas_por_suporte"] = raras
+    relatorio["linhas_excluidas_por_suporte"] = sum(r["linhas"] for r in raras)
+    relatorio["linhas_excluidas_por_sorteio"] = sum(c["linhas"] for c in por_sorteio)
+    relatorio["linhas_excluidas_total"] = (
+        relatorio["linhas_excluidas_por_suporte"]
+        + relatorio["linhas_excluidas_por_sorteio"])
+    relatorio["criterio_exclusao"] = (
+        f"categoria com menos de {minimo} grupos textuais distintos nao pode ter "
+        f"suporte nas {k} dobras, porque um grupo inteiro ocupa uma unica dobra; "
+        "categorias que mesmo assim ficam sem suporte em alguma dobra saem em "
+        "rodadas seguintes; a exclusao e nominal e nenhuma categoria e fundida "
+        "com outra")
+
+    ausentes = sorted({c for d in relatorio["dobras"]
+                       for c in d["categorias_ausentes"]})
 
     problemas = {
         "linhas_sem_dobra": relatorio["linhas_sem_dobra"],
         "grupos_divididos_entre_dobras": relatorio["grupos_divididos_entre_dobras"],
         "registros_descartados": relatorio["registros_descartados"],
-        "categorias_ausentes_sem_explicacao": len(ausencias_inesperadas),
+        "categorias_sem_suporte_em_alguma_dobra": len(ausentes),
     }
     bloqueios = [nome for nome, n in problemas.items() if n]
     relatorio["problemas"] = problemas
     relatorio["bloqueios"] = bloqueios
-    relatorio["dobras_com_categoria_ausente"] = dobras_incompletas
-    relatorio["categorias_ausentes_sem_explicacao"] = ausencias_inesperadas
+    relatorio["categorias_sem_suporte_em_alguma_dobra"] = ausentes
     relatorio["status"] = "apto_para_treinar" if not bloqueios else "bloqueado"
     relatorio["schema_version"] = 1
     return relatorio
 
 
 def renderizar_markdown(relatorio: dict[str, Any]) -> str:
-    raras = relatorio["classes_sem_estratificacao_possivel"]
+    raras = relatorio["categorias_excluidas_por_suporte"]
     linhas = [
         "# Partições canônicas do experimento",
         "",
@@ -199,6 +249,8 @@ def renderizar_markdown(relatorio: dict[str, Any]) -> str:
         f"- Linhas particionadas: {relatorio['linhas_particionadas']}.",
         f"- Grupos textuais particionados: {relatorio['grupos_particionados']}.",
         f"- Grupos divididos entre dobras: {relatorio['grupos_divididos_entre_dobras']}.",
+        f"- Categorias particionadas: {relatorio['categorias_particionadas']} "
+        f"de {relatorio['categorias_na_referencia']} na referência.",
         "",
         "## Distribuição por dobra",
         "",
@@ -207,13 +259,18 @@ def renderizar_markdown(relatorio: dict[str, Any]) -> str:
     ]
     linhas += [f"| {d['dobra']} | {d['linhas']} | {d['grupos']} | {d['categorias_com_suporte']} |"
                for d in relatorio["dobras"]]
-    linhas += ["", "## Categorias sem estratificação possível", ""]
+    linhas += ["", "## Categorias excluídas por suporte insuficiente", ""]
     if raras:
         linhas += [
-            f"Das {relatorio['categorias_totais']} categorias, {len(raras)} aparecem em menos "
-            f"de {relatorio['k']} grupos textuais distintos. Como um grupo inteiro ocupa uma única "
-            "dobra, o suporte em todas as dobras é aritmeticamente impossível para elas. "
-            "A taxonomia foi congelada no Passo 1 e não é alterada aqui.",
+            f"Das {relatorio['categorias_na_referencia']} categorias da referência humana, "
+            f"{len(raras)} {'aparecem' if len(raras) > 1 else 'aparece'} em menos de "
+            f"{relatorio['minimo_grupos_por_categoria']} grupos "
+            "textuais distintos. Como um grupo inteiro ocupa uma única dobra, o suporte em todas "
+            f"as {relatorio['k']} dobras é aritmeticamente impossível, e por isso "
+            f"{'ficam' if len(raras) > 1 else 'fica'} fora do particionamento, somando "
+            f"{relatorio['linhas_excluidas_por_suporte']} linhas. "
+            "A exclusão é nominal: a taxonomia congelada no Passo 1 não é alterada e nenhuma "
+            "categoria é fundida com outra.",
             "",
             "| Categoria | Grupos distintos | Linhas | Dobras possíveis |",
             "|---|---:|---:|---:|",
@@ -221,7 +278,35 @@ def renderizar_markdown(relatorio: dict[str, Any]) -> str:
         linhas += [f"| {r['categoria']} | {r['grupos_distintos']} | {r['linhas']} | {r['dobras_possiveis']} |"
                    for r in raras]
     else:
-        linhas.append("Todas as categorias aparecem em pelo menos uma dobra por partição.")
+        linhas.append("Nenhuma categoria saiu pelo critério aritmético.")
+
+    por_sorteio = relatorio["categorias_excluidas_por_sorteio"]
+    linhas += ["", "## Categorias excluídas por ausência efetiva em alguma dobra", ""]
+    if por_sorteio:
+        linhas += [
+            f"Ter ao menos {relatorio['minimo_grupos_por_categoria']} grupos é condição "
+            "necessária, não suficiente: o sorteio ainda pode reunir numa única dobra todos os "
+            f"grupos de uma categoria. Estas saíram em {relatorio['rodadas_de_exclusao']} "
+            "rodada(s) de reparticionamento, até que todas as categorias remanescentes tivessem "
+            "suporte verificado em todas as dobras.",
+            "",
+            "| Categoria | Linhas | Rodada |",
+            "|---|---:|---:|",
+        ]
+        linhas += [f"| {c['categoria']} | {c['linhas']} | {c['rodada']} |"
+                   for c in por_sorteio]
+    else:
+        linhas.append("Nenhuma: o primeiro particionamento já cobriu todas as categorias elegíveis.")
+
+    if raras or por_sorteio:
+        linhas += [
+            "",
+            f"No total, {relatorio['linhas_excluidas_total']} linhas ficaram fora das partições. "
+            "Qualquer métrica derivada delas vale para as "
+            f"{relatorio['categorias_particionadas']} categorias particionadas, e não para as "
+            f"{relatorio['categorias_na_referencia']} da taxonomia. O artigo precisa declarar "
+            "esse denominador sempre que reportar resultados.",
+        ]
     linhas += [
         "",
         "## Validações",
@@ -260,6 +345,9 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--credenciais", default=None)
     p.add_argument("--k", type=int, default=K_PADRAO)
     p.add_argument("--semente", type=int, default=SEMENTE_PADRAO)
+    p.add_argument("--minimo-grupos", type=int, default=None,
+                   help=("minimo de grupos textuais distintos para uma categoria "
+                         "entrar no particionamento; padrao igual a --k"))
     p.add_argument("--json", type=Path, default=SAIDA_JSON_PADRAO)
     p.add_argument("--markdown", type=Path, default=SAIDA_MD_PADRAO)
     p.add_argument("--mapa", type=Path, default=SAIDA_MAPA_PADRAO)
@@ -271,7 +359,8 @@ def main() -> int:
     config = json.loads(args.config.read_text(encoding="utf-8"))
     sh = pl.abrir_planilha(pl.id_planilha(config), args.credenciais)
     relatorio = montar_relatorio(cgt.ler_registros(sh, config),
-                                 k=args.k, semente=args.semente)
+                                 k=args.k, semente=args.semente,
+                                 minimo_grupos=args.minimo_grupos)
     relatorio["gerado_em"] = agora_bahia()
     relatorio["fonte"] = config["aba_principal"]
     relatorio["script_origem"] = "src/gerar_particoes_canonicas.py"
