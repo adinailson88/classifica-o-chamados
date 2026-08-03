@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "status": "apto_para_regras",
+  "protocolo": "predicoes out-of-fold sobre as particoes canonicas do Passo 3; rotulo e a referencia humana revisada; nenhum modelo treina no grupo textual que preve",
+  "semente": 42,
+  "corpus": {
+    "linhas_avaliadas": 13972,
+    "grupos_textuais": 9734,
+    "categorias": 41,
+    "dobras": 5,
+    "linhas_fora_das_particoes": 101,
+    "linhas_sem_rotulo": 0
+  },
+  "ambiente": {
+    "python": "3.11.15",
+    "plataforma": "Linux-6.17.0-1020-azure-x86_64-with-glibc2.39",
+    "dependencias": {
+      "numpy": "1.26.4",
+      "sklearn": "1.5.2",
+      "tensorflow": "2.17.0"
+    }
+  },
+  "modelos": [
+    {
+      "modelo": "naive_bayes",
+      "acuracia": 0.7086,
+      "macro_f1": 0.2951,
+      "balanced_accuracy": 0.2996,
+      "tempo_treino_s": 17.81,
+      "tempo_inferencia_s": 6.27,
+      "pico_memoria_mb": 71.1,
+      "registros_sem_predicao": 0,
+      "grupos_vazados_para_o_treino": 0
+    },
+    {
+      "modelo": "regressao_logistica",
+      "acuracia": 0.8048,
+      "macro_f1": 0.6697,
+      "balanced_accuracy": 0.7005,
+      "tempo_treino_s": 61.74,
+      "tempo_inferencia_s": 6.49,
+      "pico_memoria_mb": 405.8,
+      "registros_sem_predicao": 0,
+      "grupos_vazados_para_o_treino": 0
+    },
+    {
+      "modelo": "linear_svc",
+      "acuracia": 0.8252,
+      "macro_f1": 0.6683,
+      "balanced_accuracy": 0.6804,
+      "tempo_treino_s": 23.5,
+      "tempo_inferencia_s": 6.46,
+      "pico_memoria_mb": 43.4,
+      "registros_sem_predicao": 0,
+      "grupos_vazados_para_o_treino": 0
+    },
+    {
+      "modelo": "sgd",
+      "acuracia": 0.809,
+      "macro_f1": 0.6677,
+      "balanced_accuracy": 0.6997,
+      "tempo_treino_s": 24.3,
+      "tempo_inferencia_s": 6.5,
+      "pico_memoria_mb": 43.4,
+      "registros_sem_predicao": 0,
+      "grupos_vazados_para_o_treino": 0
+    },
+    {
+      "modelo": "extra_trees",
+      "acuracia": 0.8083,
+      "macro_f1": 0.6368,
+      "balanced_accuracy": 0.6156,
+      "tempo_treino_s": 115.84,
+      "tempo_inferencia_s": 7.07,
+      "pico_memoria_mb": 51.0,
+      "registros_sem_predicao": 0,
+      "grupos_vazados_para_o_treino": 0
+    },
+    {
+      "modelo": "random_forest",
+      "acuracia": 0.7992,
+      "macro_f1": 0.6183,
+      "balanced_accuracy": 0.5985,
+      "tempo_treino_s": 99.29,
+      "tempo_inferencia_s": 6.82,
+      "pico_memoria_mb": 51.0,
+      "registros_sem_predicao": 0,
+      "grupos_vazados_para_o_treino": 0
+    },
+    {
+      "modelo": "lstm",
+      "acuracia": 0.729,
+      "macro_f1": 0.5363,
+      "balanced_accuracy": 0.5878,
+      "tempo_treino_s": 414.64,
+      "tempo_inferencia_s": 11.66,
+      "pico_memoria_mb": 147.0,
+      "registros_sem_predicao": 0,
+      "grupos_vazados_para_o_treino": 0
+    }
+  ],
+  "melhor_por_macro_f1": "regressao_logistica",
+  "problemas": {
+    "modelos_com_vazamento_de_grupo": 0,
+    "modelos_com_registro_sem_predicao": 0,
+    "linhas_do_corpus_sem_rotulo": 0
+  },
+  "bloqueios": [],
+  "gerado_em": "03/08/2026 20:33",
+  "fonte": "CHAMADOS_ESQUELETO_REDUZIDO",
+  "script_origem": "src/retreinar_modelos_canonicos.py"
+}
