@@ -34,6 +34,7 @@ CONFIG_PADRAO = RAIZ / "config_experimento.json"
 SAIDA_JSON_PADRAO = RAIZ / "docs" / "dados" / "particoes_canonicas.json"
 SAIDA_MD_PADRAO = RAIZ / "docs" / "PARTICOES_CANONICAS.md"
 SAIDA_MAPA_PADRAO = RAIZ / "docs" / "dados" / "particoes_canonicas_mapa.csv"
+MAPA_PASSO2_PADRAO = RAIZ / "docs" / "dados" / "grupos_textuais_mapa.csv"
 
 K_PADRAO = 5
 SEMENTE_PADRAO = 42
@@ -44,18 +45,38 @@ SEMENTE_PADRAO = 42
 RODADAS_MAXIMAS = 20
 
 
-def preparar(registros: list[dict[str, str]]) -> dict[str, list[str]]:
+def carregar_base_congelada(caminho: Path) -> set[str]:
+    """Le os `id_sha256` do mapa de grupos textuais produzido no Passo 2."""
+    with caminho.open("r", encoding="utf-8", newline="") as f:
+        return {linha["id_sha256"] for linha in csv.DictReader(f)
+                if linha.get("id_sha256")}
+
+
+def preparar(registros: list[dict[str, str]],
+             ids_congelados: set[str] | None = None) -> dict[str, Any]:
     """Extrai grupo textual e referencia humana de cada registro elegivel.
 
     Elegivel e o registro que tem ID e referencia humana. Sem referencia nao ha
     o que estratificar; sem ID nao ha como registrar a particao.
+
+    A aba principal e viva: o GLPI continua alimentando linhas novas depois do
+    congelamento. Com `ids_congelados`, o passo considera apenas os registros do
+    corpus congelado no Passo 2 e contabiliza o excedente a parte, para que o
+    crescimento operacional da planilha nao altere as particoes nem seja
+    confundido com defeito de dados.
     """
     ids: list[str] = []
     grupos: list[str] = []
     rotulos: list[str] = []
     descartados = 0
+    fora_da_base = 0
     for r in registros:
         id_chamado = r.get("id", "")
+        if ids_congelados is not None:
+            digest = hashlib.sha256(id_chamado.encode("utf-8")).hexdigest()
+            if not id_chamado or digest not in ids_congelados:
+                fora_da_base += 1
+                continue
         rotulo = cgt.referencia_humana(r)
         if not id_chamado or not rotulo:
             descartados += 1
@@ -66,7 +87,7 @@ def preparar(registros: list[dict[str, str]]) -> dict[str, list[str]]:
         grupos.append(cgt.hash_grupo(normalizados))
         rotulos.append(rotulo)
     return {"ids": ids, "grupos": grupos, "rotulos": rotulos,
-            "descartados": descartados}
+            "descartados": descartados, "fora_da_base_congelada": fora_da_base}
 
 
 def classes_sem_estratificacao(grupos: list[str], rotulos: list[str],
@@ -152,7 +173,8 @@ def particionar(ids: list[str], grupos: list[str], rotulos: list[str],
 
 def montar_relatorio(registros: list[dict[str, str]], k: int = K_PADRAO,
                      semente: int = SEMENTE_PADRAO,
-                     minimo_grupos: int | None = None) -> dict[str, Any]:
+                     minimo_grupos: int | None = None,
+                     ids_congelados: set[str] | None = None) -> dict[str, Any]:
     """Particiona somente as categorias com suporte defensavel em cada dobra.
 
     Categorias com menos de `minimo_grupos` grupos textuais distintos ficam fora
@@ -160,7 +182,7 @@ def montar_relatorio(registros: list[dict[str, str]], k: int = K_PADRAO,
     retirada aparece no relatorio com o numero de grupos e de linhas.
     """
     minimo = k if minimo_grupos is None else minimo_grupos
-    dados = preparar(registros)
+    dados = preparar(registros, ids_congelados)
     raras = classes_sem_estratificacao(dados["grupos"], dados["rotulos"], minimo)
     excluidas = {r["categoria"] for r in raras}
 
@@ -196,6 +218,10 @@ def montar_relatorio(registros: list[dict[str, str]], k: int = K_PADRAO,
     relatorio["categorias_excluidas_por_sorteio"] = por_sorteio
     relatorio["rodadas_de_exclusao"] = len(rodadas)
     relatorio["registros_descartados"] = dados["descartados"]
+    relatorio["base_congelada_aplicada"] = ids_congelados is not None
+    relatorio["linhas_da_base_congelada"] = (
+        len(ids_congelados) if ids_congelados is not None else None)
+    relatorio["linhas_vivas_fora_da_base_congelada"] = dados["fora_da_base_congelada"]
     relatorio["categorias_na_referencia"] = len(set(dados["rotulos"]))
     relatorio["categorias_particionadas"] = len(
         {dados["rotulos"][i] for i in elegiveis})
@@ -251,6 +277,12 @@ def renderizar_markdown(relatorio: dict[str, Any]) -> str:
         f"- Grupos divididos entre dobras: {relatorio['grupos_divididos_entre_dobras']}.",
         f"- Categorias particionadas: {relatorio['categorias_particionadas']} "
         f"de {relatorio['categorias_na_referencia']} na referência.",
+        (f"- Corpus fixado na base congelada do Passo 2, com "
+         f"{relatorio['linhas_da_base_congelada']} registros; "
+         f"{relatorio['linhas_vivas_fora_da_base_congelada']} linhas vivas da aba "
+         "ficaram fora por serem posteriores ao congelamento."
+         if relatorio["base_congelada_aplicada"] else
+         "- Corpus lido direto da aba viva, sem fixação na base congelada."),
         "",
         "## Distribuição por dobra",
         "",
@@ -345,6 +377,11 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--credenciais", default=None)
     p.add_argument("--k", type=int, default=K_PADRAO)
     p.add_argument("--semente", type=int, default=SEMENTE_PADRAO)
+    p.add_argument("--mapa-congelado", type=Path, default=MAPA_PASSO2_PADRAO,
+                   help=("mapa de grupos textuais do Passo 2 que define o corpus "
+                         "congelado; linhas da aba viva fora dele sao ignoradas"))
+    p.add_argument("--sem-base-congelada", action="store_true",
+                   help="le a aba viva inteira, sem fixar o corpus do Passo 2")
     p.add_argument("--minimo-grupos", type=int, default=None,
                    help=("minimo de grupos textuais distintos para uma categoria "
                          "entrar no particionamento; padrao igual a --k"))
@@ -357,10 +394,19 @@ def parse_args() -> argparse.Namespace:
 def main() -> int:
     args = parse_args()
     config = json.loads(args.config.read_text(encoding="utf-8"))
+    ids_congelados = None
+    if not args.sem_base_congelada:
+        if not args.mapa_congelado.exists():
+            print(f"Mapa da base congelada nao encontrado em {args.mapa_congelado}. "
+                  "Execute o Passo 2 ou use --sem-base-congelada.", file=sys.stderr)
+            return 2
+        ids_congelados = carregar_base_congelada(args.mapa_congelado)
+
     sh = pl.abrir_planilha(pl.id_planilha(config), args.credenciais)
     relatorio = montar_relatorio(cgt.ler_registros(sh, config),
                                  k=args.k, semente=args.semente,
-                                 minimo_grupos=args.minimo_grupos)
+                                 minimo_grupos=args.minimo_grupos,
+                                 ids_congelados=ids_congelados)
     relatorio["gerado_em"] = agora_bahia()
     relatorio["fonte"] = config["aba_principal"]
     relatorio["script_origem"] = "src/gerar_particoes_canonicas.py"

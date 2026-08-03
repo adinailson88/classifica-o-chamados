@@ -127,6 +127,45 @@ class TestParticoesCanonicas(unittest.TestCase):
         self.assertEqual(r["status"], "apto_para_treinar")
         self.assertEqual(r["categorias_sem_suporte_em_alguma_dobra"], [])
 
+    def test_base_congelada_ignora_linhas_novas_da_aba_viva(self):
+        import hashlib
+        congelados = base_equilibrada()
+        ids = {hashlib.sha256(r["id"].encode("utf-8")).hexdigest()
+               for r in congelados}
+        # A aba viva ganhou dois chamados novos, ainda sem revisão humana.
+        vivos = congelados + [
+            registro("9001", "chamado novo um", m=""),
+            registro("9002", "chamado novo dois", m=""),
+        ]
+        r = gpc.montar_relatorio(vivos, ids_congelados=ids)
+        self.assertTrue(r["base_congelada_aplicada"])
+        self.assertEqual(r["linhas_da_base_congelada"], 80)
+        self.assertEqual(r["linhas_vivas_fora_da_base_congelada"], 2)
+        # O crescimento operacional não vira defeito de dados nem bloqueio.
+        self.assertEqual(r["registros_descartados"], 0)
+        self.assertEqual(r["linhas_particionadas"], 80)
+        self.assertEqual(r["status"], "apto_para_treinar")
+
+    def test_sem_base_congelada_a_linha_nova_volta_a_bloquear(self):
+        vivos = base_equilibrada() + [registro("9001", "chamado novo", m="")]
+        r = gpc.montar_relatorio(vivos)
+        self.assertFalse(r["base_congelada_aplicada"])
+        self.assertEqual(r["registros_descartados"], 1)
+        self.assertEqual(r["status"], "bloqueado")
+
+    def test_linha_congelada_sem_referencia_continua_bloqueando(self):
+        import hashlib
+        registros = base_equilibrada()
+        # Um registro do próprio corpus congelado perdeu a referência humana:
+        # isso é defeito de dados, não crescimento da aba, e deve bloquear.
+        registros.append(registro("9001", "dentro do corpus", m="Errado", q=""))
+        ids = {hashlib.sha256(r["id"].encode("utf-8")).hexdigest()
+               for r in registros}
+        r = gpc.montar_relatorio(registros, ids_congelados=ids)
+        self.assertEqual(r["linhas_vivas_fora_da_base_congelada"], 0)
+        self.assertEqual(r["registros_descartados"], 1)
+        self.assertEqual(r["status"], "bloqueado")
+
     def test_registro_sem_referencia_humana_e_descartado_e_bloqueia(self):
         registros = base_equilibrada()
         registros.append(registro("999", "sem referencia", m="Errado", q=""))
