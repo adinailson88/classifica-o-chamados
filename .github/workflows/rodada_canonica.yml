@@ -38,6 +38,8 @@ jobs:
           python -m unittest discover -s tests -p "test_comparar_regras_modelos.py" -t tests
           python -m unittest discover -s tests -p "test_calibrar_confianca.py" -t tests
           python -m unittest discover -s tests -p "test_recortes_canonicos.py" -t tests
+          python -m unittest discover -s tests -p "test_comparacao_historica.py" -t tests
+          python -m unittest discover -s tests -p "test_custo_computacional_canonico.py" -t tests
       - name: Recriar chave da conta de servico
         env:
           GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
@@ -68,10 +70,14 @@ jobs:
             docs/dados/regras_versus_modelos.json
             docs/dados/calibracao_canonica.json
             docs/dados/recortes_canonicos.json
+            docs/dados/comparacao_historica.json
+            docs/dados/custo_computacional_canonico.json
             docs/RETREINO_CANONICO.md
             docs/REGRAS_VERSUS_MODELOS.md
             docs/CALIBRACAO_CANONICA.md
             docs/RECORTES_CANONICOS.md
+            docs/COMPARACAO_HISTORICA.md
+            docs/CUSTO_COMPUTACIONAL_CANONICO.md
           if-no-files-found: error
           retention-days: 30
       - name: Aplicar criterio de aceite
