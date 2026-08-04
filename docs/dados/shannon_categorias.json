@@ -238,17 +238,17 @@
       "maior_risco": "estavel"
     },
     {
+      "categoria_historica": "Manutenção Preventiva > Ar condicionado central",
+      "modelos": 9,
+      "suporte_max": 167,
+      "entropia_media_normalizada": 0.131,
+      "maior_risco": "estavel"
+    },
+    {
       "categoria_historica": "Manutenção Preventiva > Elevador",
       "modelos": 9,
       "suporte_max": 86,
       "entropia_media_normalizada": 0.1302,
-      "maior_risco": "estavel"
-    },
-    {
-      "categoria_historica": "Manutenção Preventiva > Ar condicionado central",
-      "modelos": 9,
-      "suporte_max": 167,
-      "entropia_media_normalizada": 0.1014,
       "maior_risco": "estavel"
     },
     {
@@ -3357,6 +3357,21 @@
       "risco": "estavel"
     },
     {
+      "modelo": "random_forest",
+      "categoria_historica": "Manutenção Preventiva > Ar condicionado central",
+      "suporte": 167,
+      "categorias_previstas": 3,
+      "entropia_previsoes": 0.4311,
+      "entropia_normalizada": 0.272,
+      "categorias_efetivas": 1.3483,
+      "top_1_previsto": "Manutenção Preventiva > Ar condicionado central",
+      "top_1_pct": 0.9281,
+      "top_2_previsto": "Climatização > Ar condicionado central",
+      "top_2_pct": 0.0539,
+      "concordancia_historico": 0.9281,
+      "risco": "estavel"
+    },
+    {
       "modelo": "etapa1_oficial",
       "categoria_historica": "Manutenção Preventiva > Telhados, calhas, rufos, etc.",
       "suporte": 44,
@@ -3369,6 +3384,21 @@
       "top_2_previsto": "Estrutura Predial > Telhados, calhas, rufos, etc.",
       "top_2_pct": 0.0455,
       "concordancia_historico": 0.9545,
+      "risco": "estavel"
+    },
+    {
+      "modelo": "extra_trees",
+      "categoria_historica": "Manutenção Preventiva > Ar condicionado central",
+      "suporte": 167,
+      "categorias_previstas": 3,
+      "entropia_previsoes": 0.4195,
+      "entropia_normalizada": 0.2647,
+      "categorias_efetivas": 1.3375,
+      "top_1_previsto": "Manutenção Preventiva > Ar condicionado central",
+      "top_1_pct": 0.9281,
+      "top_2_previsto": "Climatização > Ar condicionado central",
+      "top_2_pct": 0.0599,
+      "concordancia_historico": 0.9281,
       "risco": "estavel"
     },
     {
@@ -3534,36 +3564,6 @@
       "top_2_previsto": "Manutenção Preventiva > Ar condicionado split",
       "top_2_pct": 0.1127,
       "concordancia_historico": 0.8611,
-      "risco": "estavel"
-    },
-    {
-      "modelo": "extra_trees",
-      "categoria_historica": "Manutenção Preventiva > Ar condicionado central",
-      "suporte": 165,
-      "categorias_previstas": 3,
-      "entropia_previsoes": 0.3583,
-      "entropia_normalizada": 0.226,
-      "categorias_efetivas": 1.2819,
-      "top_1_previsto": "Manutenção Preventiva > Ar condicionado central",
-      "top_1_pct": 0.9394,
-      "top_2_previsto": "Climatização > Ar condicionado central",
-      "top_2_pct": 0.0545,
-      "concordancia_historico": 0.9394,
-      "risco": "estavel"
-    },
-    {
-      "modelo": "random_forest",
-      "categoria_historica": "Manutenção Preventiva > Ar condicionado central",
-      "suporte": 165,
-      "categorias_previstas": 3,
-      "entropia_previsoes": 0.3583,
-      "entropia_normalizada": 0.226,
-      "categorias_efetivas": 1.2819,
-      "top_1_previsto": "Manutenção Preventiva > Ar condicionado central",
-      "top_1_pct": 0.9394,
-      "top_2_previsto": "Climatização > Ar condicionado central",
-      "top_2_pct": 0.0545,
-      "concordancia_historico": 0.9394,
       "risco": "estavel"
     },
     {
@@ -3987,6 +3987,36 @@
       "risco": "estavel"
     },
     {
+      "modelo": "regressao_logistica",
+      "categoria_historica": "Manutenção Preventiva > Ar condicionado central",
+      "suporte": 167,
+      "categorias_previstas": 2,
+      "entropia_previsoes": 0.1631,
+      "entropia_normalizada": 0.1631,
+      "categorias_efetivas": 1.1197,
+      "top_1_previsto": "Manutenção Preventiva > Ar condicionado central",
+      "top_1_pct": 0.976,
+      "top_2_previsto": "Climatização > Ar condicionado central",
+      "top_2_pct": 0.024,
+      "concordancia_historico": 0.976,
+      "risco": "estavel"
+    },
+    {
+      "modelo": "sgd",
+      "categoria_historica": "Manutenção Preventiva > Ar condicionado central",
+      "suporte": 167,
+      "categorias_previstas": 2,
+      "entropia_previsoes": 0.1631,
+      "entropia_normalizada": 0.1631,
+      "categorias_efetivas": 1.1197,
+      "top_1_previsto": "Manutenção Preventiva > Ar condicionado central",
+      "top_1_pct": 0.976,
+      "top_2_previsto": "Climatização > Ar condicionado central",
+      "top_2_pct": 0.024,
+      "concordancia_historico": 0.976,
+      "risco": "estavel"
+    },
+    {
       "modelo": "linear_svc",
       "categoria_historica": "Posto de trabalho > Contratação de Posto de trabalho",
       "suporte": 102,
@@ -4209,36 +4239,6 @@
       "top_2_previsto": "Projetos e Reformas > Reforma",
       "top_2_pct": 0.0185,
       "concordancia_historico": 0.9815,
-      "risco": "estavel"
-    },
-    {
-      "modelo": "regressao_logistica",
-      "categoria_historica": "Manutenção Preventiva > Ar condicionado central",
-      "suporte": 165,
-      "categorias_previstas": 2,
-      "entropia_previsoes": 0.1311,
-      "entropia_normalizada": 0.1311,
-      "categorias_efetivas": 1.0951,
-      "top_1_previsto": "Manutenção Preventiva > Ar condicionado central",
-      "top_1_pct": 0.9818,
-      "top_2_previsto": "Climatização > Ar condicionado central",
-      "top_2_pct": 0.0182,
-      "concordancia_historico": 0.9818,
-      "risco": "estavel"
-    },
-    {
-      "modelo": "sgd",
-      "categoria_historica": "Manutenção Preventiva > Ar condicionado central",
-      "suporte": 165,
-      "categorias_previstas": 2,
-      "entropia_previsoes": 0.1311,
-      "entropia_normalizada": 0.1311,
-      "categorias_efetivas": 1.0951,
-      "top_1_previsto": "Manutenção Preventiva > Ar condicionado central",
-      "top_1_pct": 0.9818,
-      "top_2_previsto": "Climatização > Ar condicionado central",
-      "top_2_pct": 0.0182,
-      "concordancia_historico": 0.9818,
       "risco": "estavel"
     },
     {
@@ -4542,6 +4542,21 @@
       "risco": "estavel"
     },
     {
+      "modelo": "lstm",
+      "categoria_historica": "Manutenção Preventiva > Ar condicionado central",
+      "suporte": 167,
+      "categorias_previstas": 4,
+      "entropia_previsoes": 0.1583,
+      "entropia_normalizada": 0.0792,
+      "categorias_efetivas": 1.116,
+      "top_1_previsto": "Manutenção Preventiva > Ar condicionado central",
+      "top_1_pct": 0.982,
+      "top_2_previsto": "Climatização > Ar condicionado split",
+      "top_2_pct": 0.006,
+      "concordancia_historico": 0.982,
+      "risco": "estavel"
+    },
+    {
       "modelo": "sgd",
       "categoria_historica": "Manutenção Preventiva > Quadros Elétricos",
       "suporte": 578,
@@ -4614,21 +4629,6 @@
       "top_2_previsto": "Manutenção Preventiva > Hidráulica",
       "top_2_pct": 0.0072,
       "concordancia_historico": 0.9821,
-      "risco": "estavel"
-    },
-    {
-      "modelo": "lstm",
-      "categoria_historica": "Manutenção Preventiva > Ar condicionado central",
-      "suporte": 165,
-      "categorias_previstas": 3,
-      "entropia_previsoes": 0.1067,
-      "entropia_normalizada": 0.0673,
-      "categorias_efetivas": 1.0767,
-      "top_1_previsto": "Manutenção Preventiva > Ar condicionado central",
-      "top_1_pct": 0.9879,
-      "top_2_previsto": "Climatização > Ar condicionado split",
-      "top_2_pct": 0.0061,
-      "concordancia_historico": 0.9879,
       "risco": "estavel"
     },
     {
@@ -4764,6 +4764,36 @@
       "top_2_previsto": "Elétrica > Gerador",
       "top_2_pct": 0.0132,
       "concordancia_historico": 0.9844,
+      "risco": "estavel"
+    },
+    {
+      "modelo": "linear_svc",
+      "categoria_historica": "Manutenção Preventiva > Ar condicionado central",
+      "suporte": 167,
+      "categorias_previstas": 2,
+      "entropia_previsoes": 0.0528,
+      "entropia_normalizada": 0.0528,
+      "categorias_efetivas": 1.0373,
+      "top_1_previsto": "Manutenção Preventiva > Ar condicionado central",
+      "top_1_pct": 0.994,
+      "top_2_previsto": "Climatização > Ar condicionado central",
+      "top_2_pct": 0.006,
+      "concordancia_historico": 0.994,
+      "risco": "estavel"
+    },
+    {
+      "modelo": "naive_bayes",
+      "categoria_historica": "Manutenção Preventiva > Ar condicionado central",
+      "suporte": 167,
+      "categorias_previstas": 2,
+      "entropia_previsoes": 0.0528,
+      "entropia_normalizada": 0.0528,
+      "categorias_efetivas": 1.0373,
+      "top_1_previsto": "Manutenção Preventiva > Ar condicionado central",
+      "top_1_pct": 0.994,
+      "top_2_previsto": "Manutenção Preventiva > Ar condicionado split",
+      "top_2_pct": 0.006,
+      "concordancia_historico": 0.994,
       "risco": "estavel"
     },
     {
@@ -4965,36 +4995,6 @@
       "modelo": "etapa1_oficial",
       "categoria_historica": "Manutenção Preventiva > Ar condicionado central",
       "suporte": 167,
-      "categorias_previstas": 1,
-      "entropia_previsoes": -0.0,
-      "entropia_normalizada": 0.0,
-      "categorias_efetivas": 1.0,
-      "top_1_previsto": "Manutenção Preventiva > Ar condicionado central",
-      "top_1_pct": 1.0,
-      "top_2_previsto": "",
-      "top_2_pct": 0.0,
-      "concordancia_historico": 1.0,
-      "risco": "estavel"
-    },
-    {
-      "modelo": "linear_svc",
-      "categoria_historica": "Manutenção Preventiva > Ar condicionado central",
-      "suporte": 165,
-      "categorias_previstas": 1,
-      "entropia_previsoes": -0.0,
-      "entropia_normalizada": 0.0,
-      "categorias_efetivas": 1.0,
-      "top_1_previsto": "Manutenção Preventiva > Ar condicionado central",
-      "top_1_pct": 1.0,
-      "top_2_previsto": "",
-      "top_2_pct": 0.0,
-      "concordancia_historico": 1.0,
-      "risco": "estavel"
-    },
-    {
-      "modelo": "naive_bayes",
-      "categoria_historica": "Manutenção Preventiva > Ar condicionado central",
-      "suporte": 165,
       "categorias_previstas": 1,
       "entropia_previsoes": -0.0,
       "entropia_normalizada": 0.0,
