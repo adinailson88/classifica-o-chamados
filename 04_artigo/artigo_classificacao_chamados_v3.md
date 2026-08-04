@@ -3,38 +3,40 @@ header-includes:
   - |
     ```{=latex}
     \usepackage[font=small,labelfont=bf,justification=centering,skip=6pt]{caption}
-    % Sem a posicao 'b': figura colocada no rodape estourava a margem inferior.
+    % POSICIONAMENTO DE FLOATS
+    % A posicao 'h' foi acrescentada a 'tp' para que a figura possa assentar
+    % onde e citada. So com 'tp' ela era empurrada ao topo da pagina seguinte, e
+    % o trecho de texto que sobrava no pe da pagina anterior nao bastava para
+    % fechar a coluna, o que abria vao. A posicao 'b' continua fora: figura no
+    % rodape estourava a margem inferior.
     \makeatletter
-    \def\fps@figure{tp}
+    \def\fps@figure{htp}
     \makeatother
-    \renewcommand{\topfraction}{0.85}
-    \renewcommand{\textfraction}{0.10}
-    \renewcommand{\floatpagefraction}{0.90}
-    \setcounter{topnumber}{2}
-    \setcounter{totalnumber}{3}
-    \raggedbottom
+    % Fracoes folgadas reduzem a chance de o LaTeX desistir de encaixar o float
+    % na pagina corrente e cria-la exclusiva para ele. O floatpagefraction alto
+    % exige que uma pagina de float esteja quase cheia para existir.
+    \renewcommand{\topfraction}{0.9}
+    \renewcommand{\textfraction}{0.07}
+    \renewcommand{\floatpagefraction}{0.9}
+    \setcounter{topnumber}{3}
+    \setcounter{totalnumber}{4}
+    % Espacos ao redor dos floats: os padroes do article sao generosos e, com
+    % sete figuras e oito tabelas, somam varias linhas perdidas.
+    \setlength{\floatsep}{8pt plus 2pt minus 2pt}
+    \setlength{\textfloatsep}{10pt plus 2pt minus 3pt}
+    \setlength{\intextsep}{8pt plus 2pt minus 2pt}
+    % \flushbottom no lugar de \raggedbottom: distribui a folga residual entre
+    % os elementos da pagina em vez de acumula-la toda no rodape.
+    \flushbottom
     % O texto usa titulos em negrito, nao comandos de secao, entao o LaTeX nao
     % tem ancora para esvaziar a fila de floats e acaba despejando figuras em
-    % paginas onde nao cabem. As barreiras resolvem isso, mas cobram vao no
-    % rodape a cada \clearpage, entao ficaram so onde sao estruturais. As que
-    % cercam tabelas sao obrigatorias: o pandoc emite longtable, que nao e
-    % float e estoura a margem inferior quando divide pagina com figura.
+    % paginas onde nao cabem. As barreiras resolvem isso, mas cada uma que
+    % encontra float pendente dispara \clearpage e abandona o resto da pagina,
+    % entao sobraram apenas as que cercam tabelas: o pandoc emite longtable, que
+    % nao e float e estoura a margem inferior quando divide pagina com figura.
     % O placeins vive em 04_artigo/latex porque nao existe na imagem
     % pandoc/extra do workflow; o ramo alternativo evita falha de build caso o
     % TEXINPUTS nao o alcance.
-    % As tabelas curtas do pandoc sao longtable e podem partir a poucas linhas
-    % do fim da pagina, separando a legenda ou as primeiras linhas do corpo.
-    % \NaoQuebrar reserva espaco vertical antes do bloco: se nao couber, a
-    % tabela inteira desce para a pagina seguinte. O ramo alternativo mantem o
-    % build caso needspace nao exista na imagem.
-    % Os ramos do \IfFileExists sao guardados com \def, entao o parametro
-    % precisa aparecer duplicado.
-    \IfFileExists{needspace.sty}{%
-      \usepackage{needspace}%
-      \newcommand{\NaoQuebrar}[1]{\Needspace*{##1\baselineskip}}%
-    }{%
-      \newcommand{\NaoQuebrar}[1]{\par}%
-    }
     \IfFileExists{placeins.sty}{%
       \usepackage{placeins}%
     }{%
@@ -153,10 +155,6 @@ maintenance with F1 of 0.9742 and 0.9547, respectively.*
 ***Keywords:** building maintenance; work-order classification; natural
 language processing; noisy labels; human validation.*
 
-```{=latex}
-\FloatBarrier
-```
-
 **1. INTRODUÇÃO**
 
 Um campus universitário pode ser descrito como um biossistema
@@ -248,15 +246,7 @@ incorporando o custo computacional como dimensão de decisão; e
 determinar, por medição e não por presunção, se a classificação
 automática é capaz de corrigir retroativamente a base histórica.
 
-```{=latex}
-\FloatBarrier
-```
-
 **2. REFERENCIAL CONCEITUAL**
-
-```{=latex}
-\FloatBarrier
-```
 
 **2.1 Processamento de linguagem natural em ordens de manutenção**
 
@@ -275,10 +265,6 @@ inviabilizam o uso de modelos genéricos sem adaptação ao domínio, tese
 que os 78% de acurácia média reportados por Bouabdallaoui *et al.* (2020)
 sustentam ao mesmo tempo em que evidenciam a necessidade dessa adaptação
 lexical e semântica ao corpus específico.
-
-```{=latex}
-\FloatBarrier
-```
 
 **2.2 Classificação de tickets e evolução dos modelos**
 
@@ -305,10 +291,6 @@ especializado. O achado é particularmente pertinente à manutenção predial
 institucional, cuja base operacional raramente atinge escala compatível
 com as exigências de modelos de linguagem de grande porte.
 
-```{=latex}
-\FloatBarrier
-```
-
 **2.3 Rótulos ruidosos e verdade operacional**
 
 O ruído de rótulo é problema central do aprendizado supervisionado sobre
@@ -321,10 +303,6 @@ julgamento subjetivo. Neste artigo, por conseguinte, a categoria
 histórica é tratada como referência administrativa, e não como verdade
 final, e a referência operacional é construída por revisão humana com
 registro explícito da decisão.
-
-```{=latex}
-\FloatBarrier
-```
 
 **2.4 Custo computacional e eficiência em PLN**
 
@@ -364,15 +342,7 @@ condição na qual classificadores baseados em *bag-of-words* permanecem
 competitivos (GALKE; SCHERP, 2022), a avaliação desses modelos fica
 indicada como desdobramento futuro.
 
-```{=latex}
-\FloatBarrier
-```
-
 **3. MÉTODO**
-
-```{=latex}
-\FloatBarrier
-```
 
 **3.1 Delineamento geral**
 
@@ -438,10 +408,6 @@ manutenção predial, onde palavras como *bomba*, *split*, *disjuntor*,
 *vazamento*, *infiltração* e *ar-condicionado* podem funcionar como
 âncoras semânticas relevantes para categorias específicas.
 
-```{=latex}
-\FloatBarrier
-```
-
 **3.4 Modelos avaliados**
 
 O desenho experimental compara sete modelos, organizados
@@ -479,10 +445,6 @@ e parada antecipada por restrição computacional. Como o modelo não possui
 predições *out-of-fold* materializadas sobre toda a base, ele não é
 inserido artificialmente no ranking integral dos sete modelos. Sua
 viabilidade computacional é examinada na Subseção 4.3.
-
-```{=latex}
-\FloatBarrier
-```
 
 **3.4.1 Diferenças conceituais e operacionais entre os classificadores**
 
@@ -537,10 +499,6 @@ modelos lineares igualam ou superam redes neurais em corpora de porte
 médio e ruidosos, quando não há *embeddings* pré-treinados disponíveis no
 idioma (GALKE; SCHERP, 2022), e a análise de sensibilidade da Subseção
 4.8 confirma não se tratar de falha da arquitetura em si.
-
-```{=latex}
-\FloatBarrier
-```
 
 **3.5 Desenho de avaliação**
 
@@ -617,10 +575,6 @@ fora da comparação principal apoia-se em medição de custo, não em
 preferência editorial. O procedimento e o resultado dessa medição constam
 da Subseção 4.3.
 
-```{=latex}
-\FloatBarrier
-```
-
 **3.6 Revisão humana e referência final**
 
 A revisão humana constitui a etapa que diferencia o presente estudo de
@@ -657,10 +611,6 @@ estabelece um piso de erro irredutível para qualquer modelo, em
 consonância com a perspectiva de que a verdade operacional deve ser
 construída progressivamente (ZHANG *et al.*, 2025).
 
-```{=latex}
-\FloatBarrier
-```
-
 **3.7 Camada de entropia de Shannon e divergência de Jensen-Shannon**
 
 Como dimensão complementar às métricas supervisionadas, o protocolo
@@ -687,10 +637,6 @@ desacordo estrutural entre arquiteturas distintas, formando uma fila de
 auditoria orientada por ambiguidade, e não apenas por baixa confiança
 isolada de um único modelo.
 
-```{=latex}
-\FloatBarrier
-```
-
 **3.8 Disponibilidade de dados**
 
 Os artefatos que sustentam os resultados relatados neste artigo são
@@ -705,10 +651,6 @@ descreve a estrutura completa dos dados e o material suplementar citado
 neste artigo. Nenhum identificador pessoal, título ou texto livre de chamado
 é armazenado nos agregados publicados, e a camada de entropia (Subseção
 3.8) opera exclusivamente sobre esses agregados.
-
-```{=latex}
-\FloatBarrier
-```
 
 **4. RESULTADOS**
 
@@ -1119,10 +1061,6 @@ seu desempenho.
 
 ![Trade-off entre acurácia e tempo de treino, modelos clássicos.](04_artigo/figuras/fig_tradeoff_custo.pdf){width=95%}
 
-```{=latex}
-\FloatBarrier
-```
-
 **4.8 Comportamento do LSTM: curva de aprendizado e *ablation***
 
 Esta subseção reúne duas análises de sensibilidade conduzidas sob
@@ -1207,10 +1145,6 @@ A verificação completa dos pressupostos, item a item, com as tabelas de
 correlação, a autocorrelação serial (DURBIN; WATSON, 1950) e o Kappa de
 Fleiss (FLEISS, 1971) entre modelos, consta do material suplementar.
 
-```{=latex}
-\FloatBarrier
-```
-
 **4.10 Análise de erro por categoria e matriz de confusão**
 
 A avaliação por acurácia global descreve o desempenho médio, mas oculta a
@@ -1273,10 +1207,6 @@ taxonomia institucional, unificando os pares que nomeiam o mesmo objeto e
 explicitando o critério de natureza da manutenção no formulário de
 abertura do chamado. Essa intervenção atua sobre a origem do erro,
 enquanto a substituição do classificador atua apenas sobre seu efeito.
-
-```{=latex}
-\FloatBarrier
-```
 
 **4.11 Desempenho por volume de categoria e por natureza da manutenção**
 
@@ -1363,10 +1293,6 @@ agregação em rubrica única, procedimento que preserva a totalidade do
 volume sem atribuir às frações menores uma precisão que a medição não
 sustenta.
 
-```{=latex}
-\FloatBarrier
-```
-
 **4.12 Camada explícita de regras de periodicidade**
 
 O desenho do estudo previa medir, e não presumir, o valor de uma camada
@@ -1401,15 +1327,7 @@ Trata-se de resultado negativo, contrário à expectativa que motivou o
 teste, e com implicação de desenho: o ganho do fluxo híbrido está no eixo
 humano–IA, tratado na Subseção 4.4, e não no eixo regra–modelo.
 
-```{=latex}
-\FloatBarrier
-```
-
 **5. DISCUSSÃO**
-
-```{=latex}
-\FloatBarrier
-```
 
 **5.1 Concordância histórica, acerto contra a referência e custo do
 BERTimbau**
@@ -1447,10 +1365,6 @@ modelo não foi avaliado sob este protocolo, e rankings produzidos sob
 protocolos distintos não sustentam comparação direta. A execução
 *out-of-fold* integral com aceleração por unidade de processamento
 gráfico permanece como trabalho futuro.
-
-```{=latex}
-\FloatBarrier
-```
 
 **5.2 Reclassificação, ambiguidade taxonômica e calibração**
 
@@ -1514,10 +1428,6 @@ sobre escores de um modelo treinado em três dobras e aplicado a escores
 de um modelo treinado em quatro, troca deliberada entre ausência de
 vazamento e casamento exato de distribuição.
 
-```{=latex}
-\FloatBarrier
-```
-
 **5.3 Limitações**
 
 Os dados provêm de uma única instituição federal de ensino superior, com
@@ -1563,10 +1473,6 @@ processamento gráfico permanece como trabalho futuro. A LSTM, por sua
 vez, treina *embeddings* do zero, sem vetores pré-treinados em português,
 condição que limita a comparação entre arquiteturas neurais.
 
-```{=latex}
-\FloatBarrier
-```
-
 **5.4 Contribuição para a governança preditiva da manutenção**
 
 A contribuição deste artigo não termina na categoria atribuída a cada
@@ -1604,10 +1510,6 @@ maior volume dentro de cada tipo, sob pena de atribuir a frações
 residuais do corpus uma precisão que a medição não sustenta. Essa
 hierarquia converte o diagnóstico de desempenho em critério operacional
 de publicação de indicador, e não apenas em ressalva metodológica.
-
-```{=latex}
-\FloatBarrier
-```
 
 **6. CONSIDERAÇÕES FINAIS**
 
