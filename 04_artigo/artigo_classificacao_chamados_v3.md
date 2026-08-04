@@ -242,10 +242,9 @@ considerados agregam título e descrição do chamado, além de informações
 associadas à ordem de serviço. O estudo compara modelos clássicos
 baseados em TF-IDF (Naive Bayes, Regressão Logística, LinearSVC, SGD,
 Random Forest e Extra Trees) com uma rede neural LSTM bidirecional. O
-BERTimbau também é ajustado, mas sua avaliação permanece em protocolo
-*holdout* separado, com métricas próprias rastreáveis, porque não há
-predições *out-of-fold* desse modelo sobre toda a base. O
-objeto de avaliação, portanto, não é o classificador isolado, mas o
+BERTimbau é ajustado, mas fica fora da comparação principal por custo
+medido, uma vez que o ajuste fino não cabe no teto de execução
+disponível. O objeto de avaliação, portanto, não é o classificador isolado, mas o
 protocolo de governança preditiva que articula aprendizado de máquina,
 auditoria estatística, custo computacional e validação humana. Essa
 formulação é consoante à manutenção baseada em evidências preconizada
@@ -256,8 +255,8 @@ construído.
 Cinco objetivos específicos orientam o trabalho. O primeiro é apresentar
 um protocolo de classificação automática que produza dado estruturado
 auditável a partir de texto livre. O segundo é distinguir a concordância
-com o rótulo histórico do acerto validado, evitando equiparar categoria
-histórica a *ground truth* incontestável. O terceiro é avaliar o
+com o rótulo histórico do acerto contra a referência humana final,
+evitando equiparar categoria histórica a *ground truth* incontestável. O terceiro é avaliar o
 desempenho por métricas globais e balanceadas, intervalos de confiança e
 testes estatísticos pareados adequados a dados não normais. O quarto é
 incorporar o custo computacional como dimensão de decisão operacional. O
@@ -522,7 +521,7 @@ treino foi concluído em modo automático, com subamostragem estratificada
 e parada antecipada por restrição computacional. Como o modelo não possui
 predições *out-of-fold* materializadas sobre toda a base, ele não é
 inserido artificialmente no ranking integral dos sete modelos. Sua
-comparação é apresentada em protocolo *holdout* comum na Subseção 4.3.
+viabilidade computacional é examinada na Subseção 4.3.
 
 ```{=latex}
 \FloatBarrier
@@ -672,34 +671,38 @@ literatura antecipa para corpora pequenos e desbalanceados (KOHAVI,
 1995).
 
 A partição por linha, contudo, carrega uma limitação própria neste
-corpus. Chamados de manutenção repetem-se, e 32,62% das 14.060 linhas
-compartilham texto normalizado com outra linha, de modo que a base
-contém 9.815 grupos textuais distintos. Sob particionamento por linha, o
+corpus, e é ela que determina o protocolo adotado. Chamados de manutenção
+repetem-se: 4.586 das 14.060 linhas, ou 32,62%, compartilham texto
+normalizado com outra linha, e a base resolve-se em 9.786 grupos
+textuais, dos quais 9.474 são unitários. Sob particionamento por linha, o
 mesmo texto pode cair em treino e em teste, o que superestima o
-desempenho. Para dimensionar esse efeito, os sete modelos foram
-reexecutados sob *GroupKFold* por hash de texto normalizado, protocolo
-que mantém todo grupo textual em uma única partição, e comparados com o
-*KFold* por linha sobre a mesma base e o mesmo alvo. O vazamento existe,
-mas é pequeno: a queda média de acurácia é de 1,32 ponto percentual e a
-máxima de 1,84, no Random Forest. O LinearSVC passa de 0,8004 para
-0,7852. A ordenação dos modelos permanece a mesma sob os dois
-protocolos, com uma única exceção, a troca de posição entre SGD e Random
-Forest, justamente o par que o teste de McNemar corrigido por
-Holm-Bonferroni já apontava como estatisticamente indistinguível
-(Subseção 4.9). As Tabelas 1 e 2 reportam o protocolo por linha, por
-coerência com a materialização em produção, e o material suplementar
-traz a comparação completa entre os dois.
+desempenho. Toda a avaliação principal usa, por isso, `StratifiedGroupKFold`
+com cinco dobras e semente fixa, estratificado pela referência humana e
+agrupado pelo hash do texto normalizado, de modo que nenhum grupo textual
+atravessa a fronteira entre treino e teste. As partições são geradas uma
+única vez, versionadas e reutilizadas por todos os modelos e pela camada
+de regras, o que torna as comparações pareadas legítimas. A divisão
+aleatória por linha permanece apenas como análise de sensibilidade
+(Subseção 4.8).
 
-A avaliação do BERTimbau segue protocolo adicional e não substitui a
-comparação *out-of-fold*. A execução completa mais recente do transformador
-define um lote de 1.000 chamados. Os outros sete modelos são retreinados
-fora exatamente dessas linhas e avaliados no mesmo conjunto, evitando
-sobreposição entre treino e teste. O lote contém 983 chamados com categoria de referência estabelecida por
-validação humana. Reportam-se concordância com o histórico, acerto validado,
-intervalos por *bootstrap* e McNemar entre o BERTimbau e o melhor modelo
-alternativo. Como o lote corresponde aos primeiros registros elegíveis e
-não a uma amostra probabilística, os resultados descrevem esse recorte e
-não substituem a avaliação integral da base.
+O agrupamento impõe um custo de cobertura que precisa ser declarado. Uma
+categoria só entra na avaliação se dispuser de grupos textuais distintos
+em número suficiente para figurar nas cinco dobras. Nove das 50
+categorias não satisfazem essa condição, quatro por aritmética, tendo
+menos grupos distintos que dobras, e cinco por ausência efetiva em alguma
+dobra após a estratificação. Elas somam 88 linhas, e sua exclusão reduz o
+denominador das métricas de 14.060 para 13.972 registros em 41
+categorias. Excluir rótulos de baixa frequência é prática corrente na
+classificação hierárquica de chamados (MARCUZZO *et al.*, 2022), ainda
+que o limiar daqueles autores seja de cem ocorrências e o critério aqui
+adotado seja o suporte por dobra. A Tabela A3 discrimina as categorias
+excluídas, de modo que a diferença entre os dois denominadores permaneça
+auditável.
+
+O BERTimbau seria submetido ao mesmo protocolo, e a decisão de mantê-lo
+fora da comparação principal apoia-se em medição de custo, não em
+preferência editorial. O procedimento e o resultado dessa medição constam
+da Subseção 4.3.
 
 ```{=latex}
 \FloatBarrier
@@ -1729,19 +1732,24 @@ A validação confirma a necessidade de governança sobre os rótulos, mas
 não autoriza estimar, com o desenho atual, a prevalência de categorias
 históricas incorretas.
 
-As Tabelas 1 e 2 usam particionamento por linha, e não por grupo textual.
-A comparação da Subseção 3.5 mostra superestimação média de 1,32 ponto
-percentual, sem alteração relevante da ordenação. Os valores absolutos
-devem ser lidos com essa margem.
+As métricas valem para as 41 categorias com suporte nas cinco dobras, e
+não para a taxonomia inteira. As nove categorias excluídas são justamente
+as mais raras, de modo que o F1 macro reportado é, em alguma medida,
+otimista em relação ao que se obteria sobre a taxonomia completa. A
+Tabela A3 torna a diferença auditável, mas não a elimina.
 
-O BERTimbau teve o ajuste fino concluído, mas foi avaliado apenas em um
-*holdout* comum de 1.000 chamados, dos quais 983 possuem decisão humana.
-A ausência de predições *out-of-fold* integrais impede inseri-lo no
-ranking principal da Subseção 4.2. O custo de treino relatado na Subseção
-4.7 provém de execuções conduzidas sobre subconjunto do corpus, por
-restrição do tempo máximo de execução disponível, de modo que a razão ali
-apresentada constitui piso e não medida exata. A LSTM, por sua vez,
-treina *embeddings* do zero, sem vetores pré-treinados em português,
+Uma restrição adicional decorre do congelamento. As partições são
+fixadas por um mapa versionado de grupos textuais, e não recalculadas a
+cada execução, o que garante reprodutibilidade mas dissocia o experimento
+do crescimento da base operacional. Três registros tiveram o texto
+editado após o congelamento, o que basta para explicar diferenças de
+última casa decimal em execuções futuras.
+
+O BERTimbau não foi avaliado sob este protocolo, e a limitação é de
+infraestrutura. Nada se afirma sobre seu desempenho relativo, e a
+execução *out-of-fold* integral com aceleração por unidade de
+processamento gráfico permanece como trabalho futuro. A LSTM, por sua
+vez, treina *embeddings* do zero, sem vetores pré-treinados em português,
 condição que limita a comparação entre arquiteturas neurais.
 
 ```{=latex}
@@ -1793,41 +1801,45 @@ de publicação de indicador, e não apenas em ressalva metodológica.
 **6. CONSIDERAÇÕES FINAIS**
 
 A contribuição central deste artigo é metodológica. O protocolo separa a
-concordância com o rótulo histórico do acerto validado por conferência
-humana e registra decisões, vetos e categorias manuais como conhecimento
-persistente. Essa camada evita tratar o histórico como verdade automática
-e, ao mesmo tempo, impede concluir que toda divergência da IA representa
-correção do registro original.
+concordância com o rótulo histórico do acerto contra a referência humana
+final e mede as duas grandezas sobre a mesma execução, com partições
+agrupadas por texto que impedem a repetição de chamados entre treino e
+teste. Essa separação evita tratar o histórico como verdade automática e,
+ao mesmo tempo, impede concluir que toda divergência da classificação
+automática representa correção do registro original.
 
-Na avaliação integral dos 13.972 chamados com categoria de referência
-estabelecida por validação humana, o LinearSVC alcança 81,97% de acerto
-validado (IC95%: 81,36%--82,58%), e nenhum dos três *ensembles* o supera
-com significância estatística. Como a conferência cobre o corpus inteiro,
-o valor não depende de recorte amostral. A recomendação operacional
-permanece usar o LinearSVC isolado, com calibração formal antes de
-automatizar decisões de alta confiança.
+Na avaliação sobre 13.972 chamados em 41 categorias, o LinearSVC alcança
+82,53% de acurácia (IC95%: 81,15%--83,78%) e supera os demais modelos com
+significância estatística, ao custo de treino de 2,44 s sobre a base
+inteira. A recomendação operacional é usá-lo com calibração isotônica e
+automação condicionada à confiança, regime em que cerca de dois terços do
+volume podem ser decididos automaticamente com acurácia próxima de 0,95 e
+o terço restante encaminhado à revisão humana.
 
-O BERTimbau foi efetivamente treinado e avaliado. No *holdout* comum de
-1.000 chamados, com 983 decisões validadas, alcança 67,85%, contra 67,34%
-do LinearSVC, sem diferença significativa. O resultado mostra que o
-transformador é competitivo, mas não demonstra superioridade e não pode
-ser combinado ao ranking integral sem uma execução *out-of-fold* sobre
-toda a base.
+O achado que mais altera a orientação prática é negativo. A
+reclassificação automática da base histórica produz prejuízo líquido em
+todos os sete modelos, porque a referência humana confirma a categoria
+registrada em 95,75% dos casos e o espaço disponível para correção é
+estreito demais para compensar os erros introduzidos. A classificação
+automática, neste corpus, serve ao chamado novo e à triagem assistida,
+não à correção retroativa em massa. Também é negativo, e igualmente útil,
+o resultado da camada explícita de regras de periodicidade: ela é
+redundante diante de um classificador estatístico competente, que já
+captura esses sinais a partir do texto.
 
-A finalização metodológica também exige reconhecer o que os dados não
-respondem. A categoria de referência provém de avaliador único, sem
-medida de concordância entre revisores independentes, e a taxonomia
-institucional mantém pares de categorias que nomeiam o mesmo objeto sob
-famílias distintas. A próxima etapa de validação deve incorporar
-conferência por mais de um avaliador nos pares ambíguos identificados na
-Subseção 4.6 e submeter a própria taxonomia a revisão. Em paralelo, a
-validação externa em outras instituições e uma execução *out-of-fold*
-integral do BERTimbau, viável em infraestrutura com acelerador gráfico,
-poderão testar a estabilidade dos resultados sob taxonomias e volumes
-distintos.
-A camada classificada poderá então alimentar modelos de previsão de
-demanda e de priorização multicritério de intervenções sobre uma base cuja
-incerteza e origem das decisões permanecem auditáveis.
+A finalização metodológica exige reconhecer o que os dados não respondem.
+A referência provém de avaliador único, sem medida de concordância entre
+revisores independentes, e a taxonomia institucional mantém pares de
+categorias que nomeiam o mesmo objeto sob famílias distintas. A próxima
+etapa deve incorporar revisão por mais de um avaliador nos pares ambíguos
+identificados na Subseção 4.6 e submeter a própria taxonomia a revisão. Em
+paralelo, a validação externa em outras instituições e a execução
+*out-of-fold* integral do BERTimbau, viável em infraestrutura com
+acelerador gráfico, poderão testar a estabilidade dos resultados sob
+taxonomias e volumes distintos. A camada classificada poderá então
+alimentar modelos de previsão de demanda e de priorização multicritério
+de intervenções sobre uma base cuja incerteza e origem das decisões
+permanecem auditáveis.
 
 **REFERÊNCIAS**
 

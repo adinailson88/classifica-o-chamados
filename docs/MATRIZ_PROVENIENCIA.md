@@ -3,7 +3,7 @@
 > Relatório sanitizado e somente leitura. Não contém títulos, descrições ou IDs de chamados.
 
 **Estado:** `concluido`  
-**Gerado em:** 04/08/2026 19:06  
+**Gerado em:** 04/08/2026 19:42  
 **Hash do corpus:** `1e4762438a7e3627d3e32c1025f6bcb169e786881d8e86207806fdf98846409a`
 
 ## Coerência dos artefatos derivados
@@ -42,15 +42,12 @@ Definem o corpus e por isso não carregam `hash_corpus`: ele é derivado deles.
 
 ## Números legados ainda presentes no artigo
 
-Encontradas 5 ocorrências em `04_artigo/artigo_classificacao_chamados_v3.md`. a varredura do artigo aponta, nunca corrige: substituir numero em texto cientifico e decisao editorial do autor.
+Encontradas 2 ocorrências em `04_artigo/artigo_classificacao_chamados_v3.md`. a varredura do artigo aponta, nunca corrige: substituir numero em texto cientifico e decisao editorial do autor.
 
 | Linha | Forma no texto | Valor legado |
 |---:|---|---|
-| 872 | `0,7714` | acuracia legada de regressao_logistica |
-| 1082 | `14.058` | corpus legado |
-| 1195 | `14.058` | corpus legado |
-| 1304 | `14.058` | corpus legado |
-| 2043 | `14.058` | corpus legado |
+| 838 | `0,7781` | acuracia legada de random_forest |
+| 862 | `0,7781` | acuracia legada de random_forest |
 
 ## Validações
 
@@ -58,7 +55,7 @@ Encontradas 5 ocorrências em `04_artigo/artigo_classificacao_chamados_v3.md`. a
 |---|---:|
 | artefatos com hash divergente | 0 |
 | artefatos do congelamento ausentes | 0 |
-| numeros legados ainda no artigo | 5 |
+| numeros legados ainda no artigo | 2 |
 
 **Cobertura da varredura:** sao procuradas as acuracias registradas em estatistica.json, o total de chamados e a contagem de categorias da execucao legada. O artigo pode conter numeros de rodadas intermediarias que nao estao em nenhum JSON versionado, e esses a varredura nao alcanca; a contagem e piso, nao teto.
 
