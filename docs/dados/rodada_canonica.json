@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "gerado_em": "03/08/2026 22:44",
+  "hash_corpus": "3aa42e314459787ef12ccc778dfa1368e89d81c4863108042d59a1a9343ec3ff",
+  "fonte": "CHAMADOS_ESQUELETO_REDUZIDO",
+  "semente": 42,
+  "modelos": [
+    "naive_bayes",
+    "regressao_logistica",
+    "linear_svc",
+    "sgd",
+    "extra_trees",
+    "random_forest",
+    "lstm"
+  ],
+  "corpus": {
+    "linhas": 13972,
+    "grupos_textuais": 9734,
+    "categorias": 41,
+    "dobras": 5,
+    "linhas_fora_das_particoes": 101,
+    "linhas_com_texto_alterado_apos_o_congelamento": 2
+  },
+  "passos": {
+    "4_retreino": {
+      "status": "apto_para_regras",
+      "arquivo": "docs/dados/retreino_canonico.json"
+    },
+    "5_regras": {
+      "status": "concluido",
+      "arquivo": "docs/dados/regras_versus_modelos.json"
+    },
+    "7_calibracao": {
+      "status": "concluido",
+      "arquivo": "docs/dados/calibracao_canonica.json"
+    }
+  },
+  "garantia": "os tres passos usaram a mesma leitura da aba e o mesmo corpus em memoria; artefatos com hash_corpus igual sao mutuamente consistentes"
+}
