@@ -459,7 +459,7 @@ a um corte por data de abertura, que compreende os chamados registrados
 até 1º de agosto de 2026 e totaliza 14.060 registros elegíveis. Os
 artefatos que sustentam cada número, incluindo predições por modelo e
 matrizes de confusão, foram materializados sobre esse mesmo corte e estão
-versionados no repositório indicado na Subseção 3.9, de modo que a
+versionados no repositório indicado na Subseção 3.8, de modo que a
 reprodução não depende do estado corrente do sistema institucional. A
 distribuição completa dos chamados entre as 50 categorias históricas é
 apresentada no Apêndice A.
@@ -549,17 +549,19 @@ como ocorre aqui, em que termos técnicos do domínio (*bomba*, *split*,
 *disjuntor*, *vazamento*, *infiltração*, *ar-condicionado*; Subseção 3.3)
 funcionam como âncoras semânticas de categoria. Essa combinação é
 consistente com o LinearSVC liderando tanto a concordância com o
-histórico (0,8089; Tabela 1) quanto o acerto validado (0,8394; Tabela 2).
+histórico (0,7961; Tabela 1) quanto a acurácia contra a referência
+humana (0,8253; Tabela 2).
 
 O Naive Bayes assume independência condicional entre atributos dada
 a classe, suposição estrutural violada em texto de manutenção predial,
 onde termos técnicos co-ocorrem de forma sistemática dentro de uma mesma
 categoria. Essa divergência entre a suposição do modelo e a estrutura
 real dos dados explica de forma plausível a última posição do Naive
-Bayes, tanto na concordância com o histórico (0,6997; Tabela 1) quanto
-no acerto validado (0,8659; Tabela 2). Trata-se do comportamento
-esperado do modelo mais simples da comparação, e não de problema de
-implementação.
+Bayes, tanto na concordância com o histórico (0,6954; Tabela 1) quanto na
+acurácia contra a referência humana (0,7088; Tabela 2). O colapso é ainda
+mais nítido no F1 macro, de 0,2951, porque o modelo restringe as
+predições a 22 das 41 categorias. Trata-se do comportamento esperado do
+modelo mais simples da comparação, e não de problema de implementação.
 
 Random Forest e Extra Trees capturam interações não lineares
 entre atributos por meio da estrutura de árvores, mas em espaços
@@ -567,13 +569,12 @@ esparsos de alta dimensionalidade como o TF-IDF tendem a ajustar-se
 demais às co-ocorrências mais frequentes, o que se reflete no desempenho
 intermediário de ambos nas Tabelas 1 e 2 (entre o LinearSVC e o Naive
 Bayes). O custo computacional dessa família é também o mais alto entre
-os modelos clássicos medidos. O treino por lote de 1.000 registros
-consome 19,45 s no Random Forest e 21,30 s no Extra Trees, entre 7,6 e
-8,4 vezes o tempo do LinearSVC (2,55 s) e entre 17,1 e 18,7 vezes o do
-Naive Bayes (1,14 s) no mesmo lote (Tabela 7). Esse custo só se
-justificaria se revertido em ganho de acerto validado, o que não se
-confirma nos dados analisados (SCHWARTZ *et al.*, 2020; TREVISO *et
-al.*, 2023).
+os modelos clássicos medidos. O treino sobre a base completa consome
+22,62 s no Random Forest e 26,69 s no Extra Trees, entre 9,3 e 10,9 vezes
+o tempo do LinearSVC (2,44 s) e entre 20,2 e 23,9 vezes o do Naive Bayes
+(1,12 s), conforme a Tabela 7. Esse custo só se justificaria se revertido
+em ganho de acurácia, o que não se confirma nos dados analisados
+(SCHWARTZ *et al.*, 2020; TREVISO *et al.*, 2023).
 
 A LSTM Bidirecional é projetada para modelar dependências
 sequenciais no texto, mas seus *embeddings* são inicializados
@@ -704,38 +705,39 @@ não substituem a avaliação integral da base.
 \FloatBarrier
 ```
 
-**3.6 Validação humana**
+**3.6 Revisão humana e referência final**
 
-A validação humana constitui a etapa que diferencia o presente estudo de
-uma simples comparação de classificadores contra histórico. O
-processamento da base é organizado em **turnos**, blocos sequenciais de
-mil chamados na ordem de registro, unidade em que a concordância é medida
-ao longo do corpus e que serve de bloco nos testes por postos da Subseção
-4.9. O delineamento por blocos segue a recomendação de Demšar (2006) de
-comparar classificadores sobre partições múltiplas, e não sobre uma única
-medida agregada. A revisão
-registra, para cada caso auditado, a categoria histórica, a categoria
-sugerida por cada modelo, a confiança associada, a decisão humana e a
-categoria travada.
+A revisão humana constitui a etapa que diferencia o presente estudo de
+uma simples comparação de classificadores contra histórico. O desenho é
+de auditoria de rótulo, e não de anotação do zero: a pergunta submetida
+ao especialista é se a categoria registrada é adequada ao chamado. Para
+cada registro, o avaliador examinou o título e a descrição do chamado, o
+título e a descrição da ordem de serviço, quando existentes, e a
+categoria histórica. Previsões e níveis de confiança dos modelos não
+estavam visíveis durante a revisão.
 
-Duas unidades de análise convivem no protocolo e não devem ser
-confundidas. O **chamado** é o registro individual de manutenção, unidade
-das Tabelas 1, 2 e 3. A **conferência** é cada julgamento humano emitido
-sobre uma fonte de classificação. A validação humana confirma ou rejeita a categoria histórica do chamado.
+Ver a categoria histórica é constitutivo dessa tarefa, e não contaminação
+do julgamento: corrigir um rótulo pressupõe conhecê-lo. Cabe registrar,
+porém, que a categoria histórica não é atribuição isolada. Ela resulta do
+registro pelo demandante seguido de verificação por equipe técnica, de
+modo que o rótulo auditado já incorpora uma conferência anterior, o que
+ajuda a explicar a alta taxa de confirmação reportada adiante.
+
 Quando a categoria histórica é confirmada, ela constitui a referência;
-quando é rejeitada, o avaliador registra manualmente a categoria correta. A categoria resultante desse processo
-constitui a referência validada utilizada na avaliação dos modelos. Quando
-nenhuma das fontes é confirmada e não há categoria alternativa definida
-pelo avaliador, o chamado permanece sem categoria de referência. A
-conferência foi conduzida até cobrir a totalidade do corpus: os 14.060
-chamados receberam veredito e chegaram a uma categoria decidida, sendo
-13.452 por confirmação da categoria histórica e 606 por registro manual
-de categoria distinta. Não restaram chamados sem referência. A
-priorização da ordem de conferência recaiu sobre
-chamados em que há divergência entre modelos, alta confiança da IA contra
-o histórico, baixa confiança generalizada, classes raras e pares de
-categorias com alta confusão recíproca. Essa estrutura permite separar
-uma decisão validada de casos ainda sem referência suficiente, em
+quando é rejeitada, o avaliador registra a categoria correta. A categoria
+resultante desse processo constitui a referência humana final utilizada
+na avaliação dos modelos. A revisão cobriu a totalidade do corpus: os
+14.060 chamados receberam veredito, sendo 13.462 por confirmação da
+categoria histórica e 598 por registro de categoria distinta, ou 4,25% do
+corpus. Não restaram chamados sem referência, o que elimina o viés de
+seleção que condicionaria uma amostra conferida.
+
+A revisão foi conduzida por um único especialista, e a confiabilidade
+entre avaliadores não foi medida, limitação declarada na Subseção 5.3.
+Uma estimativa do ruído do próprio rótulo está, contudo, disponível sem
+segundo avaliador: 17 grupos de texto idêntico receberam referência
+divergente, afetando 85 linhas, ou 0,60% da base congelada. Esse valor
+estabelece um piso de erro irredutível para qualquer modelo, em
 consonância com a perspectiva de que a verdade operacional deve ser
 construída progressivamente (ZHANG *et al.*, 2025).
 
@@ -743,36 +745,7 @@ construída progressivamente (ZHANG *et al.*, 2025).
 \FloatBarrier
 ```
 
-**3.7 Memória de decisão: veto e trava por chamado**
-
-À medida que a conferência humana avança, o protocolo incorpora uma
-memória de decisão por chamado, que evita o reprocessamento de casos já
-resolvidos e impede a repetição de erros já identificados. Quando a
-conferência confirma que uma categoria está correta, essa decisão é
-travada e reaproveitada diretamente nas rodadas seguintes de
-reclassificação, sem novo treinamento ou nova predição para aquele
-chamado. Quando a conferência identifica que uma categoria está
-incorreta, essa categoria passa a ser vetada especificamente para aquele
-chamado, e os modelos do repositório passam a escolher
-a melhor categoria alternativa fora do conjunto vetado, com a confiança
-renormalizada sobre as categorias remanescentes. Essa regra é aplicada
-de forma consistente na seleção de candidatos à reclassificação e no
-cálculo do ganho líquido, que passa a comparar o resultado da
-reclassificação contra a verdade validada quando ela está travada, e
-contra o histórico apenas quando ainda não há decisão humana. Essa memória é o mecanismo concreto de
-retroalimentação anunciado na Introdução: no biossistema construído, a
-conferência humana funciona como o sinal que corrige o próprio sistema de
-registro, e não apenas como aferição externa dele. O objetivo
-metodológico da memória de decisão é impedir que o sistema corrija um
-erro apenas para reincidir nele em ciclos futuros, convertendo cada
-conferência manual em conhecimento persistente sobre o experimento, não
-em um evento isolado.
-
-```{=latex}
-\FloatBarrier
-```
-
-**3.8 Camada de entropia de Shannon e divergência de Jensen-Shannon**
+**3.7 Camada de entropia de Shannon e divergência de Jensen-Shannon**
 
 Como dimensão complementar às métricas supervisionadas, o protocolo
 incorporou uma camada de análise informacional baseada em entropia de
@@ -802,7 +775,7 @@ isolada de um único modelo.
 \FloatBarrier
 ```
 
-**3.9 Disponibilidade de dados**
+**3.8 Disponibilidade de dados**
 
 Os artefatos que sustentam os resultados relatados neste artigo são
 gerados por um processo automatizado e reproduzível, reexecutado a cada
@@ -823,25 +796,32 @@ neste artigo. Nenhum identificador pessoal, título ou texto livre de chamado
 
 **4. RESULTADOS**
 
-Esta seção apresenta três conjuntos de resultados deliberadamente
+Esta seção apresenta dois conjuntos de resultados deliberadamente
 segregados. O primeiro é a concordância dos sete modelos com a categoria
-histórica na base completa (Subseção 4.1), em que o registro do GLPI é
-referência preliminar, não verdade absoluta. O segundo é o desempenho
-desses mesmos modelos contra a categoria de referência estabelecida por validação humana (Subseção 4.2). O
-terceiro é a comparação dos oito modelos no *holdout* comum que inclui o
-BERTimbau (Subseção 4.3). A base elegível contém 14.060 chamados. A
-conferência humana cobre a totalidade dos 14.060 chamados, dos quais
-13.452 tiveram a categoria histórica confirmada e 606 receberam categoria
-corrigida manualmente. Não há chamado sem categoria de referência.
+histórica (Subseção 4.1), em que o registro administrativo é referência
+preliminar, não verdade absoluta. O segundo é o desempenho desses mesmos
+modelos contra a referência humana final (Subseção 4.2).
 
-Três achados resumem a seção. Primeiro, o LinearSVC lidera a comparação
-integral, tanto em concordância histórica quanto em acerto validado, e
-mantém vantagem operacional de custo. Segundo, no *holdout* comum, o
-BERTimbau ocupa a segunda posição e não difere significativamente do
-LinearSVC, o que caracteriza competitividade sem demonstrar
-superioridade. Terceiro, a faixa de confiança igual ou superior a 95%
-alcança acerto validado superior a 95%, com as ressalvas de calibração e
-seleção amostral discutidas na Subseção 4.4.
+Dois denominadores convivem no texto e não devem ser confundidos. A base
+congelada contém 14.060 chamados, todos com referência humana, e é o
+número pertinente sempre que a frase trata do corpus ou da cobertura da
+revisão. As métricas, contudo, são apuradas sobre 13.972 linhas em 41
+categorias: nove categorias, somando 88 linhas, não sustentam suporte nas
+cinco dobras e ficaram fora das partições, conforme o critério da
+Subseção 3.5 e o detalhamento da Tabela A3. Excluir rótulos de baixa
+frequência tem precedente na classificação hierárquica de chamados
+(MARCUZZO *et al.*, 2022), com a ressalva de que o limiar daqueles
+autores é de cem ocorrências e o critério aqui é o suporte por dobra.
+
+Quatro achados resumem a seção. Primeiro, o LinearSVC lidera tanto a
+concordância histórica quanto a acurácia contra a referência humana, e
+mantém vantagem de custo. Segundo, o ganho líquido de reclassificação é
+negativo em todos os modelos, o que desautoriza a correção automática da
+base histórica em massa. Terceiro, a camada explícita de regras de
+periodicidade é redundante diante de um classificador competente.
+Quarto, a calibração viabiliza automação seletiva de cerca de dois terços
+do volume com acurácia próxima de 0,95, encaminhando o restante à revisão
+humana.
 
 ```{=latex}
 \FloatBarrier
@@ -1559,48 +1539,100 @@ sustenta.
 \FloatBarrier
 ```
 
+**4.12 Camada explícita de regras de periodicidade**
+
+O desenho do estudo previa medir, e não presumir, o valor de uma camada
+de regras de domínio sobre a predição estatística. A regra implementada
+atribui categoria preventiva quando o chamado reúne, no mesmo texto, um
+termo de periodicidade e um termo de equipamento, e abstém-se nos demais
+casos. São 19 termos de periodicidade e 31 de equipamento. A avaliação
+usa as mesmas partições e os mesmos registros da comparação principal, e
+em nenhuma configuração a referência humana é alterada.
+
+A regra dispara em 4.487 dos 13.972 registros, quase um terço do corpus,
+e ainda assim melhora o F1 macro de apenas três dos sete modelos (Tabela
+11). O ganho concentra-se onde o classificador é fraco: o Naive Bayes
+sobe 0,0586 no F1 macro, ao passo que Extra Trees e Random Forest perdem
+0,0038 cada, e o LinearSVC perde 0,0017. Nos chamados de referência
+preventiva a acurácia sobe em todos os modelos, mas o efeito é de
+segunda ordem fora do Naive Bayes, entre 0,0020 e 0,0060.
+
+O número que explica o padrão é o de conflitos. Como a regra depende
+apenas do texto, ela dispara no mesmo conjunto de registros para os sete
+modelos; o que varia é a predição que ela substitui. No LinearSVC, os
+4.487 disparos produzem apenas 31 divergências, nas quais a regra acerta
+11 vezes e o modelo, 13. No Naive Bayes, os mesmos disparos produzem 219
+divergências, com a regra acertando 201 contra 9 do modelo.
+
+A leitura correta, portanto, não é que regras de domínio funcionam, e sim
+que elas são redundantes diante de um classificador estatístico
+competente. Os modelos já capturam implicitamente os sinais de
+periodicidade presentes no texto, e a camada explícita apenas repete o
+que eles fazem, com o custo adicional de manter uma tabela de termos.
+Trata-se de resultado negativo, contrário à expectativa que motivou o
+teste, e com implicação de desenho: o ganho do fluxo híbrido está no eixo
+humano–IA, tratado na Subseção 4.4, e não no eixo regra–modelo.
+
+**Tabela 11** Efeito da camada de regras de periodicidade sobre o F1
+macro, nas mesmas partições da comparação principal (n = 13.972). A regra
+dispara em 4.487 registros para todos os modelos.
+
+| Modelo | F1 macro puro | F1 macro híbrido | Δ | Conflitos | Regra acerta | Modelo acerta |
+|---|---|---|---|---|---|---|
+| Regressão Logística | 0,6689 | 0,6686 | −0,0003 | 47 | 27 | 14 |
+| LinearSVC | 0,6684 | 0,6667 | −0,0017 | 31 | 11 | 13 |
+| SGD | 0,6669 | 0,6676 | +0,0007 | 45 | 25 | 15 |
+| Extra Trees | 0,6362 | 0,6324 | −0,0038 | 47 | 22 | 17 |
+| Random Forest | 0,6152 | 0,6114 | −0,0038 | 48 | 23 | 16 |
+| LSTM | 0,5240 | 0,5267 | +0,0027 | 53 | 31 | 7 |
+| Naive Bayes | 0,2951 | 0,3537 | +0,0586 | 219 | 201 | 9 |
+
+```{=latex}
+\FloatBarrier
+```
+
 **5. DISCUSSÃO**
 
 ```{=latex}
 \FloatBarrier
 ```
 
-**5.1 Concordância histórica, acerto validado e BERTimbau**
+**5.1 Concordância histórica, acerto contra a referência e custo do
+BERTimbau**
 
 A comparação entre concordância histórica (Subseção 4.1) e desempenho
-validado (Subseção 4.2) revela que as duas grandezas não são
-intercambiáveis. O acerto validado do LinearSVC (81,97%) supera sua
-concordância com o histórico (80,49%) em 1,48 ponto percentual. A
-diferença mede o efeito das 606 correções manuais sobre a avaliação: ao
-substituir a categoria histórica pela categoria conferida, parte das
+contra a referência humana (Subseção 4.2) revela que as duas grandezas
+não são intercambiáveis. A acurácia do LinearSVC (82,53%) supera sua
+concordância com o histórico (79,61%) em 2,92 pontos percentuais. A
+diferença mede o efeito das 598 correções sobre a avaliação: ao
+substituir a categoria histórica pela categoria revisada, parte das
 divergências que seriam contabilizadas como erro do modelo passa a ser
 reconhecida como erro do registro administrativo.
 
-Com a conferência estendida ao corpus integral, a diferença deixa de
-depender de qualquer recorte amostral e passa a ser uma propriedade
-medida da base. O mecanismo que a produz concentra-se nas 606 correções,
-equivalentes a 4,3% dos chamados, proporção que estima a taxa de erro do
-rótulo histórico neste corpus e que não era observável enquanto a
-conferência cobria apenas parte dos registros.
-
-A cobertura integral permite estimar a taxa empírica de erro do rótulo
-histórico, o que os desenhos parciais anteriores não autorizavam. Em 606
-dos 14.060 chamados, ou 4,25%, o avaliador rejeitou a categoria registrada
-e definiu manualmente outra, o que confirma nos dados a hipótese de
+Com a revisão estendida ao corpus integral, a diferença deixa de depender
+de qualquer recorte amostral e passa a ser propriedade medida da base. Em
+598 dos 14.060 chamados, ou 4,25%, o avaliador rejeitou a categoria
+registrada e definiu outra, o que confirma nos dados a hipótese de
 rótulos ruidosos sustentada pela literatura (KEJRIWAL *et al.*, 2024;
 ZHANG *et al.*, 2025). A estimativa é específica deste corpus e desta
-taxonomia, e sua transposição a outras instituições exige nova
-conferência.
+taxonomia, e sua transposição a outras instituições exige nova revisão.
 
-A avaliação do BERTimbau acrescenta uma terceira perspectiva. No mesmo
-*holdout*, o transformador alcança 67,85% de acerto validado, contra
-67,34% do LinearSVC, sem diferença significativa. O pré-treinamento
-contextual reduz a distância observada entre modelos lineares e a LSTM
-que aprende *embeddings* do zero, mas não produz ganho demonstrável sobre
-o LinearSVC. Como os protocolos são distintos, a métrica do BERTimbau não
-deve ser comparada diretamente aos 81,97% da avaliação integral. O
-resultado sustenta sua competitividade e justifica uma futura execução
-*out-of-fold* completa, não sua adoção preferencial imediata.
+Convém observar que 4,25% é uma taxa de erro baixa para um rótulo
+administrativo, e isso decorre do modo como ele é produzido: a categoria
+não é atribuição isolada do demandante, mas resultado de registro seguido
+de verificação por equipe técnica. O que os modelos acompanham, portanto,
+não é um rótulo ingênuo, e essa qualidade da linha de base é o que torna
+negativo o ganho de reclassificação discutido na Subseção 5.2.
+
+O BERTimbau não integra essa comparação, e a razão é computacional, não
+de desempenho. O ajuste fino custa 6,44 horas por dobra em processador
+sem acelerador gráfico, contra um teto de seis horas por execução, de
+modo que nem uma dobra completa cabe na infraestrutura disponível
+(Subseção 4.3). Nada se afirma aqui sobre sua qualidade relativa: o
+modelo não foi avaliado sob este protocolo, e rankings produzidos sob
+protocolos distintos não sustentam comparação direta. A execução
+*out-of-fold* integral com aceleração por unidade de processamento
+gráfico permanece como trabalho futuro.
 
 ```{=latex}
 \FloatBarrier
@@ -1608,52 +1640,65 @@ resultado sustenta sua competitividade e justifica uma futura execução
 
 **5.2 Reclassificação, ambiguidade taxonômica e calibração**
 
-O resultado da reclassificação (Subseção 4.5) introduz uma nuance
-operacional importante, pois o ganho líquido de corrigir chamados já
-classificados não é uniforme entre modelos. A amplitude vai de +9 no
-Extra Trees a +100 no LSTM, e a ordenação por ganho não reproduz a
-ordenação por acerto validado, o que mostra que classificar bem e
-recorrigir bem são capacidades distintas. Decisões de reclassificação em
-produção devem ser tomadas por modelo e reavaliadas a cada atualização
-da base, com base no ganho líquido medido naquele momento, e não
-generalizadas a partir do desempenho médio de concordância ou acerto
-validado. Um modelo pode ser competitivo na classificação inicial e,
-ainda assim, não ser bom candidato a reclassificar decisões já tomadas.
+O resultado da reclassificação (Subseção 4.5) contraria a expectativa que
+motivou o estudo e tem consequência operacional direta. O ganho líquido
+de corrigir chamados já classificados é negativo em todos os sete
+modelos, e a magnitude do prejuízo acompanha, na ordem inversa, o
+desempenho de cada um. Não se trata de nuance entre modelos, e sim de
+veredito sobre a tarefa: nenhum classificador aqui avaliado é candidato a
+reclassificar a base histórica em massa.
 
-A camada de entropia de Shannon e divergência de Jensen-Shannon
-(Subseção 4.6) não substitui as métricas supervisionadas ou a validação
-humana, mas amplia o repertório de governança do experimento ao separar
-três fenômenos que a acurácia isolada tende a confundir: o erro de
-modelo, a ambiguidade genuína da taxonomia institucional e a
-heterogeneidade natural da distribuição de chamados. A identificação de
-3.268 chamados (23,4% da base) com alto desacordo estrutural entre as
-oito fontes comparáveis oferece um critério de priorização de auditoria
-distinto do simples corte por baixa confiança de um único classificador,
-e complementa a fila já construída a partir da conferência humana. A
-dispersão das predições e a aderência à distribuição histórica separam-se
-neste corpus, pois o LSTM lidera a diversidade de categorias previstas e
-o LinearSVC apresenta a menor divergência frente ao histórico (Subseção
-4.6). Esse diagnóstico descreve o corpus analisado e não substitui
-acurácia ou validação humana.
+A explicação é aritmética antes de ser metodológica. Com a categoria
+histórica correta em 95,75% dos registros, o espaço de correção
+disponível é de 4,25%, e qualquer divergência sistemática entre modelo e
+histórico tende a cair fora dele. O melhor modelo diverge 2.849 vezes
+para acertar 475: aproximadamente um acerto para cada cinco prejuízos.
+Convém explicitar por que versões anteriores desta análise chegaram a
+sinal oposto. Contabilizar o ganho contra a decisão revisada onde ela
+existe e contra o próprio histórico onde não existe mistura duas
+referências de naturezas distintas e infla o resultado, porque na segunda
+parcela o modelo é premiado por concordar com o rótulo que se pretendia
+auditar. Com referência humana disponível para todo o corpus, a
+comparação passa a ser única e o sinal se inverte.
 
-A meta estabelecida como critério de sucesso do protocolo associa
-confiança calibrada igual ou superior a 95% a acerto real igual ou
-superior a 95% (Subseção 4.4). A faixa alta de confiança da classificação
-automática atinge 98,15% de acerto validado sobre 10.555 chamados
-conferidos, o que cumpre o critério na métrica disponível. Duas ressalvas
-qualificam essa leitura. A confiança utilizada é bruta (*softmax* ou
-*decision_function*), sem calibração formal por Platt ou isotônica
-(PLATT, 1999; GUO *et al.*, 2017), de modo que o requisito de confiança
-calibrada permanece pendente em sentido estrito. Além disso, a faixa
-concentra 36,2% dos chamados e é justamente aquela em que a
-conferência tende a confirmar o esperado.
+Disso não decorre que a classificação automática seja inútil neste
+domínio, e sim que seu uso defensável é prospectivo e seletivo. Sobre
+chamados novos, não há rótulo prévio correto a ser degradado. Sobre a
+base histórica, o encaminhamento adequado é a automação condicionada à
+confiança da Subseção 4.4, que preserva o registro nas faixas em que o
+modelo não tem vantagem demonstrável sobre ele.
 
-O cumprimento da meta deve ser lido como propriedade do corpus
-analisado, não como garantia de operação. A amostra validada cobre 68,3%
-da base e sua composição privilegia divergências e casos de menor
-confiança, de modo que a fração ainda não conferida pode deslocar o
-resultado. Liberar a faixa alta para decisão automática exige concluir
-essa conferência e aplicar calibração formal por modelo.
+A camada de entropia de Shannon e divergência de Jensen-Shannon (Subseção
+4.6) não substitui as métricas supervisionadas ou a revisão humana, mas
+amplia o repertório de governança ao separar três fenômenos que a
+acurácia isolada tende a confundir: o erro de modelo, a ambiguidade
+genuína da taxonomia institucional e a heterogeneidade natural da
+distribuição de chamados. Os sete modelos são unânimes em 60,44% dos
+registros, e os 2.449 chamados com alto desacordo estrutural, ou 17,53%,
+oferecem critério de priorização de auditoria distinto do simples corte
+por baixa confiança de um único classificador. A dispersão das predições
+e a aderência à distribuição histórica separam-se neste corpus, pois o
+LSTM lidera a diversidade de categorias previstas e o LinearSVC apresenta
+a menor divergência frente ao histórico.
+
+A calibração transforma essa leitura em procedimento operável (Subseção
+4.4). A confiança bruta não é probabilidade, e o caso do LinearSVC é
+extremo: seu erro de calibração esperado de 0,6925 cai a 0,0178 após
+ajuste isotônico em dobra interna (PLATT, 1999; GUO *et al.*, 2017). Com
+escores calibrados, o alvo de 0,95 de acurácia é atingido automatizando
+cerca de dois terços do volume e encaminhando o terço restante à revisão
+humana. Essa é a forma defensável de cumprir o critério de sucesso do
+protocolo, que associa confiança alta a acerto alto, sem depender de
+faixas de confiança bruta cuja escala não tem interpretação
+probabilística.
+
+Duas ressalvas qualificam a leitura. A cobertura reportada é média entre
+as cinco dobras e varia entre elas, e parte das acurácias seletivas fica
+poucos milésimos abaixo do alvo, consequência esperada de escolher o
+limiar sem acesso ao conjunto de teste. Ademais, o calibrador é ajustado
+sobre escores de um modelo treinado em três dobras e aplicado a escores
+de um modelo treinado em quatro, troca deliberada entre ausência de
+vazamento e casamento exato de distribuição.
 
 ```{=latex}
 \FloatBarrier
@@ -1917,6 +1962,12 @@ Automation in Construction, v. 165, art. 105501, 2024.
 
 LIU, Z.; BENGE, C.; JIANG, S. Ticket-BERT: labeling incident management
 tickets with language models. arXiv:2307.00108, 2023.
+
+MARCUZZO, M.; ZANGARI, A.; GIUDICE, L.; GASPARETTO, A.; SCHIAVINATO, M.;
+ALBARELLI, A. A multi-level approach for hierarchical Ticket
+Classification. In: PROCEEDINGS OF THE 8TH WORKSHOP ON NOISY
+USER-GENERATED TEXT (W-NUT 2022), 2022. Anais [...]. Association for
+Computational Linguistics, 2022. p. 201--214.
 
 MARQUARDT, D. W. Generalized inverses, ridge regression, biased linear
 estimation, and nonlinear estimation. Technometrics, v. 12, n. 3, p.
