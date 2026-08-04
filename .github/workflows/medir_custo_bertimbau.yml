@@ -1,0 +1,64 @@
+name: Medir custo do BERTimbau (read-only)
+
+on:
+  workflow_dispatch:
+    inputs:
+      passos:
+        description: "Passos de treino cronometrados"
+        required: false
+        default: "30"
+
+permissions:
+  contents: read
+
+jobs:
+  medir:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: |
+            requirements-leves.txt
+            requirements-transformer.txt
+      - name: Dependencias
+        run: |
+          python -m pip install --retries 5 --timeout 120 -r requirements-leves.txt
+          python -m pip install --retries 5 --timeout 600 -r requirements-transformer.txt
+      - name: Testes da medicao
+        run: python -m unittest discover -s tests -p "test_medir_custo_bertimbau.py" -t tests
+      - name: Recriar chave da conta de servico
+        env:
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+        run: |
+          if [ -z "$GCP_SA_KEY" ]; then echo "Secret GCP_SA_KEY ausente." >&2; exit 1; fi
+          printf '%s' "$GCP_SA_KEY" > credenciais_sa.json
+      - name: Medir sem treinar ate o fim
+        id: medicao
+        continue-on-error: true
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: credenciais_sa.json
+        run: python src/medir_custo_bertimbau.py --passos "${{ inputs.passos }}"
+      - name: Remover credenciais
+        if: always()
+        run: rm -f credenciais_sa.json
+      - name: Publicar relatorio como artefato
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: custo-bertimbau
+          path: |
+            docs/dados/custo_bertimbau.json
+            docs/CUSTO_BERTIMBAU.md
+          if-no-files-found: error
+          retention-days: 30
+      - name: Aplicar criterio de aceite
+        if: steps.medicao.outcome == 'failure'
+        run: |
+          echo "Medicao falhou; consulte o log." >&2
+          exit 1
