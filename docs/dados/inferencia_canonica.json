@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "status": "concluido",
-  "hash_corpus": "3aa42e314459787ef12ccc778dfa1368e89d81c4863108042d59a1a9343ec3ff",
+  "hash_corpus": "1e4762438a7e3627d3e32c1025f6bcb169e786881d8e86207806fdf98846409a",
   "protocolo": {
     "bootstrap": "reamostragem de grupos textuais com reposicao, bootstrap de conglomerados; a linha nao e a unidade de reamostragem porque registros do mesmo grupo nao sao independentes",
     "repeticoes": 1000,
@@ -18,105 +18,105 @@
   "intervalos": [
     {
       "modelo": "linear_svc",
-      "acuracia_pontual": 0.8255,
+      "acuracia_pontual": 0.8253,
       "acuracia": {
-        "media": 0.8251,
-        "ic95_min": 0.8119,
-        "ic95_max": 0.8384
+        "media": 0.8248,
+        "ic95_min": 0.8115,
+        "ic95_max": 0.8378
       },
       "macro_f1": {
-        "media": 0.6677,
-        "ic95_min": 0.6535,
-        "ic95_max": 0.6821
-      }
-    },
-    {
-      "modelo": "sgd",
-      "acuracia_pontual": 0.8092,
-      "acuracia": {
-        "media": 0.8087,
-        "ic95_min": 0.7944,
-        "ic95_max": 0.8226
-      },
-      "macro_f1": {
-        "media": 0.6662,
-        "ic95_min": 0.6522,
-        "ic95_max": 0.6802
-      }
-    },
-    {
-      "modelo": "extra_trees",
-      "acuracia_pontual": 0.8052,
-      "acuracia": {
-        "media": 0.8048,
-        "ic95_min": 0.7902,
-        "ic95_max": 0.819
-      },
-      "macro_f1": {
-        "media": 0.635,
-        "ic95_min": 0.6192,
-        "ic95_max": 0.6509
-      }
-    },
-    {
-      "modelo": "regressao_logistica",
-      "acuracia_pontual": 0.8042,
-      "acuracia": {
-        "media": 0.8037,
-        "ic95_min": 0.7899,
-        "ic95_max": 0.8181
-      },
-      "macro_f1": {
-        "media": 0.6666,
-        "ic95_min": 0.6536,
+        "media": 0.6664,
+        "ic95_min": 0.6526,
         "ic95_max": 0.6804
       }
     },
     {
-      "modelo": "random_forest",
-      "acuracia_pontual": 0.7974,
+      "modelo": "sgd",
+      "acuracia_pontual": 0.8093,
       "acuracia": {
-        "media": 0.7969,
-        "ic95_min": 0.7816,
-        "ic95_max": 0.8115
+        "media": 0.8088,
+        "ic95_min": 0.795,
+        "ic95_max": 0.8227
       },
       "macro_f1": {
-        "media": 0.6137,
-        "ic95_min": 0.5982,
-        "ic95_max": 0.63
+        "media": 0.665,
+        "ic95_min": 0.651,
+        "ic95_max": 0.6788
+      }
+    },
+    {
+      "modelo": "extra_trees",
+      "acuracia_pontual": 0.8073,
+      "acuracia": {
+        "media": 0.8069,
+        "ic95_min": 0.7923,
+        "ic95_max": 0.8211
+      },
+      "macro_f1": {
+        "media": 0.6334,
+        "ic95_min": 0.6177,
+        "ic95_max": 0.6498
+      }
+    },
+    {
+      "modelo": "regressao_logistica",
+      "acuracia_pontual": 0.805,
+      "acuracia": {
+        "media": 0.8046,
+        "ic95_min": 0.7907,
+        "ic95_max": 0.8189
+      },
+      "macro_f1": {
+        "media": 0.6671,
+        "ic95_min": 0.6534,
+        "ic95_max": 0.6812
+      }
+    },
+    {
+      "modelo": "random_forest",
+      "acuracia_pontual": 0.797,
+      "acuracia": {
+        "media": 0.7965,
+        "ic95_min": 0.7812,
+        "ic95_max": 0.8111
+      },
+      "macro_f1": {
+        "media": 0.6122,
+        "ic95_min": 0.5971,
+        "ic95_max": 0.6288
       }
     },
     {
       "modelo": "lstm",
-      "acuracia_pontual": 0.7261,
+      "acuracia_pontual": 0.7287,
       "acuracia": {
-        "media": 0.7258,
-        "ic95_min": 0.7061,
-        "ic95_max": 0.7464
+        "media": 0.7281,
+        "ic95_min": 0.708,
+        "ic95_max": 0.748
       },
       "macro_f1": {
-        "media": 0.5253,
-        "ic95_min": 0.5084,
-        "ic95_max": 0.5423
+        "media": 0.5223,
+        "ic95_min": 0.5107,
+        "ic95_max": 0.5343
       }
     },
     {
       "modelo": "naive_bayes",
-      "acuracia_pontual": 0.7084,
+      "acuracia_pontual": 0.7088,
       "acuracia": {
-        "media": 0.708,
-        "ic95_min": 0.6856,
-        "ic95_max": 0.7306
+        "media": 0.7084,
+        "ic95_min": 0.686,
+        "ic95_max": 0.7311
       },
       "macro_f1": {
-        "media": 0.2962,
-        "ic95_min": 0.2889,
-        "ic95_max": 0.31
+        "media": 0.2961,
+        "ic95_min": 0.2887,
+        "ic95_max": 0.3099
       }
     }
   ],
   "cochran_q": {
-    "estatistica": 2669.6664,
+    "estatistica": 2661.0353,
     "p": 0.0,
     "graus_de_liberdade": 6,
     "rejeita_igualdade": true,
@@ -124,11 +124,11 @@
   },
   "mcnemar_pareado": [
     {
-      "discordantes": 1306,
-      "so_o_primeiro_acerta": 511,
-      "so_o_segundo_acerta": 795,
-      "estatistica": 61.3239,
-      "p": 4.841697183965698e-15,
+      "discordantes": 1287,
+      "so_o_primeiro_acerta": 518,
+      "so_o_segundo_acerta": 769,
+      "estatistica": 48.5625,
+      "p": 3.1992069600624057e-12,
       "metodo": "qui-quadrado com correcao de continuidade",
       "par": [
         "extra_trees",
@@ -138,25 +138,25 @@
       "significativo": true
     },
     {
+      "discordantes": 2178,
+      "so_o_primeiro_acerta": 1638,
+      "so_o_segundo_acerta": 540,
+      "estatistica": 552.5294,
+      "p": 3.5460792767164035e-122,
+      "metodo": "qui-quadrado com correcao de continuidade",
+      "par": [
+        "extra_trees",
+        "lstm"
+      ],
+      "p_ajustado": 0.0,
+      "significativo": true
+    },
+    {
       "discordantes": 2333,
-      "so_o_primeiro_acerta": 1719,
-      "so_o_segundo_acerta": 614,
-      "estatistica": 522.4243,
-      "p": 1.256306422330419e-115,
-      "metodo": "qui-quadrado com correcao de continuidade",
-      "par": [
-        "extra_trees",
-        "lstm"
-      ],
-      "p_ajustado": 0.0,
-      "significativo": true
-    },
-    {
-      "discordantes": 2326,
-      "so_o_primeiro_acerta": 1839,
-      "so_o_segundo_acerta": 487,
-      "estatistica": 784.6952,
-      "p": 1.1472114735602746e-172,
+      "so_o_primeiro_acerta": 1855,
+      "so_o_segundo_acerta": 478,
+      "estatistica": 811.5628,
+      "p": 1.6524326866363205e-178,
       "metodo": "qui-quadrado com correcao de continuidade",
       "par": [
         "extra_trees",
@@ -166,11 +166,25 @@
       "significativo": true
     },
     {
-      "discordantes": 2131,
-      "so_o_primeiro_acerta": 1760,
-      "so_o_segundo_acerta": 371,
-      "estatistica": 904.0563,
-      "p": 1.2883371504431095e-198,
+      "discordantes": 459,
+      "so_o_primeiro_acerta": 302,
+      "so_o_segundo_acerta": 157,
+      "estatistica": 45.1765,
+      "p": 1.8005544288308456e-11,
+      "metodo": "qui-quadrado com correcao de continuidade",
+      "par": [
+        "extra_trees",
+        "random_forest"
+      ],
+      "p_ajustado": 0.0,
+      "significativo": true
+    },
+    {
+      "discordantes": 2047,
+      "so_o_primeiro_acerta": 1698,
+      "so_o_segundo_acerta": 349,
+      "estatistica": 887.6913,
+      "p": 4.651727574238114e-195,
       "metodo": "qui-quadrado com correcao de continuidade",
       "par": [
         "linear_svc",
@@ -180,11 +194,11 @@
       "significativo": true
     },
     {
-      "discordantes": 2718,
-      "so_o_primeiro_acerta": 2177,
-      "so_o_segundo_acerta": 541,
-      "estatistica": 983.5265,
-      "p": 6.839791420751629e-216,
+      "discordantes": 2732,
+      "so_o_primeiro_acerta": 2180,
+      "so_o_segundo_acerta": 552,
+      "estatistica": 968.9345,
+      "p": 1.016007098637488e-212,
       "metodo": "qui-quadrado com correcao de continuidade",
       "par": [
         "linear_svc",
@@ -194,11 +208,11 @@
       "significativo": true
     },
     {
-      "discordantes": 1403,
-      "so_o_primeiro_acerta": 898,
-      "so_o_segundo_acerta": 505,
-      "estatistica": 109.5253,
-      "p": 1.2450503694284006e-25,
+      "discordantes": 1410,
+      "so_o_primeiro_acerta": 903,
+      "so_o_segundo_acerta": 507,
+      "estatistica": 110.656,
+      "p": 7.038198234446413e-26,
       "metodo": "qui-quadrado com correcao de continuidade",
       "par": [
         "linear_svc",
@@ -208,11 +222,11 @@
       "significativo": true
     },
     {
-      "discordantes": 924,
-      "so_o_primeiro_acerta": 611,
-      "so_o_segundo_acerta": 313,
-      "estatistica": 95.4643,
-      "p": 1.5058352477093598e-22,
+      "discordantes": 919,
+      "so_o_primeiro_acerta": 601,
+      "so_o_segundo_acerta": 318,
+      "estatistica": 86.5332,
+      "p": 1.3741184142009473e-20,
       "metodo": "qui-quadrado com correcao de continuidade",
       "par": [
         "linear_svc",
@@ -222,11 +236,11 @@
       "significativo": true
     },
     {
-      "discordantes": 852,
-      "so_o_primeiro_acerta": 540,
+      "discordantes": 848,
+      "so_o_primeiro_acerta": 536,
       "so_o_segundo_acerta": 312,
-      "estatistica": 60.48,
-      "p": 7.43280931564997e-15,
+      "estatistica": 58.6427,
+      "p": 1.89069409843568e-14,
       "metodo": "qui-quadrado com correcao de continuidade",
       "par": [
         "linear_svc",
@@ -236,11 +250,11 @@
       "significativo": true
     },
     {
-      "discordantes": 2332,
-      "so_o_primeiro_acerta": 668,
-      "so_o_segundo_acerta": 1664,
-      "estatistica": 424.539,
-      "p": 2.5089202779515295e-94,
+      "discordantes": 2191,
+      "so_o_primeiro_acerta": 619,
+      "so_o_segundo_acerta": 1572,
+      "estatistica": 413.6486,
+      "p": 5.8875774610692085e-92,
       "metodo": "qui-quadrado com correcao de continuidade",
       "par": [
         "lstm",
@@ -250,11 +264,11 @@
       "significativo": true
     },
     {
-      "discordantes": 2023,
-      "so_o_primeiro_acerta": 466,
-      "so_o_segundo_acerta": 1557,
-      "estatistica": 587.2961,
-      "p": 9.706183872486657e-130,
+      "discordantes": 1980,
+      "so_o_primeiro_acerta": 457,
+      "so_o_segundo_acerta": 1523,
+      "estatistica": 572.8409,
+      "p": 1.3531479207806033e-126,
       "metodo": "qui-quadrado com correcao de continuidade",
       "par": [
         "lstm",
@@ -264,11 +278,11 @@
       "significativo": true
     },
     {
-      "discordantes": 2033,
-      "so_o_primeiro_acerta": 436,
-      "so_o_segundo_acerta": 1597,
-      "estatistica": 661.879,
-      "p": 5.830410346409312e-146,
+      "discordantes": 1985,
+      "so_o_primeiro_acerta": 430,
+      "so_o_segundo_acerta": 1555,
+      "estatistica": 636.4615,
+      "p": 1.9657310097141697e-140,
       "metodo": "qui-quadrado com correcao de continuidade",
       "par": [
         "lstm",
@@ -278,11 +292,11 @@
       "significativo": true
     },
     {
-      "discordantes": 2321,
-      "so_o_primeiro_acerta": 539,
-      "so_o_segundo_acerta": 1782,
-      "estatistica": 664.6118,
-      "p": 1.4838336124814215e-146,
+      "discordantes": 2324,
+      "so_o_primeiro_acerta": 546,
+      "so_o_segundo_acerta": 1778,
+      "estatistica": 652.0486,
+      "p": 8.008977880661498e-144,
       "metodo": "qui-quadrado com correcao de continuidade",
       "par": [
         "naive_bayes",
@@ -292,11 +306,11 @@
       "significativo": true
     },
     {
-      "discordantes": 3036,
-      "so_o_primeiro_acerta": 849,
-      "so_o_segundo_acerta": 2187,
-      "estatistica": 588.7908,
-      "p": 4.591112534992036e-130,
+      "discordantes": 3037,
+      "so_o_primeiro_acerta": 846,
+      "so_o_segundo_acerta": 2191,
+      "estatistica": 594.7764,
+      "p": 2.290744089390341e-131,
       "metodo": "qui-quadrado com correcao de continuidade",
       "par": [
         "naive_bayes",
@@ -306,11 +320,11 @@
       "significativo": true
     },
     {
-      "discordantes": 2894,
-      "so_o_primeiro_acerta": 743,
-      "so_o_segundo_acerta": 2151,
-      "estatistica": 684.0529,
-      "p": 8.781520003652889e-151,
+      "discordantes": 2886,
+      "so_o_primeiro_acerta": 741,
+      "so_o_segundo_acerta": 2145,
+      "estatistica": 682.0544,
+      "p": 2.3887179172224146e-150,
       "metodo": "qui-quadrado com correcao de continuidade",
       "par": [
         "naive_bayes",
@@ -320,101 +334,87 @@
       "significativo": true
     },
     {
-      "discordantes": 445,
-      "so_o_primeiro_acerta": 277,
-      "so_o_segundo_acerta": 168,
-      "estatistica": 26.2112,
-      "p": 3.06036676287679e-07,
-      "metodo": "qui-quadrado com correcao de continuidade",
-      "par": [
-        "extra_trees",
-        "random_forest"
-      ],
-      "p_ajustado": 2e-06,
-      "significativo": true
-    },
-    {
-      "discordantes": 3109,
-      "so_o_primeiro_acerta": 1678,
-      "so_o_segundo_acerta": 1431,
-      "estatistica": 19.4648,
-      "p": 1.0247183572724816e-05,
+      "discordantes": 3129,
+      "so_o_primeiro_acerta": 1704,
+      "so_o_segundo_acerta": 1425,
+      "estatistica": 24.6993,
+      "p": 6.700972667234665e-07,
       "metodo": "qui-quadrado com correcao de continuidade",
       "par": [
         "lstm",
         "naive_bayes"
       ],
-      "p_ajustado": 6.1e-05,
+      "p_ajustado": 4e-06,
       "significativo": true
     },
     {
-      "discordantes": 1417,
-      "so_o_primeiro_acerta": 626,
-      "so_o_segundo_acerta": 791,
-      "estatistica": 18.9809,
-      "p": 1.3203037906758975e-05,
+      "discordantes": 1382,
+      "so_o_primeiro_acerta": 605,
+      "so_o_segundo_acerta": 777,
+      "estatistica": 21.1585,
+      "p": 4.228292536431774e-06,
       "metodo": "qui-quadrado com correcao de continuidade",
       "par": [
         "random_forest",
         "sgd"
       ],
-      "p_ajustado": 6.6e-05,
+      "p_ajustado": 2.1e-05,
       "significativo": true
     },
     {
-      "discordantes": 262,
-      "so_o_primeiro_acerta": 96,
-      "so_o_segundo_acerta": 166,
-      "estatistica": 18.1718,
-      "p": 2.018502557215817e-05,
+      "discordantes": 263,
+      "so_o_primeiro_acerta": 102,
+      "so_o_segundo_acerta": 161,
+      "estatistica": 12.7909,
+      "p": 0.0003483142529209008,
       "metodo": "qui-quadrado com correcao de continuidade",
       "par": [
         "regressao_logistica",
         "sgd"
       ],
-      "p_ajustado": 8.1e-05,
+      "p_ajustado": 0.001393,
       "significativo": true
     },
     {
-      "discordantes": 1543,
-      "so_o_primeiro_acerta": 724,
-      "so_o_segundo_acerta": 819,
-      "estatistica": 5.7265,
-      "p": 0.016710690986720286,
+      "discordantes": 1513,
+      "so_o_primeiro_acerta": 700,
+      "so_o_segundo_acerta": 813,
+      "estatistica": 8.2908,
+      "p": 0.003984614648557923,
       "metodo": "qui-quadrado com correcao de continuidade",
       "par": [
         "random_forest",
         "regressao_logistica"
       ],
-      "p_ajustado": 0.050132,
-      "significativo": false
+      "p_ajustado": 0.011954,
+      "significativo": true
     },
     {
-      "discordantes": 1330,
-      "so_o_primeiro_acerta": 637,
-      "so_o_segundo_acerta": 693,
-      "estatistica": 2.2744,
-      "p": 0.13152295574297407,
-      "metodo": "qui-quadrado com correcao de continuidade",
-      "par": [
-        "extra_trees",
-        "sgd"
-      ],
-      "p_ajustado": 0.263046,
-      "significativo": false
-    },
-    {
-      "discordantes": 1460,
-      "so_o_primeiro_acerta": 737,
-      "so_o_segundo_acerta": 723,
-      "estatistica": 0.1158,
-      "p": 0.7336866787666099,
+      "discordantes": 1414,
+      "so_o_primeiro_acerta": 723,
+      "so_o_segundo_acerta": 691,
+      "estatistica": 0.6796,
+      "p": 0.4097133866278023,
       "metodo": "qui-quadrado com correcao de continuidade",
       "par": [
         "extra_trees",
         "regressao_logistica"
       ],
-      "p_ajustado": 0.733687,
+      "p_ajustado": 0.819427,
+      "significativo": false
+    },
+    {
+      "discordantes": 1285,
+      "so_o_primeiro_acerta": 629,
+      "so_o_segundo_acerta": 656,
+      "estatistica": 0.5261,
+      "p": 0.4682637991387718,
+      "metodo": "qui-quadrado com correcao de continuidade",
+      "par": [
+        "extra_trees",
+        "sgd"
+      ],
+      "p_ajustado": 0.819427,
       "significativo": false
     }
   ],
@@ -423,6 +423,6 @@
     "registros_sem_grupo_congelado": 0
   },
   "nota_sobre_a_contagem_de_grupos": "a unidade de reamostragem e o grupo CONGELADO no Passo 2, e nao o grupo recalculado sobre o texto vivo; os dois podem divergir se algum texto tiver sido editado depois do congelamento, e o congelado e o reproduzivel",
-  "gerado_em": "03/08/2026 23:49",
+  "gerado_em": "04/08/2026 19:03",
   "script_origem": "src/inferencia_canonica.py"
 }

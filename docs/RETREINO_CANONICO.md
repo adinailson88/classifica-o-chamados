@@ -3,8 +3,8 @@
 > Relatório sanitizado e somente leitura. Não contém títulos, descrições ou IDs de chamados.
 
 **Estado:** `apto_para_regras`  
-**Gerado em:** 03/08/2026 22:44  
-**Melhor macro-F1:** linear_svc
+**Gerado em:** 04/08/2026 18:32  
+**Melhor macro-F1:** regressao_logistica
 
 ## Protocolo
 
@@ -12,20 +12,20 @@
 - Semente: 42.
 - Linhas avaliadas: 13972, em 9734 grupos textuais e 5 dobras.
 - Categorias: 41.
-- Linhas da aba fora das partições canônicas: 101.
-- Linhas com texto editado na aba após o congelamento: 2.
+- Linhas da aba fora das partições canônicas: 110.
+- Linhas com texto editado na aba após o congelamento: 3.
 
 ## Desempenho por modelo
 
 | Modelo | Acurácia | Macro-F1 | Acurácia balanceada | Treino (s) | Inferência (s) | Pico de memória (MB) |
 |---|---:|---:|---:|---:|---:|---:|
-| linear_svc | 0.8255 | 0.6696 | 0.6819 | 22.35 | 6.12 | 43.6 |
-| regressao_logistica | 0.8042 | 0.6684 | 0.6997 | 49.04 | 6.25 | 406.1 |
-| sgd | 0.8092 | 0.6681 | 0.6998 | 22.5 | 6.12 | 43.6 |
-| extra_trees | 0.8052 | 0.638 | 0.616 | 91.8 | 6.8 | 51.3 |
-| random_forest | 0.7974 | 0.6165 | 0.5962 | 76.61 | 6.59 | 51.2 |
-| lstm | 0.7261 | 0.5266 | 0.5713 | 586.38 | 11.54 | 152.0 |
-| naive_bayes | 0.7084 | 0.2952 | 0.2997 | 17.58 | 6.13 | 71.4 |
+| regressao_logistica | 0.805 | 0.6689 | 0.6996 | 58.07 | 5.95 | 406.1 |
+| linear_svc | 0.8253 | 0.6684 | 0.6805 | 22.06 | 5.72 | 43.6 |
+| sgd | 0.8093 | 0.6669 | 0.6988 | 22.0 | 5.86 | 43.6 |
+| extra_trees | 0.8073 | 0.6362 | 0.6133 | 118.18 | 6.48 | 51.3 |
+| random_forest | 0.797 | 0.6152 | 0.5971 | 103.12 | 6.35 | 51.2 |
+| lstm | 0.7287 | 0.524 | 0.5871 | 384.99 | 10.83 | 147.7 |
+| naive_bayes | 0.7088 | 0.2951 | 0.2997 | 16.97 | 5.8 | 71.4 |
 
 Os tempos somam as cinco dobras e refletem a máquina do executor; servem para comparar modelos entre si, não como medida absoluta de custo.
 
