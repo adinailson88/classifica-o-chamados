@@ -98,7 +98,11 @@ A fonte editável é `04_artigo/artigo_classificacao_chamados_v3.md`. O PDF publ
 
 **Como redigir esse achado:** a leitura correta não é que as regras de domínio funcionam, e sim que elas são redundantes diante de um classificador estatístico competente. Os modelos já capturam os sinais de periodicidade implicitamente a partir do texto; a camada explícita apenas repete o que eles fazem, com 4.487 disparos gerando entre 31 e 60 divergências nos modelos lineares. Isso é resultado publicável e contraria a expectativa inicial do desenho, que era medir um ganho. Sustenta também a decisão de manter o fluxo híbrido no eixo humano-IA, e não no eixo regra-modelo.
 
-**Próximo passo:** executar o Passo 6, decidindo o BERTimbau sob o mesmo protocolo de partições agrupadas ou classificando-o explicitamente como exploratório.
+**Passo 6, concluído:** o BERTimbau fica fora da comparação principal, como experimento exploratório no suplemento. A decisão tem número, não impressão. O fine-tuning custou 10,774 segundos por passo em executor de quatro processadores sem GPU, com variação de apenas 0,12 segundo entre o passo mais rápido e o mais lento, o que torna a projeção confiável. São 2.103 passos por dobra, ou 6,44 horas, e 32,2 horas nas cinco dobras, contra um teto de seis horas por job. Nem uma dobra completa cabe na infraestrutura disponível.
+
+**Como redigir a exclusão:** a limitação é de infraestrutura, não do modelo, e o texto precisa dizer isso nesses termos. Não afirmar que o BERTimbau tem desempenho inferior, porque ele não foi avaliado sob este protocolo; não comparar o número exploratório antigo com os valores da Tabela 1, porque vieram de protocolos distintos. A formulação defensável é que a comparação integral exigiria aceleração por GPU, e que o custo medido em CPU inviabiliza a validação cruzada agrupada de cinco dobras no ambiente do estudo. Esse número também reforça o argumento de viabilidade computacional, ao lado do LSTM, que já custava dezoito vezes o treino do LinearSVC para perder dele.
+
+**Próximo passo:** executar o Passo 7, de calibração e automação seletiva por confiança.
 
 ## Critérios para novo fechamento científico
 

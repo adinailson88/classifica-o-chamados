@@ -204,6 +204,8 @@ Se a execução integral não for viável:
 
 **Aceite:** decisão documentada por evidência computacional, sem alegação vaga de custo.
 
+**Decisão tomada em 03/08/2026:** o BERTimbau **não** integra a comparação principal e fica como experimento exploratório no suplemento. A medição em `docs/CUSTO_BERTIMBAU.md` cronometrou 10,774 segundos por passo de fine-tuning, com variação entre 10,706 e 10,824, sobre executor hospedado de quatro processadores e sem GPU. São 701 passos por época e 2.103 por dobra, o que projeta 6,44 horas por dobra e 32,2 horas nas cinco. Uma única dobra já excede o teto de seis horas de um job, de modo que nenhuma dobra completa cabe na infraestrutura disponível. A interrupção é, portanto, por limite de infraestrutura verificado, e não por escolha editorial. Rankings produzidos sob protocolos distintos não devem ser comparados diretamente.
+
 ### Passo 7 — calibração e automação seletiva
 
 **Ações:**
@@ -321,6 +323,7 @@ A preservação do snapshot permite auditoria histórica e comparação metodol�
 | 03/08/2026 | 3 | concluído | [PR #171](https://github.com/adinailson88/classificacao-chamados/pull/171) e [PR #172](https://github.com/adinailson88/classificacao-chamados/pull/172), [workflow](https://github.com/adinailson88/classificacao-chamados/actions/runs/30861272862); 13.972 linhas em 9.734 grupos, cinco dobras de 2.556 a 3.045 linhas, nenhum grupo dividido, 41 das 50 categorias com suporte em todas as dobras, 88 linhas fora por suporte insuficiente e hash do mapa `9465857d83ba76ec193974982835d91e03e783587153e26597051d4dfd9abcf2` | executar o Passo 4: retreinar os sete modelos sobre estas partições, com a referência humana como rótulo |
 | 03/08/2026 | 4 | concluído | [PR #174](https://github.com/adinailson88/classificacao-chamados/pull/174), [workflow](https://github.com/adinailson88/classificacao-chamados/actions/runs/30861802691); 13.972 linhas e 41 categorias, predição *out-of-fold* para todos os registros nos sete modelos, zero vazamento de grupo; melhor macro-F1 `regressao_logistica` (0,6697) e melhor acurácia `linear_svc` (0,8252) | executar o Passo 5: comparar os modelos puros com a camada de regras preventivas nas mesmas partições |
 | 03/08/2026 | 5 | concluído | [PR #176](https://github.com/adinailson88/classificacao-chamados/pull/176), [workflow](https://github.com/adinailson88/classificacao-chamados/actions/runs/30866230274); regra dispara em 4.487 dos 13.972 registros e melhora o macro-F1 de apenas 3 dos 7 modelos; ganho concentrado no `naive_bayes` (+0,0585) e perda no `linear_svc` (−0,0017) | executar o Passo 6: decidir o BERTimbau sob o mesmo protocolo |
+| 03/08/2026 | 6 | concluído | [PR #178](https://github.com/adinailson88/classificacao-chamados/pull/178), [workflow](https://github.com/adinailson88/classificacao-chamados/actions/runs/30866677706); 10,774 s por passo em CPU de quatro núcleos, 2.103 passos por dobra, 6,44 h por dobra e 32,2 h nas cinco, contra teto de 6 h por job; BERTimbau fica como exploratório no suplemento | executar o Passo 7: calibração e automação seletiva por confiança |
 
 Estados permitidos: `pendente`, `em execução`, `bloqueado`, `concluído`, `substituído`.
 

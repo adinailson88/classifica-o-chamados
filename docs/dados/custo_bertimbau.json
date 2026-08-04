@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "status": "medido",
+  "veredito": "protocolo_integral_inviavel_no_executor_atual",
+  "natureza_dos_numeros": {
+    "medido": "segundos por passo, taxa de tokenizacao, taxa de inferencia e tempos de carga",
+    "extrapolado": "tempo por dobra e tempo das cinco dobras, obtidos multiplicando a taxa medida pelo numero de passos"
+  },
+  "contexto": {
+    "modelo_base": "neuralmind/bert-base-portuguese-cased",
+    "epochs": 3,
+    "max_len": 192,
+    "batch": 16,
+    "lr": 2e-05,
+    "dobra_medida": 1,
+    "n_treino": 11214,
+    "n_teste": 2758,
+    "categorias": 41
+  },
+  "medicao": {
+    "passos_medidos": 30,
+    "passos_de_aquecimento_descartados": 3,
+    "segundos_por_passo": 10.774,
+    "segundos_por_passo_min": 10.706,
+    "segundos_por_passo_max": 10.824,
+    "amostras_por_segundo_treino": 1.49,
+    "amostras_por_segundo_inferencia": 5.24,
+    "amostras_por_segundo_tokenizacao": 5005.0,
+    "segundos_carga_tokenizador": 0.85,
+    "segundos_carga_modelo": 4.07
+  },
+  "projecao": {
+    "passos_por_epoca": 701,
+    "passos_por_dobra": 2103,
+    "segundos_por_dobra": 23186.8,
+    "horas_por_dobra": 6.44,
+    "horas_todas_as_dobras": 32.2,
+    "cabe_em_um_job_do_executor": false,
+    "dobras_que_cabem_em_um_job": 0,
+    "limite_do_job_horas": 6.0,
+    "base_do_calculo": "tempo por passo medido, multiplicado pelos passos de todas as epocas, mais tokenizacao e inferencia da dobra"
+  },
+  "ambiente": {
+    "python": "3.11.15",
+    "plataforma": "Linux-6.17.0-1020-azure-x86_64-with-glibc2.39",
+    "processadores": 4,
+    "torch": "2.13.0+cu130",
+    "cuda_disponivel": false,
+    "dispositivo": "cpu",
+    "threads_torch": 2,
+    "transformers": "4.57.6"
+  },
+  "gerado_em": "03/08/2026 21:55",
+  "script_origem": "src/medir_custo_bertimbau.py"
+}
