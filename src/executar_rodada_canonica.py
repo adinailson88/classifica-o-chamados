@@ -27,8 +27,10 @@ from typing import Any
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import calibrar_confianca as cal  # noqa: E402
+import comparacao_historica as chi  # noqa: E402
 import comparar_regras_modelos as crm  # noqa: E402
 import construir_grupos_textuais as cgt  # noqa: E402
+import custo_computacional_canonico as ccc  # noqa: E402
 import planilha as pl  # noqa: E402
 import recortes_canonicos as rec  # noqa: E402
 import retreinar_modelos_canonicos as rmc  # noqa: E402
@@ -40,6 +42,8 @@ DADOS = RAIZ / "docs" / "dados"
 MAPA_PARTICOES_PADRAO = DADOS / "particoes_canonicas_mapa.csv"
 MAPA_GRUPOS_PADRAO = DADOS / "grupos_textuais_mapa.csv"
 MANIFESTO_PADRAO = DADOS / "rodada_canonica.json"
+SAIDA_HISTORICO_JSON = DADOS / "comparacao_historica.json"
+SAIDA_HISTORICO_MD = RAIZ / "docs" / "COMPARACAO_HISTORICA.md"
 
 
 def hash_corpus(corpus: dict[str, Any]) -> str:
@@ -87,6 +91,9 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--semente", type=int, default=rmc.SEMENTE_PADRAO)
     p.add_argument("--sem-calibracao", action="store_true",
                    help="pula o Passo 7, que custa cinco ajustes extras por modelo")
+    p.add_argument("--sem-custo", action="store_true",
+                   help="pula a medicao de custo, que repete o treino na base inteira")
+    p.add_argument("--custo-repeticoes", type=int, default=ccc.REPETICOES_PADRAO)
     p.add_argument("--manifesto", type=Path, default=MANIFESTO_PADRAO)
     return p.parse_args()
 
@@ -164,6 +171,25 @@ def main() -> int:
     gravar(rec.SAIDA_JSON_PADRAO, rec.SAIDA_MD_PADRAO, recortes,
            rec.renderizar_markdown(recortes))
 
+    # ---- comparacoes contra a categoria historica -----------------------
+    historico = chi.montar_relatorio(corpus["historicas"], corpus["rotulos"],
+                                     {r["modelo"]: r["_predicoes"]
+                                      for r in retreino["_resultados"]})
+    historico["script_origem"] = "src/executar_rodada_canonica.py"
+    carimbar(historico, impressao, quando, corpus)
+    gravar(SAIDA_HISTORICO_JSON, SAIDA_HISTORICO_MD, historico,
+           chi.renderizar_markdown(historico))
+
+    # ---- custo computacional --------------------------------------------
+    custo = None
+    if not args.sem_custo:
+        custo = ccc.montar_relatorio(corpus["textos"], corpus["rotulos"],
+                                     modelos, args.custo_repeticoes)
+        custo["script_origem"] = "src/executar_rodada_canonica.py"
+        carimbar(custo, impressao, quando, corpus)
+        gravar(ccc.SAIDA_JSON_PADRAO, ccc.SAIDA_MD_PADRAO, custo,
+               ccc.renderizar_markdown(custo))
+
     # ---- manifesto -------------------------------------------------------
     manifesto = {
         "schema_version": 1,
@@ -191,6 +217,11 @@ def main() -> int:
                              if calibracao else {"status": "nao_executado"}),
             "recortes": {"status": recortes["status"],
                          "arquivo": "docs/dados/recortes_canonicos.json"},
+            "comparacao_historica": {"status": historico["status"],
+                                     "arquivo": "docs/dados/comparacao_historica.json"},
+            "custo_computacional": ({"status": custo["status"],
+                                     "arquivo": "docs/dados/custo_computacional_canonico.json"}
+                                    if custo else {"status": "nao_executado"}),
         },
         "garantia": ("os tres passos usaram a mesma leitura da aba e o mesmo "
                      "corpus em memoria; artefatos com hash_corpus igual sao "

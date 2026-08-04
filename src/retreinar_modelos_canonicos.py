@@ -88,6 +88,9 @@ def preparar_corpus(registros: list[dict[str, str]],
     """
     textos: list[str] = []
     rotulos: list[str] = []
+    # Categoria historica da coluna C, saida do GLPI. Nao e alvo de treino:
+    # serve as comparacoes contra o rotulo administrativo.
+    historicas: list[str] = []
     grupos: list[str] = []
     dobras: list[int] = []
     chaves: list[str] = []
@@ -113,10 +116,12 @@ def preparar_corpus(registros: list[dict[str, str]],
                 texto_alterado += 1
         textos.append(montar_texto(r))
         rotulos.append(rotulo)
+        historicas.append(r.get("categoria_historica", ""))
         grupos.append(grupo)
         dobras.append(particoes[digest])
         chaves.append(digest)
-    return {"textos": textos, "rotulos": rotulos, "grupos": grupos,
+    return {"textos": textos, "rotulos": rotulos, "historicas": historicas,
+            "grupos": grupos,
             "dobras": dobras, "chaves": chaves,
             "linhas_fora_das_particoes": fora,
             "linhas_sem_rotulo": sem_rotulo,
