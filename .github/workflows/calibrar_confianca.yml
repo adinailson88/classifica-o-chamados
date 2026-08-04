@@ -1,0 +1,60 @@
+name: Calibrar confianca e automacao seletiva (read-only)
+
+on:
+  workflow_dispatch:
+    inputs:
+      modelos:
+        description: "Modelos separados por virgula; vazio usa todos os do CSV"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  calibrar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements.txt
+      - name: Dependencias
+        run: python -m pip install --retries 5 --timeout 300 -r requirements.txt
+      - name: Testes da calibracao
+        run: python -m unittest discover -s tests -p "test_calibrar_confianca.py" -t tests
+      - name: Recriar chave da conta de servico
+        env:
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+        run: |
+          if [ -z "$GCP_SA_KEY" ]; then echo "Secret GCP_SA_KEY ausente." >&2; exit 1; fi
+          printf '%s' "$GCP_SA_KEY" > credenciais_sa.json
+      - name: Calibrar sem escrever na planilha
+        id: calibracao
+        continue-on-error: true
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: credenciais_sa.json
+        run: python src/calibrar_confianca.py --modelos "${{ inputs.modelos }}"
+      - name: Remover credenciais
+        if: always()
+        run: rm -f credenciais_sa.json
+      - name: Publicar relatorio como artefato
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: calibracao-canonica
+          path: |
+            docs/dados/calibracao_canonica.json
+            docs/CALIBRACAO_CANONICA.md
+          if-no-files-found: error
+          retention-days: 30
+      - name: Aplicar criterio de aceite
+        if: steps.calibracao.outcome == 'failure'
+        run: |
+          echo "Calibracao concluiu com bloqueios; consulte o artefato." >&2
+          exit 1
