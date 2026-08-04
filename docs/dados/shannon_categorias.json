@@ -28,17 +28,17 @@
       "maior_risco": "alta_ambiguidade"
     },
     {
-      "categoria_historica": "Manutenção Preventiva > Esgoto",
-      "modelos": 9,
-      "suporte_max": 34,
-      "entropia_media_normalizada": 0.6858,
-      "maior_risco": "alta_ambiguidade"
-    },
-    {
       "categoria_historica": "Manutenção Preventiva > Hidráulica",
       "modelos": 9,
       "suporte_max": 33,
       "entropia_media_normalizada": 0.6831,
+      "maior_risco": "alta_ambiguidade"
+    },
+    {
+      "categoria_historica": "Manutenção Preventiva > Esgoto",
+      "modelos": 9,
+      "suporte_max": 34,
+      "entropia_media_normalizada": 0.6791,
       "maior_risco": "alta_ambiguidade"
     },
     {
@@ -464,16 +464,16 @@
     {
       "modelo": "lstm",
       "categoria_historica": "Manutenção Preventiva > Esgoto",
-      "suporte": 33,
-      "categorias_previstas": 10,
-      "entropia_previsoes": 2.7073,
-      "entropia_normalizada": 0.815,
-      "categorias_efetivas": 6.5308,
+      "suporte": 34,
+      "categorias_previstas": 11,
+      "entropia_previsoes": 2.8191,
+      "entropia_normalizada": 0.8149,
+      "categorias_efetivas": 7.0571,
       "top_1_previsto": "Manutenção Preventiva > Esgoto",
-      "top_1_pct": 0.3939,
+      "top_1_pct": 0.3824,
       "top_2_previsto": "Hidrossanitária > Hidráulica",
-      "top_2_pct": 0.1818,
-      "concordancia_historico": 0.3939,
+      "top_2_pct": 0.1765,
+      "concordancia_historico": 0.3824,
       "risco": "alta_ambiguidade"
     },
     {
@@ -598,21 +598,6 @@
     },
     {
       "modelo": "random_forest",
-      "categoria_historica": "Manutenção Preventiva > Esgoto",
-      "suporte": 33,
-      "categorias_previstas": 7,
-      "entropia_previsoes": 2.1781,
-      "entropia_normalizada": 0.7759,
-      "categorias_efetivas": 4.5256,
-      "top_1_previsto": "Hidrossanitária > Hidráulica",
-      "top_1_pct": 0.4242,
-      "top_2_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-      "top_2_pct": 0.2727,
-      "concordancia_historico": 0.0909,
-      "risco": "alta_ambiguidade"
-    },
-    {
-      "modelo": "random_forest",
       "categoria_historica": "Outros > Outros",
       "suporte": 33,
       "categorias_previstas": 10,
@@ -687,6 +672,21 @@
       "risco": "alta_ambiguidade"
     },
     {
+      "modelo": "random_forest",
+      "categoria_historica": "Manutenção Preventiva > Esgoto",
+      "suporte": 34,
+      "categorias_previstas": 7,
+      "entropia_previsoes": 2.1496,
+      "entropia_normalizada": 0.7657,
+      "categorias_efetivas": 4.437,
+      "top_1_previsto": "Hidrossanitária > Hidráulica",
+      "top_1_pct": 0.4412,
+      "top_2_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
+      "top_2_pct": 0.2647,
+      "concordancia_historico": 0.0882,
+      "risco": "alta_ambiguidade"
+    },
+    {
       "modelo": "naive_bayes",
       "categoria_historica": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
       "suporte": 407,
@@ -714,21 +714,6 @@
       "top_2_previsto": "Climatização > Ar condicionado central",
       "top_2_pct": 0.2973,
       "concordancia_historico": 0.2973,
-      "risco": "alta_ambiguidade"
-    },
-    {
-      "modelo": "extra_trees",
-      "categoria_historica": "Manutenção Preventiva > Esgoto",
-      "suporte": 33,
-      "categorias_previstas": 7,
-      "entropia_previsoes": 2.123,
-      "entropia_normalizada": 0.7562,
-      "categorias_efetivas": 4.356,
-      "top_1_previsto": "Hidrossanitária > Hidráulica",
-      "top_1_pct": 0.4848,
-      "top_2_previsto": "Manutenção Preventiva > Esgoto",
-      "top_2_pct": 0.2121,
-      "concordancia_historico": 0.2121,
       "risco": "alta_ambiguidade"
     },
     {
@@ -777,21 +762,6 @@
       "risco": "alta_ambiguidade"
     },
     {
-      "modelo": "sgd",
-      "categoria_historica": "Manutenção Preventiva > Esgoto",
-      "suporte": 33,
-      "categorias_previstas": 9,
-      "entropia_previsoes": 2.3753,
-      "entropia_normalizada": 0.7493,
-      "categorias_efetivas": 5.1885,
-      "top_1_previsto": "Manutenção Preventiva > Esgoto",
-      "top_1_pct": 0.3939,
-      "top_2_previsto": "Hidrossanitária > Hidráulica",
-      "top_2_pct": 0.303,
-      "concordancia_historico": 0.3939,
-      "risco": "alta_ambiguidade"
-    },
-    {
       "modelo": "lstm",
       "categoria_historica": "Climatização > Ar condicionado central",
       "suporte": 37,
@@ -804,6 +774,21 @@
       "top_2_previsto": "Climatização > Ar condicionado split",
       "top_2_pct": 0.1892,
       "concordancia_historico": 0.4595,
+      "risco": "alta_ambiguidade"
+    },
+    {
+      "modelo": "extra_trees",
+      "categoria_historica": "Manutenção Preventiva > Esgoto",
+      "suporte": 34,
+      "categorias_previstas": 7,
+      "entropia_previsoes": 2.0906,
+      "entropia_normalizada": 0.7447,
+      "categorias_efetivas": 4.2593,
+      "top_1_previsto": "Hidrossanitária > Hidráulica",
+      "top_1_pct": 0.5,
+      "top_2_previsto": "Manutenção Preventiva > Esgoto",
+      "top_2_pct": 0.2059,
+      "concordancia_historico": 0.2059,
       "risco": "alta_ambiguidade"
     },
     {
@@ -837,18 +822,18 @@
       "risco": "alta_ambiguidade"
     },
     {
-      "modelo": "regressao_logistica",
+      "modelo": "sgd",
       "categoria_historica": "Manutenção Preventiva > Esgoto",
-      "suporte": 33,
-      "categorias_previstas": 10,
-      "entropia_previsoes": 2.4588,
-      "entropia_normalizada": 0.7402,
-      "categorias_efetivas": 5.4975,
+      "suporte": 34,
+      "categorias_previstas": 9,
+      "entropia_previsoes": 2.344,
+      "entropia_normalizada": 0.7395,
+      "categorias_efetivas": 5.0771,
       "top_1_previsto": "Manutenção Preventiva > Esgoto",
-      "top_1_pct": 0.3939,
+      "top_1_pct": 0.4118,
       "top_2_previsto": "Hidrossanitária > Hidráulica",
-      "top_2_pct": 0.303,
-      "concordancia_historico": 0.3939,
+      "top_2_pct": 0.2941,
+      "concordancia_historico": 0.4118,
       "risco": "alta_ambiguidade"
     },
     {
@@ -894,6 +879,21 @@
       "top_2_previsto": "Manutenção Preventiva > Telhados, calhas, rufos, etc.",
       "top_2_pct": 0.1699,
       "concordancia_historico": 0.2524,
+      "risco": "alta_ambiguidade"
+    },
+    {
+      "modelo": "regressao_logistica",
+      "categoria_historica": "Manutenção Preventiva > Esgoto",
+      "suporte": 34,
+      "categorias_previstas": 10,
+      "entropia_previsoes": 2.425,
+      "entropia_normalizada": 0.73,
+      "categorias_efetivas": 5.3705,
+      "top_1_previsto": "Manutenção Preventiva > Esgoto",
+      "top_1_pct": 0.4118,
+      "top_2_previsto": "Hidrossanitária > Hidráulica",
+      "top_2_pct": 0.2941,
+      "concordancia_historico": 0.4118,
       "risco": "alta_ambiguidade"
     },
     {
@@ -987,21 +987,6 @@
       "risco": "alta_ambiguidade"
     },
     {
-      "modelo": "linear_svc",
-      "categoria_historica": "Manutenção Preventiva > Esgoto",
-      "suporte": 33,
-      "categorias_previstas": 8,
-      "entropia_previsoes": 2.1389,
-      "entropia_normalizada": 0.713,
-      "categorias_efetivas": 4.4044,
-      "top_1_previsto": "Manutenção Preventiva > Esgoto",
-      "top_1_pct": 0.3939,
-      "top_2_previsto": "Hidrossanitária > Hidráulica",
-      "top_2_pct": 0.3636,
-      "concordancia_historico": 0.3939,
-      "risco": "alta_ambiguidade"
-    },
-    {
       "modelo": "regressao_logistica",
       "categoria_historica": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
       "suporte": 1303,
@@ -1044,6 +1029,21 @@
       "top_2_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
       "top_2_pct": 0.1294,
       "concordancia_historico": 0.4588,
+      "risco": "alta_ambiguidade"
+    },
+    {
+      "modelo": "linear_svc",
+      "categoria_historica": "Manutenção Preventiva > Esgoto",
+      "suporte": 34,
+      "categorias_previstas": 8,
+      "entropia_previsoes": 2.1179,
+      "entropia_normalizada": 0.706,
+      "categorias_efetivas": 4.3405,
+      "top_1_previsto": "Hidrossanitária > Hidráulica",
+      "top_1_pct": 0.3824,
+      "top_2_previsto": "Manutenção Preventiva > Esgoto",
+      "top_2_pct": 0.3824,
+      "concordancia_historico": 0.3824,
       "risco": "alta_ambiguidade"
     },
     {
@@ -1572,21 +1572,6 @@
       "risco": "ambiguidade_moderada"
     },
     {
-      "modelo": "naive_bayes",
-      "categoria_historica": "Manutenção Preventiva > Esgoto",
-      "suporte": 33,
-      "categorias_previstas": 6,
-      "entropia_previsoes": 1.5886,
-      "entropia_normalizada": 0.6145,
-      "categorias_efetivas": 3.0075,
-      "top_1_previsto": "Hidrossanitária > Hidráulica",
-      "top_1_pct": 0.697,
-      "top_2_previsto": "Climatização > Ar condicionado split",
-      "top_2_pct": 0.0606,
-      "concordancia_historico": 0.0,
-      "risco": "ambiguidade_moderada"
-    },
-    {
       "modelo": "transformer_ft",
       "categoria_historica": "Elétrica > Gerador",
       "suporte": 38,
@@ -1615,6 +1600,21 @@
       "top_2_pct": 0.3092,
       "concordancia_historico": 0.0,
       "risco": "alta_ambiguidade"
+    },
+    {
+      "modelo": "naive_bayes",
+      "categoria_historica": "Manutenção Preventiva > Esgoto",
+      "suporte": 34,
+      "categorias_previstas": 6,
+      "entropia_previsoes": 1.5569,
+      "entropia_normalizada": 0.6023,
+      "categorias_efetivas": 2.9422,
+      "top_1_previsto": "Hidrossanitária > Hidráulica",
+      "top_1_pct": 0.7059,
+      "top_2_previsto": "Climatização > Ar condicionado split",
+      "top_2_pct": 0.0588,
+      "concordancia_historico": 0.0,
+      "risco": "ambiguidade_moderada"
     },
     {
       "modelo": "random_forest",
