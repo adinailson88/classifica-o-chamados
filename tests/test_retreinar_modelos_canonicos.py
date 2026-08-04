@@ -56,6 +56,28 @@ class TestRetreinoCanonico(unittest.TestCase):
         self.assertEqual(c["linhas_fora_das_particoes"], 1)
         self.assertEqual(sorted(set(c["dobras"])), [1, 2, 3, 4, 5])
 
+    def test_detecta_texto_editado_apos_o_congelamento(self):
+        import construir_grupos_textuais as cgt
+        congelados = {}
+        for r in self.registros:
+            normalizados = [cgt.normalizar_texto(r.get(c, ""))
+                            for c in cgt.CAMPOS_TEXTUAIS]
+            congelados[sha(r["id"])] = cgt.hash_grupo(normalizados)
+        # Sem edição, nenhuma divergência.
+        limpo = rmc.preparar_corpus(self.registros, self.particoes, congelados)
+        self.assertEqual(limpo["linhas_com_texto_alterado_apos_o_congelamento"], 0)
+        # Um texto editado na aba viva precisa aparecer na contagem.
+        editados = [dict(r) for r in self.registros]
+        editados[0]["titulo"] = editados[0]["titulo"] + " observacao acrescentada"
+        sujo = rmc.preparar_corpus(editados, self.particoes, congelados)
+        self.assertEqual(sujo["linhas_com_texto_alterado_apos_o_congelamento"], 1)
+        # O corpus continua completo: a deriva é reportada, não descartada.
+        self.assertEqual(len(sujo["textos"]), len(limpo["textos"]))
+
+    def test_sem_mapa_congelado_a_verificacao_e_omitida(self):
+        c = rmc.preparar_corpus(self.registros, self.particoes)
+        self.assertEqual(c["linhas_com_texto_alterado_apos_o_congelamento"], 0)
+
     def test_texto_junta_os_quatro_campos_na_ordem(self):
         r = registro("1", "titulo", descricao="descricao")
         self.assertEqual(rmc.montar_texto(r), "titulo\ndescricao")

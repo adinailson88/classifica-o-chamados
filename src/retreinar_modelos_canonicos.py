@@ -37,6 +37,7 @@ from tempo import agora_bahia  # noqa: E402
 RAIZ = Path(__file__).resolve().parents[1]
 CONFIG_PADRAO = RAIZ / "config_experimento.json"
 MAPA_PARTICOES_PADRAO = RAIZ / "docs" / "dados" / "particoes_canonicas_mapa.csv"
+MAPA_GRUPOS_PADRAO = RAIZ / "docs" / "dados" / "grupos_textuais_mapa.csv"
 SAIDA_JSON_PADRAO = RAIZ / "docs" / "dados" / "retreino_canonico.json"
 SAIDA_MD_PADRAO = RAIZ / "docs" / "RETREINO_CANONICO.md"
 SAIDA_PRED_PADRAO = RAIZ / "docs" / "dados" / "retreino_canonico_predicoes.csv"
@@ -62,12 +63,28 @@ def montar_texto(registro: dict[str, str]) -> str:
     return "\n".join(p for p in partes if p)
 
 
+def carregar_grupos_congelados(caminho: Path) -> dict[str, str]:
+    """Le o mapa do Passo 2: SHA-256 do ID para hash do grupo textual."""
+    with caminho.open("r", encoding="utf-8", newline="") as f:
+        return {linha["id_sha256"]: linha["grupo_sha256"]
+                for linha in csv.DictReader(f) if linha.get("id_sha256")}
+
+
 def preparar_corpus(registros: list[dict[str, str]],
-                    particoes: dict[str, int]) -> dict[str, Any]:
+                    particoes: dict[str, int],
+                    grupos_congelados: dict[str, str] | None = None
+                    ) -> dict[str, Any]:
     """Monta texto, rotulo, grupo e dobra de cada registro do corpus canonico.
 
     Registros fora do mapa de particoes sao ignorados: ou sao posteriores ao
     congelamento, ou sairam no Passo 3 por suporte insuficiente da categoria.
+
+    Com `grupos_congelados`, compara o hash textual recalculado agora com o que
+    o Passo 2 registrou. Divergencia significa que o texto do chamado foi
+    editado na aba viva depois do congelamento. O corpus continua fixado pelos
+    IDs, mas o conteudo nao e imutavel, e sem esta contagem a deriva passaria
+    despercebida: um unico texto alterado muda o vocabulario TF-IDF e desloca
+    predicoes de outros registros.
     """
     textos: list[str] = []
     rotulos: list[str] = []
@@ -76,6 +93,7 @@ def preparar_corpus(registros: list[dict[str, str]],
     chaves: list[str] = []
     fora = 0
     sem_rotulo = 0
+    texto_alterado = 0
     for r in registros:
         id_chamado = r.get("id", "")
         digest = hashlib.sha256(id_chamado.encode("utf-8")).hexdigest()
@@ -88,15 +106,21 @@ def preparar_corpus(registros: list[dict[str, str]],
             continue
         normalizados = [cgt.normalizar_texto(r.get(c, ""))
                         for c in cgt.CAMPOS_TEXTUAIS]
+        grupo = cgt.hash_grupo(normalizados)
+        if grupos_congelados is not None:
+            congelado = grupos_congelados.get(digest)
+            if congelado is not None and congelado != grupo:
+                texto_alterado += 1
         textos.append(montar_texto(r))
         rotulos.append(rotulo)
-        grupos.append(cgt.hash_grupo(normalizados))
+        grupos.append(grupo)
         dobras.append(particoes[digest])
         chaves.append(digest)
     return {"textos": textos, "rotulos": rotulos, "grupos": grupos,
             "dobras": dobras, "chaves": chaves,
             "linhas_fora_das_particoes": fora,
-            "linhas_sem_rotulo": sem_rotulo}
+            "linhas_sem_rotulo": sem_rotulo,
+            "linhas_com_texto_alterado_apos_o_congelamento": texto_alterado}
 
 
 def _acuracia(verdade: list[str], predito: list[str]) -> float:
@@ -178,6 +202,10 @@ def montar_relatorio(corpus: dict[str, Any], modelos: list[str],
             sum(1 for r in resultados if r["registros_sem_predicao"]),
         "linhas_do_corpus_sem_rotulo": corpus["linhas_sem_rotulo"],
     }
+    # Texto alterado nao bloqueia: e fato consumado da aba viva, e recusar o
+    # passo por isso paralisaria o experimento. Mas precisa ficar visivel no
+    # relatorio, porque compromete a reproducao exata dos numeros.
+    alterados = corpus.get("linhas_com_texto_alterado_apos_o_congelamento", 0)
     bloqueios = [nome for nome, n in problemas.items() if n]
     publicaveis = [{k: v for k, v in r.items() if not k.startswith("_")}
                    for r in resultados]
@@ -197,6 +225,7 @@ def montar_relatorio(corpus: dict[str, Any], modelos: list[str],
             "dobras": len(set(corpus["dobras"])),
             "linhas_fora_das_particoes": corpus["linhas_fora_das_particoes"],
             "linhas_sem_rotulo": corpus["linhas_sem_rotulo"],
+            "linhas_com_texto_alterado_apos_o_congelamento": alterados,
         },
         "ambiente": {
             "python": platform.python_version(),
@@ -240,6 +269,8 @@ def renderizar_markdown(relatorio: dict[str, Any]) -> str:
         f"em {corpus['grupos_textuais']} grupos textuais e {corpus['dobras']} dobras.",
         f"- Categorias: {corpus['categorias']}.",
         f"- Linhas da aba fora das partições canônicas: {corpus['linhas_fora_das_particoes']}.",
+        f"- Linhas com texto editado na aba após o congelamento: "
+        f"{corpus['linhas_com_texto_alterado_apos_o_congelamento']}.",
         "",
         "## Desempenho por modelo",
         "",
@@ -300,6 +331,9 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--config", type=Path, default=CONFIG_PADRAO)
     p.add_argument("--credenciais", default=None)
     p.add_argument("--particoes", type=Path, default=MAPA_PARTICOES_PADRAO)
+    p.add_argument("--grupos-congelados", type=Path, default=MAPA_GRUPOS_PADRAO,
+                   help=("mapa do Passo 2 usado para detectar texto editado na "
+                         "aba viva depois do congelamento"))
     p.add_argument("--modelos", default=",".join(MODELOS_PADRAO))
     p.add_argument("--semente", type=int, default=SEMENTE_PADRAO)
     p.add_argument("--json", type=Path, default=SAIDA_JSON_PADRAO)
@@ -319,7 +353,9 @@ def main() -> int:
     particoes = carregar_particoes(args.particoes)
 
     sh = pl.abrir_planilha(pl.id_planilha(config), args.credenciais)
-    corpus = preparar_corpus(cgt.ler_registros(sh, config), particoes)
+    congelados = (carregar_grupos_congelados(args.grupos_congelados)
+                  if args.grupos_congelados.exists() else None)
+    corpus = preparar_corpus(cgt.ler_registros(sh, config), particoes, congelados)
     if len(corpus["textos"]) < 10:
         print("Corpus insuficiente para retreinar.", file=sys.stderr)
         return 2
