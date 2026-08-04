@@ -118,7 +118,15 @@ A fonte editável é `04_artigo/artigo_classificacao_chamados_v3.md`. O PDF publ
 
 **Curva ABC:** a classe A reúne 12 categorias e 81,8% do volume, com o LinearSVC em 0,8544 de acurácia e 0,8210 de macro-F1; a classe C reúne 17 categorias e 4,5% do volume, com 0,5580 e 0,5041. É esse contraste que localiza na cauda a distância entre a acurácia de 0,83 e o macro-F1 de 0,67. Dentro da preventiva, a classe A chega a 0,9743 de macro-F1, quase saturada.
 
-**Próximo passo:** executar o Passo 8, de inferência estatística, com bootstrap por grupo textual.
+**Passo 8, concluído:** os intervalos de confiança vêm de bootstrap por grupo textual, com mil repetições e semente 42. Reamostrar linhas trataria como independentes os 4.586 registros que pertencem a grupos com mais de um membro, e estreitaria os intervalos artificialmente. A unidade de reamostragem é o grupo congelado no Passo 2, que são 9.735 entre os registros avaliados, e não o grupo recalculado sobre o texto vivo, porque só o congelado é reproduzível.
+
+**Protocolo dos testes:** Cochran Q primeiro, com Q = 2669,67 sobre 6 graus de liberdade e p praticamente nulo, o que rejeita a igualdade das taxas de acerto e autoriza as comparações pareadas. Em seguida McNemar nos 21 pares, com correção de Holm sobre essa família. A ordem importa e deve ser declarada: sem o teste global, 21 comparações seriam pesca de significância.
+
+**O que os testes autorizam afirmar:** o LinearSVC supera todos os demais com significância, e a diferença para o SGD, segundo colocado, tem 540 acertos exclusivos contra 312. Mas três pares ficam empatados depois de Holm — Extra Trees contra Regressão Logística, com p ajustado de 0,734, Extra Trees contra SGD, com 0,263, e Random Forest contra Regressão Logística, com 0,050. Esse trio não deve ser apresentado como ordenado; a tabela precisa mostrar o empate, e não apenas as posições.
+
+**Cuidado com o par na fronteira:** os 0,050 de Random Forest contra Regressão Logística ficam exatamente sobre o limiar. É prudente descrevê-lo como indistinguível dentro do poder do teste, em vez de reportá-lo como diferença marginal, porque a leitura oposta depende inteiramente de uma casa decimal.
+
+**Próximo passo:** executar o Passo 10, de proveniência e artefatos. O Passo 9, da segunda validação humana cega, é dependência externa.
 
 ## Critérios para novo fechamento científico
 
