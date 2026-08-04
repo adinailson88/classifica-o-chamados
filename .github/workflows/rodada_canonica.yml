@@ -1,0 +1,78 @@
+name: "Rodada canonica: passos 4, 5 e 7 (read-only)"
+
+on:
+  workflow_dispatch:
+    inputs:
+      modelos:
+        description: "Modelos separados por virgula"
+        required: false
+        default: "naive_bayes,regressao_logistica,linear_svc,sgd,extra_trees,random_forest,lstm"
+      sem_calibracao:
+        description: "Pular o Passo 7"
+        type: boolean
+        required: false
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  rodada:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    env:
+      SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements.txt
+      - name: Dependencias
+        run: python -m pip install --retries 5 --timeout 300 -r requirements.txt
+      - name: Testes dos passos da rodada
+        run: |
+          python -m unittest discover -s tests -p "test_executar_rodada_canonica.py" -t tests
+          python -m unittest discover -s tests -p "test_retreinar_modelos_canonicos.py" -t tests
+          python -m unittest discover -s tests -p "test_comparar_regras_modelos.py" -t tests
+          python -m unittest discover -s tests -p "test_calibrar_confianca.py" -t tests
+      - name: Recriar chave da conta de servico
+        env:
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+        run: |
+          if [ -z "$GCP_SA_KEY" ]; then echo "Secret GCP_SA_KEY ausente." >&2; exit 1; fi
+          printf '%s' "$GCP_SA_KEY" > credenciais_sa.json
+      - name: Executar a rodada sem escrever na planilha
+        id: rodada
+        continue-on-error: true
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: credenciais_sa.json
+        run: |
+          python src/executar_rodada_canonica.py \
+            --modelos "${{ inputs.modelos }}" \
+            ${{ inputs.sem_calibracao && '--sem-calibracao' || '' }}
+      - name: Remover credenciais
+        if: always()
+        run: rm -f credenciais_sa.json
+      - name: Publicar artefatos da rodada
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rodada-canonica
+          path: |
+            docs/dados/rodada_canonica.json
+            docs/dados/retreino_canonico.json
+            docs/dados/retreino_canonico_predicoes.csv
+            docs/dados/regras_versus_modelos.json
+            docs/dados/calibracao_canonica.json
+            docs/RETREINO_CANONICO.md
+            docs/REGRAS_VERSUS_MODELOS.md
+            docs/CALIBRACAO_CANONICA.md
+          if-no-files-found: error
+          retention-days: 30
+      - name: Aplicar criterio de aceite
+        if: steps.rodada.outcome == 'failure'
+        run: |
+          echo "Rodada concluiu com bloqueios; consulte o artefato." >&2
+          exit 1
