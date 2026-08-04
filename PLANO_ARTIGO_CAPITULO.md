@@ -94,7 +94,11 @@ A fonte editável é `04_artigo/artigo_classificacao_chamados_v3.md`. O PDF publ
 
 **Os novos números não são comparáveis aos legados:** a acurácia subiu para todos os sete modelos em relação ao snapshot anterior, mas isso não significa que o protocolo mais rigoroso melhorou o desempenho. Três coisas mudaram ao mesmo tempo. O rótulo deixou de ser a categoria histórica do GLPI e passou a ser a referência humana revisada, que é mais consistente e portanto mais previsível. O particionamento passou de aleatório por registro para agrupado por texto, o que deveria reduzir os números. E o denominador caiu de 56 categorias com suporte para 41. A discussão precisa apresentar os efeitos separadamente, ou o texto sugerirá um ganho que o desenho não sustenta; o par de valores por protocolo já disponível na Subseção 4.8 é o instrumento adequado para isolar o efeito do agrupamento.
 
-**Próximo passo:** executar o Passo 5, comparando os modelos puros com a camada de regras preventivas nas mesmas partições.
+**Passo 5, concluído, com resultado negativo:** a camada explícita de regras de periodicidade dispara em 4.487 dos 13.972 registros, quase um terço do corpus, mas melhora o macro-F1 de apenas três dos sete modelos. O ganho concentra-se onde o modelo é fraco: o Naive Bayes sobe 0,0585 em macro-F1 e vence 201 das 219 divergências. Nos modelos fortes o efeito desaparece ou inverte, e o LinearSVC perde 0,0017, com o modelo vencendo 13 das 31 divergências contra 11 da regra.
+
+**Como redigir esse achado:** a leitura correta não é que as regras de domínio funcionam, e sim que elas são redundantes diante de um classificador estatístico competente. Os modelos já capturam os sinais de periodicidade implicitamente a partir do texto; a camada explícita apenas repete o que eles fazem, com 4.487 disparos gerando entre 31 e 60 divergências nos modelos lineares. Isso é resultado publicável e contraria a expectativa inicial do desenho, que era medir um ganho. Sustenta também a decisão de manter o fluxo híbrido no eixo humano-IA, e não no eixo regra-modelo.
+
+**Próximo passo:** executar o Passo 6, decidindo o BERTimbau sob o mesmo protocolo de partições agrupadas ou classificando-o explicitamente como exploratório.
 
 ## Critérios para novo fechamento científico
 
