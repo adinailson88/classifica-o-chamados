@@ -110,6 +110,14 @@ A fonte editável é `04_artigo/artigo_classificacao_chamados_v3.md`. O PDF publ
 
 **Detalhe metodológico que sustenta o resultado:** parte das acurácias seletivas fica pouco abaixo do alvo, como os 0,9461 do LinearSVC contra a meta de 0,95. Isso não é defeito, é a consequência esperada de escolher o limiar numa dobra interna e aplicá-lo a dados nunca vistos. Um procedimento que atingisse o alvo exatamente em todas as dobras seria indício de que o limiar viu o teste. Convém dizer isso na redação, porque um parecerista atento vai reparar na diferença.
 
+**Recortes por tipo e por volume, refeitos sob o protocolo canônico:** os recortes consolidados no item 0.31 do `CONTEXTO.md` existiam apenas para a execução legada e agora saem da mesma rodada, com o mesmo `hash_corpus`. Os três tipos preservam a proporção medida em agosto: Corretiva com 8.483 chamados em 21 categorias, Preventiva com 4.904 em 13 e Não manutenção com 585 em 7, ou 4,2%.
+
+**O achado que o recorte por tipo isola:** distinguir a natureza do serviço é tarefa quase resolvida, enquanto escolher a folha da taxonomia não é. Na tarefa de tipo projetada, o Extra Trees alcança 0,9499 de acurácia, com F1 de 0,9762 em preventiva e 0,9598 em corretiva. Na tarefa de categoria, o mesmo recorte preventivo dá 0,9621 de acurácia contra 0,7468 em corretiva. Preventiva é sistematicamente mais fácil, porque seus chamados são padronizados e repetitivos, o que também explica a concentração de duplicatas textuais.
+
+**Não manutenção é o problema, não a preventiva:** o F1 desse tipo fica entre 0,2684 e 0,5319 conforme o modelo, e é ele que puxa o macro-F1 da tarefa de tipo para a faixa de 0,73 a 0,82, apesar da acurácia acima de 0,93. Vale notar a inversão de ranking: o Extra Trees vence em acurácia, mas o SGD e o LinearSVC vencem em macro-F1, justamente por irem melhor na classe difícil. Reportar só a acurácia esconderia isso.
+
+**Curva ABC:** a classe A reúne 12 categorias e 81,8% do volume, com o LinearSVC em 0,8544 de acurácia e 0,8210 de macro-F1; a classe C reúne 17 categorias e 4,5% do volume, com 0,5580 e 0,5041. É esse contraste que localiza na cauda a distância entre a acurácia de 0,83 e o macro-F1 de 0,67. Dentro da preventiva, a classe A chega a 0,9743 de macro-F1, quase saturada.
+
 **Próximo passo:** executar o Passo 8, de inferência estatística, com bootstrap por grupo textual.
 
 ## Critérios para novo fechamento científico

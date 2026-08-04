@@ -30,6 +30,7 @@ import calibrar_confianca as cal  # noqa: E402
 import comparar_regras_modelos as crm  # noqa: E402
 import construir_grupos_textuais as cgt  # noqa: E402
 import planilha as pl  # noqa: E402
+import recortes_canonicos as rec  # noqa: E402
 import retreinar_modelos_canonicos as rmc  # noqa: E402
 from tempo import agora_bahia  # noqa: E402
 
@@ -154,6 +155,15 @@ def main() -> int:
         gravar(cal.SAIDA_JSON_PADRAO, cal.SAIDA_MD_PADRAO, calibracao,
                cal.renderizar_markdown(calibracao))
 
+    # ---- recortes por tipo e por volume ---------------------------------
+    pares = {r["modelo"]: list(zip(corpus["rotulos"], r["_predicoes"]))
+             for r in retreino["_resultados"]}
+    recortes = rec.montar_relatorio(pares, {"hash_corpus": impressao})
+    recortes["script_origem"] = "src/executar_rodada_canonica.py"
+    carimbar(recortes, impressao, quando, corpus)
+    gravar(rec.SAIDA_JSON_PADRAO, rec.SAIDA_MD_PADRAO, recortes,
+           rec.renderizar_markdown(recortes))
+
     # ---- manifesto -------------------------------------------------------
     manifesto = {
         "schema_version": 1,
@@ -179,6 +189,8 @@ def main() -> int:
             "7_calibracao": ({"status": calibracao["status"],
                               "arquivo": "docs/dados/calibracao_canonica.json"}
                              if calibracao else {"status": "nao_executado"}),
+            "recortes": {"status": recortes["status"],
+                         "arquivo": "docs/dados/recortes_canonicos.json"},
         },
         "garantia": ("os tres passos usaram a mesma leitura da aba e o mesmo "
                      "corpus em memoria; artefatos com hash_corpus igual sao "
