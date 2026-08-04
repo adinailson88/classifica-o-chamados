@@ -117,6 +117,9 @@ def avaliar_modelo(nome: str, corpus: dict[str, Any],
     grupos, dobras = corpus["grupos"], corpus["dobras"]
     n = len(textos)
     preditos: list[str | None] = [None] * n
+    # Escore de confianca do proprio modelo, sem calibracao. O Passo 7 depende
+    # dele para medir ECE e escolher limiares.
+    escores: list[float | None] = [None] * n
     vazamentos = 0
     tempo_treino = tempo_inferencia = 0.0
 
@@ -134,10 +137,11 @@ def avaliar_modelo(nome: str, corpus: dict[str, Any],
         tempo_treino += time.perf_counter() - inicio
 
         inicio = time.perf_counter()
-        p, _ = modelo.predict_score([textos[i] for i in teste])
+        p, s_conf = modelo.predict_score([textos[i] for i in teste])
         tempo_inferencia += time.perf_counter() - inicio
         for j, i in enumerate(teste):
             preditos[i] = str(p[j])
+            escores[i] = float(s_conf[j])
         registrar(f"[retreino] {nome}: dobra {dobra} concluida "
                   f"({len(treino)} treino / {len(teste)} teste)")
     _atual, pico = tracemalloc.get_traced_memory()
@@ -158,6 +162,7 @@ def avaliar_modelo(nome: str, corpus: dict[str, Any],
         "registros_sem_predicao": sem_predicao,
         "grupos_vazados_para_o_treino": vazamentos,
         "_predicoes": y_pred,
+        "_escores": [0.0 if e is None else e for e in escores],
     }
 
 
@@ -281,12 +286,13 @@ def escrever_predicoes(caminho: Path, corpus: dict[str, Any],
     with caminho.open("w", encoding="utf-8", newline="") as f:
         escritor = csv.writer(f)
         escritor.writerow(["id_sha256", "dobra", "referencia_humana",
-                           "modelo", "previsto"])
+                           "modelo", "previsto", "confianca"])
         for r in resultados:
-            for chave, dobra, verdade, previsto in zip(
+            for chave, dobra, verdade, previsto, escore in zip(
                     corpus["chaves"], corpus["dobras"], corpus["rotulos"],
-                    r["_predicoes"]):
-                escritor.writerow([chave, dobra, verdade, r["modelo"], previsto])
+                    r["_predicoes"], r["_escores"]):
+                escritor.writerow([chave, dobra, verdade, r["modelo"], previsto,
+                                   round(escore, 6)])
 
 
 def parse_args() -> argparse.Namespace:

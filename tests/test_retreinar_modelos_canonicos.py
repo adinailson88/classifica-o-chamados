@@ -21,8 +21,15 @@ def sha(id_):
     return hashlib.sha256(id_.encode("utf-8")).hexdigest()
 
 
+# Vocabulário compartilhado pelas duas categorias. Sem ele, o corpus fica
+# separável demais e todos os registros recebem a mesma confiança, o que
+# impediria testar a variação do escore.
+RUIDO = ("bloco a", "pavilhao central", "sala de aula", "corredor",
+         "urgente hoje", "chamado reaberto", "setor administrativo")
+
+
 def corpus_sintetico(por_categoria=25):
-    """Duas categorias linguisticamente separaveis, em cinco dobras."""
+    """Duas categorias separáveis, com ruído lexical comum, em cinco dobras."""
     registros, particoes = [], {}
     n = 0
     for cat, termo in (("Cat Eletrica", "lampada queimada disjuntor tomada"),
@@ -30,7 +37,8 @@ def corpus_sintetico(por_categoria=25):
         for i in range(por_categoria):
             n += 1
             id_ = str(n)
-            registros.append(registro(id_, f"{termo} ocorrencia {i}", historico=cat))
+            texto = f"{termo} ocorrencia {i} {RUIDO[n % len(RUIDO)]}"
+            registros.append(registro(id_, texto, historico=cat))
             particoes[sha(id_)] = (i % 5) + 1
     return registros, particoes
 
@@ -115,6 +123,29 @@ class TestRetreinoCanonico(unittest.TestCase):
         self.assertEqual(len(linhas[0]["id_sha256"]), 64)
         self.assertIn(int(linhas[0]["dobra"]), {1, 2, 3, 4, 5})
         self.assertEqual(linhas[0]["modelo"], "naive_bayes")
+
+    def test_predicoes_trazem_a_confianca_do_modelo(self):
+        import csv
+        import tempfile
+        rel = rmc.montar_relatorio(self.corpus, ["naive_bayes"],
+                                   registrar=self.silencio)
+        with tempfile.TemporaryDirectory() as d:
+            destino = Path(d) / "pred.csv"
+            rmc.escrever_predicoes(destino, self.corpus, rel["_resultados"])
+            with destino.open(encoding="utf-8") as f:
+                linhas = list(csv.DictReader(f))
+        self.assertIn("confianca", linhas[0])
+        for linha in linhas:
+            confianca = float(linha["confianca"])
+            self.assertGreaterEqual(confianca, 0.0)
+            self.assertLessEqual(confianca, 1.0)
+        # Escores constantes indicariam que o campo não veio do modelo.
+        self.assertGreater(len({l["confianca"] for l in linhas}), 1)
+
+    def test_escore_acompanha_cada_predicao(self):
+        r = rmc.avaliar_modelo("naive_bayes", self.corpus, self.silencio)
+        self.assertEqual(len(r["_escores"]), len(r["_predicoes"]))
+        self.assertTrue(all(isinstance(e, float) for e in r["_escores"]))
 
     def test_registro_do_corpus_sem_rotulo_bloqueia(self):
         registros, particoes = corpus_sintetico()
