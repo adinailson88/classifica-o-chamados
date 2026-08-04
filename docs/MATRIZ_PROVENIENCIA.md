@@ -3,7 +3,7 @@
 > Relatório sanitizado e somente leitura. Não contém títulos, descrições ou IDs de chamados.
 
 **Estado:** `concluido`  
-**Gerado em:** 04/08/2026 14:12  
+**Gerado em:** 04/08/2026 17:51  
 **Hash do corpus:** `3aa42e314459787ef12ccc778dfa1368e89d81c4863108042d59a1a9343ec3ff`
 
 ## Coerência dos artefatos derivados
@@ -42,7 +42,7 @@ Definem o corpus e por isso não carregam `hash_corpus`: ele é derivado deles.
 
 ## Números legados ainda presentes no artigo
 
-Encontradas 35 ocorrências em `04_artigo/artigo_classificacao_chamados_v3.md`. a varredura do artigo aponta, nunca corrige: substituir numero em texto cientifico e decisao editorial do autor.
+Encontradas 34 ocorrências em `04_artigo/artigo_classificacao_chamados_v3.md`. a varredura do artigo aponta, nunca corrige: substituir numero em texto cientifico e decisao editorial do autor.
 
 | Linha | Forma no texto | Valor legado |
 |---:|---|---|
@@ -80,7 +80,6 @@ Encontradas 35 ocorrências em `04_artigo/artigo_classificacao_chamados_v3.md`. 
 | 2004 | `14.058` | corpus legado |
 | 2043 | `14.058` | corpus legado |
 | 2062 | `14.058` | corpus legado |
-| 2105 | `0,69` | acuracia legada de lstm |
 
 ## Validações
 
@@ -88,7 +87,7 @@ Encontradas 35 ocorrências em `04_artigo/artigo_classificacao_chamados_v3.md`. 
 |---|---:|
 | artefatos com hash divergente | 0 |
 | artefatos do congelamento ausentes | 0 |
-| numeros legados ainda no artigo | 35 |
+| numeros legados ainda no artigo | 34 |
 
 **Cobertura da varredura:** sao procuradas as acuracias registradas em estatistica.json, o total de chamados e a contagem de categorias da execucao legada. O artigo pode conter numeros de rodadas intermediarias que nao estao em nenhum JSON versionado, e esses a varredura nao alcanca; a contagem e piso, nao teto.
 

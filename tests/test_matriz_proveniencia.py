@@ -71,7 +71,17 @@ class TestFormatos(unittest.TestCase):
         formas = mp._formatos(0.8046)
         self.assertIn("0.8046", formas)
         self.assertIn("0,8046", formas)
-        self.assertIn("0,80", formas)
+        self.assertIn("0,805", formas)
+
+    def test_nao_gera_duas_casas(self):
+        """Duas casas colidem com percentuais e células de tabela.
+
+        A varredura chegou a acusar `0,69` numa coluna de percentual de volume
+        como se fosse a acurácia legada do LSTM.
+        """
+        formas = mp._formatos(0.6915)
+        self.assertNotIn("0,69", formas)
+        self.assertNotIn("0.69", formas)
 
 
 class TestAuditoriaDoArtigo(unittest.TestCase):

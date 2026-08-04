@@ -103,9 +103,15 @@ def verificar_coerencia(dados: Path = DADOS) -> dict[str, Any]:
 
 
 def _formatos(valor: float) -> set[str]:
-    """Como um numero pode aparecer no texto: com ponto e com virgula."""
+    """Como um numero pode aparecer no texto: com ponto e com virgula.
+
+    Duas casas ficam de fora de proposito. Uma acuracia de 0,6915 truncada em
+    0,69 colide com qualquer percentual, proporcao ou celula de tabela do
+    artigo, e o alarme falso resultante custa mais atencao do que a ocorrencia
+    verdadeira que eventualmente encontraria.
+    """
     saida: set[str] = set()
-    for casas in (2, 3, 4):
+    for casas in (3, 4):
         texto = f"{valor:.{casas}f}"
         saida.add(texto)
         saida.add(texto.replace(".", ","))
