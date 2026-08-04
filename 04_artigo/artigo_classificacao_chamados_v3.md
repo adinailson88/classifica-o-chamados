@@ -743,7 +743,7 @@ humana.
 \FloatBarrier
 ```
 
-**4.1 Concordância com o histórico (base completa)**
+**4.1 Concordância com a categoria histórica**
 
 A comparação contra a categoria histórica, sobre as predições
 *out-of-fold* da rodada canônica (n = 13.972), mantém o LinearSVC na
@@ -794,7 +794,7 @@ suporte, tipo e classe de volume, consta da Tabela A2.
 \FloatBarrier
 ```
 
-**4.2 Ranking validado por conferência humana**
+**4.2 Acerto contra a referência humana final**
 
 A conferência humana estabeleceu categoria de referência para a
 totalidade dos 14.060 chamados da base congelada, e a avaliação incide
@@ -874,7 +874,7 @@ direta.
 \FloatBarrier
 ```
 
-**4.4 Confiança, calibração e faixas de decisão**
+**4.4 Calibração e automação seletiva por confiança**
 
 A confiança bruta dos classificadores não é probabilidade e não pode
 sustentar decisão operacional sem tratamento. O erro de calibração
@@ -1065,8 +1065,6 @@ pelas fronteiras internas de estrutura predial.
 
 ![Quinze pares de categorias com maior confusão recíproca, agregados entre modelos. Os códigos do eixo vertical estão descritos no material suplementar.](04_artigo/figuras/fig_top_confusoes.pdf){width=95%}
 
-![Trade-off entre acurácia e tempo de treino, modelos clássicos.](04_artigo/figuras/fig_tradeoff_custo.pdf){width=95%}
-
 ```{=latex}
 \FloatBarrier
 ```
@@ -1111,7 +1109,10 @@ inteira e o do transformador, a uma dobra da validação cruzada.
 
 A Figura 6 cruza essas medições de custo com a acurácia da Tabela 2 e
 mostra que o LinearSVC ocupa a posição mais favorável, com a maior
-acurácia a um custo de treino próximo do menor observado. O argumento de
+acurácia a um custo de treino próximo do menor observado.
+
+![Trade-off entre acurácia e tempo de treino, modelos clássicos.](04_artigo/figuras/fig_tradeoff_custo.pdf){width=95%}
+ O argumento de
 eficiência da Subseção 2.4 se sustenta em duas frentes. Contra o LSTM, a
 comparação é direta e desfavorável ao modelo neural, que custa 34 vezes
 mais para perder 9,7 pontos percentuais de acurácia. Contra o BERTimbau,
