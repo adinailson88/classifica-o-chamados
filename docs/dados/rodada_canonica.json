@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "gerado_em": "03/08/2026 22:44",
-  "hash_corpus": "3aa42e314459787ef12ccc778dfa1368e89d81c4863108042d59a1a9343ec3ff",
+  "gerado_em": "04/08/2026 18:32",
+  "hash_corpus": "1e4762438a7e3627d3e32c1025f6bcb169e786881d8e86207806fdf98846409a",
   "fonte": "CHAMADOS_ESQUELETO_REDUZIDO",
   "semente": 42,
   "modelos": [
@@ -18,8 +18,8 @@
     "grupos_textuais": 9734,
     "categorias": 41,
     "dobras": 5,
-    "linhas_fora_das_particoes": 101,
-    "linhas_com_texto_alterado_apos_o_congelamento": 2
+    "linhas_fora_das_particoes": 110,
+    "linhas_com_texto_alterado_apos_o_congelamento": 3
   },
   "passos": {
     "4_retreino": {
@@ -33,6 +33,18 @@
     "7_calibracao": {
       "status": "concluido",
       "arquivo": "docs/dados/calibracao_canonica.json"
+    },
+    "recortes": {
+      "status": "concluido",
+      "arquivo": "docs/dados/recortes_canonicos.json"
+    },
+    "comparacao_historica": {
+      "status": "concluido",
+      "arquivo": "docs/dados/comparacao_historica.json"
+    },
+    "custo_computacional": {
+      "status": "concluido",
+      "arquivo": "docs/dados/custo_computacional_canonico.json"
     }
   },
   "garantia": "os tres passos usaram a mesma leitura da aba e o mesmo corpus em memoria; artefatos com hash_corpus igual sao mutuamente consistentes"
