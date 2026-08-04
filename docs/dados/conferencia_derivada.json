@@ -1,60 +1,60 @@
 {
- "total_chamados": 14075,
+ "total_chamados": 14078,
  "com_conferencia_glpi": 14060,
  "verdade_glpi": 13462,
  "verdade_manual": 598,
  "pendente_glpi_errado_sem_q": 0,
- "sem_conferencia": 15,
+ "sem_conferencia": 18,
  "correto_com_q_preenchida": 0,
  "errado_com_q_igual_a_c": 0,
  "por_modelo": {
   "naive_bayes": {
-   "correto": 9977,
-   "errado": 4083,
+   "correto": 9978,
+   "errado": 4082,
    "pendente": 0,
    "sem_predicao": 0,
    "avaliados": 14060,
-   "acuracia": 0.7096
+   "acuracia": 0.7097
   },
   "regressao_logistica": {
-   "correto": 11218,
-   "errado": 2842,
+   "correto": 11220,
+   "errado": 2840,
    "pendente": 0,
    "sem_predicao": 0,
    "avaliados": 14060,
-   "acuracia": 0.7979
+   "acuracia": 0.798
   },
   "linear_svc": {
-   "correto": 11541,
-   "errado": 2519,
+   "correto": 11543,
+   "errado": 2517,
    "pendente": 0,
    "sem_predicao": 0,
    "avaliados": 14060,
-   "acuracia": 0.8208
+   "acuracia": 0.821
   },
   "sgd": {
-   "correto": 11284,
-   "errado": 2776,
+   "correto": 11286,
+   "errado": 2774,
    "pendente": 0,
    "sem_predicao": 0,
    "avaliados": 14060,
-   "acuracia": 0.8026
+   "acuracia": 0.8027
   },
   "extra_trees": {
-   "correto": 11235,
-   "errado": 2825,
+   "correto": 11237,
+   "errado": 2823,
    "pendente": 0,
    "sem_predicao": 0,
    "avaliados": 14060,
-   "acuracia": 0.7991
+   "acuracia": 0.7992
   },
   "random_forest": {
-   "correto": 11113,
-   "errado": 2947,
+   "correto": 11114,
+   "errado": 2946,
    "pendente": 0,
    "sem_predicao": 0,
    "avaliados": 14060,
-   "acuracia": 0.7904
+   "acuracia": 0.7905
   },
   "lstm": {
    "correto": 10000,
@@ -104,7 +104,7 @@
  "categorias_distintas_q": 26,
  "ids_correto_com_q_preenchida": [],
  "ids_errado_com_q_igual_a_c": [],
- "gerado_em": "04/08/2026 06:19",
+ "gerado_em": "04/08/2026 11:58",
  "aba": "CONFERENCIA_MULTIMODELO",
  "regra": "M='Correto' -> verdade = C; M='Errado' + Q preenchida -> verdade = Q; M='Errado' sem Q -> pendente; M vazio -> ignorado"
 }
