@@ -304,7 +304,7 @@ A preservação do snapshot permite auditoria histórica e comparação metodol�
 | PR-0 | registrar plano, README e estado da rodada | nenhuma | concluído — [PR #164](https://github.com/adinailson88/classificacao-chamados/pull/164) |
 | PR-1 | Passo 1: base e taxonomia canônicas | PR-0 | concluído — ferramenta no [PR #166](https://github.com/adinailson88/classificacao-chamados/pull/166) e auditoria final `apto_para_congelar` |
 | PR-2 | Passos 2 e 3: grupos e partições | PR-1 | concluído — 9.786 grupos textuais e partições canônicas em cinco dobras, `apto_para_treinar` |
-| PR-3 | Passos 4 e 5: sete modelos e regras | PR-2 | pendente |
+| PR-3 | Passos 4 e 5: sete modelos e regras | PR-2 | em execução — Passo 4 concluído com predições *out-of-fold* dos sete modelos; falta o Passo 5, das regras preventivas |
 | PR-4 | Passo 6: BERTimbau | PR-2 | pendente |
 | PR-5 | Passos 7 e 8: calibração e estatística | PR-3 e PR-4 | pendente |
 | PR-6 | Passo 9: validação humana | protocolo aprovado | pendente externo |
@@ -319,6 +319,7 @@ A preservação do snapshot permite auditoria histórica e comparação metodol�
 | 03/08/2026 | 1 | concluído | [workflow final](https://github.com/adinailson88/classificacao-chamados/actions/runs/30780457229), artefato `8844276140`, 14.060/14.060 referências válidas, 50/50 categorias e hash `e10c78e4db0026cfcbfa5267ddac034a3c8d3a7a0a1d63fa0cf2ce52f165b174` | executar o Passo 2: normalizar os quatro campos textuais e construir grupos de textos idênticos |
 | 03/08/2026 | 2 | concluído | [PR #168](https://github.com/adinailson88/classificacao-chamados/pull/168), merge `b990cbe4`, [workflow](https://github.com/adinailson88/classificacao-chamados/actions/runs/30784573148); 14.060 linhas em 9.786 grupos textuais, 9.474 unitários, 4.586 linhas com duplicata (32,62%), maior grupo com 219 linhas, nenhum grupo maior que uma dobra e hash do mapa `ab352b9424e31d2644ed6d075643adf562acc38767e0098eed77595e2dea0bb6` | executar o Passo 3: `StratifiedGroupKFold` com k=5 e semente fixa sobre os grupos congelados |
 | 03/08/2026 | 3 | concluído | [PR #171](https://github.com/adinailson88/classificacao-chamados/pull/171) e [PR #172](https://github.com/adinailson88/classificacao-chamados/pull/172), [workflow](https://github.com/adinailson88/classificacao-chamados/actions/runs/30861272862); 13.972 linhas em 9.734 grupos, cinco dobras de 2.556 a 3.045 linhas, nenhum grupo dividido, 41 das 50 categorias com suporte em todas as dobras, 88 linhas fora por suporte insuficiente e hash do mapa `9465857d83ba76ec193974982835d91e03e783587153e26597051d4dfd9abcf2` | executar o Passo 4: retreinar os sete modelos sobre estas partições, com a referência humana como rótulo |
+| 03/08/2026 | 4 | concluído | [PR #174](https://github.com/adinailson88/classificacao-chamados/pull/174), [workflow](https://github.com/adinailson88/classificacao-chamados/actions/runs/30861802691); 13.972 linhas e 41 categorias, predição *out-of-fold* para todos os registros nos sete modelos, zero vazamento de grupo; melhor macro-F1 `regressao_logistica` (0,6697) e melhor acurácia `linear_svc` (0,8252) | executar o Passo 5: comparar os modelos puros com a camada de regras preventivas nas mesmas partições |
 
 Estados permitidos: `pendente`, `em execução`, `bloqueado`, `concluído`, `substituído`.
 

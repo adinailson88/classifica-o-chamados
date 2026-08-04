@@ -90,7 +90,11 @@ A fonte editável é `04_artigo/artigo_classificacao_chamados_v3.md`. O PDF publ
 
 **Base congelada de fato:** a auditoria do Passo 1 documentou o corpus, mas a aba principal continua viva e recebeu treze chamados entre a auditoria e o particionamento. As partições passaram a ser fixadas pelo mapa de grupos textuais versionado, de modo que o crescimento operacional da planilha não altera o experimento. Essa distinção entre corpus documentado e corpus fixado merece uma frase no método.
 
-**Próximo passo:** executar o Passo 4, retreinando os sete modelos sobre estas partições, com a referência humana revisada como rótulo.
+**Passo 4, concluído:** os sete modelos foram retreinados sobre as partições canônicas, com a referência humana revisada como rótulo e predição *out-of-fold* para todos os 13.972 registros. Nenhum modelo treinou no grupo textual que previu. A regressão logística lidera em macro-F1, com 0,6697, e o LinearSVC em acurácia, com 0,8252; o Naive Bayes tem acurácia de 0,7086 mas macro-F1 de 0,2951, o que confirma que ele acerta a cauda pesada e falha nas categorias menores.
+
+**Os novos números não são comparáveis aos legados:** a acurácia subiu para todos os sete modelos em relação ao snapshot anterior, mas isso não significa que o protocolo mais rigoroso melhorou o desempenho. Três coisas mudaram ao mesmo tempo. O rótulo deixou de ser a categoria histórica do GLPI e passou a ser a referência humana revisada, que é mais consistente e portanto mais previsível. O particionamento passou de aleatório por registro para agrupado por texto, o que deveria reduzir os números. E o denominador caiu de 56 categorias com suporte para 41. A discussão precisa apresentar os efeitos separadamente, ou o texto sugerirá um ganho que o desenho não sustenta; o par de valores por protocolo já disponível na Subseção 4.8 é o instrumento adequado para isolar o efeito do agrupamento.
+
+**Próximo passo:** executar o Passo 5, comparando os modelos puros com a camada de regras preventivas nas mesmas partições.
 
 ## Critérios para novo fechamento científico
 
