@@ -126,7 +126,13 @@ A fonte editável é `04_artigo/artigo_classificacao_chamados_v3.md`. O PDF publ
 
 **Cuidado com o par na fronteira:** os 0,050 de Random Forest contra Regressão Logística ficam exatamente sobre o limiar. É prudente descrevê-lo como indistinguível dentro do poder do teste, em vez de reportá-lo como diferença marginal, porque a leitura oposta depende inteiramente de uma casa decimal.
 
-**Próximo passo:** executar o Passo 10, de proveniência e artefatos. O Passo 9, da segunda validação humana cega, é dependência externa.
+**Passo 10, parte automatizável concluída:** a matriz de proveniência liga cada grandeza publicável ao artefato, ao script, ao denominador de 13.972, às 41 categorias, às cinco partições e ao hash `3aa42e31`. Os cinco artefatos derivados conferem o mesmo hash e os três do congelamento estão presentes.
+
+**O que a varredura encontrou:** 35 ocorrências de números da execução legada ainda na fonte do artigo, das quais 31 são o total de 14.058 chamados, que passa a ser 13.972. A substituição é editorial e cabe a você; a ferramenta aponta linha e forma, e nunca edita o texto.
+
+**Limite declarado da varredura:** ela procura as acurácias registradas em `estatistica.json`, o total de chamados e a contagem de categorias. O artigo pode conter números de rodadas intermediárias que não estão em nenhum JSON versionado, como o 0,8197 e o 0,5523 da consolidação de agosto, e esses ela não alcança. A contagem é piso, não teto, e a revisão manual continua necessária.
+
+**Próximo passo:** substituir os números legados no artigo e executar o Passo 11, de redução e reescrita editorial. O Passo 9, da segunda validação humana cega, é dependência externa.
 
 ## Critérios para novo fechamento científico
 

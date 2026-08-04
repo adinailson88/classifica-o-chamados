@@ -1,0 +1,344 @@
+{
+  "schema_version": 1,
+  "status": "concluido",
+  "hash_corpus": "3aa42e314459787ef12ccc778dfa1368e89d81c4863108042d59a1a9343ec3ff",
+  "coerencia": {
+    "hash_esperado": "3aa42e314459787ef12ccc778dfa1368e89d81c4863108042d59a1a9343ec3ff",
+    "artefatos": [
+      {
+        "artefato": "Retreino dos sete modelos",
+        "arquivo": "docs/dados/retreino_canonico.json",
+        "script": "src/retreinar_modelos_canonicos.py",
+        "hash_corpus": "3aa42e314459787ef12ccc778dfa1368e89d81c4863108042d59a1a9343ec3ff",
+        "ausente": false,
+        "coerente": true
+      },
+      {
+        "artefato": "Regras contra modelos",
+        "arquivo": "docs/dados/regras_versus_modelos.json",
+        "script": "src/comparar_regras_modelos.py",
+        "hash_corpus": "3aa42e314459787ef12ccc778dfa1368e89d81c4863108042d59a1a9343ec3ff",
+        "ausente": false,
+        "coerente": true
+      },
+      {
+        "artefato": "Calibracao e automacao seletiva",
+        "arquivo": "docs/dados/calibracao_canonica.json",
+        "script": "src/calibrar_confianca.py",
+        "hash_corpus": "3aa42e314459787ef12ccc778dfa1368e89d81c4863108042d59a1a9343ec3ff",
+        "ausente": false,
+        "coerente": true
+      },
+      {
+        "artefato": "Recortes por tipo e volume",
+        "arquivo": "docs/dados/recortes_canonicos.json",
+        "script": "src/recortes_canonicos.py",
+        "hash_corpus": "3aa42e314459787ef12ccc778dfa1368e89d81c4863108042d59a1a9343ec3ff",
+        "ausente": false,
+        "coerente": true
+      },
+      {
+        "artefato": "Inferencia estatistica",
+        "arquivo": "docs/dados/inferencia_canonica.json",
+        "script": "src/inferencia_canonica.py",
+        "hash_corpus": "3aa42e314459787ef12ccc778dfa1368e89d81c4863108042d59a1a9343ec3ff",
+        "ausente": false,
+        "coerente": true
+      }
+    ],
+    "divergentes": 0
+  },
+  "congelamento": [
+    {
+      "artefato": "Auditoria da base",
+      "arquivo": "docs/dados/auditoria_base_canonica.json",
+      "script": "src/auditar_base_canonica.py",
+      "presente": true
+    },
+    {
+      "artefato": "Grupos textuais",
+      "arquivo": "docs/dados/grupos_textuais.json",
+      "script": "src/construir_grupos_textuais.py",
+      "presente": true
+    },
+    {
+      "artefato": "Particoes canonicas",
+      "arquivo": "docs/dados/particoes_canonicas.json",
+      "script": "src/gerar_particoes_canonicas.py",
+      "presente": true
+    }
+  ],
+  "matriz": [
+    {
+      "grandeza": "Acuracia e macro-F1 por modelo",
+      "artefato": "docs/RETREINO_CANONICO.md",
+      "script": "src/retreinar_modelos_canonicos.py",
+      "denominador": 13972,
+      "categorias": 41,
+      "particoes": 5,
+      "hash_corpus": "3aa42e314459"
+    },
+    {
+      "grandeza": "Ganho ou perda da camada de regras",
+      "artefato": "docs/REGRAS_VERSUS_MODELOS.md",
+      "script": "src/comparar_regras_modelos.py",
+      "denominador": 13972,
+      "categorias": 41,
+      "particoes": 5,
+      "hash_corpus": "3aa42e314459"
+    },
+    {
+      "grandeza": "ECE, Brier e curva de confiabilidade",
+      "artefato": "docs/CALIBRACAO_CANONICA.md",
+      "script": "src/calibrar_confianca.py",
+      "denominador": 13972,
+      "categorias": 41,
+      "particoes": 5,
+      "hash_corpus": "3aa42e314459"
+    },
+    {
+      "grandeza": "Cobertura e acuracia seletiva por limiar",
+      "artefato": "docs/CALIBRACAO_CANONICA.md",
+      "script": "src/calibrar_confianca.py",
+      "denominador": 13972,
+      "categorias": 41,
+      "particoes": 5,
+      "hash_corpus": "3aa42e314459"
+    },
+    {
+      "grandeza": "Recorte por tipo e tarefa de tipo",
+      "artefato": "docs/RECORTES_CANONICOS.md",
+      "script": "src/recortes_canonicos.py",
+      "denominador": 13972,
+      "categorias": 41,
+      "particoes": 5,
+      "hash_corpus": "3aa42e314459"
+    },
+    {
+      "grandeza": "Curva ABC por volume",
+      "artefato": "docs/RECORTES_CANONICOS.md",
+      "script": "src/recortes_canonicos.py",
+      "denominador": 13972,
+      "categorias": 41,
+      "particoes": 5,
+      "hash_corpus": "3aa42e314459"
+    },
+    {
+      "grandeza": "Intervalos de confianca",
+      "artefato": "docs/INFERENCIA_CANONICA.md",
+      "script": "src/inferencia_canonica.py",
+      "denominador": 13972,
+      "categorias": 41,
+      "particoes": 5,
+      "hash_corpus": "3aa42e314459"
+    },
+    {
+      "grandeza": "Cochran Q e McNemar com Holm",
+      "artefato": "docs/INFERENCIA_CANONICA.md",
+      "script": "src/inferencia_canonica.py",
+      "denominador": 13972,
+      "categorias": 41,
+      "particoes": 5,
+      "hash_corpus": "3aa42e314459"
+    },
+    {
+      "grandeza": "Custo computacional do BERTimbau",
+      "artefato": "docs/CUSTO_BERTIMBAU.md",
+      "script": "src/medir_custo_bertimbau.py",
+      "denominador": 13972,
+      "categorias": 41,
+      "particoes": 5,
+      "hash_corpus": "3aa42e314459"
+    }
+  ],
+  "auditoria_do_artigo": {
+    "arquivo": "04_artigo/artigo_classificacao_chamados_v3.md",
+    "lido": true,
+    "ocorrencias": [
+      {
+        "valor_legado": "corpus legado",
+        "forma": "14.058",
+        "linha": 79
+      },
+      {
+        "valor_legado": "corpus legado",
+        "forma": "14.058",
+        "linha": 89
+      },
+      {
+        "valor_legado": "corpus legado",
+        "forma": "14,058",
+        "linha": 120
+      },
+      {
+        "valor_legado": "corpus legado",
+        "forma": "14,058",
+        "linha": 129
+      },
+      {
+        "valor_legado": "corpus legado",
+        "forma": "14.058",
+        "linha": 231
+      },
+      {
+        "valor_legado": "corpus legado",
+        "forma": "14.058",
+        "linha": 434
+      },
+      {
+        "valor_legado": "corpus legado",
+        "forma": "14.058",
+        "linha": 451
+      },
+      {
+        "valor_legado": "corpus legado",
+        "forma": "14.058",
+        "linha": 576
+      },
+      {
+        "valor_legado": "corpus legado",
+        "forma": "14.058",
+        "linha": 666
+      },
+      {
+        "valor_legado": "corpus legado",
+        "forma": "14.058",
+        "linha": 722
+      },
+      {
+        "valor_legado": "corpus legado",
+        "forma": "14.058",
+        "linha": 824
+      },
+      {
+        "valor_legado": "corpus legado",
+        "forma": "14.058",
+        "linha": 825
+      },
+      {
+        "valor_legado": "corpus legado",
+        "forma": "14.058",
+        "linha": 845
+      },
+      {
+        "valor_legado": "corpus legado",
+        "forma": "14.058",
+        "linha": 850
+      },
+      {
+        "valor_legado": "corpus legado",
+        "forma": "14.058",
+        "linha": 866
+      },
+      {
+        "valor_legado": "corpus legado",
+        "forma": "14.058",
+        "linha": 896
+      },
+      {
+        "valor_legado": "corpus legado",
+        "forma": "14.058",
+        "linha": 928
+      },
+      {
+        "valor_legado": "corpus legado",
+        "forma": "14.058",
+        "linha": 987
+      },
+      {
+        "valor_legado": "corpus legado",
+        "forma": "14.058",
+        "linha": 1013
+      },
+      {
+        "valor_legado": "corpus legado",
+        "forma": "14.058",
+        "linha": 1082
+      },
+      {
+        "valor_legado": "corpus legado",
+        "forma": "14.058",
+        "linha": 1195
+      },
+      {
+        "valor_legado": "corpus legado",
+        "forma": "14.058",
+        "linha": 1224
+      },
+      {
+        "valor_legado": "corpus legado",
+        "forma": "14.058",
+        "linha": 1262
+      },
+      {
+        "valor_legado": "corpus legado",
+        "forma": "14.058",
+        "linha": 1304
+      },
+      {
+        "valor_legado": "categorias legadas",
+        "forma": "56 categorias",
+        "linha": 1375
+      },
+      {
+        "valor_legado": "corpus legado",
+        "forma": "14.058",
+        "linha": 1400
+      },
+      {
+        "valor_legado": "categorias legadas",
+        "forma": "56 categorias",
+        "linha": 1401
+      },
+      {
+        "valor_legado": "corpus legado",
+        "forma": "14.058",
+        "linha": 1444
+      },
+      {
+        "valor_legado": "categorias legadas",
+        "forma": "56 categorias",
+        "linha": 1463
+      },
+      {
+        "valor_legado": "corpus legado",
+        "forma": "14.058",
+        "linha": 1543
+      },
+      {
+        "valor_legado": "corpus legado",
+        "forma": "14.058",
+        "linha": 1712
+      },
+      {
+        "valor_legado": "corpus legado",
+        "forma": "14.058",
+        "linha": 2004
+      },
+      {
+        "valor_legado": "corpus legado",
+        "forma": "14.058",
+        "linha": 2043
+      },
+      {
+        "valor_legado": "corpus legado",
+        "forma": "14.058",
+        "linha": 2062
+      },
+      {
+        "valor_legado": "acuracia legada de lstm",
+        "forma": "0,69",
+        "linha": 2105
+      }
+    ]
+  },
+  "problemas": {
+    "artefatos_com_hash_divergente": 0,
+    "artefatos_do_congelamento_ausentes": 0,
+    "numeros_legados_ainda_no_artigo": 35
+  },
+  "nota": "a varredura do artigo aponta, nunca corrige: substituir numero em texto cientifico e decisao editorial do autor",
+  "cobertura_da_varredura": "sao procuradas as acuracias registradas em estatistica.json, o total de chamados e a contagem de categorias da execucao legada. O artigo pode conter numeros de rodadas intermediarias que nao estao em nenhum JSON versionado, e esses a varredura nao alcanca; a contagem e piso, nao teto",
+  "gerado_em": "04/08/2026 14:12",
+  "script_origem": "src/matriz_proveniencia.py"
+}
