@@ -1,0 +1,170 @@
+#!/usr/bin/env python3
+"""Tabelas suplementares S7 a S11, a partir da rodada canonica.
+
+O Passo 11 do plano manda ao suplemento matrizes de confusao extensas,
+resultados por categoria, ablacoes e testes secundarios, mantendo no corpo do
+artigo apenas quatro ou cinco tabelas principais. Cinco tabelas sairam do
+corpo nessa reducao e precisam continuar disponiveis, porque o texto passou a
+citar seus valores em prosa:
+
+    S7   dispersao das predicoes: entropia normalizada e Jensen-Shannon
+    S8   curva ABC global, F1 macro por classe e por modelo
+    S9   tarefa de tipo de manutencao
+    S10  curva ABC interna a cada tipo, para o LinearSVC
+    S11  efeito da camada de regras de periodicidade
+
+Le apenas artefatos com `hash_corpus` da rodada canonica e aborta se houver
+divergencia. Somente leitura: nao escreve na planilha nem no artigo.
+"""
+
+from __future__ import annotations
+
+import argparse
+import csv
+import json
+import sys
+from pathlib import Path
+from typing import Any
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from tempo import agora_bahia  # noqa: E402
+
+RAIZ = Path(__file__).resolve().parents[1]
+DADOS = RAIZ / "docs" / "dados"
+FIGURAS = RAIZ / "04_artigo" / "figuras"
+
+MODELO_DE_REFERENCIA = "linear_svc"
+
+NOME = {
+    "linear_svc": "LinearSVC",
+    "sgd": "SGD",
+    "extra_trees": "Extra Trees",
+    "regressao_logistica": "Regressao Logistica",
+    "random_forest": "Random Forest",
+    "lstm": "LSTM",
+    "naive_bayes": "Naive Bayes",
+}
+
+
+def carregar(nome: str) -> dict[str, Any]:
+    return json.loads((DADOS / nome).read_text(encoding="utf-8"))
+
+
+def conferir_hash(artefatos: dict[str, dict[str, Any]]) -> str:
+    hashes = {n: d.get("hash_corpus") for n, d in artefatos.items()
+              if d.get("hash_corpus")}
+    distintos = set(hashes.values())
+    if len(distintos) != 1:
+        raise SystemExit(f"hash_corpus divergente entre artefatos: {hashes}")
+    return distintos.pop()
+
+
+def escrever(nome: str, cabecalho: list[str], linhas: list[list[Any]]) -> Path:
+    destino = FIGURAS / nome
+    destino.parent.mkdir(parents=True, exist_ok=True)
+    with destino.open("w", encoding="utf-8", newline="") as f:
+        escritor = csv.writer(f)
+        escritor.writerow(cabecalho)
+        escritor.writerows(linhas)
+    return destino
+
+
+def s7_dispersao(historica: dict[str, Any]) -> Path:
+    linhas = []
+    for m in sorted(historica["modelos"],
+                    key=lambda x: -x["dispersao"]["entropia_normalizada"]):
+        d = m["dispersao"]
+        linhas.append([NOME.get(m["modelo"], m["modelo"]),
+                       d["categorias_previstas"], d["entropia_normalizada"],
+                       d["js_contra_o_historico"]])
+    return escrever("tabela_S7_dispersao_predicoes.csv",
+                    ["modelo", "categorias_previstas", "entropia_normalizada",
+                     "js_contra_o_historico"], linhas)
+
+
+def s8_abc_global(recortes: dict[str, Any]) -> Path:
+    linhas = []
+    for m in recortes["modelos"]:
+        for c in m["curva_abc"]:
+            linhas.append([NOME.get(m["modelo"], m["modelo"]), c["classe"],
+                           c["categorias"], c["chamados"],
+                           c["proporcao_do_volume"], c["acuracia"],
+                           c["macro_f1"]])
+    return escrever("tabela_S8_curva_abc_global.csv",
+                    ["modelo", "classe", "categorias", "chamados",
+                     "proporcao_do_volume", "acuracia", "macro_f1"], linhas)
+
+
+def s9_tarefa_tipo(recortes: dict[str, Any]) -> Path:
+    linhas = []
+    for m in sorted(recortes["modelos"],
+                    key=lambda x: -x["tarefa_tipo"]["acuracia"]):
+        t = m["tarefa_tipo"]
+        f1 = t["f1_por_tipo"]
+        linhas.append([NOME.get(m["modelo"], m["modelo"]), t["acuracia"],
+                       t["macro_f1"], f1.get("Preventiva"),
+                       f1.get("Corretiva"), f1.get("Não manutenção")])
+    return escrever("tabela_S9_tarefa_tipo.csv",
+                    ["modelo", "acuracia", "macro_f1", "f1_preventiva",
+                     "f1_corretiva", "f1_nao_manutencao"], linhas)
+
+
+def s10_abc_por_tipo(recortes: dict[str, Any]) -> Path:
+    modelo = next(m for m in recortes["modelos"]
+                  if m["modelo"] == MODELO_DE_REFERENCIA)
+    linhas = []
+    for tipo, classes in modelo["curva_abc_por_tipo"].items():
+        for c in classes:
+            linhas.append([tipo, c["classe"], c["categorias"], c["chamados"],
+                           c["proporcao_do_volume"], c["acuracia"],
+                           c["macro_f1"]])
+    return escrever("tabela_S10_curva_abc_por_tipo.csv",
+                    ["tipo", "classe", "categorias", "chamados",
+                     "proporcao_do_volume_do_tipo", "acuracia", "macro_f1"],
+                    linhas)
+
+
+def s11_regras(regras: dict[str, Any]) -> Path:
+    # `modelos` aqui e dicionario indexado pelo nome, e nao lista.
+    itens = sorted(regras["modelos"].items(),
+                   key=lambda kv: -kv[1]["global"]["modelo_puro"]["macro_f1"])
+    linhas = []
+    for nome, m in itens:
+        g, r = m["global"], m["regra"]
+        linhas.append([NOME.get(nome, nome),
+                       g["modelo_puro"]["acuracia"], g["hibrido"]["acuracia"],
+                       g["modelo_puro"]["macro_f1"], g["hibrido"]["macro_f1"],
+                       g["delta_macro_f1"], r["disparos"],
+                       r["conflitos_com_o_modelo"],
+                       r["conflitos_em_que_a_regra_acerta"],
+                       r["conflitos_em_que_o_modelo_acerta"]])
+    return escrever("tabela_S11_regras_versus_modelos.csv",
+                    ["modelo", "acuracia_pura", "acuracia_hibrida",
+                     "macro_f1_puro", "macro_f1_hibrido", "delta_macro_f1",
+                     "disparos", "conflitos", "regra_acerta",
+                     "modelo_acerta"], linhas)
+
+
+def parse_args() -> argparse.Namespace:
+    return argparse.ArgumentParser(description=__doc__).parse_args()
+
+
+def main() -> int:
+    parse_args()
+    historica = carregar("comparacao_historica.json")
+    recortes = carregar("recortes_canonicos.json")
+    regras = carregar("regras_versus_modelos.json")
+    corpus = conferir_hash({"historica": historica, "recortes": recortes})
+    print(f"hash_corpus conferido: {corpus[:12]}")
+
+    for caminho in (s7_dispersao(historica), s8_abc_global(recortes),
+                    s9_tarefa_tipo(recortes), s10_abc_por_tipo(recortes),
+                    s11_regras(regras)):
+        print(f"  {caminho.name}")
+    print(f"gerado em {agora_bahia()}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
