@@ -3,7 +3,7 @@
 > Relatório sanitizado e somente leitura. Não contém títulos, descrições ou IDs de chamados.
 
 **Estado:** `concluido`  
-**Gerado em:** 04/08/2026 17:51  
+**Gerado em:** 04/08/2026 18:11  
 **Hash do corpus:** `3aa42e314459787ef12ccc778dfa1368e89d81c4863108042d59a1a9343ec3ff`
 
 ## Coerência dos artefatos derivados
@@ -42,44 +42,15 @@ Definem o corpus e por isso não carregam `hash_corpus`: ele é derivado deles.
 
 ## Números legados ainda presentes no artigo
 
-Encontradas 34 ocorrências em `04_artigo/artigo_classificacao_chamados_v3.md`. a varredura do artigo aponta, nunca corrige: substituir numero em texto cientifico e decisao editorial do autor.
+Encontradas 5 ocorrências em `04_artigo/artigo_classificacao_chamados_v3.md`. a varredura do artigo aponta, nunca corrige: substituir numero em texto cientifico e decisao editorial do autor.
 
 | Linha | Forma no texto | Valor legado |
 |---:|---|---|
-| 79 | `14.058` | corpus legado |
-| 89 | `14.058` | corpus legado |
-| 120 | `14,058` | corpus legado |
-| 129 | `14,058` | corpus legado |
-| 231 | `14.058` | corpus legado |
-| 434 | `14.058` | corpus legado |
-| 451 | `14.058` | corpus legado |
-| 576 | `14.058` | corpus legado |
-| 666 | `14.058` | corpus legado |
-| 722 | `14.058` | corpus legado |
-| 824 | `14.058` | corpus legado |
-| 825 | `14.058` | corpus legado |
-| 845 | `14.058` | corpus legado |
-| 850 | `14.058` | corpus legado |
-| 866 | `14.058` | corpus legado |
-| 896 | `14.058` | corpus legado |
-| 928 | `14.058` | corpus legado |
-| 987 | `14.058` | corpus legado |
-| 1013 | `14.058` | corpus legado |
+| 872 | `0,7714` | acuracia legada de regressao_logistica |
 | 1082 | `14.058` | corpus legado |
 | 1195 | `14.058` | corpus legado |
-| 1224 | `14.058` | corpus legado |
-| 1262 | `14.058` | corpus legado |
 | 1304 | `14.058` | corpus legado |
-| 1375 | `56 categorias` | categorias legadas |
-| 1400 | `14.058` | corpus legado |
-| 1401 | `56 categorias` | categorias legadas |
-| 1444 | `14.058` | corpus legado |
-| 1463 | `56 categorias` | categorias legadas |
-| 1543 | `14.058` | corpus legado |
-| 1712 | `14.058` | corpus legado |
-| 2004 | `14.058` | corpus legado |
 | 2043 | `14.058` | corpus legado |
-| 2062 | `14.058` | corpus legado |
 
 ## Validações
 
@@ -87,7 +58,7 @@ Encontradas 34 ocorrências em `04_artigo/artigo_classificacao_chamados_v3.md`. 
 |---|---:|
 | artefatos com hash divergente | 0 |
 | artefatos do congelamento ausentes | 0 |
-| numeros legados ainda no artigo | 34 |
+| numeros legados ainda no artigo | 5 |
 
 **Cobertura da varredura:** sao procuradas as acuracias registradas em estatistica.json, o total de chamados e a contagem de categorias da execucao legada. O artigo pode conter numeros de rodadas intermediarias que nao estao em nenhum JSON versionado, e esses a varredura nao alcanca; a contagem e piso, nao teto.
 

@@ -76,7 +76,7 @@ sobrepostas, registros incompletos e interpretações heterogêneas entre
 equipes. Este artigo propõe um protocolo multimodelo para classificação
 de chamados reais de manutenção predial universitária em português
 brasileiro, extraídos do sistema institucional da Universidade Federal do
-Sul da Bahia. O experimento utiliza 14.058 chamados não vazios,
+Sul da Bahia. O experimento utiliza 14.060 chamados não vazios,
 organizados em 50 categorias históricas. A comparação principal avalia
 seis classificadores clássicos baseados em TF-IDF e uma rede neural LSTM
 bidirecional por predições *out-of-fold* sobre toda a base. O BERTimbau,
@@ -86,7 +86,7 @@ predições *out-of-fold* materializadas para o corpus integral. O
 diferencial metodológico reside na distinção entre concordância com o
 histórico administrativo e acerto validado por revisão humana. A
 conferência humana cobre a totalidade do corpus, de modo que o acerto
-validado é apurado sobre as 14.058 decisões e não sobre uma amostra. Na
+validado é apurado sobre as 13.972 decisões e não sobre uma amostra. Na
 comparação integral, o LinearSVC lidera a concordância com o histórico
 (80,49%) e o acerto validado (81,97%). No *holdout* comum, o LinearSVC
 alcança 67,34% e o BERTimbau 67,85%, sem diferença estatisticamente
@@ -117,7 +117,7 @@ decisions, overlapping taxonomies, incomplete records, and heterogeneous
 interpretations. This paper proposes a multi-model protocol for
 classifying real university building maintenance requests in Brazilian
 Portuguese from the Federal University of Southern Bahia. The experiment
-uses 14,058 non-empty records organized into 50 historical categories.
+uses 14,060 non-empty records organized into 50 historical categories.
 The main comparison evaluates six TF-IDF-based classical classifiers and
 a bidirectional LSTM through out-of-fold predictions over the complete
 corpus. BERTimbau, a Portuguese pre-trained transformer, is fine-tuned and
@@ -126,7 +126,7 @@ full-corpus out-of-fold predictions are not available for this model. The
 methodological contribution is the distinction between agreement with the
 administrative history and human-validated accuracy. Human review covers
 the entire corpus, so human-validated accuracy is calculated over all
-14,058 decisions rather than over a sample. In the full-corpus
+13,972 decisions rather than over a sample. In the full-corpus
 comparison, LinearSVC leads both agreement with history (80.49%) and
 human-validated accuracy (81.97%). In the common holdout, LinearSVC
 reaches 67.34% and BERTimbau 67.85%, with no statistically significant
@@ -228,7 +228,7 @@ revisão taxonômica, e não como ruído a descartar.
 Com base em chamados reais da Universidade Federal do Sul da Bahia
 (UFSB), este artigo propõe uma comparação multimodelo de
 classificadores de texto aplicada a chamados de manutenção predial em
-português brasileiro. A base experimental contém 14.058 chamados não
+português brasileiro. A base experimental contém 14.060 chamados não
 vazios, distribuídos em 50 categorias históricas; os campos textuais
 considerados agregam título e descrição do chamado, além de informações
 associadas à ordem de serviço. O estudo compara modelos clássicos
@@ -431,7 +431,7 @@ apresenta esse fluxo como *pipeline* de governança preditiva.
 
 **3.2 Corpus e variáveis**
 
-O corpus experimental é composto por 14.058 chamados de manutenção
+O corpus experimental é composto por 14.060 chamados de manutenção
 predial não vazios, organizados em 50 categorias históricas, extraídos
 do ambiente institucional da UFSB. Os campos textuais previstos no
 protocolo incluem título do chamado, descrição GLPI, título da ordem de
@@ -448,7 +448,7 @@ A base é dinâmica, pois a planilha de trabalho é alimentada continuamente
 pelo sistema de atendimento e novos chamados são incorporados a cada
 sincronização. Por essa razão, todos os resultados da Seção 4 referem-se
 a um corte por data de abertura, que compreende os chamados registrados
-até 1º de agosto de 2026 e totaliza 14.058 registros elegíveis. Os
+até 1º de agosto de 2026 e totaliza 14.060 registros elegíveis. Os
 artefatos que sustentam cada número, incluindo predições por modelo e
 matrizes de confusão, foram materializados sobre esse mesmo corte e estão
 versionados no repositório indicado na Subseção 3.9, de modo que a
@@ -573,7 +573,7 @@ aleatoriamente e treinados do zero, sem incorporação de vetores
 pré-treinados em português. A camada de *embedding* (8.000 termos × 128
 dimensões) concentra sozinha cerca de 1,02 milhão de parâmetros, ordem
 de grandeza próxima do número de exemplos disponíveis por partição de
-treino, já que dos 14.058 chamados cerca de 11.275 compõem cada partição
+treino, já que dos 13.972 chamados cerca de 11.178 compõem cada partição
 em `k=5` *folds* (Subseção 3.5). Esse cenário é consistente com a
 hipótese de que modelos lineares igualam ou superam redes neurais em
 corpora de porte médio e ruidosos, quando não há *embeddings*
@@ -663,7 +663,7 @@ literatura antecipa para corpora pequenos e desbalanceados (KOHAVI,
 1995).
 
 A partição por linha, contudo, carrega uma limitação própria neste
-corpus. Chamados de manutenção repetem-se, e 32,58% das 14.058 linhas
+corpus. Chamados de manutenção repetem-se, e 32,62% das 14.060 linhas
 compartilham texto normalizado com outra linha, de modo que a base
 contém 9.815 grupos textuais distintos. Sob particionamento por linha, o
 mesmo texto pode cair em treino e em teste, o que superestima o
@@ -719,7 +719,7 @@ quando é rejeitada, o avaliador registra manualmente a categoria correta. A cat
 constitui a referência validada utilizada na avaliação dos modelos. Quando
 nenhuma das fontes é confirmada e não há categoria alternativa definida
 pelo avaliador, o chamado permanece sem categoria de referência. A
-conferência foi conduzida até cobrir a totalidade do corpus: os 14.058
+conferência foi conduzida até cobrir a totalidade do corpus: os 14.060
 chamados receberam veredito e chegaram a uma categoria decidida, sendo
 13.452 por confirmação da categoria histórica e 606 por registro manual
 de categoria distinta. Não restaram chamados sem referência. A
@@ -821,8 +821,8 @@ histórica na base completa (Subseção 4.1), em que o registro do GLPI é
 referência preliminar, não verdade absoluta. O segundo é o desempenho
 desses mesmos modelos contra a categoria de referência estabelecida por validação humana (Subseção 4.2). O
 terceiro é a comparação dos oito modelos no *holdout* comum que inclui o
-BERTimbau (Subseção 4.3). A base elegível contém 14.058 chamados. A
-conferência humana cobre a totalidade dos 14.058 chamados, dos quais
+BERTimbau (Subseção 4.3). A base elegível contém 14.060 chamados. A
+conferência humana cobre a totalidade dos 14.060 chamados, dos quais
 13.452 tiveram a categoria histórica confirmada e 606 receberam categoria
 corrigida manualmente. Não há chamado sem categoria de referência.
 
@@ -842,12 +842,12 @@ seleção amostral discutidas na Subseção 4.4.
 **4.1 Concordância com o histórico (base completa)**
 
 A comparação contra a categoria histórica, sobre a base completa (n =
-14.058, com intervalo de confiança por bootstrap a 95%), mantém o
+13.972, com intervalo de confiança por bootstrap a 95%), mantém o
 LinearSVC na liderança, com acurácia de 0,8049 (IC95%:
 0,7985--0,8117), seguido por Extra Trees (0,7880), Random Forest (0,7785), SGD (0,7769), Regressão Logística (0,7716), Naive Bayes (0,6987), LSTM (0,6920).
 O teste de Cochran Q confirma diferença global
 entre os sete modelos avaliados (Q = 2448,55; p < 0,001). A comparação integral exclui o BERTimbau porque o modelo não possui
-predições *out-of-fold* sobre as 14.058 linhas; o treino concluído é
+predições *out-of-fold* sobre as 13.972 linhas; o treino concluído é
 avaliado separadamente na Subseção 4.3. O Kappa de Cohen (COHEN, 1960) entre cada
 modelo e o histórico reproduz ordenação semelhante, variando de
 0,7902 (LinearSVC) a 0,6694 (Naive Bayes), faixa que Landis e Koch (1977)
@@ -863,7 +863,7 @@ Tabela 1 não é apropriada porque essa fonte combina a rede neural com a
 regra de contingência do Random Forest (Subseção 3.4), em vez de um
 único modelo isolado.
 
-**Tabela 1** Concordância com a categoria histórica por modelo (n = 14.058).
+**Tabela 1** Concordância com a categoria histórica por modelo (n = 13.972).
 
 | Modelo | Acurácia | IC95% |
 |---|---|---|
@@ -893,7 +893,7 @@ que pequena variação absoluta altera fortemente a métrica.
 
 **4.2 Ranking validado por conferência humana**
 
-A avaliação contra a categoria de referência validada utiliza os 14.058
+A avaliação contra a categoria de referência validada utiliza os 13.972
 chamados do corpus, uma vez que a conferência humana estabeleceu categoria
 final para todos eles. O LinearSVC permanece o melhor modelo isolado, com
 acerto validado de 0,8197 (IC95%: 0,8136--0,8258), seguido por
@@ -925,7 +925,7 @@ volumosas. No extremo oposto, o Naive Bayes combina acurácia de 0,7090 com
 F1 macro de 0,2425, o que caracteriza um classificador que acerta as
 categorias frequentes e falha de modo sistemático nas demais.
 
-**Tabela 2** Acerto validado e F1 macro por modelo (n = 14.058). O F1
+**Tabela 2** Acerto validado e F1 macro por modelo (n = 13.972). O F1
 macro pondera igualmente todas as categorias, independentemente do
 suporte.
 
@@ -984,7 +984,7 @@ esperado (ECE) de 0,0208 sobre a confiança bruta. A unidade desta
 subseção é o chamado. O registro da classificação em produção é
 acumulativo, pois cada execução acrescenta uma linha por chamado sem
 substituir a anterior, e a leitura considera apenas a última
-classificação de cada chamado, de modo que os 14.058 chamados do corpus
+classificação de cada chamado, de modo que os 14.060 chamados do corpus
 entram uma única vez e todos têm conferência humana. Segmentada por
 faixa de confiança e cruzada com a decisão validada, a faixa igual ou
 superior a 95% concentra 10.555 chamados, 75,1% do corpus, com
@@ -1010,7 +1010,7 @@ desta tabela.
 \begin{minipage}{\linewidth}
 \small
 \noindent\textbf{Tabela 4} Acerto validado por faixa de confiança. A unidade é o
-chamado, 14.058 no total, todos com conferência humana.
+chamado, 14.060 no total, todos com conferência humana.
 \par\smallskip
 \centering
 \begin{tabular}{@{}lrrrr@{}}
@@ -1221,7 +1221,7 @@ discutido na Subseção 2.4, o ganho não justifica a adoção.
 
 **4.8 Comportamento do LSTM: curva de aprendizado e *ablation***
 
-A Figura 7 mostra a curva real de aprendizado do LSTM sobre os 14.058
+A Figura 7 mostra a curva real de aprendizado do LSTM sobre os 13.972
 exemplos e 53 categorias. O treino parou por interrupção antecipada após
 11 épocas, com menor perda de validação na época 8 e maior acurácia de
 validação na época 10 (0,6722). O padrão indica saturação precoce,
@@ -1259,7 +1259,7 @@ AUSTIN, 2004), homogeneidade de variância, normalidade, desbalanceamento
 entre categorias, colinearidade entre modelos, relação entre confiança e
 acerto e independência das observações, adaptando o protocolo de
 exploração de dados de Zuur, Ieno e Elphick (2010) da resposta contínua da ecologia para a resposta
-categórica de classificação de chamados (n = 14.058). O teste de
+categórica de classificação de chamados (n = 13.972). O teste de
 Shapiro-Wilk (SHAPIRO; WILK, 1965) foi escolhido por reunir o maior
 poder entre os testes de normalidade usuais nas comparações de Razali e
 Wah (2011) e de Ogunleye, Oyejola e Obisesan (2018). Ele rejeita a
@@ -1372,7 +1372,7 @@ enquanto a substituição do classificador atua apenas sobre seu efeito.
 O F1 macro atribui o mesmo peso a uma categoria de dois chamados e a
 outra de dois mil, o que torna a métrica agregada pouco informativa
 quando a distribuição de volume é acentuadamente desigual. Aplicou-se,
-por conseguinte, uma curva ABC sobre o suporte das 56 categorias
+por conseguinte, uma curva ABC sobre o suporte das 41 categorias
 presentes na referência validada. A classe A reúne o menor conjunto de
 categorias que acumula ao menos 80% do volume, a classe B corresponde
 ao intervalo entre 80% e 95%, e a classe C abrange o restante. A
@@ -1397,8 +1397,8 @@ nas duas primeiras classes.
 \NaoQuebrar{14}
 ```
 
-**Tabela 8** F1 macro por classe da curva ABC de volume (n = 14.058;
-56 categorias com suporte na referência validada).
+**Tabela 8** F1 macro por classe da curva ABC de volume (n = 13.972;
+41 categorias com suporte na referência validada).
 
 | Modelo | Classe A | Classe B | Classe C | Global |
 |---|---|---|---|---|
@@ -1441,7 +1441,7 @@ lida no nível em que a decisão de gestão efetivamente ocorre.
 
 **Tabela 9** Desempenho na tarefa de tipo de manutenção, obtida por
 projeção da referência validada e das predições de categoria (n =
-14.058). P, preventiva; C, corretiva; NM, não manutenção.
+13.972). P, preventiva; C, corretiva; NM, não manutenção.
 
 | Modelo | Acurácia | F1 macro | F1 (P) | F1 (C) | F1 (NM) |
 |---|---|---|---|---|---|
@@ -1460,7 +1460,7 @@ natureza dessas categorias, cuja atribuição depende de juízo
 administrativo sobre a pertinência do próprio chamado e não de sua
 descrição técnica, conforme já observado a respeito de `Outros > Erro
 de chamado`. Cabe registrar que a ordenação dos modelos difere daquela
-obtida na tarefa de 56 categorias. Extra Trees e Random Forest,
+obtida na tarefa de 41 categorias. Extra Trees e Random Forest,
 terceiro e quinto colocados no acerto validado por categoria, lideram
 a classificação por tipo, ao passo que o SGD apresenta o maior F1
 macro nessa granularidade sem liderar a acurácia. Depreende-se que a
@@ -1540,7 +1540,7 @@ conferência cobria apenas parte dos registros.
 
 A cobertura integral permite estimar a taxa empírica de erro do rótulo
 histórico, o que os desenhos parciais anteriores não autorizavam. Em 606
-dos 14.058 chamados, ou 4,3%, o avaliador rejeitou a categoria registrada
+dos 14.060 chamados, ou 4,25%, o avaliador rejeitou a categoria registrada
 e definiu manualmente outra, o que confirma nos dados a hipótese de
 rótulos ruidosos sustentada pela literatura (KEJRIWAL *et al.*, 2024;
 ZHANG *et al.*, 2025). A estimativa é específica deste corpus e desta
@@ -1709,7 +1709,7 @@ persistente. Essa camada evita tratar o histórico como verdade automática
 e, ao mesmo tempo, impede concluir que toda divergência da IA representa
 correção do registro original.
 
-Na avaliação integral dos 14.058 chamados com categoria de referência
+Na avaliação integral dos 13.972 chamados com categoria de referência
 estabelecida por validação humana, o LinearSVC alcança 81,97% de acerto
 validado (IC95%: 81,36%--82,58%), e nenhum dos três *ensembles* o supera
 com significância estatística. Como a conferência cobre o corpus inteiro,
@@ -2001,7 +2001,7 @@ v. 1, n. 1, p. 3--14, 2010.
 **APÊNDICE A — DISTRIBUIÇÃO DAS CATEGORIAS HISTÓRICAS DO CORPUS**
 
 A Tabela A1 apresenta as 50 categorias históricas utilizadas na classificação
-dos 14.058 chamados, ordenadas por frequência decrescente e distribuídas em
+dos 13.972 chamados, ordenadas por frequência decrescente e distribuídas em
 dois blocos paralelos para reduzir a extensão do apêndice.
 
 ```{=latex}
@@ -2059,7 +2059,7 @@ dois blocos paralelos para reduzir a extensão do apêndice.
 ```
 
 **Tabela A2** Categorias da referência validada por tipo de manutenção e
-classe da curva ABC interna ao tipo (n = 14.058). O percentual é relativo
+classe da curva ABC interna ao tipo (n = 13.972). O percentual é relativo
 ao volume do próprio tipo e o F1 corresponde ao LinearSVC. P, preventiva;
 C, corretiva; NM, não manutenção. Enquadram-se em não manutenção as
 famílias que não descrevem serviço de manutenção predial, a saber,
