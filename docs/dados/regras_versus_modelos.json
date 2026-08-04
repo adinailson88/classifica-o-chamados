@@ -1,0 +1,325 @@
+{
+  "schema_version": 1,
+  "status": "concluido",
+  "protocolo": "regra aplicada sobre as predicoes out-of-fold do Passo 4, nos mesmos registros e nas mesmas particoes; a referencia humana nao e alterada em nenhuma configuracao",
+  "corpus": {
+    "registros": 13972,
+    "categorias": 41,
+    "preventivos_na_referencia": 4904
+  },
+  "regra": {
+    "criterio": "dispara somente com termo de periodicidade e termo de equipamento no mesmo chamado; abstem-se caso contrario",
+    "termos_periodicidade": 19,
+    "termos_equipamento": 31,
+    "categorias_alvo": 13,
+    "categorias_alvo_fora_do_conjunto_avaliado": [],
+    "modulo": "src/regras_preventivas.py"
+  },
+  "modelos": {
+    "extra_trees": {
+      "global": {
+        "modelo_puro": {
+          "n": 13972,
+          "acuracia": 0.8083,
+          "macro_f1": 0.6368,
+          "balanced_accuracy": 0.6156
+        },
+        "hibrido": {
+          "n": 13972,
+          "acuracia": 0.8087,
+          "macro_f1": 0.6324,
+          "balanced_accuracy": 0.6117
+        },
+        "delta_acuracia": 0.0004,
+        "delta_macro_f1": -0.0044
+      },
+      "preventivos": {
+        "modelo_puro": {
+          "n": 4904,
+          "acuracia": 0.9621,
+          "macro_f1": 0.2566,
+          "balanced_accuracy": 0.7754
+        },
+        "hibrido": {
+          "n": 4904,
+          "acuracia": 0.9657,
+          "macro_f1": 0.255,
+          "balanced_accuracy": 0.7749
+        },
+        "delta_acuracia": 0.0036,
+        "delta_macro_f1": -0.0016
+      },
+      "regra": {
+        "disparos": 4487,
+        "cobertura": 0.3211,
+        "conflitos_com_o_modelo": 46,
+        "conflitos_em_que_a_regra_acerta": 22,
+        "conflitos_em_que_o_modelo_acerta": 17,
+        "conflitos_em_que_ambos_erram": 7
+      }
+    },
+    "linear_svc": {
+      "global": {
+        "modelo_puro": {
+          "n": 13972,
+          "acuracia": 0.8252,
+          "macro_f1": 0.6683,
+          "balanced_accuracy": 0.6804
+        },
+        "hibrido": {
+          "n": 13972,
+          "acuracia": 0.8251,
+          "macro_f1": 0.6666,
+          "balanced_accuracy": 0.6777
+        },
+        "delta_acuracia": -0.0001,
+        "delta_macro_f1": -0.0017
+      },
+      "preventivos": {
+        "modelo_puro": {
+          "n": 4904,
+          "acuracia": 0.9676,
+          "macro_f1": 0.2596,
+          "balanced_accuracy": 0.7893
+        },
+        "hibrido": {
+          "n": 4904,
+          "acuracia": 0.9696,
+          "macro_f1": 0.2623,
+          "balanced_accuracy": 0.7968
+        },
+        "delta_acuracia": 0.002,
+        "delta_macro_f1": 0.0027
+      },
+      "regra": {
+        "disparos": 4487,
+        "cobertura": 0.3211,
+        "conflitos_com_o_modelo": 31,
+        "conflitos_em_que_a_regra_acerta": 11,
+        "conflitos_em_que_o_modelo_acerta": 13,
+        "conflitos_em_que_ambos_erram": 7
+      }
+    },
+    "lstm": {
+      "global": {
+        "modelo_puro": {
+          "n": 13972,
+          "acuracia": 0.729,
+          "macro_f1": 0.5363,
+          "balanced_accuracy": 0.5878
+        },
+        "hibrido": {
+          "n": 13972,
+          "acuracia": 0.7313,
+          "macro_f1": 0.5391,
+          "balanced_accuracy": 0.5883
+        },
+        "delta_acuracia": 0.0023,
+        "delta_macro_f1": 0.0028
+      },
+      "preventivos": {
+        "modelo_puro": {
+          "n": 4904,
+          "acuracia": 0.9582,
+          "macro_f1": 0.2556,
+          "balanced_accuracy": 0.7798
+        },
+        "hibrido": {
+          "n": 4904,
+          "acuracia": 0.9664,
+          "macro_f1": 0.2587,
+          "balanced_accuracy": 0.7893
+        },
+        "delta_acuracia": 0.0082,
+        "delta_macro_f1": 0.0031
+      },
+      "regra": {
+        "disparos": 4487,
+        "cobertura": 0.3211,
+        "conflitos_com_o_modelo": 60,
+        "conflitos_em_que_a_regra_acerta": 41,
+        "conflitos_em_que_o_modelo_acerta": 9,
+        "conflitos_em_que_ambos_erram": 10
+      }
+    },
+    "naive_bayes": {
+      "global": {
+        "modelo_puro": {
+          "n": 13972,
+          "acuracia": 0.7086,
+          "macro_f1": 0.2951,
+          "balanced_accuracy": 0.2996
+        },
+        "hibrido": {
+          "n": 13972,
+          "acuracia": 0.7224,
+          "macro_f1": 0.3536,
+          "balanced_accuracy": 0.3551
+        },
+        "delta_acuracia": 0.0138,
+        "delta_macro_f1": 0.0585
+      },
+      "preventivos": {
+        "modelo_puro": {
+          "n": 4904,
+          "acuracia": 0.9058,
+          "macro_f1": 0.1643,
+          "balanced_accuracy": 0.4977
+        },
+        "hibrido": {
+          "n": 4904,
+          "acuracia": 0.9466,
+          "macro_f1": 0.2242,
+          "balanced_accuracy": 0.6732
+        },
+        "delta_acuracia": 0.0408,
+        "delta_macro_f1": 0.0599
+      },
+      "regra": {
+        "disparos": 4487,
+        "cobertura": 0.3211,
+        "conflitos_com_o_modelo": 219,
+        "conflitos_em_que_a_regra_acerta": 201,
+        "conflitos_em_que_o_modelo_acerta": 9,
+        "conflitos_em_que_ambos_erram": 9
+      }
+    },
+    "random_forest": {
+      "global": {
+        "modelo_puro": {
+          "n": 13972,
+          "acuracia": 0.7992,
+          "macro_f1": 0.6183,
+          "balanced_accuracy": 0.5985
+        },
+        "hibrido": {
+          "n": 13972,
+          "acuracia": 0.7998,
+          "macro_f1": 0.6145,
+          "balanced_accuracy": 0.595
+        },
+        "delta_acuracia": 0.0006,
+        "delta_macro_f1": -0.0038
+      },
+      "preventivos": {
+        "modelo_puro": {
+          "n": 4904,
+          "acuracia": 0.9608,
+          "macro_f1": 0.2526,
+          "balanced_accuracy": 0.766
+        },
+        "hibrido": {
+          "n": 4904,
+          "acuracia": 0.9649,
+          "macro_f1": 0.2501,
+          "balanced_accuracy": 0.7626
+        },
+        "delta_acuracia": 0.0041,
+        "delta_macro_f1": -0.0025
+      },
+      "regra": {
+        "disparos": 4487,
+        "cobertura": 0.3211,
+        "conflitos_com_o_modelo": 50,
+        "conflitos_em_que_a_regra_acerta": 25,
+        "conflitos_em_que_o_modelo_acerta": 16,
+        "conflitos_em_que_ambos_erram": 9
+      }
+    },
+    "regressao_logistica": {
+      "global": {
+        "modelo_puro": {
+          "n": 13972,
+          "acuracia": 0.8048,
+          "macro_f1": 0.6697,
+          "balanced_accuracy": 0.7005
+        },
+        "hibrido": {
+          "n": 13972,
+          "acuracia": 0.8056,
+          "macro_f1": 0.6689,
+          "balanced_accuracy": 0.6963
+        },
+        "delta_acuracia": 0.0008,
+        "delta_macro_f1": -0.0008
+      },
+      "preventivos": {
+        "modelo_puro": {
+          "n": 4904,
+          "acuracia": 0.9647,
+          "macro_f1": 0.2667,
+          "balanced_accuracy": 0.804
+        },
+        "hibrido": {
+          "n": 4904,
+          "acuracia": 0.97,
+          "macro_f1": 0.2687,
+          "balanced_accuracy": 0.8109
+        },
+        "delta_acuracia": 0.0053,
+        "delta_macro_f1": 0.002
+      },
+      "regra": {
+        "disparos": 4487,
+        "cobertura": 0.3211,
+        "conflitos_com_o_modelo": 46,
+        "conflitos_em_que_a_regra_acerta": 26,
+        "conflitos_em_que_o_modelo_acerta": 14,
+        "conflitos_em_que_ambos_erram": 6
+      }
+    },
+    "sgd": {
+      "global": {
+        "modelo_puro": {
+          "n": 13972,
+          "acuracia": 0.809,
+          "macro_f1": 0.6677,
+          "balanced_accuracy": 0.6997
+        },
+        "hibrido": {
+          "n": 13972,
+          "acuracia": 0.8096,
+          "macro_f1": 0.6679,
+          "balanced_accuracy": 0.6959
+        },
+        "delta_acuracia": 0.0006,
+        "delta_macro_f1": 0.0002
+      },
+      "preventivos": {
+        "modelo_puro": {
+          "n": 4904,
+          "acuracia": 0.9666,
+          "macro_f1": 0.2686,
+          "balanced_accuracy": 0.8091
+        },
+        "hibrido": {
+          "n": 4904,
+          "acuracia": 0.9712,
+          "macro_f1": 0.2708,
+          "balanced_accuracy": 0.8174
+        },
+        "delta_acuracia": 0.0046,
+        "delta_macro_f1": 0.0022
+      },
+      "regra": {
+        "disparos": 4487,
+        "cobertura": 0.3211,
+        "conflitos_com_o_modelo": 44,
+        "conflitos_em_que_a_regra_acerta": 24,
+        "conflitos_em_que_o_modelo_acerta": 15,
+        "conflitos_em_que_ambos_erram": 5
+      }
+    }
+  },
+  "modelos_com_ganho_de_macro_f1": [
+    "lstm",
+    "naive_bayes",
+    "sgd"
+  ],
+  "problemas": {
+    "registros_sem_texto": 0,
+    "modelos_comparados": 7
+  },
+  "gerado_em": "03/08/2026 21:40",
+  "script_origem": "src/comparar_regras_modelos.py"
+}
