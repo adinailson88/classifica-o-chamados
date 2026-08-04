@@ -74,71 +74,71 @@ A fonte editável é `04_artigo/artigo_classificacao_chamados_v3.md`. O PDF publ
 
 ## Estado desta rodada
 
-**Onde está:** o Passo 1 foi concluído. A auditoria canônica somente leitura declarou a base `apto_para_congelar`, com 14.060 IDs únicos, 14.060 referências humanas válidas e 50 categorias tanto na taxonomia histórica quanto na referência revisada. O artigo e os resultados experimentais publicados ainda representam a execução anterior e permanecem legados.
+**Rodada canônica:** `1e476243`. Os cinco artefatos derivados e os três do
+congelamento conferem esse hash, verificável por `python src/matriz_proveniencia.py`.
+Números de rodadas anteriores não podem aparecer na mesma tabela.
 
-**Por que a execução será refeita:** os modelos vigentes foram treinados com categorias históricas do GLPI; a divisão principal ocorreu por registro; textos repetidos podem atravessar treino e teste; e o BERTimbau utiliza protocolo diferente. As divergências de corpus e taxonomia que bloqueavam o redesenho foram resolvidas pela auditoria canônica, mas os modelos ainda precisam ser avaliados sob a nova referência e partições agrupadas comuns.
+**Onde está:** os Passos 0 a 8 estão concluídos, o 9 encerrado como não
+aplicável e o 10 concluído. O Passo 11 está em execução: o corpo do artigo
+caiu de 14.782 para cerca de 13.100 palavras, ainda acima da meta de 8 a 9
+mil.
 
-**O que foi feito nesta rodada:** o workflow `Auditar base canonica (read-only)` foi executado novamente em `main`, sem escrita na planilha. Todos os bloqueadores ficaram zerados. O relatório e o JSON sanitizados foram preservados em `docs/`, com hash da base `e10c78e4db0026cfcbfa5267ddac034a3c8d3a7a0a1d63fa0cf2ce52f165b174` e hashes idênticos das duas taxonomias (`ec6f75ca0427d7a0bd224e019a0052ee4e50734bbda66a7fd45890f7c8b488cb`).
+**Dois denominadores, e não um:** a base congelada tem 14.060 chamados, todos
+com referência humana, e é o número de toda frase sobre corpus ou cobertura da
+revisão. As métricas valem para 13.972 linhas em 41 categorias, porque nove
+categorias, somando 88 linhas, não sustentam suporte nas cinco dobras. O
+artigo declara os dois na abertura da Seção 4 e os detalha nas Tabelas A2 e A3.
 
-**Passo 2, concluído:** a base congelada de 14.060 linhas resolve-se em 9.786 grupos textuais, dos quais 9.474 são unitários. Há 4.586 linhas com duplicata, ou 32,62% da base, e o maior grupo reúne 219 linhas idênticas. Nenhum grupo excede o limite de 2.812 linhas por dobra com k=5, de modo que o particionamento agrupado do Passo 3 é viável sem tratamento especial. Dezessete grupos carregam referência humana divergente sobre texto idêntico, afetando 85 linhas, o que estabelece um piso de erro irredutível de aproximadamente 0,6% para qualquer modelo.
+**Três achados que mudaram o texto, não apenas os números:**
 
-**Cuidado ao redigir os números:** os 32,62% deste passo não substituem nem contradizem os 46,72% citados na Subseção 4.8. Aquele valor é a taxa de vazamento sob KFold aleatório de três dobras no subconjunto validado, isto é, a fração de linhas de teste cujo texto reaparece no treino; este é a fração de linhas da base completa que pertencem a um grupo com mais de um membro. A convergência entre os 9.714 grupos do ablation e os 9.786 deste passo, sobre bases quase idênticas, confirma que as duas medidas partem do mesmo agrupamento.
+O ganho de reclassificação inverteu de sinal. É negativo em todos os sete
+modelos, de −1.846 no LinearSVC a −3.474 no Naive Bayes. A causa não é erro de
+cálculo: a referência humana confirma a categoria histórica em 13.462 dos
+14.060 registros, ou 95,75%, de modo que divergir do histórico quase sempre
+significa divergir da referência. O ganho positivo antigo vinha de comparar
+contra a decisão revisada onde ela existia e contra o próprio histórico nos
+demais casos. A Subseção 4.5 foi reescrita e a conclusão passa a desaconselhar
+reclassificação em massa por evidência, não por cautela.
 
-**Passo 3, concluído:** as partições canônicas usam `StratifiedGroupKFold` com cinco dobras e semente 42, sobre os grupos textuais do Passo 2 e estratificadas pela referência humana. São 13.972 linhas em 9.734 grupos, distribuídas em dobras de 2.556 a 3.045 linhas, sem nenhum grupo textual dividido entre dobras.
+A camada de regras de periodicidade é redundante. Dispara em 4.487 dos 13.972
+registros e melhora o macro-F1 de apenas 3 dos 7 modelos, com ganho concentrado
+no Naive Bayes e perda nos modelos fortes. O resultado nunca havia chegado ao
+artigo e agora ocupa a Subseção 4.12.
 
-**Denominador das métricas:** 41 das 50 categorias entraram nas partições. Quatro saíram por aritmética, tendo menos grupos textuais distintos que dobras, e cinco por ausência efetiva em alguma dobra após o sorteio; as nove somam 88 linhas. A prática de excluir rótulos de baixa frequência em classificação hierárquica de chamados tem precedente em Marcuzzo et al. (2022), fichado no acervo, com a ressalva de que o limiar deles é de cem ocorrências e o critério aqui é outro. Toda métrica da nova execução vale para essas 41 categorias, e o texto precisa declarar esse denominador sempre que reportar resultados, sem deixá-lo implícito.
+O BERTimbau saiu da comparação por custo medido, 6,44 h por dobra contra teto
+de 6 h por job. A Subseção 4.3 passou a tratar de viabilidade computacional, a
+antiga Tabela 3 foi para o suplemento como S6 com o protocolo declarado, e o
+texto não afirma desempenho inferior nem compara o número exploratório antigo
+com as tabelas do corpo.
 
-**Base congelada de fato:** a auditoria do Passo 1 documentou o corpus, mas a aba principal continua viva e recebeu treze chamados entre a auditoria e o particionamento. As partições passaram a ser fixadas pelo mapa de grupos textuais versionado, de modo que o crescimento operacional da planilha não altera o experimento. Essa distinção entre corpus documentado e corpus fixado merece uma frase no método.
+**Uma mudança de achado que veio junto:** a fronteira dominante da matriz de
+confusão deixou de ser climatização corretiva contra preventiva. Treinados
+contra a referência revisada, os modelos separam esse par de modo consistente,
+e o maior par passa a ser Alvenaria contra Instalação de equipamentos, com
+2.003 trocas somadas. Alvenaria comporta-se como categoria absorvente.
 
-**Passos 4, 5 e 7, concluídos numa única rodada canônica:** os artefatos trazem todos o mesmo `hash_corpus` `3aa42e31`, o que garante que descrevem exatamente o mesmo corpus. Isso deixou de ser promessa e passou a ser verificável: antes, cada passo relia a planilha por conta própria, e uma edição de texto entre execuções bastava para dessincronizar números do mesmo experimento.
+**Estrutura atual:** cinco tabelas no corpo, numeradas de 1 a 5, e sete
+figuras. Saíram para o suplemento a dispersão de Shannon, a curva ABC global, a
+tarefa de tipo, a ABC por tipo e o efeito das regras, nas tabelas S7 a S11,
+todas geradas por script a partir da rodada canônica.
 
-**Passo 4:** os sete modelos foram retreinados sobre as partições canônicas, com a referência humana revisada como rótulo e predição *out-of-fold* para todos os 13.972 registros. Nenhum modelo treinou no grupo textual que previu. O LinearSVC lidera nas duas métricas, com 0,8255 de acurácia e 0,6696 de macro-F1, seguido de perto pela regressão logística e pelo SGD. O Naive Bayes tem acurácia de 0,7084 mas macro-F1 de 0,2952, o que confirma que acerta a cauda pesada e falha nas categorias menores.
+**Correção de protocolo no método:** a Subseção 3.5 declarava `KFold` não
+estratificado por linha, o que a rodada canônica substituiu por
+`StratifiedGroupKFold` agrupado por texto. Era a afirmação mais grave
+remanescente, porque descrevia um protocolo que as tabelas já não usavam.
 
-**Os novos números não são comparáveis aos legados:** a acurácia subiu para todos os sete modelos em relação ao snapshot anterior, mas isso não significa que o protocolo mais rigoroso melhorou o desempenho. Três coisas mudaram ao mesmo tempo. O rótulo deixou de ser a categoria histórica do GLPI e passou a ser a referência humana revisada, que é mais consistente e portanto mais previsível. O particionamento passou de aleatório por registro para agrupado por texto, o que deveria reduzir os números. E o denominador caiu de 56 categorias com suporte para 41. A discussão precisa apresentar os efeitos separadamente, ou o texto sugerirá um ganho que o desenho não sustenta; o par de valores por protocolo já disponível na Subseção 4.8 é o instrumento adequado para isolar o efeito do agrupamento.
+**Subseção removida:** a antiga 3.7, sobre veto e trava por chamado. Era fluxo
+interno de triagem, usava o termo vedado "verdade validada" e descrevia
+justamente o cálculo de ganho misto que a rodada canônica substituiu.
 
-**Passo 5, com resultado negativo:** a camada explícita de regras de periodicidade dispara em 4.487 dos 13.972 registros, quase um terço do corpus, mas melhora o macro-F1 de apenas três dos sete modelos. O ganho concentra-se onde o modelo é fraco, e nos modelos fortes o efeito desaparece ou inverte.
+**Assimetria conhecida no relatório de inferência:** em
+`src/inferencia_canonica.py`, a coluna de acurácia imprime o valor observado e
+a de macro-F1 imprime a média das mil reamostragens, o que produz 0,6664 contra
+os 0,6684 do retreino. A Tabela 2 usa o valor observado com o intervalo do
+bootstrap. Convém uniformizar o relatório.
 
-**Como redigir esse achado:** a leitura correta não é que as regras de domínio funcionam, e sim que elas são redundantes diante de um classificador estatístico competente. Os modelos já capturam os sinais de periodicidade implicitamente a partir do texto; a camada explícita apenas repete o que eles fazem, com 4.487 disparos gerando entre 31 e 60 divergências nos modelos lineares. Isso é resultado publicável e contraria a expectativa inicial do desenho, que era medir um ganho. Sustenta também a decisão de manter o fluxo híbrido no eixo humano-IA, e não no eixo regra-modelo.
-
-**Passo 6, concluído:** o BERTimbau fica fora da comparação principal, como experimento exploratório no suplemento. A decisão tem número, não impressão. O fine-tuning custou 10,774 segundos por passo em executor de quatro processadores sem GPU, com variação de apenas 0,12 segundo entre o passo mais rápido e o mais lento, o que torna a projeção confiável. São 2.103 passos por dobra, ou 6,44 horas, e 32,2 horas nas cinco dobras, contra um teto de seis horas por job. Nem uma dobra completa cabe na infraestrutura disponível.
-
-**Como redigir a exclusão:** a limitação é de infraestrutura, não do modelo, e o texto precisa dizer isso nesses termos. Não afirmar que o BERTimbau tem desempenho inferior, porque ele não foi avaliado sob este protocolo; não comparar o número exploratório antigo com os valores da Tabela 1, porque vieram de protocolos distintos. A formulação defensável é que a comparação integral exigiria aceleração por GPU, e que o custo medido em CPU inviabiliza a validação cruzada agrupada de cinco dobras no ambiente do estudo. Esse número também reforça o argumento de viabilidade computacional, ao lado do LSTM, que já custava dezoito vezes o treino do LinearSVC para perder dele.
-
-**Passo 7, concluído:** a calibração isotônica ajustada em dobra interna reduz o ECE de cinco dos sete modelos, e o efeito é maior justamente onde a confiança bruta não significava nada. O LinearSVC cai de 0,6926 para 0,0173, porque o *softmax* da margem não é probabilidade; o SGD cai de 0,3046 para 0,0116. O Naive Bayes e o LSTM já eram bem calibrados e pioram levemente, o que é consequência esperada de ajustar um calibrador sobre uma amostra menor.
-
-**Automação seletiva:** ao alvo de 0,95, o Extra Trees automatiza 67,9% dos chamados com acurácia seletiva de 0,9507 e encaminha 32,1% ao revisor humano; o LinearSVC automatiza 68,97% com 0,9461. Ao alvo de 0,99 a cobertura cai para a faixa de 32% a 46%, e o Naive Bayes só alcança o limiar em duas das cinco dobras.
-
-**Detalhe metodológico que sustenta o resultado:** parte das acurácias seletivas fica pouco abaixo do alvo, como os 0,9461 do LinearSVC contra a meta de 0,95. Isso não é defeito, é a consequência esperada de escolher o limiar numa dobra interna e aplicá-lo a dados nunca vistos. Um procedimento que atingisse o alvo exatamente em todas as dobras seria indício de que o limiar viu o teste. Convém dizer isso na redação, porque um parecerista atento vai reparar na diferença.
-
-**Recortes por tipo e por volume, refeitos sob o protocolo canônico:** os recortes consolidados no item 0.31 do `CONTEXTO.md` existiam apenas para a execução legada e agora saem da mesma rodada, com o mesmo `hash_corpus`. Os três tipos preservam a proporção medida em agosto: Corretiva com 8.483 chamados em 21 categorias, Preventiva com 4.904 em 13 e Não manutenção com 585 em 7, ou 4,2%.
-
-**O achado que o recorte por tipo isola:** distinguir a natureza do serviço é tarefa quase resolvida, enquanto escolher a folha da taxonomia não é. Na tarefa de tipo projetada, o Extra Trees alcança 0,9499 de acurácia, com F1 de 0,9762 em preventiva e 0,9598 em corretiva. Na tarefa de categoria, o mesmo recorte preventivo dá 0,9621 de acurácia contra 0,7468 em corretiva. Preventiva é sistematicamente mais fácil, porque seus chamados são padronizados e repetitivos, o que também explica a concentração de duplicatas textuais.
-
-**Não manutenção é o problema, não a preventiva:** o F1 desse tipo fica entre 0,2684 e 0,5319 conforme o modelo, e é ele que puxa o macro-F1 da tarefa de tipo para a faixa de 0,73 a 0,82, apesar da acurácia acima de 0,93. Vale notar a inversão de ranking: o Extra Trees vence em acurácia, mas o SGD e o LinearSVC vencem em macro-F1, justamente por irem melhor na classe difícil. Reportar só a acurácia esconderia isso.
-
-**Curva ABC:** a classe A reúne 12 categorias e 81,8% do volume, com o LinearSVC em 0,8544 de acurácia e 0,8210 de macro-F1; a classe C reúne 17 categorias e 4,5% do volume, com 0,5580 e 0,5041. É esse contraste que localiza na cauda a distância entre a acurácia de 0,83 e o macro-F1 de 0,67. Dentro da preventiva, a classe A chega a 0,9743 de macro-F1, quase saturada.
-
-**Passo 8, concluído:** os intervalos de confiança vêm de bootstrap por grupo textual, com mil repetições e semente 42. Reamostrar linhas trataria como independentes os 4.586 registros que pertencem a grupos com mais de um membro, e estreitaria os intervalos artificialmente. A unidade de reamostragem é o grupo congelado no Passo 2, que são 9.735 entre os registros avaliados, e não o grupo recalculado sobre o texto vivo, porque só o congelado é reproduzível.
-
-**Protocolo dos testes:** Cochran Q primeiro, com Q = 2669,67 sobre 6 graus de liberdade e p praticamente nulo, o que rejeita a igualdade das taxas de acerto e autoriza as comparações pareadas. Em seguida McNemar nos 21 pares, com correção de Holm sobre essa família. A ordem importa e deve ser declarada: sem o teste global, 21 comparações seriam pesca de significância.
-
-**O que os testes autorizam afirmar:** o LinearSVC supera todos os demais com significância, e a diferença para o SGD, segundo colocado, tem 540 acertos exclusivos contra 312. Mas três pares ficam empatados depois de Holm — Extra Trees contra Regressão Logística, com p ajustado de 0,734, Extra Trees contra SGD, com 0,263, e Random Forest contra Regressão Logística, com 0,050. Esse trio não deve ser apresentado como ordenado; a tabela precisa mostrar o empate, e não apenas as posições.
-
-**Cuidado com o par na fronteira:** os 0,050 de Random Forest contra Regressão Logística ficam exatamente sobre o limiar. É prudente descrevê-lo como indistinguível dentro do poder do teste, em vez de reportá-lo como diferença marginal, porque a leitura oposta depende inteiramente de uma casa decimal.
-
-**Passo 10, parte automatizável concluída:** a matriz de proveniência liga cada grandeza publicável ao artefato, ao script, ao denominador de 13.972, às 41 categorias, às cinco partições e ao hash `3aa42e31`. Os cinco artefatos derivados conferem o mesmo hash e os três do congelamento estão presentes.
-
-**O que a varredura encontrou:** 35 ocorrências de números da execução legada ainda na fonte do artigo, das quais 31 são o total de 14.058 chamados, que passa a ser 13.972. A substituição é editorial e cabe a você; a ferramenta aponta linha e forma, e nunca edita o texto.
-
-**Limite declarado da varredura:** ela procura as acurácias registradas em `estatistica.json`, o total de chamados e a contagem de categorias. O artigo pode conter números de rodadas intermediárias que não estão em nenhum JSON versionado, como o 0,8197 e o 0,5523 da consolidação de agosto, e esses ela não alcança. A contagem é piso, não teto, e a revisão manual continua necessária.
-
-**Passo 9, encerrado como não aplicável:** a especificação original pedia segundo avaliador sem acesso à categoria histórica, o que descreve anotação do zero. A tarefa executada é auditoria de rótulo, na qual a categoria é o objeto do julgamento e ocultá-la a inviabiliza. A medida também não é necessária: a pergunta de pesquisa é se os modelos classificam corretamente contra uma referência, e não se a referência seria reproduzida por outra pessoa.
-
-**O que ocupa o lugar da confiabilidade entre avaliadores:** os 0,60% de inconsistência interna medidos no Passo 2, com 17 grupos de texto idêntico recebendo referência divergente em 85 linhas. É estimativa do ruído do rótulo obtida sem segundo avaliador, e responde à preocupação real por trás da exigência original.
-
-**Duas frases que precisam entrar, sem virar relato de processo:** que a categoria administrativa resulta de registro pelo demandante e verificação por equipe técnica, e não de atribuição isolada — sem isso o leitor supõe rótulo ingênuo e subestima o que os modelos acompanham; e que a confiabilidade entre avaliadores não foi medida, o que vai às limitações. Nenhuma das duas descreve fluxo interno, campos da planilha ou etapas de trabalho.
-
-**Próximo passo:** substituir os números legados no artigo e executar o Passo 11, de redução e reescrita editorial.
+**O que falta:** concluir a redução editorial até 8 a 9 mil palavras e revisar
+o PDF, que é gerado pelo workflow ao entrar em `main`.
 
 ## Critérios para novo fechamento científico
 

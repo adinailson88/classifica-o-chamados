@@ -492,7 +492,7 @@ com suposições distintas sobre os dados: um gerador probabilístico
 SGD), *ensembles* não lineares baseados em árvores (Random Forest, Extra
 Trees) e uma rede neural sequencial (LSTM). Cada família responde de
 forma diferente a um corpus de texto curto, ruidoso e com forte
-desbalanceamento entre categorias (Subseção 3.2; Tabela S1), o que ajuda
+desbalanceamento entre categorias (Subseção 3.2; Tabela A2), o que ajuda
 a explicar por que o desempenho não é uniforme entre elas nas Tabelas 1
 e 2.
 

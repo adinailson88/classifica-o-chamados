@@ -2,7 +2,7 @@
 
 > **LEITURA OBRIGATÓRIA ANTES DE ALTERAR CÓDIGO, RESULTADOS OU ARTIGO.**
 >
-> **Estado geral:** decisões científicas aprovadas; nova execução experimental ainda não iniciada.
+> **Estado geral:** execução canônica `1e476243` concluída; artigo atualizado com os novos números; resta a redução editorial do Passo 11.
 >
 > **Regra principal:** os resultados atualmente publicados são resultados legados. Não atualizar o artigo com novos números até concluir uma única execução canônica, reproduzível e comum a todos os modelos.
 
@@ -331,8 +331,8 @@ A preservação do snapshot permite auditoria histórica e comparação metodol�
 | PR-4 | Passo 6: BERTimbau | PR-2 | concluído — exploratório, por custo medido |
 | PR-5 | Passos 7 e 8: calibração e estatística | PR-3 e PR-4 | concluído — rodada canônica `3aa42e31` |
 | PR-6 | Passo 9: validação humana | nenhuma | encerrado como não aplicável ao desenho |
-| PR-7 | Passo 10: proveniência e artefatos | PR-5 e PR-6 | em execução — matriz montada; falta a substituição editorial no artigo |
-| PR-8 | Passo 11: reescrita editorial | PR-7 | pendente |
+| PR-7 | Passo 10: proveniência e artefatos | PR-5 e PR-6 | concluído — números, tabelas e figuras substituídos pelos da rodada `1e476243` |
+| PR-8 | Passo 11: reescrita editorial | PR-7 | em execução — corpo em ~13.100 palavras, meta de 8 a 9 mil |
 
 ## 9. Registro de andamento
 
@@ -349,6 +349,8 @@ A preservação do snapshot permite auditoria histórica e comparação metodol�
 | 03/08/2026 | 6 | concluído | [PR #178](https://github.com/adinailson88/classificacao-chamados/pull/178), [workflow](https://github.com/adinailson88/classificacao-chamados/actions/runs/30866677706); 10,774 s por passo em CPU de quatro núcleos, 2.103 passos por dobra, 6,44 h por dobra e 32,2 h nas cinco, contra teto de 6 h por job; BERTimbau fica como exploratório no suplemento | decisão registrada; BERTimbau fora da comparação principal |
 | 03/08/2026 | 7 | concluído | rodada canônica `3aa42e31`, mesmo run; calibração isotônica em dobra interna reduz o ECE de 5 dos 7 modelos, com o `linear_svc` caindo de 0,6926 para 0,0173; ao alvo de 0,95 o `extra_trees` automatiza 67,9% com acurácia seletiva de 0,9507 e encaminha 32,1% ao humano | executar o Passo 8: inferência estatística |
 
+| 04/08/2026 | 10 | concluído | rodada canônica `1e476243`, `docs/MATRIZ_PROVENIENCIA.md`; os 5 artefatos derivados e os 3 do congelamento conferem o hash; as Tabelas 1 a 5 do corpo, as Figuras 2 a 6 e as tabelas do apêndice passaram a sair da rodada canônica; a varredura caiu de 35 para 2 ocorrências, ambas falso positivo (`0,7781` é o acordo bruto do SGD) | executar o Passo 11: redução editorial |
+| 04/08/2026 | 11 | em execução | corpo do artigo de 14.782 para ~13.100 palavras; cinco tabelas no corpo e cinco movidas ao suplemento (S7 a S11); a antiga Tabela 3 virou S6; removida a Subseção 3.7, de fluxo interno de triagem; corrigido o protocolo declarado na Subseção 3.5, que ainda dizia `KFold` por linha | concluir a redução até 8 a 9 mil palavras e revisar o PDF |
 Estados permitidos: `pendente`, `em execução`, `bloqueado`, `concluído`, `substituído`.
 
 ## 10. Instruções para continuidade por outro agente
