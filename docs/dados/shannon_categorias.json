@@ -121,8 +121,8 @@
     {
       "categoria_historica": "Hidrossanitária > Bomba",
       "modelos": 9,
-      "suporte_max": 38,
-      "entropia_media_normalizada": 0.4574,
+      "suporte_max": 39,
+      "entropia_media_normalizada": 0.4509,
       "maior_risco": "alta_ambiguidade"
     },
     {
@@ -1407,21 +1407,6 @@
       "risco": "alta_ambiguidade"
     },
     {
-      "modelo": "random_forest",
-      "categoria_historica": "Hidrossanitária > Bomba",
-      "suporte": 38,
-      "categorias_previstas": 5,
-      "entropia_previsoes": 1.5305,
-      "entropia_normalizada": 0.6592,
-      "categorias_efetivas": 2.8889,
-      "top_1_previsto": "Hidrossanitária > Bomba",
-      "top_1_pct": 0.6053,
-      "top_2_previsto": "Hidrossanitária > Hidráulica",
-      "top_2_pct": 0.2632,
-      "concordancia_historico": 0.6053,
-      "risco": "ambiguidade_moderada"
-    },
-    {
       "modelo": "regressao_logistica",
       "categoria_historica": "Manutenção Preventiva > Telhados, calhas, rufos, etc.",
       "suporte": 44,
@@ -1435,6 +1420,21 @@
       "top_2_pct": 0.3409,
       "concordancia_historico": 0.4545,
       "risco": "alta_ambiguidade"
+    },
+    {
+      "modelo": "random_forest",
+      "categoria_historica": "Hidrossanitária > Bomba",
+      "suporte": 39,
+      "categorias_previstas": 5,
+      "entropia_previsoes": 1.5095,
+      "entropia_normalizada": 0.6501,
+      "categorias_efetivas": 2.8472,
+      "top_1_previsto": "Hidrossanitária > Bomba",
+      "top_1_pct": 0.6154,
+      "top_2_previsto": "Hidrossanitária > Hidráulica",
+      "top_2_pct": 0.2564,
+      "concordancia_historico": 0.6154,
+      "risco": "ambiguidade_moderada"
     },
     {
       "modelo": "linear_svc",
@@ -1587,21 +1587,6 @@
       "risco": "ambiguidade_moderada"
     },
     {
-      "modelo": "lstm",
-      "categoria_historica": "Hidrossanitária > Bomba",
-      "suporte": 38,
-      "categorias_previstas": 12,
-      "entropia_previsoes": 2.1744,
-      "entropia_normalizada": 0.6065,
-      "categorias_efetivas": 4.514,
-      "top_1_previsto": "Hidrossanitária > Bomba",
-      "top_1_pct": 0.6316,
-      "top_2_previsto": "Manutenção Preventiva > Esgoto",
-      "top_2_pct": 0.0789,
-      "concordancia_historico": 0.6316,
-      "risco": "ambiguidade_moderada"
-    },
-    {
       "modelo": "transformer_ft",
       "categoria_historica": "Elétrica > Gerador",
       "suporte": 38,
@@ -1662,6 +1647,21 @@
       "risco": "ambiguidade_moderada"
     },
     {
+      "modelo": "lstm",
+      "categoria_historica": "Hidrossanitária > Bomba",
+      "suporte": 39,
+      "categorias_previstas": 12,
+      "entropia_previsoes": 2.1354,
+      "entropia_normalizada": 0.5956,
+      "categorias_efetivas": 4.3935,
+      "top_1_previsto": "Hidrossanitária > Bomba",
+      "top_1_pct": 0.641,
+      "top_2_previsto": "Manutenção Preventiva > Esgoto",
+      "top_2_pct": 0.0769,
+      "concordancia_historico": 0.641,
+      "risco": "ambiguidade_moderada"
+    },
+    {
       "modelo": "extra_trees",
       "categoria_historica": "Outros > Erro de chamado",
       "suporte": 245,
@@ -1707,21 +1707,6 @@
       "risco": "ambiguidade_moderada"
     },
     {
-      "modelo": "naive_bayes",
-      "categoria_historica": "Hidrossanitária > Bomba",
-      "suporte": 38,
-      "categorias_previstas": 7,
-      "entropia_previsoes": 1.6211,
-      "entropia_normalizada": 0.5774,
-      "categorias_efetivas": 3.076,
-      "top_1_previsto": "Hidrossanitária > Hidráulica",
-      "top_1_pct": 0.6842,
-      "top_2_previsto": "Climatização > Ar condicionado split",
-      "top_2_pct": 0.1316,
-      "concordancia_historico": 0.0,
-      "risco": "ambiguidade_moderada"
-    },
-    {
       "modelo": "sgd",
       "categoria_historica": "Instalação de Acessórios e Mobiliário > Instalação/reparo de equipamentos (Suportes de TV, acessórios de banheiro e quadro branco)",
       "suporte": 294,
@@ -1749,6 +1734,21 @@
       "top_2_previsto": "Estrutura Predial > Telhados, calhas, rufos, etc.",
       "top_2_pct": 0.0845,
       "concordancia_historico": 0.5822,
+      "risco": "ambiguidade_moderada"
+    },
+    {
+      "modelo": "naive_bayes",
+      "categoria_historica": "Hidrossanitária > Bomba",
+      "suporte": 39,
+      "categorias_previstas": 7,
+      "entropia_previsoes": 1.5933,
+      "entropia_normalizada": 0.5675,
+      "categorias_efetivas": 3.0174,
+      "top_1_previsto": "Hidrossanitária > Hidráulica",
+      "top_1_pct": 0.6923,
+      "top_2_previsto": "Climatização > Ar condicionado split",
+      "top_2_pct": 0.1282,
+      "concordancia_historico": 0.0,
       "risco": "ambiguidade_moderada"
     },
     {
@@ -2127,21 +2127,6 @@
       "risco": "ambiguidade_moderada"
     },
     {
-      "modelo": "extra_trees",
-      "categoria_historica": "Hidrossanitária > Bomba",
-      "suporte": 38,
-      "categorias_previstas": 6,
-      "entropia_previsoes": 1.2774,
-      "entropia_normalizada": 0.4942,
-      "categorias_efetivas": 2.424,
-      "top_1_previsto": "Hidrossanitária > Bomba",
-      "top_1_pct": 0.7632,
-      "top_2_previsto": "Hidrossanitária > Hidráulica",
-      "top_2_pct": 0.1053,
-      "concordancia_historico": 0.7632,
-      "risco": "ambiguidade_moderada"
-    },
-    {
       "modelo": "lstm",
       "categoria_historica": "Hidrossanitária > Hidráulica",
       "suporte": 1284,
@@ -2244,6 +2229,21 @@
       "top_2_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
       "top_2_pct": 0.1829,
       "concordancia_historico": 0.6089,
+      "risco": "ambiguidade_moderada"
+    },
+    {
+      "modelo": "extra_trees",
+      "categoria_historica": "Hidrossanitária > Bomba",
+      "suporte": 39,
+      "categorias_previstas": 6,
+      "entropia_previsoes": 1.2545,
+      "entropia_normalizada": 0.4853,
+      "categorias_efetivas": 2.3858,
+      "top_1_previsto": "Hidrossanitária > Bomba",
+      "top_1_pct": 0.7692,
+      "top_2_previsto": "Hidrossanitária > Hidráulica",
+      "top_2_pct": 0.1026,
+      "concordancia_historico": 0.7692,
       "risco": "ambiguidade_moderada"
     },
     {
@@ -2682,21 +2682,6 @@
       "risco": "estavel"
     },
     {
-      "modelo": "regressao_logistica",
-      "categoria_historica": "Hidrossanitária > Bomba",
-      "suporte": 38,
-      "categorias_previstas": 5,
-      "entropia_previsoes": 0.9123,
-      "entropia_normalizada": 0.3929,
-      "categorias_efetivas": 1.882,
-      "top_1_previsto": "Hidrossanitária > Bomba",
-      "top_1_pct": 0.8421,
-      "top_2_previsto": "Manutenção Preventiva > Esgoto",
-      "top_2_pct": 0.0789,
-      "concordancia_historico": 0.8421,
-      "risco": "estavel"
-    },
-    {
       "modelo": "linear_svc",
       "categoria_historica": "Estrutura Predial > Forro",
       "suporte": 147,
@@ -2739,6 +2724,21 @@
       "top_2_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
       "top_2_pct": 0.0517,
       "concordancia_historico": 0.8276,
+      "risco": "estavel"
+    },
+    {
+      "modelo": "regressao_logistica",
+      "categoria_historica": "Hidrossanitária > Bomba",
+      "suporte": 39,
+      "categorias_previstas": 5,
+      "entropia_previsoes": 0.8951,
+      "entropia_normalizada": 0.3855,
+      "categorias_efetivas": 1.8598,
+      "top_1_previsto": "Hidrossanitária > Bomba",
+      "top_1_pct": 0.8462,
+      "top_2_previsto": "Manutenção Preventiva > Esgoto",
+      "top_2_pct": 0.0769,
+      "concordancia_historico": 0.8462,
       "risco": "estavel"
     },
     {
@@ -2922,21 +2922,6 @@
       "risco": "estavel"
     },
     {
-      "modelo": "sgd",
-      "categoria_historica": "Hidrossanitária > Bomba",
-      "suporte": 38,
-      "categorias_previstas": 4,
-      "entropia_previsoes": 0.6434,
-      "entropia_normalizada": 0.3217,
-      "categorias_efetivas": 1.562,
-      "top_1_previsto": "Hidrossanitária > Bomba",
-      "top_1_pct": 0.8947,
-      "top_2_previsto": "Manutenção Preventiva > Esgoto",
-      "top_2_pct": 0.0526,
-      "concordancia_historico": 0.8947,
-      "risco": "estavel"
-    },
-    {
       "modelo": "naive_bayes",
       "categoria_historica": "Manutenção Preventiva > Vistoria em Instalações",
       "suporte": 247,
@@ -2949,6 +2934,21 @@
       "top_2_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
       "top_2_pct": 0.0567,
       "concordancia_historico": 0.8664,
+      "risco": "estavel"
+    },
+    {
+      "modelo": "sgd",
+      "categoria_historica": "Hidrossanitária > Bomba",
+      "suporte": 39,
+      "categorias_previstas": 4,
+      "entropia_previsoes": 0.6309,
+      "entropia_normalizada": 0.3155,
+      "categorias_efetivas": 1.5485,
+      "top_1_previsto": "Hidrossanitária > Bomba",
+      "top_1_pct": 0.8974,
+      "top_2_previsto": "Manutenção Preventiva > Esgoto",
+      "top_2_pct": 0.0513,
+      "concordancia_historico": 0.8974,
       "risco": "estavel"
     },
     {
@@ -3012,21 +3012,6 @@
       "risco": "estavel"
     },
     {
-      "modelo": "linear_svc",
-      "categoria_historica": "Hidrossanitária > Bomba",
-      "suporte": 38,
-      "categorias_previstas": 3,
-      "entropia_previsoes": 0.471,
-      "entropia_normalizada": 0.2971,
-      "categorias_efetivas": 1.386,
-      "top_1_previsto": "Hidrossanitária > Bomba",
-      "top_1_pct": 0.9211,
-      "top_2_previsto": "Manutenção Preventiva > Esgoto",
-      "top_2_pct": 0.0526,
-      "concordancia_historico": 0.9211,
-      "risco": "estavel"
-    },
-    {
       "modelo": "random_forest",
       "categoria_historica": "Elétrica > Iluminação",
       "suporte": 758,
@@ -3069,6 +3054,21 @@
       "top_2_previsto": "Elétrica > Iluminação",
       "top_2_pct": 0.0909,
       "concordancia_historico": 0.8788,
+      "risco": "estavel"
+    },
+    {
+      "modelo": "linear_svc",
+      "categoria_historica": "Hidrossanitária > Bomba",
+      "suporte": 39,
+      "categorias_previstas": 3,
+      "entropia_previsoes": 0.4619,
+      "entropia_normalizada": 0.2914,
+      "categorias_efetivas": 1.3773,
+      "top_1_previsto": "Hidrossanitária > Bomba",
+      "top_1_pct": 0.9231,
+      "top_2_previsto": "Manutenção Preventiva > Esgoto",
+      "top_2_pct": 0.0513,
+      "concordancia_historico": 0.9231,
       "risco": "estavel"
     },
     {
