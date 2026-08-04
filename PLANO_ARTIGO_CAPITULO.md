@@ -132,7 +132,13 @@ A fonte editável é `04_artigo/artigo_classificacao_chamados_v3.md`. O PDF publ
 
 **Limite declarado da varredura:** ela procura as acurácias registradas em `estatistica.json`, o total de chamados e a contagem de categorias. O artigo pode conter números de rodadas intermediárias que não estão em nenhum JSON versionado, como o 0,8197 e o 0,5523 da consolidação de agosto, e esses ela não alcança. A contagem é piso, não teto, e a revisão manual continua necessária.
 
-**Próximo passo:** substituir os números legados no artigo e executar o Passo 11, de redução e reescrita editorial. O Passo 9, da segunda validação humana cega, é dependência externa.
+**Passo 9, encerrado como não aplicável:** a especificação original pedia segundo avaliador sem acesso à categoria histórica, o que descreve anotação do zero. A tarefa executada é auditoria de rótulo, na qual a categoria é o objeto do julgamento e ocultá-la a inviabiliza. A medida também não é necessária: a pergunta de pesquisa é se os modelos classificam corretamente contra uma referência, e não se a referência seria reproduzida por outra pessoa.
+
+**O que ocupa o lugar da confiabilidade entre avaliadores:** os 0,60% de inconsistência interna medidos no Passo 2, com 17 grupos de texto idêntico recebendo referência divergente em 85 linhas. É estimativa do ruído do rótulo obtida sem segundo avaliador, e responde à preocupação real por trás da exigência original.
+
+**Duas frases que precisam entrar, sem virar relato de processo:** que a categoria administrativa resulta de registro pelo demandante e verificação por equipe técnica, e não de atribuição isolada — sem isso o leitor supõe rótulo ingênuo e subestima o que os modelos acompanham; e que a confiabilidade entre avaliadores não foi medida, o que vai às limitações. Nenhuma das duas descreve fluxo interno, campos da planilha ou etapas de trabalho.
+
+**Próximo passo:** substituir os números legados no artigo e executar o Passo 11, de redução e reescrita editorial.
 
 ## Critérios para novo fechamento científico
 

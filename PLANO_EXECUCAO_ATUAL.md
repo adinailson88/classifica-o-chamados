@@ -43,10 +43,11 @@ Estas decisões não precisam ser perguntadas novamente:
 - o corpus informado contém 14.058 chamados revisados;
 - a referência humana final foi definida para todos os registros;
 - o autor informou taxonomia final de 50 categorias;
-- a revisão final foi feita por um único especialista;
+- a categoria da coluna C é a saída do GLPI, produto do registro pelo demandante e da verificação pela equipe de triagem, e não atribuição isolada;
+- a revisão final foi feita por um único especialista, em desenho de auditoria sobre rótulo já verificado, e não de anotação do zero;
 - o especialista analisou título, descrição do chamado, título e descrição de OSM, quando existentes, e a categoria histórica;
 - previsões e níveis de confiança dos modelos não estavam visíveis durante a revisão;
-- a categoria histórica pode ter produzido viés de ancoragem e isso deve constar nas limitações;
+- ver a categoria histórica é constitutivo da tarefa de auditoria, e não contaminação: julgar um rótulo inadequado pressupõe conhecê-lo;
 - o artigo não deve descrever colunas da planilha no corpo científico;
 - deve-se usar “referência humana final” ou “categoria de referência revisada”, não “verdade validada”;
 - todos os modelos devem ser retreinados com a referência humana revisada, em partições que preservem a separação entre treino e teste;
@@ -56,7 +57,7 @@ Estas decisões não precisam ser perguntadas novamente:
 - regras de periodicidade preventiva serão avaliadas como camada híbrida separada;
 - a operação pretendida comparará sugestão humana e automação seletiva por confiança;
 - os erros terão custo uniforme nesta versão;
-- haverá segunda avaliação humana independente e cega em amostra estratificada;
+- não haverá segunda avaliação humana; ver o Passo 9 para a justificativa;
 - os detalhes de reprodutibilidade serão divididos entre corpo, suplemento e repositório;
 - o periódico será escolhido depois da revisão;
 - a meta editorial provisória é de 8 a 9 mil palavras.
@@ -71,7 +72,7 @@ Estas decisões não precisam ser perguntadas novamente:
 | Partição principal | grupos textuais | execução vigente foi principalmente por registro | substituir |
 | BERTimbau | mesmo protocolo ou suplemento | protocolo diferente dos sete modelos | decidir após teste de viabilidade |
 | Resultados atuais | apenas histórico | ainda sustentam artigo, painel e JSONs | arquivar e substituir |
-| Segunda revisão cega | amostra estratificada | não executada | dependência humana |
+| Segunda revisão cega | descartada | inaplicável ao desenho de auditoria | encerrada, ver Passo 9 |
 
 Nenhum número divergente deve ser escolhido por preferência editorial. O total correto precisa ser produzido por uma auditoria reproduzível da base e da taxonomia.
 
@@ -235,18 +236,38 @@ Se a execução integral não for viável:
 
 ### Passo 9 — segunda validação humana cega
 
-**Dependência externa ao código.**
+**Encerrado em 03/08/2026 como NÃO APLICÁVEL ao desenho.** Não é dependência
+pendente e não deve ser retomado como tarefa.
 
-**Desenho:**
+**Por que a especificação original não se sustenta.** O passo pedia um segundo
+avaliador "sem acesso à categoria histórica". Isso descreve anotação do zero,
+que é tarefa diferente da que foi executada e da que faz sentido executar aqui.
+O que existe é auditoria de rótulo: a pergunta é se a categoria registrada é
+adequada ao chamado, e a categoria é o objeto do julgamento. Ocultá-la não
+remove viés, torna a tarefa impossível — para corrigir um rótulo é preciso
+vê-lo, e isso vale igualmente para a triagem da etapa operacional.
 
-- segundo avaliador sem acesso à categoria histórica e às previsões;
-- amostra estratificada pelas categorias;
-- representação de casos confirmados e dos casos corrigidos;
-- tamanho amostral justificado antes da seleção;
-- concordância bruta e coeficiente de Cohen;
-- divergências resolvidas por consenso ou terceiro avaliador.
+**Por que a medida também não é necessária.** A pergunta de pesquisa é se os
+modelos classificam corretamente contra uma referência, não se a referência
+seria reproduzida por outra pessoa. Um Kappa entre humanos responderia à
+segunda pergunta, e ainda assim mal: como o revisor viu a categoria antes de
+decidir, o coeficiente sairia inflado pela adjudicação e violaria o pressuposto
+de independência. Publicá-lo como confiabilidade entre avaliadores seria
+afirmar mais do que o dado sustenta.
 
-**Aceite:** protocolo, amostra, decisões e resolução de divergências ficam rastreáveis.
+**O que ocupa o lugar dele.** O Passo 2 mediu 17 grupos de texto idêntico com
+referência divergente, afetando 85 linhas, ou 0,60% da base congelada. É
+inconsistência interna da própria referência, medida sem segundo avaliador, e
+serve tanto como piso de erro irredutível quanto como estimativa do ruído do
+rótulo. Responde à preocupação real por trás da exigência original.
+
+**O que o artigo pode e não pode afirmar.** Pode reportar os 0,60% de
+inconsistência interna e caracterizar a linha de base como rótulo
+administrativo verificado por equipe técnica, e não como atribuição única. Não
+pode afirmar que a referência é reproduzível por outro especialista, porque
+isso não foi medido, e a ausência dessa medida entra nas limitações.
+
+**Aceite:** justificativa registrada e limitação declarada. Nada a executar.
 
 ### Passo 10 — proveniência e reconstrução dos artefatos
 
@@ -309,7 +330,7 @@ A preservação do snapshot permite auditoria histórica e comparação metodol�
 | PR-3 | Passos 4 e 5: sete modelos e regras | PR-2 | concluído — rodada canônica `3aa42e31` |
 | PR-4 | Passo 6: BERTimbau | PR-2 | concluído — exploratório, por custo medido |
 | PR-5 | Passos 7 e 8: calibração e estatística | PR-3 e PR-4 | concluído — rodada canônica `3aa42e31` |
-| PR-6 | Passo 9: validação humana | protocolo aprovado | pendente externo |
+| PR-6 | Passo 9: validação humana | nenhuma | encerrado como não aplicável ao desenho |
 | PR-7 | Passo 10: proveniência e artefatos | PR-5 e PR-6 | em execução — matriz montada; falta a substituição editorial no artigo |
 | PR-8 | Passo 11: reescrita editorial | PR-7 | pendente |
 
