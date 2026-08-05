@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "pergunta": "o corpus congelado carrega data de abertura do chamado, que permita separar treino, calibracao e teste no tempo?",
+  "veredito": "sem_variavel_temporal",
+  "candidatos": [],
+  "fontes_ausentes": [],
+  "fontes": [
+    {
+      "fonte": "AGENTS.md :: Colunas esperadas",
+      "natureza": "contrato da aba principal",
+      "presente": true,
+      "campos": 17,
+      "candidatos": [],
+      "carimbos_de_execucao": []
+    },
+    {
+      "fonte": "docs/dados/auditoria_base_canonica.json",
+      "natureza": "artefato canonico",
+      "presente": true,
+      "campos": 41,
+      "candidatos": [],
+      "carimbos_de_execucao": [
+        "gerado_em"
+      ]
+    },
+    {
+      "fonte": "docs/dados/rodada_canonica.json",
+      "natureza": "artefato canonico",
+      "presente": true,
+      "campos": 33,
+      "candidatos": [],
+      "carimbos_de_execucao": [
+        "gerado_em"
+      ]
+    },
+    {
+      "fonte": "docs/dados/grupos_textuais.json",
+      "natureza": "artefato canonico",
+      "presente": true,
+      "campos": 46,
+      "candidatos": [],
+      "carimbos_de_execucao": [
+        "gerado_em"
+      ]
+    },
+    {
+      "fonte": "docs/dados/particoes_canonicas.json",
+      "natureza": "artefato canonico",
+      "presente": true,
+      "campos": 47,
+      "candidatos": [],
+      "carimbos_de_execucao": [
+        "gerado_em"
+      ]
+    },
+    {
+      "fonte": "docs/dados/grupos_textuais_mapa.csv",
+      "natureza": "artefato canonico",
+      "presente": true,
+      "campos": 2,
+      "candidatos": [],
+      "carimbos_de_execucao": []
+    },
+    {
+      "fonte": "docs/dados/particoes_canonicas_mapa.csv",
+      "natureza": "artefato canonico",
+      "presente": true,
+      "campos": 3,
+      "candidatos": [],
+      "carimbos_de_execucao": []
+    },
+    {
+      "fonte": "docs/dados/retreino_canonico_predicoes.csv",
+      "natureza": "artefato canonico",
+      "presente": true,
+      "campos": 6,
+      "candidatos": [],
+      "carimbos_de_execucao": []
+    }
+  ],
+  "consequencia": "a avaliacao temporal nao pode ser executada sobre os artefatos congelados; a validacao cruzada agrupada estima generalizacao entre grupos textuais, e nao desempenho futuro sob deriva temporal, de modo que toda afirmacao de uso prospectivo precisa ser condicional",
+  "carimbos_ignorados": "campos como gerado_em registram quando o artefato foi produzido e nao quando o chamado foi aberto; nao servem a divisao temporal",
+  "gerado_em": "05/08/2026 10:22",
+  "script_origem": "src/auditar_disponibilidade_temporal.py"
+}

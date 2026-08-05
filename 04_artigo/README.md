@@ -43,9 +43,23 @@ Testes de normalidade, homogeneidade, outliers e VIF não pertencem ao corpo. N�
 
 O ganho líquido de reclassificação é `corrigidos − prejudicados` e permanece o resultado principal, mas nenhuma afirmação decisória pode omitir que ele supõe custos iguais. A qualificação usa razões adimensionais, nunca valor monetário.
 
+## Regra sobre alcance temporal
+
+O corpus congelado **não** tem data de abertura por chamado, veredito
+`sem_variavel_temporal` registrado em `docs/dados/disponibilidade_temporal.json`
+e reproduzível por `python src/auditar_disponibilidade_temporal.py`. Não há,
+portanto, separação temporal entre treino, calibração e teste, e nenhuma
+métrica de desempenho futuro pode ser produzida ou estimada. A validação
+cruzada agrupada mede generalização entre grupos de texto normalizado dentro de
+um mesmo corte de extração. Toda afirmação de uso prospectivo, de decisão
+automática sobre chamado novo ou de recomendação operacional deve vir
+condicionada a essa lacuna e acompanhada da exigência de monitoramento e
+recalibração. Não escrever "corte por data de abertura": o corte é de extração.
+
 ## Estado atual
 
 - O BERTimbau permanece fora da comparação principal por custo computacional medido, e figura como experimento exploratório no material suplementar.
 - O corpo tem seis figuras e seis tabelas; o suplemento vai de S1 a S15.
-- O Passo 11 do plano de execução segue aberto: falta reduzir o corpo do artigo à meta de 8 a 9 mil palavras e cerca de 22 páginas.
+- O Passo 11 do plano de execução segue aberto: falta reduzir o corpo do artigo à meta de 8 a 9 mil palavras e cerca de 22 páginas; o corpo está em 13.719 palavras.
+- A avaliação temporal não foi executada por ausência de data no corpus, e a limitação está declarada na Subseção 5.3.
 - O histórico detalhado das rodadas editoriais e técnicas permanece no Git e nos Pull Requests; não deve ser acumulado neste README.

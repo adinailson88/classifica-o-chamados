@@ -374,13 +374,16 @@ incompletas, características que impõem desafios de pré-processamento e
 representação (SUNDARAM; ZEID, 2025).
 
 Como a base operacional é alimentada continuamente pelo sistema de
-atendimento, todos os resultados da Seção 4 referem-se a um corte por data
-de abertura, que compreende os chamados registrados até 1º de agosto de
-2026 e totaliza 14.060 registros elegíveis. Os artefatos que sustentam
-cada número foram materializados sobre esse mesmo corte e estão
+atendimento, todos os resultados da Seção 4 referem-se a um corte único de
+extração, que totaliza 14.060 registros elegíveis. Os artefatos que
+sustentam cada número foram materializados sobre esse mesmo corte e estão
 versionados, de modo que a reprodução não depende do estado corrente do
-sistema institucional. A distribuição completa entre as 50 categorias
-históricas é apresentada no Apêndice A.
+sistema institucional. O corte não carrega, contudo, a data de abertura do
+chamado: as variáveis congeladas são o identificador reduzido, a categoria
+histórica, a referência revisada e sua origem, de sorte que o corpus não
+admite ordenação cronológica, restrição cuja consequência para o alcance
+dos resultados é tratada na Subseção 5.3. A distribuição completa entre as
+50 categorias históricas é apresentada no Apêndice A.
 
 **3.3 Pré-processamento textual**
 
@@ -463,7 +466,11 @@ foi preferida a um conjunto de teste fixo porque produz estimativas de
 menor variância em bases desbalanceadas, ao avaliar cada exemplo em alguma
 dobra em vez de descartar uma fração constante do treino (KOHAVI, 1995),
 condição pertinente a um corpus em que várias categorias apresentam
-suporte de dígito único.
+suporte de dígito único. Cabe delimitar o que esse desenho estima. A
+separação entre treino e teste é textual, e não cronológica, de modo que
+as métricas da Seção 4 medem generalização para grupos de texto não vistos
+dentro do mesmo corte de extração, e não desempenho sobre chamados
+posteriores, sujeitos a deriva de vocabulário e a alteração de taxonomia.
 
 São reportadas acurácia, *macro*-F1, *balanced accuracy* e intervalo de
 confiança a 95% por *bootstrap*, reamostragem com reposição que estima a
@@ -1321,14 +1328,12 @@ especialista único decidiu trocar tendo o rótulo à vista, o que é
 compatível com a hipótese de rótulos ruidosos da literatura (KEJRIWAL *et
 al.*, 2024; ZHANG *et al.*, 2025) sem quantificá-la. O valor é específico
 deste corpus e desta taxonomia, e sua transposição a outras instituições
-exige nova revisão.
-
-A taxa é baixa, e as duas causas que concorrem para isso, o rótulo
-produzido sob verificação de equipe técnica e a ancoragem do procedimento
-de auditoria, foram discriminadas na Subseção 3.6 sem que o desenho
-permita separá-las. Seja qual for a proporção entre elas, o que os modelos
-acompanham não é um rótulo ingênuo, e é essa estabilidade da linha de base
-que torna negativo o ganho de reclassificação discutido na Subseção 5.2.
+exige nova revisão. A taxa é baixa por duas causas que a Subseção 3.6
+discrimina sem que o desenho permita separá-las, o rótulo produzido sob
+verificação de equipe técnica e a ancoragem do procedimento de auditoria;
+seja qual for a proporção entre elas, o que os modelos acompanham não é um
+rótulo ingênuo, e é essa estabilidade da linha de base que torna negativo
+o ganho de reclassificação discutido na Subseção 5.2.
 
 O BERTimbau não integra essa comparação por motivo computacional medido
 (Subseção 4.3), e nada se afirma aqui sobre sua qualidade relativa, pois
@@ -1338,38 +1343,37 @@ direta.
 **5.2 Reclassificação, ambiguidade taxonômica e calibração**
 
 O resultado da reclassificação (Subseção 4.5) contraria a expectativa que
-motivou o estudo e tem consequência operacional direta. O ganho líquido
-de corrigir chamados já classificados é negativo em todos os sete
-modelos, e a magnitude do prejuízo acompanha, na ordem inversa, o
-desempenho de cada um. Não se trata de nuance entre modelos, e sim de
-veredito sobre a tarefa: nenhum classificador aqui avaliado é candidato a
-reclassificar a base histórica em massa.
-
-A explicação é aritmética antes de ser metodológica. Estreito o espaço de
-alteração da referência (Subseção 5.1), qualquer divergência sistemática
-entre modelo e histórico tende a cair fora dele, e o melhor modelo
-diverge 2.849 vezes para acertar 475, cerca de um acerto para cada cinco
-prejuízos. O resultado depende de a referência cobrir todo o corpus, pois
-arbitrar parte das divergências pela decisão revisada e parte pelo
-próprio histórico misturaria referências de naturezas distintas e
-premiaria o modelo por concordar com o rótulo que se pretendia auditar.
-
-O veredito não é artefato de contabilidade. Sob a função de utilidade da
-Subseção 4.5, a reclassificação direta só passaria a compensar se
-estragar um registro custasse menos de um quinto do que vale corrigir
-outro, hipótese que a assimetria do dano contradiz, e a utilidade
-permanece negativa em toda a faixa de razões examinada. É a hipótese
+motivou o estudo e tem consequência operacional direta. O ganho líquido de
+corrigir chamados já classificados é negativo em todos os sete modelos, e
+a magnitude do prejuízo acompanha, na ordem inversa, o desempenho de cada
+um. Não se trata de nuance entre modelos, e sim de veredito sobre a
+tarefa: nenhum classificador aqui avaliado é candidato a reclassificar a
+base histórica em massa. A explicação é aritmética antes de ser
+metodológica, pois, estreito o espaço de alteração da referência (Subseção
+5.1), qualquer divergência sistemática entre modelo e histórico tende a
+cair fora dele, e o melhor modelo diverge 2.849 vezes para acertar 475,
+cerca de um acerto para cada cinco prejuízos. O resultado depende de a
+referência cobrir todo o corpus, pois arbitrar parte das divergências pelo
+próprio histórico premiaria o modelo por concordar com o rótulo que se
+pretendia auditar. O veredito tampouco é artefato de contabilidade: sob a
+função de utilidade da Subseção 4.5, a reclassificação direta só
+compensaria se estragar um registro custasse menos de um quinto do que
+vale corrigir outro, hipótese que a assimetria do dano contradiz, e é a
 inversa, a de que o prejuízo custa tanto ou mais que a correção, que
 descreve o caso da manutenção predial.
 
 Disso não decorre que a classificação automática seja inútil neste
-domínio, e sim que seu uso defensável é prospectivo e seletivo. Sobre
-chamados novos, não há rótulo prévio correto a ser degradado. Sobre a
-base histórica, dois encaminhamentos se sustentam. O primeiro é a
-automação condicionada à confiança da Subseção 4.4, que preserva o
-registro nas faixas em que o modelo não tem vantagem demonstrável sobre
-ele. O segundo inverte o papel da divergência: em vez de autorizar a
-reescrita, ela prioriza a fila de auditoria humana, e nessa função a
+domínio, e sim que seu uso defensável é seletivo. Sobre chamados novos não
+há rótulo prévio correto a ser degradado, o que retira o risco medido na
+Subseção 4.5, mas não transporta para o futuro a acurácia aqui reportada:
+ela foi estimada entre grupos textuais de um mesmo corte de extração, e
+não ao longo do tempo (Subseção 5.3), de modo que o uso prospectivo é
+recomendação condicional. Sobre a base histórica, dois encaminhamentos se
+sustentam. O primeiro é a automação condicionada à confiança da Subseção
+4.4, que preserva o registro nas faixas em que o modelo não tem vantagem
+demonstrável sobre ele. O segundo inverte o papel da divergência: em vez
+de autorizar a reescrita, ela prioriza a fila de auditoria humana, e nessa
+função a
 mesma predição que perde por larga margem sustenta enriquecimento de
 cerca de quatro vezes sobre a revisão aleatória. A predição que não
 substitui o revisor pode dirigi-lo, e essa é a leitura operacional que o
@@ -1380,20 +1384,14 @@ A camada de entropia de Shannon e divergência de Jensen-Shannon (Subseção
 amplia o repertório de governança ao separar três fenômenos que a acurácia
 isolada tende a confundir: o erro de modelo, a ambiguidade genuína da
 taxonomia institucional e a heterogeneidade natural da distribuição de
-chamados. Os chamados em que os votos se espalham por três ou mais
-categorias oferecem critério de priorização de auditoria distinto do
-simples corte por baixa confiança de um único classificador.
+chamados.
 
 A calibração transforma essa leitura em procedimento operável (Subseção
-4.4). A confiança bruta não é probabilidade, e o caso do LinearSVC é
-extremo: seu erro de calibração esperado de 0,6925 cai a 0,0178 após
-ajuste isotônico em dobra interna (PLATT, 1999; GUO *et al.*, 2017). Com
-escores calibrados, o alvo de 0,95 de acurácia é atingido automatizando
-cerca de dois terços do volume e encaminhando o terço restante à revisão
-humana. Essa é a forma defensável de cumprir o critério de sucesso do
-protocolo, que associa confiança alta a acerto alto, sem depender de
-faixas de confiança bruta cuja escala não tem interpretação
-probabilística.
+4.4). Escores brutos não são probabilidade, e o ajuste isotônico em dobra
+interna (PLATT, 1999; GUO *et al.*, 2017) é o que permite associar
+confiança alta a acerto alto sem depender de faixas cuja escala não tem
+interpretação probabilística, condição do regime seletivo discutido
+acima.
 
 Uma ressalva qualifica a leitura: o calibrador é ajustado sobre escores
 de um modelo treinado em três dobras e aplicado a escores de um modelo
@@ -1450,6 +1448,32 @@ mas dissocia o experimento do crescimento da base operacional, e dois
 registros tiveram o texto editado depois, o que basta para explicar
 diferenças de última casa decimal em execuções futuras.
 
+A limitação mais consequente para o uso prospectivo é a ausência de
+validação temporal. O corpus congelado não dispõe de data de abertura por
+chamado, restrição verificada sobre o contrato de colunas da base e sobre
+os artefatos da rodada canônica, de modo que treino, calibração e teste
+não puderam ser separados em períodos sucessivos. Segue-se que a validação
+cruzada agrupada estima generalização entre grupos textuais de um mesmo
+corte de extração, e não desempenho futuro sob deriva temporal: nenhum
+número deste artigo prevê o comportamento do classificador sobre chamados
+posteriores, e toda recomendação de uso prospectivo é condicional.
+
+Os mecanismos que essa lacuna deixa por medir operam na direção do
+desempenho reportado. A deriva de vocabulário desloca a matriz de
+atributos à medida que entram equipamentos, edificações e jargões ausentes
+do treino; cada fusão, criação ou renomeação de categoria, providência
+recomendada na Subseção 4.10, altera o próprio espaço de saída, incluído
+aí o caso extremo da categoria nova, para a qual não há exemplo e não pode
+haver predição; mudanças no formulário de abertura e na composição da
+equipe de triagem alteram a distribuição do texto de entrada e do rótulo
+administrativo que lhe corresponde. Implantação defensável pressupõe, por
+conseguinte, monitoramento da acurácia sobre amostra auditada,
+recalibração periódica dos escores, dado que o limiar da Subseção 4.4 é
+solidário à distribuição de confiança observada, e retreinamento a cada
+mudança de taxonomia. A avaliação em períodos sucessivos depende de
+extração que preserve a data de abertura e constitui validação futura
+prioritária, anterior a qualquer decisão de automação em regime.
+
 Quanto às arquiteturas, o BERTimbau não foi avaliado sob este protocolo,
 por limitação de infraestrutura, e a execução *out-of-fold* integral com
 aceleração gráfica permanece como trabalho futuro; a LSTM, por sua vez,
@@ -1481,9 +1505,11 @@ registro correto custa mais do que vale recuperar um incorreto.
 O recorte da Subseção 4.11 indica em que ordem essa camada pode ser
 incorporada a indicadores institucionais. A razão entre manutenção
 preventiva e corretiva, que expressa a maturidade da gestão do parque
-edificado, é a leitura de menor erro medido e pode ser publicada sem
-revisão caso a caso; já os indicadores desagregados por categoria exigem
-restrição às classes de maior volume dentro de cada tipo, sob pena de
+edificado, é a leitura de menor erro medido e dispensa revisão caso a
+caso, desde que o erro seja reaferido periodicamente sobre amostra
+auditada, uma vez que o valor medido vale para o corte avaliado; já os
+indicadores desagregados por categoria exigem restrição às classes de
+maior volume dentro de cada tipo, sob pena de
 atribuir a frações residuais do corpus uma precisão que a medição não
 sustenta. A hierarquia converte o diagnóstico de desempenho em critério de
 publicação de indicador, e não apenas em ressalva metodológica.
@@ -1504,7 +1530,11 @@ significância estatística, ao custo de treino de 2,44 s sobre a base
 inteira. A recomendação operacional é usá-lo com calibração isotônica e
 automação condicionada à confiança, regime em que cerca de dois terços do
 volume podem ser decididos automaticamente com acurácia próxima de 0,95 e
-o terço restante encaminhado à revisão humana.
+o terço restante encaminhado à revisão humana. A recomendação é
+condicional quanto a chamados futuros, pois o corpus congelado, desprovido
+de data de abertura, não permitiu separar treino, calibração e teste no
+tempo: estender o regime seletivo à operação corrente pressupõe
+monitoramento do desempenho e recalibração periódica.
 
 O achado que mais altera a orientação prática é negativo. A
 reclassificação automática da base histórica produz prejuízo líquido em
@@ -1526,13 +1556,18 @@ A referência provém de auditoria administrativa conduzida por avaliador
 independente, de modo que o estudo não estima a prevalência de erro do
 rótulo histórico nem a reprodutibilidade da referência por outro
 especialista, e o desempenho medido não cobre as nove categorias mais
-raras da taxonomia. A próxima etapa deve incorporar segunda avaliação,
-com adjudicação de divergências nos pares ambíguos, e submeter a própria
-taxonomia a revisão. Em paralelo, a validação externa em outras
-instituições e a execução *out-of-fold* integral do BERTimbau, viável em
-infraestrutura com acelerador gráfico, poderão testar a estabilidade dos
-resultados sob taxonomias e volumes distintos. A camada classificada
-poderá então alimentar modelos de previsão de demanda e de priorização
+raras da taxonomia. Tampouco há validação temporal, pela ausência de data
+de abertura no corpus congelado, de sorte que a estabilidade do
+desempenho sob deriva de vocabulário e sob alteração da taxonomia
+permanece por medir. A próxima etapa deve incorporar segunda avaliação,
+com adjudicação de divergências nos pares ambíguos, submeter a própria
+taxonomia a revisão e reconstituir o corte com a data de abertura
+preservada, o que viabiliza avaliação em períodos sucessivos. Em paralelo,
+a validação externa em outras instituições e a execução *out-of-fold*
+integral do BERTimbau, viável em infraestrutura com acelerador gráfico,
+poderão testar a estabilidade dos resultados sob taxonomias e volumes
+distintos. A camada classificada poderá então alimentar modelos de
+previsão de demanda e de priorização
 multicritério de intervenções sobre uma base cuja incerteza e origem das
 decisões permanecem auditáveis.
 

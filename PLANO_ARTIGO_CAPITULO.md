@@ -69,6 +69,7 @@ artigo.
 | Corpus, taxonomia, grupos e partições | `auditoria_base_canonica.json`, `grupos_textuais.json` e `particoes_canonicas.json` |
 | Tabelas do apêndice | `docs/dados/tabelas_apendice_canonicas.json` |
 | Grupos com referência divergente e sua natureza | `docs/dados/grupos_divergentes_canonicos.json` |
+| Disponibilidade de data de abertura no corpus | `docs/dados/disponibilidade_temporal.json` |
 | Rastreabilidade e ressalvas | `docs/MATRIZ_PROVENIENCIA.md` e `docs/RASTREABILIDADE_LSTM.md` |
 
 **Fontes que NÃO são do artigo.** `avaliacao_final.json`, `estatistica.json`,
@@ -97,6 +98,30 @@ congelamento conferem esse hash, verificável por `python src/matriz_provenienci
 
 **Onde está:** os Passos 0 a 10 estão concluídos, o 9 encerrado como não
 aplicável. O Passo 11 segue em execução.
+
+**A validação temporal não é executável, e isso passou a estar declarado.**
+`src/auditar_disponibilidade_temporal.py` percorre o contrato de colunas de
+`AGENTS.md` e os sete artefatos do congelamento e da rodada canônica,
+classificando cada nome de campo em candidato a data do chamado, carimbo de
+execução ou irrelevante. O veredito registrado em
+`docs/dados/disponibilidade_temporal.json` é `sem_variavel_temporal`: zero
+candidatos entre os 17 campos do contrato e os artefatos, e os únicos campos
+temporais são `gerado_em`, que datam o arquivo e não o chamado. Sem data de
+abertura não há como separar treino, calibração e teste em períodos
+sucessivos, de modo que nenhuma métrica temporal foi produzida e nenhuma foi
+inventada. A consequência entrou no artigo: a Subseção 3.2 declara que o corte
+é de extração e não admite ordenação cronológica, a 3.5 delimita que o
+protocolo estima generalização entre grupos textuais do mesmo corte e não
+desempenho futuro, a 5.3 ganhou a limitação e os riscos de implantação
+(deriva de vocabulário, mudança de taxonomia, categoria nova sem exemplo,
+alteração de formulário e de equipe, monitoramento e recalibração), e as
+afirmações prospectivas da 5.2, da 5.4 e da Seção 6 passaram a condicionais.
+
+**Custo editorial:** o corpo científico foi de 13.323 para 13.719 palavras,
+396 a mais. A compensação parcial veio de três passagens da Discussão que
+repetiam os Resultados sem acrescentar: o veredito da reclassificação na 5.2,
+o parágrafo de Shannon e o de calibração, além da fusão dos dois parágrafos
+finais da 5.1.
 
 **Dois denominadores, e não um:** a base congelada tem 14.060 chamados, todos
 com referência humana, e é o número de toda frase sobre corpus ou cobertura da
@@ -145,10 +170,9 @@ para enfileirar auditoria em vez de reescrever, tem precisão de 18,53% contra
 taxa de alteração de 4,25% na base congelada, enriquecimento de cerca de quatro
 vezes, e paga enquanto λ ficar abaixo dessa precisão.
 
-**Tamanho:** o corpo científico caiu de 13.350 para 13.323 palavras e a fonte
-de 17.181 para 16.851, apesar de uma tabela nova, de uma subseção reescrita e
-de duas análises acrescentadas. A Figura 5 anterior, de pares de confusão, saiu
-por duplicar a Figura 4, e o artigo passou de sete para seis figuras.
+**Tamanho:** corpo científico em 13.719 palavras e fonte em 17.246, contra
+13.323 e 16.851 ao fim da rodada anterior. Seis figuras e seis tabelas no
+corpo, suplemento de S1 a S15.
 
 **O que falta:** concluir a redução editorial até 8 a 9 mil palavras e cerca de
 22 páginas, e revisar o PDF, que é gerado pelo workflow ao entrar em `main`. O
@@ -168,7 +192,8 @@ A nova rodada científica somente poderá ser considerada fechada quando:
 7. a ausência de segunda avaliação humana estiver declarada no texto, com a limitação correspondente;
 8. cada número, tabela e figura tiver proveniência rastreável;
 9. Resumo, Abstract, tabelas, figuras, discussão e conclusões estiverem coerentes;
-10. o PDF final tiver sido gerado e revisado visualmente.
+10. o PDF final tiver sido gerado e revisado visualmente;
+11. o alcance temporal estiver declarado, com avaliação em períodos sucessivos executada ou limitação explícita, e nenhuma afirmação prospectiva excedendo a evidência disponível.
 
 ## Registro histórico
 

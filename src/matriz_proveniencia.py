@@ -267,6 +267,18 @@ def grandezas_fora_da_rodada_canonica() -> list[dict[str, Any]]:
                          "de anotacao"),
         },
         {
+            "grandeza": "Disponibilidade de data de abertura no corpus congelado",
+            "artefato": "docs/dados/disponibilidade_temporal.json",
+            "script": "src/auditar_disponibilidade_temporal.py",
+            "denominador": None, "categorias": None, "particoes": None,
+            "hash_corpus": "congelamento",
+            "ressalva": ("veredito sem_variavel_temporal: nenhum campo do "
+                         "contrato de colunas nem dos artefatos da rodada "
+                         "localiza o chamado no tempo, de modo que a avaliacao "
+                         "temporal nao e executavel e a validacao cruzada "
+                         "agrupada nao estima desempenho futuro"),
+        },
+        {
             "grandeza": "Curva de aprendizado do LSTM (Figura 7)",
             "artefato": "04_artigo/figuras/lstm_history.json",
             "script": "src/modelo_lstm.py",
