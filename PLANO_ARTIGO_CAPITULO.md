@@ -2,7 +2,7 @@
 
 Este documento registra somente a estrutura, os critérios editoriais e o estado atual do artigo/capítulo. O plano operacional vigente, os critérios de aceite e o ponto de continuidade estão em [`PLANO_EXECUCAO_ATUAL.md`](PLANO_EXECUCAO_ATUAL.md). Os dois documentos têm finalidades distintas e não devem acumular versões concorrentes do mesmo estado.
 
-Atualizado em 02/08/2026, no fuso America/Bahia.
+Atualizado em 04/08/2026, no fuso America/Bahia.
 
 ## Regra de uso
 
@@ -48,17 +48,30 @@ A fonte editável é `04_artigo/artigo_classificacao_chamados_v3.md`. O PDF publ
 
 ## Fontes canônicas
 
-| Assunto | Fonte |
+Todo artefato da rodada canônica carrega `hash_corpus = 1e476243…`. Quem não
+carrega pertence ao painel ou ao snapshot legado e **não** deve alimentar o
+artigo.
+
+| Assunto | Fonte canônica |
 |---|---|
 | Plano operacional e ponto de continuidade | `PLANO_EXECUCAO_ATUAL.md` |
-| Resultado validado por modelo | `docs/dados/avaliacao_final.json` |
-| Comparação estatística | `docs/dados/estatistica.json` |
-| Calibração e faixas de confiança | `docs/dados/calibracao.json` e `docs/dados/calibracao_ajustada_modelos.json` |
-| Estado do BERTimbau | `docs/dados/bertimbau_training_state.json` e `docs/dados/bertimbau_metr_full.json` |
-| Figuras e tabelas derivadas | scripts em `src/` e JSONs em `docs/dados/` |
-| Regras operacionais | `AGENTS.md`, `README.md` e `CONTEXTO.md` |
+| Manifesto da rodada | `docs/dados/rodada_canonica.json` |
+| Acurácia, macro-F1 e custo por modelo | `docs/dados/retreino_canonico.json` |
+| Concordância histórica, Kappa, ganho líquido e dispersão | `docs/dados/comparacao_historica.json` |
+| Calibração, ECE, Brier e automação seletiva | `docs/dados/calibracao_canonica.json` |
+| Intervalos, testes pareados, consenso e pressupostos | `docs/dados/inferencia_canonica.json` |
+| Recortes por tipo e curva ABC | `docs/dados/recortes_canonicos.json` |
+| Camada de regras de periodicidade | `docs/dados/regras_versus_modelos.json` |
+| Custo computacional | `docs/dados/custo_computacional_canonico.json` e `docs/dados/custo_bertimbau.json` |
+| Corpus, taxonomia, grupos e partições | `auditoria_base_canonica.json`, `grupos_textuais.json` e `particoes_canonicas.json` |
+| Tabelas do apêndice | `docs/dados/tabelas_apendice_canonicas.json` |
+| Rastreabilidade e ressalvas | `docs/MATRIZ_PROVENIENCIA.md` e `docs/RASTREABILIDADE_LSTM.md` |
 
-**Estado transitório:** os JSONs atuais são canônicos apenas para reproduzir o snapshot legado. Eles não são os resultados definitivos do novo protocolo até a conclusão da execução prevista em `PLANO_EXECUCAO_ATUAL.md`.
+**Fontes que NÃO são do artigo.** `avaliacao_final.json`, `estatistica.json`,
+`calibracao.json`, `calibracao_ajustada_modelos.json` e a família
+`shannon_*.json` alimentam o painel e vêm da execução legada, com 14.058 a
+14.082 linhas, oito modelos e verdade derivada de outro modo. Não carregam
+`hash_corpus` e não podem ser citados no artigo.
 
 ## Critérios editoriais
 
@@ -131,14 +144,43 @@ remanescente, porque descrevia um protocolo que as tabelas já não usavam.
 interno de triagem, usava o termo vedado "verdade validada" e descrevia
 justamente o cálculo de ganho misto que a rodada canônica substituiu.
 
-**Assimetria conhecida no relatório de inferência:** em
-`src/inferencia_canonica.py`, a coluna de acurácia imprime o valor observado e
-a de macro-F1 imprime a média das mil reamostragens, o que produz 0,6664 contra
-os 0,6684 do retreino. A Tabela 2 usa o valor observado com o intervalo do
-bootstrap. Convém uniformizar o relatório.
+**Assimetria do relatório de inferência: resolvida.**
+`src/inferencia_canonica.py` passa a publicar `acuracia_pontual` e
+`macro_f1_pontual` ao lado da média das reamostragens e do intervalo, com as
+três grandezas nomeadas em `grandezas_reportadas`. A legenda da Tabela 2
+declara que a coluna é a estimativa observada e registra a média bootstrap de
+0,6664 como grandeza distinta dos 0,6684 reportados.
 
-**O que falta:** concluir a redução editorial até 8 a 9 mil palavras e revisar
-o PDF, que é gerado pelo workflow ao entrar em `main`.
+**Contagem de grupos: conciliada.** São 9.786 grupos na base congelada de
+14.060 linhas, 9.735 no recorte de 13.972 linhas, que é a unidade do bootstrap,
+e 9.734 no mapa de partições, recalculado sobre o texto vivo. A diferença de um
+tem causa nominal: dois chamados tiveram o texto editado depois do
+congelamento, e num deles o texto novo passou a coincidir com um grupo de 47
+linhas, que virou 48. A conciliação sai de
+`inferencia_canonica.json#contagem_de_grupos`.
+
+**Discrepância do LSTM: resolvida tecnicamente.** Os 0,8635 do *ablation* e os
+0,8768 da partição aleatória são de 24/07/2026 e medem outra coisa. O
+diagnóstico de protocolo mostra que, nas 9.096 linhas então avaliadas, a
+referência humana coincidia com a categoria histórica em 100% dos casos,
+porque só havia verdade derivada onde o revisor havia confirmado o rótulo. O
+*ablation* treinava contra o histórico e media contra ele mesmo. A Subseção 4.8
+deixou de apresentar esses valores e passou a justificar o protocolo agrupado
+pela estrutura do corpus; o detalhe foi para o suplemento com o protocolo
+declarado. Ver `docs/RASTREABILIDADE_LSTM.md`.
+
+**Subseção 4.9 deixou de misturar rodadas.** Correlações confiança–acerto,
+Shapiro-Wilk, Levene e VIF passaram a sair das predições canônicas, e não de
+`estatistica.json`, que é da execução legada com 14.082 linhas. As faixas de
+Spearman e ponto-bisserial mudaram de 0,46–0,64 e 0,43–0,66 para 0,4809–0,6160
+e 0,4500–0,6560.
+
+**Correção de método:** a Subseção 3.3 declarava limite de 5.000 atributos
+TF-IDF; o código usa 30.000. Corrigido nas duas ocorrências.
+
+**O que falta:** concluir a redução editorial de cerca de 13.100 para 8 a 9 mil
+palavras e de 28 para aproximadamente 22 páginas, e revisar o PDF, que é gerado
+pelo workflow ao entrar em `main`.
 
 ## Critérios para novo fechamento científico
 

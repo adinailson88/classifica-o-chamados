@@ -15,10 +15,187 @@
     "categorias": 41,
     "modelos": 7
   },
+  "grandezas_reportadas": {
+    "acuracia_pontual": "estimativa observada na amostra inteira",
+    "macro_f1_pontual": "estimativa observada na amostra inteira",
+    "acuracia.media": "media das reamostragens do bootstrap",
+    "macro_f1.media": "media das reamostragens do bootstrap",
+    "ic95_min/ic95_max": "percentis 2,5 e 97,5 das reamostragens",
+    "regra": "o artigo reporta a estimativa observada ao lado do intervalo do bootstrap; a media das reamostragens nao ocupa a coluna da estimativa"
+  },
+  "contagem_de_grupos": {
+    "grupos_congelados_no_recorte_avaliado": 9735,
+    "grupos_no_mapa_de_particoes": 9734,
+    "registros_com_grupo_divergente_do_congelado": 2,
+    "nota": "as contagens divergem quando o texto de um chamado e editado na aba viva depois do congelamento; a contagem congelada e a reproduzivel e e a usada como unidade de reamostragem"
+  },
+  "consenso_entre_modelos": {
+    "criterio_unanimidade": "os sete modelos preveem a mesma categoria",
+    "criterio_desacordo_estrutural": "tres ou mais categorias distintas entre as sete predicoes",
+    "base_da_entropia": "logaritmo do numero de modelos",
+    "registros": 13972,
+    "modelos": 7,
+    "unanimes": 8444,
+    "proporcao_unanimes": 0.6044,
+    "com_desacordo_estrutural": 2285,
+    "proporcao_com_desacordo_estrutural": 0.1635,
+    "entropia_media_normalizada": 0.1422,
+    "categorias_distintas_por_registro": {
+      "1": 8444,
+      "2": 3243,
+      "3": 1626,
+      "4": 538,
+      "5": 111,
+      "6": 9,
+      "7": 1
+    }
+  },
+  "correlacao_confianca_acerto": {
+    "definicao": "correlacao entre o escore bruto do proprio modelo, sem calibracao, e o indicador binario de acerto contra a referencia humana",
+    "modelos": [
+      {
+        "modelo": "extra_trees",
+        "n": 13972,
+        "spearman_r": 0.5272,
+        "spearman_p": 0.0,
+        "pointbiserial_r": 0.5569,
+        "pointbiserial_p": 0.0
+      },
+      {
+        "modelo": "linear_svc",
+        "n": 13972,
+        "spearman_r": 0.485,
+        "spearman_p": 0.0,
+        "pointbiserial_r": 0.45,
+        "pointbiserial_p": 0.0
+      },
+      {
+        "modelo": "lstm",
+        "n": 13972,
+        "spearman_r": 0.616,
+        "spearman_p": 0.0,
+        "pointbiserial_r": 0.656,
+        "pointbiserial_p": 0.0
+      },
+      {
+        "modelo": "naive_bayes",
+        "n": 13972,
+        "spearman_r": 0.6077,
+        "spearman_p": 0.0,
+        "pointbiserial_r": 0.6277,
+        "pointbiserial_p": 0.0
+      },
+      {
+        "modelo": "random_forest",
+        "n": 13972,
+        "spearman_r": 0.5391,
+        "spearman_p": 0.0,
+        "pointbiserial_r": 0.5644,
+        "pointbiserial_p": 0.0
+      },
+      {
+        "modelo": "regressao_logistica",
+        "n": 13972,
+        "spearman_r": 0.4809,
+        "spearman_p": 0.0,
+        "pointbiserial_r": 0.4819,
+        "pointbiserial_p": 0.0
+      },
+      {
+        "modelo": "sgd",
+        "n": 13972,
+        "spearman_r": 0.4941,
+        "spearman_p": 0.0,
+        "pointbiserial_r": 0.4847,
+        "pointbiserial_p": 0.0
+      }
+    ],
+    "spearman_min": 0.4809,
+    "spearman_max": 0.616,
+    "pointbiserial_min": 0.45,
+    "pointbiserial_max": 0.656,
+    "todos_positivos_e_significativos": true
+  },
+  "pressupostos": {
+    "amostra_do_shapiro": 5000,
+    "semente_da_subamostra": 42,
+    "modelos": [
+      {
+        "modelo": "extra_trees",
+        "shapiro_w": 0.8606,
+        "shapiro_p": 5.814269188526661e-55,
+        "rejeita_normalidade": true,
+        "variancia_da_confianca": 0.07235,
+        "vif": 20.784
+      },
+      {
+        "modelo": "linear_svc",
+        "shapiro_w": 0.9209,
+        "shapiro_p": 2.4121822036252527e-45,
+        "rejeita_normalidade": true,
+        "variancia_da_confianca": 0.00456,
+        "vif": 4.208
+      },
+      {
+        "modelo": "lstm",
+        "shapiro_w": 0.8211,
+        "shapiro_p": 1.6739442589952846e-59,
+        "rejeita_normalidade": true,
+        "variancia_da_confianca": 0.08336,
+        "vif": 3.109
+      },
+      {
+        "modelo": "naive_bayes",
+        "shapiro_w": 0.8335,
+        "shapiro_p": 3.545858294074518e-58,
+        "rejeita_normalidade": true,
+        "variancia_da_confianca": 0.08463,
+        "vif": 4.016
+      },
+      {
+        "modelo": "random_forest",
+        "shapiro_w": 0.8633,
+        "shapiro_p": 1.3000962087784554e-54,
+        "rejeita_normalidade": true,
+        "variancia_da_confianca": 0.0764,
+        "vif": 22.322
+      },
+      {
+        "modelo": "regressao_logistica",
+        "shapiro_w": 0.87,
+        "shapiro_p": 9.886965295434331e-54,
+        "rejeita_normalidade": true,
+        "variancia_da_confianca": 0.10777,
+        "vif": 26.91
+      },
+      {
+        "modelo": "sgd",
+        "shapiro_w": 0.9057,
+        "shapiro_p": 3.1055466815652675e-48,
+        "rejeita_normalidade": true,
+        "variancia_da_confianca": 0.09031,
+        "vif": 29.984
+      }
+    ],
+    "modelos_que_rejeitam_normalidade": 7,
+    "levene": {
+      "estatistica": 4216.75,
+      "p": 0.0,
+      "rejeita_homogeneidade": true
+    },
+    "limiar_de_vif_elevado": 10.0,
+    "modelos_com_vif_elevado": [
+      "extra_trees",
+      "random_forest",
+      "regressao_logistica",
+      "sgd"
+    ]
+  },
   "intervalos": [
     {
       "modelo": "linear_svc",
       "acuracia_pontual": 0.8253,
+      "macro_f1_pontual": 0.6684,
       "acuracia": {
         "media": 0.8248,
         "ic95_min": 0.8115,
@@ -33,6 +210,7 @@
     {
       "modelo": "sgd",
       "acuracia_pontual": 0.8093,
+      "macro_f1_pontual": 0.6669,
       "acuracia": {
         "media": 0.8088,
         "ic95_min": 0.795,
@@ -47,6 +225,7 @@
     {
       "modelo": "extra_trees",
       "acuracia_pontual": 0.8073,
+      "macro_f1_pontual": 0.6362,
       "acuracia": {
         "media": 0.8069,
         "ic95_min": 0.7923,
@@ -61,6 +240,7 @@
     {
       "modelo": "regressao_logistica",
       "acuracia_pontual": 0.805,
+      "macro_f1_pontual": 0.6689,
       "acuracia": {
         "media": 0.8046,
         "ic95_min": 0.7907,
@@ -75,6 +255,7 @@
     {
       "modelo": "random_forest",
       "acuracia_pontual": 0.797,
+      "macro_f1_pontual": 0.6152,
       "acuracia": {
         "media": 0.7965,
         "ic95_min": 0.7812,
@@ -89,6 +270,7 @@
     {
       "modelo": "lstm",
       "acuracia_pontual": 0.7287,
+      "macro_f1_pontual": 0.524,
       "acuracia": {
         "media": 0.7281,
         "ic95_min": 0.708,
@@ -103,6 +285,7 @@
     {
       "modelo": "naive_bayes",
       "acuracia_pontual": 0.7088,
+      "macro_f1_pontual": 0.2951,
       "acuracia": {
         "media": 0.7084,
         "ic95_min": 0.686,
@@ -423,6 +606,6 @@
     "registros_sem_grupo_congelado": 0
   },
   "nota_sobre_a_contagem_de_grupos": "a unidade de reamostragem e o grupo CONGELADO no Passo 2, e nao o grupo recalculado sobre o texto vivo; os dois podem divergir se algum texto tiver sido editado depois do congelamento, e o congelado e o reproduzivel",
-  "gerado_em": "04/08/2026 19:03",
+  "gerado_em": "04/08/2026 21:09",
   "script_origem": "src/inferencia_canonica.py"
 }

@@ -33,6 +33,7 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import math
 import sys
 from collections import defaultdict
 from itertools import combinations
@@ -49,6 +50,7 @@ RAIZ = Path(__file__).resolve().parents[1]
 DADOS = RAIZ / "docs" / "dados"
 PREDICOES_PADRAO = DADOS / "retreino_canonico_predicoes.csv"
 MAPA_GRUPOS_PADRAO = DADOS / "grupos_textuais_mapa.csv"
+MAPA_PARTICOES_PADRAO = DADOS / "particoes_canonicas_mapa.csv"
 MANIFESTO_PADRAO = DADOS / "rodada_canonica.json"
 SAIDA_JSON_PADRAO = DADOS / "inferencia_canonica.json"
 SAIDA_MD_PADRAO = RAIZ / "docs" / "INFERENCIA_CANONICA.md"
@@ -67,11 +69,16 @@ def carregar(predicoes: Path, mapa_grupos: Path) -> dict[str, Any]:
 
     referencia: dict[str, str] = {}
     previsto: dict[str, dict[str, str]] = defaultdict(dict)
+    confianca: dict[str, dict[str, float]] = defaultdict(dict)
     with predicoes.open("r", encoding="utf-8", newline="") as f:
         for linha in csv.DictReader(f):
             chave = linha["id_sha256"]
             referencia[chave] = linha["referencia_humana"]
             previsto[linha["modelo"]][chave] = linha["previsto"]
+            try:
+                confianca[linha["modelo"]][chave] = float(linha["confianca"])
+            except (KeyError, TypeError, ValueError):
+                pass
 
     modelos = sorted(previsto)
     chaves = sorted(referencia)
@@ -81,6 +88,7 @@ def carregar(predicoes: Path, mapa_grupos: Path) -> dict[str, Any]:
         "chaves": chaves,
         "referencia": referencia,
         "previsto": dict(previsto),
+        "confianca": dict(confianca),
         "grupos": [grupos_por_id[c] for c in chaves if c in grupos_por_id],
         "registros_sem_grupo_congelado": [c for c in chaves if c not in grupos_por_id],
         "modelos_com_observacao_faltante": {m: n for m, n in faltantes.items() if n},
@@ -156,7 +164,197 @@ def bootstrap_por_grupo(verdade: np.ndarray, predito: np.ndarray,
                 "ic95_min": round(float(np.percentile(amostras, 2.5)), 4),
                 "ic95_max": round(float(np.percentile(amostras, 97.5)), 4)}
 
-    return {"acuracia": ic(acuracias), "macro_f1": ic(macros)}
+    # Estimativa observada, na amostra inteira e sem reamostragem. E ela que o
+    # artigo reporta como valor da metrica; a media das reamostragens e outra
+    # grandeza e as duas nao devem ocupar a mesma coluna de uma tabela.
+    observada = {"acuracia": round(float((v_cod == p_cod).mean()), 4),
+                 "macro_f1": round(macro_f1_codificado(v_cod, p_cod, k), 4)}
+    return {"acuracia": ic(acuracias), "macro_f1": ic(macros),
+            "observado": observada}
+
+
+def consenso_entre_modelos(dados: dict[str, Any]) -> dict[str, Any]:
+    """Unanimidade e entropia de votos entre os modelos, por registro.
+
+    O criterio precisa ser declarado porque nao ha um limiar canonico: aqui,
+    'desacordo estrutural' e o registro em que os sete modelos distribuem os
+    votos por tres ou mais categorias distintas, isto e, em que a discordancia
+    nao se resume a um par de alternativas. A entropia normalizada acompanha o
+    numero como medida continua, na base do numero de modelos.
+    """
+    chaves, modelos = dados["chaves"], dados["modelos"]
+    previsto = dados["previsto"]
+    n_modelos = len(modelos)
+    unanimes = 0
+    tres_ou_mais = 0
+    soma_entropia = 0.0
+    distribuicao: dict[int, int] = defaultdict(int)
+    for c in chaves:
+        contagem: dict[str, int] = defaultdict(int)
+        for m in modelos:
+            contagem[previsto[m][c]] += 1
+        distintas = len(contagem)
+        distribuicao[distintas] += 1
+        if distintas == 1:
+            unanimes += 1
+        if distintas >= 3:
+            tres_ou_mais += 1
+        h = -sum((v / n_modelos) * math.log(v / n_modelos)
+                 for v in contagem.values())
+        soma_entropia += h / math.log(n_modelos) if n_modelos > 1 else 0.0
+    n = len(chaves)
+    return {
+        "criterio_unanimidade": "os sete modelos preveem a mesma categoria",
+        "criterio_desacordo_estrutural":
+            "tres ou mais categorias distintas entre as sete predicoes",
+        "base_da_entropia": "logaritmo do numero de modelos",
+        "registros": n,
+        "modelos": n_modelos,
+        "unanimes": unanimes,
+        "proporcao_unanimes": round(unanimes / n, 4) if n else None,
+        "com_desacordo_estrutural": tres_ou_mais,
+        "proporcao_com_desacordo_estrutural": round(tres_ou_mais / n, 4) if n else None,
+        "entropia_media_normalizada": round(soma_entropia / n, 4) if n else None,
+        "categorias_distintas_por_registro":
+            {str(k): distribuicao[k] for k in sorted(distribuicao)},
+    }
+
+
+def correlacao_confianca_acerto(dados: dict[str, Any]) -> dict[str, Any]:
+    """Spearman e ponto-bisserial entre confianca bruta e acerto, por modelo.
+
+    Pre-requisito da calibracao: se a confianca nao ordena o acerto, nenhum
+    limiar de automacao se sustenta. A versao anterior deste numero vinha de
+    `estatistica.json`, que e da execucao legada e tem outro denominador; aqui
+    ele sai das mesmas predicoes que produzem as demais tabelas.
+    """
+    from scipy import stats
+
+    chaves = dados["chaves"]
+    confianca = dados.get("confianca") or {}
+    linhas = []
+    for m in dados["modelos"]:
+        conf_m = confianca.get(m, {})
+        pares = [(conf_m[c], int(dados["previsto"][m][c] == dados["referencia"][c]))
+                 for c in chaves if c in conf_m]
+        if len(pares) < 3:
+            continue
+        conf = [p[0] for p in pares]
+        acerto = [p[1] for p in pares]
+        sp = stats.spearmanr(conf, acerto)
+        pb = stats.pointbiserialr(acerto, conf)
+        linhas.append({
+            "modelo": m,
+            "n": len(pares),
+            "spearman_r": round(float(sp.statistic), 4),
+            "spearman_p": float(sp.pvalue),
+            "pointbiserial_r": round(float(pb.statistic), 4),
+            "pointbiserial_p": float(pb.pvalue),
+        })
+    if not linhas:
+        return {"modelos": [], "nota": "confianca ausente nas predicoes"}
+    return {
+        "definicao": ("correlacao entre o escore bruto do proprio modelo, sem "
+                      "calibracao, e o indicador binario de acerto contra a "
+                      "referencia humana"),
+        "modelos": linhas,
+        "spearman_min": min(x["spearman_r"] for x in linhas),
+        "spearman_max": max(x["spearman_r"] for x in linhas),
+        "pointbiserial_min": min(x["pointbiserial_r"] for x in linhas),
+        "pointbiserial_max": max(x["pointbiserial_r"] for x in linhas),
+        "todos_positivos_e_significativos": all(
+            x["spearman_r"] > 0 and x["pointbiserial_r"] > 0
+            and x["spearman_p"] < ALFA and x["pointbiserial_p"] < ALFA
+            for x in linhas),
+    }
+
+
+def pressupostos(dados: dict[str, Any],
+                 semente: int = SEMENTE_PADRAO) -> dict[str, Any]:
+    """Normalidade, homogeneidade de variancia e colinearidade da confianca.
+
+    Sao os pressupostos que justificam a escolha nao parametrica declarada no
+    metodo. Antes desta rodada saiam de `estatistica.json`, que pertence a
+    execucao legada e tem outro denominador; agora saem das mesmas predicoes
+    das demais tabelas.
+    """
+    from scipy import stats
+    import statsmodels.api as sm
+    from statsmodels.stats.outliers_influence import variance_inflation_factor
+
+    chaves, modelos = dados["chaves"], dados["modelos"]
+    confianca = dados.get("confianca") or {}
+    if any(m not in confianca for m in modelos):
+        return {"modelos": [], "nota": "confianca ausente nas predicoes"}
+    matriz = np.array([[confianca[m][c] for m in modelos] for c in chaves])
+
+    # `shapiro` perde validade acima de 5.000 observacoes; a subamostra e
+    # sorteada com a semente do estudo para ser reproduzivel.
+    rng = np.random.default_rng(semente)
+    limite = min(5000, matriz.shape[0])
+    recorte = rng.choice(matriz.shape[0], size=limite, replace=False)
+
+    matriz_vif = sm.add_constant(matriz)
+    linhas = []
+    for i, m in enumerate(modelos):
+        w, p = stats.shapiro(matriz[recorte, i])
+        linhas.append({
+            "modelo": m,
+            "shapiro_w": round(float(w), 4),
+            "shapiro_p": float(p),
+            "rejeita_normalidade": bool(p < ALFA),
+            "variancia_da_confianca": round(float(matriz[:, i].var()), 5),
+            "vif": round(float(variance_inflation_factor(matriz_vif, i + 1)), 3),
+        })
+    levene = stats.levene(*[matriz[:, i] for i in range(len(modelos))])
+    return {
+        "amostra_do_shapiro": limite,
+        "semente_da_subamostra": semente,
+        "modelos": linhas,
+        "modelos_que_rejeitam_normalidade":
+            sum(1 for x in linhas if x["rejeita_normalidade"]),
+        "levene": {"estatistica": round(float(levene.statistic), 2),
+                   "p": float(levene.pvalue),
+                   "rejeita_homogeneidade": bool(levene.pvalue < ALFA)},
+        "limiar_de_vif_elevado": 10.0,
+        "modelos_com_vif_elevado":
+            [x["modelo"] for x in linhas if x["vif"] > 10.0],
+    }
+
+
+def contagem_de_grupos(dados: dict[str, Any],
+                       mapa_particoes: Path | None) -> dict[str, Any]:
+    """Concilia as tres contagens de grupos textuais que circulam no projeto.
+
+    Sao numeros diferentes de coisas diferentes, e confundi-los foi a origem da
+    divergencia entre 9.786, 9.735 e 9.734:
+
+    - grupos da base congelada: todas as linhas do Passo 2;
+    - grupos congelados no recorte avaliado: unidade do bootstrap desta
+      ferramenta, restrita as linhas que entraram nas particoes;
+    - grupos do mapa de particoes: recalculados sobre o texto vivo no Passo 3,
+      de modo que um texto editado depois do congelamento pode fundir-se a
+      outro grupo e reduzir a contagem.
+    """
+    resultado: dict[str, Any] = {
+        "grupos_congelados_no_recorte_avaliado": len(set(dados["grupos"])),
+        "grupos_no_mapa_de_particoes": None,
+        "registros_com_grupo_divergente_do_congelado": None,
+        "nota": ("as contagens divergem quando o texto de um chamado e editado "
+                 "na aba viva depois do congelamento; a contagem congelada e a "
+                 "reproduzivel e e a usada como unidade de reamostragem"),
+    }
+    if mapa_particoes is None or not mapa_particoes.exists():
+        return resultado
+    por_id: dict[str, str] = {}
+    with mapa_particoes.open("r", encoding="utf-8", newline="") as f:
+        for linha in csv.DictReader(f):
+            por_id[linha["id_sha256"]] = linha["grupo_sha256"]
+    congelado = dict(zip(dados["chaves"], dados["grupos"]))
+    resultado["grupos_no_mapa_de_particoes"] = len(set(por_id.values()))
+    resultado["registros_com_grupo_divergente_do_congelado"] = sum(
+        1 for c, g in congelado.items() if c in por_id and por_id[c] != g)
+    return resultado
 
 
 def cochran_q(acerto: np.ndarray) -> dict[str, Any]:
@@ -217,7 +415,8 @@ def holm(p_valores: list[float], alfa: float = ALFA) -> list[dict[str, Any]]:
 
 def montar_relatorio(dados: dict[str, Any], repeticoes: int = REPETICOES_PADRAO,
                      semente: int = SEMENTE_PADRAO,
-                     manifesto: dict[str, Any] | None = None) -> dict[str, Any]:
+                     manifesto: dict[str, Any] | None = None,
+                     mapa_particoes: Path | None = None) -> dict[str, Any]:
     m = matrizes(dados)
     blocos = indices_por_grupo(dados["grupos"])
     rotulos = sorted(set(m["verdade"].tolist()))
@@ -227,9 +426,16 @@ def montar_relatorio(dados: dict[str, Any], repeticoes: int = REPETICOES_PADRAO,
     for i, nome in enumerate(modelos):
         ic = bootstrap_por_grupo(m["verdade"], m["predito"][nome], blocos,
                                  rotulos, repeticoes, semente)
-        intervalos.append({"modelo": nome,
-                           "acuracia_pontual": round(float(m["acerto"][i].mean()), 4),
-                           **ic})
+        observado = ic.pop("observado")
+        # Tres grandezas distintas por metrica, nomeadas separadamente para que
+        # nenhuma tabela troque uma pela outra: a estimativa observada, a media
+        # das reamostragens e o intervalo de percentil.
+        intervalos.append({
+            "modelo": nome,
+            "acuracia_pontual": round(float(m["acerto"][i].mean()), 4),
+            "macro_f1_pontual": observado["macro_f1"],
+            **ic,
+        })
     intervalos.sort(key=lambda x: -x["acuracia_pontual"])
 
     q = cochran_q(m["acerto"])
@@ -266,6 +472,20 @@ def montar_relatorio(dados: dict[str, Any], repeticoes: int = REPETICOES_PADRAO,
             "categorias": len(rotulos),
             "modelos": len(modelos),
         },
+        "grandezas_reportadas": {
+            "acuracia_pontual": "estimativa observada na amostra inteira",
+            "macro_f1_pontual": "estimativa observada na amostra inteira",
+            "acuracia.media": "media das reamostragens do bootstrap",
+            "macro_f1.media": "media das reamostragens do bootstrap",
+            "ic95_min/ic95_max": "percentis 2,5 e 97,5 das reamostragens",
+            "regra": ("o artigo reporta a estimativa observada ao lado do "
+                      "intervalo do bootstrap; a media das reamostragens nao "
+                      "ocupa a coluna da estimativa"),
+        },
+        "contagem_de_grupos": contagem_de_grupos(dados, mapa_particoes),
+        "consenso_entre_modelos": consenso_entre_modelos(dados),
+        "correlacao_confianca_acerto": correlacao_confianca_acerto(dados),
+        "pressupostos": pressupostos(dados, semente),
         "intervalos": intervalos,
         "cochran_q": q,
         "mcnemar_pareado": pares,
@@ -304,15 +524,103 @@ def renderizar_markdown(relatorio: dict[str, Any]) -> str:
         "",
         "## Intervalos de confiança por bootstrap de grupo",
         "",
-        "| Modelo | Acurácia | IC 95% | Macro-F1 | IC 95% |",
-        "|---|---:|---|---:|---|",
+        "Três grandezas distintas, e a coluna de cada uma é declarada: a "
+        "estimativa **observada** na amostra inteira, a **média** das mil "
+        "reamostragens e o **intervalo** de percentil. O artigo reporta a "
+        "estimativa observada ao lado do intervalo; a média das reamostragens "
+        "não deve substituí-la.",
+        "",
+        "| Modelo | Acurácia obs. | Média boot. | IC 95% | Macro-F1 obs. | Média boot. | IC 95% |",
+        "|---|---:|---:|---|---:|---:|---|",
     ]
     for i in relatorio["intervalos"]:
         a, f = i["acuracia"], i["macro_f1"]
         linhas.append(
-            f"| {i['modelo']} | {i['acuracia_pontual']} | "
-            f"[{a['ic95_min']}; {a['ic95_max']}] | {f['media']} | "
-            f"[{f['ic95_min']}; {f['ic95_max']}] |")
+            f"| {i['modelo']} | {i['acuracia_pontual']} | {a['media']} | "
+            f"[{a['ic95_min']}; {a['ic95_max']}] | {i['macro_f1_pontual']} | "
+            f"{f['media']} | [{f['ic95_min']}; {f['ic95_max']}] |")
+
+    g = relatorio.get("contagem_de_grupos", {})
+    if g:
+        linhas += [
+            "",
+            "## Contagem de grupos textuais",
+            "",
+            "| Contagem | Valor |",
+            "|---|---:|",
+            f"| Grupos congelados no recorte avaliado (unidade do bootstrap) | "
+            f"{g.get('grupos_congelados_no_recorte_avaliado')} |",
+            f"| Grupos no mapa de partições, recalculados sobre o texto vivo | "
+            f"{g.get('grupos_no_mapa_de_particoes')} |",
+            f"| Registros cujo grupo vivo diverge do congelado | "
+            f"{g.get('registros_com_grupo_divergente_do_congelado')} |",
+            "",
+            g.get("nota", ""),
+        ]
+
+    c_ = relatorio.get("consenso_entre_modelos", {})
+    if c_:
+        linhas += [
+            "",
+            "## Consenso entre os modelos",
+            "",
+            f"- Unanimidade ({c_['criterio_unanimidade']}): "
+            f"{c_['unanimes']} registros, {c_['proporcao_unanimes']}.",
+            f"- Desacordo estrutural ({c_['criterio_desacordo_estrutural']}): "
+            f"{c_['com_desacordo_estrutural']} registros, "
+            f"{c_['proporcao_com_desacordo_estrutural']}.",
+            f"- Entropia média normalizada dos votos: "
+            f"{c_['entropia_media_normalizada']}.",
+        ]
+
+    corr = relatorio.get("correlacao_confianca_acerto", {})
+    if corr.get("modelos"):
+        linhas += [
+            "",
+            "## Confiança bruta contra acerto",
+            "",
+            "| Modelo | n | Spearman | Ponto-bisserial |",
+            "|---|---:|---:|---:|",
+        ]
+        linhas += [f"| {x['modelo']} | {x['n']} | {x['spearman_r']} | "
+                   f"{x['pointbiserial_r']} |" for x in corr["modelos"]]
+        linhas += [
+            "",
+            f"Spearman entre {corr['spearman_min']} e {corr['spearman_max']}; "
+            f"ponto-bisserial entre {corr['pointbiserial_min']} e "
+            f"{corr['pointbiserial_max']}. Todos positivos e significativos: "
+            f"{'sim' if corr['todos_positivos_e_significativos'] else 'não'}.",
+        ]
+
+    pre = relatorio.get("pressupostos", {})
+    if pre.get("modelos"):
+        linhas += [
+            "",
+            "## Pressupostos",
+            "",
+            f"Shapiro-Wilk sobre subamostra de {pre['amostra_do_shapiro']} "
+            f"observações, semente {pre['semente_da_subamostra']}. Fator de "
+            f"Inflação de Variância entre as confianças dos modelos, limiar "
+            f"convencional de {pre['limiar_de_vif_elevado']}.",
+            "",
+            "| Modelo | Shapiro W | Rejeita normalidade | Variância | VIF |",
+            "|---|---:|---|---:|---:|",
+        ]
+        linhas += [
+            f"| {x['modelo']} | {x['shapiro_w']} | "
+            f"{'sim' if x['rejeita_normalidade'] else 'não'} | "
+            f"{x['variancia_da_confianca']} | {x['vif']} |"
+            for x in pre["modelos"]]
+        lev = pre["levene"]
+        linhas += [
+            "",
+            f"Normalidade rejeitada em {pre['modelos_que_rejeitam_normalidade']} "
+            f"dos {len(pre['modelos'])} modelos. Levene = {lev['estatistica']}, "
+            f"p = {lev['p']:.3g}: homogeneidade de variância "
+            + ("rejeitada" if lev["rejeita_homogeneidade"] else "não rejeitada")
+            + f". VIF acima do limiar em {len(pre['modelos_com_vif_elevado'])} "
+            f"modelos: {', '.join(pre['modelos_com_vif_elevado']) or 'nenhum'}.",
+        ]
 
     linhas += [
         "",
@@ -366,6 +674,9 @@ def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--predicoes", type=Path, default=PREDICOES_PADRAO)
     p.add_argument("--grupos", type=Path, default=MAPA_GRUPOS_PADRAO)
+    p.add_argument("--particoes", type=Path, default=MAPA_PARTICOES_PADRAO,
+                   help=("mapa do Passo 3, usado apenas para conciliar as tres "
+                         "contagens de grupos textuais"))
     p.add_argument("--manifesto", type=Path, default=MANIFESTO_PADRAO)
     p.add_argument("--repeticoes", type=int, default=REPETICOES_PADRAO)
     p.add_argument("--semente", type=int, default=SEMENTE_PADRAO)
@@ -392,7 +703,8 @@ def main() -> int:
         return 2
     manifesto = (json.loads(args.manifesto.read_text(encoding="utf-8"))
                  if args.manifesto.exists() else None)
-    relatorio = montar_relatorio(dados, args.repeticoes, args.semente, manifesto)
+    relatorio = montar_relatorio(dados, args.repeticoes, args.semente, manifesto,
+                                 mapa_particoes=args.particoes)
     relatorio["gerado_em"] = agora_bahia()
     relatorio["script_origem"] = "src/inferencia_canonica.py"
     args.json.parent.mkdir(parents=True, exist_ok=True)

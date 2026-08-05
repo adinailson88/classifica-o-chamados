@@ -40,9 +40,10 @@ Os JSONs são dinâmicos e devem ser conferidos por data de geração antes de q
 
 | Assunto | Fonte |
 |---|---|
-| Resultado validado por modelo | `docs/dados/avaliacao_final.json` |
-| Estatística comparativa | `docs/dados/estatistica.json` |
-| Calibração e faixas de confiança | `docs/dados/calibracao.json` e `docs/dados/calibracao_ajustada_modelos.json` |
+| Números do artigo, sem exceção | artefatos com `hash_corpus = 1e476243…`; ver `PLANO_ARTIGO_CAPITULO.md` e `docs/MATRIZ_PROVENIENCIA.md` |
+| Resultado do painel por modelo | `docs/dados/avaliacao_final.json` |
+| Estatística comparativa do painel | `docs/dados/estatistica.json` |
+| Calibração e faixas de confiança do painel | `docs/dados/calibracao.json` e `docs/dados/calibracao_ajustada_modelos.json` |
 | Verdade e memória validadas | `src/decisao_validada.py` e `src/memoria_validada.py` |
 | Estado do BERTimbau | `docs/dados/bertimbau_training_state.json` e `docs/dados/bertimbau_metr_full.json` |
 | Texto científico | `04_artigo/artigo_classificacao_chamados_v3.md` |

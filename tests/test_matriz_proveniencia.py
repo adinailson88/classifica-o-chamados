@@ -129,17 +129,41 @@ class TestAuditoriaDoArtigo(unittest.TestCase):
 
 
 class TestMatriz(unittest.TestCase):
-    def test_toda_grandeza_carrega_denominador_e_hash(self):
+    def test_toda_grandeza_canonica_carrega_denominador_e_hash(self):
         with tempfile.TemporaryDirectory() as d:
             dados = montar_dados(Path(d))
             matriz = mp.montar_matriz(dados)
-        self.assertTrue(matriz)
-        for linha in matriz:
+        canonicas = [x for x in matriz if x["hash_corpus"] == HASH[:12]]
+        self.assertTrue(canonicas)
+        for linha in canonicas:
             self.assertEqual(linha["denominador"], 13972)
             self.assertEqual(linha["categorias"], 41)
             self.assertEqual(linha["particoes"], 5)
-            self.assertEqual(linha["hash_corpus"], HASH[:12])
             self.assertTrue(linha["script"].startswith("src/"))
+
+    def test_grandeza_fora_da_rodada_declara_ressalva(self):
+        """Grandeza de outro protocolo precisa dizer que é de outro protocolo.
+
+        Foi a ausência dessa declaração que permitiu comparar 0,7287 com
+        0,8635 como se fossem o mesmo experimento.
+        """
+        with tempfile.TemporaryDirectory() as d:
+            dados = montar_dados(Path(d))
+            matriz = mp.montar_matriz(dados)
+        fora = [x for x in matriz if x["hash_corpus"] != HASH[:12]]
+        self.assertTrue(fora)
+        for linha in fora:
+            self.assertTrue(linha.get("ressalva"), linha["grandeza"])
+            self.assertTrue(linha["script"].startswith("src/"))
+
+    def test_ablation_do_lstm_esta_marcado_como_fora_da_rodada(self):
+        with tempfile.TemporaryDirectory() as d:
+            dados = montar_dados(Path(d))
+            matriz = mp.montar_matriz(dados)
+        ablation = [x for x in matriz if "blation" in x["grandeza"]]
+        self.assertEqual(len(ablation), 1)
+        self.assertNotEqual(ablation[0]["hash_corpus"], HASH[:12])
+        self.assertEqual(ablation[0]["denominador"], 9096)
 
     def test_markdown_lista_as_ocorrencias_legadas(self):
         with tempfile.TemporaryDirectory() as d:
