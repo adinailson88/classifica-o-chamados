@@ -42,5 +42,21 @@
       "acertos": 7694,
       "erros": 1402
     }
-  ]
+  ],
+  "snapshot": "legado",
+  "proveniencia": {
+    "rodada": "anterior a rodada canonica 1e476243",
+    "base": "13.965 linhas elegiveis da aba viva em 24/07/2026; avaliacao restrita as 9.096 com referencia humana disponivel naquela data",
+    "referencia": "cobertura parcial da conferencia humana; a cobertura integral so foi concluida em 01/08/2026",
+    "rotulo_de_treino": "categoria historica da coluna C, e nao a referencia humana",
+    "particao": "GroupKFold por hash de texto normalizado, k=3",
+    "categorias": "taxonomia historica completa, sem o corte de suporte por dobra",
+    "comparabilidade": "NAO comparavel com as Tabelas 1 a 5 do artigo: base, denominador, rotulo de treino, numero de categorias e esquema de particao sao outros; o script foi corrigido depois desta execucao e o numero nao foi regerado",
+    "variante_sob_particao_aleatoria": {
+      "acerto_validado": 0.8768,
+      "acertos": 7975,
+      "n_validado": 9096,
+      "fonte": "execucao de 24/07/2026 22:33 do mesmo script com KFold por linha, preservada no historico do Git"
+    }
+  }
 }

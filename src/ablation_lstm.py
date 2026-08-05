@@ -90,12 +90,30 @@ def variantes(base_params: dict) -> list[dict]:
     ]
 
 
-def avaliar_variante(nome: str, params: dict, linhas: list[dict], verdade: dict[int, str],
+def chave_verdade(item: dict) -> str | int:
+    """Chave com que o registro e procurado no mapa de verdade.
+
+    `dv.carregar_decisoes(..., chave='id')` indexa por `id_chamado`, e nao pelo
+    numero da linha. Procurar por `item['linha']` nunca encontra nada, porque as
+    duas chaves nem sequer tem o mesmo tipo, e o ablation aborta com
+    "Informação insuficiente para verificar." O fallback para a linha preserva
+    o comportamento de chamadores que ainda passem um mapa indexado por linha.
+    """
+    return item.get("id") or item["linha"]
+
+
+def rotulo_de_treino(item: dict, verdade: dict) -> str:
+    """Referencia humana quando existe; categoria historica como recurso."""
+    return verdade.get(chave_verdade(item)) or item["historico"]
+
+
+def avaliar_variante(nome: str, params: dict, linhas: list[dict], verdade: dict,
                      k_folds: int, epochs: int, batch_size: int, validation_split: float,
                      paciencia: int, usar_class_weight: bool, verbose: int) -> dict:
     from sklearn.model_selection import GroupKFold
 
-    idx_validados = [i for i, item in enumerate(linhas) if item["linha"] in verdade]
+    idx_validados = [i for i, item in enumerate(linhas)
+                     if chave_verdade(item) in verdade]
     if len(idx_validados) < 2:
         raise RuntimeError("Informação insuficiente para verificar.")
     grupos_por_indice = [hash_texto_normalizado(item["texto"]) for item in linhas]
@@ -113,9 +131,15 @@ def avaliar_variante(nome: str, params: dict, linhas: list[dict], verdade: dict[
         treino_idx = [i for i in todos_indices if grupos_por_indice[i] not in grupos_teste]
         clf_params = {k: v for k, v in params.items() if k != "nome"}
         clf = modelo_lstm.ClassificadorLSTM(**clf_params)
+        # Rotulo de treino e a REFERENCIA HUMANA, a mesma da rodada canonica.
+        # Treinar contra a categoria historica e medir contra a referencia
+        # humana comparava duas grandezas diferentes e inflava o resultado, ja
+        # que a referencia confirma o historico na quase totalidade dos casos.
+        # Registros sem referencia entram no treino com a categoria historica,
+        # que e a unica disponivel para eles.
         clf.fit(
             [linhas[i]["texto"] for i in treino_idx],
-            [linhas[i]["historico"] for i in treino_idx],
+            [rotulo_de_treino(linhas[i], verdade) for i in treino_idx],
             epochs=epochs,
             batch_size=batch_size,
             validation_split=validation_split,
@@ -124,7 +148,8 @@ def avaliar_variante(nome: str, params: dict, linhas: list[dict], verdade: dict[
             usar_class_weight=usar_class_weight,
         )
         preds, _confs = clf.predict_com_conf([linhas[i]["texto"] for i in teste_idx])
-        fold_acertos = [str(pred) == verdade[linhas[i]["linha"]] for pred, i in zip(preds, teste_idx)]
+        fold_acertos = [str(pred) == verdade[chave_verdade(linhas[i])]
+                        for pred, i in zip(preds, teste_idx)]
         acertos.extend(fold_acertos)
         print(f"[{nome}] fold={fold}/{kk} n={len(fold_acertos)} acerto={np.mean(fold_acertos):.4f}")
     arr = np.array(acertos, dtype=float)
@@ -142,7 +167,8 @@ def avaliar_variante(nome: str, params: dict, linhas: list[dict], verdade: dict[
 def diagnosticar_duplicatas_folds(linhas: list[dict], verdade: dict[int, str], k_folds: int) -> dict:
     from sklearn.model_selection import KFold
 
-    idx_validados = [i for i, item in enumerate(linhas) if item["linha"] in verdade]
+    idx_validados = [i for i, item in enumerate(linhas)
+                     if chave_verdade(item) in verdade]
     if len(idx_validados) < 2:
         raise RuntimeError("Informação insuficiente para verificar.")
 
@@ -332,7 +358,7 @@ def diagnosticar_protocolos_lstm(sh, config: dict, linhas: list[dict], verdade: 
         "natureza": "diagnostico de protocolo; nao re-treina modelos e nao escreve na planilha",
         "hipoteses_testadas": [
             "avaliacao oficial usa predicoes ja materializadas em CLASSIF__lstm",
-            "ablation treina LSTM novo por fold contra rotulo historico e mede contra verdade humana",
+            "ablation treina LSTM novo por fold contra a referencia humana e mede contra ela mesma",
             "verdade humana pode coincidir com o historico em grande parte dos validados",
             "protocolo oficial multimodelo usa k-fold configurado separadamente do ablation",
         ],
@@ -345,7 +371,7 @@ def diagnosticar_protocolos_lstm(sh, config: dict, linhas: list[dict], verdade: 
         "config_ablation": {
             "k_folds_ablation": k_folds_ablation,
             "particionamento": "GroupKFold por hash de texto normalizado nos validados; treino usa todos os demais grupos elegiveis",
-            "rotulo_treino": "CATEGORIA COMPLETA historica",
+            "rotulo_treino": "referencia humana revisada; categoria historica apenas onde nao ha referencia",
         },
         "parametros_lstm_resolvidos": diagnosticar_parametros_lstm(config),
         "escopo": {
@@ -372,7 +398,7 @@ def diagnosticar_protocolos_lstm(sh, config: dict, linhas: list[dict], verdade: 
         "diferencas_de_protocolo_verificadas_no_codigo": [
             "src/avaliacao_final.py avalia predicoes ja gravadas em CLASSIF__<modelo>; nao instancia nem treina o LSTM.",
             "src/classificacao_multimodelo.py gera CLASSIF__lstm com k-fold configurado em config_experimento.json e pode usar memoria validada como base fixa.",
-            "src/ablation_lstm.py treina modelo_lstm.ClassificadorLSTM diretamente em cada fold e usa categoria historica como y de treino.",
+            "src/ablation_lstm.py treina modelo_lstm.ClassificadorLSTM diretamente em cada fold e usa a referencia humana como y de treino.",
             "src/ablation_lstm.py usa GroupKFold por hash de texto normalizado; o protocolo oficial multimodelo usa KFold por linha no lote.",
         ],
     }
@@ -576,7 +602,9 @@ def main() -> int:
     payload = {
         "gerado_em": agora_bahia(),
         "script_origem": "src/ablation_lstm.py",
-        "natureza": "acerto contra verdade validada humana; GroupKFold por hash de texto normalizado",
+        "natureza": ("acerto contra a referencia humana, que e tambem o rotulo de treino; "
+                     "GroupKFold por hash de texto normalizado; protocolo proprio, "
+                     "NAO comparavel com as tabelas da rodada canonica"),
         "k_folds": args.k_folds,
         "epochs": epochs,
         "batch_size": batch_size,

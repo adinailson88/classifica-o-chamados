@@ -3,7 +3,7 @@
 > Relatório sanitizado e somente leitura. Não contém títulos, descrições ou IDs de chamados.
 
 **Estado:** `concluido`  
-**Gerado em:** 04/08/2026 19:42  
+**Gerado em:** 04/08/2026 21:11  
 **Hash do corpus:** `1e4762438a7e3627d3e32c1025f6bcb169e786881d8e86207806fdf98846409a`
 
 ## Coerência dos artefatos derivados
@@ -28,17 +28,27 @@ Definem o corpus e por isso não carregam `hash_corpus`: ele é derivado deles.
 
 ## Rastreabilidade das grandezas publicáveis
 
-| Grandeza | Artefato | Script | Denominador | Categorias | Partições | Hash |
-|---|---|---|---:|---:|---:|---|
-| Acuracia e macro-F1 por modelo | `docs/RETREINO_CANONICO.md` | `src/retreinar_modelos_canonicos.py` | 13972 | 41 | 5 | `1e4762438a7e` |
-| Ganho ou perda da camada de regras | `docs/REGRAS_VERSUS_MODELOS.md` | `src/comparar_regras_modelos.py` | 13972 | 41 | 5 | `1e4762438a7e` |
-| ECE, Brier e curva de confiabilidade | `docs/CALIBRACAO_CANONICA.md` | `src/calibrar_confianca.py` | 13972 | 41 | 5 | `1e4762438a7e` |
-| Cobertura e acuracia seletiva por limiar | `docs/CALIBRACAO_CANONICA.md` | `src/calibrar_confianca.py` | 13972 | 41 | 5 | `1e4762438a7e` |
-| Recorte por tipo e tarefa de tipo | `docs/RECORTES_CANONICOS.md` | `src/recortes_canonicos.py` | 13972 | 41 | 5 | `1e4762438a7e` |
-| Curva ABC por volume | `docs/RECORTES_CANONICOS.md` | `src/recortes_canonicos.py` | 13972 | 41 | 5 | `1e4762438a7e` |
-| Intervalos de confianca | `docs/INFERENCIA_CANONICA.md` | `src/inferencia_canonica.py` | 13972 | 41 | 5 | `1e4762438a7e` |
-| Cochran Q e McNemar com Holm | `docs/INFERENCIA_CANONICA.md` | `src/inferencia_canonica.py` | 13972 | 41 | 5 | `1e4762438a7e` |
-| Custo computacional do BERTimbau | `docs/CUSTO_BERTIMBAU.md` | `src/medir_custo_bertimbau.py` | 13972 | 41 | 5 | `1e4762438a7e` |
+| Grandeza | Artefato | Script | Denominador | Categorias | Partições | Hash | Ressalva |
+|---|---|---|---:|---:|---:|---|---|
+| Acuracia e macro-F1 por modelo | `docs/RETREINO_CANONICO.md` | `src/retreinar_modelos_canonicos.py` | 13972 | 41 | 5 | `1e4762438a7e` | — |
+| Ganho ou perda da camada de regras | `docs/REGRAS_VERSUS_MODELOS.md` | `src/comparar_regras_modelos.py` | 13972 | 41 | 5 | `1e4762438a7e` | — |
+| ECE, Brier e curva de confiabilidade | `docs/CALIBRACAO_CANONICA.md` | `src/calibrar_confianca.py` | 13972 | 41 | 5 | `1e4762438a7e` | — |
+| Cobertura e acuracia seletiva por limiar | `docs/CALIBRACAO_CANONICA.md` | `src/calibrar_confianca.py` | 13972 | 41 | 5 | `1e4762438a7e` | — |
+| Recorte por tipo e tarefa de tipo | `docs/RECORTES_CANONICOS.md` | `src/recortes_canonicos.py` | 13972 | 41 | 5 | `1e4762438a7e` | — |
+| Curva ABC por volume | `docs/RECORTES_CANONICOS.md` | `src/recortes_canonicos.py` | 13972 | 41 | 5 | `1e4762438a7e` | — |
+| Intervalos de confianca | `docs/INFERENCIA_CANONICA.md` | `src/inferencia_canonica.py` | 13972 | 41 | 5 | `1e4762438a7e` | — |
+| Cochran Q e McNemar com Holm | `docs/INFERENCIA_CANONICA.md` | `src/inferencia_canonica.py` | 13972 | 41 | 5 | `1e4762438a7e` | — |
+| Custo computacional do BERTimbau | `docs/CUSTO_BERTIMBAU.md` | `src/medir_custo_bertimbau.py` | 13972 | 41 | 5 | `1e4762438a7e` | — |
+| Concordancia historica, Kappa e ganho liquido | `docs/dados/comparacao_historica.json` | `src/executar_rodada_canonica.py` | 13972 | 41 | 5 | `1e4762438a7e` | — |
+| Dispersao das predicoes e Jensen-Shannon | `docs/dados/comparacao_historica.json` | `src/executar_rodada_canonica.py` | 13972 | 41 | 5 | `1e4762438a7e` | — |
+| Unanimidade e desacordo estrutural entre modelos | `docs/INFERENCIA_CANONICA.md` | `src/inferencia_canonica.py` | 13972 | 41 | 5 | `1e4762438a7e` | — |
+| Conciliacao das contagens de grupos textuais | `docs/INFERENCIA_CANONICA.md` | `src/inferencia_canonica.py` | 13972 | 41 | 5 | `1e4762438a7e` | — |
+| Tabelas A1 a A3 do apendice | `docs/dados/tabelas_apendice_canonicas.json` | `src/tabelas_apendice_canonicas.py` | 13972 | 41 | 5 | `1e4762438a7e` | — |
+| Corpus congelado, referencia humana e taxonomia | `docs/dados/auditoria_base_canonica.json` | `src/auditar_base_canonica.py` | 14060 | 50 | — | `congelamento` | denominador do corpus e da cobertura da revisao, nunca das metricas, que valem para 13.972 linhas |
+| Grupos textuais da base congelada | `docs/dados/grupos_textuais.json` | `src/construir_grupos_textuais.py` | 14060 | 50 | — | `congelamento` | 9.786 grupos na base inteira; 9.735 no recorte de 13.972 linhas; 9.734 no mapa de particoes, recalculado sobre o texto vivo |
+| Curva de aprendizado do LSTM (Figura 7) | `04_artigo/figuras/lstm_history.json` | `src/modelo_lstm.py` | — | — | — | `fora da rodada canonica` | treino unico sobre a aba viva de 25/07/2026, com rotulo historico e validacao interna de 10%; nao comparavel com as Tabelas 1 e 2 |
+| Ablation de unidades e dropout do LSTM | `04_artigo/figuras/ablation_lstm_resultados.json` | `src/ablation_lstm.py` | 9096 | — | 3 | `fora da rodada canonica` | snapshot legado de 24/07/2026, cobertura parcial da revisao humana e rotulo de treino historico; o script foi corrigido depois e os numeros nao foram regerados |
+| KFold por linha contra GroupKFold por texto | `04_artigo/figuras/comparacao_kfold_groupkfold.json` | `src/comparacao_kfold_groupkfold.py` | 14094 | — | 5 | `fora da rodada canonica` | base de 01/08/2026, anterior ao congelamento em 14.060, e alvo e a categoria historica |
 
 ## Números legados ainda presentes no artigo
 
@@ -46,8 +56,8 @@ Encontradas 2 ocorrências em `04_artigo/artigo_classificacao_chamados_v3.md`. a
 
 | Linha | Forma no texto | Valor legado |
 |---:|---|---|
-| 838 | `0,7781` | acuracia legada de random_forest |
-| 862 | `0,7781` | acuracia legada de random_forest |
+| 700 | `0,7781` | acuracia legada de random_forest |
+| 724 | `0,7781` | acuracia legada de random_forest |
 
 ## Validações
 

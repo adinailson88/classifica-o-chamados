@@ -2,7 +2,7 @@
 
 > **LEITURA OBRIGATÓRIA ANTES DE ALTERAR CÓDIGO, RESULTADOS OU ARTIGO.**
 >
-> **Estado geral:** execução canônica `1e476243` concluída; artigo atualizado com os novos números; resta a redução editorial do Passo 11.
+> **Estado geral:** execução canônica `1e476243` concluída; artigo auditado número a número contra os artefatos e sem resíduo de rodadas incompatíveis; resta a redução editorial do Passo 11.
 >
 > **Regra principal:** os resultados atualmente publicados são resultados legados. Não atualizar o artigo com novos números até concluir uma única execução canônica, reproduzível e comum a todos os modelos.
 
@@ -351,6 +351,7 @@ A preservação do snapshot permite auditoria histórica e comparação metodol�
 
 | 04/08/2026 | 10 | concluído | rodada canônica `1e476243`, `docs/MATRIZ_PROVENIENCIA.md`; os 5 artefatos derivados e os 3 do congelamento conferem o hash; as Tabelas 1 a 5 do corpo, as Figuras 2 a 6 e as tabelas do apêndice passaram a sair da rodada canônica; a varredura caiu de 35 para 2 ocorrências, ambas falso positivo (`0,7781` é o acordo bruto do SGD) | executar o Passo 11: redução editorial |
 | 04/08/2026 | 11 | em execução | corpo do artigo de 14.782 para ~13.100 palavras; cinco tabelas no corpo e cinco movidas ao suplemento (S7 a S11); a antiga Tabela 3 virou S6; removida a Subseção 3.7, de fluxo interno de triagem; corrigido o protocolo declarado na Subseção 3.5, que ainda dizia `KFold` por linha | concluir a redução até 8 a 9 mil palavras e revisar o PDF |
+| 04/08/2026 | 10 | concluído | auditoria canônica dos bloqueadores numéricos, `docs/RASTREABILIDADE_LSTM.md`; matriz de proveniência ampliada com as grandezas de fora da rodada e suas ressalvas; 74 números do artigo conferidos contra os artefatos, com zero divergências, e nenhum decimal do corpo sem lastro em artefato versionado; 9.786/9.735/9.734 conciliados; discrepância do LSTM atribuída à coincidência de 100% entre referência e histórico nas 9.096 linhas do *ablation*; `src/ablation_lstm.py` corrigido, com regressão em `tests/test_ablation_lstm_chave.py` | executar o Passo 11: reduzir o corpo até 8 a 9 mil palavras e o PDF de 28 para cerca de 22 páginas |
 Estados permitidos: `pendente`, `em execução`, `bloqueado`, `concluído`, `substituído`.
 
 ## 10. Instruções para continuidade por outro agente

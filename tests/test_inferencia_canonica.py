@@ -102,6 +102,103 @@ class TestBlocosEBootstrap(unittest.TestCase):
         self.assertGreater(agrupado, solto)
 
 
+class TestEstimativaObservada(unittest.TestCase):
+    """A estimativa observada e a media do bootstrap sao grandezas distintas."""
+
+    def _dados(self):
+        v = np.array(["a"] * 60 + ["b"] * 40)
+        p = np.array(["a"] * 55 + ["b"] * 5 + ["b"] * 35 + ["a"] * 5)
+        blocos = inf.indices_por_grupo([f"g{i}" for i in range(100)])
+        return v, p, blocos
+
+    def test_observado_bate_com_o_calculo_direto(self):
+        from sklearn.metrics import f1_score
+        v, p, blocos = self._dados()
+        r = inf.bootstrap_por_grupo(v, p, blocos, ["a", "b"], 50, 42)
+        self.assertAlmostEqual(r["observado"]["acuracia"],
+                               round(float((v == p).mean()), 4), places=4)
+        esperado = f1_score(v, p, labels=["a", "b"], average="macro",
+                            zero_division=0)
+        self.assertAlmostEqual(r["observado"]["macro_f1"], round(esperado, 4),
+                               places=4)
+
+    def test_observado_nao_depende_do_numero_de_repeticoes(self):
+        v, p, blocos = self._dados()
+        poucas = inf.bootstrap_por_grupo(v, p, blocos, ["a", "b"], 30, 42)
+        muitas = inf.bootstrap_por_grupo(v, p, blocos, ["a", "b"], 300, 42)
+        self.assertEqual(poucas["observado"], muitas["observado"])
+
+    def test_media_do_bootstrap_nao_e_a_estimativa_observada(self):
+        """Confundir as duas produziu 0,6664 onde o retreino media 0,6684."""
+        v, p, blocos = self._dados()
+        r = inf.bootstrap_por_grupo(v, p, blocos, ["a", "b"], 400, 42)
+        self.assertIn("media", r["macro_f1"])
+        self.assertIn("macro_f1", r["observado"])
+        self.assertIsNot(r["macro_f1"]["media"], r["observado"]["macro_f1"])
+
+
+class TestConsensoEntreModelos(unittest.TestCase):
+    def _dados(self, previsoes: dict[str, list[str]]):
+        chaves = [f"c{i}" for i in range(len(next(iter(previsoes.values()))))]
+        return {
+            "chaves": chaves,
+            "modelos": sorted(previsoes),
+            "previsto": {m: dict(zip(chaves, v)) for m, v in previsoes.items()},
+        }
+
+    def test_conta_unanimidade(self):
+        d = self._dados({"m1": ["a", "a"], "m2": ["a", "b"], "m3": ["a", "c"]})
+        r = inf.consenso_entre_modelos(d)
+        self.assertEqual(r["unanimes"], 1)
+        self.assertEqual(r["proporcao_unanimes"], 0.5)
+
+    def test_desacordo_estrutural_exige_tres_categorias(self):
+        d = self._dados({"m1": ["a", "a"], "m2": ["b", "b"], "m3": ["b", "c"]})
+        r = inf.consenso_entre_modelos(d)
+        # Primeiro registro tem duas categorias; o segundo, três.
+        self.assertEqual(r["com_desacordo_estrutural"], 1)
+
+    def test_distribuicao_soma_o_total_de_registros(self):
+        d = self._dados({"m1": ["a", "a", "b"], "m2": ["a", "b", "c"],
+                         "m3": ["a", "c", "c"]})
+        r = inf.consenso_entre_modelos(d)
+        self.assertEqual(
+            sum(r["categorias_distintas_por_registro"].values()), 3)
+
+    def test_unanimidade_zera_a_entropia(self):
+        d = self._dados({"m1": ["a"], "m2": ["a"], "m3": ["a"]})
+        self.assertEqual(inf.consenso_entre_modelos(d)["entropia_media_normalizada"], 0.0)
+
+
+class TestContagemDeGrupos(unittest.TestCase):
+    """As três contagens de grupos são coisas diferentes e não se substituem."""
+
+    def _mapa(self, tmp: Path, pares: list[tuple[str, str]]) -> Path:
+        caminho = tmp / "particoes.csv"
+        linhas = ["id_sha256,grupo_sha256,dobra"]
+        linhas += [f"{i},{g},1" for i, g in pares]
+        caminho.write_text("\n".join(linhas) + "\n", encoding="utf-8")
+        return caminho
+
+    def test_conta_grupos_congelados_do_recorte(self):
+        d = {"chaves": ["i1", "i2", "i3"], "grupos": ["g1", "g1", "g2"]}
+        r = inf.contagem_de_grupos(d, None)
+        self.assertEqual(r["grupos_congelados_no_recorte_avaliado"], 2)
+        self.assertIsNone(r["grupos_no_mapa_de_particoes"])
+
+    def test_texto_editado_funde_grupos_e_reduz_a_contagem(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as td:
+            tmp = Path(td)
+            # Congelado: i1 sozinho; vivo: i1 caiu no grupo de i2.
+            mapa = self._mapa(tmp, [("i1", "gA"), ("i2", "gA"), ("i3", "gB")])
+            d = {"chaves": ["i1", "i2", "i3"], "grupos": ["g1", "gA", "gB"]}
+            r = inf.contagem_de_grupos(d, mapa)
+            self.assertEqual(r["grupos_congelados_no_recorte_avaliado"], 3)
+            self.assertEqual(r["grupos_no_mapa_de_particoes"], 2)
+            self.assertEqual(r["registros_com_grupo_divergente_do_congelado"], 1)
+
+
 class TestMcNemar(unittest.TestCase):
     def test_modelos_identicos_nao_diferem(self):
         a = np.array([1, 0, 1, 1, 0] * 20)

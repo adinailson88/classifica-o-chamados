@@ -189,9 +189,84 @@ def montar_matriz(dados: Path = DADOS) -> list[dict[str, Any]]:
          "src/inferencia_canonica.py"),
         ("Custo computacional do BERTimbau", "docs/CUSTO_BERTIMBAU.md",
          "src/medir_custo_bertimbau.py"),
+        ("Concordancia historica, Kappa e ganho liquido",
+         "docs/dados/comparacao_historica.json",
+         "src/executar_rodada_canonica.py"),
+        ("Dispersao das predicoes e Jensen-Shannon",
+         "docs/dados/comparacao_historica.json",
+         "src/executar_rodada_canonica.py"),
+        ("Unanimidade e desacordo estrutural entre modelos",
+         "docs/INFERENCIA_CANONICA.md", "src/inferencia_canonica.py"),
+        ("Conciliacao das contagens de grupos textuais",
+         "docs/INFERENCIA_CANONICA.md", "src/inferencia_canonica.py"),
+        ("Tabelas A1 a A3 do apendice",
+         "docs/dados/tabelas_apendice_canonicas.json",
+         "src/tabelas_apendice_canonicas.py"),
     ]
-    return [{"grandeza": g, "artefato": a, "script": s, **base}
-            for g, a, s in grandezas]
+    fora = grandezas_fora_da_rodada_canonica()
+    return ([{"grandeza": g, "artefato": a, "script": s, **base}
+             for g, a, s in grandezas] + fora)
+
+
+def grandezas_fora_da_rodada_canonica() -> list[dict[str, Any]]:
+    """Grandezas do artigo que NAO saem da rodada canonica.
+
+    Existem e sao legitimas, mas respondem a outro protocolo e a outro
+    denominador. Precisam figurar na matriz justamente para que ninguem as
+    compare com as tabelas do corpo, que foi a origem da discrepancia do LSTM
+    entre 0,7287, 0,8635 e 0,8768.
+    """
+    return [
+        {
+            "grandeza": "Corpus congelado, referencia humana e taxonomia",
+            "artefato": "docs/dados/auditoria_base_canonica.json",
+            "script": "src/auditar_base_canonica.py",
+            "denominador": 14060, "categorias": 50, "particoes": None,
+            "hash_corpus": "congelamento",
+            "ressalva": ("denominador do corpus e da cobertura da revisao, "
+                         "nunca das metricas, que valem para 13.972 linhas"),
+        },
+        {
+            "grandeza": "Grupos textuais da base congelada",
+            "artefato": "docs/dados/grupos_textuais.json",
+            "script": "src/construir_grupos_textuais.py",
+            "denominador": 14060, "categorias": 50, "particoes": None,
+            "hash_corpus": "congelamento",
+            "ressalva": ("9.786 grupos na base inteira; 9.735 no recorte de "
+                         "13.972 linhas; 9.734 no mapa de particoes, "
+                         "recalculado sobre o texto vivo"),
+        },
+        {
+            "grandeza": "Curva de aprendizado do LSTM (Figura 7)",
+            "artefato": "04_artigo/figuras/lstm_history.json",
+            "script": "src/modelo_lstm.py",
+            "denominador": None, "categorias": None, "particoes": None,
+            "hash_corpus": "fora da rodada canonica",
+            "ressalva": ("treino unico sobre a aba viva de 25/07/2026, com "
+                         "rotulo historico e validacao interna de 10%; nao "
+                         "comparavel com as Tabelas 1 e 2"),
+        },
+        {
+            "grandeza": "Ablation de unidades e dropout do LSTM",
+            "artefato": "04_artigo/figuras/ablation_lstm_resultados.json",
+            "script": "src/ablation_lstm.py",
+            "denominador": 9096, "categorias": None, "particoes": 3,
+            "hash_corpus": "fora da rodada canonica",
+            "ressalva": ("snapshot legado de 24/07/2026, cobertura parcial da "
+                         "revisao humana e rotulo de treino historico; o "
+                         "script foi corrigido depois e os numeros nao foram "
+                         "regerados"),
+        },
+        {
+            "grandeza": "KFold por linha contra GroupKFold por texto",
+            "artefato": "04_artigo/figuras/comparacao_kfold_groupkfold.json",
+            "script": "src/comparacao_kfold_groupkfold.py",
+            "denominador": 14094, "categorias": None, "particoes": 5,
+            "hash_corpus": "fora da rodada canonica",
+            "ressalva": ("base de 01/08/2026, anterior ao congelamento em "
+                         "14.060, e alvo e a categoria historica"),
+        },
+    ]
 
 
 def montar_relatorio(dados: Path = DADOS,
@@ -267,14 +342,16 @@ def renderizar_markdown(r: dict[str, Any]) -> str:
         "",
         "## Rastreabilidade das grandezas publicáveis",
         "",
-        "| Grandeza | Artefato | Script | Denominador | Categorias | Partições | Hash |",
-        "|---|---|---|---:|---:|---:|---|",
+        "| Grandeza | Artefato | Script | Denominador | Categorias | Partições | Hash | Ressalva |",
+        "|---|---|---|---:|---:|---:|---|---|",
     ]
     for m in r["matriz"]:
+        vazio = lambda x: "—" if x is None else x  # noqa: E731
         linhas.append(
             f"| {m['grandeza']} | `{m['artefato']}` | `{m['script']}` | "
-            f"{m['denominador']} | {m['categorias']} | {m['particoes']} | "
-            f"`{m['hash_corpus']}` |")
+            f"{vazio(m['denominador'])} | {vazio(m['categorias'])} | "
+            f"{vazio(m['particoes'])} | `{m['hash_corpus']}` | "
+            f"{m.get('ressalva', '—')} |")
 
     aud = r["auditoria_do_artigo"]
     linhas += ["", "## Números legados ainda presentes no artigo", ""]

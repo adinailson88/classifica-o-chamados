@@ -397,10 +397,13 @@ vez que pequenas decisões sobre normalização podem alterar a matriz de
 atributos e, consequentemente, o desempenho dos modelos (SALTON;
 BUCKLEY, 1988). Para os classificadores clássicos, a representação
 principal é TF-IDF com *n-gramas* de uma e duas palavras e limite
-superior de 5.000 atributos para controle de dimensionalidade. Para o
+superior de 30.000 atributos para controle de dimensionalidade. Para o
 modelo neural LSTM, são utilizadas tokenizações específicas com
-vocabulário de 8.000 termos e comprimento máximo de sequência adequado à
-distribuição textual da base. Cabe ressaltar que a etapa de
+vocabulário de 8.000 termos e comprimento máximo de 120 tokens por
+sequência. O vetorizador, o tokenizador e o vocabulário são ajustados
+dentro de cada dobra, sobre a partição de treino, de modo que nenhuma
+estatística do conjunto de teste participa da representação. Cabe
+ressaltar que a etapa de
 pré-processamento não elimina indiscriminadamente termos técnicos,
 códigos de ambientes, nomes de equipamentos ou expressões recorrentes da
 equipe, pois esses elementos possuem alto valor discriminativo em
@@ -459,7 +462,7 @@ a explicar por que o desempenho não é uniforme entre elas nas Tabelas 1
 e 2.
 
 Os discriminadores lineares otimizam fronteiras de decisão sobre a
-representação TF-IDF esparsa de até 5.000 atributos (Subseção 3.3), e é
+representação TF-IDF esparsa de até 30.000 atributos (Subseção 3.3), e é
 essa a família favorecida pelo corpus. Em espaços esparsos de alta
 dimensionalidade, classificadores lineares separam bem as classes quando
 o vocabulário carrega forte poder discriminativo (JOACHIMS, 1998; SALTON;
@@ -497,8 +500,8 @@ de treino, já que dos 13.972 chamados cerca de 11.178 compõem cada
 partição em cinco dobras. Esse cenário é consoante à hipótese de que
 modelos lineares igualam ou superam redes neurais em corpora de porte
 médio e ruidosos, quando não há *embeddings* pré-treinados disponíveis no
-idioma (GALKE; SCHERP, 2022), e a análise de sensibilidade da Subseção
-4.8 confirma não se tratar de falha da arquitetura em si.
+idioma (GALKE; SCHERP, 2022), e a curva de aprendizado da Subseção 4.8
+mostra saturação precoce, e não instabilidade de treino.
 
 **3.5 Desenho de avaliação**
 
@@ -544,8 +547,11 @@ testes pareados, e não em substituição a eles.
 A partição por linha, contudo, carrega uma limitação própria neste
 corpus, e é ela que determina o protocolo adotado. Chamados de manutenção
 repetem-se: 4.586 das 14.060 linhas, ou 32,62%, compartilham texto
-normalizado com outra linha, e a base resolve-se em 9.786 grupos
-textuais, dos quais 9.474 são unitários. Sob particionamento por linha, o
+normalizado com outra linha, e a base congelada resolve-se em 9.786
+grupos textuais, dos quais 9.474 são unitários. Desses grupos, 9.735
+sobrevivem ao recorte das 13.972 linhas avaliadas, e é essa a contagem
+empregada como unidade de reamostragem na Subseção 4.9. Sob
+particionamento por linha, o
 mesmo texto pode cair em treino e em teste, o que superestima o
 desempenho. Toda a avaliação principal usa, por isso, `StratifiedGroupKFold`
 com cinco dobras e semente fixa, estratificado pela referência humana e
@@ -553,7 +559,8 @@ agrupado pelo hash do texto normalizado, de modo que nenhum grupo textual
 atravessa a fronteira entre treino e teste. As partições são geradas uma
 única vez, versionadas e reutilizadas por todos os modelos e pela camada
 de regras, o que torna as comparações pareadas legítimas. A divisão
-aleatória por linha permanece apenas como análise de sensibilidade
+aleatória por linha permanece apenas como análise de sensibilidade, cujo
+protocolo próprio e cujos resultados constam do material suplementar
 (Subseção 4.8).
 
 O agrupamento impõe um custo de cobertura que precisa ser declarado. Uma
@@ -650,7 +657,7 @@ https://github.com/adinailson88/classificacao-chamados, que também
 descreve a estrutura completa dos dados e o material suplementar citado
 neste artigo. Nenhum identificador pessoal, título ou texto livre de chamado
 é armazenado nos agregados publicados, e a camada de entropia (Subseção
-3.8) opera exclusivamente sobre esses agregados.
+3.7) opera exclusivamente sobre esses agregados.
 
 **4. RESULTADOS**
 
@@ -770,9 +777,13 @@ com F1 macro de 0,2951, o que caracteriza um classificador que acerta as
 categorias frequentes e falha de modo sistemático nas demais.
 
 **Tabela 2** Acurácia e F1 macro por modelo contra a referência humana
-final (n = 13.972; 41 categorias). Intervalos por *bootstrap* de grupo
-textual, com mil repetições. O F1 macro pondera igualmente todas as
-categorias, independentemente do suporte.
+final (n = 13.972; 41 categorias). As duas métricas são a estimativa
+observada na amostra inteira; os intervalos vêm de *bootstrap* de grupo
+textual, com mil repetições sobre os 9.735 grupos congelados. A média das
+reamostragens é grandeza distinta da estimativa observada e não ocupa
+estas colunas: para o LinearSVC, por exemplo, a média do F1 macro é
+0,6664, contra os 0,6684 observados. O F1 macro pondera igualmente todas
+as categorias, independentemente do suporte.
 
 | Modelo | Acurácia | IC95% | F1 macro | IC95% |
 |---|---|---|---|---|
@@ -937,12 +948,14 @@ histórico, portanto, não caminham juntas, e o modelo de melhor acurácia é
 justamente o de distribuição mais próxima da base.
 
 No nível de chamado individual, os sete modelos são unânimes em 8.444 dos
-13.972 registros, ou 60,44%, e 2.449 registros, ou 17,53%, apresentam
-alta entropia de votos, isto é, desacordo estrutural relevante entre
-arquiteturas distintas. Esse subconjunto constitui critério de
-priorização de auditoria distinto e complementar à baixa confiança de um
-único modelo, já que decorre de discordância entre indutores e não da
-incerteza declarada por um deles.
+13.972 registros, ou 60,44%. No extremo oposto, 2.285 registros, ou
+16,35%, distribuem os votos por três ou mais categorias distintas, o que
+caracteriza desacordo estrutural entre arquiteturas: a divergência deixa
+de ser a escolha entre duas alternativas e passa a indicar ausência de
+sinal textual suficiente para delimitar a categoria. Esse subconjunto
+constitui critério de priorização de auditoria distinto e complementar à
+baixa confiança de um único modelo, já que decorre de discordância entre
+indutores e não da incerteza declarada por um deles.
 
 No nível de categoria, o contraste é acentuado entre as 33 categorias com
 suporte mínimo de trinta registros. A Figura 3 contrasta as dez de maior
@@ -1061,35 +1074,34 @@ seu desempenho.
 
 ![Trade-off entre acurácia e tempo de treino, modelos clássicos.](04_artigo/figuras/fig_tradeoff_custo.pdf){width=95%}
 
-**4.8 Comportamento do LSTM: curva de aprendizado e *ablation***
-
-Esta subseção reúne duas análises de sensibilidade conduzidas sob
-protocolo próprio, distinto da validação cruzada agrupada das Subseções
-4.1 a 4.7, e seus valores não devem ser confrontados com os das Tabelas 1
-e 2. Elas respondem a duas perguntas auxiliares: por que o LSTM satura, e
-quanto do desempenho de uma partição aleatória é vazamento.
+**4.8 Comportamento do LSTM e justificativa do protocolo agrupado**
 
 A Figura 7 mostra a curva de aprendizado do LSTM. O treino parou por
 interrupção antecipada após 11 épocas, com menor perda de validação na
 época 8 e maior acurácia de validação na época 10 (0,6722). O padrão
 indica saturação precoce, consistente com a hipótese de que *embeddings*
 treinados do zero são insuficientes para um corpus deste porte (Subseção
-3.4.1).
+3.4.1). A curva provém de um treino único sobre a base inteira, com
+validação interna de 10%, e descreve a dinâmica de convergência da
+arquitetura, não o desempenho reportado na Tabela 2, que é a união das
+predições *out-of-fold* das cinco dobras.
 
 ![Curva de aprendizado do LSTM por época, perda e acurácia em treino e validação.](04_artigo/figuras/fig_curva_aprendizado_lstm.pdf){width=95%}
 
-A segunda análise dimensiona o vazamento que o agrupamento evita. Sob
-*GroupKFold* por hash de texto normalizado, a configuração adotada
-alcança 86,35% de acerto, ao passo que a partição aleatória equivalente
-produziria 87,68%, diferença de 1,33 ponto percentual que quantifica o
-ganho espúrio de deixar o mesmo texto atravessar treino e teste. É a
-evidência empírica que sustenta a escolha do protocolo agrupado para toda
-a rodada canônica. As quatro variantes de unidades recorrentes e
-*dropout* testadas separam-se por menos de quatro pontos percentuais
-entre a melhor e a pior, o que indica baixa sensibilidade do LSTM a esses
-hiperparâmetros nesta base e confirma que sua limitação reside na
-ausência de *embeddings* pré-treinados. O detalhamento das variantes
-consta do material suplementar.
+A justificativa do particionamento agrupado é anterior a qualquer
+medição de desempenho e repousa na estrutura do corpus: 32,62% das linhas
+compartilham texto normalizado com outra linha (Subseção 3.5), de modo
+que a partição por linha permitiria ao mesmo texto ocupar treino e teste.
+Duas estimativas da magnitude do efeito foram produzidas em execuções
+anteriores ao congelamento da base, ambas indicando ganho espúrio entre
+0,89 e 1,84 ponto percentual de acurácia. Elas constam do material
+suplementar com o respectivo protocolo declarado e não são comparáveis
+às Tabelas 1 e 2, porque foram apuradas sobre outra base, outro
+denominador e outro rótulo de treino. O estudo de sensibilidade a
+unidades recorrentes e *dropout*, conduzido no mesmo protocolo anterior,
+também consta do suplemento: as quatro variantes separam-se por menos de
+quatro pontos percentuais entre a melhor e a pior, o que indica baixa
+sensibilidade do LSTM a esses hiperparâmetros nesta base.
 
 **4.9 Robustez estatística: pressupostos e testes de sensibilidade**
 
@@ -1102,18 +1114,31 @@ exploração de dados de Zuur, Ieno e Elphick (2010) da resposta contínua da ec
 categórica de classificação de chamados (n = 13.972). O teste de
 Shapiro-Wilk (SHAPIRO; WILK, 1965) foi escolhido por reunir o maior
 poder entre os testes de normalidade usuais nas comparações de Razali e
-Wah (2011) e de Ogunleye, Oyejola e Obisesan (2018). Ele rejeita a
-normalidade a 5% para os sete modelos, confirmando com números a
-justificativa não paramétrica já adotada na Subseção 3.5; a variância de
-confiança entre modelos também é fortemente heterogênea, reforçando essa
-escolha.
+Wah (2011) e de Ogunleye, Oyejola e Obisesan (2018). Aplicado à
+distribuição de confiança de cada modelo, sobre subamostra de cinco mil
+observações com semente fixa, ele rejeita a normalidade a 5% para os sete
+modelos, confirmando com números a justificativa não paramétrica já
+adotada na Subseção 3.5. A variância de confiança entre modelos também é
+fortemente heterogênea, com Levene de 4.216,75 e *p* praticamente nulo, o
+que reforça essa escolha.
 
 A independência das observações merece tratamento próprio, porque é o
 pressuposto que este corpus viola de modo mais evidente. Registros que
 compartilham texto idêntico não são independentes, e tratá-los como tal
 estreitaria artificialmente qualquer intervalo. Os intervalos da Tabela 2
 vêm, por isso, de *bootstrap* de conglomerados, com mil reamostragens dos
-9.735 grupos textuais e semente fixa, e não de reamostragem por linha.
+9.735 grupos textuais congelados que compõem as 13.972 linhas avaliadas,
+com semente fixa, e não de reamostragem por linha.
+
+A contagem de grupos merece uma nota, porque o texto reporta duas: 9.786
+na base congelada de 14.060 chamados e 9.735 no recorte de 13.972 linhas.
+São a mesma partição textual sob denominadores distintos, e a diferença
+de 51 corresponde aos grupos que saem junto com as 88 linhas fora das
+partições. O mapa de partições registra 9.734 porque recalcula o
+agrupamento sobre o texto corrente, e dois chamados tiveram a descrição
+editada depois do congelamento, um deles passando a coincidir com um
+grupo já existente. A unidade reprodutível é a congelada, e é ela que
+sustenta os intervalos aqui reportados.
 
 A ordem dos testes é declarada porque importa. O Cochran Q (COCHRAN,
 1950) foi aplicado primeiro à hipótese global de que os sete modelos têm
@@ -1133,17 +1158,20 @@ todos os demais com significância.
 A verificação de colinearidade revela um efeito colateral pertinente à
 decisão de arquitetura. Quatro dos sete modelos apresentam confiança
 altamente correlacionada entre si, com Fator de Inflação de Variância
-elevado (MARQUARDT, 1970), cujos limiares convencionais devem ser lidos
-com a cautela recomendada por O'Brien (2007). Modelos redundantes pouco
+entre 20,78 e 29,98 (MARQUARDT, 1970), muito acima do limiar convencional
+de dez, que deve ainda assim ser lido com a cautela recomendada por
+O'Brien (2007). São o Extra Trees, o Random Forest, a Regressão Logística
+e o SGD; os três restantes ficam abaixo de 4,3. Modelos redundantes pouco
 acrescentam em informação independente a um comitê (DIETTERICH, 2000), o
 que desaconselha combiná-los em *ensemble*. A correlação entre confiança
 bruta e acerto, por sua vez, é positiva e significativa nos sete modelos,
-com Spearman entre 0,46 e 0,64 e ponto-bisserial entre 0,43 e 0,66 (*p* <
-0,001 em ambos; KORNBROT, 2014), pré-requisito para a calibração
+com Spearman entre 0,4809 e 0,6160 e ponto-bisserial entre 0,4500 e
+0,6560 (*p* < 0,001 em ambos; KORNBROT, 2014), pré-requisito para a calibração
 discutida na Subseção 4.4 (GUO *et al.*, 2017; MINDERER *et al.*, 2021).
-A verificação completa dos pressupostos, item a item, com as tabelas de
-correlação, a autocorrelação serial (DURBIN; WATSON, 1950) e o Kappa de
-Fleiss (FLEISS, 1971) entre modelos, consta do material suplementar.
+A verificação completa dos pressupostos, item a item, com as estatísticas
+de normalidade, variância, colinearidade e correlação por modelo, consta
+do material suplementar e é apurada sobre as mesmas predições que
+sustentam as Tabelas 1 a 5.
 
 **4.10 Análise de erro por categoria e matriz de confusão**
 
@@ -1402,8 +1430,9 @@ amplia o repertório de governança ao separar três fenômenos que a
 acurácia isolada tende a confundir: o erro de modelo, a ambiguidade
 genuína da taxonomia institucional e a heterogeneidade natural da
 distribuição de chamados. Os sete modelos são unânimes em 60,44% dos
-registros, e os 2.449 chamados com alto desacordo estrutural, ou 17,53%,
-oferecem critério de priorização de auditoria distinto do simples corte
+registros, e os 2.285 chamados em que os votos se espalham por três ou
+mais categorias, ou 16,35%, oferecem critério de priorização de auditoria
+distinto do simples corte
 por baixa confiança de um único classificador. A dispersão das predições
 e a aderência à distribuição histórica separam-se neste corpus, pois o
 LSTM lidera a diversidade de categorias previstas e o LinearSVC apresenta
@@ -1612,17 +1641,11 @@ INTERNATIONAL WORKSHOP ON MULTIPLE CLASSIFIER SYSTEMS, 1., 2000,
 Cagliari. Proceedings \[\...\]. Berlin: Springer, 2000. p. 1--15.
 (Lecture Notes in Computer Science, v. 1857).
 
-DURBIN, J.; WATSON, G. S. Testing for serial correlation in least
-squares regression, I. Biometrika, v. 37, n. 3-4, p. 409--428, 1950.
-
 EFRON, B. Bootstrap methods: another look at the jackknife. The Annals
 of Statistics, v. 7, n. 1, p. 1--26, 1979.
 
 EFRON, B.; TIBSHIRANI, R. J. An introduction to the bootstrap. New York:
 Chapman & Hall/CRC, 1993.
-
-FLEISS, J. L. Measuring nominal scale agreement among many raters.
-Psychological Bulletin, v. 76, n. 5, p. 378--382, 1971.
 
 GALKE, L.; SCHERP, A. Bag-of-words vs. graph vs. sequence in text
 classification: questioning the necessity of text-graphs and the
