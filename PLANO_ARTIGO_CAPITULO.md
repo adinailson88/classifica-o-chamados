@@ -137,13 +137,32 @@ remissões ao Método foram remapeadas: a antiga 3.2 e a antiga 3.6 apontam
 para 3.1, a antiga 3.3 para 3.2, a antiga 3.4 para 3.3, a antiga 3.5 para
 3.4, a antiga 3.7 para 3.5 e a antiga 3.8 para 3.6.
 
-**Contagem, antes e depois:** o Método caiu de 2.972 para 2.496 palavras,
-menos 16,0%. A meta da rodada era de 25% a 35%, e não foi alcançada porque
-a mesma rodada exigia acrescentar ao Método a tabela de modelos, as
-definições compactas de oito métricas, o protocolo de calibração e o
-registro de ambiente, sementes e repetições. Cortar além deste ponto
-exigiria remover informação necessária à reprodução. O corpo científico
-caiu de 12.513 para 12.037 palavras e a fonte de 16.567 para 16.091.
+**Três correções de auditoria.** A consistência interna deixou de ser
+apresentada como dispensa de segundo avaliador e passou a ser declarada
+como análise que não substitui avaliação independente nem permite estimar
+concordância interavaliadores. Os 17 grupos divergentes deixaram de
+delimitar teto quantitativo de desempenho: sinalizam ambiguidade ou
+inconsistência interna, e o teto exigiria calcular a distribuição dos
+rótulos dentro de cada grupo, o que não foi feito. Os números desses grupos
+saíram do Método e passaram à Subseção 4.6, restando no Método apenas o
+procedimento de auditoria.
+
+**Sementes, com o limite declarado.** O código não fixa a semente global do
+TensorFlow. O texto passou a declarar que a semente 42 vale para as
+partições e para os componentes do scikit-learn que recebem `random_state`,
+que a execução canônica da LSTM não a fixou e que, por isso, a reprodução
+exata dos pesos e da trajetória de treinamento não é garantida, embora
+partições, rótulos e protocolo o sejam.
+
+**Referências removidas por orfandade.** Saíram BENAVOLI; CORANI; MANGILI
+(2016), DEMŠAR (2006), NEMENYI (1963) e NOMA *et al.* (2021), junto com a
+discussão histórica de *post-hoc* que as sustentava. A Subseção 3.4 retém Q
+de Cochran com referência por permutação no grupo, comparações pareadas,
+Holm e *bootstrap* de conglomerados. A lista ficou com 55 entradas.
+
+**Contagem, antes e depois:** o Método caiu de 2.972 para 2.228 palavras,
+menos 25,03%, dentro da meta de 25% a 35%. O corpo científico caiu de
+12.513 para 11.903 palavras e a fonte de 16.567 para 15.856.
 
 **Dois denominadores, e não um:** a base congelada tem 14.060 chamados,
 todos com referência humana, e é o número de toda frase sobre corpus ou

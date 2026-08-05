@@ -33,7 +33,7 @@ Não atualizar uma tabela isoladamente quando o mesmo resultado aparece em outra
 
 ## Vocabulário obrigatório
 
-A referência de avaliação é a **referência humana revisada**, produto de **auditoria administrativa de rótulo** conduzida por avaliador único, com a categoria histórica à vista. Não usar “verdade validada”, “verdade final”, “verdade absoluta” nem “acerto validado”. Os 4,25% são **taxa de alteração do rótulo histórico**, e não prevalência de erro. Não há segunda avaliação humana, cegamento ou adjudicação, e nenhuma medida de concordância entre avaliadores pode ser reportada.
+A referência de avaliação é a **referência humana revisada**, produto de **auditoria administrativa de rótulo** conduzida por avaliador único, com a categoria histórica à vista. Não usar “verdade validada”, “verdade final”, “verdade absoluta” nem “acerto validado”. Os 4,25% são **taxa de alteração do rótulo histórico**, e não prevalência de erro. Não há segunda avaliação humana, cegamento ou adjudicação, e nenhuma medida de concordância entre avaliadores pode ser reportada. A análise de consistência interna dos grupos de texto idêntico não substitui avaliação independente nem estima concordância interavaliadores, e a contagem de grupos divergentes não delimita teto quantitativo de desempenho: esse teto exigiria calcular a distribuição dos rótulos dentro de cada grupo, o que não foi feito.
 
 ## Regra estatística obrigatória
 
@@ -59,7 +59,7 @@ recalibração. Não escrever "corte por data de abertura": o corte é de extra�
 ## Estado atual
 
 - O BERTimbau permanece fora da comparação principal por custo computacional medido, e figura como experimento exploratório no material suplementar.
-- O corpo tem seis figuras e sete tabelas, a primeira delas a configuração experimental dos sete modelos, na Subseção 3.3; o suplemento vai de S1 a S15.
+- O corpo tem seis figuras e sete tabelas, a primeira delas a configuração experimental dos sete modelos, na Subseção 3.3; o suplemento vai de S1 a S15 e recebeu a comparação com procedimentos alternativos de *post-hoc*, retirada do corpo.
 - O Método tem seis subseções, na ordem 3.1 delineamento, corpus e referência revisada; 3.2 pré-processamento e representação; 3.3 modelos e configuração experimental; 3.4 validação, calibração e inferência; 3.5 reclassificação, utilidade e análises complementares; 3.6 reprodutibilidade, dados e aspectos institucionais.
 - O Passo 11 do plano de execução segue aberto: falta reduzir o corpo do artigo à meta de 8 a 9 mil palavras e cerca de 22 páginas, agora pelos Resultados e pela Discussão.
 - A avaliação temporal não foi executada por ausência de data no corpus, e a limitação está declarada na Subseção 5.3.
