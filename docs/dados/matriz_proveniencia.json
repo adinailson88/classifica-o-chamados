@@ -44,6 +44,30 @@
         "hash_corpus": "1e4762438a7e3627d3e32c1025f6bcb169e786881d8e86207806fdf98846409a",
         "ausente": false,
         "coerente": true
+      },
+      {
+        "artefato": "Inferencia pareada por grupo textual",
+        "arquivo": "docs/dados/inferencia_agrupada.json",
+        "script": "src/inferencia_agrupada.py",
+        "hash_corpus": "1e4762438a7e3627d3e32c1025f6bcb169e786881d8e86207806fdf98846409a",
+        "ausente": false,
+        "coerente": true
+      },
+      {
+        "artefato": "Sensibilidade as categorias raras",
+        "arquivo": "docs/dados/sensibilidade_classes_raras.json",
+        "script": "src/sensibilidade_classes_raras.py",
+        "hash_corpus": "1e4762438a7e3627d3e32c1025f6bcb169e786881d8e86207806fdf98846409a",
+        "ausente": false,
+        "coerente": true
+      },
+      {
+        "artefato": "Utilidade da reclassificacao",
+        "arquivo": "docs/dados/utilidade_reclassificacao.json",
+        "script": "src/utilidade_reclassificacao.py",
+        "hash_corpus": "1e4762438a7e3627d3e32c1025f6bcb169e786881d8e86207806fdf98846409a",
+        "ausente": false,
+        "coerente": true
       }
     ],
     "divergentes": 0
@@ -133,7 +157,52 @@
       "hash_corpus": "1e4762438a7e"
     },
     {
-      "grandeza": "Cochran Q e McNemar com Holm",
+      "grandeza": "Efeito de desenho da dependencia intragrupo",
+      "artefato": "docs/INFERENCIA_AGRUPADA.md",
+      "script": "src/inferencia_agrupada.py",
+      "denominador": 13972,
+      "categorias": 41,
+      "particoes": 5,
+      "hash_corpus": "1e4762438a7e"
+    },
+    {
+      "grandeza": "Cochran Q com referencia por permutacao de grupo",
+      "artefato": "docs/INFERENCIA_AGRUPADA.md",
+      "script": "src/inferencia_agrupada.py",
+      "denominador": 13972,
+      "categorias": 41,
+      "particoes": 5,
+      "hash_corpus": "1e4762438a7e"
+    },
+    {
+      "grandeza": "Diferenca de acuracia, IC, grupos a favor e p ajustado por par",
+      "artefato": "docs/INFERENCIA_AGRUPADA.md",
+      "script": "src/inferencia_agrupada.py",
+      "denominador": 13972,
+      "categorias": 41,
+      "particoes": 5,
+      "hash_corpus": "1e4762438a7e"
+    },
+    {
+      "grandeza": "Cobertura e macro-F1 sob tres convencoes de denominador",
+      "artefato": "docs/SENSIBILIDADE_CLASSES_RARAS.md",
+      "script": "src/sensibilidade_classes_raras.py",
+      "denominador": 13972,
+      "categorias": 41,
+      "particoes": 5,
+      "hash_corpus": "1e4762438a7e"
+    },
+    {
+      "grandeza": "Razao de equilibrio e utilidade da reclassificacao",
+      "artefato": "docs/UTILIDADE_RECLASSIFICACAO.md",
+      "script": "src/utilidade_reclassificacao.py",
+      "denominador": 13972,
+      "categorias": 41,
+      "particoes": 5,
+      "hash_corpus": "1e4762438a7e"
+    },
+    {
+      "grandeza": "Cochran Q e McNemar por linha, mantidos so para contraste",
       "artefato": "docs/INFERENCIA_CANONICA.md",
       "script": "src/inferencia_canonica.py",
       "denominador": 13972,
@@ -263,12 +332,12 @@
       {
         "valor_legado": "acuracia legada de random_forest",
         "forma": "0,7781",
-        "linha": 721
+        "linha": 693
       },
       {
         "valor_legado": "acuracia legada de random_forest",
         "forma": "0,7781",
-        "linha": 745
+        "linha": 713
       }
     ]
   },
@@ -279,6 +348,6 @@
   },
   "nota": "a varredura do artigo aponta, nunca corrige: substituir numero em texto cientifico e decisao editorial do autor",
   "cobertura_da_varredura": "sao procuradas as acuracias registradas em estatistica.json, o total de chamados e a contagem de categorias da execucao legada. O artigo pode conter numeros de rodadas intermediarias que nao estao em nenhum JSON versionado, e esses a varredura nao alcanca; a contagem e piso, nao teto",
-  "gerado_em": "05/08/2026 00:39",
+  "gerado_em": "05/08/2026 01:21",
   "script_origem": "src/matriz_proveniencia.py"
 }

@@ -3,7 +3,7 @@
 > Relatório sanitizado e somente leitura. Não contém títulos, descrições ou IDs de chamados.
 
 **Estado:** `concluido`  
-**Gerado em:** 05/08/2026 00:39  
+**Gerado em:** 05/08/2026 01:21  
 **Hash do corpus:** `1e4762438a7e3627d3e32c1025f6bcb169e786881d8e86207806fdf98846409a`
 
 ## Coerência dos artefatos derivados
@@ -15,6 +15,9 @@
 | Calibracao e automacao seletiva | `docs/dados/calibracao_canonica.json` | `src/calibrar_confianca.py` | sim |
 | Recortes por tipo e volume | `docs/dados/recortes_canonicos.json` | `src/recortes_canonicos.py` | sim |
 | Inferencia estatistica | `docs/dados/inferencia_canonica.json` | `src/inferencia_canonica.py` | sim |
+| Inferencia pareada por grupo textual | `docs/dados/inferencia_agrupada.json` | `src/inferencia_agrupada.py` | sim |
+| Sensibilidade as categorias raras | `docs/dados/sensibilidade_classes_raras.json` | `src/sensibilidade_classes_raras.py` | sim |
+| Utilidade da reclassificacao | `docs/dados/utilidade_reclassificacao.json` | `src/utilidade_reclassificacao.py` | sim |
 
 ## Artefatos do congelamento
 
@@ -37,7 +40,12 @@ Definem o corpus e por isso não carregam `hash_corpus`: ele é derivado deles.
 | Recorte por tipo e tarefa de tipo | `docs/RECORTES_CANONICOS.md` | `src/recortes_canonicos.py` | 13972 | 41 | 5 | `1e4762438a7e` | — |
 | Curva ABC por volume | `docs/RECORTES_CANONICOS.md` | `src/recortes_canonicos.py` | 13972 | 41 | 5 | `1e4762438a7e` | — |
 | Intervalos de confianca | `docs/INFERENCIA_CANONICA.md` | `src/inferencia_canonica.py` | 13972 | 41 | 5 | `1e4762438a7e` | — |
-| Cochran Q e McNemar com Holm | `docs/INFERENCIA_CANONICA.md` | `src/inferencia_canonica.py` | 13972 | 41 | 5 | `1e4762438a7e` | — |
+| Efeito de desenho da dependencia intragrupo | `docs/INFERENCIA_AGRUPADA.md` | `src/inferencia_agrupada.py` | 13972 | 41 | 5 | `1e4762438a7e` | — |
+| Cochran Q com referencia por permutacao de grupo | `docs/INFERENCIA_AGRUPADA.md` | `src/inferencia_agrupada.py` | 13972 | 41 | 5 | `1e4762438a7e` | — |
+| Diferenca de acuracia, IC, grupos a favor e p ajustado por par | `docs/INFERENCIA_AGRUPADA.md` | `src/inferencia_agrupada.py` | 13972 | 41 | 5 | `1e4762438a7e` | — |
+| Cobertura e macro-F1 sob tres convencoes de denominador | `docs/SENSIBILIDADE_CLASSES_RARAS.md` | `src/sensibilidade_classes_raras.py` | 13972 | 41 | 5 | `1e4762438a7e` | — |
+| Razao de equilibrio e utilidade da reclassificacao | `docs/UTILIDADE_RECLASSIFICACAO.md` | `src/utilidade_reclassificacao.py` | 13972 | 41 | 5 | `1e4762438a7e` | — |
+| Cochran Q e McNemar por linha, mantidos so para contraste | `docs/INFERENCIA_CANONICA.md` | `src/inferencia_canonica.py` | 13972 | 41 | 5 | `1e4762438a7e` | — |
 | Custo computacional do BERTimbau | `docs/CUSTO_BERTIMBAU.md` | `src/medir_custo_bertimbau.py` | 13972 | 41 | 5 | `1e4762438a7e` | — |
 | Concordancia historica, Kappa e ganho liquido | `docs/dados/comparacao_historica.json` | `src/executar_rodada_canonica.py` | 13972 | 41 | 5 | `1e4762438a7e` | — |
 | Dispersao das predicoes e Jensen-Shannon | `docs/dados/comparacao_historica.json` | `src/executar_rodada_canonica.py` | 13972 | 41 | 5 | `1e4762438a7e` | — |
@@ -57,8 +65,8 @@ Encontradas 2 ocorrências em `04_artigo/artigo_classificacao_chamados_v3.md`. a
 
 | Linha | Forma no texto | Valor legado |
 |---:|---|---|
-| 721 | `0,7781` | acuracia legada de random_forest |
-| 745 | `0,7781` | acuracia legada de random_forest |
+| 693 | `0,7781` | acuracia legada de random_forest |
+| 713 | `0,7781` | acuracia legada de random_forest |
 
 ## Validações
 
