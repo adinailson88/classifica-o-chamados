@@ -101,47 +101,68 @@ congelamento conferem esse hash, verificável por `python src/matriz_provenienci
 **Onde está:** os Passos 0 a 10 estão concluídos, o 9 encerrado como não
 aplicável. O Passo 11 segue em execução.
 
-**Reposicionamento editorial.** O título deixou de anunciar comparação
-multimodelo com validação humana e passou a nomear a contribuição real:
-classificação auditável, fluxo humano–IA, calibração e risco de
-reclassificação. Resumo e Abstract foram reescritos em estrutura paralela
-de nove movimentos, a saber, problema, lacuna, corpus, protocolo agrupado,
-auditoria de rótulo, resultado principal, automação seletiva, risco de
-reclassificação e contribuição, retendo apenas os números essenciais:
-14.060 e 13.972 em 41 categorias, acurácia de 0,8253, dois terços do
-volume automatizados a 0,95 e o ganho líquido negativo. Saíram dos resumos
-os resultados por classe, as regras de periodicidade, a curva ABC, os
-tempos por modelo e os detalhes do BERTimbau e de Shannon.
+**Método reestruturado em seis subseções.** A Seção 3 passou de oito para
+seis subseções: 3.1 delineamento, corpus e referência revisada; 3.2
+pré-processamento e representação; 3.3 modelos e configuração experimental;
+3.4 validação, calibração e inferência; 3.5 reclassificação, utilidade e
+análises complementares; 3.6 reprodutibilidade, dados e aspectos
+institucionais. As antigas 3.1 e 3.2 fundiram-se, a antiga 3.6 de revisão
+humana passou a integrar a 3.1, a antiga 3.7 de Shannon foi reduzida e
+absorvida pela 3.5 e a antiga 3.8 de governança virou a 3.6.
 
-**Introdução e referencial.** A Introdução segue agora a sequência
-relevância, registros textuais, rótulos históricos, lacuna, pergunta,
-contribuição e objetivo; os quatro objetivos específicos repetitivos deram
-lugar a um objetivo geral e a uma lista de cinco contribuições; o
-enquadramento de biossistemas construídos ocupa um parágrafo funcional e
-não amplia resultado empírico algum. O Referencial foi reorganizado em 2.1
-ordens de manutenção e tickets, 2.2 desbalanceamento e rótulos ruidosos,
-2.3 calibração e classificação seletiva e 2.4 custo computacional e
-delimitação de escopo. A discussão de modelos de grande porte e do
-BERTimbau ficou restrita à justificativa de escopo e custo, sem comparação
-especulativa e declarando que o protocolo integral não foi executado sobre
-essas arquiteturas.
+**Duplicações eliminadas.** As famílias de modelos eram descritas em prosa
+e reexplicadas caso a caso; agora há uma passagem única de justificativa e
+a Tabela 1, nova, com modelo, representação, hiperparâmetros essenciais,
+balanceamento, saída de confiança e papel no experimento. O `StratifiedGroupKFold`
+é explicado uma só vez, na 3.4. O ranking do Naive Bayes por categorias
+previstas saiu do Método, por já constar da Subseção 4.6, e o desenho da
+camada de regras saiu, por já constar da 4.12.
 
-**Referências.** Entraram CHOW (1970) e EL-YANIV; WIENER (2010), que
-sustentam a subseção de classificação seletiva. Saiu VASWANI *et al.*
-(2017), órfã após o corte da frase sobre arquitetura de transformador.
-Varredura automática não encontrou outra órfã entre as 50 entradas.
+**Correspondência com o código.** Cada afirmação foi conferida contra
+`src/modelos_zoo.py`, `src/modelo_lstm.py`, `src/construir_grupos_textuais.py`,
+`src/gerar_particoes_canonicas.py`, `src/retreinar_modelos_canonicos.py` e
+`src/calibrar_confianca.py`. Entraram no texto os itens verificáveis que
+faltavam: ordem e concatenação dos quatro campos, descarte de campo vazio
+sem marcador, normalização por decomposição Unicode com remoção de
+diacríticos e colapso de espaços, hash do grupo como SHA-256 dos quatro
+campos mantidos separados, frequência documental mínima do TF-IDF,
+marcador de termo fora do vocabulário e truncamento à direita na LSTM,
+protocolo de dobra interna da calibração e ambiente de execução com
+versões. Saiu a regra de contingência que aciona o Random Forest, que é de
+produção e não da rodada canônica.
 
-**Símbolos.** Os caracteres Unicode crus que geravam aviso de compilação
-foram substituídos por expressões LaTeX seguras: cinco ocorrências de rô,
-três de lambda e seis de menor ou igual passaram a `$\rho$`, `$\lambda$` e
-`$\leq$`. Nenhum arquivo de fonte foi introduzido, e a conversão para
-LaTeX por pandoc devolve `\(\rho\)`, `\(\lambda\)` e `\(\leq\)`.
+**Numeração.** A Tabela 1 do Método deslocou as tabelas do corpo, que
+passaram de 1 a 6 para 2 a 7, com as citações no texto ajustadas. As
+remissões ao Método foram remapeadas: a antiga 3.2 e a antiga 3.6 apontam
+para 3.1, a antiga 3.3 para 3.2, a antiga 3.4 para 3.3, a antiga 3.5 para
+3.4, a antiga 3.7 para 3.5 e a antiga 3.8 para 3.6.
 
-**Contagem por seção, antes e depois:** Resumo de 436 para 249 palavras,
-menos 42,9%; Abstract de 413 para 247, menos 40,2%; Introdução de 719 para
-571, menos 20,6%; Referencial de 732 para 550, menos 24,9%. O corpo
-científico caiu de 12.504 para 12.181 palavras e a fonte de 15.919 para
-15.246, medidos pela mesma régua.
+**Três correções de auditoria.** A consistência interna deixou de ser
+apresentada como dispensa de segundo avaliador e passou a ser declarada
+como análise que não substitui avaliação independente nem permite estimar
+concordância interavaliadores. Os 17 grupos divergentes deixaram de
+delimitar teto quantitativo de desempenho: sinalizam ambiguidade ou
+inconsistência interna, e o teto exigiria calcular a distribuição dos
+rótulos dentro de cada grupo, o que não foi feito. Os números desses grupos
+saíram do Método e passaram à Subseção 4.6, restando no Método apenas o
+procedimento de auditoria.
+
+**Sementes, com o limite declarado.** O código não fixa a semente global do
+TensorFlow. O texto passou a declarar que a semente 42 vale para as
+partições e para os componentes do scikit-learn que recebem `random_state`,
+que a execução canônica da LSTM não a fixou e que, por isso, a reprodução
+exata dos pesos e da trajetória de treinamento não é garantida, embora
+partições, rótulos e protocolo o sejam.
+
+**Referências removidas por orfandade.** Saíram BENAVOLI; CORANI; MANGILI
+(2016), DEMŠAR (2006), NEMENYI (1963) e NOMA *et al.* (2021), junto com a
+discussão histórica de *post-hoc* que as sustentava. A Subseção 3.4 retém Q
+de Cochran com referência por permutação no grupo, comparações pareadas,
+Holm e *bootstrap* de conglomerados. A lista ficou com 55 entradas.
+
+**Contagem, antes e depois:** o Método caiu de 2.972 para 2.228 palavras,
+menos 25,03%, dentro da meta de 25% a 35%. O corpo científico caiu de
+12.513 para 11.903 palavras e a fonte de 16.567 para 15.856.
 
 **Dois denominadores, e não um:** a base congelada tem 14.060 chamados,
 todos com referência humana, e é o número de toda frase sobre corpus ou
@@ -157,10 +178,10 @@ e Holm sobre os 21 pares. Os 21 vereditos não mudam em relação ao McNemar
 por linha, com 19 pares significativos e 2 empatados.
 
 **O que falta:** concluir a redução editorial até 8 a 9 mil palavras e
-cerca de 22 páginas, e revisar o PDF, que é gerado pelo workflow ao entrar
-em `main`. O ambiente local dispõe de pandoc, mas não de xelatex nem de
-Docker, de modo que o PDF não foi regerado nesta rodada; a conversão para
-LaTeX foi executada sem erro como verificação parcial.
+cerca de 22 páginas, agora concentrada nos Resultados e na Discussão, já
+que o Método foi reestruturado, e revisar o PDF, que é gerado pelo workflow
+ao entrar em `main`. O ambiente local não dispõe de xelatex nem de Docker,
+de modo que o PDF não foi regerado nesta rodada.
 
 ## Critérios para novo fechamento científico
 

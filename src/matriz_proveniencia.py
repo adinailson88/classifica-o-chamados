@@ -279,14 +279,14 @@ def grandezas_fora_da_rodada_canonica() -> list[dict[str, Any]]:
                          "agrupada nao estima desempenho futuro"),
         },
         {
-            "grandeza": "Curva de aprendizado do LSTM (Figura 7)",
+            "grandeza": "Curva de aprendizado do LSTM (Figura 6)",
             "artefato": "04_artigo/figuras/lstm_history.json",
             "script": "src/modelo_lstm.py",
             "denominador": None, "categorias": None, "particoes": None,
             "hash_corpus": "fora da rodada canonica",
             "ressalva": ("treino unico sobre a aba viva de 25/07/2026, com "
                          "rotulo historico e validacao interna de 10%; nao "
-                         "comparavel com as Tabelas 1 e 2"),
+                         "comparavel com as Tabelas 2 e 3"),
         },
         {
             "grandeza": "Ablation de unidades e dropout do LSTM",
