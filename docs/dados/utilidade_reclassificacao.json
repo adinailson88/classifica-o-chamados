@@ -1,0 +1,323 @@
+{
+  "schema_version": 1,
+  "status": "concluido",
+  "hash_corpus": "1e4762438a7e3627d3e32c1025f6bcb169e786881d8e86207806fdf98846409a",
+  "funcao_de_utilidade": {
+    "forma": "U = b x corrigidos - c x prejudicados - r x revisados",
+    "normalizacao": "dividida por b, o que deixa duas razões adimensionais e dispensa valor monetário",
+    "rho": "c / b, custo do prejuízo em unidades de benefício da correção",
+    "lambda": "r / b, custo da revisão em unidades de benefício da correção",
+    "caso_particular": "rho = 1 e lambda = 0 reproduzem o ganho líquido simples do artigo, que permanece o resultado principal por ser transparente",
+    "grade_de_rho": [
+      0.25,
+      0.5,
+      1.0,
+      2.0,
+      4.0
+    ],
+    "grade_de_lambda": [
+      0.0,
+      0.05,
+      0.1,
+      0.2
+    ],
+    "nenhum_valor_monetario_e_atribuido": true
+  },
+  "corpus": {
+    "registros": 13972,
+    "categorias_na_referencia": 41,
+    "categorias_no_historico": 43
+  },
+  "modelos": [
+    {
+      "modelo": "linear_svc",
+      "divergencias": 2849,
+      "corrigidos": 475,
+      "prejudicados": 2321,
+      "neutros": 53,
+      "ganho_liquido_simples": -1846,
+      "aplicacao_direta": {
+        "descricao": "o modelo reescreve a categoria sempre que diverge do histórico; não há revisão humana, logo lambda não entra",
+        "corrigidos": 475,
+        "prejudicados": 2321,
+        "revisados": 0,
+        "ganho_liquido_simples": -1846,
+        "rho_de_equilibrio": 0.2047,
+        "leitura_do_equilibrio": "a reclassificação só teria utilidade positiva se estragar um registro custasse menos de 0.205 do que vale corrigir outro",
+        "utilidade_por_rho": {
+          "0.25": -105.2,
+          "0.5": -685.5,
+          "1": -1846.0,
+          "2": -4167.0,
+          "4": -8809.0
+        },
+        "positiva_em_algum_rho_da_grade": false
+      },
+      "triagem_por_divergencia": {
+        "descricao": "a divergência enfileira o chamado para revisão humana em vez de reescrever o rótulo; por construção não há prejudicados, e o benefício é o número de registros da fila cujo histórico estava de fato errado",
+        "fila": 2849,
+        "registros_da_fila_com_historico_errado": 528,
+        "precisao_da_fila": 0.1853,
+        "lambda_de_equilibrio": 0.1853,
+        "leitura_do_equilibrio": "a triagem paga enquanto revisar um chamado custar menos de 0.1853 do que vale corrigir um registro",
+        "utilidade_por_lambda": {
+          "0": 528.0,
+          "0.05": 385.5,
+          "0.1": 243.1,
+          "0.2": -41.8
+        },
+        "pressuposto": "a revisão humana devolve a referência, o que é verdadeiro por construção neste desenho; o valor é portanto um teto da política, não previsão de campo"
+      }
+    },
+    {
+      "modelo": "sgd",
+      "divergencias": 3100,
+      "corrigidos": 489,
+      "prejudicados": 2559,
+      "neutros": 52,
+      "ganho_liquido_simples": -2070,
+      "aplicacao_direta": {
+        "descricao": "o modelo reescreve a categoria sempre que diverge do histórico; não há revisão humana, logo lambda não entra",
+        "corrigidos": 489,
+        "prejudicados": 2559,
+        "revisados": 0,
+        "ganho_liquido_simples": -2070,
+        "rho_de_equilibrio": 0.1911,
+        "leitura_do_equilibrio": "a reclassificação só teria utilidade positiva se estragar um registro custasse menos de 0.191 do que vale corrigir outro",
+        "utilidade_por_rho": {
+          "0.25": -150.8,
+          "0.5": -790.5,
+          "1": -2070.0,
+          "2": -4629.0,
+          "4": -9747.0
+        },
+        "positiva_em_algum_rho_da_grade": false
+      },
+      "triagem_por_divergencia": {
+        "descricao": "a divergência enfileira o chamado para revisão humana em vez de reescrever o rótulo; por construção não há prejudicados, e o benefício é o número de registros da fila cujo histórico estava de fato errado",
+        "fila": 3100,
+        "registros_da_fila_com_historico_errado": 541,
+        "precisao_da_fila": 0.1745,
+        "lambda_de_equilibrio": 0.1745,
+        "leitura_do_equilibrio": "a triagem paga enquanto revisar um chamado custar menos de 0.1745 do que vale corrigir um registro",
+        "utilidade_por_lambda": {
+          "0": 541.0,
+          "0.05": 386.0,
+          "0.1": 231.0,
+          "0.2": -79.0
+        },
+        "pressuposto": "a revisão humana devolve a referência, o que é verdadeiro por construção neste desenho; o valor é portanto um teto da política, não previsão de campo"
+      }
+    },
+    {
+      "modelo": "extra_trees",
+      "divergencias": 3012,
+      "corrigidos": 422,
+      "prejudicados": 2519,
+      "neutros": 71,
+      "ganho_liquido_simples": -2097,
+      "aplicacao_direta": {
+        "descricao": "o modelo reescreve a categoria sempre que diverge do histórico; não há revisão humana, logo lambda não entra",
+        "corrigidos": 422,
+        "prejudicados": 2519,
+        "revisados": 0,
+        "ganho_liquido_simples": -2097,
+        "rho_de_equilibrio": 0.1675,
+        "leitura_do_equilibrio": "a reclassificação só teria utilidade positiva se estragar um registro custasse menos de 0.168 do que vale corrigir outro",
+        "utilidade_por_rho": {
+          "0.25": -207.8,
+          "0.5": -837.5,
+          "1": -2097.0,
+          "2": -4616.0,
+          "4": -9654.0
+        },
+        "positiva_em_algum_rho_da_grade": false
+      },
+      "triagem_por_divergencia": {
+        "descricao": "a divergência enfileira o chamado para revisão humana em vez de reescrever o rótulo; por construção não há prejudicados, e o benefício é o número de registros da fila cujo histórico estava de fato errado",
+        "fila": 3012,
+        "registros_da_fila_com_historico_errado": 493,
+        "precisao_da_fila": 0.1637,
+        "lambda_de_equilibrio": 0.1637,
+        "leitura_do_equilibrio": "a triagem paga enquanto revisar um chamado custar menos de 0.1637 do que vale corrigir um registro",
+        "utilidade_por_lambda": {
+          "0": 493.0,
+          "0.05": 342.4,
+          "0.1": 191.8,
+          "0.2": -109.4
+        },
+        "pressuposto": "a revisão humana devolve a referência, o que é verdadeiro por construção neste desenho; o valor é portanto um teto da política, não previsão de campo"
+      }
+    },
+    {
+      "modelo": "regressao_logistica",
+      "divergencias": 3161,
+      "corrigidos": 492,
+      "prejudicados": 2621,
+      "neutros": 48,
+      "ganho_liquido_simples": -2129,
+      "aplicacao_direta": {
+        "descricao": "o modelo reescreve a categoria sempre que diverge do histórico; não há revisão humana, logo lambda não entra",
+        "corrigidos": 492,
+        "prejudicados": 2621,
+        "revisados": 0,
+        "ganho_liquido_simples": -2129,
+        "rho_de_equilibrio": 0.1877,
+        "leitura_do_equilibrio": "a reclassificação só teria utilidade positiva se estragar um registro custasse menos de 0.188 do que vale corrigir outro",
+        "utilidade_por_rho": {
+          "0.25": -163.2,
+          "0.5": -818.5,
+          "1": -2129.0,
+          "2": -4750.0,
+          "4": -9992.0
+        },
+        "positiva_em_algum_rho_da_grade": false
+      },
+      "triagem_por_divergencia": {
+        "descricao": "a divergência enfileira o chamado para revisão humana em vez de reescrever o rótulo; por construção não há prejudicados, e o benefício é o número de registros da fila cujo histórico estava de fato errado",
+        "fila": 3161,
+        "registros_da_fila_com_historico_errado": 540,
+        "precisao_da_fila": 0.1708,
+        "lambda_de_equilibrio": 0.1708,
+        "leitura_do_equilibrio": "a triagem paga enquanto revisar um chamado custar menos de 0.1708 do que vale corrigir um registro",
+        "utilidade_por_lambda": {
+          "0": 540.0,
+          "0.05": 381.9,
+          "0.1": 223.9,
+          "0.2": -92.2
+        },
+        "pressuposto": "a revisão humana devolve a referência, o que é verdadeiro por construção neste desenho; o valor é portanto um teto da política, não previsão de campo"
+      }
+    },
+    {
+      "modelo": "random_forest",
+      "divergencias": 3148,
+      "corrigidos": 416,
+      "prejudicados": 2658,
+      "neutros": 74,
+      "ganho_liquido_simples": -2242,
+      "aplicacao_direta": {
+        "descricao": "o modelo reescreve a categoria sempre que diverge do histórico; não há revisão humana, logo lambda não entra",
+        "corrigidos": 416,
+        "prejudicados": 2658,
+        "revisados": 0,
+        "ganho_liquido_simples": -2242,
+        "rho_de_equilibrio": 0.1565,
+        "leitura_do_equilibrio": "a reclassificação só teria utilidade positiva se estragar um registro custasse menos de 0.157 do que vale corrigir outro",
+        "utilidade_por_rho": {
+          "0.25": -248.5,
+          "0.5": -913.0,
+          "1": -2242.0,
+          "2": -4900.0,
+          "4": -10216.0
+        },
+        "positiva_em_algum_rho_da_grade": false
+      },
+      "triagem_por_divergencia": {
+        "descricao": "a divergência enfileira o chamado para revisão humana em vez de reescrever o rótulo; por construção não há prejudicados, e o benefício é o número de registros da fila cujo histórico estava de fato errado",
+        "fila": 3148,
+        "registros_da_fila_com_historico_errado": 490,
+        "precisao_da_fila": 0.1557,
+        "lambda_de_equilibrio": 0.1557,
+        "leitura_do_equilibrio": "a triagem paga enquanto revisar um chamado custar menos de 0.1557 do que vale corrigir um registro",
+        "utilidade_por_lambda": {
+          "0": 490.0,
+          "0.05": 332.6,
+          "0.1": 175.2,
+          "0.2": -139.6
+        },
+        "pressuposto": "a revisão humana devolve a referência, o que é verdadeiro por construção neste desenho; o valor é portanto um teto da política, não previsão de campo"
+      }
+    },
+    {
+      "modelo": "lstm",
+      "divergencias": 4168,
+      "corrigidos": 426,
+      "prejudicados": 3621,
+      "neutros": 121,
+      "ganho_liquido_simples": -3195,
+      "aplicacao_direta": {
+        "descricao": "o modelo reescreve a categoria sempre que diverge do histórico; não há revisão humana, logo lambda não entra",
+        "corrigidos": 426,
+        "prejudicados": 3621,
+        "revisados": 0,
+        "ganho_liquido_simples": -3195,
+        "rho_de_equilibrio": 0.1176,
+        "leitura_do_equilibrio": "a reclassificação só teria utilidade positiva se estragar um registro custasse menos de 0.118 do que vale corrigir outro",
+        "utilidade_por_rho": {
+          "0.25": -479.2,
+          "0.5": -1384.5,
+          "1": -3195.0,
+          "2": -6816.0,
+          "4": -14058.0
+        },
+        "positiva_em_algum_rho_da_grade": false
+      },
+      "triagem_por_divergencia": {
+        "descricao": "a divergência enfileira o chamado para revisão humana em vez de reescrever o rótulo; por construção não há prejudicados, e o benefício é o número de registros da fila cujo histórico estava de fato errado",
+        "fila": 4168,
+        "registros_da_fila_com_historico_errado": 547,
+        "precisao_da_fila": 0.1312,
+        "lambda_de_equilibrio": 0.1312,
+        "leitura_do_equilibrio": "a triagem paga enquanto revisar um chamado custar menos de 0.1312 do que vale corrigir um registro",
+        "utilidade_por_lambda": {
+          "0": 547.0,
+          "0.05": 338.6,
+          "0.1": 130.2,
+          "0.2": -286.6
+        },
+        "pressuposto": "a revisão humana devolve a referência, o que é verdadeiro por construção neste desenho; o valor é portanto um teto da política, não previsão de campo"
+      }
+    },
+    {
+      "modelo": "naive_bayes",
+      "divergencias": 4256,
+      "corrigidos": 309,
+      "prejudicados": 3783,
+      "neutros": 164,
+      "ganho_liquido_simples": -3474,
+      "aplicacao_direta": {
+        "descricao": "o modelo reescreve a categoria sempre que diverge do histórico; não há revisão humana, logo lambda não entra",
+        "corrigidos": 309,
+        "prejudicados": 3783,
+        "revisados": 0,
+        "ganho_liquido_simples": -3474,
+        "rho_de_equilibrio": 0.0817,
+        "leitura_do_equilibrio": "a reclassificação só teria utilidade positiva se estragar um registro custasse menos de 0.082 do que vale corrigir outro",
+        "utilidade_por_rho": {
+          "0.25": -636.8,
+          "0.5": -1582.5,
+          "1": -3474.0,
+          "2": -7257.0,
+          "4": -14823.0
+        },
+        "positiva_em_algum_rho_da_grade": false
+      },
+      "triagem_por_divergencia": {
+        "descricao": "a divergência enfileira o chamado para revisão humana em vez de reescrever o rótulo; por construção não há prejudicados, e o benefício é o número de registros da fila cujo histórico estava de fato errado",
+        "fila": 4256,
+        "registros_da_fila_com_historico_errado": 473,
+        "precisao_da_fila": 0.1111,
+        "lambda_de_equilibrio": 0.1111,
+        "leitura_do_equilibrio": "a triagem paga enquanto revisar um chamado custar menos de 0.1111 do que vale corrigir um registro",
+        "utilidade_por_lambda": {
+          "0": 473.0,
+          "0.05": 260.2,
+          "0.1": 47.4,
+          "0.2": -378.2
+        },
+        "pressuposto": "a revisão humana devolve a referência, o que é verdadeiro por construção neste desenho; o valor é portanto um teto da política, não previsão de campo"
+      }
+    }
+  ],
+  "conclusao": {
+    "maior_rho_de_equilibrio": 0.2047,
+    "reclassificacao_direta_defensavel": "somente se estragar um registro valer menos de 0.205 do que vale corrigir outro, condição que nenhuma leitura razoável de custo em manutenção predial satisfaz, já que o registro corrompido propaga para a série da categoria e para a alocação de recurso, ao passo que a correção apenas recupera o valor devido",
+    "sob_custos_iguais": "com rho = 1 a utilidade é negativa em todos os sete modelos, que é o resultado já reportado",
+    "maior_precisao_de_fila": 0.1853,
+    "triagem_defensavel": "a mesma predição que não sustenta a reescrita sustenta a priorização: a fila de divergências concentra registros com histórico errado em até 18.53%, várias vezes a taxa de alteração do rótulo na base congelada, de modo que a política B tem utilidade positiva sempre que revisar custar menos do que essa fração do benefício de corrigir",
+    "nota_sobre_denominadores": "a taxa de alteração do rótulo histórico, 4,25%, é apurada sobre as 14.060 linhas da base congelada, ao passo que a precisão da fila é apurada sobre as 13.972 avaliadas; a diferença de 88 linhas não altera a ordem de grandeza da comparação, mas os dois denominadores não devem ser fundidos"
+  },
+  "gerado_em": "05/08/2026 00:58",
+  "script_origem": "src/utilidade_reclassificacao.py"
+}

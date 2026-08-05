@@ -59,7 +59,10 @@ artigo.
 | Acurácia, macro-F1 e custo por modelo | `docs/dados/retreino_canonico.json` |
 | Concordância histórica, Kappa, ganho líquido e dispersão | `docs/dados/comparacao_historica.json` |
 | Calibração, ECE, Brier e automação seletiva | `docs/dados/calibracao_canonica.json` |
-| Intervalos, testes pareados, consenso e pressupostos | `docs/dados/inferencia_canonica.json` |
+| Intervalos por modelo, consenso e pressupostos secundários | `docs/dados/inferencia_canonica.json` |
+| Inferência pareada no nível do grupo textual, efeito de desenho, teste global e Holm | `docs/dados/inferencia_agrupada.json` |
+| Cobertura e macro-F1 sob as três convenções de denominador | `docs/dados/sensibilidade_classes_raras.json` |
+| Utilidade da reclassificação sob custos assimétricos | `docs/dados/utilidade_reclassificacao.json` |
 | Recortes por tipo e curva ABC | `docs/dados/recortes_canonicos.json` |
 | Camada de regras de periodicidade | `docs/dados/regras_versus_modelos.json` |
 | Custo computacional | `docs/dados/custo_computacional_canonico.json` e `docs/dados/custo_bertimbau.json` |
@@ -89,73 +92,68 @@ artigo.
 
 ## Estado desta rodada
 
-**Rodada canônica:** `1e476243`. Os cinco artefatos derivados e os três do
+**Rodada canônica:** `1e476243`. Os oito artefatos derivados e os três do
 congelamento conferem esse hash, verificável por `python src/matriz_proveniencia.py`.
-Números de rodadas anteriores não podem aparecer na mesma tabela.
 
-**Onde está:** os Passos 0 a 8 estão concluídos, o 9 encerrado como não
-aplicável e o 10 concluído. O Passo 11 segue em execução.
+**Onde está:** os Passos 0 a 10 estão concluídos, o 9 encerrado como não
+aplicável. O Passo 11 segue em execução.
 
 **Dois denominadores, e não um:** a base congelada tem 14.060 chamados, todos
 com referência humana, e é o número de toda frase sobre corpus ou cobertura da
 revisão. As métricas valem para 13.972 linhas em 41 categorias, porque nove
 categorias, somando 88 linhas, não sustentam suporte nas cinco dobras.
 
-**O que esta rodada mudou: a descrição da revisão humana.** O artigo passou a
-declarar o desenho pelo nome. É auditoria administrativa de rótulo, com
-avaliador único que decide vendo a categoria histórica, e não anotação
-independente. Daí decorrem quatro ajustes que não são de redação:
+**O que esta rodada mudou: a unidade da inferência.** O bootstrap já
+reamostrava grupos, mas o Cochran Q e os 21 McNemar somavam discordantes linha
+a linha, tratando como independentes 4.546 registros que dividem texto
+normalizado com outro. O efeito de desenho medido em `inferencia_agrupada.json`
+fica entre 4,47 e 8,83, isto é, o erro padrão declarado por linha era de 2,1 a
+3,0 vezes menor do que a amostra sustenta. A inferência foi refeita com o grupo
+textual como unidade: teste global com a estatística Q contra distribuição de
+permutação por grupo, 21 comparações por permutação pareada com troca de sinal
+da diferença por grupo, intervalos por bootstrap de conglomerados e Holm sobre
+a família. **Nenhum dos 21 vereditos muda**, com os mesmos 19 pares
+significativos e os mesmos 2 empatados, o que é resultado da análise e não sua
+premissa. A Tabela 6 do corpo traz as seis comparações do LinearSVC com
+diferença, intervalo, grupos a favor de cada modelo, efeito e *p* ajustado; os
+15 pares restantes estão na Tabela S12.
 
-Os 4,25% deixaram de ser apresentados como prevalência de erro histórico e
-passaram a ser a taxa de alteração da categoria pelo especialista. Com isso
-desaparece a contradição entre chamá-los de erro no Resultado e negar, nas
-Limitações, que a prevalência possa ser estimada. A Subseção 3.6 separa
-explicitamente três desfechos que vinham confundidos: confirmação
-administrativa, concordância entre avaliadores e correção factual.
+**Pressupostos periféricos saíram do corpo.** Shapiro-Wilk, Levene, VIF entre
+confianças, outliers e a correlação entre confiança e acerto não decidem nada
+sobre comparação pareada de classificadores binários e ocupavam uma subseção
+inteira. Foram para a Tabela S15, com quinze referências que só sustentavam
+esses testes retiradas da lista. A antiga Subseção 4.9 virou "Inferência sob
+dependência textual" e contém apenas o que a hipótese exige.
 
-A ancoragem entrou como ressalva medida, não como nota de rodapé. O revisor viu
-o rótulo que auditava, o que eleva a probabilidade de mantê-lo, de modo que os
-95,75% de confirmação refletem em proporção não separável tanto a estabilidade
-do registro quanto o próprio procedimento.
+**Categorias raras: alternativas medidas, protocolo mantido.**
+`sensibilidade_classes_raras.json` mede a cobertura, de 99,37% das linhas e 82%
+das categorias, e o macro-F1 sob três convenções de denominador: 0,6684 nas 41
+avaliadas, 0,5481 projetado sobre as 50 da taxonomia com F1 zero nas ausentes,
+e 0,6816 agregado às 14 famílias do primeiro nível. Reduzir k recuperaria três
+categorias e dez linhas a k = 3, e foi recusado por ser decisão de protocolo
+tomada depois de ver o resultado. A declaração de que o desempenho não cobre as
+50 categorias está em negrito na Subseção 3.5.
 
-A ausência de segunda avaliação está declarada, e não subentendida. Não há
-segunda avaliação humana, independente ou cega, nem adjudicação de
-divergências; nenhuma medida de confiabilidade entre avaliadores é reportada; e
-a segunda avaliação figura como validação futura, com amostra estratificada e
-adjudicação por terceiro revisor, sobretudo nos pares ambíguos.
+**O ganho líquido deixou de pressupor custos iguais em silêncio.**
+`utilidade_reclassificacao.json` explicita *U* = *b*×corrigidos −
+*c*×prejudicados − *r*×revisados, normalizada por *b*, com as razões
+adimensionais ρ = *c*/*b* e λ = *r*/*b* e sem qualquer valor monetário. O ganho
+líquido simples é o caso ρ = 1 e λ = 0 e continua sendo o resultado principal.
+A reescrita direta só compensaria com ρ abaixo de 0,2047 no melhor modelo, e a
+utilidade é negativa em toda a faixa de 0,25 a 4. A mesma divergência, usada
+para enfileirar auditoria em vez de reescrever, tem precisão de 18,53% contra
+taxa de alteração de 4,25% na base congelada, enriquecimento de cerca de quatro
+vezes, e paga enquanto λ ficar abaixo dessa precisão.
 
-Os 17 grupos de texto idêntico com referência divergente deixaram de ser
-chamados de piso de erro irredutível. `src/auditar_grupos_divergentes.py`
-caracterizou os 85 registros afetados, ou 0,61% das linhas avaliadas: em 14
-grupos, somando 74 linhas, as categorias em disputa pertencem a tipos distintos
-de manutenção, e o par dominante opõe Hidrossanitária > Hidráulica a Manutenção
-Preventiva > Reservatório, com 11 grupos e 65 linhas. É ambiguidade de contexto
-não textual, não taxa de erro de anotação. Separar as três origens possíveis
-exigiria reexame caso a caso, não realizado.
-
-**Figura 1 corrigida.** A etapa 8 dizia "validação humana (divergências e
-críticos)", o que descrevia triagem amostral que o experimento não executou. A
-revisão humana passou a ser a etapa 2, antes do treino, porque é dela que sai o
-rótulo, e a Subseção 3.1 foi reescrita na mesma ordem.
-
-**Governança de dados registrada.** A Subseção 3.8 declara origem
-institucional, sanitização na origem, ausência de identificador pessoal nos
-agregados públicos, restrição de compartilhamento e aderência ao princípio da
-necessidade da LGPD (BRASIL, 2018). Registra também, sem inventar aprovação,
-que o repositório não guarda documento de autorização institucional, aprovação
-ética ou dispensa.
-
-**Correção numérica encontrada de passagem:** a Subseção 5.3 dizia "três
-registros" com texto editado após o congelamento;
-`inferencia_canonica.json#contagem_de_grupos` registra dois.
-
-**Tamanho:** a fonte caiu de 17.244 para 17.209 palavras, apesar do conteúdo
-novo, por remoção de repetições sobre rótulos ruidosos entre Introdução,
-Método, Resultados, Discussão e Conclusão, mantida uma explicação principal na
-Subseção 3.6 e uma interpretação na 5.1.
+**Tamanho:** o corpo científico caiu de 13.350 para 13.323 palavras e a fonte
+de 17.181 para 16.851, apesar de uma tabela nova, de uma subseção reescrita e
+de duas análises acrescentadas. A Figura 5 anterior, de pares de confusão, saiu
+por duplicar a Figura 4, e o artigo passou de sete para seis figuras.
 
 **O que falta:** concluir a redução editorial até 8 a 9 mil palavras e cerca de
-22 páginas, e revisar o PDF, que é gerado pelo workflow ao entrar em `main`.
+22 páginas, e revisar o PDF, que é gerado pelo workflow ao entrar em `main`. O
+PDF publicado tem 28 páginas e não pôde ser regerado nesta rodada: o ambiente
+local não dispõe de xelatex nem de Docker.
 
 ## Critérios para novo fechamento científico
 

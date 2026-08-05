@@ -1,0 +1,252 @@
+{
+  "schema_version": 1,
+  "status": "concluido",
+  "hash_corpus": "1e4762438a7e3627d3e32c1025f6bcb169e786881d8e86207806fdf98846409a",
+  "protocolo": "análise de sensibilidade sobre as predições canônicas já gravadas; nenhum modelo foi retreinado, nenhuma partição foi refeita e o protocolo da rodada permanece o do Passo 3",
+  "cobertura": {
+    "k_da_rodada": 5,
+    "criterio": "categoria com menos de 5 grupos textuais distintos nao pode ter suporte nas 5 dobras, porque um grupo inteiro ocupa uma unica dobra; categorias que mesmo assim ficam sem suporte em alguma dobra saem em rodadas seguintes; a exclusao e nominal e nenhuma categoria e fundida com outra",
+    "linhas_da_base_congelada": 14060,
+    "linhas_avaliadas": 13972,
+    "linhas_excluidas": 88,
+    "cobertura_de_linhas": 0.993741,
+    "categorias_da_taxonomia": 50,
+    "categorias_avaliadas": 41,
+    "categorias_excluidas": 9,
+    "cobertura_de_categorias": 0.82,
+    "linhas_excluidas_por_aritmetica": 12,
+    "linhas_excluidas_por_estratificacao": 76,
+    "detalhe": [
+      {
+        "categoria": "TI / Dados / Rede > Coleta de dados",
+        "linhas": 40,
+        "grupos_distintos": null,
+        "motivo": "estratificação: sem suporte em alguma dobra",
+        "dobras_maximas": null
+      },
+      {
+        "categoria": "Hidrossanitária > ETA / ETE",
+        "linhas": 15,
+        "grupos_distintos": null,
+        "motivo": "estratificação: sem suporte em alguma dobra",
+        "dobras_maximas": null
+      },
+      {
+        "categoria": "Manutenção Preventiva > Nobreak",
+        "linhas": 9,
+        "grupos_distintos": null,
+        "motivo": "estratificação: sem suporte em alguma dobra",
+        "dobras_maximas": null
+      },
+      {
+        "categoria": "Elétrica > Sistema Fotovoltaico (FV)",
+        "linhas": 7,
+        "grupos_distintos": null,
+        "motivo": "estratificação: sem suporte em alguma dobra",
+        "dobras_maximas": null
+      },
+      {
+        "categoria": "Estrutura Predial > Instalações Especiais (gás, ar comprimido, etc.)",
+        "linhas": 5,
+        "grupos_distintos": null,
+        "motivo": "estratificação: sem suporte em alguma dobra",
+        "dobras_maximas": null
+      },
+      {
+        "categoria": "Área Externa e Ambiental > Drenagem",
+        "linhas": 4,
+        "grupos_distintos": 4,
+        "motivo": "aritmética: menos grupos textuais distintos que dobras",
+        "dobras_maximas": 4
+      },
+      {
+        "categoria": "Manutenção Preventiva > Aplicação cupinicida",
+        "linhas": 3,
+        "grupos_distintos": 3,
+        "motivo": "aritmética: menos grupos textuais distintos que dobras",
+        "dobras_maximas": 3
+      },
+      {
+        "categoria": "Manutenção Preventiva > Bomba",
+        "linhas": 3,
+        "grupos_distintos": 3,
+        "motivo": "aritmética: menos grupos textuais distintos que dobras",
+        "dobras_maximas": 3
+      },
+      {
+        "categoria": "Suprimentos / Apoio Técnico > Transporte",
+        "linhas": 2,
+        "grupos_distintos": 2,
+        "motivo": "aritmética: menos grupos textuais distintos que dobras",
+        "dobras_maximas": 2
+      }
+    ],
+    "declaracao_obrigatoria": "o desempenho principal não cobre integralmente as 50 categorias da taxonomia: vale para as 41 com suporte nas cinco dobras, e as nove ausentes são as de menor frequência"
+  },
+  "dobras_viaveis": {
+    "definicao": "uma categoria só pode ter suporte em k dobras se possuir ao menos k grupos textuais distintos, porque o grupo inteiro ocupa uma única dobra",
+    "por_k": {
+      "2": {
+        "categorias_recuperaveis_por_aritmetica": 4,
+        "linhas_recuperaveis_por_aritmetica": 12,
+        "categorias": [
+          "Suprimentos / Apoio Técnico > Transporte",
+          "Manutenção Preventiva > Aplicação cupinicida",
+          "Manutenção Preventiva > Bomba",
+          "Área Externa e Ambiental > Drenagem"
+        ]
+      },
+      "3": {
+        "categorias_recuperaveis_por_aritmetica": 3,
+        "linhas_recuperaveis_por_aritmetica": 10,
+        "categorias": [
+          "Manutenção Preventiva > Aplicação cupinicida",
+          "Manutenção Preventiva > Bomba",
+          "Área Externa e Ambiental > Drenagem"
+        ]
+      },
+      "4": {
+        "categorias_recuperaveis_por_aritmetica": 1,
+        "linhas_recuperaveis_por_aritmetica": 4,
+        "categorias": [
+          "Área Externa e Ambiental > Drenagem"
+        ]
+      },
+      "5": {
+        "categorias_recuperaveis_por_aritmetica": 0,
+        "linhas_recuperaveis_por_aritmetica": 0,
+        "categorias": []
+      }
+    },
+    "categorias_excluidas_por_estratificacao": 5,
+    "linhas_excluidas_por_estratificacao": 76,
+    "limite_da_analise": "as categorias excluídas por estratificação já dispunham de grupos distintos suficientes para k = 5; se sobreviveriam a um k menor depende de reexecutar o particionador sobre a base viva, o que esta rodada não fez. Informação insuficiente para verificar.",
+    "objecao_de_protocolo": "reduzir k depois de observar o resultado escolheria o protocolo pela métrica; a redução só seria defensável como decisão anterior à avaliação, e ainda assim custaria treino menor por dobra"
+  },
+  "convencoes_de_macro_f1": {
+    "convencao_a": {
+      "rotulos": 41,
+      "descricao": "as 41 categorias com suporte nas cinco dobras",
+      "uso": "convenção do artigo"
+    },
+    "convencao_b": {
+      "rotulos": 50,
+      "descricao": "as 50 categorias da taxonomia, com F1 igual a zero nas nove ausentes das partições",
+      "uso": "limite inferior: nenhum modelo prevê categoria ausente do treino, de modo que o valor é o pior caso e não uma estimativa do desempenho sobre a taxonomia inteira"
+    },
+    "convencao_c": {
+      "rotulos": 14,
+      "descricao": "as 14 famílias do primeiro nível da taxonomia",
+      "uso": "avaliação hierárquica: cada categoria rara é absorvida por uma família com suporte, o que fecha a lacuna de cobertura de categorias, mas não a de linhas — as 88 linhas fora das partições continuam sem predição out-of-fold"
+    },
+    "por_modelo": [
+      {
+        "modelo": "regressao_logistica",
+        "acuracia": 0.805,
+        "macro_f1_a_avaliadas": 0.6689,
+        "macro_f1_b_taxonomia_completa": 0.5485,
+        "macro_f1_c_familias": 0.6801
+      },
+      {
+        "modelo": "linear_svc",
+        "acuracia": 0.8253,
+        "macro_f1_a_avaliadas": 0.6684,
+        "macro_f1_b_taxonomia_completa": 0.5481,
+        "macro_f1_c_familias": 0.6816
+      },
+      {
+        "modelo": "sgd",
+        "acuracia": 0.8093,
+        "macro_f1_a_avaliadas": 0.6669,
+        "macro_f1_b_taxonomia_completa": 0.5469,
+        "macro_f1_c_familias": 0.673
+      },
+      {
+        "modelo": "extra_trees",
+        "acuracia": 0.8073,
+        "macro_f1_a_avaliadas": 0.6362,
+        "macro_f1_b_taxonomia_completa": 0.5217,
+        "macro_f1_c_familias": 0.6548
+      },
+      {
+        "modelo": "random_forest",
+        "acuracia": 0.797,
+        "macro_f1_a_avaliadas": 0.6152,
+        "macro_f1_b_taxonomia_completa": 0.5044,
+        "macro_f1_c_familias": 0.6346
+      },
+      {
+        "modelo": "lstm",
+        "acuracia": 0.7287,
+        "macro_f1_a_avaliadas": 0.524,
+        "macro_f1_b_taxonomia_completa": 0.4297,
+        "macro_f1_c_familias": 0.524
+      },
+      {
+        "modelo": "naive_bayes",
+        "acuracia": 0.7088,
+        "macro_f1_a_avaliadas": 0.2951,
+        "macro_f1_b_taxonomia_completa": 0.242,
+        "macro_f1_c_familias": 0.3626
+      }
+    ],
+    "ordenacao_a": [
+      "regressao_logistica",
+      "linear_svc",
+      "sgd",
+      "extra_trees",
+      "random_forest",
+      "lstm",
+      "naive_bayes"
+    ],
+    "ordenacao_b": [
+      "regressao_logistica",
+      "linear_svc",
+      "sgd",
+      "extra_trees",
+      "random_forest",
+      "lstm",
+      "naive_bayes"
+    ],
+    "ordenacao_c": [
+      "linear_svc",
+      "regressao_logistica",
+      "sgd",
+      "extra_trees",
+      "random_forest",
+      "lstm",
+      "naive_bayes"
+    ],
+    "ordenacao_estavel_entre_a_e_b": true,
+    "ordenacao_estavel_entre_a_e_c": false,
+    "nota_sobre_b": "a convenção B é reescala monotônica da A pelo fator 41/50, de modo que a ordenação não pode mudar; o que muda é a magnitude, e é isso que ela serve para mostrar"
+  },
+  "alternativas_avaliadas": [
+    {
+      "alternativa": "menor número de dobras",
+      "efeito": "recupera categorias por aritmética, mas apenas as excluídas por esse motivo; ver `dobras_viaveis`",
+      "custo": "menos dados de treino por dobra e menor comparabilidade",
+      "adotada": false
+    },
+    {
+      "alternativa": "avaliação hierárquica por família",
+      "efeito": "fecha a lacuna de cobertura de categorias, de 41 em 50 para 14 em 14 famílias, ao custo de responder a uma pergunta mais grossa",
+      "custo": "perde a granularidade que a decisão de gestão usa",
+      "adotada": "reportada como sensibilidade; a leitura por tipo de manutenção, em `recortes_canonicos.json`, é a versão hierárquica que o artigo já usa no corpo"
+    },
+    {
+      "alternativa": "política de abstenção",
+      "efeito": "não recupera as categorias ausentes, porque o modelo não pode abster-se a favor de uma classe que não conhece; atua sobre o erro nas categorias conhecidas",
+      "custo": "cobertura operacional menor",
+      "adotada": "já medida como automação seletiva por confiança em `calibracao_canonica.json`"
+    },
+    {
+      "alternativa": "fusão de categorias raras em uma classe residual",
+      "efeito": "alteraria a taxonomia institucional sob avaliação",
+      "custo": "mudaria o objeto do estudo e impediria comparação com a base administrativa",
+      "adotada": false
+    }
+  ],
+  "gerado_em": "05/08/2026 00:57",
+  "script_origem": "src/sensibilidade_classes_raras.py"
+}

@@ -35,8 +35,17 @@ Não atualizar uma tabela isoladamente quando o mesmo resultado aparece em outra
 
 A referência de avaliação é a **referência humana revisada**, produto de **auditoria administrativa de rótulo** conduzida por avaliador único, com a categoria histórica à vista. Não usar “verdade validada”, “verdade final”, “verdade absoluta” nem “acerto validado”. Os 4,25% são **taxa de alteração do rótulo histórico**, e não prevalência de erro. Não há segunda avaliação humana, cegamento ou adjudicação, e nenhuma medida de concordância entre avaliadores pode ser reportada.
 
+## Regra estatística obrigatória
+
+A unidade de análise da inferência é o **grupo de texto normalizado idêntico**, e não a linha. Registros do mesmo grupo não são independentes, e o efeito de desenho medido fica entre 4,47 e 8,83. Intervalos vêm de bootstrap de conglomerados; testes pareados, de permutação por troca de sinal da diferença por grupo; o teste global, da estatística Q de Cochran contra distribuição de permutação por grupo. Não reintroduzir McNemar por linha como inferência do artigo; ele só é reportado, no suplemento, para dimensionar o estreitamento que a suposição de independência produzia.
+
+Testes de normalidade, homogeneidade, outliers e VIF não pertencem ao corpo. Não usar Shapiro-Wilk como justificativa de escolha não paramétrica para dado categórico, VIF entre confianças como prova de que um *ensemble* é inútil, nem correlação entre confiança e acerto como prova de calibração.
+
+O ganho líquido de reclassificação é `corrigidos − prejudicados` e permanece o resultado principal, mas nenhuma afirmação decisória pode omitir que ele supõe custos iguais. A qualificação usa razões adimensionais, nunca valor monetário.
+
 ## Estado atual
 
 - O BERTimbau permanece fora da comparação principal por custo computacional medido, e figura como experimento exploratório no material suplementar.
+- O corpo tem seis figuras e seis tabelas; o suplemento vai de S1 a S15.
 - O Passo 11 do plano de execução segue aberto: falta reduzir o corpo do artigo à meta de 8 a 9 mil palavras e cerca de 22 páginas.
 - O histórico detalhado das rodadas editoriais e técnicas permanece no Git e nos Pull Requests; não deve ser acumulado neste README.

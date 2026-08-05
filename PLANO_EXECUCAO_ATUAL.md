@@ -232,14 +232,23 @@ Se a execução integral não for viável:
 
 **Ações:**
 
-- bootstrap por grupo textual, não por linha;
-- intervalos de confiança das métricas principais;
-- Cochran Q para comparação global aplicável;
-- McNemar pareado;
-- correção de Holm;
-- limitar testes ao necessário para as hipóteses do artigo.
+- bootstrap por grupo textual, não por linha, tanto para as métricas quanto
+  para as diferenças entre modelos;
+- unidade estatística no grupo textual também nos testes de hipótese, e não
+  apenas nos intervalos;
+- teste global pela estatística Q de Cochran com distribuição de referência
+  obtida por permutação do rótulo de modelo dentro de cada grupo;
+- comparações pareadas por permutação com troca de sinal da diferença de
+  acertos por grupo;
+- correção de Holm sobre a família dos 21 pares;
+- por comparação: diferença observada, intervalo da diferença, grupos que
+  favorecem cada modelo, tamanho de efeito e *p* ajustado;
+- limitar testes ao necessário para as hipóteses do artigo, mantendo
+  pressupostos periféricos fora do corpo.
 
-**Aceite:** todos os testes usam as mesmas observações pareadas e a mesma execução canônica.
+**Aceite:** todos os testes usam as mesmas observações pareadas, a mesma
+execução canônica e a mesma unidade de dependência que o Passo 3 usou para
+particionar.
 
 ### Passo 9 — segunda validação humana cega
 
@@ -342,10 +351,10 @@ A preservação do snapshot permite auditoria histórica e comparação metodol�
 | PR-2 | Passos 2 e 3: grupos e partições | PR-1 | concluído — 9.786 grupos textuais e partições canônicas em cinco dobras, `apto_para_treinar` |
 | PR-3 | Passos 4 e 5: sete modelos e regras | PR-2 | concluído — rodada canônica `3aa42e31` |
 | PR-4 | Passo 6: BERTimbau | PR-2 | concluído — exploratório, por custo medido |
-| PR-5 | Passos 7 e 8: calibração e estatística | PR-3 e PR-4 | concluído — rodada canônica `3aa42e31` |
+| PR-5 | Passos 7 e 8: calibração e estatística | PR-3 e PR-4 | concluído — inferência refeita no nível do grupo textual em 05/08/2026 |
 | PR-6 | Passo 9: validação humana | nenhuma | encerrado como não aplicável ao desenho |
 | PR-7 | Passo 10: proveniência e artefatos | PR-5 e PR-6 | concluído — números, tabelas e figuras substituídos pelos da rodada `1e476243` |
-| PR-8 | Passo 11: reescrita editorial | PR-7 | em execução — corpo em ~13.100 palavras, meta de 8 a 9 mil |
+| PR-8 | Passo 11: reescrita editorial | PR-7 | em execução — corpo em ~13.300 palavras, meta de 8 a 9 mil |
 
 ## 9. Registro de andamento
 
@@ -366,6 +375,7 @@ A preservação do snapshot permite auditoria histórica e comparação metodol�
 | 04/08/2026 | 11 | em execução | corpo do artigo de 14.782 para ~13.100 palavras; cinco tabelas no corpo e cinco movidas ao suplemento (S7 a S11); a antiga Tabela 3 virou S6; removida a Subseção 3.7, de fluxo interno de triagem; corrigido o protocolo declarado na Subseção 3.5, que ainda dizia `KFold` por linha | concluir a redução até 8 a 9 mil palavras e revisar o PDF |
 | 05/08/2026 | 11 | em execução | rodada da referência humana: o artigo passou a nomear o desenho como auditoria administrativa de rótulo por avaliador único, e não anotação independente; os 4,25% viraram taxa de alteração do rótulo histórico, o que elimina a contradição com a limitação sobre prevalência; a ancoragem entrou como ressalva explícita; a ausência de segunda avaliação, de cegamento e de adjudicação está declarada, com a segunda avaliação registrada como validação futura; `src/auditar_grupos_divergentes.py` e `docs/dados/grupos_divergentes_canonicos.json` caracterizaram os 17 grupos e 85 linhas divergentes, mostrando que 14 grupos e 74 linhas opõem tipos distintos de manutenção, o que retira do valor o rótulo de piso de erro irredutível; Figura 1 e Subseção 3.1 recolocaram a revisão humana antes do treino e sobre o corpus integral; Subseção 3.8 registrou a governança de dados e a ausência de documento de ética ou autorização; corrigido "três registros" para dois com texto editado após o congelamento; fonte de 17.244 para 17.209 palavras | concluir a redução até 8 a 9 mil palavras e revisar o PDF gerado em `main` |
 | 04/08/2026 | 10 | concluído | auditoria canônica dos bloqueadores numéricos, `docs/RASTREABILIDADE_LSTM.md`; matriz de proveniência ampliada com as grandezas de fora da rodada e suas ressalvas; 74 números do artigo conferidos contra os artefatos, com zero divergências, e nenhum decimal do corpo sem lastro em artefato versionado; 9.786/9.735/9.734 conciliados; discrepância do LSTM atribuída à coincidência de 100% entre referência e histórico nas 9.096 linhas do *ablation*; `src/ablation_lstm.py` corrigido, com regressão em `tests/test_ablation_lstm_chave.py` | executar o Passo 11: reduzir o corpo até 8 a 9 mil palavras e o PDF de 28 para cerca de 22 páginas |
+| 05/08/2026 | 8 e 11 | concluído o 8, em execução o 11 | rodada canônica `1e476243`, `docs/INFERENCIA_AGRUPADA.md`, `docs/SENSIBILIDADE_CLASSES_RARAS.md` e `docs/UTILIDADE_RECLASSIFICACAO.md`; auditoria da unidade estatística mediu efeito de desenho entre 4,47 e 8,83, isto é, o McNemar por linha declarava erro padrão de 2,1 a 3,0 vezes menor do que a amostra sustenta; inferência refeita no nível do grupo, com Q de Cochran contra permutação por grupo (p < 0,0005), 21 permutações pareadas com Holm e bootstrap de conglomerados da diferença; os 21 vereditos não mudam, 19 significativos e 2 empatados; Subseção 4.9 reescrita e Shapiro-Wilk, Levene, VIF, outliers e correlação confiança-acerto retirados do corpo para a Tabela S15, com 15 referências órfãs removidas; sensibilidade das classes raras mediu cobertura de 99,37% das linhas e 82% das categorias e macro-F1 de 0,6684, 0,5481 e 0,6816 sob as três convenções de denominador; ganho líquido ganhou função de utilidade com ρ e λ adimensionais, ρ de equilíbrio de 0,2047 no melhor modelo e precisão de fila de triagem de 18,53%; corpo científico de 13.350 para 13.323 palavras e sete para seis figuras | concluir a redução até 8 a 9 mil palavras e revisar o PDF gerado em `main` |
 Estados permitidos: `pendente`, `em execução`, `bloqueado`, `concluído`, `substituído`.
 
 ## 10. Instruções para continuidade por outro agente
