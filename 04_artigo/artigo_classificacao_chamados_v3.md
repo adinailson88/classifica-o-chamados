@@ -430,7 +430,7 @@ grupos com reposição e reconstrói a amostra com todos os registros de cada
 grupo sorteado (EFRON, 1979; EFRON; TIBSHIRANI, 1993; DICICCIO; EFRON, 1996;
 FIELD; WELSH, 2007; CAMERON; GELBACH; MILLER, 2008). A divisão aleatória por
 linha permanece apenas como análise de sensibilidade, no material
-suplementar, que também compara procedimentos alternativos de *post-hoc*.
+suplementar.
 
 **3.5 Reclassificação, utilidade e análises complementares**
 

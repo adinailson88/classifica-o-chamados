@@ -59,7 +59,7 @@ recalibração. Não escrever "corte por data de abertura": o corte é de extra�
 ## Estado atual
 
 - O BERTimbau permanece fora da comparação principal por custo computacional medido, e figura como experimento exploratório no material suplementar.
-- O corpo tem seis figuras e sete tabelas, a primeira delas a configuração experimental dos sete modelos, na Subseção 3.3; o suplemento vai de S1 a S15 e recebeu a comparação com procedimentos alternativos de *post-hoc*, retirada do corpo.
+- O corpo tem seis figuras e sete tabelas, a primeira delas a configuração experimental dos sete modelos, na Subseção 3.3; o suplemento vai de S1 a S15.
 - O Método tem seis subseções, na ordem 3.1 delineamento, corpus e referência revisada; 3.2 pré-processamento e representação; 3.3 modelos e configuração experimental; 3.4 validação, calibração e inferência; 3.5 reclassificação, utilidade e análises complementares; 3.6 reprodutibilidade, dados e aspectos institucionais.
 - O Passo 11 do plano de execução segue aberto: falta reduzir o corpo do artigo à meta de 8 a 9 mil palavras e cerca de 22 páginas, agora pelos Resultados e pela Discussão.
 - A avaliação temporal não foi executada por ausência de data no corpus, e a limitação está declarada na Subseção 5.3.
