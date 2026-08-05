@@ -216,6 +216,16 @@
       "ressalva": "9.786 grupos na base inteira; 9.735 no recorte de 13.972 linhas; 9.734 no mapa de particoes, recalculado sobre o texto vivo"
     },
     {
+      "grandeza": "Grupos com referencia humana divergente e sua natureza",
+      "artefato": "docs/dados/grupos_divergentes_canonicos.json",
+      "script": "src/auditar_grupos_divergentes.py",
+      "denominador": 13972,
+      "categorias": 41,
+      "particoes": null,
+      "hash_corpus": "congelamento",
+      "ressalva": "17 grupos e 85 linhas medidos sobre as linhas com referencia avaliada; 14 grupos e 74 linhas opoem categorias de TIPOS de manutencao distintos, de modo que a contagem nao pode ser lida como piso de erro de anotacao"
+    },
+    {
       "grandeza": "Curva de aprendizado do LSTM (Figura 7)",
       "artefato": "04_artigo/figuras/lstm_history.json",
       "script": "src/modelo_lstm.py",
@@ -253,12 +263,12 @@
       {
         "valor_legado": "acuracia legada de random_forest",
         "forma": "0,7781",
-        "linha": 700
+        "linha": 721
       },
       {
         "valor_legado": "acuracia legada de random_forest",
         "forma": "0,7781",
-        "linha": 724
+        "linha": 745
       }
     ]
   },
@@ -269,6 +279,6 @@
   },
   "nota": "a varredura do artigo aponta, nunca corrige: substituir numero em texto cientifico e decisao editorial do autor",
   "cobertura_da_varredura": "sao procuradas as acuracias registradas em estatistica.json, o total de chamados e a contagem de categorias da execucao legada. O artigo pode conter numeros de rodadas intermediarias que nao estao em nenhum JSON versionado, e esses a varredura nao alcanca; a contagem e piso, nao teto",
-  "gerado_em": "04/08/2026 21:11",
+  "gerado_em": "05/08/2026 00:39",
   "script_origem": "src/matriz_proveniencia.py"
 }

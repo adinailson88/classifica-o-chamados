@@ -3,7 +3,7 @@
 > Relatório sanitizado e somente leitura. Não contém títulos, descrições ou IDs de chamados.
 
 **Estado:** `concluido`  
-**Gerado em:** 04/08/2026 21:11  
+**Gerado em:** 05/08/2026 00:39  
 **Hash do corpus:** `1e4762438a7e3627d3e32c1025f6bcb169e786881d8e86207806fdf98846409a`
 
 ## Coerência dos artefatos derivados
@@ -46,6 +46,7 @@ Definem o corpus e por isso não carregam `hash_corpus`: ele é derivado deles.
 | Tabelas A1 a A3 do apendice | `docs/dados/tabelas_apendice_canonicas.json` | `src/tabelas_apendice_canonicas.py` | 13972 | 41 | 5 | `1e4762438a7e` | — |
 | Corpus congelado, referencia humana e taxonomia | `docs/dados/auditoria_base_canonica.json` | `src/auditar_base_canonica.py` | 14060 | 50 | — | `congelamento` | denominador do corpus e da cobertura da revisao, nunca das metricas, que valem para 13.972 linhas |
 | Grupos textuais da base congelada | `docs/dados/grupos_textuais.json` | `src/construir_grupos_textuais.py` | 14060 | 50 | — | `congelamento` | 9.786 grupos na base inteira; 9.735 no recorte de 13.972 linhas; 9.734 no mapa de particoes, recalculado sobre o texto vivo |
+| Grupos com referencia humana divergente e sua natureza | `docs/dados/grupos_divergentes_canonicos.json` | `src/auditar_grupos_divergentes.py` | 13972 | 41 | — | `congelamento` | 17 grupos e 85 linhas medidos sobre as linhas com referencia avaliada; 14 grupos e 74 linhas opoem categorias de TIPOS de manutencao distintos, de modo que a contagem nao pode ser lida como piso de erro de anotacao |
 | Curva de aprendizado do LSTM (Figura 7) | `04_artigo/figuras/lstm_history.json` | `src/modelo_lstm.py` | — | — | — | `fora da rodada canonica` | treino unico sobre a aba viva de 25/07/2026, com rotulo historico e validacao interna de 10%; nao comparavel com as Tabelas 1 e 2 |
 | Ablation de unidades e dropout do LSTM | `04_artigo/figuras/ablation_lstm_resultados.json` | `src/ablation_lstm.py` | 9096 | — | 3 | `fora da rodada canonica` | snapshot legado de 24/07/2026, cobertura parcial da revisao humana e rotulo de treino historico; o script foi corrigido depois e os numeros nao foram regerados |
 | KFold por linha contra GroupKFold por texto | `04_artigo/figuras/comparacao_kfold_groupkfold.json` | `src/comparacao_kfold_groupkfold.py` | 14094 | — | 5 | `fora da rodada canonica` | base de 01/08/2026, anterior ao congelamento em 14.060, e alvo e a categoria historica |
@@ -56,8 +57,8 @@ Encontradas 2 ocorrências em `04_artigo/artigo_classificacao_chamados_v3.md`. a
 
 | Linha | Forma no texto | Valor legado |
 |---:|---|---|
-| 700 | `0,7781` | acuracia legada de random_forest |
-| 724 | `0,7781` | acuracia legada de random_forest |
+| 721 | `0,7781` | acuracia legada de random_forest |
+| 745 | `0,7781` | acuracia legada de random_forest |
 
 ## Validações
 
