@@ -495,8 +495,10 @@ corpus ou da cobertura da revisão, ao passo que as métricas de desempenho,
 calibração e inferência são apuradas sobre as 13.972 linhas em 41
 categorias que compõem as partições canônicas (Subseção 3.4; Tabela A3).
 
-Quatro achados organizam a seção. Os sete modelos apresentam desempenho
-comparável sob o mesmo protocolo, sem vencedor absoluto: o LinearSVC lidera
+Quatro achados organizam a seção. Os sete modelos foram avaliados de forma
+comparável sob o mesmo protocolo, mas apresentaram desempenhos distintos,
+sem vencedor absoluto ao considerar simultaneamente acurácia, macro-F1,
+custo e calibração: o LinearSVC lidera
 a acurácia, a Regressão Logística tem o macro-F1 pontual ligeiramente
 superior e o SGD permanece próximo dos dois, de modo que a escolha
 operacional depende de mais de um critério (Subseção 4.1). A
@@ -524,9 +526,12 @@ revisão humana estabeleceu categoria de referência para a totalidade dos
 incide sobre as 13.972 linhas das partições: o LinearSVC é o modelo de
 maior acurácia, com 0,8253 (IC95%: 0,8115--0,8378), seguido por SGD, Extra
 Trees, Regressão Logística e Random Forest, com LSTM e Naive Bayes bem
-atrás. A cobertura integral da revisão elimina o viés de seleção, e a
-acurácia relatada não constitui limite superior de amostra conferida; as
-ressalvas remanescentes estão na Subseção 5.3.
+atrás. A cobertura integral da revisão evita o viés decorrente de
+selecionar apenas uma subamostra para revisão, de modo que a acurácia
+relatada não constitui limite superior de amostra conferida; ela não
+elimina, porém, a ancoragem na categoria histórica, o avaliador único, a
+ausência de cegamento e a ausência de avaliação independente, ressalvas
+detalhadas na Subseção 5.3.
 
 Não há vencedor absoluto entre os três primeiros colocados. O LinearSVC
 lidera a acurácia, mas as três melhores marcas de macro-F1 ficam a menos
@@ -564,9 +569,10 @@ leitura multicritério: os modelos lineares treinam em poucos segundos, de
 1,12 s no Naive Bayes a 8,43 s na Regressão Logística, os *ensembles* de
 árvores exigem entre vinte e trinta segundos e a rede neural LSTM consome
 83,44 segundos, cerca de 34 vezes o tempo do LinearSVC, para 9,7 pontos
-percentuais a menos de acurácia. Os tempos absolutos variam conforme a
-máquina, mas as razões entre modelos permanecem estáveis e constituem o
-dado relevante para a decisão de adoção. A Figura 2 cruza essas medições
+percentuais a menos de acurácia. Os tempos absolutos e as razões entre
+modelos descrevem o ambiente avaliado, um processador de quatro núcleos
+sem acelerador gráfico; a estabilidade relativa desses tempos em outras
+infraestruturas não foi testada. A Figura 2 cruza essas medições
 de custo
 com a acurácia e mostra o LinearSVC na posição mais favorável, com a
 maior acurácia a um custo de treino próximo do menor observado. Contra o
@@ -602,13 +608,13 @@ dos 21 pares, com intervalos, grupos favoráveis e tamanho de efeito,
 consta do material suplementar.
 
 O macro-F1 de 0,6684 do LinearSVC é média sobre as 41 categorias com
-suporte nas partições. Como cenário conservador de sensibilidade,
+suporte nas partições. Sob um cenário pessimista de sensibilidade,
 atribuindo F1 igual a zero às nove categorias ausentes das 50 da
 taxonomia, esse valor cai a 0,5481; não se trata de desempenho observado
-de um modelo treinado nas 50 categorias, e sim de limite inferior
-hipotético, pois nenhum classificador prevê categoria que não esteve em
-seu treino: a cobertura de linhas permanece alta, 99,37%, mas a de
-categorias cai a 82%. Agregado às 14 famílias do primeiro nível da
+de um modelo treinado nas 50 categorias, pois nenhum classificador prevê
+categoria que não esteve em seu treino: a cobertura de linhas permanece
+alta, 99,37%, mas a de categorias cai a 82%. Agregado às 14 famílias do
+primeiro nível da
 taxonomia, o
 macro-F1 sobe a 0,6816, granularidade em que o LinearSVC assume também a
 liderança dessa métrica, antes com a Regressão Logística por três
@@ -694,9 +700,9 @@ do LinearSVC alcança 0,6925 sobre o escore bruto, porque a transformação
 da margem por função *softmax* produz valores que não correspondem a
 frequências de acerto. A calibração isotônica, ajustada em dobra interna,
 reduz esse valor a 0,0178 e o escore de Brier de 0,6052 para 0,1034, e
-melhora o ECE de cinco dos sete modelos; Naive Bayes e LSTM são exceção e
-pioram levemente, consequência esperada de calibrar sobre amostra menor
-quando a confiança original já era adequada.
+melhora o ECE de cinco dos sete modelos. Naive Bayes e LSTM foram as
+exceções, com aumento do ECE após a calibração; o desenho não permite
+atribuir causalmente essa piora a um mecanismo específico.
 
 A calibração viabiliza a automação seletiva, em que o classificador
 decide sozinho acima de um limiar de confiança e encaminha o restante à
@@ -713,9 +719,10 @@ cinco dobras, o que o desqualifica para esse regime.
 **Tabela 4** Calibração e automação seletiva dos quatro modelos mais
 competitivos em acurácia (n = 13.972). O ECE refere-se ao escore antes e
 depois da calibração isotônica; a cobertura e a acurácia seletiva
-correspondem ao alvo de 0,95. A tabela com os sete modelos, incluindo
-Random Forest, Naive Bayes e LSTM, cujo ECE piora levemente após a
-calibração, consta do material suplementar.
+correspondem ao alvo de 0,95. Random Forest é omitido desta versão
+reduzida; a tabela com os sete modelos, incluindo Naive Bayes e LSTM,
+cujo ECE aumenta após a calibração, consta do material suplementar
+(Tabela S16).
 
 | Modelo | ECE bruto | ECE calibrado | Cobertura | Acurácia seletiva |
 |---|---|---|---|---|
@@ -789,8 +796,9 @@ avaliadas, e em 14 deles, somando 74 linhas, as categorias em disputa
 pertencem a tipos distintos de manutenção, com o par mais frequente
 opondo Hidrossanitária > Hidráulica a Manutenção Preventiva > Reservatório,
 em 11 grupos e 65 linhas. Textos idênticos podem, portanto, corresponder a
-intervenções de naturezas diferentes, distinção irrecuperável por
-qualquer classificador textual; a contagem sinaliza ambiguidade interna,
+intervenções de naturezas diferentes, distinção irrecuperável por um
+classificador que utilize exclusivamente os quatro campos textuais
+empregados neste estudo; a contagem sinaliza ambiguidade interna,
 mas não fixa teto quantitativo de desempenho, pois esse teto exigiria
 calcular a distribuição dos rótulos dentro de cada grupo, o que não foi
 feito.
@@ -1003,7 +1011,8 @@ mesmo objeto sob famílias distintas, e a divergência interna medida na
 Subseção 4.4 confirma o problema no próprio dado. Nesses
 pares, a atribuição depende de um critério de natureza da intervenção que
 o texto do chamado nem sempre permite inferir, o que impõe teto ao
-desempenho alcançável por qualquer classificador textual.
+desempenho alcançável por um classificador que utilize exclusivamente os
+quatro campos textuais empregados neste estudo.
 
 As métricas valem para as 41 categorias com suporte nas cinco dobras, e
 não para a taxonomia inteira. As nove categorias excluídas são justamente

@@ -12,6 +12,7 @@ citar seus valores em prosa:
     S9   tarefa de tipo de manutencao
     S10  curva ABC interna a cada tipo, para o LinearSVC
     S11  efeito da camada de regras de periodicidade
+    S16  calibracao completa dos sete modelos, resumida no corpo (Tabela 4)
 
 Le apenas artefatos com `hash_corpus` da rodada canonica e aborta se houver
 divergencia. Somente leitura: nao escreve na planilha nem no artigo.
@@ -228,6 +229,26 @@ def s15_pressupostos(inferencia: dict[str, Any]) -> Path:
                      "pointbiserial_confianca_acerto"], linhas)
 
 
+def s16_calibracao_completa(calibracao: dict[str, Any]) -> Path:
+    """Calibracao completa dos sete modelos; o corpo (Tabela 4) mostra so os
+    quatro mais competitivos em acuracia, com ECE bruto e calibrado, cobertura
+    e acuracia seletiva no alvo de 0,95.
+    """
+    linhas = []
+    for m in sorted(calibracao["modelos"], key=lambda x: -x["acuracia_global"]):
+        bruta, cal = m["bruta"], m["calibrada"]
+        sel95 = m["automacao_seletiva"]["0.95"]
+        linhas.append([NOME.get(m["modelo"], m["modelo"]),
+                       bruta["ece"], cal["ece"], bruta["brier"], cal["brier"],
+                       sel95["cobertura"], sel95["acuracia_seletiva"],
+                       sel95["dobras_com_limiar"]])
+    return escrever("tabela_S16_calibracao_completa.csv",
+                    ["modelo", "ece_bruto", "ece_calibrado", "brier_bruto",
+                     "brier_calibrado", "cobertura_alvo_0_95",
+                     "acuracia_seletiva_alvo_0_95", "dobras_com_limiar"],
+                    linhas)
+
+
 def parse_args() -> argparse.Namespace:
     return argparse.ArgumentParser(description=__doc__).parse_args()
 
@@ -241,17 +262,20 @@ def main() -> int:
     sensibilidade = carregar("sensibilidade_classes_raras.json")
     utilidade = carregar("utilidade_reclassificacao.json")
     inferencia = carregar("inferencia_canonica.json")
+    calibracao = carregar("calibracao_canonica.json")
     corpus = conferir_hash({"historica": historica, "recortes": recortes,
                             "agrupada": agrupada,
                             "sensibilidade": sensibilidade,
-                            "utilidade": utilidade})
+                            "utilidade": utilidade,
+                            "calibracao": calibracao})
     print(f"hash_corpus conferido: {corpus[:12]}")
 
     for caminho in (s7_dispersao(historica), s8_abc_global(recortes),
                     s9_tarefa_tipo(recortes), s10_abc_por_tipo(recortes),
                     s11_regras(regras), s12_inferencia_agrupada(agrupada),
                     s13_classes_raras(sensibilidade), s14_utilidade(utilidade),
-                    s15_pressupostos(inferencia)):
+                    s15_pressupostos(inferencia),
+                    s16_calibracao_completa(calibracao)):
         print(f"  {caminho.name}")
     print(f"gerado em {agora_bahia()}")
     return 0

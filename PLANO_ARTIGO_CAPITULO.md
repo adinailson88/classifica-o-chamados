@@ -165,7 +165,8 @@ contra a referência, ambas agora na 4.1).
 
 **Contagem, antes e depois:** a Seção 4 caiu de 6.082 para cerca de 3.680
 palavras, redução de 39,5%, dentro da meta de 30% a 40%. O corpo científico
-caiu de 11.903 para cerca de 9.500 palavras, dentro da meta de 8 a 9 mil.
+caiu para cerca de 9.500 palavras, aproximando-se da meta final de 8 a 9
+mil, mas ainda cerca de 500 palavras acima do limite superior.
 
 **O que falta:** revisar a Discussão para eliminar qualquer redundância
 remanescente com a Seção 4 reestruturada, concluir o ajuste fino de
