@@ -54,11 +54,11 @@ header-includes:
     ```
 ---
 
-**CLASSIFICAÇÃO AUTOMÁTICA MULTIMODELO DE CHAMADOS DE MANUTENÇÃO PREDIAL
-UNIVERSITÁRIA EM PORTUGUÊS BRASILEIRO COM VALIDAÇÃO HUMANA**
+**CLASSIFICAÇÃO AUDITÁVEL DE CHAMADOS DE MANUTENÇÃO PREDIAL:
+FLUXO HUMANO–IA, CALIBRAÇÃO E RISCO DE RECLASSIFICAÇÃO**
 
-*Multi-model automatic classification of university building maintenance work
-orders in Brazilian Portuguese with human validation*
+*Auditable classification of building maintenance work orders: human–AI
+workflow, calibration, and reclassification risk*
 
 **Adinailson Guimarães de Oliveira** - adinailson.oliveira@cja.ufsb.edu.br
 **Fabrício Berton Zanchi** - fabricio.berton@ufsb.edu.br
@@ -68,272 +68,195 @@ em Biossistemas
 
 **RESUMO**
 
-A classificação automática de chamados de manutenção predial constitui
-recurso estratégico para qualificar a triagem operacional e ampliar a
-governança baseada em evidências em instituições públicas. Em bases
-históricas de sistemas informatizados de gestão de chamados, contudo, a
-categoria originalmente registrada não deve ser tratada como referência
-definitiva, pois pode refletir decisões operacionais ruidosas, taxonomias
-sobrepostas, registros incompletos e interpretações heterogêneas entre
-equipes. Este artigo propõe um protocolo multimodelo para classificação
-de chamados reais de manutenção predial universitária em português
-brasileiro, extraídos do sistema institucional da Universidade Federal do
-Sul da Bahia. O experimento utiliza 14.060 chamados não vazios,
-organizados em 50 categorias históricas. A comparação principal avalia
-seis classificadores clássicos baseados em TF-IDF e uma rede neural LSTM
-bidirecional por predições *out-of-fold* sob validação cruzada agrupada
-por texto, o que impede que chamados de texto idêntico atravessem treino
-e teste. O BERTimbau, transformador pré-treinado em português, fica fora
-da comparação por custo medido, uma vez que o ajuste fino projeta 6,44
-horas por dobra em processador sem acelerador gráfico. O diferencial
-metodológico reside na distinção entre concordância com o histórico
-administrativo e acerto contra a referência humana revisada, obtida por
-auditoria de rótulo conduzida por especialista único sobre a totalidade
-do corpus e apurada sobre as 13.972 linhas de 41 categorias com suporte
-nas cinco dobras. O LinearSVC lidera as duas leituras, com acordo bruto
-de 79,61% frente ao histórico e acurácia de 82,53% frente à referência
-humana. O achado central contraria a expectativa que motivou o estudo: o
-ganho líquido de reclassificação da base histórica é negativo em todos os
-sete modelos, de −1.846 no melhor deles a −3.474 no pior, porque o
-especialista manteve a categoria histórica em 95,75% dos registros e
-divergir do histórico significa, quase sempre, divergir também da
-referência; sob função de utilidade com custos assimétricos, a reescrita
-só compensaria se estragar um registro valesse menos de um quinto do que
-vale corrigir outro. A mesma divergência serve, porém, à priorização da
-auditoria humana, com enriquecimento de cerca de quatro vezes sobre a
-revisão aleatória. Uma camada explícita de regras de periodicidade,
-avaliada nas mesmas partições, mostra-se redundante e melhora o F1 macro
-de apenas três dos sete modelos. O custo computacional permanece dimensão
-relevante da decisão e favorece modelos lineares em cenários de texto
-curto, ruidoso e desbalanceado: o LinearSVC treina em 2,44 s, contra
-83,44 s da rede recorrente no mesmo ambiente. O F1 macro de 0,6684
-resulta da composição da métrica, pois o mesmo modelo alcança 0,8207 nas
-12 categorias que concentram 81,83% do volume e distingue manutenção
-preventiva de corretiva com F1 de 0,9742 e 0,9547.
+A triagem de chamados de manutenção predial em instituições públicas depende
+da categoria registrada no sistema de atendimento, cujo acerto condiciona
+todo uso analítico da base. A literatura sobre a classificação automática
+desses registros concentra-se em corpora de outros idiomas e domínios e
+avalia o classificador contra o rótulo histórico, o que impede distinguir
+erro do modelo de erro do registro e deixa por medir o risco de reescrever a
+base. Este artigo propõe e mede um protocolo auditável sobre 14.060 chamados
+de manutenção predial universitária em português brasileiro, com métricas
+nas 13.972 linhas das 41 categorias com suporte. As predições são obtidas
+fora da amostra sob validação cruzada agrupada pelo texto normalizado,
+unidade também adotada na inferência, de modo que registros de texto
+idêntico não atravessam a fronteira entre treino e teste nem contam como
+independentes. A referência de avaliação provém de auditoria administrativa
+de rótulo sobre a totalidade do corpus, que alterou a categoria histórica em
+4,25% dos registros. O melhor dos sete classificadores alcança acurácia de
+0,8253 contra essa referência, e a calibração isotônica viabiliza automação
+seletiva de cerca de dois terços do volume com acurácia de 0,95,
+encaminhando o restante ao revisor. A reclassificação automática da base
+produz ganho líquido negativo nos sete modelos, veredito que se mantém sob
+custos assimétricos e converte a divergência em critério de priorização da
+auditoria. A contribuição é o protocolo que articula governança de rótulo,
+inferência sob dependência textual, calibração, automação seletiva e
+avaliação explícita do risco de reclassificação.
 
 **Palavras-chave:** manutenção predial; classificação de chamados;
-processamento de linguagem natural; rótulos ruidosos; validação humana.
+auditoria de rótulo; calibração e classificação seletiva; rótulos
+ruidosos.
 
 **ABSTRACT**
 
-*Automatic classification of building maintenance work orders is a
-strategic resource for improving operational triage and evidence-based
-governance in public institutions. However, the originally assigned
-category in historical service-management databases should not be treated
-as a definitive reference because it may reflect noisy operational
-decisions, overlapping taxonomies, incomplete records, and heterogeneous
-interpretations. This paper proposes a multi-model protocol for
-classifying real university building maintenance requests in Brazilian
-Portuguese from the Federal University of Southern Bahia. The experiment
-uses 14,060 non-empty records organized into 50 historical categories.
-The main comparison evaluates six TF-IDF-based classical classifiers and
-a bidirectional LSTM through out-of-fold predictions under text-grouped
-cross-validation, which prevents work orders sharing identical text from
-crossing the train-test boundary. BERTimbau, a Portuguese pre-trained
-transformer, is excluded from the main comparison on measured cost
-grounds, as fine-tuning projects 6.44 hours per fold on a processor
-without graphics acceleration. The methodological contribution is the
-distinction between agreement with the administrative history and
-accuracy against the revised human reference, obtained through a
-label-audit review carried out by a single specialist over the entire
-corpus and computed over 13,972 records in the 41 categories with support
-across all five folds. LinearSVC leads both readings, with 79.61% raw
-agreement against the history and 82.53% accuracy against the human
-reference. The central finding contradicts the expectation that motivated
-the study: the net gain from reclassifying the historical base is
-negative for all seven models, from −1,846 in the best to −3,474 in the
-worst, because the specialist retained the historical category in 95.75%
-of records, so departing from the history almost always means departing
-from the reference as well; under an explicit utility function with asymmetric costs,
-rewriting would only pay off if damaging a record were worth less than a
-fifth of correcting another. The same divergence does, however, serve to
-prioritise the human audit queue, with about a fourfold enrichment over
-random review. An explicit periodicity rule layer,
-evaluated on the same partitions, proves redundant and improves macro F1
-for only three of the seven models. Computational cost remains a relevant
-decision dimension and favors linear models in short, noisy, and
-imbalanced text settings: LinearSVC trains in 2.44 s, against 83.44 s for
-the recurrent network in the same environment. The macro F1 of 0.6684
-stems from how the metric is composed, since the same model reaches
-0.8207 on the 12 categories that concentrate 81.83% of the volume and
-tells preventive from corrective maintenance with F1 of 0.9742 and
-0.9547.*
+*Triage of building maintenance work orders in public institutions relies on
+the category recorded in the service-management system, whose accuracy
+conditions every later analytical use of the database. Research on the
+automatic classification of such records concentrates on corpora from other
+languages and domains and evaluates the classifier against the historical
+label, which prevents telling model error from record error and leaves the
+risk of rewriting the database unmeasured. This paper proposes and measures
+an auditable classification protocol over 14,060 university building
+maintenance work orders in Brazilian Portuguese, with metrics computed on
+the 13,972 records of the 41 categories with support. Predictions are
+obtained out of sample under cross-validation grouped by normalised text,
+the same unit adopted for inference, so that records sharing identical text
+neither cross the train-test boundary nor count as independent evidence. The
+evaluation reference comes from an administrative label audit over the
+entire corpus, which changed the historical category in 4.25% of records.
+The best of the seven classifiers compared reaches 0.8253 accuracy against
+that reference, and isotonic calibration enables selective automation of
+about two thirds of the volume at 0.95 accuracy, routing the remainder to
+human review. Automatic reclassification of the base yields a negative net
+gain across the seven models, a verdict that holds under asymmetric costs
+and turns divergence into a criterion for prioritising the audit queue. The
+contribution lies in the protocol that articulates label governance,
+inference under textual dependence, calibration, selective automation, and
+explicit assessment of reclassification risk.*
 
-***Keywords:** building maintenance; work-order classification; natural
-language processing; noisy labels; human validation.*
+***Keywords:** building maintenance; work-order classification; label
+audit; calibration and selective classification; noisy labels.*
 
 **1. INTRODUÇÃO**
 
-Um campus universitário pode ser descrito como um biossistema
-construído, isto é, a integração dinâmica entre infraestrutura física,
-atividade humana, sistemas tecnológicos e condicionantes ambientais,
-cuja persistência ao longo do tempo depende de mecanismos de
-retroalimentação contínua entre uso, falha e reparo (CAPRA, 1996; ODUM,
-1971). A ecologia urbana descreve esse tipo de sistema como um
-organismo em troca permanente de matéria, energia e informação com seu
-entorno, cuja governança bem-sucedida depende da capacidade
-institucional de captar sinais operacionais e convertê-los em decisão
-(GRIMM *et al.*, 2008). Em instituições federais de ensino superior
-(IFES), esse sinal assume, na prática, a forma de registros textuais de
-chamados de manutenção predial, matéria-prima do *feedback*
-operacional do biossistema construído. Esses registros, no entanto,
-nascem aprisionados em linguagem não estruturada, fragmentária e
-sujeita a interpretação individual no momento do atendimento, o que
-impede seu uso direto por qualquer mecanismo de decisão automatizada
-(MORAIS; PAULA; REIS, 2023; MOHAMMED; AMOAH, 2025).
+A manutenção predial responde pela preservação do patrimônio edificado e
+pela continuidade das atividades finalísticas das instituições federais de
+ensino superior (IFES), ainda que disponha historicamente de menos de 2% do
+orçamento institucional (MARTINS; ESPEJO, 2024; PAMPANA *et al.*, 2022). Sob
+essa restrição, decidir onde intervir depende de evidência sobre o parque
+edificado, conforme a gestão sistematizada definida pela NBR 5674 (ABNT,
+2012).
 
-A exploração analítica dessas bases enfrenta três obstáculos estruturais,
-agravados pela restrição orçamentária que historicamente limita o custeio
-da manutenção predial em IFES a patamares inferiores a 2% do orçamento
-institucional (MARTINS; ESPEJO, 2024; PAMPANA *et al.*, 2022). O primeiro
-é a natureza textual curta e heterogênea dos registros, redigidos em
-linguagem técnica fragmentária, com abreviações locais e jargões de
-equipe que dificultam a aplicação direta de modelos genéricos de
-processamento de linguagem natural (PLN) (SUNDARAM; ZEID, 2025). O
-segundo é o desbalanceamento entre categorias, dado que demandas
-recorrentes de climatização, elétrica e hidrossanitária concentram grande
-parte da base, ao passo que categorias raras dispõem de poucos exemplos
-para treinamento supervisionado (LI *et al.*, 2024). O terceiro, e o mais
-consequente do ponto de vista metodológico, é a qualidade do próprio
-rótulo histórico, que pode resultar de interpretação rápida, conveniência
-operacional ou taxonomia ainda não estabilizada, de modo a constituir
-evidência importante, mas não referência definitiva (ZHANG *et al.*,
-2025; KEJRIWAL *et al.*, 2024).
+O sinal disponível para essa decisão é textual. Um campus universitário
+constitui um biossistema construído, isto é, a integração dinâmica entre
+infraestrutura física, atividade humana, sistemas tecnológicos e
+condicionantes ambientais, cuja persistência depende de retroalimentação
+contínua entre uso, falha e reparo (CAPRA, 1996; ODUM, 1971), e sua
+governança repousa sobre a capacidade institucional de captar sinais
+operacionais e convertê-los em decisão (GRIMM *et al.*, 2008). Nas IFES,
+esse sinal assume a forma de registros de chamados de manutenção,
+armazenados em linguagem não estruturada, cuja interpretação individual
+impede o uso direto por mecanismos de decisão automatizada (MORAIS; PAULA;
+REIS, 2023; MOHAMMED; AMOAH, 2025). Convertê-los em dado estruturado e
+auditável é condição anterior a qualquer camada preditiva.
 
-A literatura recente confirma a relevância do PLN para converter esses
-registros em insumo de gestão: Li *et al.* (2024) alcançam acurácia de
-0,83 na atribuição automática de equipes sobre 15.623 ordens de serviço
-hospitalares, Bouabdallaoui *et al.* (2020) reportam 78% na classificação
-de requisições em edificação hospitalar, e Sundaram e Zeid (2025)
-argumentam que textos técnicos de manutenção funcionam como *black holes*
-informacionais quando armazenam dados relevantes sem serem utilizados na
-decisão. A maior parte dessas aplicações concentra-se, contudo, em bases
-em inglês ou chinês e em domínios industriais ou hospitalares, o que
-configura lacuna para corpora em português brasileiro no contexto da
-manutenção predial pública universitária.
+Três obstáculos condicionam essa conversão: a natureza textual curta e
+heterogênea dos registros, cujas abreviações locais e jargões de equipe
+dificultam a aplicação de modelos genéricos de processamento de linguagem
+natural (PLN) (SUNDARAM; ZEID, 2025); o desbalanceamento entre categorias,
+em que demandas recorrentes concentram grande parte da base e categorias
+raras dispõem de poucos exemplos para treinamento supervisionado (LI *et
+al.*, 2024); e a qualidade do próprio rótulo histórico, que pode resultar de
+interpretação rápida ou de taxonomia ainda não estabilizada, de modo a
+constituir evidência importante, mas não referência definitiva (ZHANG *et
+al.*, 2025; KEJRIWAL *et al.*, 2024).
 
-Diante desse quadro, a pergunta que orienta este artigo não é qual
-classificador mais concorda com a categoria histórica, e sim como extrair
-de texto ruidoso, de forma confiável e auditável, o dado estruturado
-capaz de alimentar um sistema de governança preditiva sem herdar
-acriticamente as inconsistências do histórico que lhe deu origem, de modo
-que divergências entre modelo e histórico sejam tratadas como evidência
-de revisão taxonômica, e não como ruído a descartar.
+A literatura confirma a viabilidade técnica da tarefa, com acurácia de 0,83
+sobre 15.623 ordens de serviço hospitalares (LI *et al.*, 2024) e 78% em
+requisições de edificação hospitalar (BOUABDALLAOUI *et al.*, 2020). Essas
+aplicações concentram-se, todavia, em bases de outros idiomas e em domínios
+industriais ou hospitalares, e avaliam o classificador contra o rótulo
+registrado, sem submetê-lo a auditoria. Restam duas lacunas convergentes: a
+escassez de corpora em português brasileiro na manutenção predial pública
+universitária e a ausência de protocolo que trate a categoria histórica como
+objeto de auditoria e meça o risco de reescrevê-la.
 
-Com base em chamados reais da Universidade Federal do Sul da Bahia
-(UFSB), este artigo propõe uma comparação multimodelo de classificadores
-de texto aplicada a chamados de manutenção predial em português
-brasileiro. A base experimental contém 14.060 chamados não vazios em 50
-categorias históricas, e os campos textuais agregam título e descrição do
-chamado, além de informações da ordem de serviço. O estudo compara
-modelos clássicos baseados em TF-IDF com uma rede neural LSTM
-bidirecional; o BERTimbau é ajustado, mas fica fora da comparação
-principal por custo medido. O objeto de avaliação não é o classificador
-isolado, mas o protocolo de governança que articula aprendizado de
-máquina, auditoria estatística, custo computacional e revisão humana,
-formulação consoante à manutenção baseada em evidências preconizada pela
-NBR 5674 (ABNT, 2012) e à integração físico-humano-tecnológico-ambiental
-que caracteriza um biossistema construído.
+A pergunta que orienta este artigo não é, portanto, qual classificador mais
+concorda com a categoria histórica, e sim sob que condições a classificação
+automática produz dado estruturado confiável sem herdar as inconsistências
+do registro que lhe deu origem.
 
-Quatro objetivos específicos orientam o trabalho: apresentar um protocolo
-de classificação que produza dado estruturado auditável a partir de texto
-livre; distinguir a concordância com o rótulo histórico do acerto contra a
-referência humana revisada; avaliar o desempenho por métricas balanceadas,
-intervalos e testes pareados que respeitem a dependência entre chamados de
-texto repetido, incorporando o custo computacional como dimensão de
-decisão; e determinar, por medição e não por presunção, se a classificação
-automática é capaz de corrigir retroativamente a base histórica.
+A resposta é um protocolo auditável, medido sobre 14.060 chamados reais da
+Universidade Federal do Sul da Bahia (UFSB). A contribuição não está na
+comparação entre algoritmos, aqui meio e não fim, mas na articulação de
+cinco elementos: governança de rótulo por auditoria administrativa sobre o
+corpus integral, que separa a concordância com o histórico do acerto contra
+a referência revisada; inferência que respeita a dependência entre chamados
+de texto repetido, com o grupo textual como unidade na partição e nos
+testes; calibração dos escores de confiança; automação seletiva condicionada
+a esses escores, com encaminhamento do restante ao revisor; e avaliação do
+risco de reclassificação por função de utilidade explícita. Sete
+classificadores percorrem o protocolo sob as mesmas partições, e o BERTimbau
+fica fora por custo computacional medido.
+
+O objetivo geral é avaliar em que medida esse protocolo produz camada de
+dados estruturados apta a sustentar a governança da manutenção predial
+pública, consoante à integração físico-humano-tecnológico-ambiental do
+biossistema construído.
 
 **2. REFERENCIAL CONCEITUAL**
 
-**2.1 Processamento de linguagem natural em ordens de manutenção**
+**2.1 Classificação automática de ordens de manutenção e de chamados**
 
-Ordens de manutenção constituem registros operacionais de valor
-informacional elevado e uso habitualmente reduzido, pois documentam
-sintomas, locais, equipamentos e soluções executadas em forma textual e
-semiestruturada que dificulta o emprego direto no planejamento e na
-alocação de recursos (PAMPANA *et al.*, 2022; MORAIS; PAULA; REIS, 2023).
-Li *et al.* (2024) constituem a referência-âncora desta pesquisa por
-tratarem diretamente da automação de ordens de manutenção predial, ainda
-que em idioma, tipologia institucional e estrutura taxonômica distintos, e
-Sundaram e Zeid (2025) acrescentam a perspectiva pertinente ao caso
-universitário, na qual chamados curtos, abreviações locais e descrições
-incompletas inviabilizam modelos genéricos sem adaptação lexical e
-semântica ao corpus específico.
+Ordens de manutenção documentam sintomas, locais, equipamentos e soluções em
+forma textual semiestruturada, o que lhes confere valor informacional
+elevado e uso habitualmente reduzido no planejamento (PAMPANA *et al.*,
+2022; MORAIS; PAULA; REIS, 2023). Li *et al.* (2024) são a referência-âncora
+desta pesquisa por tratarem da automação de ordens de manutenção predial,
+ainda que em idioma e taxonomia distintos, e Sundaram e Zeid (2025)
+acrescentam que chamados curtos e descrições incompletas inviabilizam
+modelos genéricos sem adaptação lexical ao corpus.
 
-**2.2 Classificação de tickets e evolução dos modelos**
+Na classificação de *tickets*, a evolução das representações lexicais aos
+modelos pré-treinados, como o Ticket-BERT (LIU; BENGE; JIANG, 2023), não se
+transfere sem cautela à manutenção predial, cujos sistemas e equipamentos
+não coincidem com categorias de incidentes digitais (SUNDARAM; ZEID, 2025).
+Em texto curto de vocabulário especializado, ademais, classificadores
+lineares sobre representações TF-IDF sustentam desempenho equivalente ao de
+redes neurais em múltiplos *benchmarks* (GALKE; SCHERP, 2022).
 
-A classificação automática de *tickets* em ambientes de suporte técnico
-e ITSM evoluiu de representações vetoriais baseadas em frequência
-lexical para *embeddings* e modelos de linguagem pré-treinados. Liu,
-Benge e Jiang (2023) propuseram o Ticket-BERT para rotulagem de
-*tickets* de incidentes, enfatizando desafios como atualização contínua
-de rótulos e necessidade de aprendizado ativo. Entretanto, a
-transferência direta de achados do ITSM para a manutenção predial deve
-ser cautelosa, pois a semântica do domínio envolve sistemas físicos,
-ambientes e equipamentos prediais que não coincidem com categorias de
-incidentes de *software* ou infraestrutura digital (SUNDARAM; ZEID,
-2025).
+**2.2 Desbalanceamento e rótulos ruidosos**
 
-Modelos lineares com TF-IDF permanecem competitivos em tarefas de texto
-curto, sobretudo quando o corpus é de porte médio, o vocabulário possui
-alta especificidade técnica e as classes são desbalanceadas. Galke e
-Scherp (2022), em revisão comparativa de métodos para classificação
-textual, demonstraram que classificadores baseados em *bag-of-words* com
-TF-IDF e SVM sustentam desempenho equivalente ao de redes neurais em
-múltiplos *benchmarks* quando o corpus é reduzido ou o vocabulário é
-especializado. O achado é particularmente pertinente à manutenção predial
-institucional, cuja base operacional raramente atinge escala compatível
-com as exigências de modelos de linguagem de grande porte.
-
-**2.3 Rótulos ruidosos e referência operacional**
-
-O ruído de rótulo é problema central do aprendizado supervisionado sobre
-bases administrativas e, em classificação textual, decorre de ambiguidade
-semântica, polissemia, insuficiência de contexto, sobreposição taxonômica
-ou erro de registro (ZHANG *et al.*, 2025). Kejriwal *et al.* (2024)
-acrescentam que *benchmarks* rotulados por humanos contêm variabilidade
+Duas propriedades da base condicionam a leitura das métricas. O
+desbalanceamento entre categorias faz a acurácia agregada ser dominada pelas
+classes majoritárias e mascarar falhas nas raras, o que recomenda métricas
+de média por classe com o suporte declarado (SOKOLOVA; LAPALME, 2009) e leva
+a classificação hierárquica de chamados a excluir rótulos de frequência
+muito baixa (MARCUZZO *et al.*, 2022). O ruído de rótulo decorre de
+ambiguidade semântica, sobreposição taxonômica ou erro de registro (ZHANG
+*et al.*, 2025), e *benchmarks* rotulados por humanos contêm variabilidade
 relevante, o que questiona a prática de assumir referência única onde há
-julgamento subjetivo. Neste artigo, por conseguinte, a categoria
-histórica é tratada como registro administrativo sujeito a auditoria, e a
-referência de avaliação é construída por revisão humana com registro
-explícito da decisão.
+julgamento subjetivo (KEJRIWAL *et al.*, 2024). A categoria histórica é
+tratada, por conseguinte, como registro administrativo sujeito a auditoria,
+e a referência de avaliação provém de auditoria de rótulo.
 
-**2.4 Custo computacional e eficiência em PLN**
+**2.3 Calibração e classificação seletiva**
 
-A avaliação de modelos de PLN tem sido tradicionalmente orientada por
-métricas de desempenho, mas a literatura recente enfatiza que custo
-computacional, tempo de treino, consumo energético e reprodutibilidade
-também devem compor a decisão de adoção (TREVISO *et al.*, 2023;
-SCHWARTZ *et al.*, 2020). Treviso *et al.* (2023) argumentam que a
-ampliação de escala em PLN aumenta o consumo de dados, tempo,
-armazenamento e energia, motivando métodos eficientes em contextos de
-recursos limitados, e Schwartz *et al.* (2020) cunharam o conceito de
-*Green AI*, pelo qual a eficiência computacional deve ser reportada e
-valorizada na avaliação de modelos, não apenas a acurácia. Em uma
-instituição pública, essa dimensão é operacionalmente decisiva. Um modelo
-que treina em segundos pode ser reexecutado frequentemente,
-auditado com facilidade e mantido sem infraestrutura dedicada, ao passo
-que um modelo que demanda dezenas de minutos exige *checkpoint*,
-controle de versão de pesos e justificativa robusta de ganho marginal
-(TREVISO *et al.*, 2023).
+O escore de confiança de um classificador não é, por construção, uma
+probabilidade, e associá-lo à frequência de acerto exige calibração por
+ajuste sigmoidal da margem (PLATT, 1999) ou por regressão isotônica,
+necessidade que persiste mesmo em arquiteturas de alto desempenho (GUO *et
+al.*, 2017). É a calibração que torna operável a classificação seletiva,
+regime no qual o modelo decide apenas acima de um limiar e transfere os
+demais casos a outro decisor, cujo compromisso entre erro e rejeição foi
+formulado por Chow (1970) e é hoje reportado como par entre cobertura e
+risco (EL-YANIV; WIENER, 2010). Em fluxo humano–IA, esse par delimita quanto
+do volume se decide automaticamente.
 
-Os modelos de linguagem de grande porte não integram esta comparação.
-Operam sobre representações contextuais em arquitetura de transformador
-(VASWANI *et al.*, 2017) e dispensam ajuste supervisionado, pois inferem a
-tarefa de instruções e de poucos exemplos no próprio enunciado (BROWN *et
-al.*, 2020), do que decorre a expectativa de maior acurácia em chamados de
-redação atípica. Sua adoção esbarra, contudo, em três restrições diante do
-critério de eficiência aqui adotado: a execução exige aceleradores
-dedicados ou serviços tarifados por uso, incompatíveis com a reexecução
-frequente que o fluxo institucional pressupõe; o processamento por
-terceiros desloca as descrições dos chamados para fora do domínio da
-universidade; e a variabilidade das respostas entre versões do serviço
-compromete a reprodutibilidade exigida pelo delineamento (BENDER *et
-al.*, 2021). Como a tarefa é fechada e institucionalmente delimitada,
-condição na qual classificadores baseados em *bag-of-words* permanecem
-competitivos (GALKE; SCHERP, 2022), a avaliação desses modelos fica
-indicada como desdobramento futuro.
+**2.4 Custo computacional e delimitação de escopo**
+
+A eficiência computacional deve ser reportada e valorizada na avaliação de
+modelos, não apenas a acurácia (SCHWARTZ *et al.*, 2020; TREVISO *et al.*,
+2023). Em instituição pública o critério é decisório, pois um modelo que
+treina em segundos é reexecutado e auditado sem infraestrutura dedicada. É
+por ele que os modelos de linguagem de grande porte, embora dispensem ajuste
+supervisionado ao inferir a tarefa do próprio enunciado (BROWN *et al.*,
+2020), ficam fora desta comparação: exigem aceleradores dedicados ou
+serviços tarifados por uso, deslocam as descrições dos chamados para fora do
+domínio da universidade e variam entre versões do serviço, o que compromete
+a reprodutibilidade exigida pelo delineamento (BENDER *et al.*, 2021). O
+protocolo integral não foi executado sobre essas arquiteturas nem sobre o
+BERTimbau, cujo custo medido é tratado na Subseção 4.3, de sorte que nada se
+afirma sobre seu desempenho relativo.
 
 **3. MÉTODO**
 
@@ -358,7 +281,7 @@ posição da revisão humana não é acessória: ela precede o treinamento,
 porque é dela que sai o rótulo com que os modelos são treinados e contra
 o qual são avaliados.
 
-![Pipeline de governança preditiva, do fluxo de extração da base à retroalimentação por validação humana.](04_artigo/figuras/fig_pipeline_governanca.pdf){width=95%}
+![Pipeline de governança preditiva, do fluxo de extração da base à retroalimentação por auditoria de rótulo.](04_artigo/figuras/fig_pipeline_governanca.pdf){width=95%}
 
 **3.2 Corpus e variáveis**
 
@@ -897,22 +820,22 @@ hipóteses é neutra em gestão pública, e ambas estavam implícitas na
 subtração. A qualificação decisória adota, por isso, a função de utilidade
 *U* = *b* × corrigidos − *c* × prejudicados − *r* × revisados, normalizada
 pelo benefício da correção, o que dispensa atribuir valor monetário e
-reduz o problema a duas razões adimensionais: ρ = *c*/*b*, o custo do
-prejuízo em unidades de benefício da correção, e λ = *r*/*b*, o custo da
+reduz o problema a duas razões adimensionais: $\rho$ = *c*/*b*, o custo do
+prejuízo em unidades de benefício da correção, e $\lambda$ = *r*/*b*, o custo da
 revisão humana na mesma unidade. O ganho líquido simples é o caso
-particular ρ = 1 e λ = 0, e permanece o resultado principal por ser
+particular $\rho$ = 1 e $\lambda$ = 0, e permanece o resultado principal por ser
 transparente.
 
 Sob aplicação direta, em que o modelo reescreve a categoria sempre que
-diverge, a utilidade só é positiva se ρ ficar abaixo da razão de
+diverge, a utilidade só é positiva se $\rho$ ficar abaixo da razão de
 equilíbrio corrigidos/prejudicados, que vale 0,2047 no LinearSVC e cai a
 0,0817 no Naive Bayes. A reclassificação exigiria, portanto, que estragar
 um registro custasse menos de um quinto do que vale corrigir outro,
 condição que a natureza do dano não sustenta: o registro corrompido
 propaga para a série temporal da categoria e para a alocação de recurso
 que dela deriva (Subseção 5.4), ao passo que a correção apenas recupera o
-valor que o registro já deveria ter. Em toda a faixa examinada, de ρ = 0,25
-a ρ = 4, a utilidade é negativa nos sete modelos, de modo que o veredito
+valor que o registro já deveria ter. Em toda a faixa examinada, de $\rho$ = 0,25
+a $\rho$ = 4, a utilidade é negativa nos sete modelos, de modo que o veredito
 não depende da hipótese de custos iguais.
 
 A mesma predição sustenta, entretanto, uma política diferente. Se a
@@ -923,7 +846,7 @@ no LinearSVC, contra a taxa de alteração de 4,25% na base congelada, o que
 faz da divergência um critério de priorização com enriquecimento de cerca
 de quatro vezes sobre a revisão aleatória. Os dois denominadores diferem
 em 88 linhas e não devem ser fundidos, mas a ordem de grandeza não depende
-disso. O limite de equilíbrio de λ coincide com essa precisão: a triagem
+disso. O limite de equilíbrio de $\lambda$ coincide com essa precisão: a triagem
 paga enquanto revisar um chamado custar menos de 18,5% do que vale
 corrigir um registro, valor que supõe a revisão devolvendo a referência,
 verdadeiro por construção, e é portanto teto da política. A consequência
@@ -1137,12 +1060,12 @@ constam do material suplementar.
 
 | Comparação | Δ acurácia (p.p.) | IC95% da diferença | Grupos a favor | Grupos contra | Empates | *d* pareado | *p* ajustado |
 |---|---:|---|---:|---:|---:|---:|---:|
-| × SGD | 1,60 | 0,0118 -- 0,0204 | 533 | 308 | 8.894 | 0,077 | ≤ 0,0021 |
-| × Extra Trees | 1,80 | 0,0130 -- 0,0232 | 759 | 515 | 8.461 | 0,071 | ≤ 0,0021 |
-| × Regressão Logística | 2,03 | 0,0156 -- 0,0248 | 598 | 314 | 8.823 | 0,094 | ≤ 0,0021 |
-| × Random Forest | 2,83 | 0,0229 -- 0,0341 | 896 | 503 | 8.336 | 0,108 | ≤ 0,0021 |
-| × LSTM | 9,66 | 0,0875 -- 0,1061 | 1.682 | 349 | 7.704 | 0,313 | ≤ 0,0021 |
-| × Naive Bayes | 11,65 | 0,1028 -- 0,1329 | 1.961 | 549 | 7.225 | 0,164 | ≤ 0,0021 |
+| × SGD | 1,60 | 0,0118 -- 0,0204 | 533 | 308 | 8.894 | 0,077 | $\leq$ 0,0021 |
+| × Extra Trees | 1,80 | 0,0130 -- 0,0232 | 759 | 515 | 8.461 | 0,071 | $\leq$ 0,0021 |
+| × Regressão Logística | 2,03 | 0,0156 -- 0,0248 | 598 | 314 | 8.823 | 0,094 | $\leq$ 0,0021 |
+| × Random Forest | 2,83 | 0,0229 -- 0,0341 | 896 | 503 | 8.336 | 0,108 | $\leq$ 0,0021 |
+| × LSTM | 9,66 | 0,0875 -- 0,1061 | 1.682 | 349 | 7.704 | 0,313 | $\leq$ 0,0021 |
+| × Naive Bayes | 11,65 | 0,1028 -- 0,1329 | 1.961 | 549 | 7.225 | 0,164 | $\leq$ 0,0021 |
 
 Dos 21 pares, 19 são significativos após a correção e 2 não são: Extra
 Trees contra Regressão Logística e Extra Trees contra SGD, ambos com *p*
@@ -1609,6 +1532,9 @@ and Statistics, v. 90, n. 3, p. 414--427, 2008.
 CAPRA, F. A teia da vida: uma nova compreensão científica dos sistemas
 vivos. São Paulo: Cultrix, 1996.
 
+CHOW, C. K. On optimum recognition error and reject tradeoff. IEEE
+Transactions on Information Theory, v. 16, n. 1, p. 41--46, 1970.
+
 COCHRAN, W. G. The comparison of percentages in matched samples.
 Biometrika, v. 37, n. 3-4, p. 256--266, 1950.
 
@@ -1635,6 +1561,10 @@ of Statistics, v. 7, n. 1, p. 1--26, 1979.
 
 EFRON, B.; TIBSHIRANI, R. J. An introduction to the bootstrap. New York:
 Chapman & Hall/CRC, 1993.
+
+EL-YANIV, R.; WIENER, Y. On the foundations of noise-free selective
+classification. Journal of Machine Learning Research, v. 11, p.
+1605--1641, 2010.
 
 FIELD, C. A.; WELSH, A. H. Bootstrapping clustered data. Journal of the
 Royal Statistical Society: Series B, v. 69, n. 3, p. 369--390, 2007.
@@ -1764,11 +1694,6 @@ maintenance work orders. Journal of Intelligent Manufacturing, v. 36, p.
 TREVISO, M. et al. Efficient methods for Natural Language Processing: a
 survey. Transactions of the Association for Computational Linguistics,
 v. 11, p. 826--860, 2023.
-
-VASWANI, A.; SHAZEER, N.; PARMAR, N.; USZKOREIT, J.; JONES, L.; GOMEZ,
-A. N.; KAISER, L.; POLOSUKHIN, I. Attention is all you need. In:
-Advances in Neural Information Processing Systems 30 (NIPS 2017).
-Red Hook: Curran Associates, 2017. p. 5998--6008.
 
 WONGPAKARAN, N.; WONGPAKARAN, T.; WEDDING, D.; GWET, K. L. A comparison
 of Cohen's Kappa and Gwet's AC1 when calculating inter-rater reliability
