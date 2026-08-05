@@ -72,8 +72,8 @@ A classificação automática de chamados de manutenção predial constitui
 recurso estratégico para qualificar a triagem operacional e ampliar a
 governança baseada em evidências em instituições públicas. Em bases
 históricas de sistemas informatizados de gestão de chamados, contudo, a
-categoria originalmente registrada não deve ser tratada como verdade
-absoluta, pois pode refletir decisões operacionais ruidosas, taxonomias
+categoria originalmente registrada não deve ser tratada como referência
+definitiva, pois pode refletir decisões operacionais ruidosas, taxonomias
 sobrepostas, registros incompletos e interpretações heterogêneas entre
 equipes. Este artigo propõe um protocolo multimodelo para classificação
 de chamados reais de manutenção predial universitária em português
@@ -87,26 +87,25 @@ e teste. O BERTimbau, transformador pré-treinado em português, fica fora
 da comparação por custo medido, uma vez que o ajuste fino projeta 6,44
 horas por dobra em processador sem acelerador gráfico. O diferencial
 metodológico reside na distinção entre concordância com o histórico
-administrativo e acerto contra a referência humana final, que cobre a
-totalidade do corpus e é apurada sobre as 13.972 linhas de 41 categorias
-com suporte nas cinco dobras. O LinearSVC lidera as duas leituras, com
-acordo bruto de 79,61% frente ao histórico e acurácia de 82,53% frente à
-referência humana. O achado central contraria a expectativa que motivou o
-estudo: o ganho líquido de reclassificação da base histórica é negativo
-em todos os sete modelos, de −1.846 no melhor deles a −3.474 no pior,
-porque a referência humana confirma a categoria histórica em 95,75% dos
-registros e divergir do histórico significa, quase sempre, divergir
-também da referência. Uma camada explícita de regras de periodicidade,
+administrativo e acerto contra a referência humana revisada, obtida por
+auditoria de rótulo conduzida por especialista único sobre a totalidade
+do corpus e apurada sobre as 13.972 linhas de 41 categorias com suporte
+nas cinco dobras. O LinearSVC lidera as duas leituras, com acordo bruto
+de 79,61% frente ao histórico e acurácia de 82,53% frente à referência
+humana. O achado central contraria a expectativa que motivou o estudo: o
+ganho líquido de reclassificação da base histórica é negativo em todos os
+sete modelos, de −1.846 no melhor deles a −3.474 no pior, porque o
+especialista manteve a categoria histórica em 95,75% dos registros e
+divergir do histórico significa, quase sempre, divergir também da
+referência. Uma camada explícita de regras de periodicidade,
 avaliada nas mesmas partições, mostra-se redundante e melhora o F1 macro
 de apenas três dos sete modelos. O custo computacional permanece dimensão
 relevante da decisão e favorece modelos lineares em cenários de texto
 curto, ruidoso e desbalanceado: o LinearSVC treina em 2,44 s, contra
-83,44 s da rede recorrente no mesmo ambiente. O recorte do desempenho por
-volume de categoria e por natureza da intervenção demonstra que o F1
-macro de 0,6684 resulta da composição da métrica, pois o mesmo modelo
-alcança 0,8207 nas 12 categorias que concentram 81,83% do volume, e que a
-distinção entre manutenção preventiva e corretiva é obtida com F1 de
-0,9742 e 0,9547, respectivamente.
+83,44 s da rede recorrente no mesmo ambiente. O F1 macro de 0,6684
+resulta da composição da métrica, pois o mesmo modelo alcança 0,8207 nas
+12 categorias que concentram 81,83% do volume e distingue manutenção
+preventiva de corretiva com F1 de 0,9742 e 0,9547.
 
 **Palavras-chave:** manutenção predial; classificação de chamados;
 processamento de linguagem natural; rótulos ruidosos; validação humana.
@@ -117,7 +116,7 @@ processamento de linguagem natural; rótulos ruidosos; validação humana.
 strategic resource for improving operational triage and evidence-based
 governance in public institutions. However, the originally assigned
 category in historical service-management databases should not be treated
-as unquestionable ground truth because it may reflect noisy operational
+as a definitive reference because it may reflect noisy operational
 decisions, overlapping taxonomies, incomplete records, and heterogeneous
 interpretations. This paper proposes a multi-model protocol for
 classifying real university building maintenance requests in Brazilian
@@ -131,26 +130,26 @@ transformer, is excluded from the main comparison on measured cost
 grounds, as fine-tuning projects 6.44 hours per fold on a processor
 without graphics acceleration. The methodological contribution is the
 distinction between agreement with the administrative history and
-accuracy against the final human reference, which covers the entire
-corpus and is computed over 13,972 records in the 41 categories with
-support across all five folds. LinearSVC leads both readings, with 79.61%
-raw agreement against the history and 82.53% accuracy against the human
+accuracy against the revised human reference, obtained through a
+label-audit review carried out by a single specialist over the entire
+corpus and computed over 13,972 records in the 41 categories with support
+across all five folds. LinearSVC leads both readings, with 79.61% raw
+agreement against the history and 82.53% accuracy against the human
 reference. The central finding contradicts the expectation that motivated
 the study: the net gain from reclassifying the historical base is
 negative for all seven models, from −1,846 in the best to −3,474 in the
-worst, because the human reference confirms the historical category in
-95.75% of records, so departing from the history almost always means
-departing from the reference as well. An explicit periodicity rule layer,
+worst, because the specialist retained the historical category in 95.75%
+of records, so departing from the history almost always means departing
+from the reference as well. An explicit periodicity rule layer,
 evaluated on the same partitions, proves redundant and improves macro F1
 for only three of the seven models. Computational cost remains a relevant
 decision dimension and favors linear models in short, noisy, and
 imbalanced text settings: LinearSVC trains in 2.44 s, against 83.44 s for
-the recurrent network in the same environment. Breaking performance down
-by category volume and by the nature of the intervention shows that the
-macro F1 of 0.6684 stems from how the metric is composed, since the same
-model reaches 0.8207 on the 12 categories that concentrate 81.83% of the
-volume, and that preventive maintenance is told apart from corrective
-maintenance with F1 of 0.9742 and 0.9547, respectively.*
+the recurrent network in the same environment. The macro F1 of 0.6684
+stems from how the metric is composed, since the same model reaches
+0.8207 on the 12 categories that concentrate 81.83% of the volume and
+tells preventive from corrective maintenance with F1 of 0.9742 and
+0.9547.*
 
 ***Keywords:** building maintenance; work-order classification; natural
 language processing; noisy labels; human validation.*
@@ -190,8 +189,8 @@ para treinamento supervisionado (LI *et al.*, 2024). O terceiro, e o mais
 consequente do ponto de vista metodológico, é a qualidade do próprio
 rótulo histórico, que pode resultar de interpretação rápida, conveniência
 operacional ou taxonomia ainda não estabilizada, de modo a constituir
-evidência importante, mas não verdade absoluta (ZHANG *et al.*, 2025;
-KEJRIWAL *et al.*, 2024).
+evidência importante, mas não referência definitiva (ZHANG *et al.*,
+2025; KEJRIWAL *et al.*, 2024).
 
 A literatura recente confirma a relevância do PLN para converter esses
 registros em insumo de gestão. Li *et al.* (2024) demonstraram, em base
@@ -211,15 +210,9 @@ Diante desse quadro, a pergunta que orienta este artigo não é qual
 classificador mais concorda com a categoria histórica, e sim como extrair
 de texto ruidoso, de forma confiável e auditável, o dado estruturado
 capaz de alimentar um sistema de governança preditiva sem herdar
-acriticamente os erros do histórico que lhe deu origem. A formulação
-importa porque rótulos ruidosos reduzem o desempenho de classificadores
-(ZHANG *et al.*, 2025) e porque *benchmarks* anotados por humanos
-carregam variabilidade relevante, o que torna questionável tratar
-qualquer rótulo, humano ou histórico, como verdade não sujeita a
-julgamento (KEJRIWAL *et al.*, 2024). Cabe à camada de classificação
-automática, por conseguinte, produzir dado auditável o bastante para que
-divergências entre modelo e histórico sejam tratadas como evidência de
-revisão taxonômica, e não como ruído a descartar.
+acriticamente as inconsistências do histórico que lhe deu origem, de modo
+que divergências entre modelo e histórico sejam tratadas como evidência
+de revisão taxonômica, e não como ruído a descartar.
 
 Com base em chamados reais da Universidade Federal do Sul da Bahia
 (UFSB), este artigo propõe uma comparação multimodelo de classificadores
@@ -229,18 +222,17 @@ categorias históricas, e os campos textuais agregam título e descrição do
 chamado, além de informações da ordem de serviço. O estudo compara
 modelos clássicos baseados em TF-IDF com uma rede neural LSTM
 bidirecional; o BERTimbau é ajustado, mas fica fora da comparação
-principal por custo medido. O objeto de avaliação, portanto, não é o
-classificador isolado, mas o protocolo de governança que articula
-aprendizado de máquina, auditoria estatística, custo computacional e
-revisão humana, formulação consoante à manutenção baseada em evidências
-preconizada pela NBR 5674 (ABNT, 2012) e à integração
-físico-humano-tecnológico-ambiental que caracteriza um biossistema
-construído.
+principal por custo medido. O objeto de avaliação não é o classificador
+isolado, mas o protocolo de governança que articula aprendizado de
+máquina, auditoria estatística, custo computacional e revisão humana,
+formulação consoante à manutenção baseada em evidências preconizada pela
+NBR 5674 (ABNT, 2012) e à integração físico-humano-tecnológico-ambiental
+que caracteriza um biossistema construído.
 
 Quatro objetivos específicos orientam o trabalho: apresentar um protocolo
 de classificação que produza dado estruturado auditável a partir de texto
 livre; distinguir a concordância com o rótulo histórico do acerto contra
-a referência humana final; avaliar o desempenho por métricas balanceadas,
+a referência humana revisada; avaliar o desempenho por métricas balanceadas,
 intervalos de confiança e testes pareados adequados a dados não normais,
 incorporando o custo computacional como dimensão de decisão; e
 determinar, por medição e não por presunção, se a classificação
@@ -291,18 +283,18 @@ especializado. O achado é particularmente pertinente à manutenção predial
 institucional, cuja base operacional raramente atinge escala compatível
 com as exigências de modelos de linguagem de grande porte.
 
-**2.3 Rótulos ruidosos e verdade operacional**
+**2.3 Rótulos ruidosos e referência operacional**
 
 O ruído de rótulo é problema central do aprendizado supervisionado sobre
 bases administrativas e, em classificação textual, decorre de ambiguidade
 semântica, polissemia, insuficiência de contexto, sobreposição taxonômica
 ou erro de registro (ZHANG *et al.*, 2025). Kejriwal *et al.* (2024)
 acrescentam que *benchmarks* rotulados por humanos contêm variabilidade
-relevante, o que questiona a prática de assumir verdade única onde há
+relevante, o que questiona a prática de assumir referência única onde há
 julgamento subjetivo. Neste artigo, por conseguinte, a categoria
-histórica é tratada como referência administrativa, e não como verdade
-final, e a referência operacional é construída por revisão humana com
-registro explícito da decisão.
+histórica é tratada como registro administrativo sujeito a auditoria, e a
+referência de avaliação é construída por revisão humana com registro
+explícito da decisão.
 
 **2.4 Custo computacional e eficiência em PLN**
 
@@ -311,13 +303,13 @@ métricas de desempenho, mas a literatura recente enfatiza que custo
 computacional, tempo de treino, consumo energético e reprodutibilidade
 também devem compor a decisão de adoção (TREVISO *et al.*, 2023;
 SCHWARTZ *et al.*, 2020). Treviso *et al.* (2023) argumentam que a
-ampliação de escala em PLN tende a aumentar o consumo de dados, tempo,
-armazenamento e energia, motivando métodos eficientes especialmente em
-contextos de recursos limitados. Schwartz *et al.* (2020) cunharam o
-conceito de *Green AI*, propondo que a eficiência computacional seja
-reportada e valorizada na avaliação de modelos, não apenas a acurácia.
-Em uma instituição pública, essa dimensão é operacionalmente decisiva.
-Um modelo que treina em segundos pode ser reexecutado frequentemente,
+ampliação de escala em PLN aumenta o consumo de dados, tempo,
+armazenamento e energia, motivando métodos eficientes em contextos de
+recursos limitados, e Schwartz *et al.* (2020) cunharam o conceito de
+*Green AI*, pelo qual a eficiência computacional deve ser reportada e
+valorizada na avaliação de modelos, não apenas a acurácia. Em uma
+instituição pública, essa dimensão é operacionalmente decisiva. Um modelo
+que treina em segundos pode ser reexecutado frequentemente,
 auditado com facilidade e mantido sem infraestrutura dedicada, ao passo
 que um modelo que demanda dezenas de minutos exige *checkpoint*,
 controle de versão de pesos e justificativa robusta de ganho marginal
@@ -354,12 +346,16 @@ Freitas (MORAIS; PAULA; REIS, 2023). A unidade de análise é o chamado
 individual de manutenção, representado por campos textuais concatenados
 e por uma categoria histórica registrada no sistema. O fluxo
 metodológico compõe-se de oito etapas sequenciais: (i) extração e
-consolidação da base; (ii) higienização textual; (iii) construção da
-matriz de atributos; (iv) treinamento e inferência multimodelo; (v)
-geração de predições *out-of-fold*; (vi) comparação preliminar com
-categoria histórica; (vii) análise estatística não paramétrica; e (viii)
-validação humana das divergências e amostras críticas. A Figura 1
-apresenta esse fluxo como *pipeline* de governança preditiva.
+consolidação da base; (ii) revisão humana do corpus integral, da qual
+resulta a categoria de referência; (iii) higienização textual; (iv)
+construção da matriz de atributos; (v) partições agrupadas por texto e
+treinamento com predições *out-of-fold*; (vi) comparação com a categoria
+histórica e com a referência revisada; (vii) inferência estatística não
+paramétrica; e (viii) calibração e automação seletiva por confiança. A
+Figura 1 apresenta esse fluxo como *pipeline* de governança preditiva. A
+posição da revisão humana não é acessória: ela precede o treinamento,
+porque é dela que sai o rótulo com que os modelos são treinados e contra
+o qual são avaliados.
 
 ![Pipeline de governança preditiva, do fluxo de extração da base à retroalimentação por validação humana.](04_artigo/figuras/fig_pipeline_governanca.pdf){width=95%}
 
@@ -379,16 +375,14 @@ incompletas, características que impõem desafios específicos de
 pré-processamento e representação textual (SUNDARAM; ZEID, 2025).
 
 A base é dinâmica, pois a planilha de trabalho é alimentada continuamente
-pelo sistema de atendimento e novos chamados são incorporados a cada
-sincronização. Por essa razão, todos os resultados da Seção 4 referem-se
-a um corte por data de abertura, que compreende os chamados registrados
-até 1º de agosto de 2026 e totaliza 14.060 registros elegíveis. Os
-artefatos que sustentam cada número, incluindo predições por modelo e
-matrizes de confusão, foram materializados sobre esse mesmo corte e estão
-versionados no repositório indicado na Subseção 3.8, de modo que a
-reprodução não depende do estado corrente do sistema institucional. A
-distribuição completa dos chamados entre as 50 categorias históricas é
-apresentada no Apêndice A.
+pelo sistema de atendimento. Por essa razão, todos os resultados da Seção
+4 referem-se a um corte por data de abertura, que compreende os chamados
+registrados até 1º de agosto de 2026 e totaliza 14.060 registros
+elegíveis. Os artefatos que sustentam cada número foram materializados
+sobre esse mesmo corte e estão versionados, de modo que a reprodução não
+depende do estado corrente do sistema institucional. A distribuição
+completa dos chamados entre as 50 categorias históricas é apresentada no
+Apêndice A.
 
 **3.3 Pré-processamento textual**
 
@@ -463,24 +457,16 @@ e 2.
 
 Os discriminadores lineares otimizam fronteiras de decisão sobre a
 representação TF-IDF esparsa de até 30.000 atributos (Subseção 3.3), e é
-essa a família favorecida pelo corpus. Em espaços esparsos de alta
-dimensionalidade, classificadores lineares separam bem as classes quando
-o vocabulário carrega forte poder discriminativo (JOACHIMS, 1998; SALTON;
-BUCKLEY, 1988), condição satisfeita aqui, em que termos técnicos do
-domínio funcionam como âncoras semânticas de categoria. Verifica-se, em
-consonância com essa expectativa, que o LinearSVC lidera tanto a
-concordância com o histórico quanto a acurácia contra a referência
-humana.
-
-O Naive Bayes, na outra extremidade, assume independência condicional
-entre atributos dada a classe, suposição estrutural violada em texto de
-manutenção predial, no qual termos técnicos co-ocorrem de modo
-sistemático dentro de uma mesma categoria. A divergência entre a
-suposição do modelo e a estrutura real dos dados explica sua última
-posição nas duas leituras, e o colapso é ainda mais nítido no F1 macro,
-de 0,2951, porque o modelo restringe as predições a 22 das 41 categorias.
-Trata-se do comportamento esperado do modelo mais simples da comparação,
-e não de problema de implementação.
+essa a família favorecida pelo corpus, pois em espaços esparsos de alta
+dimensionalidade eles separam bem as classes quando o vocabulário carrega
+forte poder discriminativo (JOACHIMS, 1998; SALTON; BUCKLEY, 1988),
+condição satisfeita aqui, em que termos técnicos do domínio funcionam
+como âncoras semânticas de categoria. O Naive Bayes, na outra
+extremidade, assume independência condicional entre atributos dada a
+classe, suposição violada em texto de manutenção predial, no qual termos
+técnicos co-ocorrem sistematicamente dentro de uma mesma categoria; daí
+sua última posição nas duas leituras e o colapso do F1 macro em 0,2951,
+com predições restritas a 22 das 41 categorias.
 
 Random Forest e Extra Trees capturam interações não lineares por meio da
 estrutura de árvores, mas em espaços esparsos tendem a ajustar-se demais
@@ -582,90 +568,130 @@ fora da comparação principal apoia-se em medição de custo, não em
 preferência editorial. O procedimento e o resultado dessa medição constam
 da Subseção 4.3.
 
-**3.6 Revisão humana e referência final**
+**3.6 Revisão humana e referência revisada**
 
-A revisão humana constitui a etapa que diferencia o presente estudo de
-uma simples comparação de classificadores contra histórico. O desenho é
-de auditoria de rótulo, e não de anotação do zero: a pergunta submetida
-ao especialista é se a categoria registrada é adequada ao chamado. Para
+A revisão humana é a etapa que diferencia este estudo de uma comparação
+de classificadores contra histórico, e seu desenho delimita o que a
+referência autoriza afirmar. Trata-se de auditoria administrativa de
+rótulo, e não de anotação independente: a pergunta submetida ao
+especialista é se a categoria já registrada é adequada ao chamado. Para
 cada registro, o avaliador examinou o título e a descrição do chamado, o
 título e a descrição da ordem de serviço, quando existentes, e a
-categoria histórica. Previsões e níveis de confiança dos modelos não
-estavam visíveis durante a revisão.
+categoria histórica; previsões e níveis de confiança dos modelos não
+estavam visíveis. Confirmada a categoria, ela permanece como referência;
+rejeitada, o avaliador registra outra categoria da mesma taxonomia. O
+resultado é a categoria de referência revisada, usada no treinamento e na
+avaliação dos modelos.
 
-Ver a categoria histórica é constitutivo dessa tarefa, e não contaminação
-do julgamento: corrigir um rótulo pressupõe conhecê-lo. Cabe registrar,
-porém, que a categoria histórica não é atribuição isolada. Ela resulta do
-registro pelo demandante seguido de verificação por equipe técnica, de
-modo que o rótulo auditado já incorpora uma conferência anterior, o que
-ajuda a explicar a alta taxa de confirmação reportada adiante.
+A revisão cobriu a totalidade do corpus: os 14.060 chamados receberam
+decisão do especialista, sendo 13.462 de manutenção da categoria
+histórica e 598 de substituição, o que corresponde a uma taxa de
+alteração do rótulo histórico de 4,25%. Não restaram chamados sem
+referência, o que elimina o viés de seleção de uma amostra parcialmente
+conferida. Três desfechos não devem ser confundidos entre si: manter a
+categoria é confirmação administrativa, isto é, o revisor não encontrou
+motivo para alterar o registro; concordância entre avaliadores exigiria
+segundo julgamento independente; e correção factual, no sentido de
+comprovar qual intervenção foi executada, exigiria evidência externa ao
+texto, como inspeção em campo, que este desenho não mobiliza.
 
-Quando a categoria histórica é confirmada, ela constitui a referência;
-quando é rejeitada, o avaliador registra a categoria correta. A categoria
-resultante desse processo constitui a referência humana final utilizada
-na avaliação dos modelos. A revisão cobriu a totalidade do corpus: os
-14.060 chamados receberam veredito, sendo 13.462 por confirmação da
-categoria histórica e 598 por registro de categoria distinta, ou 4,25% do
-corpus. Não restaram chamados sem referência, o que elimina o viés de
-seleção que condicionaria uma amostra conferida.
+A revisão foi conduzida por um único especialista. Não houve segunda
+avaliação humana, independente ou cega, nem adjudicação de divergências,
+pela razão elementar de que existe uma única decisão por registro.
+Nenhuma medida de confiabilidade entre avaliadores é, portanto, reportada
+neste artigo, e essa segunda avaliação fica registrada como validação
+futura na Subseção 5.3. Pelo mesmo motivo não se reporta Kappa entre a
+referência revisada e a categoria histórica, pois o pressuposto de
+independência não se sustenta quando o revisor decide vendo o rótulo que
+audita.
 
-A revisão foi conduzida por um único especialista, e a confiabilidade
-entre avaliadores não foi medida, limitação declarada na Subseção 5.3.
-Uma estimativa do ruído do próprio rótulo está, contudo, disponível sem
-segundo avaliador: 17 grupos de texto idêntico receberam referência
-divergente, afetando 85 linhas, ou 0,60% da base congelada. Esse valor
-estabelece um piso de erro irredutível para qualquer modelo, em
-consonância com a perspectiva de que a verdade operacional deve ser
-construída progressivamente (ZHANG *et al.*, 2025).
+Ver a categoria histórica é constitutivo da auditoria, já que julgar um
+rótulo inadequado pressupõe conhecê-lo, mas o efeito de ancoragem daí
+decorrente precisa ser explicitado: a exposição prévia ao rótulo eleva a
+probabilidade de mantê-lo, de modo que a taxa de confirmação de 95,75%
+reflete, em proporção não separável neste desenho, tanto a estabilidade
+do registro quanto o próprio procedimento. Dois elementos contextualizam
+a leitura sem resolvê-la. A categoria histórica não é atribuição isolada
+do demandante, pois resulta de registro seguido de verificação por equipe
+técnica de triagem, e a auditoria de rótulo é o procedimento pertinente
+ao uso pretendido, que é a governança de uma base administrativa
+existente, não a construção de um corpus anotado do zero.
+
+Uma medida da consistência interna da referência está disponível sem
+segundo avaliador. Entre os grupos de texto idêntico, 17 receberam mais
+de uma categoria de referência, afetando 85 linhas, ou 0,61% das linhas
+avaliadas. A caracterização desses grupos desaconselha lê-los como taxa
+de erro de anotação: em 14 deles, somando 74 linhas, as categorias em
+disputa pertencem a tipos distintos de manutenção, e o par mais frequente
+opõe Hidrossanitária > Hidráulica a Manutenção Preventiva > Reservatório,
+com 11 grupos e 65 linhas. Chamados de texto idêntico podem, portanto,
+corresponder a intervenções de naturezas diferentes, distinção ausente do
+texto e irrecuperável por qualquer classificador textual. Separar as três
+origens possíveis, a saber, contexto não textual, erro de registro e
+inconsistência de anotação, exigiria reexame caso a caso, não realizado.
+O valor delimita um teto de desempenho atribuível à ambiguidade
+documentada, e não um piso de erro irredutível de anotação.
 
 **3.7 Camada de entropia de Shannon e divergência de Jensen-Shannon**
 
 Como dimensão complementar às métricas supervisionadas, o protocolo
 incorporou uma camada de análise informacional baseada em entropia de
 Shannon e divergência de Jensen-Shannon (SHANNON, 1948; LIN, 1991),
-calculada exclusivamente sobre agregados públicos e sanitizados, sem
-identificador, título ou texto livre do chamado. Essa camada não substitui acurácia,
-calibração ou validação humana, pois responde a uma pergunta distinta,
-sobre onde modelos, categorias e chamados individuais concentram maior
-incerteza estrutural. A entropia opera aqui como medida da desordem
-informacional do biossistema construído, no sentido de Shannon (1948),
-e o que ela localiza não é erro de modelo, mas a região da taxonomia em
-que o próprio sistema de registro perdeu capacidade de discriminar. No nível dos modelos, a entropia de Shannon sobre
-a distribuição de categorias previstas indica se um classificador
-dispersa suas predições por muitas classes ou as concentra
-excessivamente em poucas; a divergência de Jensen-Shannon mede a
-distância entre essa distribuição prevista e a distribuição histórica da
-base, funcionando como indicador de deslocamento distributivo. No nível
-das categorias, a entropia evidencia classes históricas cujas predições
-se espalham entre múltiplas categorias, sinalizando candidatas
-prioritárias a revisão taxonômica. No nível do chamado individual, a
-entropia de votos entre os modelos identifica registros em que há
-desacordo estrutural entre arquiteturas distintas, formando uma fila de
-auditoria orientada por ambiguidade, e não apenas por baixa confiança
-isolada de um único modelo.
+calculada exclusivamente sobre agregados sanitizados, sem identificador,
+título ou texto livre do chamado. Ela responde a pergunta distinta da
+acurácia, a saber, onde se concentra a incerteza estrutural, e o que
+localiza não é erro de modelo, mas a região da taxonomia em que o próprio
+sistema de registro perdeu capacidade de discriminar. A camada opera em
+três níveis. No dos modelos, a entropia sobre a distribuição de
+categorias previstas indica se um classificador dispersa ou concentra
+suas predições, e a divergência de Jensen-Shannon mede a distância entre
+essa distribuição e a histórica, funcionando como indicador de
+deslocamento distributivo. No das categorias, evidencia classes cujas
+predições se espalham entre múltiplas alternativas, candidatas
+prioritárias a revisão taxonômica. No do chamado individual, a entropia
+de votos entre modelos forma uma fila de auditoria orientada por
+ambiguidade, e não por baixa confiança isolada de um único
+classificador.
 
-**3.8 Disponibilidade de dados**
+**3.8 Governança e disponibilidade dos dados**
 
-Os artefatos que sustentam os resultados relatados neste artigo são
-gerados por um processo automatizado e reproduzível, reexecutado a cada
-atualização do experimento. Os chamados analisados têm origem no sistema
-institucional GLPI da UFSB e não estão publicamente disponíveis, por
-restrição de privacidade institucional. As métricas derivadas e o código
-que produz cada figura, tabela e estatística deste artigo são de acesso
-público no repositório
+Os chamados analisados têm origem no sistema institucional GLPI da UFSB e
+constituem registros administrativos de manutenção predial, produzidos na
+rotina de atendimento da instituição. A base de trabalho não é
+publicamente disponível, por restrição de privacidade institucional, e os
+campos textuais permanecem restritos ao ambiente do pesquisador. Os
+artefatos publicados são sanitizados na origem: nenhum identificador
+pessoal, identificador de chamado em texto claro, título ou descrição
+livre é gravado nos agregados versionados, e os mapas por registro usam o
+resumo criptográfico SHA-256 do identificador, o que preserva a junção
+entre etapas sem expor o dado. A camada de entropia da Subseção 3.7 opera
+exclusivamente sobre esses agregados. Essas medidas atendem ao princípio
+da necessidade previsto na Lei Geral de Proteção de Dados Pessoais
+(BRASIL, 2018), uma vez que a análise não requer dado pessoal e nenhum é
+retido nos produtos públicos da pesquisa.
+
+Cabe registrar, para transparência, que o repositório não guarda
+documento de autorização institucional formal, de aprovação por comitê de
+ética ou de dispensa de apreciação ética, de modo que nada é aqui
+afirmado a esse respeito. O acesso à base decorre da atuação do primeiro
+autor na gestão da manutenção predial da própria instituição, e a
+formalização documental do consentimento institucional para uso
+científico dos registros é providência recomendada antes da submissão.
+
+As métricas derivadas e o código que produz cada figura, tabela e
+estatística deste artigo são de acesso público no repositório
 https://github.com/adinailson88/classificacao-chamados, que também
 descreve a estrutura completa dos dados e o material suplementar citado
-neste artigo. Nenhum identificador pessoal, título ou texto livre de chamado
-é armazenado nos agregados publicados, e a camada de entropia (Subseção
-3.7) opera exclusivamente sobre esses agregados.
+neste artigo. Os artefatos são gerados por processo automatizado e
+reproduzível, reexecutado a cada atualização do experimento.
 
 **4. RESULTADOS**
 
 Esta seção apresenta dois conjuntos de resultados deliberadamente
 segregados. O primeiro é a concordância dos sete modelos com a categoria
-histórica (Subseção 4.1), em que o registro administrativo é referência
-preliminar, não verdade absoluta. O segundo é o desempenho desses mesmos
-modelos contra a referência humana final (Subseção 4.2).
+histórica (Subseção 4.1), em que o registro administrativo opera como
+referência preliminar. O segundo é o desempenho desses mesmos modelos
+contra a referência humana revisada (Subseção 4.2).
 
 Dois denominadores convivem no texto e não devem ser confundidos. A base
 congelada contém 14.060 chamados, todos com referência humana, e é o
@@ -673,20 +699,15 @@ número pertinente sempre que a frase trata do corpus ou da cobertura da
 revisão. As métricas, contudo, são apuradas sobre 13.972 linhas em 41
 categorias: nove categorias, somando 88 linhas, não sustentam suporte nas
 cinco dobras e ficaram fora das partições, conforme o critério da
-Subseção 3.5 e o detalhamento da Tabela A3. Excluir rótulos de baixa
-frequência tem precedente na classificação hierárquica de chamados
-(MARCUZZO *et al.*, 2022), com a ressalva de que o limiar daqueles
-autores é de cem ocorrências e o critério aqui é o suporte por dobra.
+Subseção 3.5 e o detalhamento da Tabela A3.
 
-Quatro achados resumem a seção. Primeiro, o LinearSVC lidera tanto a
-concordância histórica quanto a acurácia contra a referência humana, e
-mantém vantagem de custo. Segundo, o ganho líquido de reclassificação é
-negativo em todos os modelos, o que desautoriza a correção automática da
-base histórica em massa. Terceiro, a camada explícita de regras de
-periodicidade é redundante diante de um classificador competente.
-Quarto, a calibração viabiliza automação seletiva de cerca de dois terços
-do volume com acurácia próxima de 0,95, encaminhando o restante à revisão
-humana.
+Quatro achados resumem a seção: o LinearSVC lidera tanto a concordância
+histórica quanto a acurácia contra a referência humana, e mantém vantagem
+de custo; o ganho líquido de reclassificação é negativo em todos os
+modelos, o que desautoriza a correção automática da base histórica em
+massa; a camada explícita de regras de periodicidade é redundante diante
+de um classificador competente; e a calibração viabiliza automação
+seletiva de cerca de dois terços do volume com acurácia próxima de 0,95.
 
 ```{=latex}
 \FloatBarrier
@@ -710,10 +731,8 @@ categorias, o que recomenda lê-lo ao lado do acordo bruto (WONGPAKARAN
 *et al.*, 2013).
 
 O coeficiente é aplicável aqui porque modelo e categoria histórica
-constituem fontes independentes de classificação. O mesmo não valeria
-entre a referência humana e a categoria histórica, uma vez que o revisor
-teve acesso ao rótulo administrativo ao decidir, o que viola o
-pressuposto de independência e inflaria o coeficiente pela adjudicação.
+constituem fontes independentes de classificação, o que não vale entre a
+referência revisada e o histórico, pelo motivo exposto na Subseção 3.6.
 
 **Tabela 1** Concordância com a categoria histórica por modelo (n = 13.972).
 
@@ -743,11 +762,11 @@ suporte, tipo e classe de volume, consta da Tabela A2.
 \FloatBarrier
 ```
 
-**4.2 Acerto contra a referência humana final**
+**4.2 Acerto contra a referência humana revisada**
 
-A conferência humana estabeleceu categoria de referência para a
-totalidade dos 14.060 chamados da base congelada, e a avaliação incide
-sobre os 13.972 que compõem as partições canônicas. O LinearSVC é o
+A revisão humana estabeleceu categoria de referência para a totalidade
+dos 14.060 chamados da base congelada, e a avaliação incide sobre os
+13.972 que compõem as partições canônicas. O LinearSVC é o
 melhor modelo em acurácia, com 0,8253 (IC95%: 0,8115--0,8378), seguido
 por SGD (0,8093), Extra Trees (0,8073), Regressão Logística (0,8050),
 Random Forest (0,7970), LSTM (0,7287) e Naive Bayes (0,7088). A vantagem
@@ -755,13 +774,12 @@ sobre o SGD, segundo colocado, é de 1,60 ponto percentual e permanece
 significativa após correção de Holm, com 536 acertos exclusivos do
 LinearSVC contra 312 do SGD.
 
-A cobertura integral da conferência elimina o viés de seleção que
-condicionava as versões anteriores desta métrica. Não há chamado sem
-categoria de referência, de modo que a acurácia relatada deixa de
-constituir limite superior de amostra conferida. A ressalva remanescente
-é de outra natureza: a categoria de referência resulta de julgamento
-humano sobre uma taxonomia que apresenta pares sobrepostos, discutidos na
-Subseção 4.6.
+A cobertura integral da revisão elimina o viés de seleção: não há chamado
+sem categoria de referência, de modo que a acurácia relatada não
+constitui limite superior de amostra conferida. As ressalvas
+remanescentes são de outra natureza e estão declaradas na Subseção 5.3,
+pois a referência é decisão de especialista único sobre uma taxonomia
+que apresenta pares sobrepostos, discutidos na Subseção 4.6.
 
 A leitura por acurácia deve ser acompanhada do F1 macro, que pondera
 igualmente todas as categorias e revela comportamento distinto entre os
@@ -772,9 +790,7 @@ integralmente. Os três modelos não devem ser ordenados por essa métrica.
 A leitura pertinente é outra: o LinearSVC lidera a acurácia sem pagar
 por isso em desempenho na cauda, ao contrário dos *ensembles* de árvores,
 que perdem cerca de três centésimos de F1 macro na mesma faixa de
-acurácia. No extremo oposto, o Naive Bayes combina acurácia de 0,7088
-com F1 macro de 0,2951, o que caracteriza um classificador que acerta as
-categorias frequentes e falha de modo sistemático nas demais.
+acurácia.
 
 **Tabela 2** Acurácia e F1 macro por modelo contra a referência humana
 final (n = 13.972; 41 categorias). As duas métricas são a estimativa
@@ -808,20 +824,15 @@ dobra completa cabe na infraestrutura do estudo.
 
 A limitação é de infraestrutura, não do modelo. O BERTimbau não foi
 avaliado sob o protocolo agrupado desta rodada e, por conseguinte, nada
-se afirma aqui sobre seu desempenho relativo. Uma comparação integral
-exigiria aceleração por unidade de processamento gráfico, recurso
-indisponível no ambiente em que o estudo foi conduzido, e permanece
-como trabalho futuro.
-
-Um experimento exploratório anterior avaliou o transformador junto aos
-demais modelos em um lote de mil chamados, dos quais 983 possuíam
-referência humana. Seus valores constam do material suplementar (Tabela
-S6), preservados como registro. Eles não são comparáveis aos da Tabela 1
-nem aos da Tabela 2: o lote corresponde aos primeiros registros
-elegíveis, não é probabilístico, não cobre o corpus e o ajuste do
-transformador empregou subamostragem estratificada com parada antecipada.
-Rankings produzidos sob protocolos distintos não sustentam comparação
-direta.
+se afirma aqui sobre seu desempenho relativo; uma comparação integral
+exigiria aceleração por unidade de processamento gráfico, indisponível no
+ambiente do estudo, e permanece como trabalho futuro. Um experimento
+exploratório avaliou o transformador em lote de mil chamados, dos quais
+983 com referência humana, e seus valores constam do material suplementar
+(Tabela S6). Eles não são comparáveis aos das Tabelas 1 e 2, pois o lote
+corresponde aos primeiros registros elegíveis, não é probabilístico, não
+cobre o corpus, e o ajuste empregou subamostragem estratificada com
+parada antecipada.
 
 ```{=latex}
 \FloatBarrier
@@ -854,11 +865,10 @@ reduz a cobertura à faixa de 31,94% a 47,04%, e o Naive Bayes só alcança
 o limiar em duas das cinco dobras, o que o desqualifica para esse regime.
 
 Parte das acurácias seletivas fica pouco abaixo do alvo, como os 0,9464
-do LinearSVC contra a meta de 0,95. Não se trata de defeito, e sim da
-consequência esperada de escolher o limiar em dobra interna e aplicá-lo a
-dados nunca vistos. Um procedimento que atingisse o alvo exatamente em
-todas as dobras seria indício de que o limiar teve acesso ao conjunto de
-teste.
+do LinearSVC contra a meta de 0,95, e a cobertura é média entre as cinco
+dobras. Ambos são consequência esperada de escolher o limiar em dobra
+interna: um procedimento que atingisse o alvo exatamente em todas as
+dobras indicaria que o limiar teve acesso ao conjunto de teste.
 
 **Tabela 3** Calibração e automação seletiva por modelo (n = 13.972). O
 ECE e o Brier referem-se ao escore antes e depois da calibração
@@ -891,38 +901,34 @@ classificador competente possa corrigir a base histórica em massa. A
 medição a refuta. O ganho líquido de reclassificação é negativo em todos
 os sete modelos, variando de −1.846 no LinearSVC a −3.474 no Naive Bayes
 (Tabela 4). O procedimento é direto: conta-se apenas onde a predição
-diverge da categoria histórica, e a referência humana arbitra cada
-divergência, de modo que corrigido é o caso em que o modelo acerta e o
-histórico erra, e prejudicado o caso inverso.
-
+diverge da categoria histórica, e a referência revisada arbitra cada
+divergência, de modo que corrigido é o caso em que o modelo coincide com
+a referência e o histórico dela se afasta, e prejudicado o caso inverso.
 O melhor modelo produz 2.849 divergências, das quais apenas 475
-representam correção efetiva contra 2.321 que degradariam o registro. A
-razão é de aproximadamente um acerto para cada cinco prejuízos, e piora
-monotonicamente à medida que cai o desempenho do modelo: o Naive Bayes
-diverge 4.256 vezes para acertar 309.
+representam correção contra 2.321 que degradariam o registro, razão que
+piora monotonicamente à medida que cai o desempenho do modelo, até o
+Naive Bayes, que diverge 4.256 vezes para acertar 309.
 
-A explicação não está em falha de cálculo, e sim na qualidade da base. A
-conferência humana confirmou a categoria histórica em 13.462 dos 14.060
-chamados, ou 95,75% do corpus, e substituiu o rótulo em 598 registros.
-Uma base que já está correta em mais de nove décimos dos casos oferece
-pouca margem de correção e muita margem de dano: divergir do histórico
-significa, na maior parte das vezes, divergir também da referência. O
-teto teórico de correção corresponde aos 4,25% de registros efetivamente
-incorretos, e nenhum modelo se aproxima dele sem produzir um volume de
-alterações indevidas várias vezes maior.
+A explicação não está em falha de cálculo, e sim na estabilidade da
+referência. O especialista manteve a categoria histórica em 13.462 dos
+14.060 chamados, ou 95,75% do corpus, e a substituiu em 598 registros. Um
+histórico que a revisão preserva em mais de nove décimos dos casos
+oferece pouca margem de correção e muita margem de dano: divergir do
+histórico significa, na maior parte das vezes, divergir também da
+referência. O teto de correção mensurável neste desenho corresponde aos
+4,25% de registros cuja categoria foi alterada, e nenhum modelo se
+aproxima dele sem produzir um volume de alterações indevidas várias vezes
+maior.
 
-O resultado inverte a orientação operacional. A reclassificação
-automática em massa não é desaconselhada por cautela metodológica, mas
-por evidência de que degradaria a base em que fosse aplicada. O uso
-defensável da classificação automática neste corpus é prospectivo, sobre
-chamados novos, ou seletivo, restrito à faixa de alta confiança tratada
-na Subseção 4.4 e sujeito a revisão humana no restante. O ganho líquido,
-e não a acurácia agregada, é o critério adequado para essa decisão, e
-deve ser recalculado a cada atualização da base.
+A reclassificação automática em massa não é, portanto, desaconselhada por
+cautela metodológica, mas por evidência de que degradaria a base em que
+fosse aplicada. O ganho líquido, e não a acurácia agregada, é o critério
+adequado para essa decisão, e deve ser recalculado a cada atualização da
+base. A consequência operacional é discutida na Subseção 5.2.
 
 **Tabela 4** Ganho líquido de reclassificação por modelo, contado apenas
 onde a predição diverge da categoria histórica e arbitrado pela
-referência humana final (n = 13.972).
+referência humana revisada (n = 13.972).
 
 | Modelo | Divergências | Corrigidos | Prejudicados | Neutros | Ganho líquido |
 |---|---|---|---|---|---|
@@ -1043,11 +1049,10 @@ extremo mais rápido. A faixa entre a execução mais rápida e a mais lenta
 é estreita em todos os modelos, com exceção do LSTM, o que permite
 distinguir diferença real de ruído do executor.
 
-O BERTimbau situa-se em outra ordem de grandeza e por isso não figura na
-tabela: seu ajuste fino projeta 6,44 horas por dobra, conforme a Subseção
-4.3, contra segundos para os demais. A comparação direta seria imprópria,
-uma vez que os tempos da tabela referem-se a treino único sobre a base
-inteira e o do transformador, a uma dobra da validação cruzada.
+O BERTimbau não figura na tabela por estar em outra ordem de grandeza,
+com 6,44 horas por dobra (Subseção 4.3), e porque os tempos aqui
+reportados referem-se a treino único sobre a base inteira, e não a uma
+dobra da validação cruzada.
 
 **Tabela 5** Custo computacional por modelo sobre a base completa
 (n = 13.972), mediana de três execuções em processador de quatro núcleos.
@@ -1092,16 +1097,14 @@ A justificativa do particionamento agrupado é anterior a qualquer
 medição de desempenho e repousa na estrutura do corpus: 32,62% das linhas
 compartilham texto normalizado com outra linha (Subseção 3.5), de modo
 que a partição por linha permitiria ao mesmo texto ocupar treino e teste.
-Duas estimativas da magnitude do efeito foram produzidas em execuções
-anteriores ao congelamento da base, ambas indicando ganho espúrio entre
-0,89 e 1,84 ponto percentual de acurácia. Elas constam do material
-suplementar com o respectivo protocolo declarado e não são comparáveis
-às Tabelas 1 e 2, porque foram apuradas sobre outra base, outro
-denominador e outro rótulo de treino. O estudo de sensibilidade a
-unidades recorrentes e *dropout*, conduzido no mesmo protocolo anterior,
-também consta do suplemento: as quatro variantes separam-se por menos de
-quatro pontos percentuais entre a melhor e a pior, o que indica baixa
-sensibilidade do LSTM a esses hiperparâmetros nesta base.
+Duas estimativas da magnitude do efeito indicam ganho espúrio entre 0,89
+e 1,84 ponto percentual de acurácia; elas constam do material suplementar
+com o protocolo declarado e não são comparáveis às Tabelas 1 e 2, por
+terem outra base, outro denominador e outro rótulo de treino. O estudo de
+sensibilidade a unidades recorrentes e *dropout* também consta do
+suplemento e separa as quatro variantes por menos de quatro pontos
+percentuais, o que indica baixa sensibilidade do LSTM a esses
+hiperparâmetros nesta base.
 
 **4.9 Robustez estatística: pressupostos e testes de sensibilidade**
 
@@ -1112,15 +1115,14 @@ entre categorias, colinearidade entre modelos, relação entre confiança e
 acerto e independência das observações, adaptando o protocolo de
 exploração de dados de Zuur, Ieno e Elphick (2010) da resposta contínua da ecologia para a resposta
 categórica de classificação de chamados (n = 13.972). O teste de
-Shapiro-Wilk (SHAPIRO; WILK, 1965) foi escolhido por reunir o maior
-poder entre os testes de normalidade usuais nas comparações de Razali e
-Wah (2011) e de Ogunleye, Oyejola e Obisesan (2018). Aplicado à
-distribuição de confiança de cada modelo, sobre subamostra de cinco mil
-observações com semente fixa, ele rejeita a normalidade a 5% para os sete
-modelos, confirmando com números a justificativa não paramétrica já
-adotada na Subseção 3.5. A variância de confiança entre modelos também é
-fortemente heterogênea, com Levene de 4.216,75 e *p* praticamente nulo, o
-que reforça essa escolha.
+Shapiro-Wilk (SHAPIRO; WILK, 1965), escolhido por reunir o maior poder
+entre os testes de normalidade usuais (RAZALI; WAH, 2011; OGUNLEYE;
+OYEJOLA; OBISESAN, 2018), rejeita a normalidade a 5% para os sete modelos
+quando aplicado à distribuição de confiança de cada um, sobre subamostra
+de cinco mil observações com semente fixa. A variância de confiança entre
+modelos é fortemente heterogênea, com Levene de 4.216,75 e *p*
+praticamente nulo. Ambos confirmam com números a justificativa não
+paramétrica adotada na Subseção 3.5.
 
 A independência das observações merece tratamento próprio, porque é o
 pressuposto que este corpus viola de modo mais evidente. Registros que
@@ -1130,15 +1132,12 @@ vêm, por isso, de *bootstrap* de conglomerados, com mil reamostragens dos
 9.735 grupos textuais congelados que compõem as 13.972 linhas avaliadas,
 com semente fixa, e não de reamostragem por linha.
 
-A contagem de grupos merece uma nota, porque o texto reporta duas: 9.786
-na base congelada de 14.060 chamados e 9.735 no recorte de 13.972 linhas.
-São a mesma partição textual sob denominadores distintos, e a diferença
-de 51 corresponde aos grupos que saem junto com as 88 linhas fora das
-partições. O mapa de partições registra 9.734 porque recalcula o
-agrupamento sobre o texto corrente, e dois chamados tiveram a descrição
-editada depois do congelamento, um deles passando a coincidir com um
-grupo já existente. A unidade reprodutível é a congelada, e é ela que
-sustenta os intervalos aqui reportados.
+O texto reporta duas contagens de grupos, 9.786 na base congelada de
+14.060 chamados e 9.735 no recorte de 13.972 linhas, que são a mesma
+partição textual sob denominadores distintos: a diferença de 51
+corresponde aos grupos que saem junto com as 88 linhas fora das
+partições. A unidade reprodutível é a congelada, e é ela que sustenta os
+intervalos aqui reportados.
 
 A ordem dos testes é declarada porque importa. O Cochran Q (COCHRAN,
 1950) foi aplicado primeiro à hipótese global de que os sete modelos têm
@@ -1182,30 +1181,20 @@ apurada sobre os 13.972 chamados avaliados. As predições não extrapolam a
 taxonomia de treino, de modo que referência e predições percorrem o mesmo
 conjunto de 41 categorias.
 
-O contraste entre acurácia e F1 macro é o primeiro achado. Os sete
-modelos apresentam acurácia entre 0,7088 e 0,8253, faixa de 12 pontos
-percentuais, ao passo que o F1 macro varia de 0,2951 a 0,6689, faixa de
-37 pontos. A dispersão muito maior na segunda métrica indica que os
-modelos se diferenciam sobretudo no tratamento das categorias de baixa
-frequência. O Naive Bayes ilustra o caso extremo, pois combina acurácia
-de 0,7088 com F1 macro de 0,2951, o que corresponde a um classificador
-que resolve as categorias volumosas e colapsa nas demais. O SGD e a
-Regressão Logística, embora percam em acurácia para o LinearSVC,
-alcançam F1 macro equivalente, o que sugere fronteira de decisão mais
-distribuída entre classes.
+O contraste entre acurácia e F1 macro é o primeiro achado. A acurácia dos
+sete modelos varia entre 0,7088 e 0,8253, faixa de 12 pontos percentuais,
+ao passo que o F1 macro varia de 0,2951 a 0,6689, faixa de 37 pontos, o
+que indica que os modelos se diferenciam sobretudo no tratamento das
+categorias de baixa frequência. O SGD e a Regressão Logística, embora
+percam em acurácia para o LinearSVC, alcançam F1 macro equivalente, o que
+sugere fronteira de decisão mais distribuída entre classes.
 
-A leitura dos pares de maior confusão revela que parte substancial do
-erro não é aleatória, mas concentrada em fronteiras específicas da
-taxonomia. No LinearSVC, o par de maior volume ocorre entre `Estrutura
-Predial > Alvenaria / Pisos / Estrutura` e `Instalação de Acessórios e
-Mobiliário > Instalação/reparo de equipamentos`, com 174 casos em um
-sentido e 107 no sentido inverso. A assimetria indica absorção parcial da
-segunda categoria pela primeira, e não apenas fronteira mal definida.
-Seguem-se `Alvenaria` contra `Esquadrias, porta, portão e janelas`, com
-106 casos e 31 no inverso, e `Alvenaria` contra `Hidrossanitária >
-Hidráulica`, com 68 e 34. O desequilíbrio é sistemático e reforça a
-leitura de que `Alvenaria` opera como categoria de destino para chamados
-cuja descrição não delimita o sistema predial afetado.
+O mesmo padrão de fronteira descrito na Subseção 4.6 para o conjunto dos
+modelos reaparece no LinearSVC isoladamente, com 174 casos de `Alvenaria
+/ Pisos / Estrutura` recebidos de `Instalação/reparo de equipamentos` e
+107 no sentido inverso, seguidos de `Esquadrias` (106 e 31) e
+`Hidráulica` (68 e 34), o que confirma o desequilíbrio como propriedade
+da taxonomia e não de um indutor particular.
 
 Observa-se ainda a categoria `Outros > Erro de chamado` entre os pares de
 maior volume, com 56 casos recebidos de `TI / Dados / Rede > Ponto de
@@ -1307,19 +1296,14 @@ propriedade do tipo, e não da cauda de baixa frequência. O detalhamento
 por classe e por tipo consta do material suplementar.
 
 Depreende-se do conjunto dessas medições uma hierarquia de
-confiabilidade que orienta a incorporação da classificação automática
-a indicadores institucionais de infraestrutura. A contagem por tipo de
-manutenção constitui a leitura mais segura, com erro agregado inferior
-a 2% na classe preventiva, e prescinde de revisão caso a caso. A
-leitura por categoria mostra-se confiável apenas nas categorias de
-classe A do respectivo tipo, condição satisfeita por quatro categorias
-preventivas e sete corretivas, que reúnem 11.028 chamados e estão
-discriminadas na Tabela A2. Nas classes B e C, e em toda a família de
-não manutenção, o desempenho medido não autoriza uso automático.
-Recomenda-se, nesses casos, o encaminhamento a revisão humana ou a
-agregação em rubrica única, procedimento que preserva a totalidade do
-volume sem atribuir às frações menores uma precisão que a medição não
-sustenta.
+confiabilidade: a contagem por tipo de manutenção é a leitura mais
+segura, com erro agregado inferior a 2% na classe preventiva; a leitura
+por categoria só se sustenta nas categorias de classe A do respectivo
+tipo, condição satisfeita por quatro categorias preventivas e sete
+corretivas, que reúnem 11.028 chamados e estão discriminadas na Tabela
+A2. Nas classes B e C, e em toda a família de não manutenção, o
+desempenho medido não autoriza uso automático. A consequência para
+indicadores institucionais é tratada na Subseção 5.4.
 
 **4.12 Camada explícita de regras de periodicidade**
 
@@ -1372,27 +1356,30 @@ reconhecida como erro do registro administrativo.
 Com a revisão estendida ao corpus integral, a diferença deixa de depender
 de qualquer recorte amostral e passa a ser propriedade medida da base. Em
 598 dos 14.060 chamados, ou 4,25%, o avaliador rejeitou a categoria
-registrada e definiu outra, o que confirma nos dados a hipótese de
-rótulos ruidosos sustentada pela literatura (KEJRIWAL *et al.*, 2024;
-ZHANG *et al.*, 2025). A estimativa é específica deste corpus e desta
-taxonomia, e sua transposição a outras instituições exige nova revisão.
+registrada e definiu outra. A grandeza é uma taxa de alteração do rótulo
+histórico sob auditoria administrativa, e não uma estimativa da
+prevalência de erro do registro: ela mede quantas categorias um
+especialista único decidiu trocar tendo o rótulo à vista, o que é
+compatível com a hipótese de rótulos ruidosos da literatura (KEJRIWAL *et
+al.*, 2024; ZHANG *et al.*, 2025) sem quantificá-la. O valor é específico
+deste corpus e desta taxonomia, e sua transposição a outras instituições
+exige nova revisão.
 
-Convém observar que 4,25% é uma taxa de erro baixa para um rótulo
-administrativo, e isso decorre do modo como ele é produzido: a categoria
-não é atribuição isolada do demandante, mas resultado de registro seguido
-de verificação por equipe técnica. O que os modelos acompanham, portanto,
-não é um rótulo ingênuo, e essa qualidade da linha de base é o que torna
-negativo o ganho de reclassificação discutido na Subseção 5.2.
+Convém observar que 4,25% é uma taxa de alteração baixa, e duas causas
+concorrem para isso sem que o desenho permita separá-las. A primeira é o
+modo de produção do rótulo, que não é atribuição isolada do demandante,
+mas registro seguido de verificação por equipe técnica de triagem. A
+segunda é o próprio procedimento de auditoria, no qual o revisor decide
+vendo a categoria registrada, condição que favorece a manutenção do
+rótulo. Seja qual for a proporção entre as duas, o que os modelos
+acompanham não é um rótulo ingênuo, e é essa estabilidade da linha de
+base que torna negativo o ganho de reclassificação discutido na Subseção
+5.2.
 
-O BERTimbau não integra essa comparação, e a razão é computacional, não
-de desempenho. O ajuste fino custa 6,44 horas por dobra em processador
-sem acelerador gráfico, contra um teto de seis horas por execução, de
-modo que nem uma dobra completa cabe na infraestrutura disponível
-(Subseção 4.3). Nada se afirma aqui sobre sua qualidade relativa: o
-modelo não foi avaliado sob este protocolo, e rankings produzidos sob
-protocolos distintos não sustentam comparação direta. A execução
-*out-of-fold* integral com aceleração por unidade de processamento
-gráfico permanece como trabalho futuro.
+O BERTimbau não integra essa comparação por motivo computacional medido
+(Subseção 4.3), e nada se afirma aqui sobre sua qualidade relativa, pois
+rankings produzidos sob protocolos distintos não sustentam comparação
+direta.
 
 **5.2 Reclassificação, ambiguidade taxonômica e calibração**
 
@@ -1404,18 +1391,14 @@ desempenho de cada um. Não se trata de nuance entre modelos, e sim de
 veredito sobre a tarefa: nenhum classificador aqui avaliado é candidato a
 reclassificar a base histórica em massa.
 
-A explicação é aritmética antes de ser metodológica. Com a categoria
-histórica correta em 95,75% dos registros, o espaço de correção
-disponível é de 4,25%, e qualquer divergência sistemática entre modelo e
-histórico tende a cair fora dele. O melhor modelo diverge 2.849 vezes
-para acertar 475: aproximadamente um acerto para cada cinco prejuízos.
-Convém explicitar por que versões anteriores desta análise chegaram a
-sinal oposto. Contabilizar o ganho contra a decisão revisada onde ela
-existe e contra o próprio histórico onde não existe mistura duas
-referências de naturezas distintas e infla o resultado, porque na segunda
-parcela o modelo é premiado por concordar com o rótulo que se pretendia
-auditar. Com referência humana disponível para todo o corpus, a
-comparação passa a ser única e o sinal se inverte.
+A explicação é aritmética antes de ser metodológica. Estreito o espaço de
+alteração da referência (Subseção 5.1), qualquer divergência sistemática
+entre modelo e histórico tende a cair fora dele, e o melhor modelo
+diverge 2.849 vezes para acertar 475, cerca de um acerto para cada cinco
+prejuízos. O resultado depende de a referência cobrir todo o corpus, pois
+arbitrar parte das divergências pela decisão revisada e parte pelo
+próprio histórico misturaria referências de naturezas distintas e
+premiaria o modelo por concordar com o rótulo que se pretendia auditar.
 
 Disso não decorre que a classificação automática seja inútil neste
 domínio, e sim que seu uso defensável é prospectivo e seletivo. Sobre
@@ -1449,13 +1432,10 @@ protocolo, que associa confiança alta a acerto alto, sem depender de
 faixas de confiança bruta cuja escala não tem interpretação
 probabilística.
 
-Duas ressalvas qualificam a leitura. A cobertura reportada é média entre
-as cinco dobras e varia entre elas, e parte das acurácias seletivas fica
-poucos milésimos abaixo do alvo, consequência esperada de escolher o
-limiar sem acesso ao conjunto de teste. Ademais, o calibrador é ajustado
-sobre escores de um modelo treinado em três dobras e aplicado a escores
-de um modelo treinado em quatro, troca deliberada entre ausência de
-vazamento e casamento exato de distribuição.
+Uma ressalva qualifica a leitura: o calibrador é ajustado sobre escores
+de um modelo treinado em três dobras e aplicado a escores de um modelo
+treinado em quatro, troca deliberada entre ausência de vazamento e
+casamento exato de distribuição.
 
 **5.3 Limitações**
 
@@ -1464,23 +1444,35 @@ textos em português brasileiro e taxonomia institucional própria.
 Estender o desempenho relatado a outras instituições, taxonomias ou
 idiomas exige validação externa.
 
-A conferência humana cobre o corpus integral, o que afasta o viés de
-seleção que limitaria a leitura caso apenas parte dos chamados tivesse
-sido revista. Permanece, contudo, a limitação de que a categoria de
-referência é produto de julgamento humano realizado por um único
-avaliador, sem medida de concordância entre revisores independentes. A
-literatura registra variabilidade relevante entre anotadores em tarefas
-dessa natureza, de modo que a referência aqui utilizada não deve ser
-tratada como isenta de erro.
+A revisão humana cobre o corpus integral, o que afasta o viés de seleção
+que limitaria a leitura caso apenas parte dos chamados tivesse sido
+revista, mas seu desenho impõe três restrições que precisam ser lidas em
+conjunto. A primeira é o avaliador único: não houve segunda avaliação
+independente nem cega, nenhuma medida de concordância entre avaliadores
+foi apurada e a reprodutibilidade da referência por outro especialista
+permanece não testada. A literatura registra variabilidade relevante
+entre anotadores em tarefas dessa natureza, de modo que a referência aqui
+utilizada não deve ser tratada como isenta de erro. A segunda é a
+ancoragem: o revisor decidiu com a categoria histórica à vista, condição
+constitutiva da auditoria de rótulo e incompatível com anotação
+independente, de sorte que a taxa de confirmação de 95,75% expressa
+conjuntamente a estabilidade do registro e o efeito do procedimento, sem
+que este desenho permita atribuir peso a cada parcela. A terceira é
+consequência das duas anteriores: a taxa de alteração de 4,25% não
+autoriza estimar a prevalência de categorias históricas incorretas na
+base, e nenhuma afirmação desse tipo é feita neste artigo. Uma segunda
+avaliação sobre amostra estratificada, com registro de divergências e
+adjudicação por terceiro revisor, é a validação futura pertinente,
+sobretudo nos pares taxonômicos ambíguos.
 
 A taxonomia institucional apresenta pares de categorias que nomeiam o
-mesmo objeto sob famílias distintas, discutidos na Subseção 4.6. Nesses
-pares, a atribuição depende de um critério de natureza da manutenção que
+mesmo objeto sob famílias distintas, discutidos na Subseção 4.6, e a
+divergência interna medida na Subseção 3.6 confirma o problema no próprio
+dado: 74 das 85 linhas em grupos de texto idêntico com referência
+divergente opõem categorias de tipos diferentes de manutenção. Nesses
+pares, a atribuição depende de um critério de natureza da intervenção que
 o texto do chamado nem sempre permite inferir, o que impõe teto ao
-desempenho alcançável por qualquer classificador.
-A validação confirma a necessidade de governança sobre os rótulos, mas
-não autoriza estimar, com o desenho atual, a prevalência de categorias
-históricas incorretas.
+desempenho alcançável por qualquer classificador textual.
 
 As métricas valem para as 41 categorias com suporte nas cinco dobras, e
 não para a taxonomia inteira. As nove categorias excluídas são justamente
@@ -1491,64 +1483,59 @@ Tabela A3 torna a diferença auditável, mas não a elimina.
 Uma restrição adicional decorre do congelamento. As partições são
 fixadas por um mapa versionado de grupos textuais, e não recalculadas a
 cada execução, o que garante reprodutibilidade mas dissocia o experimento
-do crescimento da base operacional. Três registros tiveram o texto
+do crescimento da base operacional. Dois registros tiveram o texto
 editado após o congelamento, o que basta para explicar diferenças de
 última casa decimal em execuções futuras.
 
-O BERTimbau não foi avaliado sob este protocolo, e a limitação é de
-infraestrutura. Nada se afirma sobre seu desempenho relativo, e a
-execução *out-of-fold* integral com aceleração por unidade de
-processamento gráfico permanece como trabalho futuro. A LSTM, por sua
-vez, treina *embeddings* do zero, sem vetores pré-treinados em português,
+Quanto às arquiteturas, o BERTimbau não foi avaliado sob este protocolo,
+por limitação de infraestrutura, e a execução *out-of-fold* integral com
+aceleração gráfica permanece como trabalho futuro; a LSTM, por sua vez,
+treina *embeddings* do zero, sem vetores pré-treinados em português,
 condição que limita a comparação entre arquiteturas neurais.
 
 **5.4 Contribuição para a governança preditiva da manutenção**
 
-A contribuição deste artigo não termina na categoria atribuída a cada
-chamado. Ao converter texto livre em categoria, criticidade e confiança
-auditáveis, o protocolo produz a camada de dados estruturados sobre a
-qual a gestão pública de manutenção predial pode operar de forma
-preditiva, e não apenas reativa. Previsão de demanda por categoria,
-priorização de intervenções segundo critérios de sustentabilidade e
-leitura territorial do parque edificado dependem, todas, de uma base
-classificada de modo confiável. Este artigo entrega essa fundação e
-demonstra que ela exige conferência humana para se sustentar.
+Ao converter texto livre em categoria e confiança auditáveis, o protocolo
+produz a camada de dados estruturados sobre a qual a gestão pública de
+manutenção predial pode operar de forma preditiva, e não apenas reativa.
+Previsão de demanda por categoria, priorização de intervenções segundo
+critérios de sustentabilidade e leitura territorial do parque edificado
+dependem, todas, de uma base classificada de modo confiável, e a medição
+aqui reportada mostra que essa confiabilidade exige revisão humana.
 
-A exigência de confiabilidade tem razão específica quando a camada
-classificada alimenta modelos de série temporal por categoria. Um chamado
+A exigência tem razão específica quando a camada classificada alimenta
+modelos de série temporal por categoria. Um chamado
 atribuído à categoria incorreta não produz apenas um erro de rótulo:
 subtrai uma ocorrência da série de uma categoria e a acrescenta à série
 de outra, deslocando duas séries em sentidos opostos. O efeito propaga-se
 à estimativa de demanda e de custo por categoria e, em seguida, ao
 ordenamento de prioridades que dela deriva, de modo que o erro de
 classificação se converte em erro de alocação de recurso. Sob essa
-perspectiva, o acerto validado deixa de ser métrica de comparação entre
-modelos e passa a operar como requisito de engenharia da camada
-preditiva, o que justifica o esforço de conferência integral aqui
+perspectiva, o acerto contra a referência revisada deixa de ser métrica
+de comparação entre modelos e passa a operar como requisito de engenharia
+da camada preditiva, o que justifica o esforço de revisão integral aqui
 descrito.
 
-O recorte apresentado na Subseção 4.11 indica, ademais, em que ordem
-essa camada pode ser incorporada a indicadores institucionais de
-sustentabilidade e de desempenho da infraestrutura. A razão entre
-manutenção preventiva e corretiva, que expressa a maturidade da gestão
-do parque edificado e alimenta metas de conservação patrimonial e de uso
-eficiente de recursos, é justamente a leitura de menor erro medido,
-razão pela qual pode ser publicada sem revisão caso a caso. Já os
+O recorte da Subseção 4.11 indica em que ordem essa camada pode ser
+incorporada a indicadores institucionais. A razão entre manutenção
+preventiva e corretiva, que expressa a maturidade da gestão do parque
+edificado e alimenta metas de conservação patrimonial, é a leitura de
+menor erro medido e pode ser publicada sem revisão caso a caso. Já os
 indicadores desagregados por categoria exigem restrição às classes de
 maior volume dentro de cada tipo, sob pena de atribuir a frações
-residuais do corpus uma precisão que a medição não sustenta. Essa
-hierarquia converte o diagnóstico de desempenho em critério operacional
-de publicação de indicador, e não apenas em ressalva metodológica.
+residuais do corpus uma precisão que a medição não sustenta. A hierarquia
+converte o diagnóstico de desempenho em critério de publicação de
+indicador, e não apenas em ressalva metodológica.
 
 **6. CONSIDERAÇÕES FINAIS**
 
 A contribuição central deste artigo é metodológica. O protocolo separa a
 concordância com o rótulo histórico do acerto contra a referência humana
-final e mede as duas grandezas sobre a mesma execução, com partições
+revisada e mede as duas grandezas sobre a mesma execução, com partições
 agrupadas por texto que impedem a repetição de chamados entre treino e
-teste. Essa separação evita tratar o histórico como verdade automática e,
-ao mesmo tempo, impede concluir que toda divergência da classificação
-automática representa correção do registro original.
+teste. Essa separação evita tratar o histórico como referência
+inquestionável e, ao mesmo tempo, impede concluir que toda divergência da
+classificação automática representa correção do registro original.
 
 Na avaliação sobre 13.972 chamados em 41 categorias, o LinearSVC alcança
 82,53% de acurácia (IC95%: 81,15%--83,78%) e supera os demais modelos com
@@ -1560,9 +1547,9 @@ o terço restante encaminhado à revisão humana.
 
 O achado que mais altera a orientação prática é negativo. A
 reclassificação automática da base histórica produz prejuízo líquido em
-todos os sete modelos, porque a referência humana confirma a categoria
-registrada em 95,75% dos casos e o espaço disponível para correção é
-estreito demais para compensar os erros introduzidos. A classificação
+todos os sete modelos, porque a revisão manteve a categoria registrada em
+95,75% dos casos e o espaço de alteração é estreito demais para compensar
+os erros introduzidos. A classificação
 automática, neste corpus, serve ao chamado novo e à triagem assistida,
 não à correção retroativa em massa. Também é negativo, e igualmente útil,
 o resultado da camada explícita de regras de periodicidade: ela é
@@ -1570,11 +1557,15 @@ redundante diante de um classificador estatístico competente, que já
 captura esses sinais a partir do texto.
 
 A finalização metodológica exige reconhecer o que os dados não respondem.
-A referência provém de avaliador único, sem medida de concordância entre
-revisores independentes, e a taxonomia institucional mantém pares de
+A referência provém de auditoria administrativa conduzida por avaliador
+único, com a categoria histórica à vista e sem segunda avaliação
+independente, de modo que o estudo não estima a prevalência de erro do
+rótulo histórico nem a reprodutibilidade da referência por outro
+especialista. A taxonomia institucional, por sua vez, mantém pares de
 categorias que nomeiam o mesmo objeto sob famílias distintas. A próxima
-etapa deve incorporar revisão por mais de um avaliador nos pares ambíguos
-identificados na Subseção 4.6 e submeter a própria taxonomia a revisão. Em
+etapa deve incorporar segunda avaliação, com adjudicação de divergências,
+nos pares ambíguos identificados na Subseção 4.6, e submeter a própria
+taxonomia a revisão. Em
 paralelo, a validação externa em outras instituições e a execução
 *out-of-fold* integral do BERTimbau, viável em infraestrutura com
 acelerador gráfico, poderão testar a estabilidade dos resultados sob
@@ -1601,6 +1592,9 @@ Transparency (FAccT '21). New York: ACM, 2021. p. 610--623.
 BOUABDALLAOUI, Y.; LAFHAJ, Z.; YIM, P.; DUCOULOMBIER, L.; BENNADJI, B.
 Natural Language Processing Model for Managing Maintenance Requests in
 Buildings. Buildings, v. 10, n. 9, art. 160, 2020.
+
+BRASIL. Lei nº 13.709, de 14 de agosto de 2018. Lei Geral de Proteção de
+Dados Pessoais (LGPD). Brasília: Presidência da República, 2018.
 
 BROWN, T. B.; MANN, B.; RYDER, N.; SUBBIAH, M.; KAPLAN, J.; DHARIWAL,
 P.; NEELAKANTAN, A. et al. Language models are few-shot learners. In:

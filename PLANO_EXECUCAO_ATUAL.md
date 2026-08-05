@@ -6,7 +6,14 @@
 >
 > **Regra principal:** os resultados atualmente publicados são resultados legados. Não atualizar o artigo com novos números até concluir uma única execução canônica, reproduzível e comum a todos os modelos.
 
-Atualizado em 02/08/2026, no fuso America/Bahia.
+Atualizado em 05/08/2026, no fuso America/Bahia.
+
+**Pendência documental registrada em 05/08/2026:** não existe no repositório
+documento de autorização institucional formal, de aprovação por comitê de ética
+ou de dispensa de apreciação ética para uso científico dos registros do GLPI.
+`Informação insuficiente para verificar.` O artigo declara essa ausência na
+Subseção 3.8 e nada afirma sobre aprovação. Providenciar a formalização antes
+da submissão.
 
 ## 1. Por que este plano existe
 
@@ -256,16 +263,22 @@ de independência. Publicá-lo como confiabilidade entre avaliadores seria
 afirmar mais do que o dado sustenta.
 
 **O que ocupa o lugar dele.** O Passo 2 mediu 17 grupos de texto idêntico com
-referência divergente, afetando 85 linhas, ou 0,60% da base congelada. É
-inconsistência interna da própria referência, medida sem segundo avaliador, e
-serve tanto como piso de erro irredutível quanto como estimativa do ruído do
-rótulo. Responde à preocupação real por trás da exigência original.
+referência divergente, afetando 85 linhas, ou 0,61% das linhas avaliadas. É
+inconsistência interna da própria referência, medida sem segundo avaliador.
+`src/auditar_grupos_divergentes.py` caracterizou esses grupos em 05/08/2026: em
+14 deles, somando 74 linhas, as categorias em disputa pertencem a tipos
+distintos de manutenção, e o par dominante opõe `Hidrossanitária > Hidráulica`
+a `Manutenção Preventiva > Reservatório`, com 11 grupos e 65 linhas. Trata-se,
+portanto, de ambiguidade de contexto não textual, e **não** de piso de erro de
+anotação; a expressão "piso de erro irredutível" saiu do artigo.
 
-**O que o artigo pode e não pode afirmar.** Pode reportar os 0,60% de
-inconsistência interna e caracterizar a linha de base como rótulo
+**O que o artigo pode e não pode afirmar.** Pode reportar a inconsistência
+interna com a caracterização acima e descrever a linha de base como rótulo
 administrativo verificado por equipe técnica, e não como atribuição única. Não
-pode afirmar que a referência é reproduzível por outro especialista, porque
-isso não foi medido, e a ausência dessa medida entra nas limitações.
+pode afirmar que a referência é reproduzível por outro especialista, nem
+estimar a prevalência de erro do rótulo histórico, porque nada disso foi
+medido; a ausência dessas medidas entra nas limitações, junto com o efeito de
+ancoragem decorrente de o revisor decidir vendo o rótulo que audita.
 
 **Aceite:** justificativa registrada e limitação declarada. Nada a executar.
 
@@ -351,6 +364,7 @@ A preservação do snapshot permite auditoria histórica e comparação metodol�
 
 | 04/08/2026 | 10 | concluído | rodada canônica `1e476243`, `docs/MATRIZ_PROVENIENCIA.md`; os 5 artefatos derivados e os 3 do congelamento conferem o hash; as Tabelas 1 a 5 do corpo, as Figuras 2 a 6 e as tabelas do apêndice passaram a sair da rodada canônica; a varredura caiu de 35 para 2 ocorrências, ambas falso positivo (`0,7781` é o acordo bruto do SGD) | executar o Passo 11: redução editorial |
 | 04/08/2026 | 11 | em execução | corpo do artigo de 14.782 para ~13.100 palavras; cinco tabelas no corpo e cinco movidas ao suplemento (S7 a S11); a antiga Tabela 3 virou S6; removida a Subseção 3.7, de fluxo interno de triagem; corrigido o protocolo declarado na Subseção 3.5, que ainda dizia `KFold` por linha | concluir a redução até 8 a 9 mil palavras e revisar o PDF |
+| 05/08/2026 | 11 | em execução | rodada da referência humana: o artigo passou a nomear o desenho como auditoria administrativa de rótulo por avaliador único, e não anotação independente; os 4,25% viraram taxa de alteração do rótulo histórico, o que elimina a contradição com a limitação sobre prevalência; a ancoragem entrou como ressalva explícita; a ausência de segunda avaliação, de cegamento e de adjudicação está declarada, com a segunda avaliação registrada como validação futura; `src/auditar_grupos_divergentes.py` e `docs/dados/grupos_divergentes_canonicos.json` caracterizaram os 17 grupos e 85 linhas divergentes, mostrando que 14 grupos e 74 linhas opõem tipos distintos de manutenção, o que retira do valor o rótulo de piso de erro irredutível; Figura 1 e Subseção 3.1 recolocaram a revisão humana antes do treino e sobre o corpus integral; Subseção 3.8 registrou a governança de dados e a ausência de documento de ética ou autorização; corrigido "três registros" para dois com texto editado após o congelamento; fonte de 17.244 para 17.209 palavras | concluir a redução até 8 a 9 mil palavras e revisar o PDF gerado em `main` |
 | 04/08/2026 | 10 | concluído | auditoria canônica dos bloqueadores numéricos, `docs/RASTREABILIDADE_LSTM.md`; matriz de proveniência ampliada com as grandezas de fora da rodada e suas ressalvas; 74 números do artigo conferidos contra os artefatos, com zero divergências, e nenhum decimal do corpo sem lastro em artefato versionado; 9.786/9.735/9.734 conciliados; discrepância do LSTM atribuída à coincidência de 100% entre referência e histórico nas 9.096 linhas do *ablation*; `src/ablation_lstm.py` corrigido, com regressão em `tests/test_ablation_lstm_chave.py` | executar o Passo 11: reduzir o corpo até 8 a 9 mil palavras e o PDF de 28 para cerca de 22 páginas |
 Estados permitidos: `pendente`, `em execução`, `bloqueado`, `concluído`, `substituído`.
 

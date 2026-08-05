@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "cobertura": {
+    "linhas_no_mapa_de_grupos": 14060,
+    "linhas_com_referencia_avaliada": 13972,
+    "grupos_avaliados": 9735
+  },
+  "divergencia": {
+    "grupos": 17,
+    "linhas": 85,
+    "proporcao_das_linhas_avaliadas": 0.0061
+  },
+  "natureza": {
+    "grupos_entre_tipos_de_manutencao": 14,
+    "linhas_entre_tipos_de_manutencao": 74,
+    "proporcao_das_linhas_divergentes": 0.8706,
+    "leitura": "divergencia entre tipos depende da natureza da intervencao, que nao esta no texto do chamado; divergencia dentro do mesmo tipo deixa em aberto erro de registro e inconsistencia de anotacao"
+  },
+  "pares": [
+    {
+      "categorias": [
+        "Hidrossanitária > Hidráulica",
+        "Manutenção Preventiva > Reservatório"
+      ],
+      "tipos": [
+        "Corretiva",
+        "Preventiva"
+      ],
+      "entre_tipos_de_manutencao": true,
+      "grupos": 11,
+      "linhas": 65
+    },
+    {
+      "categorias": [
+        "Manutenção Preventiva > Hidráulica",
+        "Manutenção Preventiva > Reservatório"
+      ],
+      "tipos": [
+        "Preventiva"
+      ],
+      "entre_tipos_de_manutencao": false,
+      "grupos": 1,
+      "linhas": 7
+    },
+    {
+      "categorias": [
+        "Instalação de Acessórios e Mobiliário > Instalação/reparo de equipamentos (Suportes de TV, acessórios de banheiro e quadro branco)",
+        "Projetos e Reformas > Reforma"
+      ],
+      "tipos": [
+        "Corretiva",
+        "Não manutenção"
+      ],
+      "entre_tipos_de_manutencao": true,
+      "grupos": 1,
+      "linhas": 4
+    },
+    {
+      "categorias": [
+        "Estrutura Predial > Alvenaria / Pisos / Estrutura",
+        "Outros > Erro de chamado"
+      ],
+      "tipos": [
+        "Corretiva",
+        "Não manutenção"
+      ],
+      "entre_tipos_de_manutencao": true,
+      "grupos": 1,
+      "linhas": 3
+    },
+    {
+      "categorias": [
+        "Elétrica > Instalações elétricas",
+        "Instalação de Acessórios e Mobiliário > Instalação/reparo de equipamentos (Suportes de TV, acessórios de banheiro e quadro branco)"
+      ],
+      "tipos": [
+        "Corretiva"
+      ],
+      "entre_tipos_de_manutencao": false,
+      "grupos": 1,
+      "linhas": 2
+    },
+    {
+      "categorias": [
+        "Elétrica > Instalações elétricas",
+        "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi"
+      ],
+      "tipos": [
+        "Corretiva"
+      ],
+      "entre_tipos_de_manutencao": false,
+      "grupos": 1,
+      "linhas": 2
+    },
+    {
+      "categorias": [
+        "Estrutura Predial > Telhados, calhas, rufos, etc.",
+        "Manutenção Preventiva > Vistoria em Instalações"
+      ],
+      "tipos": [
+        "Corretiva",
+        "Preventiva"
+      ],
+      "entre_tipos_de_manutencao": true,
+      "grupos": 1,
+      "linhas": 2
+    }
+  ],
+  "ressalva": "a contagem nao autoriza chamar o valor de piso de erro irredutivel: parte dele e ambiguidade de taxonomia, e separar as tres origens exige reexame caso a caso",
+  "gerado_em": "05/08/2026 00:23",
+  "fontes": [
+    "docs/dados/grupos_textuais_mapa.csv",
+    "docs/dados/retreino_canonico_predicoes.csv"
+  ],
+  "script_origem": "src/auditar_grupos_divergentes.py"
+}

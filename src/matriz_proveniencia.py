@@ -237,6 +237,18 @@ def grandezas_fora_da_rodada_canonica() -> list[dict[str, Any]]:
                          "recalculado sobre o texto vivo"),
         },
         {
+            "grandeza": "Grupos com referencia humana divergente e sua natureza",
+            "artefato": "docs/dados/grupos_divergentes_canonicos.json",
+            "script": "src/auditar_grupos_divergentes.py",
+            "denominador": 13972, "categorias": 41, "particoes": None,
+            "hash_corpus": "congelamento",
+            "ressalva": ("17 grupos e 85 linhas medidos sobre as linhas com "
+                         "referencia avaliada; 14 grupos e 74 linhas opoem "
+                         "categorias de TIPOS de manutencao distintos, de modo "
+                         "que a contagem nao pode ser lida como piso de erro "
+                         "de anotacao"),
+        },
+        {
             "grandeza": "Curva de aprendizado do LSTM (Figura 7)",
             "artefato": "04_artigo/figuras/lstm_history.json",
             "script": "src/modelo_lstm.py",
