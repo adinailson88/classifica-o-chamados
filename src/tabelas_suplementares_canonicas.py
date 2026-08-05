@@ -146,6 +146,88 @@ def s11_regras(regras: dict[str, Any]) -> Path:
                      "modelo_acerta"], linhas)
 
 
+def s12_inferencia_agrupada(agrupada: dict[str, Any]) -> Path:
+    """Os 21 pares completos, que o corpo do artigo resume em seis linhas."""
+    linhas = []
+    for p in agrupada["pares"]:
+        ic = p["ic95_da_diferenca"]
+        linhas.append([NOME.get(p["par"][0], p["par"][0]),
+                       NOME.get(p["par"][1], p["par"][1]),
+                       p["diferenca_de_acuracia"], ic[0], ic[1],
+                       p["grupos_que_favorecem_o_primeiro"],
+                       p["grupos_que_favorecem_o_segundo"],
+                       p["grupos_empatados"],
+                       p["d_de_cohen_pareado_por_grupo"],
+                       p["p_permutacional_agrupado"], p["p_ajustado_holm"],
+                       "sim" if p["significativo"] else "nao",
+                       p["p_ajustado_holm_por_linha"]])
+    return escrever("tabela_S12_inferencia_agrupada.csv",
+                    ["modelo_1", "modelo_2", "diferenca_de_acuracia",
+                     "ic95_min", "ic95_max", "grupos_a_favor_do_1",
+                     "grupos_a_favor_do_2", "grupos_empatados",
+                     "d_pareado_por_grupo", "p_permutacional",
+                     "p_ajustado_holm", "significativo",
+                     "p_ajustado_holm_por_linha"], linhas)
+
+
+def s13_classes_raras(sensibilidade: dict[str, Any]) -> Path:
+    """Macro-F1 sob as tres convencoes de denominador."""
+    linhas = [[NOME.get(x["modelo"], x["modelo"]), x["acuracia"],
+               x["macro_f1_a_avaliadas"], x["macro_f1_b_taxonomia_completa"],
+               x["macro_f1_c_familias"]]
+              for x in sensibilidade["convencoes_de_macro_f1"]["por_modelo"]]
+    return escrever("tabela_S13_classes_raras.csv",
+                    ["modelo", "acuracia", "macro_f1_41_avaliadas",
+                     "macro_f1_50_taxonomia", "macro_f1_14_familias"], linhas)
+
+
+def s14_utilidade(utilidade: dict[str, Any]) -> Path:
+    """Utilidade das duas politicas ao longo das grades de rho e lambda."""
+    rhos = utilidade["funcao_de_utilidade"]["grade_de_rho"]
+    lambdas = utilidade["funcao_de_utilidade"]["grade_de_lambda"]
+    linhas = []
+    for m in utilidade["modelos"]:
+        a, t = m["aplicacao_direta"], m["triagem_por_divergencia"]
+        linhas.append([NOME.get(m["modelo"], m["modelo"]),
+                       m["corrigidos"], m["prejudicados"], m["neutros"],
+                       m["ganho_liquido_simples"], a["rho_de_equilibrio"]]
+                      + [a["utilidade_por_rho"][f"{x:g}"] for x in rhos]
+                      + [t["fila"], t["precisao_da_fila"]]
+                      + [t["utilidade_por_lambda"][f"{x:g}"] for x in lambdas])
+    return escrever("tabela_S14_utilidade_reclassificacao.csv",
+                    ["modelo", "corrigidos", "prejudicados", "neutros",
+                     "ganho_liquido_simples", "rho_de_equilibrio"]
+                    + [f"U_direta_rho_{x:g}" for x in rhos]
+                    + ["fila_de_triagem", "precisao_da_fila"]
+                    + [f"U_triagem_lambda_{x:g}" for x in lambdas], linhas)
+
+
+def s15_pressupostos(inferencia: dict[str, Any]) -> Path:
+    """Verificacoes que sairam do corpo do artigo nesta rodada.
+
+    Normalidade, homogeneidade, colinearidade entre confiancas e correlacao
+    entre confianca e acerto nao decidem nada sobre a comparacao de
+    classificadores binaria e pareada, e ocupavam espaco no corpo. Continuam
+    publicadas aqui, porque foram calculadas e alguem pode querer confirma-las.
+    """
+    pre = inferencia.get("pressupostos") or {}
+    corr = {x["modelo"]: x
+            for x in (inferencia.get("correlacao_confianca_acerto") or {})
+            .get("modelos", [])}
+    linhas = []
+    for x in pre.get("modelos", []):
+        c = corr.get(x["modelo"], {})
+        linhas.append([NOME.get(x["modelo"], x["modelo"]), x["shapiro_w"],
+                       f"{x['shapiro_p']:.3g}",
+                       "sim" if x["rejeita_normalidade"] else "nao",
+                       x["variancia_da_confianca"], x["vif"],
+                       c.get("spearman_r"), c.get("pointbiserial_r")])
+    return escrever("tabela_S15_pressupostos.csv",
+                    ["modelo", "shapiro_w", "shapiro_p", "rejeita_normalidade",
+                     "variancia_da_confianca", "vif", "spearman_confianca_acerto",
+                     "pointbiserial_confianca_acerto"], linhas)
+
+
 def parse_args() -> argparse.Namespace:
     return argparse.ArgumentParser(description=__doc__).parse_args()
 
@@ -155,12 +237,21 @@ def main() -> int:
     historica = carregar("comparacao_historica.json")
     recortes = carregar("recortes_canonicos.json")
     regras = carregar("regras_versus_modelos.json")
-    corpus = conferir_hash({"historica": historica, "recortes": recortes})
+    agrupada = carregar("inferencia_agrupada.json")
+    sensibilidade = carregar("sensibilidade_classes_raras.json")
+    utilidade = carregar("utilidade_reclassificacao.json")
+    inferencia = carregar("inferencia_canonica.json")
+    corpus = conferir_hash({"historica": historica, "recortes": recortes,
+                            "agrupada": agrupada,
+                            "sensibilidade": sensibilidade,
+                            "utilidade": utilidade})
     print(f"hash_corpus conferido: {corpus[:12]}")
 
     for caminho in (s7_dispersao(historica), s8_abc_global(recortes),
                     s9_tarefa_tipo(recortes), s10_abc_por_tipo(recortes),
-                    s11_regras(regras)):
+                    s11_regras(regras), s12_inferencia_agrupada(agrupada),
+                    s13_classes_raras(sensibilidade), s14_utilidade(utilidade),
+                    s15_pressupostos(inferencia)):
         print(f"  {caminho.name}")
     print(f"gerado em {agora_bahia()}")
     return 0

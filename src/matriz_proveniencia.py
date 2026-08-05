@@ -51,6 +51,12 @@ CANONICOS = [
      "src/recortes_canonicos.py"),
     ("Inferencia estatistica", "inferencia_canonica.json",
      "src/inferencia_canonica.py"),
+    ("Inferencia pareada por grupo textual", "inferencia_agrupada.json",
+     "src/inferencia_agrupada.py"),
+    ("Sensibilidade as categorias raras", "sensibilidade_classes_raras.json",
+     "src/sensibilidade_classes_raras.py"),
+    ("Utilidade da reclassificacao", "utilidade_reclassificacao.json",
+     "src/utilidade_reclassificacao.py"),
 ]
 
 # Artefatos do congelamento, anteriores a rodada e sem hash_corpus por
@@ -185,8 +191,20 @@ def montar_matriz(dados: Path = DADOS) -> list[dict[str, Any]]:
          "src/recortes_canonicos.py"),
         ("Intervalos de confianca", "docs/INFERENCIA_CANONICA.md",
          "src/inferencia_canonica.py"),
-        ("Cochran Q e McNemar com Holm", "docs/INFERENCIA_CANONICA.md",
-         "src/inferencia_canonica.py"),
+        ("Efeito de desenho da dependencia intragrupo",
+         "docs/INFERENCIA_AGRUPADA.md", "src/inferencia_agrupada.py"),
+        ("Cochran Q com referencia por permutacao de grupo",
+         "docs/INFERENCIA_AGRUPADA.md", "src/inferencia_agrupada.py"),
+        ("Diferenca de acuracia, IC, grupos a favor e p ajustado por par",
+         "docs/INFERENCIA_AGRUPADA.md", "src/inferencia_agrupada.py"),
+        ("Cobertura e macro-F1 sob tres convencoes de denominador",
+         "docs/SENSIBILIDADE_CLASSES_RARAS.md",
+         "src/sensibilidade_classes_raras.py"),
+        ("Razao de equilibrio e utilidade da reclassificacao",
+         "docs/UTILIDADE_RECLASSIFICACAO.md",
+         "src/utilidade_reclassificacao.py"),
+        ("Cochran Q e McNemar por linha, mantidos so para contraste",
+         "docs/INFERENCIA_CANONICA.md", "src/inferencia_canonica.py"),
         ("Custo computacional do BERTimbau", "docs/CUSTO_BERTIMBAU.md",
          "src/medir_custo_bertimbau.py"),
         ("Concordancia historica, Kappa e ganho liquido",
@@ -235,6 +253,30 @@ def grandezas_fora_da_rodada_canonica() -> list[dict[str, Any]]:
             "ressalva": ("9.786 grupos na base inteira; 9.735 no recorte de "
                          "13.972 linhas; 9.734 no mapa de particoes, "
                          "recalculado sobre o texto vivo"),
+        },
+        {
+            "grandeza": "Grupos com referencia humana divergente e sua natureza",
+            "artefato": "docs/dados/grupos_divergentes_canonicos.json",
+            "script": "src/auditar_grupos_divergentes.py",
+            "denominador": 13972, "categorias": 41, "particoes": None,
+            "hash_corpus": "congelamento",
+            "ressalva": ("17 grupos e 85 linhas medidos sobre as linhas com "
+                         "referencia avaliada; 14 grupos e 74 linhas opoem "
+                         "categorias de TIPOS de manutencao distintos, de modo "
+                         "que a contagem nao pode ser lida como piso de erro "
+                         "de anotacao"),
+        },
+        {
+            "grandeza": "Disponibilidade de data de abertura no corpus congelado",
+            "artefato": "docs/dados/disponibilidade_temporal.json",
+            "script": "src/auditar_disponibilidade_temporal.py",
+            "denominador": None, "categorias": None, "particoes": None,
+            "hash_corpus": "congelamento",
+            "ressalva": ("veredito sem_variavel_temporal: nenhum campo do "
+                         "contrato de colunas nem dos artefatos da rodada "
+                         "localiza o chamado no tempo, de modo que a avaliacao "
+                         "temporal nao e executavel e a validacao cruzada "
+                         "agrupada nao estima desempenho futuro"),
         },
         {
             "grandeza": "Curva de aprendizado do LSTM (Figura 7)",
