@@ -28,11 +28,13 @@ O texto deve tratar a categoria histórica como registro administrativo sujeito 
 
 ## Posicionamento vigente
 
-A contribuição central será um fluxo híbrido, auditável e sensível à confiança para classificação e revisão de chamados de manutenção predial, com comparação entre modelos estatísticos, regras de domínio e modelo contextual, considerando desempenho e viabilidade computacional.
+A contribuição central é um protocolo auditável de classificação de chamados de manutenção predial, articulando governança de rótulo, inferência que respeita a dependência textual, calibração, automação seletiva por confiança e avaliação do risco de reclassificação. A comparação entre sete modelos é meio de prova do protocolo, e não a contribuição em si.
 
-Título provisório:
+Título vigente:
 
-> **Classificação auditável de chamados de manutenção predial: um fluxo híbrido humano–IA com automação seletiva por confiança**
+> **Classificação auditável de chamados de manutenção predial: fluxo humano–IA, calibração e risco de reclassificação**
+
+O título não deve sugerir previsão de demanda ou de custos, classificação de criticidade, anotação independente ou cega, validação temporal inexistente, nem enfatizar a comparação multimodelo a ponto de obscurecer a contribuição.
 
 ## Estrutura do artigo
 
@@ -99,85 +101,66 @@ congelamento conferem esse hash, verificável por `python src/matriz_provenienci
 **Onde está:** os Passos 0 a 10 estão concluídos, o 9 encerrado como não
 aplicável. O Passo 11 segue em execução.
 
-**A validação temporal não é executável, e isso passou a estar declarado.**
-`src/auditar_disponibilidade_temporal.py` percorre o contrato de colunas de
-`AGENTS.md` e os sete artefatos do congelamento e da rodada canônica,
-classificando cada nome de campo em candidato a data do chamado, carimbo de
-execução ou irrelevante. O veredito registrado em
-`docs/dados/disponibilidade_temporal.json` é `sem_variavel_temporal`: zero
-candidatos entre os 17 campos do contrato e os artefatos, e os únicos campos
-temporais são `gerado_em`, que datam o arquivo e não o chamado. Sem data de
-abertura não há como separar treino, calibração e teste em períodos
-sucessivos, de modo que nenhuma métrica temporal foi produzida e nenhuma foi
-inventada. A consequência entrou no artigo: a Subseção 3.2 declara que o corte
-é de extração e não admite ordenação cronológica, a 3.5 delimita que o
-protocolo estima generalização entre grupos textuais do mesmo corte e não
-desempenho futuro, a 5.3 ganhou a limitação e os riscos de implantação
-(deriva de vocabulário, mudança de taxonomia, categoria nova sem exemplo,
-alteração de formulário e de equipe, monitoramento e recalibração), e as
-afirmações prospectivas da 5.2, da 5.4 e da Seção 6 passaram a condicionais.
+**Reposicionamento editorial.** O título deixou de anunciar comparação
+multimodelo com validação humana e passou a nomear a contribuição real:
+classificação auditável, fluxo humano–IA, calibração e risco de
+reclassificação. Resumo e Abstract foram reescritos em estrutura paralela
+de nove movimentos, a saber, problema, lacuna, corpus, protocolo agrupado,
+auditoria de rótulo, resultado principal, automação seletiva, risco de
+reclassificação e contribuição, retendo apenas os números essenciais:
+14.060 e 13.972 em 41 categorias, acurácia de 0,8253, dois terços do
+volume automatizados a 0,95 e o ganho líquido negativo. Saíram dos resumos
+os resultados por classe, as regras de periodicidade, a curva ABC, os
+tempos por modelo e os detalhes do BERTimbau e de Shannon.
 
-**Custo editorial:** o corpo científico foi de 13.323 para 13.719 palavras,
-396 a mais. A compensação parcial veio de três passagens da Discussão que
-repetiam os Resultados sem acrescentar: o veredito da reclassificação na 5.2,
-o parágrafo de Shannon e o de calibração, além da fusão dos dois parágrafos
-finais da 5.1.
+**Introdução e referencial.** A Introdução segue agora a sequência
+relevância, registros textuais, rótulos históricos, lacuna, pergunta,
+contribuição e objetivo; os quatro objetivos específicos repetitivos deram
+lugar a um objetivo geral e a uma lista de cinco contribuições; o
+enquadramento de biossistemas construídos ocupa um parágrafo funcional e
+não amplia resultado empírico algum. O Referencial foi reorganizado em 2.1
+ordens de manutenção e tickets, 2.2 desbalanceamento e rótulos ruidosos,
+2.3 calibração e classificação seletiva e 2.4 custo computacional e
+delimitação de escopo. A discussão de modelos de grande porte e do
+BERTimbau ficou restrita à justificativa de escopo e custo, sem comparação
+especulativa e declarando que o protocolo integral não foi executado sobre
+essas arquiteturas.
 
-**Dois denominadores, e não um:** a base congelada tem 14.060 chamados, todos
-com referência humana, e é o número de toda frase sobre corpus ou cobertura da
-revisão. As métricas valem para 13.972 linhas em 41 categorias, porque nove
-categorias, somando 88 linhas, não sustentam suporte nas cinco dobras.
+**Referências.** Entraram CHOW (1970) e EL-YANIV; WIENER (2010), que
+sustentam a subseção de classificação seletiva. Saiu VASWANI *et al.*
+(2017), órfã após o corte da frase sobre arquitetura de transformador.
+Varredura automática não encontrou outra órfã entre as 50 entradas.
 
-**O que esta rodada mudou: a unidade da inferência.** O bootstrap já
-reamostrava grupos, mas o Cochran Q e os 21 McNemar somavam discordantes linha
-a linha, tratando como independentes 4.546 registros que dividem texto
-normalizado com outro. O efeito de desenho medido em `inferencia_agrupada.json`
-fica entre 4,47 e 8,83, isto é, o erro padrão declarado por linha era de 2,1 a
-3,0 vezes menor do que a amostra sustenta. A inferência foi refeita com o grupo
-textual como unidade: teste global com a estatística Q contra distribuição de
-permutação por grupo, 21 comparações por permutação pareada com troca de sinal
-da diferença por grupo, intervalos por bootstrap de conglomerados e Holm sobre
-a família. **Nenhum dos 21 vereditos muda**, com os mesmos 19 pares
-significativos e os mesmos 2 empatados, o que é resultado da análise e não sua
-premissa. A Tabela 6 do corpo traz as seis comparações do LinearSVC com
-diferença, intervalo, grupos a favor de cada modelo, efeito e *p* ajustado; os
-15 pares restantes estão na Tabela S12.
+**Símbolos.** Os caracteres Unicode crus que geravam aviso de compilação
+foram substituídos por expressões LaTeX seguras: cinco ocorrências de rô,
+três de lambda e seis de menor ou igual passaram a `$\rho$`, `$\lambda$` e
+`$\leq$`. Nenhum arquivo de fonte foi introduzido, e a conversão para
+LaTeX por pandoc devolve `\(\rho\)`, `\(\lambda\)` e `\(\leq\)`.
 
-**Pressupostos periféricos saíram do corpo.** Shapiro-Wilk, Levene, VIF entre
-confianças, outliers e a correlação entre confiança e acerto não decidem nada
-sobre comparação pareada de classificadores binários e ocupavam uma subseção
-inteira. Foram para a Tabela S15, com quinze referências que só sustentavam
-esses testes retiradas da lista. A antiga Subseção 4.9 virou "Inferência sob
-dependência textual" e contém apenas o que a hipótese exige.
+**Contagem por seção, antes e depois:** Resumo de 436 para 249 palavras,
+menos 42,9%; Abstract de 413 para 247, menos 40,2%; Introdução de 719 para
+571, menos 20,6%; Referencial de 732 para 550, menos 24,9%. O corpo
+científico caiu de 12.504 para 12.181 palavras e a fonte de 15.919 para
+15.246, medidos pela mesma régua.
 
-**Categorias raras: alternativas medidas, protocolo mantido.**
-`sensibilidade_classes_raras.json` mede a cobertura, de 99,37% das linhas e 82%
-das categorias, e o macro-F1 sob três convenções de denominador: 0,6684 nas 41
-avaliadas, 0,5481 projetado sobre as 50 da taxonomia com F1 zero nas ausentes,
-e 0,6816 agregado às 14 famílias do primeiro nível. Reduzir k recuperaria três
-categorias e dez linhas a k = 3, e foi recusado por ser decisão de protocolo
-tomada depois de ver o resultado. A declaração de que o desempenho não cobre as
-50 categorias está em negrito na Subseção 3.5.
+**Dois denominadores, e não um:** a base congelada tem 14.060 chamados,
+todos com referência humana, e é o número de toda frase sobre corpus ou
+cobertura da revisão. As métricas valem para 13.972 linhas em 41
+categorias, porque nove categorias, somando 88 linhas, não sustentam
+suporte nas cinco dobras.
 
-**O ganho líquido deixou de pressupor custos iguais em silêncio.**
-`utilidade_reclassificacao.json` explicita *U* = *b*×corrigidos −
-*c*×prejudicados − *r*×revisados, normalizada por *b*, com as razões
-adimensionais ρ = *c*/*b* e λ = *r*/*b* e sem qualquer valor monetário. O ganho
-líquido simples é o caso ρ = 1 e λ = 0 e continua sendo o resultado principal.
-A reescrita direta só compensaria com ρ abaixo de 0,2047 no melhor modelo, e a
-utilidade é negativa em toda a faixa de 0,25 a 4. A mesma divergência, usada
-para enfileirar auditoria em vez de reescrever, tem precisão de 18,53% contra
-taxa de alteração de 4,25% na base congelada, enriquecimento de cerca de quatro
-vezes, e paga enquanto λ ficar abaixo dessa precisão.
+**Unidade da inferência:** o grupo de texto normalizado, e não a linha. O
+efeito de desenho medido fica entre 4,47 e 8,83. Intervalos vêm de
+*bootstrap* de conglomerados, testes pareados de permutação com troca de
+sinal por grupo, teste global da estatística Q contra permutação por grupo
+e Holm sobre os 21 pares. Os 21 vereditos não mudam em relação ao McNemar
+por linha, com 19 pares significativos e 2 empatados.
 
-**Tamanho:** corpo científico em 13.719 palavras e fonte em 17.246, contra
-13.323 e 16.851 ao fim da rodada anterior. Seis figuras e seis tabelas no
-corpo, suplemento de S1 a S15.
-
-**O que falta:** concluir a redução editorial até 8 a 9 mil palavras e cerca de
-22 páginas, e revisar o PDF, que é gerado pelo workflow ao entrar em `main`. O
-PDF publicado tem 28 páginas e não pôde ser regerado nesta rodada: o ambiente
-local não dispõe de xelatex nem de Docker.
+**O que falta:** concluir a redução editorial até 8 a 9 mil palavras e
+cerca de 22 páginas, e revisar o PDF, que é gerado pelo workflow ao entrar
+em `main`. O ambiente local dispõe de pandoc, mas não de xelatex nem de
+Docker, de modo que o PDF não foi regerado nesta rodada; a conversão para
+LaTeX foi executada sem erro como verificação parcial.
 
 ## Critérios para novo fechamento científico
 
