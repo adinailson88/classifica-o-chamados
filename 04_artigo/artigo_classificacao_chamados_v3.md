@@ -1507,6 +1507,11 @@ Tabela A3 para que a diferença entre os dois denominadores permaneça
 auditável.
 
 ```{=latex}
+% raggedbottom local: esta e a ultima tabela do documento, sem texto
+% depois para preencher a pagina; sem isso o flushbottom do preambulo
+% distribui o espaco sobrante ao redor do float e empurra a tabela para
+% o meio da pagina em vez do topo.
+\raggedbottom
 \begin{table}[!tp]
 \centering
 \footnotesize
