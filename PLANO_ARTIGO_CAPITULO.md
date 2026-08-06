@@ -2,7 +2,7 @@
 
 Este documento registra somente a estrutura, os critérios editoriais e o estado atual do artigo/capítulo. O plano operacional vigente, os critérios de aceite e o ponto de continuidade estão em [`PLANO_EXECUCAO_ATUAL.md`](PLANO_EXECUCAO_ATUAL.md). Os dois documentos têm finalidades distintas e não devem acumular versões concorrentes do mesmo estado.
 
-Atualizado em 05/08/2026, no fuso America/Bahia (rodada de resultados hierarquizados).
+Atualizado em 06/08/2026, no fuso America/Bahia (Rodada 10, auditoria final de submissão).
 
 ## Regra de uso
 
@@ -95,170 +95,54 @@ artigo.
 
 ## Estado desta rodada
 
-**Rodada canônica:** `1e476243`. Os oito artefatos derivados e os três do
-congelamento conferem esse hash, verificável por `python src/matriz_proveniencia.py`.
+**Rodada canônica:** `1e476243` (hash completo
+`1e4762438a7e3627d3e32c1025f6bcb169e786881d8e86207806fdf98846409a`). Os oito
+artefatos derivados e os três do congelamento conferem esse hash,
+verificável por `python src/matriz_proveniencia.py`.
 
 **Onde está:** os Passos 0 a 10 estão concluídos, o 9 encerrado como não
-aplicável. O Passo 11 foi concluído nesta rodada (Rodada 8): a Discussão e
-as Considerações Finais foram reescritas para eliminar redundância com a
-Seção 4 e o corpo científico entrou na faixa-meta de 8.850 a 9.000
-palavras.
+aplicável, e o Passo 11 (redução e reescrita editorial) está concluído. A
+PR #203 (Rodada 9) foi mesclada em `main` e o PDF foi regenerado
+automaticamente pelo workflow pós-merge. A Rodada 10 é uma auditoria final
+de submissão, sem reabertura de decisões científicas nem reestruturação do
+artigo; seu registro completo está em
+[`docs/AUDITORIA_FINAL_SUBMISSAO.md`](docs/AUDITORIA_FINAL_SUBMISSAO.md).
 
-**Discussão reestruturada em quatro subseções.** 5.1 adequação dos
-modelos e decisão multicritério; 5.2 auditoria do histórico,
-reclassificação e fluxo humano–IA; 5.3 limitações e alcance da evidência;
-5.4 implicações para governança e continuidade da tese. A concordância
-histórica, a auditoria de rótulo, o ganho líquido, a ambiguidade
-taxonômica e a calibração, antes espalhados por duas subseções com
-repetição de números já apresentados na Seção 4, foram consolidados em
-argumentos únicos, cada um remetendo à tabela ou subseção de Resultados em
-vez de repetir a série de valores. As catorze limitações antes dispersas
-entre Discussão, Conclusão e Declarações foram reunidas na única
-Subseção 5.3. Nenhum número de Método ou Resultados foi alterado; apenas
-remissões cruzadas e a largura de três figuras foram tocadas.
+**Estrutura vigente.** Seis figuras e quatro tabelas principais no corpo;
+apêndice com as Tabelas A1 a A3, floats não divisíveis em `\footnotesize`
+com numeração própria (A1/A2/A3, independente da sequência 1–4 do corpo);
+material suplementar até S16. Discussão em quatro subseções (5.1 a 5.4);
+Considerações Finais em cinco parágrafos curtos. Lista de referências com
+45 entradas, todas citadas no corpo, sem duplicatas nem citação órfã.
 
-**Considerações Finais em cinco parágrafos curtos**, na ordem
-contribuição, achados centrais, implicação operacional, limitações e
-continuidade da tese, mantendo somente os números indispensáveis
-(0,8253 de acurácia do LinearSVC, IC95% e as contagens de 13.972
-chamados e 41 categorias).
+**Corpo científico: 8.915 palavras**, medidas por uma única rotina (contagem
+de palavras do Markdown-fonte entre "**1. INTRODUÇÃO**" e "**REFERÊNCIAS**",
+exclusive, incluindo os comandos LaTeX brutos das tabelas em float, que não
+são prosa mas integravam a mesma rotina desde a Rodada 7). O valor de 8.917
+palavras registrado após a PR #202 refletia o corpo antes da conversão das
+Tabelas A1 a A3 para floats (Rodada 9) e da microcorreção do eixo da
+Figura 2, o que já o levou a 8.913 na própria Rodada 9; a Rodada 10
+acrescentou a chamada "(Tabela 4)", ausente na Subseção 4.3 enquanto as
+Tabelas 1 a 3 já eram citadas por número, o que soma as duas palavras
+finais até 8.915. Não há divergência de metodologia, apenas recontagem
+após essas alterações.
 
-**Figuras 2, 4 e 5 reduzidas em 20%.** Figura 2 (trade-off de custo) de
-`width=95%` para `width=76%`; Figura 4 (mapa de categorias) de
-`width=91%` para `width=73%`; Figura 5 (matriz de confusão), sem largura
-explícita, ganhou `width=80%`. Figuras 1, 3 e 6 não foram tocadas. A
-inspeção visual do PDF gerado pelo workflow fica pendente para a Rodada 9;
-localmente não há xelatex nem Docker para renderizar.
+**PDF publicado: 22 páginas**, dentro da faixa preferencial de 21 a 23,
+verificado por renderização real (não apenas pelo LaTeX intermediário do
+pandoc). Figuras 2, 4 e 5 em largura reduzida (`76%`/`73%`/`80%`); Figuras 1,
+3 e 6 em tamanho padrão. Uma página com espaço em branco antes da Figura 3
+(float não divisível migrando para a página seguinte) e espaço acima da
+Tabela A3 (último float do documento) são comportamento esperado de floats
+em LaTeX, não erro de posicionamento, e permanecem sem ajuste por não haver
+medida segura disponível (sem reduzir fonte ou margem) que os resolvesse sem
+recompilação iterativa.
 
-**Tabelas 1 a 4 convertidas para floats não divisíveis.** Deixaram de sair
-como `longtable` (herança do pandoc para tabelas em pipe-markdown) e
-passaram a `\begin{table}[!tbp]` com `tabularx`, fonte `\small`, sem
-`[H]` e sem `\FloatBarrier`/`\clearpage` colado à tabela — apenas as
-barreiras de subseção já existentes no documento permanecem. Conteúdo,
-numeração, notas e ordem das linhas preservados; verificado no
-LaTeX intermediário (`pandoc ... -t latex --standalone`), com as quatro
-tabelas fechadas corretamente (4 `\begin{table}`/`\end{table}`, 4 `\caption`,
-4 `\label`, 4 `\begin{tabularx}`/`\end{tabularx}`, ao menos uma coluna
-flexível `Y`/`Z` por tabela) e nenhuma delas em `longtable`; conteúdo
-numérico, significado, numeração e ordem das linhas foram preservados. Os
-antigos títulos "**Tabela N**" em parágrafo Markdown externo à tabela
-foram removidos e o texto passou para `\caption` dentro do float, o que
-impede que o título fique em uma página e a tabela flutue para outra. As
-Tabelas A1 a A3 do apêndice permanecem como pipe-table/`longtable` nesta
-rodada, por decisão explícita de escopo (tratamento definitivo na
-Rodada 9).
-
-**Contagem, antes e depois (Rodada 8, após a auditoria independente da
-PR #202):** Discussão de 1.955 para 1.450 palavras; Considerações Finais
-de 525 para 393 palavras; corpo científico de 9.539 para 8.917 palavras
-(rotina de contagem idêntica à da Rodada 7), redução de 622 palavras
-(6,52%). A Seção 4 (Resultados) foi de 3.712 para 3.724 palavras, sem
-alteração de prosa: a variação vem da legenda da Tabela 2, que passou de
-parágrafo Markdown externo para `\caption{...}` dentro do float. O corpo
-cresceu porque a rotina de contagem por palavras do código-fonte markdown
-também soma comandos LaTeX brutos das novas tabelas (`\toprule`,
-`\begin{tabularx}`, `\label{tab:...}` etc.), que não são prosa; o valor
-continua dentro da faixa-meta de 8.850 a 9.000.
-
-**Correções da primeira auditoria independente (PR #202), 05/08/2026:** as
-legendas "Tabela 1" a "Tabela 4" saíram do parágrafo Markdown externo e
-entraram em `\caption{...}` dentro de cada `\begin{table}[!tbp]`, com
-`\label{tab:modelos}`, `tab:desempenho`, `tab:reclassificacao` e
-`tab:calibracao`, cada uma acima do `tabular`; as quatro tabelas passaram
-a usar ao menos uma coluna flexível do tipo X (`Y`/`Z`, ponderadas por
-`\hsize`); a Subseção 5.2 deixou de atribuir os 2,92 pontos percentuais de
-diferença diretamente às 598 alterações do rótulo histórico, já que a
-quantidade de alterações dentro das 13.972 linhas avaliadas não foi
-contabilizada separadamente; a recomendação do LinearSVC nas Considerações
-Finais e a frase sobre LinearSVC/SGD na Subseção 5.1 passaram a descrever
-candidatos e piloto controlado condicionados a validação temporal,
-monitoramento de deriva e auditoria humana, não implantação já validada.
-
-**Correções da segunda auditoria independente (PR #202), 05/08/2026:** as
-colunas `Y`/`Z` passaram a sincronizar `\linewidth=\hsize` dentro de cada
-coluna X, exigência do mecanismo interno do `tabularx` para colunas
-ponderadas (a versão anterior alterava `\hsize` sem repassar o valor a
-`\linewidth`); a afirmação de que o transbordo ficou "estruturalmente
-impossível" foi retirada dos planos, substituída por: a conversão elimina
-o excesso decorrente da soma manual de colunas fixas e limita a tabela à
-largura declarada do `tabularx`, permanecendo necessária a inspeção do PDF
-quanto a conteúdo não separável e legibilidade. As quatro referências já
-órfãs identificadas na primeira auditoria (COHEN, 1960; LANDIS; KOCH,
-1977; MCNEMAR, 1947; WONGPAKARAN *et al.*, 2013, ligadas ao antigo
-Passo 9 de segunda avaliação humana, encerrado como não aplicável) foram
-removidas da lista de referências. A contagem precisa de entradas
-bibliográficas, obtida por separação em blocos delimitados por linha em
-branco entre "**REFERÊNCIAS**" e o Apêndice A, é de 49 antes da remoção e
-45 depois — não 46/42, número aproximado usado na primeira auditoria por
-método de extração menos preciso. As 45 referências restantes têm ao
-menos uma citação no corpo, e toda citação do corpo tem entrada
-correspondente na lista.
-
-**Rodada 9 (agent/rodada-09-figuras-paginacao), auditoria visual e
-paginação:** inspeção página a página do PDF publicado após o merge da
-PR #202 (66ef86b6, 21 páginas), renderizado em PNG a 180 dpi via
-PyMuPDF, sem xelatex/Docker locais disponíveis. Achados do PDF de
-partida: as Figuras 2, 4 e 5 (76%/73%/80%) permanecem legíveis nas
-dimensões da Rodada 8, mantidas sem alteração; as Tabelas 1 a 4
-permanecem íntegras, com legenda e conteúdo na mesma página; as
-Tabelas A1 a A3 do apêndice, embora em `longtable`, já cabiam cada uma
-inteira em uma única página, mas usavam fonte `\scriptsize`, abaixo do
-piso de legibilidade desta rodada. Achado do PDF de partida, corrigido
-ainda nesta rodada: o eixo Y da Figura 2 (trade-off de custo) arredondava
-os rótulos para uma casa decimal, fazendo marcas distintas (~0,80/0,82/
-0,85) aparecerem como "0,8" repetido; corrigido em
-`src/gerar_figuras_canonicas.py` (parâmetro `casas` em
-`formatar_decimal()`, aplicado com `casas=2` em `figura_custo()`), com
-apenas o artefato `fig_tradeoff_custo` regenerado. O gerador legado
-`src/gerar_figura3_tradeoff_custo.py` não foi executado nem alterado.
-
-**Tabelas A1 a A3 convertidas para floats não divisíveis.** Passaram de
-`longtable` para `\begin{table}[!tbp]`/`[!tp]` com `tabularx`, no mesmo
-padrão das Tabelas 1 a 4: `\caption`/`\label` dentro do float, colunas
-`Y`/`Z` (já existentes) e uma nova coluna `W` (tipo X alinhado à
-direita, adicionada ao preâmbulo) para as colunas numéricas. Fonte
-subida de `\scriptsize` para `\footnotesize`. O contador de tabelas foi
-resetado e renomeado no início do Apêndice A
-(`\renewcommand{\thetable}{A\arabic{table}}` + `\setcounter{table}{0}`)
-para que as legendas saiam como "Tabela A1", "A2" e "A3", e não
-continuem a numeração 1–4 do corpo. Nenhum valor, ordem de linha ou
-conteúdo foi alterado.
-
-**Duas rodadas de correção após renderização real via
-`workflow_dispatch` na própria branch** (sem tocar `main`): a 1ª
-geração revelou dois problemas que só aparecem no PDF renderizado, não
-no LaTeX intermediário do pandoc — legenda duplicada e mal numerada
-("Tabela 5"/"Tabela 6" em vez de "Tabela A1"/"A2", por herdar o
-contador de tabela do corpo) e a posição `[!p]` forçando cada tabela
-para página exclusiva mesmo cabendo com folga junto do texto ao redor,
-o que subiu a paginação de 21 para 24 páginas com duas páginas quase
-vazias. Corrigido com o reset de contador acima e troca de `[!p]` para
-`[!tbp]` em A1 e A2 (A3 já não usava `[!p]`). A Tabela A3, por ser o
-último float do documento sem texto depois para preencher a página,
-ficou centralizada verticalmente na página final em vez de alinhada ao
-topo — LaTeX centraliza floats em página exclusiva de floats
-(`@fptop`/`@fpbot` com `\vfil` simétrico), mecanismo que `\raggedbottom`
-local não afeta; tentativa registrada e revertida, sem página vazia
-adicional. **Paginação final: 22 páginas**, dentro da faixa preferencial
-de 21 a 23.
-
-**Página com grande espaço vazio observada e não alterada nesta
-rodada:** a página com a Tabela 4 e a Figura 3 (curva de confiabilidade,
-duas subplots) deixa cerca de 40% da página anterior em branco porque a
-Figura 3, não divisível, não cabe no restante daquela página e migra
-inteira para a seguinte — comportamento esperado de floats não
-divisíveis, não um erro de posicionamento; nenhum ajuste foi aplicado
-por não haver medida permitida (sem reduzir fonte, margem ou
-`floatsep`) que resolvesse sem risco de destabilizar outras páginas
-sem capacidade de recompilação iterativa rápida.
-
-**Microcorreção posterior (mesma Rodada 9, mesma branch):** o
-arredondamento do eixo Y da Figura 2 foi corrigido em
-`src/gerar_figuras_canonicas.py`, com `fig_tradeoff_custo.pdf`/`.png`
-regenerados sob o mesmo hash canônico `1e4762438a7e`. O eixo passou a
-exibir duas casas decimais, sem marcas repetidas.
-
-**O que falta:** nenhuma pendência de escopo desta rodada.
+O detalhamento rodada a rodada de como esse estado foi alcançado —
+reestruturação da Discussão, conversão das tabelas em floats, correções das
+duas auditorias independentes da PR #202, auditoria visual e paginação da
+Rodada 9, microcorreção do eixo da Figura 2 — está nos commits e nas
+Pull Requests (#202, #203) e não é repetido aqui, conforme a regra de uso
+deste documento.
 
 ## Critérios para novo fechamento científico
 
