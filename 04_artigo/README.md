@@ -61,6 +61,10 @@ recalibração. Não escrever "corte por data de abertura": o corte é de extra�
 - O BERTimbau permanece fora da comparação principal por custo computacional medido, e figura como experimento exploratório no material suplementar.
 - O corpo tem seis figuras e quatro tabelas principais; os apêndices contêm as Tabelas A1 a A3, e o material suplementar vai até S16.
 - O Método tem seis subseções, na ordem 3.1 delineamento, corpus e referência revisada; 3.2 pré-processamento e representação; 3.3 modelos e configuração experimental; 3.4 validação, calibração e inferência; 3.5 reclassificação, utilidade e análises complementares; 3.6 reprodutibilidade, dados e aspectos institucionais.
-- O Passo 11 do plano de execução segue aberto: falta reduzir o corpo do artigo à meta de 8 a 9 mil palavras e cerca de 22 páginas, agora pelos Resultados e pela Discussão.
+- A Discussão tem quatro subseções, na ordem 5.1 adequação dos modelos e decisão multicritério; 5.2 auditoria do histórico, reclassificação e fluxo humano–IA; 5.3 limitações e alcance da evidência; 5.4 implicações para governança e continuidade da tese. As Considerações Finais têm cinco parágrafos curtos: contribuição, achados centrais, implicação operacional, limitações e continuidade da tese.
+- O Passo 11 do plano de execução foi concluído nesta rodada (Rodada 8): o corpo científico está em 8.871 palavras, dentro da faixa-meta de 8.850 a 9.000.
+- As Figuras 2, 4 e 5 tiveram a largura reduzida em 20% (Figura 2: `width=76%`; Figura 4: `width=73%`; Figura 5: `width=80%`); as Figuras 1, 3 e 6 não foram alteradas.
+- As Tabelas 1 a 4 do corpo são floats LaTeX não divisíveis (`\begin{table}[!tbp]` com `tabularx`), e não mais `longtable`; as Tabelas A1 a A3 do apêndice permanecem como pipe-table/`longtable` até a Rodada 9.
 - A avaliação temporal não foi executada por ausência de data no corpus, e a limitação está declarada na Subseção 5.3.
+- A inspeção visual do PDF (figuras redimensionadas e tabelas não divisíveis) fica pendente para a Rodada 9, após o workflow gerar o PDF a partir do merge.
 - O histórico detalhado das rodadas editoriais e técnicas permanece no Git e nos Pull Requests; não deve ser acumulado neste README.

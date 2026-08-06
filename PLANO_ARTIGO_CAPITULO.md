@@ -99,83 +99,65 @@ artigo.
 congelamento conferem esse hash, verificável por `python src/matriz_proveniencia.py`.
 
 **Onde está:** os Passos 0 a 10 estão concluídos, o 9 encerrado como não
-aplicável. O Passo 11 segue em execução, agora concentrado na Discussão.
+aplicável. O Passo 11 foi concluído nesta rodada (Rodada 8): a Discussão e
+as Considerações Finais foram reescritas para eliminar redundância com a
+Seção 4 e o corpo científico entrou na faixa-meta de 8.850 a 9.000
+palavras.
 
-**Resultados reestruturados em cinco subseções.** A Seção 4 passou de doze
-para cinco subseções: 4.1 desempenho, incerteza e custo; 4.2 auditoria do
-histórico e risco de reclassificação; 4.3 calibração e automação seletiva;
-4.4 erros por categoria e implicações taxonômicas; 4.5 análises
-complementares. A concordância histórica, a acurácia contra a referência
-revisada, o macro-F1, o custo de treino e a inferência sob dependência
-textual, antes em quatro subseções e três tabelas, fundiram-se na 4.1 com
-uma única tabela de desempenho. A duplicação taxonômica, o diagnóstico de
-Shannon, a matriz de confusão e os grupos divergentes, antes repetidos em
-duas subseções, unificaram-se na 4.4. O BERTimbau, o comportamento do
-LSTM, a curva ABC, a tarefa de tipo e a camada de regras de periodicidade,
-antes com subseção própria cada um, tornaram-se sínteses curtas na 4.5.
+**Discussão reestruturada em quatro subseções.** 5.1 adequação dos
+modelos e decisão multicritério; 5.2 auditoria do histórico,
+reclassificação e fluxo humano–IA; 5.3 limitações e alcance da evidência;
+5.4 implicações para governança e continuidade da tese. A concordância
+histórica, a auditoria de rótulo, o ganho líquido, a ambiguidade
+taxonômica e a calibração, antes espalhados por duas subseções com
+repetição de números já apresentados na Seção 4, foram consolidados em
+argumentos únicos, cada um remetendo à tabela ou subseção de Resultados em
+vez de repetir a série de valores. As catorze limitações antes dispersas
+entre Discussão, Conclusão e Declarações foram reunidas na única
+Subseção 5.3. Nenhum número de Método ou Resultados foi alterado; apenas
+remissões cruzadas e a largura de três figuras foram tocadas.
 
-**Nenhum vencedor absoluto.** O parágrafo de abertura e a Subseção 4.1
-deixaram de apresentar o LinearSVC como líder isolado: ele lidera a
-acurácia, mas a Regressão Logística tem o macro-F1 pontual ligeiramente
-superior e o SGD permanece próximo dos dois em ambas as métricas a custo
-de treino semelhante, de modo que a escolha operacional é declarada
-multicritério.
+**Considerações Finais em cinco parágrafos curtos**, na ordem
+contribuição, achados centrais, implicação operacional, limitações e
+continuidade da tese, mantendo somente os números indispensáveis
+(0,8253 de acurácia do LinearSVC, IC95% e as contagens de 13.972
+chamados e 41 categorias).
 
-**Tabelas dos Resultados, de seis para três.** A antiga Tabela 2
-(concordância histórica), a antiga Tabela 3 (acurácia e macro-F1) e a
-antiga Tabela 6 (custo computacional) fundiram-se na nova Tabela 2, com
-concordância histórica, acurácia, macro-F1, intervalo essencial e tempo
-de treino por modelo. A antiga Tabela 4 de calibração, com sete modelos,
-deu lugar à nova Tabela 4, com os quatro modelos mais competitivos em
-acurácia; o ECE piorado do Naive Bayes e do LSTM após a calibração
-permanece declarado em texto, e a tabela completa foi para o material
-suplementar (Tabela S16). A antiga Tabela 7, com seis das 21 comparações
-pareadas, saiu do corpo: a Subseção 4.1 relata o teste global, a contagem
-de pares significativos e um exemplo (LinearSVC contra SGD) em prosa, e a
-matriz completa permanece no material suplementar. A antiga Tabela 5 de
-ganho líquido virou Tabela 3, sem alteração de conteúdo. Restam três
-tabelas nos Resultados — Tabelas 2, 3 e 4 —, além da Tabela 1 do Método,
-totalizando quatro tabelas principais no corpo. Não existe Tabela 5 no
-corpo atual.
+**Figuras 2, 4 e 5 reduzidas em 20%.** Figura 2 (trade-off de custo) de
+`width=95%` para `width=76%`; Figura 4 (mapa de categorias) de
+`width=91%` para `width=73%`; Figura 5 (matriz de confusão), sem largura
+explícita, ganhou `width=80%`. Figuras 1, 3 e 6 não foram tocadas. A
+inspeção visual do PDF gerado pelo workflow fica pendente para a Rodada 9;
+localmente não há xelatex nem Docker para renderizar.
 
-**Figuras renumeradas pela nova ordem de aparição.** O trade-off de custo
-(antiga Figura 5) passou a Figura 2, por entrar na 4.1; a curva de
-confiabilidade (antiga Figura 2) passou a Figura 3, na 4.3; o mapa de
-categorias (antiga Figura 3) e a matriz de confusão (antiga Figura 4)
-passaram a Figuras 4 e 5, na 4.4; a curva de aprendizado do LSTM manteve o
-número 6, na 4.5.
+**Tabelas 1 a 4 convertidas para floats não divisíveis.** Deixaram de sair
+como `longtable` (herança do pandoc para tabelas em pipe-markdown) e
+passaram a `\begin{table}[!tbp]` com `tabularx`, fonte `\small`, sem
+`[H]` e sem `\FloatBarrier`/`\clearpage` colado à tabela — apenas as
+barreiras de subseção já existentes no documento permanecem. Conteúdo,
+numeração, notas e ordem das linhas preservados byte a byte; verificado no
+LaTeX intermediário (`pandoc ... -t latex --standalone`), com as quatro
+tabelas fechadas corretamente (4 `\begin{table}`/`\end{table}`, 4
+`\begin{tabularx}`/`\end{tabularx}`) e nenhuma delas em `longtable`. As
+Tabelas A1 a A3 do apêndice permanecem como pipe-table/`longtable` nesta
+rodada, por decisão explícita de escopo (tratamento definitivo na
+Rodada 9).
 
-**Achados preservados e números conferidos.** Os quatro achados centrais
-exigidos pela rodada permanecem no corpo: avaliação comparável dos sete
-modelos sob protocolo comum, com desempenhos distintos; ganho líquido
-negativo da reclassificação; automação seletiva
-após calibração e concentração dos erros em fronteiras taxonômicas. Os 17
-grupos divergentes, as 85 linhas, os 14 grupos e 74 linhas entre tipos
-distintos e o par dominante Hidrossanitária × Reservatório permanecem na
-4.4, sem tratamento de teto quantitativo. O macro-F1 de 0,5481 passou a
-cenário conservador de sensibilidade, com F1 zero atribuído às nove
-categorias ausentes, e não desempenho observado de um modelo treinado nas
-50 categorias. Cada número reaproveitado foi conferido contra
-`docs/dados/comparacao_historica.json`, `docs/dados/custo_computacional_canonico.json`
-e `docs/dados/calibracao_canonica.json`. A frase defensiva "não está em
-falha de cálculo" saiu do texto sobre o ganho líquido.
+**Contagem, antes e depois (Rodada 8):** Discussão de 1.955 para 1.421
+palavras; Considerações Finais de 525 para 372 palavras; corpo científico
+de 9.539 para 8.871 palavras (rotina de contagem idêntica à da Rodada 7),
+redução de 668 palavras (7,00%). A Seção 4 (Resultados) permanece em
+3.712 palavras, sem alteração de prosa; o corpo cresceu cerca de 19
+palavras entre a conclusão da reescrita editorial (8.852) e a conversão
+técnica das Tabelas 1 a 4 porque a rotina de contagem por palavras do
+código-fonte markdown também soma comandos LaTeX brutos das novas tabelas
+(`\toprule`, `\begin{tabularx}` etc.), que não são prosa; o valor
+continua dentro da faixa-meta de 8.850 a 9.000.
 
-**Remissões cruzadas remapeadas.** Todas as ocorrências de "Subseção 4.X"
-no Método, na Discussão e nas Considerações Finais foram atualizadas para
-a nova numeração, inclusive as duas que colapsaram em uma só referência
-por terem se fundido na mesma subseção (concordância histórica e acerto
-contra a referência, ambas agora na 4.1).
-
-**Contagem, antes e depois:** a Seção 4 caiu de 6.082 para 3.712 palavras,
-redução de 38,97%, dentro da meta de 30% a 40%. O corpo científico está
-em 9.539 palavras, 539 palavras acima do teto provisório de 9.000.
-
-**O que falta:** revisar a Discussão para eliminar qualquer redundância
-remanescente com a Seção 4 reestruturada, concluir o ajuste fino de
-palavras até a faixa de 8 a 9 mil, revisar visualmente as figuras (Rodada
-9) e regerar o PDF, que é gerado pelo workflow ao entrar em `main`. O
-ambiente local não dispõe de xelatex nem de Docker, de modo que o PDF não
-foi regerado nesta rodada.
+**O que falta:** inspeção visual do PDF gerado pelo workflow após o merge
+(figuras redimensionadas e tabelas não divisíveis), o que pode gerar
+ajuste na Rodada 9; tratamento definitivo das Tabelas A1 a A3 do apêndice,
+também na Rodada 9.
 
 ## Critérios para novo fechamento científico
 
