@@ -1,5 +1,5 @@
 {
-  "gerado_em": "06/08/2026 09:21",
+  "gerado_em": "06/08/2026 11:43",
   "schema_version": "1.0",
   "run_id": "EXP_CLASSIFICACAO_CHAMADOS_2026_06_001",
   "script_origem": "src/analise_estatistica.py",
@@ -7,7 +7,7 @@
   "fonte_dados": "CLASSIF__{modelo}",
   "escopo_validacao": "concordância contra categoria histórica; não equivale a validação humana",
   "estado_bertimbau": "ok",
-  "n_linhas_comuns": 14108,
+  "n_linhas_comuns": 14110,
   "modelos": [
     "naive_bayes",
     "regressao_logistica",
@@ -26,33 +26,33 @@
   "correlacao_conf_acerto": [
     {
       "modelo": "naive_bayes",
-      "pointbiserial_r": 0.5874,
+      "pointbiserial_r": 0.5875,
       "p_pb": 0.0,
-      "spearman_r": 0.5632,
+      "spearman_r": 0.5633,
       "p_sp": 0.0,
       "interpretacao": "positiva = mais confianca -> mais acerto"
     },
     {
       "modelo": "regressao_logistica",
-      "pointbiserial_r": 0.4467,
+      "pointbiserial_r": 0.4464,
       "p_pb": 0.0,
-      "spearman_r": 0.4599,
+      "spearman_r": 0.4596,
       "p_sp": 0.0,
       "interpretacao": "positiva = mais confianca -> mais acerto"
     },
     {
       "modelo": "linear_svc",
-      "pointbiserial_r": 0.4333,
+      "pointbiserial_r": 0.433,
       "p_pb": 0.0,
-      "spearman_r": 0.4802,
+      "spearman_r": 0.4799,
       "p_sp": 0.0,
       "interpretacao": "positiva = mais confianca -> mais acerto"
     },
     {
       "modelo": "sgd",
-      "pointbiserial_r": 0.44,
+      "pointbiserial_r": 0.4398,
       "p_pb": 0.0,
-      "spearman_r": 0.4596,
+      "spearman_r": 0.4594,
       "p_sp": 0.0,
       "interpretacao": "positiva = mais confianca -> mais acerto"
     },
@@ -66,7 +66,7 @@
     },
     {
       "modelo": "random_forest",
-      "pointbiserial_r": 0.5492,
+      "pointbiserial_r": 0.5491,
       "p_pb": 0.0,
       "spearman_r": 0.5357,
       "p_sp": 0.0,
@@ -74,7 +74,7 @@
     },
     {
       "modelo": "lstm",
-      "pointbiserial_r": 0.6294,
+      "pointbiserial_r": 0.6293,
       "p_pb": 0.0,
       "spearman_r": 0.6066,
       "p_sp": 0.0,
@@ -84,116 +84,116 @@
   "normalidade_concordancia_turno": [
     {
       "modelo": "naive_bayes",
-      "n_turnos": 954,
-      "shapiro_W": 0.9592,
-      "p": 1.19e-15,
+      "n_turnos": 955,
+      "shapiro_W": 0.9579,
+      "p": 6.22e-16,
       "normal_5pct": false
     },
     {
       "modelo": "regressao_logistica",
-      "n_turnos": 954,
-      "shapiro_W": 0.9171,
-      "p": 1.94e-22,
+      "n_turnos": 955,
+      "shapiro_W": 0.9175,
+      "p": 2.14e-22,
       "normal_5pct": false
     },
     {
       "modelo": "linear_svc",
-      "n_turnos": 1895,
-      "shapiro_W": 0.9164,
-      "p": 3.88e-31,
+      "n_turnos": 1896,
+      "shapiro_W": 0.9166,
+      "p": 4.07e-31,
       "normal_5pct": false
     },
     {
       "modelo": "sgd",
-      "n_turnos": 954,
-      "shapiro_W": 0.9167,
-      "p": 1.72e-22,
+      "n_turnos": 955,
+      "shapiro_W": 0.9171,
+      "p": 1.89e-22,
       "normal_5pct": false
     },
     {
       "modelo": "extra_trees",
-      "n_turnos": 1895,
-      "shapiro_W": 0.9192,
-      "p": 1.07e-30,
+      "n_turnos": 1896,
+      "shapiro_W": 0.9169,
+      "p": 4.6e-31,
       "normal_5pct": false
     },
     {
       "modelo": "random_forest",
-      "n_turnos": 954,
-      "shapiro_W": 0.911,
-      "p": 3.45e-23,
+      "n_turnos": 955,
+      "shapiro_W": 0.9074,
+      "p": 1.27e-23,
       "normal_5pct": false
     },
     {
       "modelo": "lstm",
-      "n_turnos": 954,
-      "shapiro_W": 0.9623,
-      "p": 5.46e-15,
+      "n_turnos": 955,
+      "shapiro_W": 0.9611,
+      "p": 2.97e-15,
       "normal_5pct": false
     }
   ],
   "residuos_tendencia": [
     {
       "modelo": "naive_bayes",
-      "n_turnos": 954,
-      "slope": -1.3e-05,
-      "r2": 0.0003,
-      "p_tendencia": 0.572,
-      "durbin_watson": 1.521,
+      "n_turnos": 955,
+      "slope": -1.8e-05,
+      "r2": 0.0006,
+      "p_tendencia": 0.45,
+      "durbin_watson": 1.502,
       "tendencia": "estavel"
     },
     {
       "modelo": "regressao_logistica",
-      "n_turnos": 954,
-      "slope": 0.00014,
-      "r2": 0.0477,
-      "p_tendencia": 9.18e-12,
-      "durbin_watson": 1.356,
+      "n_turnos": 955,
+      "slope": 0.000137,
+      "r2": 0.0462,
+      "p_tendencia": 1.88e-11,
+      "durbin_watson": 1.36,
       "tendencia": "sobe"
     },
     {
       "modelo": "linear_svc",
-      "n_turnos": 1895,
-      "slope": 3.1e-05,
-      "r2": 0.0121,
-      "p_tendencia": 1.65e-06,
+      "n_turnos": 1896,
+      "slope": 3e-05,
+      "r2": 0.0116,
+      "p_tendencia": 2.54e-06,
       "durbin_watson": 1.369,
       "tendencia": "sobe"
     },
     {
       "modelo": "sgd",
-      "n_turnos": 954,
-      "slope": 0.000136,
-      "r2": 0.0469,
-      "p_tendencia": 1.39e-11,
-      "durbin_watson": 1.382,
+      "n_turnos": 955,
+      "slope": 0.000134,
+      "r2": 0.0454,
+      "p_tendencia": 2.91e-11,
+      "durbin_watson": 1.385,
       "tendencia": "sobe"
     },
     {
       "modelo": "extra_trees",
-      "n_turnos": 1895,
-      "slope": 2.7e-05,
-      "r2": 0.0082,
-      "p_tendencia": 8.27e-05,
-      "durbin_watson": 1.305,
+      "n_turnos": 1896,
+      "slope": 2.6e-05,
+      "r2": 0.0073,
+      "p_tendencia": 0.000199,
+      "durbin_watson": 1.303,
       "tendencia": "sobe"
     },
     {
       "modelo": "random_forest",
-      "n_turnos": 954,
-      "slope": 5.1e-05,
-      "r2": 0.0064,
-      "p_tendencia": 0.0134,
-      "durbin_watson": 1.235,
+      "n_turnos": 955,
+      "slope": 4.6e-05,
+      "r2": 0.0051,
+      "p_tendencia": 0.0276,
+      "durbin_watson": 1.242,
       "tendencia": "sobe"
     },
     {
       "modelo": "lstm",
-      "n_turnos": 954,
-      "slope": 8.2e-05,
-      "r2": 0.0128,
-      "p_tendencia": 0.000452,
-      "durbin_watson": 1.272,
+      "n_turnos": 955,
+      "slope": 7.8e-05,
+      "r2": 0.0113,
+      "p_tendencia": 0.001,
+      "durbin_watson": 1.281,
       "tendencia": "sobe"
     }
   ],
@@ -217,80 +217,80 @@
   "acuracia_bootstrap": [
     {
       "modelo": "linear_svc",
-      "acuracia": 0.8031,
-      "ic95_min": 0.7961,
-      "ic95_max": 0.8095
+      "acuracia": 0.803,
+      "ic95_min": 0.7963,
+      "ic95_max": 0.8094
     },
     {
       "modelo": "extra_trees",
-      "acuracia": 0.789,
-      "ic95_min": 0.7821,
-      "ic95_max": 0.7957
+      "acuracia": 0.7889,
+      "ic95_min": 0.7817,
+      "ic95_max": 0.7954
     },
     {
       "modelo": "sgd",
       "acuracia": 0.7769,
-      "ic95_min": 0.7699,
+      "ic95_min": 0.7698,
       "ic95_max": 0.7837
     },
     {
       "modelo": "random_forest",
-      "acuracia": 0.7769,
-      "ic95_min": 0.7698,
-      "ic95_max": 0.7838
+      "acuracia": 0.7768,
+      "ic95_min": 0.7699,
+      "ic95_max": 0.7832
     },
     {
       "modelo": "regressao_logistica",
-      "acuracia": 0.7703,
-      "ic95_min": 0.7629,
-      "ic95_max": 0.7774
+      "acuracia": 0.7702,
+      "ic95_min": 0.7631,
+      "ic95_max": 0.7766
     },
     {
       "modelo": "naive_bayes",
-      "acuracia": 0.6985,
-      "ic95_min": 0.6909,
-      "ic95_max": 0.7059
+      "acuracia": 0.6984,
+      "ic95_min": 0.6904,
+      "ic95_max": 0.706
     },
     {
       "modelo": "lstm",
-      "acuracia": 0.6918,
-      "ic95_min": 0.6841,
-      "ic95_max": 0.6997
+      "acuracia": 0.6917,
+      "ic95_min": 0.6843,
+      "ic95_max": 0.6994
     }
   ],
   "kappa_cohen_historico": [
     {
       "modelo": "linear_svc",
-      "kappa": 0.7879
+      "kappa": 0.7878
     },
     {
       "modelo": "extra_trees",
-      "kappa": 0.7709
+      "kappa": 0.7708
     },
     {
       "modelo": "sgd",
-      "kappa": 0.7608
+      "kappa": 0.7607
     },
     {
       "modelo": "random_forest",
-      "kappa": 0.7579
+      "kappa": 0.7578
     },
     {
       "modelo": "regressao_logistica",
-      "kappa": 0.7541
+      "kappa": 0.754
     },
     {
       "modelo": "lstm",
-      "kappa": 0.671
+      "kappa": 0.6709
     },
     {
       "modelo": "naive_bayes",
-      "kappa": 0.6692
+      "kappa": 0.6691
     }
   ],
   "fleiss_kappa_entre_ias": 0.7744,
   "cochran_q": {
-    "Q": 2397.6,
+    "Q": 2399.097,
     "p": 0.0,
     "df": 6,
     "conclusao": "acuracias diferentes (p<0,05)"
@@ -308,63 +308,63 @@
     "p": [
       [
         null,
-        7.37e-75,
-        8.59e-176,
-        3.07e-95,
+        5.58e-75,
+        5.78e-176,
+        2.24e-95,
         2.87e-160,
         6.73e-122,
         0.0908
       ],
       [
-        7.37e-75,
+        5.58e-75,
         null,
         7.6e-40,
         6.66e-07,
-        9.28e-10,
-        0.0327,
-        3.12e-125
+        1.09e-09,
+        0.0347,
+        2.13e-125
       ],
       [
-        8.59e-176,
+        5.78e-176,
         7.6e-40,
         null,
         5.59e-29,
-        1.08e-07,
-        2.05e-20,
-        1.48e-234
+        9.42e-08,
+        1.66e-20,
+        9.42e-235
       ],
       [
-        3.07e-95,
+        2.24e-95,
         6.66e-07,
         5.59e-29,
         null,
-        3.35e-05,
-        1.0,
-        2.17e-149
+        3.75e-05,
+        0.981,
+        1.45e-149
       ],
       [
         2.87e-160,
-        9.28e-10,
-        1.08e-07,
-        3.35e-05,
+        1.09e-09,
+        9.42e-08,
+        3.75e-05,
         null,
         6.47e-13,
         4.67e-164
       ],
       [
         6.73e-122,
-        0.0327,
-        2.05e-20,
-        1.0,
+        0.0347,
+        1.66e-20,
+        0.981,
         6.47e-13,
         null,
         3.52e-126
       ],
       [
         0.0908,
-        3.12e-125,
-        1.48e-234,
-        2.17e-149,
+        2.13e-125,
+        9.42e-235,
+        1.45e-149,
         4.67e-164,
         3.52e-126,
         null
@@ -437,7 +437,7 @@
           "linear_svc",
           "lstm"
         ],
-        "p": 1.48e-234,
+        "p": 9.42e-235,
         "limiar_holm": 0.00238,
         "significativo": true
       },
@@ -446,7 +446,7 @@
           "naive_bayes",
           "linear_svc"
         ],
-        "p": 8.59e-176,
+        "p": 5.78e-176,
         "limiar_holm": 0.0025,
         "significativo": true
       },
@@ -473,7 +473,7 @@
           "sgd",
           "lstm"
         ],
-        "p": 2.17e-149,
+        "p": 1.45e-149,
         "limiar_holm": 0.00294,
         "significativo": true
       },
@@ -491,7 +491,7 @@
           "regressao_logistica",
           "lstm"
         ],
-        "p": 3.12e-125,
+        "p": 2.13e-125,
         "limiar_holm": 0.00333,
         "significativo": true
       },
@@ -509,7 +509,7 @@
           "naive_bayes",
           "sgd"
         ],
-        "p": 3.07e-95,
+        "p": 2.24e-95,
         "limiar_holm": 0.00385,
         "significativo": true
       },
@@ -518,7 +518,7 @@
           "naive_bayes",
           "regressao_logistica"
         ],
-        "p": 7.37e-75,
+        "p": 5.58e-75,
         "limiar_holm": 0.00417,
         "significativo": true
       },
@@ -545,7 +545,7 @@
           "linear_svc",
           "random_forest"
         ],
-        "p": 2.05e-20,
+        "p": 1.66e-20,
         "limiar_holm": 0.00556,
         "significativo": true
       },
@@ -563,7 +563,7 @@
           "regressao_logistica",
           "extra_trees"
         ],
-        "p": 9.28e-10,
+        "p": 1.09e-09,
         "limiar_holm": 0.00714,
         "significativo": true
       },
@@ -572,7 +572,7 @@
           "linear_svc",
           "extra_trees"
         ],
-        "p": 1.08e-07,
+        "p": 9.42e-08,
         "limiar_holm": 0.00833,
         "significativo": true
       },
@@ -590,7 +590,7 @@
           "sgd",
           "extra_trees"
         ],
-        "p": 3.35e-05,
+        "p": 3.75e-05,
         "limiar_holm": 0.0125,
         "significativo": true
       },
@@ -599,7 +599,7 @@
           "regressao_logistica",
           "random_forest"
         ],
-        "p": 0.0327,
+        "p": 0.0347,
         "limiar_holm": 0.0167,
         "significativo": false
       },
@@ -617,7 +617,7 @@
           "sgd",
           "random_forest"
         ],
-        "p": 1.0,
+        "p": 0.981,
         "limiar_holm": 0.05,
         "significativo": false
       }
@@ -703,91 +703,91 @@
       "modelo": "linear_svc",
       "f1_macro": 0.6121,
       "f1_ic95": [
-        0.5869,
-        0.6358
+        0.5894,
+        0.6381
       ],
       "recall_macro": 0.6246,
       "recall_ic95": [
-        0.6007,
-        0.6559
+        0.6029,
+        0.6561
       ]
     },
     {
       "modelo": "regressao_logistica",
-      "f1_macro": 0.6061,
+      "f1_macro": 0.6062,
       "f1_ic95": [
-        0.5799,
-        0.6313
+        0.5836,
+        0.6331
       ],
-      "recall_macro": 0.6443,
+      "recall_macro": 0.6444,
       "recall_ic95": [
-        0.6211,
-        0.6735
+        0.6227,
+        0.6737
       ]
     },
     {
       "modelo": "sgd",
-      "f1_macro": 0.6037,
+      "f1_macro": 0.6038,
       "f1_ic95": [
-        0.5795,
-        0.6198
+        0.5817,
+        0.619
       ],
       "recall_macro": 0.6475,
       "recall_ic95": [
-        0.6217,
-        0.6642
+        0.624,
+        0.665
       ]
     },
     {
       "modelo": "extra_trees",
-      "f1_macro": 0.5365,
+      "f1_macro": 0.5364,
       "f1_ic95": [
-        0.5212,
-        0.5636
+        0.5186,
+        0.5653
       ],
-      "recall_macro": 0.5087,
+      "recall_macro": 0.5086,
       "recall_ic95": [
-        0.4986,
-        0.5365
+        0.4947,
+        0.5368
       ]
     },
     {
       "modelo": "random_forest",
-      "f1_macro": 0.5171,
+      "f1_macro": 0.517,
       "f1_ic95": [
-        0.5027,
-        0.5448
+        0.5014,
+        0.5439
       ],
-      "recall_macro": 0.4909,
+      "recall_macro": 0.4908,
       "recall_ic95": [
-        0.4803,
-        0.518
+        0.4789,
+        0.5176
       ]
     },
     {
       "modelo": "lstm",
-      "f1_macro": 0.4429,
+      "f1_macro": 0.4428,
       "f1_ic95": [
-        0.4314,
-        0.4574
+        0.4309,
+        0.4551
       ],
-      "recall_macro": 0.496,
+      "recall_macro": 0.4959,
       "recall_ic95": [
-        0.4791,
-        0.5193
+        0.4797,
+        0.5158
       ]
     },
     {
       "modelo": "naive_bayes",
       "f1_macro": 0.2633,
       "f1_ic95": [
-        0.2606,
-        0.2761
+        0.2607,
+        0.2754
       ],
       "recall_macro": 0.2665,
       "recall_ic95": [
-        0.2627,
-        0.2798
+        0.2629,
+        0.2795
       ]
     }
   ],
@@ -888,7 +888,7 @@
         {
           "de": "Elétrica > Instalações elétricas",
           "para": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
-          "n": 59
+          "n": 60
         },
         {
           "de": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
@@ -998,7 +998,7 @@
         {
           "de": "Elétrica > Instalações elétricas",
           "para": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
-          "n": 56
+          "n": 57
         },
         {
           "de": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
@@ -1158,7 +1158,7 @@
         {
           "de": "Elétrica > Instalações elétricas",
           "para": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
-          "n": 86
+          "n": 87
         },
         {
           "de": "Hidrossanitária > Hidráulica",
@@ -1234,7 +1234,7 @@
           "por_modelo": [
             {
               "modelo": "naive_bayes",
-              "n": 14108,
+              "n": 14110,
               "min": 0.1036,
               "max": 1.0,
               "q1": 0.4498,
@@ -1244,7 +1244,7 @@
             },
             {
               "modelo": "regressao_logistica",
-              "n": 14108,
+              "n": 14110,
               "min": 0.05,
               "max": 0.9994,
               "q1": 0.194,
@@ -1254,7 +1254,7 @@
             },
             {
               "modelo": "linear_svc",
-              "n": 14108,
+              "n": 14110,
               "min": 0.0253,
               "max": 0.8108,
               "q1": 0.0487,
@@ -1264,17 +1264,17 @@
             },
             {
               "modelo": "sgd",
-              "n": 14108,
+              "n": 14110,
               "min": 0.0412,
               "max": 0.9276,
-              "q1": 0.1682,
+              "q1": 0.1681,
               "q3": 0.7627,
               "outliers_baixos": 0,
               "outliers_altos": 0
             },
             {
               "modelo": "extra_trees",
-              "n": 14108,
+              "n": 14110,
               "min": 0.145,
               "max": 1.0,
               "q1": 0.46,
@@ -1284,7 +1284,7 @@
             },
             {
               "modelo": "random_forest",
-              "n": 14108,
+              "n": 14110,
               "min": 0.13,
               "max": 1.0,
               "q1": 0.445,
@@ -1294,10 +1294,10 @@
             },
             {
               "modelo": "lstm",
-              "n": 14108,
+              "n": 14110,
               "min": 0.0778,
               "max": 0.9998,
-              "q1": 0.451,
+              "q1": 0.4509,
               "q3": 0.9738,
               "outliers_baixos": 0,
               "outliers_altos": 0
@@ -1355,7 +1355,7 @@
             },
             {
               "covariavel": "regressao_logistica",
-              "vif": 25.112
+              "vif": 25.1
             },
             {
               "covariavel": "linear_svc",
@@ -1363,19 +1363,19 @@
             },
             {
               "covariavel": "sgd",
-              "vif": 26.562
+              "vif": 26.551
             },
             {
               "covariavel": "extra_trees",
-              "vif": 15.988
+              "vif": 15.989
             },
             {
               "covariavel": "random_forest",
-              "vif": 17.795
+              "vif": 17.796
             },
             {
               "covariavel": "lstm",
-              "vif": 2.651
+              "vif": 2.652
             }
           ],
           "limiar_vif": 3,
@@ -1411,79 +1411,79 @@
           "acf_por_modelo": [
             {
               "modelo": "naive_bayes",
-              "n_turnos": 954,
+              "n_turnos": 955,
               "acf_lags_1_5": [
-                0.233,
+                0.243,
+                0.134,
+                0.147,
                 0.142,
-                0.148,
-                0.149,
-                0.167
+                0.178
               ]
             },
             {
               "modelo": "regressao_logistica",
-              "n_turnos": 954,
+              "n_turnos": 955,
               "acf_lags_1_5": [
-                0.353,
-                0.229,
-                0.228,
-                0.157,
-                0.185
+                0.35,
+                0.236,
+                0.233,
+                0.163,
+                0.183
               ]
             },
             {
               "modelo": "linear_svc",
-              "n_turnos": 1895,
+              "n_turnos": 1896,
               "acf_lags_1_5": [
-                0.323,
-                0.185,
-                0.225,
-                0.186,
-                0.193
+                0.322,
+                0.183,
+                0.224,
+                0.187,
+                0.195
               ]
             },
             {
               "modelo": "sgd",
-              "n_turnos": 954,
+              "n_turnos": 955,
               "acf_lags_1_5": [
-                0.341,
-                0.224,
-                0.241,
-                0.175,
-                0.179
+                0.337,
+                0.231,
+                0.239,
+                0.173,
+                0.176
               ]
             },
             {
               "modelo": "extra_trees",
-              "n_turnos": 1895,
+              "n_turnos": 1896,
               "acf_lags_1_5": [
-                0.353,
-                0.197,
-                0.226,
-                0.212,
-                0.213
+                0.347,
+                0.191,
+                0.223,
+                0.214,
+                0.216
               ]
             },
             {
               "modelo": "random_forest",
-              "n_turnos": 954,
+              "n_turnos": 955,
               "acf_lags_1_5": [
-                0.386,
-                0.216,
-                0.228,
-                0.202,
-                0.217
+                0.372,
+                0.231,
+                0.237,
+                0.218,
+                0.233
               ]
             },
             {
               "modelo": "lstm",
-              "n_turnos": 954,
+              "n_turnos": 955,
               "acf_lags_1_5": [
-                0.371,
-                0.196,
-                0.192,
-                0.132,
-                0.171
+                0.361,
+                0.206,
+                0.188,
+                0.126,
+                0.181
               ]
             }
           ],
