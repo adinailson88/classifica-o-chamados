@@ -166,10 +166,9 @@ a nova numeração, inclusive as duas que colapsaram em uma só referência
 por terem se fundido na mesma subseção (concordância histórica e acerto
 contra a referência, ambas agora na 4.1).
 
-**Contagem, antes e depois:** a Seção 4 caiu de 6.082 para cerca de 3.744
-palavras, redução de aproximadamente 38,44%, dentro da meta de 30% a 40%.
-O corpo científico está em cerca de 9.571 palavras, aproximadamente 571
-palavras acima do teto provisório de 9.000.
+**Contagem, antes e depois:** a Seção 4 caiu de 6.082 para 3.712 palavras,
+redução de 38,97%, dentro da meta de 30% a 40%. O corpo científico está
+em 9.539 palavras, 539 palavras acima do teto provisório de 9.000.
 
 **O que falta:** revisar a Discussão para eliminar qualquer redundância
 remanescente com a Seção 4 reestruturada, concluir o ajuste fino de
