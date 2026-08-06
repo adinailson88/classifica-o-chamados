@@ -1507,11 +1507,12 @@ Tabela A3 para que a diferença entre os dois denominadores permaneça
 auditável.
 
 ```{=latex}
-% raggedbottom local: esta e a ultima tabela do documento, sem texto
-% depois para preencher a pagina; sem isso o flushbottom do preambulo
-% distribui o espaco sobrante ao redor do float e empurra a tabela para
-% o meio da pagina em vez do topo.
-\raggedbottom
+% [!tp]: esta e a ultima tabela do documento, sem texto depois para
+% preencher a pagina. LaTeX centraliza floats numa pagina exclusiva de
+% floats (@fptop/@fpbot com \vfil simetrico), o que deixa espaco acima
+% da tabela na pagina final -- tentativa de raggedbottom local nao teve
+% efeito, por ser pagina de float e nao de texto corrido; ver registro
+% da auditoria da Rodada 9.
 \begin{table}[!tp]
 \centering
 \footnotesize
