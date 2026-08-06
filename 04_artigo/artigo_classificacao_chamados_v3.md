@@ -10,15 +10,21 @@ header-includes:
     % de dividir linhas entre paginas. As Tabelas A1 a A3 do apendice
     % permanecem como pipe-table/longtable nesta rodada.
     % Colunas Y/Z: todas as colunas sao do tipo X do tabularx (flexivel), com
-    % o multiplicador de \hsize controlando a largura relativa de cada uma.
-    % Como o tabularx sempre resolve as colunas X para caber exatamente em
-    % \textwidth, a tabela nao pode transbordar estruturalmente, ao contrario
-    % de colunas p{} fixas somadas a mao.
+    % o multiplicador de \hsize controlando a largura relativa de cada uma;
+    % \linewidth e sincronizado a \hsize dentro de cada coluna, exigencia do
+    % mecanismo interno do tabularx para colunas X ponderadas. A conversao
+    % elimina o excesso decorrente da soma manual de colunas fixas e limita a
+    % tabela a largura declarada do tabularx, permanecendo necessaria a
+    % inspecao do PDF quanto a conteudo nao separavel e legibilidade.
     \usepackage{array}
     \usepackage{booktabs}
     \usepackage{tabularx}
-    \newcolumntype{Y}[1]{>{\raggedright\hsize=#1\hsize\arraybackslash}X}
-    \newcolumntype{Z}[1]{>{\centering\hsize=#1\hsize\arraybackslash}X}
+    \newcolumntype{Y}[1]{%
+      >{\hsize=#1\hsize\linewidth=\hsize\raggedright\arraybackslash}X
+    }
+    \newcolumntype{Z}[1]{%
+      >{\hsize=#1\hsize\linewidth=\hsize\centering\arraybackslash}X
+    }
     % POSICIONAMENTO DE FLOATS
     % A posicao 'h' foi acrescentada a 'tp' para que a figura possa assentar
     % onde e citada. So com 'tp' ela era empurrada ao topo da pagina seguinte, e
@@ -1200,9 +1206,6 @@ Biometrika, v. 37, n. 3-4, p. 256--266, 1950.
 COCHRAN, W. G. Sampling techniques. 3. ed. New York: John Wiley & Sons,
 1977.
 
-COHEN, J. A coefficient of agreement for nominal scales. Educational and
-Psychological Measurement, v. 20, n. 1, p. 37--46, 1960.
-
 DEVLIN, J.; CHANG, M.-W.; LEE, K.; TOUTANOVA, K. BERT:
 Pre-training of deep bidirectional transformers for language
 understanding. In: CONFERENCE OF THE NORTH AMERICAN CHAPTER OF THE
@@ -1263,9 +1266,6 @@ estimation and model selection. In: INTERNATIONAL JOINT CONFERENCE ON
 ARTIFICIAL INTELLIGENCE, 14., 1995, Montreal. Proceedings \[\...\]. San
 Francisco: Morgan Kaufmann, 1995. p. 1137--1143.
 
-LANDIS, J. R.; KOCH, G. G. The measurement of observer agreement for
-categorical data. Biometrics, v. 33, n. 1, p. 159--174, 1977.
-
 LIN, J. Divergence measures based on the Shannon entropy. IEEE
 Transactions on Information Theory, v. 37, n. 1, p. 145--151, 1991. DOI:
 10.1109/18.61115.
@@ -1286,10 +1286,6 @@ Computational Linguistics, 2022. p. 201--214.
 MARTINS, R. F. B.; ESPEJO, M. M. S. B. Análise de custos de manutenção
 predial em uma universidade federal brasileira com uso do modelo de SES.
 ABCustos, São Leopoldo, v. 19, n. 1, p. 79--98, 2024.
-
-MCNEMAR, Q. Note on the sampling error of the difference between
-correlated proportions or percentages. Psychometrika, v. 12, n. 2, p.
-153--157, 1947.
 
 MOHAMMED, A. S.; AMOAH, C. Integration of technology in decision-making
 in university facilities management: a literature review. Facilities, v.
@@ -1342,11 +1338,6 @@ maintenance work orders. Journal of Intelligent Manufacturing, v. 36, p.
 TREVISO, M. et al. Efficient methods for Natural Language Processing: a
 survey. Transactions of the Association for Computational Linguistics,
 v. 11, p. 826--860, 2023.
-
-WONGPAKARAN, N.; WONGPAKARAN, T.; WEDDING, D.; GWET, K. L. A comparison
-of Cohen's Kappa and Gwet's AC1 when calculating inter-rater reliability
-coefficients: a study conducted with personality disorder samples. BMC
-Medical Research Methodology, v. 13, art. 61, 2013.
 
 ZHANG, H.; ZHANG, Y.; LI, J.; LIU, J.; JI, L. A survey on learning with
 noisy labels in Natural Language Processing: how to train models with

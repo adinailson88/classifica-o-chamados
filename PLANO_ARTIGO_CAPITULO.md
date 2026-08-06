@@ -160,25 +160,39 @@ também soma comandos LaTeX brutos das novas tabelas (`\toprule`,
 `\begin{tabularx}`, `\label{tab:...}` etc.), que não são prosa; o valor
 continua dentro da faixa-meta de 8.850 a 9.000.
 
-**Correções da auditoria independente (PR #202), 05/08/2026:** as
+**Correções da primeira auditoria independente (PR #202), 05/08/2026:** as
 legendas "Tabela 1" a "Tabela 4" saíram do parágrafo Markdown externo e
 entraram em `\caption{...}` dentro de cada `\begin{table}[!tbp]`, com
 `\label{tab:modelos}`, `tab:desempenho`, `tab:reclassificacao` e
 `tab:calibracao`, cada uma acima do `tabular`; as quatro tabelas passaram
 a usar ao menos uma coluna flexível do tipo X (`Y`/`Z`, ponderadas por
-`\hsize`), o que impede transbordo estrutural de `\textwidth`, ao
-contrário das larguras fixas em `p{}` da versão anterior; a Subseção 5.2
-deixou de atribuir os 2,92 pontos percentuais de diferença diretamente às
-598 alterações do rótulo histórico, já que a quantidade de alterações
-dentro das 13.972 linhas avaliadas não foi contabilizada separadamente; a
-recomendação do LinearSVC nas Considerações Finais e a frase sobre
-LinearSVC/SGD na Subseção 5.1 passaram a descrever candidatos e piloto
-controlado condicionados a validação temporal, monitoramento de deriva e
-auditoria humana, não implantação já validada; a auditoria bibliográfica
-encontrou quatro referências já órfãs antes desta rodada (COHEN, 1960;
-LANDIS; KOCH, 1977; MCNEMAR, 1947; WONGPAKARAN *et al.*, 2013, ligadas ao
-antigo Passo 9 de segunda avaliação humana, encerrado como não aplicável),
-não removidas nesta rodada por estarem fora do escopo pedido.
+`\hsize`); a Subseção 5.2 deixou de atribuir os 2,92 pontos percentuais de
+diferença diretamente às 598 alterações do rótulo histórico, já que a
+quantidade de alterações dentro das 13.972 linhas avaliadas não foi
+contabilizada separadamente; a recomendação do LinearSVC nas Considerações
+Finais e a frase sobre LinearSVC/SGD na Subseção 5.1 passaram a descrever
+candidatos e piloto controlado condicionados a validação temporal,
+monitoramento de deriva e auditoria humana, não implantação já validada.
+
+**Correções da segunda auditoria independente (PR #202), 05/08/2026:** as
+colunas `Y`/`Z` passaram a sincronizar `\linewidth=\hsize` dentro de cada
+coluna X, exigência do mecanismo interno do `tabularx` para colunas
+ponderadas (a versão anterior alterava `\hsize` sem repassar o valor a
+`\linewidth`); a afirmação de que o transbordo ficou "estruturalmente
+impossível" foi retirada dos planos, substituída por: a conversão elimina
+o excesso decorrente da soma manual de colunas fixas e limita a tabela à
+largura declarada do `tabularx`, permanecendo necessária a inspeção do PDF
+quanto a conteúdo não separável e legibilidade. As quatro referências já
+órfãs identificadas na primeira auditoria (COHEN, 1960; LANDIS; KOCH,
+1977; MCNEMAR, 1947; WONGPAKARAN *et al.*, 2013, ligadas ao antigo
+Passo 9 de segunda avaliação humana, encerrado como não aplicável) foram
+removidas da lista de referências. A contagem precisa de entradas
+bibliográficas, obtida por separação em blocos delimitados por linha em
+branco entre "**REFERÊNCIAS**" e o Apêndice A, é de 49 antes da remoção e
+45 depois — não 46/42, número aproximado usado na primeira auditoria por
+método de extração menos preciso. As 45 referências restantes têm ao
+menos uma citação no corpo, e toda citação do corpo tem entrada
+correspondente na lista.
 
 **O que falta:** inspeção visual do PDF gerado pelo workflow após o merge
 (figuras redimensionadas e tabelas não divisíveis), o que pode gerar
