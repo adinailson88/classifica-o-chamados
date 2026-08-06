@@ -1369,7 +1369,14 @@ as 41 categorias que sustentaram suporte nas cinco dobras e compõem as
 13.972 linhas avaliadas, e a segunda, as 9 que ficaram de fora.
 
 ```{=latex}
-\begin{table}[!p]
+% Numeracao propria do apendice (A1, A2, A3), independente da sequencia
+% 1 a 4 das tabelas do corpo.
+\renewcommand{\thetable}{A\arabic{table}}
+\setcounter{table}{0}
+```
+
+```{=latex}
+\begin{table}[!tbp]
 \centering
 \footnotesize
 \caption{Distribuição dos chamados por categoria histórica.}
@@ -1418,17 +1425,16 @@ Projetos e Reformas > Reforma & 83 & Suprimentos / Apoio Técnico > Transporte &
 \FloatBarrier
 ```
 
-**Tabela A2** Categorias da referência revisada avaliadas na rodada, por tipo de manutenção e
-classe da curva ABC interna ao tipo (n = 13.972; 41 categorias). O percentual é
-relativo ao volume do próprio tipo e o F1 corresponde ao LinearSVC. P,
-preventiva; C, corretiva; NM, não manutenção. Enquadram-se em não manutenção as
-famílias que não descrevem serviço de manutenção predial, a saber, `Outros`,
-`Suprimentos / Apoio Técnico`, `Posto de trabalho` e `Projetos e Reformas`. A
-família `TI / Dados / Rede` permanece em manutenção corretiva por consistir
-predominantemente em reparo de infraestrutura predial.
+Na Tabela A2, o percentual é relativo ao volume do próprio tipo e o F1
+corresponde ao LinearSVC. P, preventiva; C, corretiva; NM, não manutenção.
+Enquadram-se em não manutenção as famílias que não descrevem serviço de
+manutenção predial, a saber, `Outros`, `Suprimentos / Apoio Técnico`,
+`Posto de trabalho` e `Projetos e Reformas`. A família `TI / Dados / Rede`
+permanece em manutenção corretiva por consistir predominantemente em reparo
+de infraestrutura predial.
 
 ```{=latex}
-\begin{table}[!p]
+\begin{table}[!tbp]
 \centering
 \footnotesize
 \caption{Categorias da referência revisada avaliadas na rodada, por tipo de
