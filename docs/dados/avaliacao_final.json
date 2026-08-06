@@ -1,5 +1,5 @@
 {
-  "gerado_em": "05/08/2026 05:05",
+  "gerado_em": "06/08/2026 05:04",
   "schema_version": "1.0",
   "run_id": "EXP_CLASSIFICACAO_CHAMADOS_2026_06_001",
   "script_origem": "src/avaliacao_final.py",
@@ -37,13 +37,13 @@
     {
       "modelo": "linear_svc",
       "n": 14060,
-      "acerto_validado": 0.821,
+      "acerto_validado": 0.8188,
       "ic95": [
-        0.8149,
-        0.8272
+        0.8126,
+        0.8252
       ],
-      "peso_log_odds": 1.523,
-      "peso_normalizado": 0.1511
+      "peso_log_odds": 1.5086,
+      "peso_normalizado": 0.1508
     },
     {
       "modelo": "sgd",
@@ -59,13 +59,13 @@
     {
       "modelo": "extra_trees",
       "n": 14060,
-      "acerto_validado": 0.7992,
+      "acerto_validado": 0.8003,
       "ic95": [
-        0.7925,
-        0.8059
+        0.7936,
+        0.8069
       ],
-      "peso_log_odds": 1.3814,
-      "peso_normalizado": 0.1471
+      "peso_log_odds": 1.3881,
+      "peso_normalizado": 0.1474
     },
     {
       "modelo": "regressao_logistica",
@@ -109,51 +109,51 @@
         0.7171
       ],
       "peso_log_odds": 0.8938,
-      "peso_normalizado": 0.1306
+      "peso_normalizado": 0.1307
     }
   ],
   "melhor_ia": "linear_svc",
   "melhor_vs_segundo": {
     "segundo": "sgd",
-    "delta": 0.0183,
-    "p_mcnemar": 1.8457989704715664e-15
+    "delta": 0.0161,
+    "p_mcnemar": 6.578333147750827e-12
   },
   "ensembles": [
     {
       "metodo": "maioria_ponderada",
-      "acerto_validado": 0.8237,
+      "acerto_validado": 0.8238,
       "ic95": [
-        0.8173,
-        0.8302
+        0.8174,
+        0.8301
       ],
-      "delta_vs_melhor_ia": 0.0027,
-      "p_mcnemar_vs_melhor_ia": 0.15770356694976753
-    },
-    {
-      "metodo": "maioria_simples",
-      "acerto_validado": 0.8221,
-      "ic95": [
-        0.8156,
-        0.8287
-      ],
-      "delta_vs_melhor_ia": 0.0011,
-      "p_mcnemar_vs_melhor_ia": 0.6224609431781722
+      "delta_vs_melhor_ia": 0.005,
+      "p_mcnemar_vs_melhor_ia": 0.010715282764440634
     },
     {
       "metodo": "confianca_calibrada_max",
-      "acerto_validado": 0.822,
+      "acerto_validado": 0.8238,
       "ic95": [
-        0.8156,
-        0.8285
+        0.8173,
+        0.8303
       ],
-      "delta_vs_melhor_ia": 0.001,
-      "p_mcnemar_vs_melhor_ia": 0.6398315824894895
+      "delta_vs_melhor_ia": 0.005,
+      "p_mcnemar_vs_melhor_ia": 0.02266825022955948
+    },
+    {
+      "metodo": "maioria_simples",
+      "acerto_validado": 0.8225,
+      "ic95": [
+        0.8161,
+        0.8292
+      ],
+      "delta_vs_melhor_ia": 0.0037,
+      "p_mcnemar_vs_melhor_ia": 0.09191729163860583
     }
   ],
   "vale_combinar": {
-    "veredicto": false,
-    "recomendacao": "linear_svc",
-    "justificativa": "Nenhum ensemble supera a melhor IA isolada com significancia (McNemar p>=0,05) — combinar nao compensa o custo adicional; use 'linear_svc' com calibracao."
+    "veredicto": true,
+    "recomendacao": "maioria_ponderada",
+    "justificativa": "O ensemble 'maioria_ponderada' supera a melhor IA isolada (linear_svc) em +0.0050 com McNemar p=0.0107 (<0,05)."
   },
   "observacoes": [
     "Pesos do voto ponderado aprendidos out-of-fold (k-fold nos validados).",
