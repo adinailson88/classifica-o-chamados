@@ -194,10 +194,65 @@ método de extração menos preciso. As 45 referências restantes têm ao
 menos uma citação no corpo, e toda citação do corpo tem entrada
 correspondente na lista.
 
-**O que falta:** inspeção visual do PDF gerado pelo workflow após o merge
-(figuras redimensionadas e tabelas não divisíveis), o que pode gerar
-ajuste na Rodada 9; tratamento definitivo das Tabelas A1 a A3 do apêndice,
-também na Rodada 9.
+**Rodada 9 (agent/rodada-09-figuras-paginacao), auditoria visual e
+paginação:** inspeção página a página do PDF publicado após o merge da
+PR #202 (66ef86b6, 21 páginas), renderizado em PNG a 180 dpi via
+PyMuPDF, sem xelatex/Docker locais disponíveis. Achados do PDF de
+partida: as Figuras 2, 4 e 5 (76%/73%/80%) permanecem legíveis nas
+dimensões da Rodada 8, mantidas sem alteração; as Tabelas 1 a 4
+permanecem íntegras, com legenda e conteúdo na mesma página; as
+Tabelas A1 a A3 do apêndice, embora em `longtable`, já cabiam cada uma
+inteira em uma única página, mas usavam fonte `\scriptsize`, abaixo do
+piso de legibilidade desta rodada. Pendência registrada, fora do
+escopo desta rodada: o eixo Y da Figura 2 (trade-off de custo) arredonda
+os rótulos para uma casa decimal, fazendo marcas distintas (~0,80/0,82/
+0,85) aparecerem como "0,8" repetido; a correção exige editar
+`src/gerar_figura3_tradeoff_custo.py` e regenerar o artefato da figura,
+não apenas o LaTeX.
+
+**Tabelas A1 a A3 convertidas para floats não divisíveis.** Passaram de
+`longtable` para `\begin{table}[!tbp]`/`[!tp]` com `tabularx`, no mesmo
+padrão das Tabelas 1 a 4: `\caption`/`\label` dentro do float, colunas
+`Y`/`Z` (já existentes) e uma nova coluna `W` (tipo X alinhado à
+direita, adicionada ao preâmbulo) para as colunas numéricas. Fonte
+subida de `\scriptsize` para `\footnotesize`. O contador de tabelas foi
+resetado e renomeado no início do Apêndice A
+(`\renewcommand{\thetable}{A\arabic{table}}` + `\setcounter{table}{0}`)
+para que as legendas saiam como "Tabela A1", "A2" e "A3", e não
+continuem a numeração 1–4 do corpo. Nenhum valor, ordem de linha ou
+conteúdo foi alterado.
+
+**Duas rodadas de correção após renderização real via
+`workflow_dispatch` na própria branch** (sem tocar `main`): a 1ª
+geração revelou dois problemas que só aparecem no PDF renderizado, não
+no LaTeX intermediário do pandoc — legenda duplicada e mal numerada
+("Tabela 5"/"Tabela 6" em vez de "Tabela A1"/"A2", por herdar o
+contador de tabela do corpo) e a posição `[!p]` forçando cada tabela
+para página exclusiva mesmo cabendo com folga junto do texto ao redor,
+o que subiu a paginação de 21 para 24 páginas com duas páginas quase
+vazias. Corrigido com o reset de contador acima e troca de `[!p]` para
+`[!tbp]` em A1 e A2 (A3 já não usava `[!p]`). A Tabela A3, por ser o
+último float do documento sem texto depois para preencher a página,
+ficou centralizada verticalmente na página final em vez de alinhada ao
+topo — LaTeX centraliza floats em página exclusiva de floats
+(`@fptop`/`@fpbot` com `\vfil` simétrico), mecanismo que `\raggedbottom`
+local não afeta; tentativa registrada e revertida, sem página vazia
+adicional. **Paginação final: 22 páginas**, dentro da faixa preferencial
+de 21 a 23.
+
+**Página com grande espaço vazio observada e não alterada nesta
+rodada:** a página com a Tabela 4 e a Figura 3 (curva de confiabilidade,
+duas subplots) deixa cerca de 40% da página anterior em branco porque a
+Figura 3, não divisível, não cabe no restante daquela página e migra
+inteira para a seguinte — comportamento esperado de floats não
+divisíveis, não um erro de posicionamento; nenhum ajuste foi aplicado
+por não haver medida permitida (sem reduzir fonte, margem ou
+`floatsep`) que resolvesse sem risco de destabilizar outras páginas
+sem capacidade de recompilação iterativa rápida.
+
+**O que falta:** nenhuma pendência de escopo desta rodada. A correção
+do arredondamento do eixo da Figura 2 fica registrada para rodada
+futura que edite scripts geradores de figura.
 
 ## Critérios para novo fechamento científico
 
