@@ -124,7 +124,16 @@ python src/tabelas_suplementares_canonicas.py  # hash confirmado, 10 tabelas (S7
 
 ## 12. PDF
 
-O artigo foi alterado nesta rodada (chamada "(Tabela 4)" acrescentada). O PDF foi regenerado pelo procedimento oficial (`artigo_pdf.yml` via `workflow_dispatch` na própria branch, mesmo mecanismo usado na Rodada 9 por ausência de xelatex/Docker locais) e inspecionado visualmente página a página. Resultado registrado em `PLANO_ARTIGO_CAPITULO.md` e no relatório final desta rodada.
+O artigo foi alterado nesta rodada (chamada "(Tabela 4)" acrescentada). O PDF foi regenerado pelo procedimento oficial (`artigo_pdf.yml` via `workflow_dispatch` na própria branch `agent/rodada-10-auditoria-final-submissao`, run `31068296264`, mesmo mecanismo usado na Rodada 9 por ausência de xelatex/Docker locais) e commitado automaticamente (`e8610cd9`).
+
+**22 páginas**, dentro da faixa 21–23. Inspeção visual real das 22 páginas (renderização em PNG a 150 dpi via PyMuPDF/`fitz`), não apenas do LaTeX intermediário:
+
+- Título, Resumo e Abstract íntegros e sem quebra de layout (página 1).
+- As seis figuras renderizam corretamente, com a Figura 2 mantendo o eixo Y em duas casas decimais (0,72 a 0,82, sem marcas repetidas — microcorreção da Rodada 9 preservada).
+- As quatro tabelas principais e as Tabelas A1 a A3 renderizam íntegras, com legenda e conteúdo na mesma página, incluindo a chamada "(Tabela 4)" acrescentada nesta rodada, sem quebra de linha nem estouro de margem.
+- A lista de referências (páginas 17 a 19) está bem formatada, sem entrada cortada.
+- As duas páginas com espaço em branco já documentadas em `PLANO_ARTIGO_CAPITULO.md` (antes da Figura 3, página 10/11; acima da Tabela A3, página 22) persistem, comportamento esperado de floats LaTeX não divisíveis, sem regressão nem piora frente à Rodada 9.
+- Nenhum caractere ausente, nenhuma página quase vazia fora das duas já conhecidas, nenhuma referência cruzada quebrada.
 
 ## Proveniência
 
