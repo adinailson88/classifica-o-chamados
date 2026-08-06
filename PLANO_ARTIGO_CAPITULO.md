@@ -135,24 +135,50 @@ como `longtable` (herança do pandoc para tabelas em pipe-markdown) e
 passaram a `\begin{table}[!tbp]` com `tabularx`, fonte `\small`, sem
 `[H]` e sem `\FloatBarrier`/`\clearpage` colado à tabela — apenas as
 barreiras de subseção já existentes no documento permanecem. Conteúdo,
-numeração, notas e ordem das linhas preservados byte a byte; verificado no
+numeração, notas e ordem das linhas preservados; verificado no
 LaTeX intermediário (`pandoc ... -t latex --standalone`), com as quatro
-tabelas fechadas corretamente (4 `\begin{table}`/`\end{table}`, 4
-`\begin{tabularx}`/`\end{tabularx}`) e nenhuma delas em `longtable`. As
+tabelas fechadas corretamente (4 `\begin{table}`/`\end{table}`, 4 `\caption`,
+4 `\label`, 4 `\begin{tabularx}`/`\end{tabularx}`, ao menos uma coluna
+flexível `Y`/`Z` por tabela) e nenhuma delas em `longtable`; conteúdo
+numérico, significado, numeração e ordem das linhas foram preservados. Os
+antigos títulos "**Tabela N**" em parágrafo Markdown externo à tabela
+foram removidos e o texto passou para `\caption` dentro do float, o que
+impede que o título fique em uma página e a tabela flutue para outra. As
 Tabelas A1 a A3 do apêndice permanecem como pipe-table/`longtable` nesta
 rodada, por decisão explícita de escopo (tratamento definitivo na
 Rodada 9).
 
-**Contagem, antes e depois (Rodada 8):** Discussão de 1.955 para 1.421
-palavras; Considerações Finais de 525 para 372 palavras; corpo científico
-de 9.539 para 8.871 palavras (rotina de contagem idêntica à da Rodada 7),
-redução de 668 palavras (7,00%). A Seção 4 (Resultados) permanece em
-3.712 palavras, sem alteração de prosa; o corpo cresceu cerca de 19
-palavras entre a conclusão da reescrita editorial (8.852) e a conversão
-técnica das Tabelas 1 a 4 porque a rotina de contagem por palavras do
-código-fonte markdown também soma comandos LaTeX brutos das novas tabelas
-(`\toprule`, `\begin{tabularx}` etc.), que não são prosa; o valor
+**Contagem, antes e depois (Rodada 8, após a auditoria independente da
+PR #202):** Discussão de 1.955 para 1.450 palavras; Considerações Finais
+de 525 para 393 palavras; corpo científico de 9.539 para 8.917 palavras
+(rotina de contagem idêntica à da Rodada 7), redução de 622 palavras
+(6,52%). A Seção 4 (Resultados) foi de 3.712 para 3.724 palavras, sem
+alteração de prosa: a variação vem da legenda da Tabela 2, que passou de
+parágrafo Markdown externo para `\caption{...}` dentro do float. O corpo
+cresceu porque a rotina de contagem por palavras do código-fonte markdown
+também soma comandos LaTeX brutos das novas tabelas (`\toprule`,
+`\begin{tabularx}`, `\label{tab:...}` etc.), que não são prosa; o valor
 continua dentro da faixa-meta de 8.850 a 9.000.
+
+**Correções da auditoria independente (PR #202), 05/08/2026:** as
+legendas "Tabela 1" a "Tabela 4" saíram do parágrafo Markdown externo e
+entraram em `\caption{...}` dentro de cada `\begin{table}[!tbp]`, com
+`\label{tab:modelos}`, `tab:desempenho`, `tab:reclassificacao` e
+`tab:calibracao`, cada uma acima do `tabular`; as quatro tabelas passaram
+a usar ao menos uma coluna flexível do tipo X (`Y`/`Z`, ponderadas por
+`\hsize`), o que impede transbordo estrutural de `\textwidth`, ao
+contrário das larguras fixas em `p{}` da versão anterior; a Subseção 5.2
+deixou de atribuir os 2,92 pontos percentuais de diferença diretamente às
+598 alterações do rótulo histórico, já que a quantidade de alterações
+dentro das 13.972 linhas avaliadas não foi contabilizada separadamente; a
+recomendação do LinearSVC nas Considerações Finais e a frase sobre
+LinearSVC/SGD na Subseção 5.1 passaram a descrever candidatos e piloto
+controlado condicionados a validação temporal, monitoramento de deriva e
+auditoria humana, não implantação já validada; a auditoria bibliográfica
+encontrou quatro referências já órfãs antes desta rodada (COHEN, 1960;
+LANDIS; KOCH, 1977; MCNEMAR, 1947; WONGPAKARAN *et al.*, 2013, ligadas ao
+antigo Passo 9 de segunda avaliação humana, encerrado como não aplicável),
+não removidas nesta rodada por estarem fora do escopo pedido.
 
 **O que falta:** inspeção visual do PDF gerado pelo workflow após o merge
 (figuras redimensionadas e tabelas não divisíveis), o que pode gerar

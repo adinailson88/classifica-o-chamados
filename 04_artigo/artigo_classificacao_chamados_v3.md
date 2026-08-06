@@ -9,9 +9,16 @@ header-includes:
     % couber inteira na pagina corrente migra inteira para a proxima, em vez
     % de dividir linhas entre paginas. As Tabelas A1 a A3 do apendice
     % permanecem como pipe-table/longtable nesta rodada.
+    % Colunas Y/Z: todas as colunas sao do tipo X do tabularx (flexivel), com
+    % o multiplicador de \hsize controlando a largura relativa de cada uma.
+    % Como o tabularx sempre resolve as colunas X para caber exatamente em
+    % \textwidth, a tabela nao pode transbordar estruturalmente, ao contrario
+    % de colunas p{} fixas somadas a mao.
+    \usepackage{array}
+    \usepackage{booktabs}
     \usepackage{tabularx}
-    \newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
-    \newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+    \newcolumntype{Y}[1]{>{\raggedright\hsize=#1\hsize\arraybackslash}X}
+    \newcolumntype{Z}[1]{>{\centering\hsize=#1\hsize\arraybackslash}X}
     % POSICIONAMENTO DE FLOATS
     % A posicao 'h' foi acrescentada a 'tp' para que a figura possa assentar
     % onde e citada. So com 'tp' ela era empurrada ao topo da pagina seguinte, e
@@ -352,16 +359,16 @@ grandeza próxima dos 11.178 exemplos de cada partição de treino. A Tabela 1 r
 os hiperparâmetros não declarados permanecem nos padrões da biblioteca e
 estão versionados no repositório, com o ambiente de execução.
 
-**Tabela 1** Configuração experimental dos sete modelos, que compartilham
-partições, rótulo de treino e denominador (n = 13.972; 41 categorias).
-
 ```{=latex}
 \begin{table}[!tbp]
 \centering
 \small
+\caption{Configuração experimental dos sete modelos, que compartilham
+partições, rótulo de treino e denominador (n = 13.972; 41 categorias).}
+\label{tab:modelos}
 \setlength{\tabcolsep}{3pt}
 \renewcommand{\arraystretch}{1.15}
-\begin{tabularx}{\textwidth}{L{0.12\textwidth}L{0.12\textwidth}L{0.29\textwidth}L{0.13\textwidth}L{0.15\textwidth}L{0.15\textwidth}}
+\begin{tabularx}{\textwidth}{@{}Y{0.75}Y{0.65}Y{2.2}Y{0.8}Y{0.8}Y{0.8}@{}}
 \toprule
 Modelo & Representação & Hiperparâmetros essenciais & Balanceamento & Saída de confiança & Papel \\
 \midrule
@@ -567,20 +574,20 @@ de treino semelhante ao do LinearSVC. A escolha operacional é, portanto,
 multicritério, e deve pesar acurácia, macro-F1 e custo computacional
 conjuntamente, e não apenas a primeira.
 
-**Tabela 2** Concordância com a categoria histórica, acurácia e macro-F1
-contra a referência humana revisada, e custo de treino, por modelo
-(n = 13.972; 41 categorias). O intervalo é da acurácia, obtido por
-*bootstrap* de grupo textual com mil repetições sobre os 9.735 grupos
-congelados; o custo de treino é mediana de três execuções sobre a base
-completa.
-
 ```{=latex}
 \begin{table}[!tbp]
 \centering
 \small
+\caption{Concordância com a categoria histórica, acurácia e macro-F1
+contra a referência humana revisada, e custo de treino, por modelo
+(n = 13.972; 41 categorias). O intervalo é da acurácia, obtido por
+\textit{bootstrap} de grupo textual com mil repetições sobre os 9.735
+grupos congelados; o custo de treino é mediana de três execuções sobre a
+base completa.}
+\label{tab:desempenho}
 \setlength{\tabcolsep}{4pt}
 \renewcommand{\arraystretch}{1.15}
-\begin{tabularx}{\textwidth}{L{0.17\textwidth}C{0.13\textwidth}C{0.10\textwidth}C{0.10\textwidth}C{0.21\textwidth}C{0.14\textwidth}}
+\begin{tabularx}{\textwidth}{@{}Y{1.3}Z{1.0}Z{0.7}Z{0.7}Z{1.4}Z{0.9}@{}}
 \toprule
 Modelo & Concordância histórica & Acurácia & Macro-F1 & Intervalo essencial (IC95\% da acurácia) & Tempo de treino (s) \\
 \midrule
@@ -681,17 +688,17 @@ cautela metodológica, mas por evidência de que degradaria a base em que
 fosse aplicada, e o ganho líquido, e não a acurácia agregada, é o critério
 adequado para essa decisão, a ser recalculado a cada atualização da base.
 
-**Tabela 3** Ganho líquido de reclassificação por modelo, contado apenas
-onde a predição diverge da categoria histórica e arbitrado pela
-referência humana revisada (n = 13.972).
-
 ```{=latex}
 \begin{table}[!tbp]
 \centering
 \small
+\caption{Ganho líquido de reclassificação por modelo, contado apenas
+onde a predição diverge da categoria histórica e arbitrado pela
+referência humana revisada (n = 13.972).}
+\label{tab:reclassificacao}
 \setlength{\tabcolsep}{5pt}
 \renewcommand{\arraystretch}{1.15}
-\begin{tabularx}{\textwidth}{L{0.20\textwidth}C{0.15\textwidth}C{0.15\textwidth}C{0.15\textwidth}C{0.13\textwidth}C{0.15\textwidth}}
+\begin{tabularx}{\textwidth}{@{}Y{1.6}Z{0.9}Z{0.9}Z{0.9}Z{0.7}Z{1.0}@{}}
 \toprule
 Modelo & Divergências & Corrigidos & Prejudicados & Neutros & Ganho líquido \\
 \midrule
@@ -758,21 +765,21 @@ acesso ao conjunto de teste. Elevar o alvo a 0,99 reduz a cobertura à
 faixa de 31,94% a 47,04%, e o Naive Bayes só alcança o limiar em duas das
 cinco dobras, o que o desqualifica para esse regime.
 
-**Tabela 4** Calibração e automação seletiva dos quatro modelos mais
+```{=latex}
+\begin{table}[!tbp]
+\centering
+\small
+\caption{Calibração e automação seletiva dos quatro modelos mais
 competitivos em acurácia (n = 13.972). O ECE refere-se ao escore antes e
 depois da calibração isotônica; a cobertura e a acurácia seletiva
 correspondem ao alvo de 0,95. Random Forest é omitido desta versão
 reduzida; a tabela com os sete modelos, incluindo Naive Bayes e LSTM,
 cujo ECE aumenta após a calibração, consta do material suplementar
-(Tabela S16).
-
-```{=latex}
-\begin{table}[!tbp]
-\centering
-\small
+(Tabela S16).}
+\label{tab:calibracao}
 \setlength{\tabcolsep}{6pt}
 \renewcommand{\arraystretch}{1.15}
-\begin{tabularx}{\textwidth}{L{0.24\textwidth}C{0.18\textwidth}C{0.18\textwidth}C{0.18\textwidth}C{0.18\textwidth}}
+\begin{tabularx}{\textwidth}{@{}Y{1.6}Z{0.85}Z{0.85}Z{0.85}Z{0.85}@{}}
 \toprule
 Modelo & ECE bruto & ECE calibrado & Cobertura & Acurácia seletiva \\
 \midrule
@@ -970,17 +977,21 @@ segundos pode ser reexecutado e auditado a cada atualização da base sem
 infraestrutura dedicada, condição que a literatura sobre eficiência
 computacional recomenda reportar junto da acurácia (SCHWARTZ *et al.*,
 2020; TREVISO *et al.*, 2023). É esse critério, e não apenas o desempenho
-isolado, que torna o LinearSVC e o SGD as escolhas operacionalmente mais
-robustas entre os sete, por sustentarem acurácia e macro-F1 competitivos a
-custo de treino próximo do menor observado, sem exigir aceleração gráfica
-nem infraestrutura fora do ambiente institucional (Subseção 4.1).
+isolado, que torna o LinearSVC e o SGD os candidatos mais favoráveis no
+ambiente e no protocolo avaliados, por sustentarem acurácia e macro-F1
+competitivos a custo de treino próximo do menor observado, sem exigir
+aceleração gráfica nem infraestrutura fora do ambiente institucional
+(Subseção 4.1).
 
 **5.2 Auditoria do histórico, reclassificação e fluxo humano–IA**
 
 A acurácia do LinearSVC contra a referência revisada (0,8253) supera sua
-concordância com o histórico (0,7961) em 2,92 pontos percentuais (Tabela 2):
-a diferença mede o efeito das 598 correções, que reclassificam como erro do
-registro parte do que seria contado como erro do modelo. A revisão manteve
+concordância com o histórico (0,7961) em 2,92 pontos percentuais (Tabela 2).
+A diferença reflete a substituição da categoria histórica pela referência
+revisada no recorte avaliado. No corpus integral, 598 dos 14.060 rótulos
+foram alterados; como não se contabilizou separadamente quantas dessas
+alterações pertencem às 13.972 linhas avaliadas, os 2,92 pontos percentuais
+não são atribuídos diretamente ao total de 598 alterações. A revisão manteve
 a categoria histórica em 95,75% dos casos; os 4,25% restantes são taxa de
 alteração do rótulo sob auditoria administrativa de avaliador único, com a
 categoria histórica à vista, sem segunda avaliação, cegamento ou
@@ -1118,11 +1129,13 @@ reclassificação automática da base histórica produz ganho líquido negativo
 nos sete modelos, veredito que se sustenta mesmo sob custos assimétricos
 (Subseção 4.2).
 
-A implicação operacional é dupla: usar o LinearSVC com calibração
-isotônica e automação seletiva, regime em que cerca de dois terços do
-volume podem ser decididos automaticamente com acurácia próxima de 0,95 e
-o restante encaminhado à revisão humana; e usar a divergência entre modelo
-e histórico não para reescrever a base, mas para priorizar a fila de
+A implicação operacional é dupla. No corte avaliado, o LinearSVC constitui
+o principal candidato a piloto controlado com calibração isotônica e
+automação seletiva, condicionado à validação temporal, ao monitoramento de
+deriva e à auditoria humana, regime em que cerca de dois terços do volume
+poderiam ser decididos automaticamente com acurácia próxima de 0,95 e o
+restante encaminhado à revisão humana; e usar a divergência entre modelo e
+histórico não para reescrever a base, mas para priorizar a fila de
 auditoria, com enriquecimento de cerca de quatro vezes sobre a revisão
 aleatória. Ambas as recomendações permanecem condicionadas à ausência de
 validação temporal (Subseção 5.3).
