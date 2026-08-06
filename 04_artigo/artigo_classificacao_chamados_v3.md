@@ -765,7 +765,7 @@ do LinearSVC alcança 0,6925 sobre o escore bruto, porque a transformação
 da margem por função *softmax* produz valores que não correspondem a
 frequências de acerto. A calibração isotônica, ajustada em dobra interna,
 reduz esse valor a 0,0178 e o escore de Brier de 0,6052 para 0,1034, e
-melhora o ECE de cinco dos sete modelos. Naive Bayes e LSTM foram as
+melhora o ECE de cinco dos sete modelos (Tabela 4). Naive Bayes e LSTM foram as
 exceções, com aumento do ECE após a calibração; o desenho não permite
 atribuir causalmente essa piora a um mecanismo específico.
 
