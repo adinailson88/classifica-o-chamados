@@ -203,12 +203,14 @@ dimensões da Rodada 8, mantidas sem alteração; as Tabelas 1 a 4
 permanecem íntegras, com legenda e conteúdo na mesma página; as
 Tabelas A1 a A3 do apêndice, embora em `longtable`, já cabiam cada uma
 inteira em uma única página, mas usavam fonte `\scriptsize`, abaixo do
-piso de legibilidade desta rodada. Pendência registrada, fora do
-escopo desta rodada: o eixo Y da Figura 2 (trade-off de custo) arredonda
+piso de legibilidade desta rodada. Achado do PDF de partida, corrigido
+ainda nesta rodada: o eixo Y da Figura 2 (trade-off de custo) arredondava
 os rótulos para uma casa decimal, fazendo marcas distintas (~0,80/0,82/
-0,85) aparecerem como "0,8" repetido; a correção exige editar
-`src/gerar_figura3_tradeoff_custo.py` e regenerar o artefato da figura,
-não apenas o LaTeX.
+0,85) aparecerem como "0,8" repetido; corrigido em
+`src/gerar_figuras_canonicas.py` (parâmetro `casas` em
+`formatar_decimal()`, aplicado com `casas=2` em `figura_custo()`), com
+apenas o artefato `fig_tradeoff_custo` regenerado. O gerador legado
+`src/gerar_figura3_tradeoff_custo.py` não foi executado nem alterado.
 
 **Tabelas A1 a A3 convertidas para floats não divisíveis.** Passaram de
 `longtable` para `\begin{table}[!tbp]`/`[!tp]` com `tabularx`, no mesmo
@@ -250,9 +252,13 @@ por não haver medida permitida (sem reduzir fonte, margem ou
 `floatsep`) que resolvesse sem risco de destabilizar outras páginas
 sem capacidade de recompilação iterativa rápida.
 
-**O que falta:** nenhuma pendência de escopo desta rodada. A correção
-do arredondamento do eixo da Figura 2 fica registrada para rodada
-futura que edite scripts geradores de figura.
+**Microcorreção posterior (mesma Rodada 9, mesma branch):** o
+arredondamento do eixo Y da Figura 2 foi corrigido em
+`src/gerar_figuras_canonicas.py`, com `fig_tradeoff_custo.pdf`/`.png`
+regenerados sob o mesmo hash canônico `1e4762438a7e`. O eixo passou a
+exibir duas casas decimais, sem marcas repetidas.
+
+**O que falta:** nenhuma pendência de escopo desta rodada.
 
 ## Critérios para novo fechamento científico
 

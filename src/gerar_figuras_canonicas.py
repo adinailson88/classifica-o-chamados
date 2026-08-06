@@ -101,11 +101,13 @@ def abreviar(categoria: str, limite: int = 34) -> str:
     return f"[{marca}] {folha}"
 
 
-def formatar_decimal(ax, eixo: str = "x") -> None:
-    """Virgula decimal no eixo, para casar com o restante do artigo."""
+def formatar_decimal(ax, eixo: str = "x", casas: int = 1) -> None:
+    """Vírgula decimal no eixo, para casar com o restante do artigo."""
     from matplotlib.ticker import FuncFormatter
 
-    formatador = FuncFormatter(lambda v, _p: f"{v:.1f}".replace(".", ","))
+    formatador = FuncFormatter(
+        lambda v, _p: f"{v:.{casas}f}".replace(".", ",")
+    )
     (ax.xaxis if eixo == "x" else ax.yaxis).set_major_formatter(formatador)
 
 
@@ -267,7 +269,7 @@ def figura_custo(retreino: dict[str, Any], custo: dict[str, Any]) -> None:
     ax.set_xscale("log")
     ax.set_xlabel("Tempo de treino sobre a base completa (s, escala log)")
     ax.set_ylabel("Acurácia contra a referência humana")
-    formatar_decimal(ax, eixo="y")
+    formatar_decimal(ax, eixo="y", casas=2)
     limpar_eixo(ax)
     salvar(fig, FIGURAS / "fig_tradeoff_custo")
 
