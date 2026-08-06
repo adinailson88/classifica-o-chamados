@@ -2,7 +2,7 @@
 
 Este documento registra somente a estrutura, os critérios editoriais e o estado atual do artigo/capítulo. O plano operacional vigente, os critérios de aceite e o ponto de continuidade estão em [`PLANO_EXECUCAO_ATUAL.md`](PLANO_EXECUCAO_ATUAL.md). Os dois documentos têm finalidades distintas e não devem acumular versões concorrentes do mesmo estado.
 
-Atualizado em 05/08/2026, no fuso America/Bahia.
+Atualizado em 05/08/2026, no fuso America/Bahia (rodada de resultados hierarquizados).
 
 ## Regra de uso
 
@@ -99,89 +99,83 @@ artigo.
 congelamento conferem esse hash, verificável por `python src/matriz_proveniencia.py`.
 
 **Onde está:** os Passos 0 a 10 estão concluídos, o 9 encerrado como não
-aplicável. O Passo 11 segue em execução.
+aplicável. O Passo 11 segue em execução, agora concentrado na Discussão.
 
-**Método reestruturado em seis subseções.** A Seção 3 passou de oito para
-seis subseções: 3.1 delineamento, corpus e referência revisada; 3.2
-pré-processamento e representação; 3.3 modelos e configuração experimental;
-3.4 validação, calibração e inferência; 3.5 reclassificação, utilidade e
-análises complementares; 3.6 reprodutibilidade, dados e aspectos
-institucionais. As antigas 3.1 e 3.2 fundiram-se, a antiga 3.6 de revisão
-humana passou a integrar a 3.1, a antiga 3.7 de Shannon foi reduzida e
-absorvida pela 3.5 e a antiga 3.8 de governança virou a 3.6.
+**Resultados reestruturados em cinco subseções.** A Seção 4 passou de doze
+para cinco subseções: 4.1 desempenho, incerteza e custo; 4.2 auditoria do
+histórico e risco de reclassificação; 4.3 calibração e automação seletiva;
+4.4 erros por categoria e implicações taxonômicas; 4.5 análises
+complementares. A concordância histórica, a acurácia contra a referência
+revisada, o macro-F1, o custo de treino e a inferência sob dependência
+textual, antes em quatro subseções e três tabelas, fundiram-se na 4.1 com
+uma única tabela de desempenho. A duplicação taxonômica, o diagnóstico de
+Shannon, a matriz de confusão e os grupos divergentes, antes repetidos em
+duas subseções, unificaram-se na 4.4. O BERTimbau, o comportamento do
+LSTM, a curva ABC, a tarefa de tipo e a camada de regras de periodicidade,
+antes com subseção própria cada um, tornaram-se sínteses curtas na 4.5.
 
-**Duplicações eliminadas.** As famílias de modelos eram descritas em prosa
-e reexplicadas caso a caso; agora há uma passagem única de justificativa e
-a Tabela 1, nova, com modelo, representação, hiperparâmetros essenciais,
-balanceamento, saída de confiança e papel no experimento. O `StratifiedGroupKFold`
-é explicado uma só vez, na 3.4. O ranking do Naive Bayes por categorias
-previstas saiu do Método, por já constar da Subseção 4.6, e o desenho da
-camada de regras saiu, por já constar da 4.12.
+**Nenhum vencedor absoluto.** O parágrafo de abertura e a Subseção 4.1
+deixaram de apresentar o LinearSVC como líder isolado: ele lidera a
+acurácia, mas a Regressão Logística tem o macro-F1 pontual ligeiramente
+superior e o SGD permanece próximo dos dois em ambas as métricas a custo
+de treino semelhante, de modo que a escolha operacional é declarada
+multicritério.
 
-**Correspondência com o código.** Cada afirmação foi conferida contra
-`src/modelos_zoo.py`, `src/modelo_lstm.py`, `src/construir_grupos_textuais.py`,
-`src/gerar_particoes_canonicas.py`, `src/retreinar_modelos_canonicos.py` e
-`src/calibrar_confianca.py`. Entraram no texto os itens verificáveis que
-faltavam: ordem e concatenação dos quatro campos, descarte de campo vazio
-sem marcador, normalização por decomposição Unicode com remoção de
-diacríticos e colapso de espaços, hash do grupo como SHA-256 dos quatro
-campos mantidos separados, frequência documental mínima do TF-IDF,
-marcador de termo fora do vocabulário e truncamento à direita na LSTM,
-protocolo de dobra interna da calibração e ambiente de execução com
-versões. Saiu a regra de contingência que aciona o Random Forest, que é de
-produção e não da rodada canônica.
+**Tabelas dos Resultados, de seis para três.** A antiga Tabela 2
+(concordância histórica), a antiga Tabela 3 (acurácia e macro-F1) e a
+antiga Tabela 6 (custo computacional) fundiram-se na nova Tabela 2, com
+concordância histórica, acurácia, macro-F1, intervalo essencial e tempo
+de treino por modelo. A antiga Tabela 4 de calibração, com sete modelos,
+deu lugar à nova Tabela 4, com os quatro modelos mais competitivos em
+acurácia; o ECE piorado do Naive Bayes e do LSTM após a calibração
+permanece declarado em texto, e a tabela completa foi para o material
+suplementar (Tabela S16). A antiga Tabela 7, com seis das 21 comparações
+pareadas, saiu do corpo: a Subseção 4.1 relata o teste global, a contagem
+de pares significativos e um exemplo (LinearSVC contra SGD) em prosa, e a
+matriz completa permanece no material suplementar. A antiga Tabela 5 de
+ganho líquido virou Tabela 3, sem alteração de conteúdo. Restam três
+tabelas nos Resultados — Tabelas 2, 3 e 4 —, além da Tabela 1 do Método,
+totalizando quatro tabelas principais no corpo. Não existe Tabela 5 no
+corpo atual.
 
-**Numeração.** A Tabela 1 do Método deslocou as tabelas do corpo, que
-passaram de 1 a 6 para 2 a 7, com as citações no texto ajustadas. As
-remissões ao Método foram remapeadas: a antiga 3.2 e a antiga 3.6 apontam
-para 3.1, a antiga 3.3 para 3.2, a antiga 3.4 para 3.3, a antiga 3.5 para
-3.4, a antiga 3.7 para 3.5 e a antiga 3.8 para 3.6.
+**Figuras renumeradas pela nova ordem de aparição.** O trade-off de custo
+(antiga Figura 5) passou a Figura 2, por entrar na 4.1; a curva de
+confiabilidade (antiga Figura 2) passou a Figura 3, na 4.3; o mapa de
+categorias (antiga Figura 3) e a matriz de confusão (antiga Figura 4)
+passaram a Figuras 4 e 5, na 4.4; a curva de aprendizado do LSTM manteve o
+número 6, na 4.5.
 
-**Três correções de auditoria.** A consistência interna deixou de ser
-apresentada como dispensa de segundo avaliador e passou a ser declarada
-como análise que não substitui avaliação independente nem permite estimar
-concordância interavaliadores. Os 17 grupos divergentes deixaram de
-delimitar teto quantitativo de desempenho: sinalizam ambiguidade ou
-inconsistência interna, e o teto exigiria calcular a distribuição dos
-rótulos dentro de cada grupo, o que não foi feito. Os números desses grupos
-saíram do Método e passaram à Subseção 4.6, restando no Método apenas o
-procedimento de auditoria.
+**Achados preservados e números conferidos.** Os quatro achados centrais
+exigidos pela rodada permanecem no corpo: avaliação comparável dos sete
+modelos sob protocolo comum, com desempenhos distintos; ganho líquido
+negativo da reclassificação; automação seletiva
+após calibração e concentração dos erros em fronteiras taxonômicas. Os 17
+grupos divergentes, as 85 linhas, os 14 grupos e 74 linhas entre tipos
+distintos e o par dominante Hidrossanitária × Reservatório permanecem na
+4.4, sem tratamento de teto quantitativo. O macro-F1 de 0,5481 passou a
+cenário conservador de sensibilidade, com F1 zero atribuído às nove
+categorias ausentes, e não desempenho observado de um modelo treinado nas
+50 categorias. Cada número reaproveitado foi conferido contra
+`docs/dados/comparacao_historica.json`, `docs/dados/custo_computacional_canonico.json`
+e `docs/dados/calibracao_canonica.json`. A frase defensiva "não está em
+falha de cálculo" saiu do texto sobre o ganho líquido.
 
-**Sementes, com o limite declarado.** O código não fixa a semente global do
-TensorFlow. O texto passou a declarar que a semente 42 vale para as
-partições e para os componentes do scikit-learn que recebem `random_state`,
-que a execução canônica da LSTM não a fixou e que, por isso, a reprodução
-exata dos pesos e da trajetória de treinamento não é garantida, embora
-partições, rótulos e protocolo o sejam.
+**Remissões cruzadas remapeadas.** Todas as ocorrências de "Subseção 4.X"
+no Método, na Discussão e nas Considerações Finais foram atualizadas para
+a nova numeração, inclusive as duas que colapsaram em uma só referência
+por terem se fundido na mesma subseção (concordância histórica e acerto
+contra a referência, ambas agora na 4.1).
 
-**Referências removidas por orfandade.** Saíram BENAVOLI; CORANI; MANGILI
-(2016), DEMŠAR (2006), NEMENYI (1963) e NOMA *et al.* (2021), junto com a
-discussão histórica de *post-hoc* que as sustentava. A Subseção 3.4 retém Q
-de Cochran com referência por permutação no grupo, comparações pareadas,
-Holm e *bootstrap* de conglomerados. A lista ficou com 55 entradas.
+**Contagem, antes e depois:** a Seção 4 caiu de 6.082 para 3.712 palavras,
+redução de 38,97%, dentro da meta de 30% a 40%. O corpo científico está
+em 9.539 palavras, 539 palavras acima do teto provisório de 9.000.
 
-**Contagem, antes e depois:** o Método caiu de 2.972 para 2.228 palavras,
-menos 25,03%, dentro da meta de 25% a 35%. O corpo científico caiu de
-12.513 para 11.903 palavras e a fonte de 16.567 para 15.856.
-
-**Dois denominadores, e não um:** a base congelada tem 14.060 chamados,
-todos com referência humana, e é o número de toda frase sobre corpus ou
-cobertura da revisão. As métricas valem para 13.972 linhas em 41
-categorias, porque nove categorias, somando 88 linhas, não sustentam
-suporte nas cinco dobras.
-
-**Unidade da inferência:** o grupo de texto normalizado, e não a linha. O
-efeito de desenho medido fica entre 4,47 e 8,83. Intervalos vêm de
-*bootstrap* de conglomerados, testes pareados de permutação com troca de
-sinal por grupo, teste global da estatística Q contra permutação por grupo
-e Holm sobre os 21 pares. Os 21 vereditos não mudam em relação ao McNemar
-por linha, com 19 pares significativos e 2 empatados.
-
-**O que falta:** concluir a redução editorial até 8 a 9 mil palavras e
-cerca de 22 páginas, agora concentrada nos Resultados e na Discussão, já
-que o Método foi reestruturado, e revisar o PDF, que é gerado pelo workflow
-ao entrar em `main`. O ambiente local não dispõe de xelatex nem de Docker,
-de modo que o PDF não foi regerado nesta rodada.
+**O que falta:** revisar a Discussão para eliminar qualquer redundância
+remanescente com a Seção 4 reestruturada, concluir o ajuste fino de
+palavras até a faixa de 8 a 9 mil, revisar visualmente as figuras (Rodada
+9) e regerar o PDF, que é gerado pelo workflow ao entrar em `main`. O
+ambiente local não dispõe de xelatex nem de Docker, de modo que o PDF não
+foi regerado nesta rodada.
 
 ## Critérios para novo fechamento científico
 
