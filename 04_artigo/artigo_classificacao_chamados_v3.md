@@ -1513,13 +1513,13 @@ auditável.
 % da tabela na pagina final -- tentativa de raggedbottom local nao teve
 % efeito, por ser pagina de float e nao de texto corrido; ver registro
 % da auditoria da Rodada 9.
-\begin{table}[!tp]
+\begin{table}[!htbp]
 \centering
-\footnotesize
+\scriptsize
 \caption{Categorias fora das partições canônicas.}
 \label{tab:apendiceA3}
-\setlength{\tabcolsep}{3pt}
-\renewcommand{\arraystretch}{1}
+\setlength{\tabcolsep}{2pt}
+\renewcommand{\arraystretch}{0.84}
 \begin{tabularx}{\textwidth}{@{}Y{1.3}W{0.4}Y{1.3}@{}}
 \toprule
 Categoria de referência & Linhas & Motivo da exclusão \\
