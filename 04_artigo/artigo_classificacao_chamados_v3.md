@@ -1434,14 +1434,14 @@ permanece em manutenção corretiva por consistir predominantemente em reparo
 de infraestrutura predial.
 
 ```{=latex}
-\begin{table}[!tbp]
+\begin{table}[!htbp]
 \centering
-\footnotesize
+\scriptsize
 \caption{Categorias da referência revisada avaliadas na rodada, por tipo de
 manutenção e classe da curva ABC interna ao tipo (n = 13.972; 41 categorias).}
 \label{tab:apendiceA2}
-\setlength{\tabcolsep}{3pt}
-\renewcommand{\arraystretch}{0.98}
+\setlength{\tabcolsep}{2pt}
+\renewcommand{\arraystretch}{0.84}
 \begin{tabularx}{\textwidth}{@{}Y{4.55}Z{0.2}W{0.35}W{0.4}Z{0.2}W{0.3}@{}}
 \toprule
 Categoria de referência & Tipo & n & \% do tipo & Classe & F1 \\
