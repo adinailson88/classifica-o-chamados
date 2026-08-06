@@ -812,7 +812,7 @@ A Figura 3 apresenta a curva de confiabilidade do Extra Trees calibrado,
 tornando visível a aderência entre confiança declarada e acerto observado
 ao longo das dez faixas.
 
-![Curva de confiabilidade do Extra Trees após calibração isotônica, com confiança média e acurácia observada por faixa.](04_artigo/figuras/fig_confianca_desfecho.pdf){width=75%}
+![Curva de confiabilidade do Extra Trees após calibração isotônica, com confiança média e acurácia observada por faixa.](04_artigo/figuras/fig_confianca_desfecho.pdf){width=85%}
 
 ```{=latex}
 \FloatBarrier
