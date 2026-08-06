@@ -121,20 +121,22 @@ superior e o SGD permanece próximo dos dois em ambas as métricas a custo
 de treino semelhante, de modo que a escolha operacional é declarada
 multicritério.
 
-**Tabelas do corpo, de seis para quatro.** A antiga Tabela 2 (concordância
-histórica), a antiga Tabela 3 (acurácia e macro-F1) e a antiga Tabela 6
-(custo computacional) fundiram-se na nova Tabela 2, com concordância
-histórica, acurácia, macro-F1, intervalo essencial e tempo de treino por
-modelo. A antiga Tabela 4 de calibração, com sete modelos, deu lugar à
-nova Tabela 4, com os quatro modelos mais competitivos em acurácia; o
-ECE piorado do Naive Bayes e do LSTM após a calibração permanece
-declarado em texto, e a tabela completa foi para o material suplementar.
-A antiga Tabela 7, com seis das 21 comparações pareadas, saiu do corpo: a
-Subseção 4.1 relata o teste global, a contagem de pares significativos e
-um exemplo (LinearSVC contra SGD) em prosa, e a matriz completa permanece
-no material suplementar. A Tabela 5 de ganho líquido virou Tabela 3, sem
-alteração de conteúdo. Restam quatro tabelas no corpo dos Resultados, mais
-a Tabela 1 do Método.
+**Tabelas dos Resultados, de seis para três.** A antiga Tabela 2
+(concordância histórica), a antiga Tabela 3 (acurácia e macro-F1) e a
+antiga Tabela 6 (custo computacional) fundiram-se na nova Tabela 2, com
+concordância histórica, acurácia, macro-F1, intervalo essencial e tempo
+de treino por modelo. A antiga Tabela 4 de calibração, com sete modelos,
+deu lugar à nova Tabela 4, com os quatro modelos mais competitivos em
+acurácia; o ECE piorado do Naive Bayes e do LSTM após a calibração
+permanece declarado em texto, e a tabela completa foi para o material
+suplementar (Tabela S16). A antiga Tabela 7, com seis das 21 comparações
+pareadas, saiu do corpo: a Subseção 4.1 relata o teste global, a contagem
+de pares significativos e um exemplo (LinearSVC contra SGD) em prosa, e a
+matriz completa permanece no material suplementar. A antiga Tabela 5 de
+ganho líquido virou Tabela 3, sem alteração de conteúdo. Restam três
+tabelas nos Resultados — Tabelas 2, 3 e 4 —, além da Tabela 1 do Método,
+totalizando quatro tabelas principais no corpo. Não existe Tabela 5 no
+corpo atual.
 
 **Figuras renumeradas pela nova ordem de aparição.** O trade-off de custo
 (antiga Figura 5) passou a Figura 2, por entrar na 4.1; a curva de
@@ -144,8 +146,9 @@ passaram a Figuras 4 e 5, na 4.4; a curva de aprendizado do LSTM manteve o
 número 6, na 4.5.
 
 **Achados preservados e números conferidos.** Os quatro achados centrais
-exigidos pela rodada permanecem no corpo: desempenho comparável dos sete
-modelos, ganho líquido negativo da reclassificação, automação seletiva
+exigidos pela rodada permanecem no corpo: avaliação comparável dos sete
+modelos sob protocolo comum, com desempenhos distintos; ganho líquido
+negativo da reclassificação; automação seletiva
 após calibração e concentração dos erros em fronteiras taxonômicas. Os 17
 grupos divergentes, as 85 linhas, os 14 grupos e 74 linhas entre tipos
 distintos e o par dominante Hidrossanitária × Reservatório permanecem na
@@ -163,10 +166,10 @@ a nova numeração, inclusive as duas que colapsaram em uma só referência
 por terem se fundido na mesma subseção (concordância histórica e acerto
 contra a referência, ambas agora na 4.1).
 
-**Contagem, antes e depois:** a Seção 4 caiu de 6.082 para cerca de 3.680
-palavras, redução de 39,5%, dentro da meta de 30% a 40%. O corpo científico
-caiu para cerca de 9.500 palavras, aproximando-se da meta final de 8 a 9
-mil, mas ainda cerca de 500 palavras acima do limite superior.
+**Contagem, antes e depois:** a Seção 4 caiu de 6.082 para cerca de 3.744
+palavras, redução de aproximadamente 38,44%, dentro da meta de 30% a 40%.
+O corpo científico está em cerca de 9.571 palavras, aproximadamente 571
+palavras acima do teto provisório de 9.000.
 
 **O que falta:** revisar a Discussão para eliminar qualquer redundância
 remanescente com a Seção 4 reestruturada, concluir o ajuste fino de

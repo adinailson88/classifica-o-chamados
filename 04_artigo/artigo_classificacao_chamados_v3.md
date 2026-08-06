@@ -642,13 +642,10 @@ diverge da categoria histórica e arbitrado pela referência revisada, é
 negativo nos sete modelos, de −1.846 no LinearSVC a −3.474 no Naive Bayes
 (Tabela 3). O melhor modelo produz 2.849 divergências, das quais apenas
 475 representam correção contra 2.321 que degradariam o registro, razão
-que piora monotonicamente à medida que cai o desempenho do modelo. O teto
-de correção mensurável neste desenho corresponde aos 4,25% de registros
-cuja categoria foi alterada, e nenhum modelo se aproxima dele sem produzir
-um volume de alterações indevidas várias vezes maior. A reclassificação
-automática em massa não é, portanto, desaconselhada por cautela
-metodológica, mas por evidência de que degradaria a base em que fosse
-aplicada, e o ganho líquido, e não a acurácia agregada, é o critério
+que piora monotonicamente à medida que cai o desempenho do modelo. A
+reclassificação automática em massa não é, portanto, desaconselhada por
+cautela metodológica, mas por evidência de que degradaria a base em que
+fosse aplicada, e o ganho líquido, e não a acurácia agregada, é o critério
 adequado para essa decisão, a ser recalculado a cada atualização da base.
 
 **Tabela 3** Ganho líquido de reclassificação por modelo, contado apenas
