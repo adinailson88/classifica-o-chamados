@@ -25,6 +25,16 @@ header-includes:
     \newcolumntype{Z}[1]{%
       >{\hsize=#1\hsize\linewidth=\hsize\centering\arraybackslash}X
     }
+    \newcolumntype{W}[1]{%
+      >{\hsize=#1\hsize\linewidth=\hsize\raggedleft\arraybackslash}X
+    }
+    % TABELAS A1 A A3: floats nao divisiveis (Rodada 9)
+    % Cada uma cabia inteira numa unica pagina mesmo como longtable no PDF
+    % de partida da Rodada 9, entao a conversao para 'table' nao encurtou
+    % nem alongou a paginacao: apenas impede a quebra teorica entre paginas
+    % e sobe a fonte de \scriptsize para \footnotesize, piso de legibilidade
+    % desta rodada. Coluna W: terceiro tipo X, alinhado a direita, para as
+    % colunas numericas (Quantidade, n, %, F1, Linhas), que Y/Z nao cobriam.
     % POSICIONAMENTO DE FLOATS
     % A posicao 'h' foi acrescentada a 'tp' para que a figura possa assentar
     % onde e citada. So com 'tp' ela era empurrada ao topo da pagina seguinte, e
@@ -1359,56 +1369,53 @@ as 41 categorias que sustentaram suporte nas cinco dobras e compõem as
 13.972 linhas avaliadas, e a segunda, as 9 que ficaram de fora.
 
 ```{=latex}
-\scriptsize
-\setlength{\tabcolsep}{2.5pt}
-\renewcommand{\arraystretch}{0.92}
-```
+\begin{table}[!p]
+\centering
+\footnotesize
+\caption{Distribuição dos chamados por categoria histórica.}
+\label{tab:apendiceA1}
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{0.98}
+\begin{tabularx}{\textwidth}{@{}Y{1.5}W{0.5}Y{1.5}W{0.5}@{}}
+\toprule
+Categoria histórica & Quantidade & Categoria histórica & Quantidade \\
+\midrule
+Manutenção Preventiva > Ar condicionado split & 1.798 & Manutenção Preventiva > Sistemas de combate a incêndio (extintores, hidrantes) & 66 \\
+Climatização > Ar condicionado split & 1.640 & Estrutura Predial > Pintura & 58 \\
+Estrutura Predial > Alvenaria / Pisos / Estrutura & 1.302 & Instalação de Acessórios e Mobiliário > Placas de identificação & 54 \\
+Hidrossanitária > Hidráulica & 1.282 & Manutenção Preventiva > Telhados, calhas, rufos, etc. & 44 \\
+Manutenção Preventiva > Gerador & 1.215 & TI / Dados / Rede > Coleta de dados & 40 \\
+Estrutura Predial > Esquadrias, porta, portão e janelas & 977 & Elétrica > Gerador & 38 \\
+Elétrica > Instalações elétricas & 945 & Hidrossanitária > Bomba & 38 \\
+Elétrica > Iluminação & 758 & Climatização > Ar condicionado central & 37 \\
+Manutenção Preventiva > Quadros Elétricos & 578 & Manutenção Preventiva > Esgoto & 33 \\
+TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi & 404 & Manutenção Preventiva > Hidráulica & 33 \\
+Instalação de Acessórios e Mobiliário > Instalação/reparo de equipamentos (Suportes de TV, acessórios de banheiro e quadro branco) & 290 & Outros > Outros & 33 \\
+Manutenção Preventiva > Reservatório & 279 & Segurança contra Incêndio > Sistemas de combate a incêndio (extintores, hidrantes) & 29 \\
+Manutenção Preventiva > Vistoria em Instalações & 247 & Projetos e Reformas > Projeto & 25 \\
+Outros > Erro de chamado & 245 & Equipamentos de Transporte > Elevador & 22 \\
+Estrutura Predial > Infiltração & 215 & Elétrica > Subestação & 18 \\
+Estrutura Predial > Telhados, calhas, rufos, etc. & 207 & Hidrossanitária > ETA / ETE & 16 \\
+Manutenção Preventiva > Ar condicionado central & 165 & Suprimentos / Apoio Técnico > Limpeza de equipamentos, ambiente e mobiliário & 14 \\
+Estrutura Predial > Forro & 146 & Manutenção Preventiva > Poços artesianos & 13 \\
+Manutenção Preventiva > Iluminação & 132 & Manutenção Preventiva > Nobreak & 10 \\
+Elétrica > Nobreak & 128 & Elétrica > Sistema Fotovoltaico (FV) & 7 \\
+Área Externa e Ambiental > Manutenção área externa / meio ambiente / Poda de árvore / Roçagem & 109 & Área Externa e Ambiental > Drenagem & 4 \\
+Posto de trabalho > Contratação de Posto de trabalho & 102 & Estrutura Predial > Instalações Especiais (gás, ar comprimido, etc.) & 3 \\
+Manutenção Preventiva > Elevador & 86 & Manutenção Preventiva > Aplicação cupinicida & 3 \\
+Suprimentos / Apoio Técnico > Materiais & 85 & Manutenção Preventiva > Bomba & 3 \\
+Projetos e Reformas > Reforma & 83 & Suprimentos / Apoio Técnico > Transporte & 1 \\
+\textbf{Total geral} & \textbf{14.060} & & \\
+\bottomrule
+\end{tabularx}
 
-**Tabela A1** Distribuição dos chamados por categoria histórica.
-
-| Categoria histórica | Quantidade | Categoria histórica | Quantidade |
-|:---|---:|:---|---:|
-| Manutenção Preventiva > Ar condicionado split | 1.798 | Manutenção Preventiva > Sistemas de combate a incêndio (extintores, hidrantes) | 66 |
-| Climatização > Ar condicionado split | 1.640 | Estrutura Predial > Pintura | 58 |
-| Estrutura Predial > Alvenaria / Pisos / Estrutura | 1.302 | Instalação de Acessórios e Mobiliário > Placas de identificação | 54 |
-| Hidrossanitária > Hidráulica | 1.282 | Manutenção Preventiva > Telhados, calhas, rufos, etc. | 44 |
-| Manutenção Preventiva > Gerador | 1.215 | TI / Dados / Rede > Coleta de dados | 40 |
-| Estrutura Predial > Esquadrias, porta, portão e janelas | 977 | Elétrica > Gerador | 38 |
-| Elétrica > Instalações elétricas | 945 | Hidrossanitária > Bomba | 38 |
-| Elétrica > Iluminação | 758 | Climatização > Ar condicionado central | 37 |
-| Manutenção Preventiva > Quadros Elétricos | 578 | Manutenção Preventiva > Esgoto | 33 |
-| TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi | 404 | Manutenção Preventiva > Hidráulica | 33 |
-| Instalação de Acessórios e Mobiliário > Instalação/reparo de equipamentos (Suportes de TV, acessórios de banheiro e quadro branco) | 290 | Outros > Outros | 33 |
-| Manutenção Preventiva > Reservatório | 279 | Segurança contra Incêndio > Sistemas de combate a incêndio (extintores, hidrantes) | 29 |
-| Manutenção Preventiva > Vistoria em Instalações | 247 | Projetos e Reformas > Projeto | 25 |
-| Outros > Erro de chamado | 245 | Equipamentos de Transporte > Elevador | 22 |
-| Estrutura Predial > Infiltração | 215 | Elétrica > Subestação | 18 |
-| Estrutura Predial > Telhados, calhas, rufos, etc. | 207 | Hidrossanitária > ETA / ETE | 16 |
-| Manutenção Preventiva > Ar condicionado central | 165 | Suprimentos / Apoio Técnico > Limpeza de equipamentos, ambiente e mobiliário | 14 |
-| Estrutura Predial > Forro | 146 | Manutenção Preventiva > Poços artesianos | 13 |
-| Manutenção Preventiva > Iluminação | 132 | Manutenção Preventiva > Nobreak | 10 |
-| Elétrica > Nobreak | 128 | Elétrica > Sistema Fotovoltaico (FV) | 7 |
-| Área Externa e Ambiental > Manutenção área externa / meio ambiente / Poda de árvore / Roçagem | 109 | Área Externa e Ambiental > Drenagem | 4 |
-| Posto de trabalho > Contratação de Posto de trabalho | 102 | Estrutura Predial > Instalações Especiais (gás, ar comprimido, etc.) | 3 |
-| Manutenção Preventiva > Elevador | 86 | Manutenção Preventiva > Aplicação cupinicida | 3 |
-| Suprimentos / Apoio Técnico > Materiais | 85 | Manutenção Preventiva > Bomba | 3 |
-| Projetos e Reformas > Reforma | 83 | Suprimentos / Apoio Técnico > Transporte | 1 |
-| **Total geral** | **14.060** |  |  |
-
-*Fonte: elaboração própria a partir do corpus analisado.*
-
-```{=latex}
-\normalsize
-\setlength{\tabcolsep}{6pt}
-\renewcommand{\arraystretch}{1}
+\vspace{2pt}
+\raggedright\emph{Fonte: elaboração própria a partir do corpus analisado.}
+\end{table}
 ```
 
 ```{=latex}
 \FloatBarrier
-\clearpage
-\scriptsize
-\setlength{\tabcolsep}{2.5pt}
-\renewcommand{\arraystretch}{0.9}
 ```
 
 **Tabela A2** Categorias da referência revisada avaliadas na rodada, por tipo de manutenção e
@@ -1420,53 +1427,72 @@ famílias que não descrevem serviço de manutenção predial, a saber, `Outros`
 família `TI / Dados / Rede` permanece em manutenção corretiva por consistir
 predominantemente em reparo de infraestrutura predial.
 
-| Categoria de referência | Tipo | n | % do tipo | Classe | F1 |
-|:------------------------------------------------------------------------|:-:|----:|-----:|:-:|-----:|
-| **Preventiva** | **P** | **4.902** | **100,00** | | |
-| Manutenção Preventiva > Ar condicionado split | P | 1.987 | 40,53 | A | 0,9972 |
-| Manutenção Preventiva > Gerador | P | 1.208 | 24,64 | A | 0,9954 |
-| Manutenção Preventiva > Quadros Elétricos | P | 578 | 11,79 | A | 0,9843 |
-| Manutenção Preventiva > Reservatório | P | 318 | 6,49 | A | 0,9139 |
-| Manutenção Preventiva > Vistoria em Instalações | P | 244 | 4,98 | B | 0,9419 |
-| Manutenção Preventiva > Ar condicionado central | P | 168 | 3,43 | B | 0,9970 |
-| Manutenção Preventiva > Iluminação | P | 132 | 2,69 | B | 0,9535 |
-| Manutenção Preventiva > Elevador | P | 86 | 1,75 | B | 0,9655 |
-| Manutenção Preventiva > Sistemas de combate a incêndio (extintores, hidrantes) | P | 66 | 1,35 | C | 0,8905 |
-| Manutenção Preventiva > Telhados, calhas, rufos, etc. | P | 44 | 0,90 | C | 0,2162 |
-| Manutenção Preventiva > Esgoto | P | 31 | 0,63 | C | 0,4286 |
-| Manutenção Preventiva > Hidráulica | P | 27 | 0,55 | C | 0,0000 |
-| Manutenção Preventiva > Poços artesianos | P | 13 | 0,27 | C | 1,0000 |
-| **Corretiva** | **C** | **8.485** | **100,00** | | |
-| Climatização > Ar condicionado split | C | 1.448 | 17,07 | A | 0,9550 |
-| Hidrossanitária > Hidráulica | C | 1.263 | 14,89 | A | 0,8651 |
-| Estrutura Predial > Alvenaria / Pisos / Estrutura | C | 1.138 | 13,41 | A | 0,4610 |
-| Estrutura Predial > Esquadrias, porta, portão e janelas | C | 1.003 | 11,82 | A | 0,8712 |
-| Elétrica > Instalações elétricas | C | 909 | 10,71 | A | 0,7248 |
-| Elétrica > Iluminação | C | 764 | 9,00 | A | 0,8901 |
-| TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi | C | 412 | 4,86 | A | 0,7173 |
-| Instalação de Acessórios e Mobiliário > Instalação/reparo de equipamentos (Suportes de TV, acessórios de banheiro e quadro branco) | C | 405 | 4,77 | B | 0,4730 |
-| Estrutura Predial > Telhados, calhas, rufos, etc. | C | 203 | 2,39 | B | 0,4962 |
-| Estrutura Predial > Infiltração | C | 202 | 2,38 | B | 0,6493 |
-| Estrutura Predial > Forro | C | 168 | 1,98 | B | 0,7746 |
-| Elétrica > Nobreak | C | 150 | 1,77 | B | 0,7855 |
-| Área Externa e Ambiental > Manutenção área externa / meio ambiente / Poda de árvore / Roçagem | C | 103 | 1,21 | C | 0,6288 |
-| Instalação de Acessórios e Mobiliário > Placas de identificação | C | 69 | 0,81 | C | 0,6494 |
-| Estrutura Predial > Pintura | C | 60 | 0,71 | C | 0,5890 |
-| Elétrica > Gerador | C | 43 | 0,51 | C | 0,7723 |
-| Hidrossanitária > Bomba | C | 43 | 0,51 | C | 0,7238 |
-| Climatização > Ar condicionado central | C | 33 | 0,39 | C | 0,7324 |
-| Segurança contra Incêndio > Sistemas de combate a incêndio (extintores, hidrantes) | C | 29 | 0,34 | C | 0,4815 |
-| Equipamentos de Transporte > Elevador | C | 21 | 0,25 | C | 0,7692 |
-| Elétrica > Subestação | C | 19 | 0,22 | C | 0,6061 |
-| **Não manutenção** | **NM** | **585** | **100,00** | | |
-| Outros > Erro de chamado | NM | 258 | 44,10 | A | 0,3978 |
-| Posto de trabalho > Contratação de Posto de trabalho | NM | 102 | 17,44 | A | 0,9561 |
-| Suprimentos / Apoio Técnico > Materiais | NM | 96 | 16,41 | A | 0,4790 |
-| Projetos e Reformas > Reforma | NM | 65 | 11,11 | A | 0,2407 |
-| Outros > Outros | NM | 28 | 4,79 | B | 0,3404 |
-| Projetos e Reformas > Projeto | NM | 23 | 3,93 | B | 0,0000 |
-| Suprimentos / Apoio Técnico > Limpeza de equipamentos, ambiente e mobiliário | NM | 13 | 2,22 | C | 0,0909 |
-| **Total avaliado** | | **13.972** | | | |
+```{=latex}
+\begin{table}[!p]
+\centering
+\footnotesize
+\caption{Categorias da referência revisada avaliadas na rodada, por tipo de
+manutenção e classe da curva ABC interna ao tipo (n = 13.972; 41 categorias).}
+\label{tab:apendiceA2}
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{0.98}
+\begin{tabularx}{\textwidth}{@{}Y{4.55}Z{0.2}W{0.35}W{0.4}Z{0.2}W{0.3}@{}}
+\toprule
+Categoria de referência & Tipo & n & \% do tipo & Classe & F1 \\
+\midrule
+\textbf{Preventiva} & \textbf{P} & \textbf{4.902} & \textbf{100,00} & & \\
+Manutenção Preventiva > Ar condicionado split & P & 1.987 & 40,53 & A & 0,9972 \\
+Manutenção Preventiva > Gerador & P & 1.208 & 24,64 & A & 0,9954 \\
+Manutenção Preventiva > Quadros Elétricos & P & 578 & 11,79 & A & 0,9843 \\
+Manutenção Preventiva > Reservatório & P & 318 & 6,49 & A & 0,9139 \\
+Manutenção Preventiva > Vistoria em Instalações & P & 244 & 4,98 & B & 0,9419 \\
+Manutenção Preventiva > Ar condicionado central & P & 168 & 3,43 & B & 0,9970 \\
+Manutenção Preventiva > Iluminação & P & 132 & 2,69 & B & 0,9535 \\
+Manutenção Preventiva > Elevador & P & 86 & 1,75 & B & 0,9655 \\
+Manutenção Preventiva > Sistemas de combate a incêndio (extintores, hidrantes) & P & 66 & 1,35 & C & 0,8905 \\
+Manutenção Preventiva > Telhados, calhas, rufos, etc. & P & 44 & 0,90 & C & 0,2162 \\
+Manutenção Preventiva > Esgoto & P & 31 & 0,63 & C & 0,4286 \\
+Manutenção Preventiva > Hidráulica & P & 27 & 0,55 & C & 0,0000 \\
+Manutenção Preventiva > Poços artesianos & P & 13 & 0,27 & C & 1,0000 \\
+\textbf{Corretiva} & \textbf{C} & \textbf{8.485} & \textbf{100,00} & & \\
+Climatização > Ar condicionado split & C & 1.448 & 17,07 & A & 0,9550 \\
+Hidrossanitária > Hidráulica & C & 1.263 & 14,89 & A & 0,8651 \\
+Estrutura Predial > Alvenaria / Pisos / Estrutura & C & 1.138 & 13,41 & A & 0,4610 \\
+Estrutura Predial > Esquadrias, porta, portão e janelas & C & 1.003 & 11,82 & A & 0,8712 \\
+Elétrica > Instalações elétricas & C & 909 & 10,71 & A & 0,7248 \\
+Elétrica > Iluminação & C & 764 & 9,00 & A & 0,8901 \\
+TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi & C & 412 & 4,86 & A & 0,7173 \\
+Instalação de Acessórios e Mobiliário > Instalação/reparo de equipamentos (Suportes de TV, acessórios de banheiro e quadro branco) & C & 405 & 4,77 & B & 0,4730 \\
+Estrutura Predial > Telhados, calhas, rufos, etc. & C & 203 & 2,39 & B & 0,4962 \\
+Estrutura Predial > Infiltração & C & 202 & 2,38 & B & 0,6493 \\
+Estrutura Predial > Forro & C & 168 & 1,98 & B & 0,7746 \\
+Elétrica > Nobreak & C & 150 & 1,77 & B & 0,7855 \\
+Área Externa e Ambiental > Manutenção área externa / meio ambiente / Poda de árvore / Roçagem & C & 103 & 1,21 & C & 0,6288 \\
+Instalação de Acessórios e Mobiliário > Placas de identificação & C & 69 & 0,81 & C & 0,6494 \\
+Estrutura Predial > Pintura & C & 60 & 0,71 & C & 0,5890 \\
+Elétrica > Gerador & C & 43 & 0,51 & C & 0,7723 \\
+Hidrossanitária > Bomba & C & 43 & 0,51 & C & 0,7238 \\
+Climatização > Ar condicionado central & C & 33 & 0,39 & C & 0,7324 \\
+Segurança contra Incêndio > Sistemas de combate a incêndio (extintores, hidrantes) & C & 29 & 0,34 & C & 0,4815 \\
+Equipamentos de Transporte > Elevador & C & 21 & 0,25 & C & 0,7692 \\
+Elétrica > Subestação & C & 19 & 0,22 & C & 0,6061 \\
+\textbf{Não manutenção} & \textbf{NM} & \textbf{585} & \textbf{100,00} & & \\
+Outros > Erro de chamado & NM & 258 & 44,10 & A & 0,3978 \\
+Posto de trabalho > Contratação de Posto de trabalho & NM & 102 & 17,44 & A & 0,9561 \\
+Suprimentos / Apoio Técnico > Materiais & NM & 96 & 16,41 & A & 0,4790 \\
+Projetos e Reformas > Reforma & NM & 65 & 11,11 & A & 0,2407 \\
+Outros > Outros & NM & 28 & 4,79 & B & 0,3404 \\
+Projetos e Reformas > Projeto & NM & 23 & 3,93 & B & 0,0000 \\
+Suprimentos / Apoio Técnico > Limpeza de equipamentos, ambiente e mobiliário & NM & 13 & 2,22 & C & 0,0909 \\
+\textbf{Total avaliado} & & \textbf{13.972} & & & \\
+\bottomrule
+\end{tabularx}
+\end{table}
+```
+
+```{=latex}
+\FloatBarrier
+```
 
 As nove categorias restantes da taxonomia não sustentam suporte nas cinco
 dobras e ficam fora das partições, conforme o critério da Subseção 3.4.
@@ -1474,26 +1500,33 @@ Somam 88 linhas, ou 0,63% da base congelada, e estão discriminadas na
 Tabela A3 para que a diferença entre os dois denominadores permaneça
 auditável.
 
-**Tabela A3** Categorias fora das partições canônicas.
-
-| Categoria de referência | Linhas | Motivo da exclusão |
-|:---|---:|:---|
-| TI / Dados / Rede > Coleta de dados | 40 | ausente de ao menos uma dobra após a estratificação |
-| Hidrossanitária > ETA / ETE | 15 | ausente de ao menos uma dobra após a estratificação |
-| Manutenção Preventiva > Nobreak | 9 | ausente de ao menos uma dobra após a estratificação |
-| Elétrica > Sistema Fotovoltaico (FV) | 7 | ausente de ao menos uma dobra após a estratificação |
-| Estrutura Predial > Instalações Especiais (gás, ar comprimido, etc.) | 5 | ausente de ao menos uma dobra após a estratificação |
-| Área Externa e Ambiental > Drenagem | 4 | suporte insuficiente para as cinco dobras |
-| Manutenção Preventiva > Aplicação cupinicida | 3 | suporte insuficiente para as cinco dobras |
-| Manutenção Preventiva > Bomba | 3 | suporte insuficiente para as cinco dobras |
-| Suprimentos / Apoio Técnico > Transporte | 2 | suporte insuficiente para as cinco dobras |
-| **Total** | **88** | |
-
-*Fonte: elaboração própria a partir do corpus analisado.*
-
 ```{=latex}
-\normalsize
-\setlength{\tabcolsep}{6pt}
+\begin{table}[!tbp]
+\centering
+\footnotesize
+\caption{Categorias fora das partições canônicas.}
+\label{tab:apendiceA3}
+\setlength{\tabcolsep}{3pt}
 \renewcommand{\arraystretch}{1}
+\begin{tabularx}{\textwidth}{@{}Y{1.3}W{0.4}Y{1.3}@{}}
+\toprule
+Categoria de referência & Linhas & Motivo da exclusão \\
+\midrule
+TI / Dados / Rede > Coleta de dados & 40 & ausente de ao menos uma dobra após a estratificação \\
+Hidrossanitária > ETA / ETE & 15 & ausente de ao menos uma dobra após a estratificação \\
+Manutenção Preventiva > Nobreak & 9 & ausente de ao menos uma dobra após a estratificação \\
+Elétrica > Sistema Fotovoltaico (FV) & 7 & ausente de ao menos uma dobra após a estratificação \\
+Estrutura Predial > Instalações Especiais (gás, ar comprimido, etc.) & 5 & ausente de ao menos uma dobra após a estratificação \\
+Área Externa e Ambiental > Drenagem & 4 & suporte insuficiente para as cinco dobras \\
+Manutenção Preventiva > Aplicação cupinicida & 3 & suporte insuficiente para as cinco dobras \\
+Manutenção Preventiva > Bomba & 3 & suporte insuficiente para as cinco dobras \\
+Suprimentos / Apoio Técnico > Transporte & 2 & suporte insuficiente para as cinco dobras \\
+\textbf{Total} & \textbf{88} & \\
+\bottomrule
+\end{tabularx}
+
+\vspace{2pt}
+\raggedright\emph{Fonte: elaboração própria a partir do corpus analisado.}
+\end{table}
 ```
 
