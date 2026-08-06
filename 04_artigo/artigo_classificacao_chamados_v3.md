@@ -1441,7 +1441,7 @@ de infraestrutura predial.
 manutenção e classe da curva ABC interna ao tipo (n = 13.972; 41 categorias).}
 \label{tab:apendiceA2}
 \setlength{\tabcolsep}{2pt}
-\renewcommand{\arraystretch}{0.84}
+\renewcommand{\arraystretch}{0.88}
 \begin{tabularx}{\textwidth}{@{}Y{4.55}Z{0.2}W{0.35}W{0.4}Z{0.2}W{0.3}@{}}
 \toprule
 Categoria de referência & Tipo & n & \% do tipo & Classe & F1 \\
@@ -1519,7 +1519,7 @@ auditável.
 \caption{Categorias fora das partições canônicas.}
 \label{tab:apendiceA3}
 \setlength{\tabcolsep}{2pt}
-\renewcommand{\arraystretch}{0.84}
+\renewcommand{\arraystretch}{0.88}
 \begin{tabularx}{\textwidth}{@{}Y{1.3}W{0.4}Y{1.3}@{}}
 \toprule
 Categoria de referência & Linhas & Motivo da exclusão \\
