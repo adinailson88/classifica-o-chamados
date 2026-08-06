@@ -1507,7 +1507,7 @@ Tabela A3 para que a diferença entre os dois denominadores permaneça
 auditável.
 
 ```{=latex}
-\begin{table}[!tbp]
+\begin{table}[!tp]
 \centering
 \footnotesize
 \caption{Categorias fora das partições canônicas.}
