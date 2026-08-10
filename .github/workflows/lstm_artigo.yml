@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       tarefa:
-        description: "tabela_s1, history, diagnostico_ablation, diagnostico_protocolo_ablation, diagnostico_materializacao_lstm, ablation, limpar_multimodelo, sensibilidade_vies, holdout_vs_kfold, kfold_vs_groupkfold, figuras_artigo ou congelar_alvo_ensemble"
+        description: "tabela_s1, history, diagnostico_ablation, diagnostico_protocolo_ablation, diagnostico_materializacao_lstm, ablation, limpar_multimodelo, sensibilidade_vies, holdout_vs_kfold, kfold_vs_groupkfold, figuras_artigo, congelar_alvo_ensemble ou gate2a_proveniencia_textual"
         required: true
         default: "tabela_s1"
         type: choice
@@ -21,6 +21,7 @@ on:
           - kfold_vs_groupkfold
           - figuras_artigo
           - congelar_alvo_ensemble
+          - gate2a_proveniencia_textual
       epochs:
         description: "Epocas de treino"
         required: false
@@ -67,7 +68,7 @@ jobs:
 
       - name: Validar sintaxe e testes
         run: |
-          python -m py_compile src/exportar_tabela_por_categoria.py src/modelo_lstm.py src/ablation_lstm.py src/limpar_classif_multimodelo.py src/analise_sensibilidade_vies_validacao.py src/comparacao_holdout_kfold.py src/comparacao_kfold_groupkfold.py src/congelar_alvo_ensemble.py
+          python -m py_compile src/exportar_tabela_por_categoria.py src/modelo_lstm.py src/ablation_lstm.py src/limpar_classif_multimodelo.py src/analise_sensibilidade_vies_validacao.py src/comparacao_holdout_kfold.py src/comparacao_kfold_groupkfold.py src/congelar_alvo_ensemble.py src/auditar_gate2a_fonte_historica.py
           python -m unittest discover -s tests
 
       - name: Exportar tabela S1 da aba viva
@@ -196,10 +197,29 @@ jobs:
             exit 1
           fi
 
+      - name: "Gate 2A: auditar proveniencia textual de fonte historica candidata"
+        if: ${{ github.event.inputs.tarefa == 'gate2a_proveniencia_textual' }}
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: credenciais_sa.json
+        run: |
+          python src/auditar_gate2a_fonte_historica.py \
+            --spreadsheet-id "18HVqv7H_hMlXej1XrwNsTgWhs2khZ9exZ5EzoXbnDLY" \
+            --aba "CHAMADOS" \
+            --saida dados/gate2a_resultado.json
+
+      - name: "Gate 2A: publicar resultado sanitizado como artefato"
+        if: ${{ always() && github.event.inputs.tarefa == 'gate2a_proveniencia_textual' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: gate2a-resultado
+          path: dados/gate2a_resultado.json
+          if-no-files-found: error
+          retention-days: 14
+
       - name: Remover credencial e cache temporarios
         if: ${{ always() }}
         run: |
-          rm -f credenciais_sa.json dados/cache_planilha.json
+          rm -f credenciais_sa.json dados/cache_planilha.json dados/gate2a_resultado.json
 
       - name: Commitar resultados
         if: ${{ github.event.inputs.tarefa != 'congelar_alvo_ensemble' }}
