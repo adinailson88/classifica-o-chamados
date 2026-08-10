@@ -147,7 +147,7 @@ def montar_registros_alvo(
         itens_hash_corpus.append([id_sha, grupo_atual, referencia])
         alvo.append({
             "id_sha256": id_sha,
-            "grupo_sha256": grupo_congelado,
+            "grupo_sha256": grupo_atual,
             "outer_fold": particoes[id_sha]["outer_fold"],
             "categoria_historica": historica,
             "referencia_humana": referencia,

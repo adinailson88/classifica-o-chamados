@@ -100,7 +100,7 @@ class TestSchemaEAlvo(unittest.TestCase):
         self.assertEqual(len(r["grupo_sha256"]), 64)
         self.assertEqual(r["outer_fold"], 5)
 
-    def test_grupo_da_particao_e_redundante_e_nao_bloqueia(self):
+    def test_grupo_gravado_segue_preparacao_canonica(self):
         raw = {
             "id": "1",
             "titulo": "t",
@@ -120,7 +120,9 @@ class TestSchemaEAlvo(unittest.TestCase):
         registros, _hash, _alterados = cae.montar_registros_alvo(
             [raw], particoes, {id_sha: grupo}
         )
-        self.assertEqual(registros[0]["grupo_sha256"], grupo)
+        esperado = cae._hash_grupo_atual(raw)
+        self.assertEqual(registros[0]["grupo_sha256"], esperado)
+        self.assertEqual(_alterados, 1)
 
 
 class TestBaselineLinearSvc(unittest.TestCase):
