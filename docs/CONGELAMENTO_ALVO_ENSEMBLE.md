@@ -8,7 +8,7 @@
 - SHA-256 fisico de alvo_ensemble.json: `76d903c9e89039fd507524c9c836394bf005c7c757830677a3ed3d068818d569`
 - classes_sha256: `9e6c742bd7f6410de10f857d4103a959316f588ae4f19afdb06d84a3dcea947a`
 - partition_manifest_sha256: `6d7d7384276644d057acc6d8d42ec5da8d14e6b0745a5abdb97a3f52be812f1d`
-- commit produtor: `75436eeef5b6b053ec31c98a8d2087bf3e54c3c3`
+- commit produtor: `a141facf3e2989d39181c3f9be565d7fc98c9266`
 - registros: 13972
 - grupos: 9734
 - grupos atuais distintos (diagnostico): 9735
