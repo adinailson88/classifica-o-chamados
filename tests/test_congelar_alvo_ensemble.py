@@ -201,6 +201,90 @@ class TestSchemaEAlvo(unittest.TestCase):
         self.assertEqual(rodada["hash_corpus"], cae.HASH_CORPUS_ESPERADO)
 
 
+def _artifacts_base():
+    return {
+        "classes_bytes": b"classes",
+        "alvo_bytes": b"alvo",
+        "resumo_bytes": b"resumo",
+        "relatorio": b"relatorio",
+        "hashes": {"hash_alvo_ensemble": "h"},
+        "contagens": {"total_Y1": 1},
+    }
+
+
+class TestDeterminismo(unittest.TestCase):
+    def test_verificar_determinismo_aceita_execucoes_identicas(self):
+        a = _artifacts_base()
+        b = dict(a)
+        cae.verificar_determinismo(a, b)
+
+    def test_verificar_determinismo_bloqueia_classes_bytes_divergentes(self):
+        a = _artifacts_base()
+        b = dict(a, classes_bytes=b"classes-alterado")
+        with self.assertRaisesRegex(RuntimeError, "Determinismo falhou em classes_bytes"):
+            cae.verificar_determinismo(a, b)
+
+    def test_verificar_determinismo_bloqueia_alvo_bytes_divergentes(self):
+        a = _artifacts_base()
+        b = dict(a, alvo_bytes=b"alvo-alterado")
+        with self.assertRaisesRegex(RuntimeError, "Determinismo falhou em alvo_bytes"):
+            cae.verificar_determinismo(a, b)
+
+    def test_verificar_determinismo_bloqueia_resumo_bytes_divergentes(self):
+        a = _artifacts_base()
+        b = dict(a, resumo_bytes=b"resumo-alterado")
+        with self.assertRaisesRegex(RuntimeError, "Determinismo falhou em resumo_bytes"):
+            cae.verificar_determinismo(a, b)
+
+    def test_verificar_determinismo_bloqueia_relatorio_divergente(self):
+        a = _artifacts_base()
+        b = dict(a, relatorio=b"relatorio-alterado")
+        with self.assertRaisesRegex(RuntimeError, "Determinismo falhou em relatorio"):
+            cae.verificar_determinismo(a, b)
+
+    def test_verificar_determinismo_bloqueia_hashes_divergentes(self):
+        a = _artifacts_base()
+        b = dict(a, hashes={"hash_alvo_ensemble": "outro"})
+        with self.assertRaisesRegex(RuntimeError, "Determinismo falhou em hashes"):
+            cae.verificar_determinismo(a, b)
+
+    def test_verificar_determinismo_bloqueia_contagens_divergentes(self):
+        a = _artifacts_base()
+        b = dict(a, contagens={"total_Y1": 2})
+        with self.assertRaisesRegex(RuntimeError, "Determinismo falhou em contagens"):
+            cae.verificar_determinismo(a, b)
+
+    def test_montar_resumo_nao_contem_timestamp_volatil(self):
+        regs = [registro("1", "Cat A", "Cat A", 1), registro("2", "Cat X", "Cat A", 1)]
+        baseline = {
+            "baseline": {
+                "alertas_naturais": 1, "inadequacoes_na_fila": 1,
+                "precisao_fila_natural": 1.0, "correcoes_top1": 1,
+                "neutros": 0, "prejudicados": 0,
+            },
+            "por_dobra": {"1": {"K_f": 1, "D_f": 1, "R_f": 0,
+                                "inadequacoes_dentro_da_fila_natural": 1,
+                                "precisao_fila_natural": 1.0}},
+            "todos_h_fora_de_c_na_fila_natural": True,
+        }
+        diagnostico = {
+            "total_ids_particao": 2, "total_grupos_particao": 2,
+            "dobras_particao": [1], "grupos_divididos_entre_dobras": 0,
+            "passo2_x_particao_divergentes": 0,
+            "ids_passo2_x_particao_divergentes": [],
+            "grupos_passo2_distintos": 2, "grupos_particao_distintos": 2,
+            "particao_x_atual_divergentes": 0, "passo2_x_atual_divergentes": 0,
+            "grupos_atuais_distintos": 2,
+        }
+        resumo_a = cae.montar_resumo(regs, "h", "hh", "ha", "hc", "hp", baseline, diagnostico)
+        resumo_b = cae.montar_resumo(regs, "h", "hh", "ha", "hc", "hp", baseline, diagnostico)
+        self.assertNotIn("gerado_em", resumo_a)
+        self.assertEqual(cae.canonical_bytes(resumo_a), cae.canonical_bytes(resumo_b))
+        relatorio_a = cae.renderizar_markdown(resumo_a).encode("utf-8")
+        relatorio_b = cae.renderizar_markdown(resumo_b).encode("utf-8")
+        self.assertEqual(relatorio_a, relatorio_b)
+
+
 class TestBaselineLinearSvc(unittest.TestCase):
     def test_join_completo_linear_svc_e_calculo_k_d_r(self):
         regs = [

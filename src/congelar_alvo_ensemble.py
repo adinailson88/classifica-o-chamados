@@ -23,7 +23,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import construir_grupos_textuais as cgt  # noqa: E402
 import planilha as pl  # noqa: E402
-from tempo import agora_bahia  # noqa: E402
 
 RAIZ = Path(__file__).resolve().parents[1]
 DADOS = RAIZ / "docs" / "dados"
@@ -551,7 +550,6 @@ def montar_resumo(
     )
     return {
         "schema_version": 1,
-        "gerado_em": agora_bahia(),
         "hash_corpus": hash_corpus,
         "hash_historico_ensemble": hash_hist,
         "hash_alvo_ensemble": hash_alvo,
@@ -764,7 +762,7 @@ def construir_artifacts(
 
 
 def verificar_determinismo(a: dict[str, Any], b: dict[str, Any]) -> None:
-    for chave in ("classes_bytes", "alvo_bytes"):
+    for chave in ("classes_bytes", "alvo_bytes", "resumo_bytes", "relatorio"):
         if a[chave] != b[chave]:
             raise RuntimeError(f"Determinismo falhou em {chave}")
     for chave in ("hashes", "contagens"):
@@ -819,11 +817,11 @@ def main() -> int:
         registros_b, args.particoes, args.grupos, args.predicoes, args.rodada
     )
     verificar_determinismo(primeira, segunda)
-    gravar_artifacts(primeira, args)
+    gravar_artifacts(segunda, args)
     print(json.dumps({
         "status": "concluido",
-        **primeira["hashes"],
-        **primeira["contagens"],
+        **segunda["hashes"],
+        **segunda["contagens"],
         "baseline_reproduzido": BASELINE_ESPERADO,
         "modelos_executados": "nenhum",
     }, ensure_ascii=False, indent=2))
