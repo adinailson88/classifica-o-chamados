@@ -1,10 +1,10 @@
 {
- "total_chamados": 14115,
+ "total_chamados": 14117,
  "com_conferencia_glpi": 14060,
  "verdade_glpi": 13462,
  "verdade_manual": 598,
  "pendente_glpi_errado_sem_q": 0,
- "sem_conferencia": 55,
+ "sem_conferencia": 57,
  "correto_com_q_preenchida": 0,
  "errado_com_q_igual_a_c": 0,
  "por_modelo": {
@@ -57,12 +57,12 @@
    "acuracia": 0.7905
   },
   "lstm": {
-   "correto": 10000,
-   "errado": 4060,
+   "correto": 9842,
+   "errado": 4218,
    "pendente": 0,
    "sem_predicao": 0,
    "avaliados": 14060,
-   "acuracia": 0.7112
+   "acuracia": 0.7
   },
   "transformer_ft": {
    "correto": 7928,
@@ -104,7 +104,7 @@
  "categorias_distintas_q": 26,
  "ids_correto_com_q_preenchida": [],
  "ids_errado_com_q_igual_a_c": [],
- "gerado_em": "10/08/2026 10:52",
+ "gerado_em": "10/08/2026 16:29",
  "aba": "CONFERENCIA_MULTIMODELO",
  "regra": "M='Correto' -> verdade = C; M='Errado' + Q preenchida -> verdade = Q; M='Errado' sem Q -> pendente; M vazio -> ignorado"
 }
