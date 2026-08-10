@@ -196,7 +196,13 @@ jobs:
             exit 1
           fi
 
+      - name: Remover credencial e cache temporarios
+        if: ${{ always() }}
+        run: |
+          rm -f credenciais_sa.json dados/cache_planilha.json
+
       - name: Commitar resultados
+        if: ${{ github.event.inputs.tarefa != 'congelar_alvo_ensemble' }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"

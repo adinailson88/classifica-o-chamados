@@ -116,26 +116,27 @@ class TestSchemaEAlvo(unittest.TestCase):
     def test_grupo_gravado_segue_preparacao_canonica(self):
         raw = raw_registro("1", titulo="texto atual alterado")
         id_sha = hashlib.sha256(b"1").hexdigest()
-        grupo = hashlib.sha256(b"grupo-congelado").hexdigest()
+        grupo_particao = hashlib.sha256(b"grupo-particao").hexdigest()
+        grupo_passo2 = hashlib.sha256(b"grupo-passo2").hexdigest()
         particoes = {id_sha: {
-            "grupo_sha256": grupo,
+            "grupo_sha256": grupo_particao,
             "outer_fold": 1,
         }}
-        registros, _alterados, _grupos_atuais = cae.montar_registros_alvo(
-            [raw], particoes, {id_sha: grupo}, {id_sha: "Cat A"}
+        registros, diagnostico = cae.montar_registros_alvo(
+            [raw], particoes, {id_sha: grupo_passo2}, {id_sha: "Cat A"}
         )
-        self.assertEqual(registros[0]["grupo_sha256"], grupo)
-        self.assertEqual(_alterados, 1)
+        self.assertEqual(registros[0]["grupo_sha256"], grupo_particao)
+        self.assertEqual(diagnostico["particao_x_atual_divergentes"], 1)
 
     def test_texto_atual_alterado_nao_muda_manifesto_quando_h_e_r_sao_iguais(self):
         id_sha = hashlib.sha256(b"1").hexdigest()
         grupo = hashlib.sha256(b"grupo-congelado").hexdigest()
         particoes = {id_sha: {"grupo_sha256": grupo, "outer_fold": 3}}
         refs = {id_sha: "Cat A"}
-        registros_a, alterados_a, _atuais_a = cae.montar_registros_alvo(
+        registros_a, diagnostico_a = cae.montar_registros_alvo(
             [raw_registro("1", titulo="texto original")], particoes, {id_sha: grupo}, refs
         )
-        registros_b, alterados_b, _atuais_b = cae.montar_registros_alvo(
+        registros_b, diagnostico_b = cae.montar_registros_alvo(
             [raw_registro("1", titulo="texto modificado")], particoes, {id_sha: grupo}, refs
         )
         self.assertEqual(registros_a[0]["grupo_sha256"], grupo)
@@ -144,14 +145,38 @@ class TestSchemaEAlvo(unittest.TestCase):
         self.assertEqual(registros_b[0]["outer_fold"], 3)
         self.assertEqual(cae.hash_historico(registros_a), cae.hash_historico(registros_b))
         self.assertEqual(cae.sha256_json(registros_a), cae.sha256_json(registros_b))
-        self.assertGreaterEqual(alterados_a + alterados_b, 1)
+        self.assertGreaterEqual(
+            diagnostico_a["particao_x_atual_divergentes"]
+            + diagnostico_b["particao_x_atual_divergentes"],
+            1,
+        )
 
     def test_grupos_congelados_reais_preservam_total_canonico(self):
         particoes = cae.carregar_particoes(cae.PARTICOES_PADRAO)
+        diagnostico = cae.validar_invariantes_particao(particoes)
+        self.assertEqual(diagnostico["total_ids_particao"], cae.TOTAL_ESPERADO)
+        self.assertEqual(diagnostico["total_grupos_particao"], cae.GRUPOS_ESPERADOS)
+        self.assertEqual(diagnostico["dobras_particao"], [1, 2, 3, 4, 5])
+        self.assertEqual(diagnostico["grupos_divididos_entre_dobras"], 0)
+
+    def test_dois_grupos_passo2_x_particao_sao_diagnostico_fechado(self):
+        particoes = cae.carregar_particoes(cae.PARTICOES_PADRAO)
+        grupos = cae.carregar_grupos(cae.GRUPOS_PADRAO)
+        diagnostico = cae.validar_grupos_particoes(particoes, grupos)
+        self.assertEqual(diagnostico["passo2_x_particao_divergentes"], 2)
         self.assertEqual(
-            len({p["grupo_sha256"] for p in particoes.values()}),
-            cae.GRUPOS_ESPERADOS,
+            set(diagnostico["ids_passo2_x_particao_divergentes"]),
+            cae.IDS_PASSO2_X_PARTICAO_ESPERADOS,
         )
+        self.assertEqual(diagnostico["grupos_passo2_distintos"], 9735)
+        self.assertEqual(diagnostico["grupos_particao_distintos"], 9734)
+
+    def test_id_de_particao_ausente_do_passo2_bloqueia(self):
+        particoes = cae.carregar_particoes(cae.PARTICOES_PADRAO)
+        grupos = cae.carregar_grupos(cae.GRUPOS_PADRAO)
+        grupos.pop(next(iter(particoes)))
+        with self.assertRaisesRegex(RuntimeError, "Mapa de grupos diverge"):
+            cae.validar_grupos_particoes(particoes, grupos)
 
     def test_referencia_humana_atual_divergente_da_oof_bloqueia(self):
         raw = raw_registro("1", hist="Cat A", ref="Cat B")
@@ -248,7 +273,22 @@ class TestResumoESeguranca(unittest.TestCase):
                                 "precisao_fila_natural": 1.0}},
             "todos_h_fora_de_c_na_fila_natural": True,
         }
-        resumo = cae.montar_resumo(regs, "h", "hh", "ha", "hc", "hp", baseline, 0, 2)
+        diagnostico = {
+            "total_ids_particao": 2,
+            "total_grupos_particao": 2,
+            "dobras_particao": [1],
+            "grupos_divididos_entre_dobras": 0,
+            "passo2_x_particao_divergentes": 0,
+            "ids_passo2_x_particao_divergentes": [],
+            "grupos_passo2_distintos": 2,
+            "grupos_particao_distintos": 2,
+            "particao_x_atual_divergentes": 0,
+            "passo2_x_atual_divergentes": 0,
+            "grupos_atuais_distintos": 2,
+        }
+        resumo = cae.montar_resumo(
+            regs, "h", "hh", "ha", "hc", "hp", baseline, diagnostico
+        )
         self.assertEqual(resumo["total_Y1"], 1)
         self.assertEqual(resumo["total_Y0"], 1)
         self.assertEqual(resumo["H_fora_de_C"], 1)

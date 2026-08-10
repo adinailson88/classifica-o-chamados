@@ -55,6 +55,10 @@ BASELINE_ESPERADO = {
     "neutros": 53,
     "prejudicados": 2321,
 }
+IDS_PASSO2_X_PARTICAO_ESPERADOS = frozenset({
+    "1724bbac018e0dfe8158b813ddf17117be537d626e2b22d00ae17b692b07ea27",
+    "976f99c38d8e76b1db212d3f6b32668936fde330d22ed75fa21b8b4ef4cf81b5",
+})
 MODELOS_CANONICOS = {
     "naive_bayes",
     "regressao_logistica",
@@ -104,6 +108,10 @@ def carregar_particoes(caminho: Path) -> dict[str, dict[str, Any]]:
             id_sha = linha.get("id_sha256", "")
             if not id_sha:
                 continue
+            if id_sha in out:
+                raise RuntimeError(
+                    f"ID duplicado nas particoes canonicas: id_sha256={id_sha}"
+                )
             out[id_sha] = {
                 "grupo_sha256": linha.get("grupo_sha256", ""),
                 "outer_fold": int(linha["dobra"]),
@@ -126,10 +134,45 @@ def _hash_grupo_atual(registro: dict[str, str]) -> str:
     return cgt.hash_grupo(normalizados)
 
 
+def validar_invariantes_particao(
+    particoes: dict[str, dict[str, Any]],
+) -> dict[str, Any]:
+    grupos_por_dobra: dict[str, set[int]] = defaultdict(set)
+    for item in particoes.values():
+        grupos_por_dobra[item["grupo_sha256"]].add(item["outer_fold"])
+
+    grupos_divididos = sorted(
+        grupo for grupo, dobras in grupos_por_dobra.items() if len(dobras) > 1
+    )
+    dobras = sorted({item["outer_fold"] for item in particoes.values()})
+    total_grupos = len(grupos_por_dobra)
+    erros: dict[str, Any] = {}
+    if len(particoes) != TOTAL_ESPERADO:
+        erros["total_ids_particao"] = len(particoes)
+    if total_grupos != GRUPOS_ESPERADOS:
+        erros["total_grupos_particao"] = total_grupos
+    if dobras != list(range(1, DOBRAS_ESPERADAS + 1)):
+        erros["dobras_particao"] = dobras
+    if grupos_divididos:
+        erros["grupos_divididos_entre_dobras"] = grupos_divididos[:20]
+        erros["total_grupos_divididos_entre_dobras"] = len(grupos_divididos)
+    if erros:
+        raise RuntimeError(
+            "Particoes canonicas invalidas: "
+            + json.dumps(erros, ensure_ascii=False, sort_keys=True)
+        )
+    return {
+        "total_ids_particao": len(particoes),
+        "total_grupos_particao": total_grupos,
+        "dobras_particao": dobras,
+        "grupos_divididos_entre_dobras": 0,
+    }
+
+
 def validar_grupos_particoes(
     particoes: dict[str, dict[str, Any]],
     grupos: dict[str, str],
-) -> None:
+) -> dict[str, Any]:
     ids_particoes = set(particoes)
     ids_grupos = set(grupos)
     faltantes = sorted(ids_particoes - ids_grupos)
@@ -137,17 +180,29 @@ def validar_grupos_particoes(
         id_sha for id_sha in ids_particoes & ids_grupos
         if particoes[id_sha]["grupo_sha256"] != grupos[id_sha]
     )
-    if faltantes or divergentes:
+    divergentes_encontrados = frozenset(divergentes)
+    if faltantes or divergentes_encontrados != IDS_PASSO2_X_PARTICAO_ESPERADOS:
         detalhe = {
             "faltantes_no_mapa_grupos": faltantes[:20],
             "grupos_mapa_particao_divergentes": divergentes[:20],
             "total_faltantes_no_mapa_grupos": len(faltantes),
             "total_grupos_mapa_particao_divergentes": len(divergentes),
+            "ids_divergentes_esperados": sorted(
+                IDS_PASSO2_X_PARTICAO_ESPERADOS
+            ),
         }
         raise RuntimeError(
             "Mapa de grupos diverge das particoes canonicas: "
             + json.dumps(detalhe, ensure_ascii=False, sort_keys=True)
         )
+    return {
+        "passo2_x_particao_divergentes": len(divergentes),
+        "ids_passo2_x_particao_divergentes": divergentes,
+        "grupos_passo2_distintos": len({grupos[id_sha] for id_sha in ids_particoes}),
+        "grupos_particao_distintos": len({
+            item["grupo_sha256"] for item in particoes.values()
+        }),
+    }
 
 
 def carregar_referencias_oof(caminho: Path) -> dict[str, str]:
@@ -211,10 +266,11 @@ def montar_registros_alvo(
     particoes: dict[str, dict[str, Any]],
     grupos: dict[str, str],
     referencias_oof: dict[str, str],
-) -> tuple[list[dict[str, Any]], int, int]:
+) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     alvo: list[dict[str, Any]] = []
-    textos_alterados = 0
     grupos_atuais: set[str] = set()
+    particao_x_atual: list[str] = []
+    passo2_x_atual: list[str] = []
     referencias_divergentes: list[str] = []
 
     for registro in registros_planilha:
@@ -228,7 +284,8 @@ def montar_registros_alvo(
             raise RuntimeError(f"Grupo congelado ausente para id_sha256={id_sha}")
         if id_sha not in referencias_oof:
             raise RuntimeError(f"Referencia OOF ausente para id_sha256={id_sha}")
-        grupo_congelado = grupos[id_sha]
+        grupo_passo2 = grupos[id_sha]
+        grupo_particao = particoes[id_sha]["grupo_sha256"]
 
         referencia_atual = cgt.referencia_humana(registro)
         if not referencia_atual:
@@ -239,11 +296,13 @@ def montar_registros_alvo(
         historica = registro.get("categoria_historica", "")
         grupo_atual = _hash_grupo_atual(registro)
         grupos_atuais.add(grupo_atual)
-        if grupo_atual != grupo_congelado:
-            textos_alterados += 1
+        if grupo_particao != grupo_atual:
+            particao_x_atual.append(id_sha)
+        if grupo_passo2 != grupo_atual:
+            passo2_x_atual.append(id_sha)
         alvo.append({
             "id_sha256": id_sha,
-            "grupo_sha256": grupo_congelado,
+            "grupo_sha256": grupo_particao,
             "outer_fold": particoes[id_sha]["outer_fold"],
             "categoria_historica": historica,
             "referencia_humana": referencia,
@@ -266,7 +325,11 @@ def montar_registros_alvo(
             registro["categoria_historica"] in classes
         )
     alvo.sort(key=lambda r: r["id_sha256"])
-    return alvo, textos_alterados, len(grupos_atuais)
+    return alvo, {
+        "particao_x_atual_divergentes": len(particao_x_atual),
+        "passo2_x_atual_divergentes": len(passo2_x_atual),
+        "grupos_atuais_distintos": len(grupos_atuais),
+    }
 
 
 def validar_bloqueios_basicos(
@@ -458,8 +521,7 @@ def montar_resumo(
     classes_sha: str,
     partition_sha: str,
     baseline: dict[str, Any],
-    textos_alterados: int,
-    grupos_atuais_distintos: int,
+    diagnostico_grupos: dict[str, Any],
 ) -> dict[str, Any]:
     total_y1 = sum(r["alvo_inadequacao"] for r in registros)
     total_y0 = len(registros) - total_y1
@@ -524,10 +586,16 @@ def montar_resumo(
         "K_D_R_por_dobra": baseline["por_dobra"],
         "todos_H_fora_de_C_na_fila_natural_linear_svc":
             baseline["todos_h_fora_de_c_na_fila_natural"],
-        "linhas_com_texto_alterado_apos_o_congelamento": textos_alterados,
-        "grupos_atuais_distintos": grupos_atuais_distintos,
+        "linhas_com_texto_alterado_apos_o_congelamento": diagnostico_grupos[
+            "particao_x_atual_divergentes"
+        ],
+        **diagnostico_grupos,
+        "referencias_oof_consistentes_entre_modelos": True,
+        "referencias_oof_x_planilha_divergentes": 0,
         "referencias_humanas_divergentes": 0,
-        "grupos_mapa_particao_divergentes": 0,
+        "grupos_mapa_particao_divergentes": diagnostico_grupos[
+            "passo2_x_particao_divergentes"
+        ],
         "hash_corpus_origem": "docs/dados/rodada_canonica.json",
         "modelos_executados": "nenhum",
     }
@@ -549,9 +617,15 @@ def renderizar_markdown(resumo: dict[str, Any]) -> str:
         f"- registros: {resumo['total_registros']}",
         f"- grupos: {resumo['total_grupos']}",
         f"- grupos atuais distintos (diagnostico): {resumo['grupos_atuais_distintos']}",
-        f"- linhas com texto alterado apos congelamento: {resumo['linhas_com_texto_alterado_apos_o_congelamento']}",
-        f"- referencias humanas divergentes: {resumo['referencias_humanas_divergentes']}",
-        f"- grupos mapa-particao divergentes: {resumo['grupos_mapa_particao_divergentes']}",
+        f"- grupos do Passo 2 distintos (A): {resumo['grupos_passo2_distintos']}",
+        f"- grupos da particao distintos (B): {resumo['grupos_particao_distintos']}",
+        f"- Passo 2 x particao (A != B): {resumo['passo2_x_particao_divergentes']}",
+        f"- IDs Passo 2 x particao: `{json.dumps(resumo['ids_passo2_x_particao_divergentes'], ensure_ascii=False)}`",
+        f"- particao x texto atual (B != C): {resumo['particao_x_atual_divergentes']}",
+        f"- Passo 2 x texto atual (A != C): {resumo['passo2_x_atual_divergentes']}",
+        f"- grupos divididos entre dobras: {resumo['grupos_divididos_entre_dobras']}",
+        f"- referencias OOF consistentes entre sete modelos: {resumo['referencias_oof_consistentes_entre_modelos']}",
+        f"- referencias OOF x planilha divergentes: {resumo['referencias_oof_x_planilha_divergentes']}",
         f"- origem do hash_corpus: `{resumo['hash_corpus_origem']}`",
         f"- dobras: {resumo['total_dobras']}",
         f"- Y=1: {resumo['total_Y1']}",
@@ -605,13 +679,15 @@ def construir_artifacts(
     particoes = carregar_particoes(particoes_path)
     grupos = carregar_grupos(grupos_path)
     rodada = json.loads(rodada_path.read_text(encoding="utf-8"))
-    validar_grupos_particoes(particoes, grupos)
+    diagnostico_grupos = validar_invariantes_particao(particoes)
+    diagnostico_grupos.update(validar_grupos_particoes(particoes, grupos))
     validar_hashes_canonicos_relacionados(rodada)
     referencias_oof = carregar_referencias_oof(predicoes_path)
     hash_corpus = rodada.get("hash_corpus", "")
-    registros, textos_alterados, grupos_atuais_distintos = montar_registros_alvo(
+    registros, diagnostico_atual = montar_registros_alvo(
         registros_planilha, particoes, grupos, referencias_oof
     )
+    diagnostico_grupos.update(diagnostico_atual)
     validar_bloqueios_basicos(registros, hash_corpus, rodada)
     classes_payload, classes_sha = montar_classes(registros)
     hash_hist = hash_historico(registros)
@@ -634,7 +710,7 @@ def construir_artifacts(
     )
     resumo = montar_resumo(
         registros, hash_corpus, hash_hist, hash_alvo, classes_sha,
-        partition_sha, baseline, textos_alterados, grupos_atuais_distintos
+        partition_sha, baseline, diagnostico_grupos
     )
     return {
         "classes": classes_payload,
@@ -661,6 +737,18 @@ def construir_artifacts(
             "grupos_atuais_distintos": resumo["grupos_atuais_distintos"],
             "linhas_com_texto_alterado": resumo[
                 "linhas_com_texto_alterado_apos_o_congelamento"
+            ],
+            "passo2_x_particao_divergentes": resumo[
+                "passo2_x_particao_divergentes"
+            ],
+            "ids_passo2_x_particao_divergentes": resumo[
+                "ids_passo2_x_particao_divergentes"
+            ],
+            "particao_x_atual_divergentes": resumo[
+                "particao_x_atual_divergentes"
+            ],
+            "passo2_x_atual_divergentes": resumo[
+                "passo2_x_atual_divergentes"
             ],
             "referencias_humanas_divergentes": resumo[
                 "referencias_humanas_divergentes"
