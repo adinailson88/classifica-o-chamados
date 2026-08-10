@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       tarefa:
-        description: "tabela_s1, history, diagnostico_ablation, diagnostico_protocolo_ablation, diagnostico_materializacao_lstm, ablation, limpar_multimodelo, sensibilidade_vies, holdout_vs_kfold, kfold_vs_groupkfold ou figuras_artigo"
+        description: "tabela_s1, history, diagnostico_ablation, diagnostico_protocolo_ablation, diagnostico_materializacao_lstm, ablation, limpar_multimodelo, sensibilidade_vies, holdout_vs_kfold, kfold_vs_groupkfold, figuras_artigo ou congelar_alvo_ensemble"
         required: true
         default: "tabela_s1"
         type: choice
@@ -20,6 +20,7 @@ on:
           - holdout_vs_kfold
           - kfold_vs_groupkfold
           - figuras_artigo
+          - congelar_alvo_ensemble
       epochs:
         description: "Epocas de treino"
         required: false
@@ -66,7 +67,7 @@ jobs:
 
       - name: Validar sintaxe e testes
         run: |
-          python -m py_compile src/exportar_tabela_por_categoria.py src/modelo_lstm.py src/ablation_lstm.py src/limpar_classif_multimodelo.py src/analise_sensibilidade_vies_validacao.py src/comparacao_holdout_kfold.py src/comparacao_kfold_groupkfold.py
+          python -m py_compile src/exportar_tabela_por_categoria.py src/modelo_lstm.py src/ablation_lstm.py src/limpar_classif_multimodelo.py src/analise_sensibilidade_vies_validacao.py src/comparacao_holdout_kfold.py src/comparacao_kfold_groupkfold.py src/congelar_alvo_ensemble.py
           python -m unittest discover -s tests
 
       - name: Exportar tabela S1 da aba viva
@@ -164,6 +165,36 @@ jobs:
           python src/gerar_figura5_curva_aprendizado.py
           python src/gerar_figura6_ablation.py
           python src/gerar_figura7_mapas_calor.py
+
+      - name: Congelar alvo do ensemble
+        if: ${{ github.event.inputs.tarefa == 'congelar_alvo_ensemble' }}
+        env:
+          SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
+          GOOGLE_APPLICATION_CREDENTIALS: credenciais_sa.json
+        run: |
+          test "$SPREADSHEET_ID" = "1lohPUQOgxzt_DMxnNLKMxnieZq1sVmh4uwBLbbgvfiQ"
+          python src/congelar_alvo_ensemble.py
+
+      - name: Commitar congelamento do alvo do ensemble
+        if: ${{ github.event.inputs.tarefa == 'congelar_alvo_ensemble' }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/dados/ensemble/ docs/CONGELAMENTO_ALVO_ENSEMBLE.md
+          if git diff --cached --quiet; then
+            echo "Sem artefatos de congelamento novos para commitar."
+          else
+            git commit -m "Congela alvo do ensemble"
+            for i in 1 2 3 4 5; do
+              git pull --rebase --autostash origin "${GITHUB_REF_NAME}" \
+                && git push origin "HEAD:${GITHUB_REF_NAME}" && exit 0
+              git rebase --abort 2>/dev/null || true
+              echo "push rejeitado (tentativa $i/5); novo rebase em 5s"
+              sleep 5
+            done
+            echo "push falhou apos 5 tentativas" >&2
+            exit 1
+          fi
 
       - name: Commitar resultados
         run: |
