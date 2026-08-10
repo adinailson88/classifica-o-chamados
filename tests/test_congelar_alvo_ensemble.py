@@ -201,6 +201,51 @@ class TestSchemaEAlvo(unittest.TestCase):
         self.assertEqual(rodada["hash_corpus"], cae.HASH_CORPUS_ESPERADO)
 
 
+class TestDeterminismo(unittest.TestCase):
+    def test_verificar_determinismo_aceita_execucoes_identicas(self):
+        a = {
+            "classes_bytes": b"x",
+            "alvo_bytes": b"y",
+            "hashes": {"hash_alvo_ensemble": "h"},
+            "contagens": {"total_Y1": 1},
+        }
+        b = dict(a)
+        cae.verificar_determinismo(a, b)
+
+    def test_verificar_determinismo_bloqueia_bytes_divergentes(self):
+        a = {
+            "classes_bytes": b"x",
+            "alvo_bytes": b"y",
+            "hashes": {"hash_alvo_ensemble": "h"},
+            "contagens": {"total_Y1": 1},
+        }
+        b = dict(a, alvo_bytes=b"y-alterado")
+        with self.assertRaisesRegex(RuntimeError, "Determinismo falhou em alvo_bytes"):
+            cae.verificar_determinismo(a, b)
+
+    def test_verificar_determinismo_bloqueia_hashes_divergentes(self):
+        a = {
+            "classes_bytes": b"x",
+            "alvo_bytes": b"y",
+            "hashes": {"hash_alvo_ensemble": "h"},
+            "contagens": {"total_Y1": 1},
+        }
+        b = dict(a, hashes={"hash_alvo_ensemble": "outro"})
+        with self.assertRaisesRegex(RuntimeError, "Determinismo falhou em hashes"):
+            cae.verificar_determinismo(a, b)
+
+    def test_verificar_determinismo_bloqueia_contagens_divergentes(self):
+        a = {
+            "classes_bytes": b"x",
+            "alvo_bytes": b"y",
+            "hashes": {"hash_alvo_ensemble": "h"},
+            "contagens": {"total_Y1": 1},
+        }
+        b = dict(a, contagens={"total_Y1": 2})
+        with self.assertRaisesRegex(RuntimeError, "Determinismo falhou em contagens"):
+            cae.verificar_determinismo(a, b)
+
+
 class TestBaselineLinearSvc(unittest.TestCase):
     def test_join_completo_linear_svc_e_calculo_k_d_r(self):
         regs = [

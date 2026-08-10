@@ -819,11 +819,11 @@ def main() -> int:
         registros_b, args.particoes, args.grupos, args.predicoes, args.rodada
     )
     verificar_determinismo(primeira, segunda)
-    gravar_artifacts(primeira, args)
+    gravar_artifacts(segunda, args)
     print(json.dumps({
         "status": "concluido",
-        **primeira["hashes"],
-        **primeira["contagens"],
+        **segunda["hashes"],
+        **segunda["contagens"],
         "baseline_reproduzido": BASELINE_ESPERADO,
         "modelos_executados": "nenhum",
     }, ensure_ascii=False, indent=2))
