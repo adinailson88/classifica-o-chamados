@@ -173,8 +173,11 @@ def validar_bloqueios_basicos(
     classes = sorted({r["referencia_humana"] for r in registros})
     if len(registros) != TOTAL_ESPERADO:
         raise RuntimeError(f"Total divergente: {len(registros)} != {TOTAL_ESPERADO}")
-    if len({r["grupo_sha256"] for r in registros}) != GRUPOS_ESPERADOS:
-        raise RuntimeError("Total de grupos textuais divergente.")
+    total_grupos = len({r["grupo_sha256"] for r in registros})
+    if total_grupos != GRUPOS_ESPERADOS:
+        raise RuntimeError(
+            f"Total de grupos textuais divergente: {total_grupos} != {GRUPOS_ESPERADOS}"
+        )
     if len({r["outer_fold"] for r in registros}) != DOBRAS_ESPERADAS:
         raise RuntimeError("Total de dobras divergente.")
     if len(classes) != CLASSES_ESPERADAS:
