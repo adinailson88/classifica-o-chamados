@@ -174,13 +174,19 @@ def montar_resultado(
     auditoria: dict[str, Any],
     spreadsheet_id: str,
     aba: str,
-    main_sha: str,
+    base_main_sha: str,
+    workflow_head_sha: str,
 ) -> dict[str, Any]:
     return {
         "schema_version": 1,
         "source_spreadsheet_id": spreadsheet_id,
         "source_sheet": aba,
-        "main_sha": main_sha,
+        # base_main_sha: commit de origin/main vigente no momento do diagnostico
+        # (a base contra a qual docs/dados/particoes_canonicas_mapa.csv foi lido).
+        "base_main_sha": base_main_sha,
+        # workflow_head_sha: commit realmente executado por este run (a branch
+        # temporaria de diagnostico), NUNCA confundir com base_main_sha.
+        "workflow_head_sha": workflow_head_sha,
         **auditoria,
     }
 
@@ -193,8 +199,10 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--credenciais", default=None)
     p.add_argument("--particoes", type=Path, default=PARTICOES_PADRAO)
     p.add_argument("--saida", type=Path, default=SAIDA_PADRAO)
-    p.add_argument("--main-sha", default=None,
-                   help="SHA do commit de main auditado; default GITHUB_SHA ou vazio")
+    p.add_argument("--base-main-sha", default=None,
+                   help="SHA de origin/main vigente; obrigatorio para proveniencia correta")
+    p.add_argument("--workflow-head-sha", default=None,
+                   help="SHA do commit executado por este run; default GITHUB_SHA")
     return p.parse_args()
 
 
@@ -204,8 +212,11 @@ def main() -> int:
     sh = pl.abrir_planilha(args.spreadsheet_id, args.credenciais)
     registros = ler_registros_fonte(sh, args.aba)
     auditoria = auditar(registros, particoes)
-    main_sha = args.main_sha or os.getenv("GITHUB_SHA") or ""
-    resultado = montar_resultado(auditoria, args.spreadsheet_id, args.aba, main_sha)
+    base_main_sha = args.base_main_sha or ""
+    workflow_head_sha = args.workflow_head_sha or os.getenv("GITHUB_SHA") or ""
+    resultado = montar_resultado(
+        auditoria, args.spreadsheet_id, args.aba, base_main_sha, workflow_head_sha
+    )
 
     args.saida.parent.mkdir(parents=True, exist_ok=True)
     args.saida.write_text(

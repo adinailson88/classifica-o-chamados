@@ -39,6 +39,14 @@ on:
         required: false
         default: false
         type: boolean
+      gate2a_spreadsheet_id:
+        description: "gate2a_proveniencia_textual: ID da planilha candidata a auditar"
+        required: false
+        default: ""
+      gate2a_sheet_name:
+        description: "gate2a_proveniencia_textual: nome da aba com os quatro campos textuais"
+        required: false
+        default: ""
 
 permissions:
   contents: write
@@ -202,9 +210,16 @@ jobs:
         env:
           GOOGLE_APPLICATION_CREDENTIALS: credenciais_sa.json
         run: |
+          test -n "${{ github.event.inputs.gate2a_spreadsheet_id }}"
+          test -n "${{ github.event.inputs.gate2a_sheet_name }}"
+          git fetch origin main --depth=1
+          BASE_MAIN_SHA=$(git rev-parse origin/main)
+          echo "base_main_sha=$BASE_MAIN_SHA"
           python src/auditar_gate2a_fonte_historica.py \
-            --spreadsheet-id "18HVqv7H_hMlXej1XrwNsTgWhs2khZ9exZ5EzoXbnDLY" \
-            --aba "CHAMADOS" \
+            --spreadsheet-id "${{ github.event.inputs.gate2a_spreadsheet_id }}" \
+            --aba "${{ github.event.inputs.gate2a_sheet_name }}" \
+            --base-main-sha "$BASE_MAIN_SHA" \
+            --workflow-head-sha "${{ github.sha }}" \
             --saida dados/gate2a_resultado.json
 
       - name: "Gate 2A: publicar resultado sanitizado como artefato"

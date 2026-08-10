@@ -107,6 +107,51 @@ class TestAuditarGate2A(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             g2a.localizar_colunas(cabecalho)
 
+    def test_montar_resultado_distingue_base_main_de_workflow_head(self):
+        auditoria = g2a.auditar([], {})
+        r = g2a.montar_resultado(
+            auditoria,
+            spreadsheet_id="SHEET_X",
+            aba="ABA_X",
+            base_main_sha="aaaa",
+            workflow_head_sha="bbbb",
+        )
+        self.assertEqual(r["base_main_sha"], "aaaa")
+        self.assertEqual(r["workflow_head_sha"], "bbbb")
+        self.assertNotIn("main_sha", r)
+        self.assertNotEqual(r["base_main_sha"], r["workflow_head_sha"])
+
+    def test_resultado_nao_contem_campos_proibidos_de_privacidade(self):
+        registros = [registro("1", "Lâmpada queimada", "sala 10")]
+        particoes = {id_sha("1"): grupo_de("Lâmpada queimada", "sala 10")}
+        auditoria = g2a.auditar(registros, particoes)
+        r = g2a.montar_resultado(auditoria, "SHEET_X", "ABA_X", "aaaa", "bbbb")
+        proibidos = {"id", "id_chamado", "titulo", "descricao", "descricao_glpi",
+                     "titulo_osm", "descricao_osm"}
+        self.assertFalse(proibidos & set(r))
+        despejo = repr(r)
+        self.assertNotIn("Lâmpada", despejo)
+        self.assertNotIn("sala 10", despejo)
+
+    def test_parse_args_aceita_spreadsheet_e_aba_como_parametros(self):
+        import sys as _sys
+        argv_original = _sys.argv
+        try:
+            _sys.argv = [
+                "auditar_gate2a_fonte_historica.py",
+                "--spreadsheet-id", "OUTRA_PLANILHA",
+                "--aba", "OUTRA_ABA",
+                "--base-main-sha", "aaaa",
+                "--workflow-head-sha", "bbbb",
+            ]
+            args = g2a.parse_args()
+        finally:
+            _sys.argv = argv_original
+        self.assertEqual(args.spreadsheet_id, "OUTRA_PLANILHA")
+        self.assertEqual(args.aba, "OUTRA_ABA")
+        self.assertEqual(args.base_main_sha, "aaaa")
+        self.assertEqual(args.workflow_head_sha, "bbbb")
+
 
 if __name__ == "__main__":
     unittest.main()
