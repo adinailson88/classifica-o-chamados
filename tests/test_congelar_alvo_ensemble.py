@@ -35,6 +35,19 @@ def pred(reg, previsto):
     }
 
 
+def raw_registro(id_, hist="Cat A", ref="Cat A", titulo="titulo original"):
+    return {
+        "id": id_,
+        "titulo": titulo,
+        "descricao_glpi": "",
+        "titulo_osm": "",
+        "descricao_osm": "",
+        "categoria_historica": hist,
+        "conferencia_glpi": "Incorreto" if hist != ref else "Correto",
+        "categoria_manual": ref if hist != ref else "",
+    }
+
+
 class TestSerializacaoEHashes(unittest.TestCase):
     def test_serializacao_canonica_deterministica(self):
         a = {"b": 1, "a": ["x", "y"]}
@@ -101,28 +114,66 @@ class TestSchemaEAlvo(unittest.TestCase):
         self.assertEqual(r["outer_fold"], 5)
 
     def test_grupo_gravado_segue_preparacao_canonica(self):
-        raw = {
-            "id": "1",
-            "titulo": "t",
-            "descricao_glpi": "",
-            "titulo_osm": "",
-            "descricao_osm": "",
-            "categoria_historica": "Cat A",
-            "conferencia_glpi": "Correto",
-            "categoria_manual": "",
-        }
+        raw = raw_registro("1", titulo="texto atual alterado")
         id_sha = hashlib.sha256(b"1").hexdigest()
         grupo = hashlib.sha256(b"grupo-congelado").hexdigest()
         particoes = {id_sha: {
-            "grupo_sha256": hashlib.sha256(b"grupo-redundante").hexdigest(),
+            "grupo_sha256": grupo,
             "outer_fold": 1,
         }}
-        registros, _hash, _alterados = cae.montar_registros_alvo(
-            [raw], particoes, {id_sha: grupo}
+        registros, _alterados, _grupos_atuais = cae.montar_registros_alvo(
+            [raw], particoes, {id_sha: grupo}, {id_sha: "Cat A"}
         )
-        esperado = cae._hash_grupo_atual(raw)
-        self.assertEqual(registros[0]["grupo_sha256"], esperado)
+        self.assertEqual(registros[0]["grupo_sha256"], grupo)
         self.assertEqual(_alterados, 1)
+
+    def test_texto_atual_alterado_nao_muda_manifesto_quando_h_e_r_sao_iguais(self):
+        id_sha = hashlib.sha256(b"1").hexdigest()
+        grupo = hashlib.sha256(b"grupo-congelado").hexdigest()
+        particoes = {id_sha: {"grupo_sha256": grupo, "outer_fold": 3}}
+        refs = {id_sha: "Cat A"}
+        registros_a, alterados_a, _atuais_a = cae.montar_registros_alvo(
+            [raw_registro("1", titulo="texto original")], particoes, {id_sha: grupo}, refs
+        )
+        registros_b, alterados_b, _atuais_b = cae.montar_registros_alvo(
+            [raw_registro("1", titulo="texto modificado")], particoes, {id_sha: grupo}, refs
+        )
+        self.assertEqual(registros_a[0]["grupo_sha256"], grupo)
+        self.assertEqual(registros_b[0]["grupo_sha256"], grupo)
+        self.assertEqual(registros_a[0]["outer_fold"], 3)
+        self.assertEqual(registros_b[0]["outer_fold"], 3)
+        self.assertEqual(cae.hash_historico(registros_a), cae.hash_historico(registros_b))
+        self.assertEqual(cae.sha256_json(registros_a), cae.sha256_json(registros_b))
+        self.assertGreaterEqual(alterados_a + alterados_b, 1)
+
+    def test_grupos_congelados_reais_preservam_total_canonico(self):
+        particoes = cae.carregar_particoes(cae.PARTICOES_PADRAO)
+        self.assertEqual(
+            len({p["grupo_sha256"] for p in particoes.values()}),
+            cae.GRUPOS_ESPERADOS,
+        )
+
+    def test_referencia_humana_atual_divergente_da_oof_bloqueia(self):
+        raw = raw_registro("1", hist="Cat A", ref="Cat B")
+        id_sha = hashlib.sha256(b"1").hexdigest()
+        grupo = cae._hash_grupo_atual(raw)
+        particoes = {id_sha: {"grupo_sha256": grupo, "outer_fold": 1}}
+        with self.assertRaisesRegex(RuntimeError, "Referencias humanas divergentes"):
+            cae.montar_registros_alvo(
+                [raw], particoes, {id_sha: grupo}, {id_sha: "Cat A"}
+            )
+
+    def test_divergencia_entre_grupo_e_particao_bloqueia(self):
+        id_sha = "a" * 64
+        with self.assertRaisesRegex(RuntimeError, "Mapa de grupos diverge"):
+            cae.validar_grupos_particoes(
+                {id_sha: {"grupo_sha256": "b" * 64, "outer_fold": 1}},
+                {id_sha: "c" * 64},
+            )
+
+    def test_hash_corpus_vem_da_rodada_canonica(self):
+        rodada = json.loads(cae.RODADA_PADRAO.read_text(encoding="utf-8"))
+        self.assertEqual(rodada["hash_corpus"], cae.HASH_CORPUS_ESPERADO)
 
 
 class TestBaselineLinearSvc(unittest.TestCase):
@@ -197,7 +248,7 @@ class TestResumoESeguranca(unittest.TestCase):
                                 "precisao_fila_natural": 1.0}},
             "todos_h_fora_de_c_na_fila_natural": True,
         }
-        resumo = cae.montar_resumo(regs, "h", "hh", "ha", "hc", "hp", baseline, 0)
+        resumo = cae.montar_resumo(regs, "h", "hh", "ha", "hc", "hp", baseline, 0, 2)
         self.assertEqual(resumo["total_Y1"], 1)
         self.assertEqual(resumo["total_Y0"], 1)
         self.assertEqual(resumo["H_fora_de_C"], 1)

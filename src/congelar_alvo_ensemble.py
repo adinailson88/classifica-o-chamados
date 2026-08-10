@@ -55,6 +55,15 @@ BASELINE_ESPERADO = {
     "neutros": 53,
     "prejudicados": 2321,
 }
+MODELOS_CANONICOS = {
+    "naive_bayes",
+    "regressao_logistica",
+    "linear_svc",
+    "sgd",
+    "extra_trees",
+    "random_forest",
+    "lstm",
+}
 
 SCHEMA_CAMPOS = [
     "id_sha256",
@@ -117,14 +126,96 @@ def _hash_grupo_atual(registro: dict[str, str]) -> str:
     return cgt.hash_grupo(normalizados)
 
 
+def validar_grupos_particoes(
+    particoes: dict[str, dict[str, Any]],
+    grupos: dict[str, str],
+) -> None:
+    ids_particoes = set(particoes)
+    ids_grupos = set(grupos)
+    faltantes = sorted(ids_particoes - ids_grupos)
+    divergentes = sorted(
+        id_sha for id_sha in ids_particoes & ids_grupos
+        if particoes[id_sha]["grupo_sha256"] != grupos[id_sha]
+    )
+    if faltantes or divergentes:
+        detalhe = {
+            "faltantes_no_mapa_grupos": faltantes[:20],
+            "grupos_mapa_particao_divergentes": divergentes[:20],
+            "total_faltantes_no_mapa_grupos": len(faltantes),
+            "total_grupos_mapa_particao_divergentes": len(divergentes),
+        }
+        raise RuntimeError(
+            "Mapa de grupos diverge das particoes canonicas: "
+            + json.dumps(detalhe, ensure_ascii=False, sort_keys=True)
+        )
+
+
+def carregar_referencias_oof(caminho: Path) -> dict[str, str]:
+    por_id: dict[str, dict[str, str]] = defaultdict(dict)
+    with caminho.open("r", encoding="utf-8", newline="") as f:
+        for linha in csv.DictReader(f):
+            id_sha = linha["id_sha256"]
+            modelo = linha["modelo"]
+            if modelo not in MODELOS_CANONICOS:
+                continue
+            if modelo in por_id[id_sha]:
+                raise RuntimeError(
+                    f"Referencia OOF duplicada para id_sha256={id_sha}, modelo={modelo}"
+                )
+            por_id[id_sha][modelo] = linha["referencia_humana"]
+
+    referencias: dict[str, str] = {}
+    incompletos: list[str] = []
+    divergentes: list[str] = []
+    for id_sha, por_modelo in por_id.items():
+        if set(por_modelo) != MODELOS_CANONICOS:
+            incompletos.append(id_sha)
+            continue
+        valores = set(por_modelo.values())
+        if len(valores) != 1:
+            divergentes.append(id_sha)
+            continue
+        referencias[id_sha] = next(iter(valores))
+
+    if incompletos or divergentes:
+        detalhe = {
+            "referencias_oof_incompletas": sorted(incompletos)[:20],
+            "referencias_oof_divergentes": sorted(divergentes)[:20],
+            "total_referencias_oof_incompletas": len(incompletos),
+            "total_referencias_oof_divergentes": len(divergentes),
+        }
+        raise RuntimeError(
+            "Referencias humanas OOF invalidas: "
+            + json.dumps(detalhe, ensure_ascii=False, sort_keys=True)
+        )
+    return referencias
+
+
+def validar_hashes_canonicos_relacionados(rodada: dict[str, Any]) -> None:
+    for passo in rodada.get("passos", {}).values():
+        if not isinstance(passo, dict) or not passo.get("arquivo"):
+            continue
+        caminho = RAIZ / str(passo["arquivo"])
+        if not caminho.exists() or caminho.suffix.lower() != ".json":
+            continue
+        payload = json.loads(caminho.read_text(encoding="utf-8"))
+        if not isinstance(payload, dict):
+            continue
+        hash_corpus = payload.get("hash_corpus")
+        if hash_corpus is not None and hash_corpus != HASH_CORPUS_ESPERADO:
+            raise RuntimeError(f"hash_corpus divergente em {passo['arquivo']}")
+
+
 def montar_registros_alvo(
     registros_planilha: list[dict[str, str]],
     particoes: dict[str, dict[str, Any]],
     grupos: dict[str, str],
-) -> tuple[list[dict[str, Any]], str, int]:
+    referencias_oof: dict[str, str],
+) -> tuple[list[dict[str, Any]], int, int]:
     alvo: list[dict[str, Any]] = []
-    itens_hash_corpus: list[list[str]] = []
     textos_alterados = 0
+    grupos_atuais: set[str] = set()
+    referencias_divergentes: list[str] = []
 
     for registro in registros_planilha:
         id_bruto = registro.get("id", "")
@@ -135,19 +226,24 @@ def montar_registros_alvo(
             continue
         if id_sha not in grupos:
             raise RuntimeError(f"Grupo congelado ausente para id_sha256={id_sha}")
+        if id_sha not in referencias_oof:
+            raise RuntimeError(f"Referencia OOF ausente para id_sha256={id_sha}")
         grupo_congelado = grupos[id_sha]
 
-        referencia = cgt.referencia_humana(registro)
-        if not referencia:
+        referencia_atual = cgt.referencia_humana(registro)
+        if not referencia_atual:
             raise RuntimeError(f"Referencia humana ausente para id_sha256={id_sha}")
+        referencia = referencias_oof[id_sha]
+        if referencia_atual != referencia:
+            referencias_divergentes.append(id_sha)
         historica = registro.get("categoria_historica", "")
         grupo_atual = _hash_grupo_atual(registro)
+        grupos_atuais.add(grupo_atual)
         if grupo_atual != grupo_congelado:
             textos_alterados += 1
-        itens_hash_corpus.append([id_sha, grupo_atual, referencia])
         alvo.append({
             "id_sha256": id_sha,
-            "grupo_sha256": grupo_atual,
+            "grupo_sha256": grupo_congelado,
             "outer_fold": particoes[id_sha]["outer_fold"],
             "categoria_historica": historica,
             "referencia_humana": referencia,
@@ -155,14 +251,22 @@ def montar_registros_alvo(
             "alvo_inadequacao": int(historica != referencia),
         })
 
+    if referencias_divergentes:
+        raise RuntimeError(
+            "Referencias humanas divergentes entre OOF canonico e planilha atual: "
+            + json.dumps({
+                "total": len(referencias_divergentes),
+                "id_sha256": sorted(referencias_divergentes)[:50],
+            }, ensure_ascii=False, sort_keys=True)
+        )
+
     classes = sorted({r["referencia_humana"] for r in alvo})
     for registro in alvo:
         registro["historico_no_espaco_de_classes"] = (
             registro["categoria_historica"] in classes
         )
     alvo.sort(key=lambda r: r["id_sha256"])
-    hash_corpus = sha256_json(sorted(itens_hash_corpus))
-    return alvo, hash_corpus, textos_alterados
+    return alvo, textos_alterados, len(grupos_atuais)
 
 
 def validar_bloqueios_basicos(
@@ -186,6 +290,15 @@ def validar_bloqueios_basicos(
         raise RuntimeError(f"hash_corpus divergente: {hash_corpus}")
     if rodada.get("hash_corpus") != HASH_CORPUS_ESPERADO:
         raise RuntimeError("Manifesto da rodada canonica tem hash_corpus divergente.")
+    corpus = rodada.get("corpus", {})
+    if int(corpus.get("linhas", -1)) != TOTAL_ESPERADO:
+        raise RuntimeError("Total de linhas divergente na rodada canonica.")
+    if int(corpus.get("grupos_textuais", -1)) != GRUPOS_ESPERADOS:
+        raise RuntimeError("Total de grupos divergente na rodada canonica.")
+    if int(corpus.get("categorias", -1)) != CLASSES_ESPERADAS:
+        raise RuntimeError("Total de categorias divergente na rodada canonica.")
+    if int(corpus.get("dobras", -1)) != DOBRAS_ESPERADAS:
+        raise RuntimeError("Total de dobras divergente na rodada canonica.")
     if int(rodada.get("semente", -1)) != SEMENTE_ESPERADA:
         raise RuntimeError("Semente da rodada canonica divergente.")
     if set(registros[0]) != set(SCHEMA_CAMPOS):
@@ -346,6 +459,7 @@ def montar_resumo(
     partition_sha: str,
     baseline: dict[str, Any],
     textos_alterados: int,
+    grupos_atuais_distintos: int,
 ) -> dict[str, Any]:
     total_y1 = sum(r["alvo_inadequacao"] for r in registros)
     total_y0 = len(registros) - total_y1
@@ -411,6 +525,10 @@ def montar_resumo(
         "todos_H_fora_de_C_na_fila_natural_linear_svc":
             baseline["todos_h_fora_de_c_na_fila_natural"],
         "linhas_com_texto_alterado_apos_o_congelamento": textos_alterados,
+        "grupos_atuais_distintos": grupos_atuais_distintos,
+        "referencias_humanas_divergentes": 0,
+        "grupos_mapa_particao_divergentes": 0,
+        "hash_corpus_origem": "docs/dados/rodada_canonica.json",
         "modelos_executados": "nenhum",
     }
 
@@ -430,6 +548,11 @@ def renderizar_markdown(resumo: dict[str, Any]) -> str:
         f"- commit produtor: `{resumo['commit_produtor'] or 'nao disponivel'}`",
         f"- registros: {resumo['total_registros']}",
         f"- grupos: {resumo['total_grupos']}",
+        f"- grupos atuais distintos (diagnostico): {resumo['grupos_atuais_distintos']}",
+        f"- linhas com texto alterado apos congelamento: {resumo['linhas_com_texto_alterado_apos_o_congelamento']}",
+        f"- referencias humanas divergentes: {resumo['referencias_humanas_divergentes']}",
+        f"- grupos mapa-particao divergentes: {resumo['grupos_mapa_particao_divergentes']}",
+        f"- origem do hash_corpus: `{resumo['hash_corpus_origem']}`",
         f"- dobras: {resumo['total_dobras']}",
         f"- Y=1: {resumo['total_Y1']}",
         f"- Y=0: {resumo['total_Y0']}",
@@ -482,8 +605,12 @@ def construir_artifacts(
     particoes = carregar_particoes(particoes_path)
     grupos = carregar_grupos(grupos_path)
     rodada = json.loads(rodada_path.read_text(encoding="utf-8"))
-    registros, hash_corpus, textos_alterados = montar_registros_alvo(
-        registros_planilha, particoes, grupos
+    validar_grupos_particoes(particoes, grupos)
+    validar_hashes_canonicos_relacionados(rodada)
+    referencias_oof = carregar_referencias_oof(predicoes_path)
+    hash_corpus = rodada.get("hash_corpus", "")
+    registros, textos_alterados, grupos_atuais_distintos = montar_registros_alvo(
+        registros_planilha, particoes, grupos, referencias_oof
     )
     validar_bloqueios_basicos(registros, hash_corpus, rodada)
     classes_payload, classes_sha = montar_classes(registros)
@@ -507,7 +634,7 @@ def construir_artifacts(
     )
     resumo = montar_resumo(
         registros, hash_corpus, hash_hist, hash_alvo, classes_sha,
-        partition_sha, baseline, textos_alterados
+        partition_sha, baseline, textos_alterados, grupos_atuais_distintos
     )
     return {
         "classes": classes_payload,
@@ -530,6 +657,18 @@ def construir_artifacts(
             "total_Y0": resumo["total_Y0"],
             "H_dentro_de_C": resumo["H_dentro_de_C"],
             "H_fora_de_C": resumo["H_fora_de_C"],
+            "grupos_congelados": resumo["total_grupos"],
+            "grupos_atuais_distintos": resumo["grupos_atuais_distintos"],
+            "linhas_com_texto_alterado": resumo[
+                "linhas_com_texto_alterado_apos_o_congelamento"
+            ],
+            "referencias_humanas_divergentes": resumo[
+                "referencias_humanas_divergentes"
+            ],
+            "grupos_mapa_particao_divergentes": resumo[
+                "grupos_mapa_particao_divergentes"
+            ],
+            "hash_corpus_origem": resumo["hash_corpus_origem"],
             "contagens_por_dobra": resumo["contagens_por_dobra"],
             "K_D_R_por_dobra": resumo["K_D_R_por_dobra"],
         },
