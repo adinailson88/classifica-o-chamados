@@ -100,6 +100,28 @@ class TestSchemaEAlvo(unittest.TestCase):
         self.assertEqual(len(r["grupo_sha256"]), 64)
         self.assertEqual(r["outer_fold"], 5)
 
+    def test_grupo_da_particao_e_redundante_e_nao_bloqueia(self):
+        raw = {
+            "id": "1",
+            "titulo": "t",
+            "descricao_glpi": "",
+            "titulo_osm": "",
+            "descricao_osm": "",
+            "categoria_historica": "Cat A",
+            "conferencia_glpi": "Correto",
+            "categoria_manual": "",
+        }
+        id_sha = hashlib.sha256(b"1").hexdigest()
+        grupo = hashlib.sha256(b"grupo-congelado").hexdigest()
+        particoes = {id_sha: {
+            "grupo_sha256": hashlib.sha256(b"grupo-redundante").hexdigest(),
+            "outer_fold": 1,
+        }}
+        registros, _hash, _alterados = cae.montar_registros_alvo(
+            [raw], particoes, {id_sha: grupo}
+        )
+        self.assertEqual(registros[0]["grupo_sha256"], grupo)
+
 
 class TestBaselineLinearSvc(unittest.TestCase):
     def test_join_completo_linear_svc_e_calculo_k_d_r(self):

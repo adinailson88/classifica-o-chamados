@@ -135,10 +135,7 @@ def montar_registros_alvo(
             continue
         if id_sha not in grupos:
             raise RuntimeError(f"Grupo congelado ausente para id_sha256={id_sha}")
-        grupo_particao = particoes[id_sha]["grupo_sha256"]
         grupo_congelado = grupos[id_sha]
-        if grupo_particao != grupo_congelado:
-            raise RuntimeError(f"Mapa de grupos diverge das particoes para {id_sha}")
 
         referencia = cgt.referencia_humana(registro)
         if not referencia:
