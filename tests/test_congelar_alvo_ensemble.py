@@ -306,6 +306,22 @@ class TestBaselineLinearSvc(unittest.TestCase):
         self.assertEqual(r["por_dobra"]["1"]["R_f"], 0)
         self.assertTrue(r["todos_h_fora_de_c_na_fila_natural"])
 
+    def test_fila_natural_vazia_nao_lanca_keyerror(self):
+        # Nenhum registro tem previsto != categoria_historica: a fila
+        # natural fica vazia e `totais` (Counter) nunca ganha as chaves
+        # alertas_naturais/inadequacoes_na_fila/correcoes_top1/neutros/
+        # prejudicados. Antes do guard, o acesso direto a essas chaves
+        # lancava KeyError em vez de reportar zero alertas.
+        regs = [registro("1", "Cat A", "Cat A", 1)]
+        preds = {regs[0]["id_sha256"]: pred(regs[0], "Cat A")}
+        r = cae.reproduzir_baseline(regs, preds, validar_esperado=False)
+        self.assertEqual(r["baseline"]["alertas_naturais"], 0)
+        self.assertEqual(r["baseline"]["inadequacoes_na_fila"], 0)
+        self.assertEqual(r["baseline"]["correcoes_top1"], 0)
+        self.assertEqual(r["baseline"]["neutros"], 0)
+        self.assertEqual(r["baseline"]["prejudicados"], 0)
+        self.assertEqual(r["baseline"]["precisao_fila_natural"], 0.0)
+
     def test_join_incompleto_bloqueia(self):
         regs = [registro("1", "Cat A", "Cat A")]
         with self.assertRaises(RuntimeError):
