@@ -72,6 +72,25 @@ def _tf():
     return tf
 
 
+def fixar_determinismo_lstm(seed: int = 42) -> None:
+    """Torna um fit() de LSTM reprodutivel: limpa a sessao Keras e fixa as
+    sementes de random/numpy/TensorFlow. Nao altera arquitetura, hiperparametros
+    nem comportamento do modelo — apenas o estado aleatorio antes do fit().
+    PYTHONHASHSEED/TF_DETERMINISTIC_OPS precisam ser fixados no ambiente ANTES
+    de o processo Python iniciar (setar aqui nao teria efeito), tipicamente no
+    `env:` do workflow que chama o treino.
+    """
+    import random
+
+    import numpy as np
+
+    tf = _tf()
+    tf.keras.backend.clear_session()
+    random.seed(seed)
+    np.random.seed(seed)
+    tf.keras.utils.set_random_seed(seed)
+
+
 def _cel(linha, idx) -> str:
     return str(linha[idx] or "").strip() if idx is not None and idx < len(linha) else ""
 

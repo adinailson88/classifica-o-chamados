@@ -25,3 +25,11 @@ spreadsheet_id.local
 
 # Detalhamento nao sanitizado de conflitos (uso local; nunca versionar)
 *.local.csv
+
+# Fase 2B: arrays de escore grandes e resultados parciais por outer fold —
+# somente artifact do GitHub Actions, nunca versionados no Git. Os manifestos
+# finais pequenos (fase2b_manifesto/_resumo/_hashes/_proveniencia_run.json) sao
+# versionados manualmente depois de as duas execucoes cientificas baterem.
+docs/dados/ensemble/fase2b/*.npz
+docs/dados/ensemble/fase2b/fase2b_fold_*_fits.json
+docs/dados/ensemble/fase2b/fase2b_gate_zero.json
