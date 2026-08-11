@@ -486,9 +486,16 @@ def reproduzir_baseline(
         ) if dados["K_f"] else 0.0
 
     resultado = dict(totais)
+    # `totais` so ganha uma chave quando pelo menos um registro cai no ramo
+    # `if fila:`; com fila natural vazia (nenhum previsto != h), as cinco
+    # chaves abaixo nunca sao criadas. Sem o default, o acesso direto duas
+    # linhas abaixo lancaria KeyError em vez de reportar zero alertas.
+    for chave in ("alertas_naturais", "inadequacoes_na_fila", "correcoes_top1",
+                  "neutros", "prejudicados"):
+        resultado.setdefault(chave, 0)
     resultado["precisao_fila_natural"] = round(
         resultado["inadequacoes_na_fila"] / resultado["alertas_naturais"], 4
-    )
+    ) if resultado["alertas_naturais"] else 0.0
     if validar_esperado:
         for chave, esperado in BASELINE_ESPERADO.items():
             if resultado.get(chave) != esperado:
