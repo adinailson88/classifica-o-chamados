@@ -697,18 +697,41 @@ def carregar_resultado_fold(entrada_dir: Path, outer_fold: int) -> dict[str, Any
     ))
     with np.load(entrada_dir / f"fase2b_fold_{outer_fold}_scores.npz",
                 allow_pickle=True) as npz:
+        # Cada chave e materializada UMA UNICA VEZ antes dos loops. `NpzFile`
+        # nao armazena em cache o array descomprimido: indexar `npz["chave"]`
+        # dentro de um loop por linha faz o NumPy redescomprimir o array
+        # inteiro do zip a cada iteracao, o que e O(n) por acesso e portanto
+        # O(n^2) no total — e o unico motivo do job de agregacao ter estourado
+        # o timeout com o corpus real (medido: ~7h projetadas por fold com o
+        # padrao antigo, contra ~1s com os arrays ja materializados). Os
+        # valores lidos, a ordem das linhas e os tipos permanecem os mesmos;
+        # so o custo de acesso muda.
+        inner_outer_fold = npz["inner_outer_fold"]
+        inner_inner_fold = npz["inner_inner_fold"]
+        inner_id_sha256 = npz["inner_id_sha256"]
+        inner_grupo_sha256 = npz["inner_grupo_sha256"]
+        inner_modelo = npz["inner_modelo"]
+        inner_scores = npz["inner_scores"]
+        inner_top1 = npz["inner_top1"]
+        outer_outer_fold = npz["outer_outer_fold"]
+        outer_id_sha256 = npz["outer_id_sha256"]
+        outer_grupo_sha256 = npz["outer_grupo_sha256"]
+        outer_modelo = npz["outer_modelo"]
+        outer_scores = npz["outer_scores"]
+        outer_top1 = npz["outer_top1"]
+
         inner_rows = [
-            [int(npz["inner_outer_fold"][i]), int(npz["inner_inner_fold"][i]),
-             str(npz["inner_id_sha256"][i]), str(npz["inner_grupo_sha256"][i]),
-             str(npz["inner_modelo"][i]), npz["inner_scores"][i].tolist(),
-             str(npz["inner_top1"][i])]
-            for i in range(len(npz["inner_id_sha256"]))
+            [int(inner_outer_fold[i]), int(inner_inner_fold[i]),
+             str(inner_id_sha256[i]), str(inner_grupo_sha256[i]),
+             str(inner_modelo[i]), inner_scores[i].tolist(),
+             str(inner_top1[i])]
+            for i in range(len(inner_id_sha256))
         ]
         outer_rows = [
-            [int(npz["outer_outer_fold"][i]), str(npz["outer_id_sha256"][i]),
-             str(npz["outer_grupo_sha256"][i]), str(npz["outer_modelo"][i]),
-             npz["outer_scores"][i].tolist(), str(npz["outer_top1"][i])]
-            for i in range(len(npz["outer_id_sha256"]))
+            [int(outer_outer_fold[i]), str(outer_id_sha256[i]),
+             str(outer_grupo_sha256[i]), str(outer_modelo[i]),
+             outer_scores[i].tolist(), str(outer_top1[i])]
+            for i in range(len(outer_id_sha256))
         ]
     return {
         "outer_fold": outer_fold,

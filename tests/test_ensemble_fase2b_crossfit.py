@@ -9,10 +9,12 @@ invariantes de vazamento sao estruturais, nao dependem da escala real de
 
 from __future__ import annotations
 
+import collections
 import hashlib
 import inspect
 import sys
 import unittest
+import unittest.mock
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
@@ -400,6 +402,97 @@ class TestPersistenciaNpz(unittest.TestCase):
             with np.load(saida / "fase2b_inner_scores.npz", allow_pickle=True) as npz:
                 self.assertEqual(npz["scores"].dtype.kind, "f")
                 self.assertEqual(npz["scores"].shape[1], len(gate["classes"]))
+
+
+class TestCarregarResultadoFoldRegressao(unittest.TestCase):
+    """Regressao do bug de desempenho: `carregar_resultado_fold` reindexava
+    `npz["chave"]` dentro do loop por linha. Como `NpzFile.__getitem__` nao
+    tem cache, isso redescomprimia o array inteiro a cada linha (O(n) por
+    acesso x O(n) linhas = O(n^2)). A correcao materializa cada array UMA
+    vez antes dos loops. Este teste prova as duas coisas sem depender de
+    limite de tempo: (a) cada chave e acessada exatamente 1x, e (b) os dados
+    recarregados sao byte-a-byte identicos aos gravados."""
+
+    def test_round_trip_identico_e_cada_chave_npz_acessada_uma_unica_vez(self):
+        import tempfile
+
+        gate = _construir_gate_sintetico()
+        criar_modelo = _fabricar_criar_modelo()
+        resultado = f2b.executar_outer_fold(
+            1, gate, criar_modelo=criar_modelo,
+            fixar_determinismo_lstm=_fixar_determinismo_lstm_fake,
+        )
+
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            f2b.gravar_resultado_fold(resultado, tmp)
+
+            import numpy.lib.npyio as npyio
+            contagem_por_chave = collections.Counter()
+            original_getitem = npyio.NpzFile.__getitem__
+
+            def getitem_contado(self, key):
+                contagem_por_chave[key] += 1
+                return original_getitem(self, key)
+
+            with unittest.mock.patch.object(npyio.NpzFile, "__getitem__", getitem_contado):
+                recarregado = f2b.carregar_resultado_fold(tmp, 1)
+
+            chaves_relevantes = {
+                "inner_outer_fold", "inner_inner_fold", "inner_id_sha256",
+                "inner_grupo_sha256", "inner_modelo", "inner_scores", "inner_top1",
+                "outer_outer_fold", "outer_id_sha256", "outer_grupo_sha256",
+                "outer_modelo", "outer_scores", "outer_top1",
+            }
+            self.assertTrue(chaves_relevantes.issubset(contagem_por_chave),
+                            "nem todas as chaves esperadas foram lidas do NPZ")
+            for chave in chaves_relevantes:
+                self.assertEqual(
+                    contagem_por_chave[chave], 1,
+                    f"{chave} foi acessada {contagem_por_chave[chave]}x via "
+                    "npz[...]; esperado exatamente 1x (materializada antes do "
+                    "loop, nao redescomprimida por linha).",
+                )
+
+            # Round-trip: mesmas linhas (ordem canonica, ja que gravar_resultado_fold
+            # ordena antes de salvar), mesmos scores, sem arredondamento.
+            self.assertEqual(
+                sorted(recarregado["inner_rows"], key=f2b._chave_inner),
+                sorted(resultado["inner_rows"], key=f2b._chave_inner),
+            )
+            self.assertEqual(
+                sorted(recarregado["outer_rows"], key=f2b._chave_outer),
+                sorted(resultado["outer_rows"], key=f2b._chave_outer),
+            )
+            self.assertEqual(recarregado["fits_info"], resultado["fits_info"])
+            self.assertEqual(
+                recarregado["excluidos_h_fora_de_c"],
+                resultado["excluidos_h_fora_de_c"],
+            )
+            self.assertEqual(
+                recarregado["total_modelaveis_no_fold"],
+                resultado["total_modelaveis_no_fold"],
+            )
+
+    def test_scores_preservam_precisao_float_total(self):
+        import tempfile
+
+        gate = _construir_gate_sintetico()
+        criar_modelo = _fabricar_criar_modelo()
+        resultado = f2b.executar_outer_fold(
+            2, gate, criar_modelo=criar_modelo,
+            fixar_determinismo_lstm=_fixar_determinismo_lstm_fake,
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            f2b.gravar_resultado_fold(resultado, tmp)
+            recarregado = f2b.carregar_resultado_fold(tmp, 2)
+
+        originais = {(l[2], l[4]): l[5] for l in resultado["inner_rows"]}
+        recarregados = {(l[2], l[4]): l[5] for l in recarregado["inner_rows"]}
+        self.assertEqual(set(originais), set(recarregados))
+        for chave, vetor_original in originais.items():
+            self.assertEqual(vetor_original, recarregados[chave])  # sem arredondamento
 
 
 if __name__ == "__main__":
