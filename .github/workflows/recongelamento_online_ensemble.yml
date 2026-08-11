@@ -17,6 +17,16 @@ jobs:
     timeout-minutes: 90
     env:
       SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
+      # random_state=42 fixa o RNG de alto nivel do LinearSVC, mas BLAS
+      # multi-thread (OpenBLAS/MKL) pode somar ponto-flutuante em ordem
+      # diferente entre execucoes, mudando margens perto de fronteiras de
+      # decisao o suficiente para virar rotulos previstos. Fixar 1 thread
+      # remove essa fonte de nao-determinismo sem tocar em nenhum
+      # hiperparametro do modelo.
+      OMP_NUM_THREADS: "1"
+      OPENBLAS_NUM_THREADS: "1"
+      MKL_NUM_THREADS: "1"
+      NUMEXPR_NUM_THREADS: "1"
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-python@v6
