@@ -27,7 +27,7 @@ jobs:
       - name: Dependencias
         run: |
           python -m pip install --retries 5 --timeout 300 -r requirements.txt
-          python -m pip install --retries 5 --timeout 120 scipy==1.14.1 statsmodels==0.14.4
+          python -m pip install --retries 5 --timeout 120 scipy==1.14.1 statsmodels==0.14.4 matplotlib
       - name: Testes (suite completa)
         run: |
           python -m py_compile src/recongelar_ensemble_online.py src/modelos_zoo.py src/congelar_alvo_ensemble.py
