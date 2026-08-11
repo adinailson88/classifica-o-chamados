@@ -46,10 +46,42 @@ jobs:
           python -m py_compile src/*.py
           python -m unittest discover -s tests
 
+  autorizacao:
+    name: Autorizacao da execucao cientifica (marcador [FASE2B-RUN])
+    needs: testes
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      autorizado: ${{ steps.checar.outputs.autorizado }}
+    steps:
+      - name: Checar marcador no INICIO da primeira linha do commit
+        id: checar
+        env:
+          # Passado via env, nunca interpolado direto no `run:`, para nao expor
+          # o runner a injecao de shell a partir de uma mensagem de commit
+          # controlada pelo autor do push.
+          MENSAGEM_COMMIT: ${{ github.event.head_commit.message }}
+        run: |
+          PRIMEIRA_LINHA=$(printf '%s\n' "$MENSAGEM_COMMIT" | head -n1)
+          echo "Primeira linha do commit: $PRIMEIRA_LINHA"
+          # `contains()` sobre a mensagem inteira e fragil: um commit que so
+          # DESCREVE o marcador em prosa (ex.: documentando o proprio
+          # workflow) tambem "contem" a substring em algum lugar do corpo e
+          # dispararia a rodada pesada por acidente. Por isso o gate exige
+          # que o marcador seja PREFIXO da PRIMEIRA linha (o assunto do
+          # commit), nunca uma ocorrencia solta em qualquer lugar da mensagem.
+          if [[ "$PRIMEIRA_LINHA" == "[FASE2B-RUN]"* ]]; then
+            echo "autorizado=true" >> "$GITHUB_OUTPUT"
+            echo "Marcador [FASE2B-RUN] no inicio do assunto do commit: execucao cientifica AUTORIZADA."
+          else
+            echo "autorizado=false" >> "$GITHUB_OUTPUT"
+            echo "Marcador [FASE2B-RUN] ausente no inicio do assunto do commit: execucao cientifica NAO autorizada (somente testes)."
+          fi
+
   gate_zero:
     name: Gate Zero (releitura online + validacao de hashes, sem treinar)
-    needs: testes
-    if: contains(github.event.head_commit.message, '[FASE2B-RUN]')
+    needs: [testes, autorizacao]
+    if: needs.autorizacao.outputs.autorizado == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -96,8 +128,8 @@ jobs:
 
   crossfit_fold:
     name: Cross-fitting por outer fold
-    needs: gate_zero
-    if: contains(github.event.head_commit.message, '[FASE2B-RUN]')
+    needs: [gate_zero, autorizacao]
+    if: needs.autorizacao.outputs.autorizado == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 180
     strategy:
@@ -150,7 +182,8 @@ jobs:
 
   agregar:
     name: Agregacao final + hashes cientificos
-    needs: crossfit_fold
+    needs: [crossfit_fold, autorizacao]
+    if: needs.autorizacao.outputs.autorizado == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -180,13 +213,20 @@ jobs:
         continue-on-error: true
         env:
           GOOGLE_APPLICATION_CREDENTIALS: credenciais_sa.json
+          RUN_ID: ${{ github.run_id }}
+          COMMIT_SHA: ${{ github.sha }}
+          # Via env, nao interpolado direto no `run:` (mesma razao do passo
+          # de autorizacao): evita injecao de shell a partir da mensagem de
+          # commit. So vai para fase2b_proveniencia_run.json (metadado
+          # volatil), nunca entra nos hashes cientificos.
+          MENSAGEM_COMMIT: ${{ github.event.head_commit.message }}
         run: |
           python src/ensemble_fase2b_crossfit.py --agregar \
             --entrada-dir docs/dados/ensemble/fase2b \
             --saida-dir docs/dados/ensemble/fase2b \
-            --run-id "${{ github.run_id }}" \
-            --commit-sha "${{ github.sha }}" \
-            --execucao "${{ github.event.head_commit.message }}"
+            --run-id "$RUN_ID" \
+            --commit-sha "$COMMIT_SHA" \
+            --execucao "$MENSAGEM_COMMIT"
       - name: Remover credenciais
         if: always()
         run: rm -f credenciais_sa.json
