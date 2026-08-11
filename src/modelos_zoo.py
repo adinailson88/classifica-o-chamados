@@ -398,7 +398,10 @@ def criar_modelo(nome: str):
     if nome == "regressao_logistica":
         return _ModeloProba(LogisticRegression(max_iter=1000, class_weight="balanced"))
     if nome == "linear_svc":
-        return _ModeloMargem(LinearSVC(class_weight="balanced"))
+        # random_state=42 explicito: LinearSVC (liblinear) usa um gerador
+        # aleatorio interno na otimizacao por coordenadas; sem semente fixa,
+        # a mesma base pode produzir previsoes diferentes entre execucoes.
+        return _ModeloMargem(LinearSVC(class_weight="balanced", random_state=42))
     if nome == "sgd":
         return _ModeloProba(SGDClassifier(loss="log_loss", class_weight="balanced", random_state=42))
     if nome == "extra_trees":

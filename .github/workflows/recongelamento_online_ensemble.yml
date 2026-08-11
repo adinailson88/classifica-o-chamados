@@ -14,7 +14,7 @@ permissions:
 jobs:
   recongelar:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 90
     env:
       SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
     steps:
@@ -23,14 +23,15 @@ jobs:
         with:
           python-version: "3.11"
           cache: pip
-          cache-dependency-path: requirements-leves.txt
+          cache-dependency-path: requirements.txt
       - name: Dependencias
-        run: python -m pip install --retries 5 --timeout 120 -r requirements-leves.txt
-      - name: Testes do recongelamento
         run: |
-          python -m py_compile src/recongelar_ensemble_online.py
-          python -m unittest discover -s tests -p "test_recongelar_ensemble_online.py" -t tests
-          python -m unittest discover -s tests -p "test_congelar_alvo_ensemble.py" -t tests
+          python -m pip install --retries 5 --timeout 300 -r requirements.txt
+          python -m pip install --retries 5 --timeout 120 scipy==1.14.1 statsmodels==0.14.4
+      - name: Testes (suite completa)
+        run: |
+          python -m py_compile src/recongelar_ensemble_online.py src/modelos_zoo.py src/congelar_alvo_ensemble.py
+          python -m unittest discover -s tests
       - name: Recriar chave da conta de servico
         env:
           GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
@@ -57,6 +58,7 @@ jobs:
           path: |
             docs/dados/ensemble/recongelamento_online/resumo_recongelamento_online.json
             docs/dados/ensemble/recongelamento_online/alvo_ensemble_online.json
+            docs/dados/ensemble/recongelamento_online/particoes_ensemble_online_mapa.csv
             docs/dados/ensemble/recongelamento_online/predicoes_linear_svc_online.csv
             docs/RECONGELAMENTO_ONLINE_ENSEMBLE.md
           if-no-files-found: warn

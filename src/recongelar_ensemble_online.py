@@ -40,6 +40,7 @@ from __future__ import annotations
 import argparse
 import csv
 import hashlib
+import io
 import json
 import os
 import sys
@@ -64,6 +65,7 @@ ALVO_CONGELADO_PADRAO = DADOS / "ensemble" / "alvo_ensemble.json"
 RESUMO_CONGELADO_PADRAO = DADOS / "ensemble" / "alvo_ensemble_resumo.json"
 SAIDA_DIR_PADRAO = DADOS / "ensemble" / "recongelamento_online"
 ALVO_ONLINE_PADRAO = SAIDA_DIR_PADRAO / "alvo_ensemble_online.json"
+PARTICOES_ONLINE_PADRAO = SAIDA_DIR_PADRAO / "particoes_ensemble_online_mapa.csv"
 RESUMO_ONLINE_PADRAO = SAIDA_DIR_PADRAO / "resumo_recongelamento_online.json"
 PREDICOES_ONLINE_PADRAO = SAIDA_DIR_PADRAO / "predicoes_linear_svc_online.csv"
 RELATORIO_PADRAO = RAIZ / "docs" / "RECONGELAMENTO_ONLINE_ENSEMBLE.md"
@@ -74,6 +76,7 @@ ABA_CANONICA = "CHAMADOS_ESQUELETO_REDUZIDO"
 TOTAL_ESPERADO = 13972
 DOBRAS_ESPERADAS = 5
 SEMENTE_ESPERADA = 42
+FOLDS_ESPERADOS_PADRAO = list(range(1, DOBRAS_ESPERADAS + 1))
 
 # Baseline historico do LinearSVC sobre o texto congelado anterior. Serve
 # apenas para comparacao no relatorio; nunca e forcado como resultado.
@@ -256,28 +259,98 @@ def validar_h_r_y_preservados(
     }
 
 
+def validar_cobertura_particoes_alvo(
+    particoes: dict[str, dict[str, Any]],
+    alvo_congelado: dict[str, dict[str, Any]],
+    total_esperado: int | None = None,
+    folds_esperados: list[int] | None = None,
+) -> dict[str, Any]:
+    """Confirma que particoes e alvo_congelado descrevem o MESMO universo.
+
+    `validar_h_r_y_preservados` so compara H/R/Y para IDs presentes nos dois
+    lados; sozinha, ela aceita silenciosamente um ID de uma fonte sem
+    contraparte na outra. Esta funcao fecha essa lacuna: exige
+    `set(particoes) == set(alvo_congelado)`, os dois com o tamanho esperado,
+    a MESMA dobra por ID nas duas fontes e, quando `folds_esperados` e
+    informado (a producao sempre informa `[1, 2, 3, 4, 5]`), que o conjunto
+    de outer_folds de cada fonte seja exatamente esse. Qualquer violacao
+    bloqueia a rodada antes de qualquer treino.
+    """
+    ids_particoes = set(particoes)
+    ids_alvo = set(alvo_congelado)
+    particao_sem_alvo = sorted(ids_particoes - ids_alvo)
+    alvo_sem_particao = sorted(ids_alvo - ids_particoes)
+    folds_particao = sorted({p["outer_fold"] for p in particoes.values()})
+    folds_alvo = sorted({a["outer_fold"] for a in alvo_congelado.values()})
+    dobra_divergente = sorted(
+        id_sha for id_sha in ids_particoes & ids_alvo
+        if particoes[id_sha]["outer_fold"] != alvo_congelado[id_sha]["outer_fold"]
+    )
+
+    diagnostico: dict[str, Any] = {
+        "total_ids_particoes": len(particoes),
+        "total_ids_alvo_congelado": len(alvo_congelado),
+        "total_ids_particao_sem_alvo": len(particao_sem_alvo),
+        "amostra_ids_particao_sem_alvo": particao_sem_alvo[:20],
+        "total_ids_alvo_sem_particao": len(alvo_sem_particao),
+        "amostra_ids_alvo_sem_particao": alvo_sem_particao[:20],
+        "folds_particao": folds_particao,
+        "folds_alvo_congelado": folds_alvo,
+        "total_dobra_historica_divergente": len(dobra_divergente),
+        "amostra_dobra_historica_divergente": dobra_divergente[:20],
+    }
+    bloqueios = []
+    if total_esperado is not None:
+        if diagnostico["total_ids_particoes"] != total_esperado:
+            bloqueios.append("total_ids_particoes_divergente_do_denominador_esperado")
+        if diagnostico["total_ids_alvo_congelado"] != total_esperado:
+            bloqueios.append("total_ids_alvo_congelado_divergente_do_denominador_esperado")
+    if particao_sem_alvo:
+        bloqueios.append("ids_particao_sem_contraparte_no_alvo")
+    if alvo_sem_particao:
+        bloqueios.append("ids_alvo_sem_contraparte_na_particao")
+    if folds_esperados is not None:
+        if folds_particao != folds_esperados:
+            bloqueios.append("folds_particao_invalidos")
+        if folds_alvo != folds_esperados:
+            bloqueios.append("folds_alvo_congelado_invalidos")
+    if dobra_divergente:
+        bloqueios.append("dobra_historica_divergente_entre_alvo_e_particao")
+    diagnostico["bloqueios"] = bloqueios
+    return diagnostico
+
+
 def montar_diagnostico(
     base_info: dict[str, Any],
     alvo_congelado: dict[str, dict[str, Any]],
     particoes: dict[str, dict[str, Any]],
     total_esperado: int | None = None,
+    folds_esperados: list[int] | None = None,
 ) -> dict[str, Any]:
     """Monta o diagnostico completo e decide se a rodada esta apta.
 
-    A cobertura e verificada contra `len(particoes)` (via `faltantes_no_online`),
-    nao contra uma constante: isso mantem a funcao generica para bases de
-    qualquer tamanho (inclusive as pequenas usadas em teste). `total_esperado`
-    e um segundo gate, opcional, que ancora o denominador de producao
-    (13.972) sem acoplar essa constante a logica de comparacao em si.
+    A cobertura entre particoes e alvo_congelado (Correcao 3) e verificada
+    primeiro, e sem excecao: `set(particoes) == set(alvo_congelado)`, os dois
+    do tamanho esperado, os mesmos outer_folds validos nos dois lados e a
+    MESMA dobra por ID em ambas as fontes historicas. So depois disso a
+    cobertura ONLINE (`faltantes_no_online`) e checada. `total_esperado` e
+    `folds_esperados` sao gates opcionais que ancoram o contrato de producao
+    (13.972 IDs, dobras {1..5}) sem acoplar essas constantes a logica de
+    comparacao em si — por isso podem ser omitidos em bases pequenas de teste.
     """
     base = base_info["base"]
-    diagnostico: dict[str, Any] = {
-        "total_ids_particoes": len(particoes),
-        "total_ids_encontrados_no_online": len(base),
-        "total_faltantes_no_online": len(base_info["faltantes_no_online"]),
-        "amostra_faltantes_no_online": base_info["faltantes_no_online"][:20],
-        "total_ids_duplicados_no_online": len(base_info["ids_duplicados_no_online"]),
-    }
+    cobertura = validar_cobertura_particoes_alvo(
+        particoes, alvo_congelado, total_esperado=total_esperado,
+        folds_esperados=folds_esperados,
+    )
+    diagnostico: dict[str, Any] = dict(cobertura)
+    bloqueios = list(cobertura["bloqueios"])
+
+    diagnostico["total_ids_encontrados_no_online"] = len(base)
+    diagnostico["total_faltantes_no_online"] = len(base_info["faltantes_no_online"])
+    diagnostico["amostra_faltantes_no_online"] = base_info["faltantes_no_online"][:20]
+    diagnostico["total_ids_duplicados_no_online"] = len(base_info["ids_duplicados_no_online"])
+
     diagnostico.update(validar_grupos_nao_cruzam_dobras(base))
     diagnostico.update(validar_h_r_y_preservados(base, alvo_congelado))
 
@@ -289,9 +362,6 @@ def montar_diagnostico(
     diagnostico["total_grupos_congelados_distintos"] = len(set(grupos_congelados.values()))
     diagnostico["total_grupos_ou_textos_alterados_em_relacao_ao_historico"] = grupos_alterados
 
-    bloqueios = []
-    if total_esperado is not None and diagnostico["total_ids_particoes"] != total_esperado:
-        bloqueios.append("total_ids_particoes_divergente_do_denominador_esperado")
     if diagnostico["total_faltantes_no_online"]:
         bloqueios.append("ids_faltantes_no_online")
     if diagnostico["total_ids_duplicados_no_online"]:
@@ -344,16 +414,41 @@ def calcular_hash_corpus(registros: list[dict[str, Any]]) -> str:
     return erc.hash_corpus(corpus)
 
 
+def montar_particoes_online_csv_bytes(registros: list[dict[str, Any]]) -> bytes:
+    """Manifesto de particao ONLINE: id_sha256, grupo ATUAL, dobra preservada.
+
+    Artefato NOVO e distinto de `docs/dados/particoes_canonicas_mapa.csv`
+    (que permanece intocado, como evidencia historica da origem dos folds).
+    Ordenado por id_sha256, igual aos demais mapas do repositorio.
+    """
+    buf = io.StringIO()
+    escritor = csv.writer(buf, lineterminator="\n")
+    escritor.writerow(["id_sha256", "grupo_sha256", "dobra"])
+    for r in sorted(registros, key=lambda r: r["id_sha256"]):
+        escritor.writerow([r["id_sha256"], r["grupo_sha256"], r["outer_fold"]])
+    return buf.getvalue().encode("utf-8")
+
+
+def calcular_fold_assignment_sha256(pares: list[tuple[str, int]]) -> str:
+    """SHA-256 canonico de (id_sha256, outer_fold) apenas — sem grupo nem
+    rotulo. Muda se, e somente se, a atribuicao ID -> fold mudar."""
+    itens = sorted(pares)
+    return cgt._sha256_json([list(i) for i in itens])
+
+
 def treinar_linear_svc_do_zero(
     base: dict[str, dict[str, Any]],
     registros: list[dict[str, Any]],
-    semente: int = SEMENTE_ESPERADA,
 ) -> dict[str, Any]:
     """Retreina o LinearSVC fold a fold, sobre o texto online atual.
 
     Nao reutiliza nenhuma predicao antiga: chama `avaliar_modelo`, que ajusta
     um LinearSVC novo por dobra e verifica, a cada dobra, que nenhum grupo
-    textual atual do treino aparece no teste.
+    textual atual do treino aparece no teste. O determinismo (SEMENTE_ESPERADA
+    = 42) vem de `modelos_zoo.criar_modelo("linear_svc")`, que fixa
+    `random_state=42` no proprio estimador; nao existe (nem existiu antes
+    deste ajuste) um parametro `semente` aqui com efeito real — um parametro
+    assim so daria a falsa impressao de que a rodada era configuravel.
     """
     ordem = [r["id_sha256"] for r in registros]
     corpus = {
@@ -424,7 +519,11 @@ def renderizar_markdown(resumo: dict[str, Any]) -> str:
     ]
     diag = resumo["diagnostico"]
     for chave in (
-        "total_ids_particoes", "total_ids_encontrados_no_online",
+        "total_ids_particoes", "total_ids_alvo_congelado",
+        "total_ids_particao_sem_alvo", "total_ids_alvo_sem_particao",
+        "folds_particao", "folds_alvo_congelado",
+        "total_dobra_historica_divergente",
+        "total_ids_encontrados_no_online",
         "total_faltantes_no_online", "total_ids_duplicados_no_online",
         "total_grupos_atuais_distintos", "total_grupos_congelados_distintos",
         "total_grupos_ou_textos_alterados_em_relacao_ao_historico",
@@ -483,6 +582,7 @@ def executar(
     workflow_head_sha: str | None = None,
     registros_online: list[dict[str, str]] | None = None,
     total_esperado: int | None = TOTAL_ESPERADO,
+    folds_esperados: list[int] | None = FOLDS_ESPERADOS_PADRAO,
 ) -> dict[str, Any]:
     particoes = carregar_particoes_preservadas(particoes_path)
     alvo_congelado = carregar_alvo_congelado(alvo_congelado_path)
@@ -493,7 +593,8 @@ def executar(
 
     base_info = montar_base_atual(registros_online, particoes)
     diagnostico = montar_diagnostico(base_info, alvo_congelado, particoes,
-                                     total_esperado=total_esperado)
+                                     total_esperado=total_esperado,
+                                     folds_esperados=folds_esperados)
 
     resumo: dict[str, Any] = {
         "schema_version": 1,
@@ -514,16 +615,23 @@ def executar(
         "hash_historico_ensemble_antigo": hashes_antigos.get("hash_historico_ensemble"),
         "hash_alvo_ensemble_antigo": hashes_antigos.get("hash_alvo_ensemble"),
         "classes_sha256_antigo": hashes_antigos.get("classes_sha256"),
-        "partition_manifest_sha256_antigo": hashes_antigos.get("partition_manifest_sha256"),
+        # `partition_manifest_sha256` congelado anteriormente e sempre o hash
+        # fisico do manifesto de ORIGEM (docs/dados/particoes_canonicas_mapa.csv);
+        # nao existia, antes desta correcao, um manifesto online separado.
+        "partition_manifest_origem_sha256_antigo": hashes_antigos.get("partition_manifest_sha256"),
     }
 
     if diagnostico["status"] != "apto_para_baseline":
         resumo["hash_corpus_novo"] = None
         resumo["hashes_comparados"] = {}
         resumo["baseline_linear_svc"] = None
+        resumo["partition_manifest_origem_sha256_novo"] = None
+        resumo["partition_manifest_online_sha256"] = None
+        resumo["fold_assignment_sha256"] = None
         resumo["_registros"] = []
         resumo["_predicoes"] = {}
         resumo["_escores"] = {}
+        resumo["_particoes_online_bytes"] = None
         return resumo
 
     registros = montar_registros_recongelados(base_info["base"], particoes)
@@ -533,7 +641,31 @@ def executar(
     classes_payload, classes_sha_novo = cae.montar_classes(
         registros, esperado=len({r["referencia_humana"] for r in registros})
     )
-    partition_sha_novo = cae.sha256_bytes(particoes_path.read_bytes())
+
+    # Manifesto de ORIGEM: o arquivo historico intocado, evidencia de onde os
+    # folds vieram. Manifesto ONLINE: novo artefato com o grupo ATUAL e a
+    # mesma dobra preservada. Os dois sao hasheados separadamente; nenhum dos
+    # dois e forcado a bater com o outro.
+    partition_manifest_origem_sha256 = cae.sha256_bytes(particoes_path.read_bytes())
+    particoes_online_bytes = montar_particoes_online_csv_bytes(registros)
+    partition_manifest_online_sha256 = cae.sha256_bytes(particoes_online_bytes)
+
+    # A atribuicao ID -> fold precisa ser a MESMA nas duas fontes (particoes
+    # preservadas x registros recongelados); e o que a Correcao 3 ja garante
+    # antes de chegar aqui. O hash abaixo torna essa invariancia auditavel
+    # sem depender de reler os dois arquivos byte a byte.
+    fold_assignment_particoes = calcular_fold_assignment_sha256(
+        [(id_sha, p["outer_fold"]) for id_sha, p in particoes.items()]
+    )
+    fold_assignment_registros = calcular_fold_assignment_sha256(
+        [(r["id_sha256"], r["outer_fold"]) for r in registros]
+    )
+    if fold_assignment_particoes != fold_assignment_registros:
+        raise RuntimeError(
+            "fold_assignment_sha256 divergente entre particoes preservadas e "
+            "registros recongelados; a atribuicao ID->fold nao deveria mudar."
+        )
+    fold_assignment_sha256 = fold_assignment_registros
 
     treino = treinar_linear_svc_do_zero(base_info["base"], registros)
     resultado_modelo = treino["resultado"]
@@ -556,7 +688,13 @@ def executar(
             "schema_version": 1,
             "hash_corpus": hash_corpus_novo,
             "hash_historico_ensemble": hash_hist_novo,
-            "partition_manifest_sha256": partition_sha_novo,
+            # Aponta para o manifesto ONLINE (grupo atual + fold preservado),
+            # nao para o arquivo historico: e essa a particao logica desta
+            # rodada. A proveniencia do arquivo historico fica preservada, com
+            # nome inequivoco, no campo abaixo.
+            "partition_manifest_sha256": partition_manifest_online_sha256,
+            "partition_manifest_origem_sha256": partition_manifest_origem_sha256,
+            "fold_assignment_sha256": fold_assignment_sha256,
             "classes_sha256": classes_sha_novo,
             "total_records": len(registros),
         },
@@ -572,12 +710,19 @@ def executar(
             "hash_alvo_ensemble": (resumo["hash_alvo_ensemble_antigo"], hash_alvo_novo),
             "hash_historico_ensemble": (resumo["hash_historico_ensemble_antigo"], hash_hist_novo),
             "classes_sha256": (resumo["classes_sha256_antigo"], classes_sha_novo),
-            "partition_manifest_sha256": (resumo["partition_manifest_sha256_antigo"], partition_sha_novo),
+            "partition_manifest_origem_sha256": (
+                resumo["partition_manifest_origem_sha256_antigo"],
+                partition_manifest_origem_sha256,
+            ),
+            "partition_manifest_online_sha256": (None, partition_manifest_online_sha256),
+            "fold_assignment_sha256": (None, fold_assignment_sha256),
         },
         "hash_alvo_ensemble_novo": hash_alvo_novo,
         "hash_historico_ensemble_novo": hash_hist_novo,
         "classes_sha256_novo": classes_sha_novo,
-        "partition_manifest_sha256_novo": partition_sha_novo,
+        "partition_manifest_origem_sha256_novo": partition_manifest_origem_sha256,
+        "partition_manifest_online_sha256": partition_manifest_online_sha256,
+        "fold_assignment_sha256": fold_assignment_sha256,
         "baseline_linear_svc": comparar_baseline(baseline_atual),
         "K_D_R_por_dobra": baseline["por_dobra"],
         "total_registros_recongelados": len(registros),
@@ -585,6 +730,7 @@ def executar(
         "total_classes_recongeladas": len({r["referencia_humana"] for r in registros}),
         "_registros": registros,
         "_alvo_bytes": alvo_bytes,
+        "_particoes_online_bytes": particoes_online_bytes,
         "_predicoes": predicoes,
         "_escores": escores,
     })
@@ -592,7 +738,8 @@ def executar(
 
 
 def gravar(resumo: dict[str, Any], saida_dir: Path, alvo_path: Path,
-          resumo_path: Path, predicoes_path: Path, relatorio_path: Path) -> None:
+          particoes_online_path: Path, resumo_path: Path, predicoes_path: Path,
+          relatorio_path: Path) -> None:
     saida_dir.mkdir(parents=True, exist_ok=True)
     publicavel = {k: v for k, v in resumo.items() if not k.startswith("_")}
     resumo_path.parent.mkdir(parents=True, exist_ok=True)
@@ -602,6 +749,8 @@ def gravar(resumo: dict[str, Any], saida_dir: Path, alvo_path: Path,
     if resumo["status"] == "apto_para_baseline":
         alvo_path.parent.mkdir(parents=True, exist_ok=True)
         alvo_path.write_bytes(resumo["_alvo_bytes"])
+        particoes_online_path.parent.mkdir(parents=True, exist_ok=True)
+        particoes_online_path.write_bytes(resumo["_particoes_online_bytes"])
         escrever_predicoes(predicoes_path, resumo["_predicoes"], resumo["_escores"])
     relatorio_path.parent.mkdir(parents=True, exist_ok=True)
     relatorio_path.write_text(renderizar_markdown(resumo), encoding="utf-8")
@@ -615,6 +764,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--alvo-congelado", type=Path, default=ALVO_CONGELADO_PADRAO)
     p.add_argument("--saida-dir", type=Path, default=SAIDA_DIR_PADRAO)
     p.add_argument("--alvo-online", type=Path, default=ALVO_ONLINE_PADRAO)
+    p.add_argument("--particoes-online", type=Path, default=PARTICOES_ONLINE_PADRAO)
     p.add_argument("--resumo", type=Path, default=RESUMO_ONLINE_PADRAO)
     p.add_argument("--predicoes", type=Path, default=PREDICOES_ONLINE_PADRAO)
     p.add_argument("--relatorio", type=Path, default=RELATORIO_PADRAO)
@@ -641,8 +791,8 @@ def main() -> int:
         base_main_sha=args.base_main_sha,
         workflow_head_sha=args.workflow_head_sha,
     )
-    gravar(resumo, args.saida_dir, args.alvo_online, args.resumo, args.predicoes,
-          args.relatorio)
+    gravar(resumo, args.saida_dir, args.alvo_online, args.particoes_online,
+          args.resumo, args.predicoes, args.relatorio)
     publicavel = {k: v for k, v in resumo.items() if not k.startswith("_")}
     print(json.dumps(publicavel, ensure_ascii=False, indent=2))
     if resumo["status"] != "apto_para_baseline":
