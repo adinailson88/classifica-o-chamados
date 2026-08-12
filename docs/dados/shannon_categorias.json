@@ -9,8 +9,8 @@
     {
       "categoria_historica": "Suprimentos / Apoio Técnico > Limpeza de equipamentos, ambiente e mobiliário",
       "modelos": 1,
-      "suporte_max": 56,
-      "entropia_media_normalizada": 0.9519,
+      "suporte_max": 57,
+      "entropia_media_normalizada": 0.95,
       "maior_risco": "alta_ambiguidade"
     },
     {
@@ -157,7 +157,7 @@
       "categoria_historica": "Área Externa e Ambiental > Manutenção área externa / meio ambiente / Poda de árvore / Roçagem",
       "modelos": 8,
       "suporte_max": 451,
-      "entropia_media_normalizada": 0.4848,
+      "entropia_media_normalizada": 0.4804,
       "maior_risco": "alta_ambiguidade"
     },
     {
@@ -184,8 +184,8 @@
     {
       "categoria_historica": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
       "modelos": 9,
-      "suporte_max": 1638,
-      "entropia_media_normalizada": 0.4319,
+      "suporte_max": 1640,
+      "entropia_media_normalizada": 0.4317,
       "maior_risco": "alta_ambiguidade"
     },
     {
@@ -355,16 +355,16 @@
     {
       "modelo": "lstm",
       "categoria_historica": "Suprimentos / Apoio Técnico > Limpeza de equipamentos, ambiente e mobiliário",
-      "suporte": 56,
+      "suporte": 57,
       "categorias_previstas": 27,
-      "entropia_previsoes": 4.5261,
-      "entropia_normalizada": 0.9519,
-      "categorias_efetivas": 23.041,
+      "entropia_previsoes": 4.5172,
+      "entropia_normalizada": 0.95,
+      "categorias_efetivas": 22.899,
       "top_1_previsto": "Suprimentos / Apoio Técnico > Limpeza de equipamentos, ambiente e mobiliário",
-      "top_1_pct": 0.0893,
+      "top_1_pct": 0.0877,
       "top_2_previsto": "Manutenção Preventiva > Telhados, calhas, rufos, etc.",
-      "top_2_pct": 0.0893,
-      "concordancia_historico": 0.0893,
+      "top_2_pct": 0.0877,
+      "concordancia_historico": 0.0877,
       "risco": "alta_ambiguidade"
     },
     {
@@ -803,6 +803,21 @@
       "risco": "alta_ambiguidade"
     },
     {
+      "modelo": "naive_bayes",
+      "categoria_historica": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
+      "suporte": 412,
+      "categorias_previstas": 5,
+      "entropia_previsoes": 1.7809,
+      "entropia_normalizada": 0.767,
+      "categorias_efetivas": 3.4365,
+      "top_1_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
+      "top_1_pct": 0.4126,
+      "top_2_previsto": "Elétrica > Instalações elétricas",
+      "top_2_pct": 0.3495,
+      "concordancia_historico": 0.0558,
+      "risco": "alta_ambiguidade"
+    },
+    {
       "modelo": "random_forest",
       "categoria_historica": "Manutenção Preventiva > Esgoto",
       "suporte": 34,
@@ -830,21 +845,6 @@
       "top_2_previsto": "Elétrica > Instalações elétricas",
       "top_2_pct": 0.1145,
       "concordancia_historico": 0.238,
-      "risco": "alta_ambiguidade"
-    },
-    {
-      "modelo": "naive_bayes",
-      "categoria_historica": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
-      "suporte": 410,
-      "categorias_previstas": 5,
-      "entropia_previsoes": 1.7732,
-      "entropia_normalizada": 0.7637,
-      "categorias_efetivas": 3.4182,
-      "top_1_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-      "top_1_pct": 0.4146,
-      "top_2_previsto": "Elétrica > Instalações elétricas",
-      "top_2_pct": 0.3512,
-      "concordancia_historico": 0.0537,
       "risco": "alta_ambiguidade"
     },
     {
@@ -2530,31 +2530,31 @@
     {
       "modelo": "lstm",
       "categoria_historica": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
-      "suporte": 1638,
+      "suporte": 1640,
       "categorias_previstas": 38,
-      "entropia_previsoes": 2.5276,
-      "entropia_normalizada": 0.4816,
-      "categorias_efetivas": 5.766,
+      "entropia_previsoes": 2.5254,
+      "entropia_normalizada": 0.4812,
+      "categorias_efetivas": 5.7574,
       "top_1_previsto": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
-      "top_1_pct": 0.5861,
+      "top_1_pct": 0.5866,
       "top_2_previsto": "Outros > Erro de chamado",
-      "top_2_pct": 0.0879,
-      "concordancia_historico": 0.5861,
+      "top_2_pct": 0.0878,
+      "concordancia_historico": 0.5866,
       "risco": "ambiguidade_moderada"
     },
     {
       "modelo": "random_forest",
       "categoria_historica": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
-      "suporte": 410,
+      "suporte": 412,
       "categorias_previstas": 9,
-      "entropia_previsoes": 1.5022,
-      "entropia_normalizada": 0.4739,
-      "categorias_efetivas": 2.8327,
+      "entropia_previsoes": 1.4981,
+      "entropia_normalizada": 0.4726,
+      "categorias_efetivas": 2.8248,
       "top_1_previsto": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
-      "top_1_pct": 0.6268,
+      "top_1_pct": 0.6286,
       "top_2_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-      "top_2_pct": 0.2585,
-      "concordancia_historico": 0.6268,
+      "top_2_pct": 0.2573,
+      "concordancia_historico": 0.6286,
       "risco": "ambiguidade_moderada"
     },
     {
@@ -2858,21 +2858,6 @@
       "risco": "ambiguidade_moderada"
     },
     {
-      "modelo": "sgd",
-      "categoria_historica": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
-      "suporte": 410,
-      "categorias_previstas": 12,
-      "entropia_previsoes": 1.4942,
-      "entropia_normalizada": 0.4168,
-      "categorias_efetivas": 2.8171,
-      "top_1_previsto": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
-      "top_1_pct": 0.6634,
-      "top_2_previsto": "Outros > Erro de chamado",
-      "top_2_pct": 0.2366,
-      "concordancia_historico": 0.6634,
-      "risco": "ambiguidade_moderada"
-    },
-    {
       "modelo": "regressao_logistica",
       "categoria_historica": "Instalação de Acessórios e Mobiliário > Placas de identificação",
       "suporte": 54,
@@ -2901,6 +2886,21 @@
       "top_2_pct": 0.0741,
       "concordancia_historico": 0.7963,
       "risco": "estavel"
+    },
+    {
+      "modelo": "sgd",
+      "categoria_historica": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
+      "suporte": 412,
+      "categorias_previstas": 12,
+      "entropia_previsoes": 1.4898,
+      "entropia_normalizada": 0.4156,
+      "categorias_efetivas": 2.8085,
+      "top_1_previsto": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
+      "top_1_pct": 0.665,
+      "top_2_previsto": "Outros > Erro de chamado",
+      "top_2_pct": 0.2354,
+      "concordancia_historico": 0.665,
+      "risco": "ambiguidade_moderada"
     },
     {
       "modelo": "linear_svc",
@@ -2935,31 +2935,16 @@
     {
       "modelo": "extra_trees",
       "categoria_historica": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
-      "suporte": 818,
+      "suporte": 820,
       "categorias_previstas": 11,
-      "entropia_previsoes": 1.4061,
-      "entropia_normalizada": 0.4064,
-      "categorias_efetivas": 2.6502,
+      "entropia_previsoes": 1.404,
+      "entropia_normalizada": 0.4058,
+      "categorias_efetivas": 2.6463,
       "top_1_previsto": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
-      "top_1_pct": 0.6895,
+      "top_1_pct": 0.6902,
       "top_2_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-      "top_2_pct": 0.2005,
-      "concordancia_historico": 0.6895,
-      "risco": "ambiguidade_moderada"
-    },
-    {
-      "modelo": "regressao_logistica",
-      "categoria_historica": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
-      "suporte": 410,
-      "categorias_previstas": 13,
-      "entropia_previsoes": 1.4844,
-      "entropia_normalizada": 0.4011,
-      "categorias_efetivas": 2.7981,
-      "top_1_previsto": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
-      "top_1_pct": 0.6585,
-      "top_2_previsto": "Outros > Erro de chamado",
-      "top_2_pct": 0.2488,
-      "concordancia_historico": 0.6585,
+      "top_2_pct": 0.2,
+      "concordancia_historico": 0.6902,
       "risco": "ambiguidade_moderada"
     },
     {
@@ -2990,6 +2975,21 @@
       "top_2_previsto": "Estrutura Predial > Esquadrias, porta, portão e janelas",
       "top_2_pct": 0.0744,
       "concordancia_historico": 0.6975,
+      "risco": "ambiguidade_moderada"
+    },
+    {
+      "modelo": "regressao_logistica",
+      "categoria_historica": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
+      "suporte": 412,
+      "categorias_previstas": 13,
+      "entropia_previsoes": 1.4801,
+      "entropia_normalizada": 0.4,
+      "categorias_efetivas": 2.7897,
+      "top_1_previsto": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
+      "top_1_pct": 0.6602,
+      "top_2_previsto": "Outros > Erro de chamado",
+      "top_2_pct": 0.2476,
+      "concordancia_historico": 0.6602,
       "risco": "ambiguidade_moderada"
     },
     {
@@ -3190,16 +3190,16 @@
     {
       "modelo": "linear_svc",
       "categoria_historica": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
-      "suporte": 818,
+      "suporte": 820,
       "categorias_previstas": 15,
-      "entropia_previsoes": 1.3087,
-      "entropia_normalizada": 0.335,
-      "categorias_efetivas": 2.4773,
+      "entropia_previsoes": 1.3065,
+      "entropia_normalizada": 0.3344,
+      "categorias_efetivas": 2.4734,
       "top_1_previsto": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
-      "top_1_pct": 0.7665,
+      "top_1_pct": 0.7671,
       "top_2_previsto": "Outros > Erro de chamado",
-      "top_2_pct": 0.1235,
-      "concordancia_historico": 0.7665,
+      "top_2_pct": 0.1232,
+      "concordancia_historico": 0.7671,
       "risco": "estavel"
     },
     {
@@ -3923,21 +3923,6 @@
       "risco": "estavel"
     },
     {
-      "modelo": "etapa1_oficial",
-      "categoria_historica": "Área Externa e Ambiental > Manutenção área externa / meio ambiente / Poda de árvore / Roçagem",
-      "suporte": 115,
-      "categorias_previstas": 6,
-      "entropia_previsoes": 0.5571,
-      "entropia_normalizada": 0.2155,
-      "categorias_efetivas": 1.4714,
-      "top_1_previsto": "Área Externa e Ambiental > Manutenção área externa / meio ambiente / Poda de árvore / Roçagem",
-      "top_1_pct": 0.9217,
-      "top_2_previsto": "Suprimentos / Apoio Técnico > Materiais",
-      "top_2_pct": 0.0348,
-      "concordancia_historico": 0.9217,
-      "risco": "estavel"
-    },
-    {
       "modelo": "linear_svc",
       "categoria_historica": "Elétrica > Iluminação",
       "suporte": 1519,
@@ -4160,6 +4145,21 @@
       "top_2_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
       "top_2_pct": 0.0809,
       "concordancia_historico": 0.8895,
+      "risco": "estavel"
+    },
+    {
+      "modelo": "etapa1_oficial",
+      "categoria_historica": "Área Externa e Ambiental > Manutenção área externa / meio ambiente / Poda de árvore / Roçagem",
+      "suporte": 115,
+      "categorias_previstas": 6,
+      "entropia_previsoes": 0.467,
+      "entropia_normalizada": 0.1807,
+      "categorias_efetivas": 1.3822,
+      "top_1_previsto": "Área Externa e Ambiental > Manutenção área externa / meio ambiente / Poda de árvore / Roçagem",
+      "top_1_pct": 0.9391,
+      "top_2_previsto": "Suprimentos / Apoio Técnico > Materiais",
+      "top_2_pct": 0.0174,
+      "concordancia_historico": 0.9391,
       "risco": "estavel"
     },
     {
