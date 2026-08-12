@@ -1,83 +1,110 @@
 {
- "total_chamados": 1,
- "com_conferencia_glpi": 1,
- "verdade_glpi": 1,
- "verdade_manual": 0,
+ "total_chamados": 14131,
+ "com_conferencia_glpi": 14060,
+ "verdade_glpi": 13462,
+ "verdade_manual": 598,
  "pendente_glpi_errado_sem_q": 0,
- "sem_conferencia": 0,
+ "sem_conferencia": 71,
  "correto_com_q_preenchida": 0,
  "errado_com_q_igual_a_c": 0,
  "por_modelo": {
   "naive_bayes": {
-   "correto": 0,
-   "errado": 0,
+   "correto": 9978,
+   "errado": 4082,
    "pendente": 0,
-   "sem_predicao": 1,
-   "avaliados": 0,
-   "acuracia": null
+   "sem_predicao": 0,
+   "avaliados": 14060,
+   "acuracia": 0.7097
   },
   "regressao_logistica": {
-   "correto": 0,
-   "errado": 0,
+   "correto": 11220,
+   "errado": 2840,
    "pendente": 0,
-   "sem_predicao": 1,
-   "avaliados": 0,
-   "acuracia": null
+   "sem_predicao": 0,
+   "avaliados": 14060,
+   "acuracia": 0.798
   },
   "linear_svc": {
-   "correto": 0,
-   "errado": 0,
+   "correto": 11513,
+   "errado": 2547,
    "pendente": 0,
-   "sem_predicao": 1,
-   "avaliados": 0,
-   "acuracia": null
+   "sem_predicao": 0,
+   "avaliados": 14060,
+   "acuracia": 0.8188
   },
   "sgd": {
-   "correto": 0,
-   "errado": 0,
+   "correto": 11286,
+   "errado": 2774,
    "pendente": 0,
-   "sem_predicao": 1,
-   "avaliados": 0,
-   "acuracia": null
+   "sem_predicao": 0,
+   "avaliados": 14060,
+   "acuracia": 0.8027
   },
   "extra_trees": {
-   "correto": 0,
-   "errado": 0,
+   "correto": 11252,
+   "errado": 2808,
    "pendente": 0,
-   "sem_predicao": 1,
-   "avaliados": 0,
-   "acuracia": null
+   "sem_predicao": 0,
+   "avaliados": 14060,
+   "acuracia": 0.8003
   },
   "random_forest": {
-   "correto": 0,
-   "errado": 0,
+   "correto": 11114,
+   "errado": 2946,
    "pendente": 0,
-   "sem_predicao": 1,
-   "avaliados": 0,
-   "acuracia": null
+   "sem_predicao": 0,
+   "avaliados": 14060,
+   "acuracia": 0.7905
   },
   "lstm": {
-   "correto": 0,
-   "errado": 0,
+   "correto": 10152,
+   "errado": 3908,
    "pendente": 0,
-   "sem_predicao": 1,
-   "avaliados": 0,
-   "acuracia": null
+   "sem_predicao": 0,
+   "avaliados": 14060,
+   "acuracia": 0.722
   },
   "transformer_ft": {
-   "correto": 0,
-   "errado": 0,
+   "correto": 7928,
+   "errado": 1579,
    "pendente": 0,
-   "sem_predicao": 1,
-   "avaliados": 0,
-   "acuracia": null
+   "sem_predicao": 4553,
+   "avaliados": 9507,
+   "acuracia": 0.8339
   }
  },
- "distribuicao_q": {},
- "categorias_distintas_q": 0,
+ "distribuicao_q": {
+  "Manutenção Preventiva > Ar condicionado split": 189,
+  "Instalação de Acessórios e Mobiliário > Instalação/reparo de equipamentos (Suportes de TV, acessórios de banheiro e quadro branco)": 121,
+  "Estrutura Predial > Esquadrias, porta, portão e janelas": 39,
+  "Manutenção Preventiva > Reservatório": 39,
+  "Hidrossanitária > Hidráulica": 27,
+  "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi": 24,
+  "Estrutura Predial > Forro": 23,
+  "Elétrica > Nobreak": 22,
+  "Outros > Erro de chamado": 20,
+  "Suprimentos / Apoio Técnico > Materiais": 17,
+  "Elétrica > Iluminação": 16,
+  "Instalação de Acessórios e Mobiliário > Placas de identificação": 16,
+  "Estrutura Predial > Telhados, calhas, rufos, etc.": 12,
+  "Elétrica > Gerador": 6,
+  "Elétrica > Instalações elétricas": 6,
+  "Hidrossanitária > Bomba": 5,
+  "Estrutura Predial > Alvenaria / Pisos / Estrutura": 3,
+  "Manutenção Preventiva > Ar condicionado central": 3,
+  "Estrutura Predial > Instalações Especiais (gás, ar comprimido, etc.)": 2,
+  "Estrutura Predial > Pintura": 2,
+  "Climatização > Ar condicionado split": 1,
+  "Elétrica > Subestação": 1,
+  "Estrutura Predial > Infiltração": 1,
+  "Manutenção Preventiva > Telhados, calhas, rufos, etc.": 1,
+  "Suprimentos / Apoio Técnico > Transporte": 1,
+  "Área Externa e Ambiental > Manutenção área externa / meio ambiente / Poda de árvore / Roçagem": 1
+ },
+ "categorias_distintas_q": 26,
  "ids_correto_com_q_preenchida": [],
  "ids_errado_com_q_igual_a_c": [],
- "gerado_em": "12/08/2026 04:58",
+ "gerado_em": "12/08/2026 10:55",
  "aba": "CONFERENCIA_MULTIMODELO",
  "regra": "M='Correto' -> verdade = C; M='Errado' + Q preenchida -> verdade = Q; M='Errado' sem Q -> pendente; M vazio -> ignorado"
 }
