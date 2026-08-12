@@ -1,5 +1,5 @@
 {
-  "gerado_em": "11/08/2026 03:40",
+  "gerado_em": "12/08/2026 03:56",
   "schema_version": "1.0",
   "run_id": "EXP_CLASSIFICACAO_CHAMADOS_2026_06_001",
   "script_origem": "src/avaliacao_final.py",
@@ -43,7 +43,7 @@
         0.8252
       ],
       "peso_log_odds": 1.5086,
-      "peso_normalizado": 0.1511
+      "peso_normalizado": 0.1505
     },
     {
       "modelo": "sgd",
@@ -54,7 +54,7 @@
         0.8094
       ],
       "peso_log_odds": 1.4033,
-      "peso_normalizado": 0.1481
+      "peso_normalizado": 0.1475
     },
     {
       "modelo": "extra_trees",
@@ -65,7 +65,7 @@
         0.8069
       ],
       "peso_log_odds": 1.3881,
-      "peso_normalizado": 0.1477
+      "peso_normalizado": 0.1471
     },
     {
       "modelo": "regressao_logistica",
@@ -76,7 +76,7 @@
         0.8049
       ],
       "peso_log_odds": 1.3739,
-      "peso_normalizado": 0.1472
+      "peso_normalizado": 0.1466
     },
     {
       "modelo": "random_forest",
@@ -87,7 +87,18 @@
         0.7973
       ],
       "peso_log_odds": 1.3278,
-      "peso_normalizado": 0.1458
+      "peso_normalizado": 0.1453
+    },
+    {
+      "modelo": "lstm",
+      "n": 14060,
+      "acerto_validado": 0.722,
+      "ic95": [
+        0.7144,
+        0.7295
+      ],
+      "peso_log_odds": 0.9546,
+      "peso_normalizado": 0.1327
     },
     {
       "modelo": "naive_bayes",
@@ -98,18 +109,7 @@
         0.7171
       ],
       "peso_log_odds": 0.8938,
-      "peso_normalizado": 0.1309
-    },
-    {
-      "modelo": "lstm",
-      "n": 14060,
-      "acerto_validado": 0.7,
-      "ic95": [
-        0.6925,
-        0.7075
-      ],
-      "peso_log_odds": 0.8473,
-      "peso_normalizado": 0.1292
+      "peso_normalizado": 0.1304
     }
   ],
   "melhor_ia": "linear_svc",
@@ -121,39 +121,39 @@
   "ensembles": [
     {
       "metodo": "maioria_ponderada",
-      "acerto_validado": 0.8249,
+      "acerto_validado": 0.824,
       "ic95": [
-        0.8186,
-        0.8312
+        0.8176,
+        0.8301
       ],
-      "delta_vs_melhor_ia": 0.0061,
-      "p_mcnemar_vs_melhor_ia": 0.0014236306294077323
+      "delta_vs_melhor_ia": 0.0052,
+      "p_mcnemar_vs_melhor_ia": 0.008100356441595341
     },
     {
       "metodo": "confianca_calibrada_max",
-      "acerto_validado": 0.823,
+      "acerto_validado": 0.8231,
       "ic95": [
-        0.8165,
-        0.8293
+        0.8169,
+        0.8294
       ],
-      "delta_vs_melhor_ia": 0.0042,
-      "p_mcnemar_vs_melhor_ia": 0.05792757749030882
+      "delta_vs_melhor_ia": 0.0043,
+      "p_mcnemar_vs_melhor_ia": 0.049919080895794735
     },
     {
       "metodo": "maioria_simples",
-      "acerto_validado": 0.8219,
+      "acerto_validado": 0.8213,
       "ic95": [
-        0.8154,
-        0.8283
+        0.8148,
+        0.8275
       ],
-      "delta_vs_melhor_ia": 0.0031,
-      "p_mcnemar_vs_melhor_ia": 0.1635677501228768
+      "delta_vs_melhor_ia": 0.0025,
+      "p_mcnemar_vs_melhor_ia": 0.27397299474532166
     }
   ],
   "vale_combinar": {
     "veredicto": true,
     "recomendacao": "maioria_ponderada",
-    "justificativa": "O ensemble 'maioria_ponderada' supera a melhor IA isolada (linear_svc) em +0.0061 com McNemar p=0.0014 (<0,05)."
+    "justificativa": "O ensemble 'maioria_ponderada' supera a melhor IA isolada (linear_svc) em +0.0052 com McNemar p=0.0081 (<0,05)."
   },
   "observacoes": [
     "Pesos do voto ponderado aprendidos out-of-fold (k-fold nos validados).",
