@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "status": "candidato_validado_localmente_pendente_de_bundle_privado",
+  "descricao": "Fingerprint publico e sanitizado do bundle do REPLAY CONGELADO (Execucao Cientifica 1). Nunca contem texto bruto, ID bruto de chamado ou conteudo da spreadsheet privada.",
+  "replay_input_sha256_candidato": "79b70349ad7f73568ef0f5eabb54dd91477c4bff3eefc5c272bcee0a7c021de1",
+  "replay_input_sha256_pinado_em_codigo": false,
+  "hashes_metodologicos_esperados": {
+    "hash_corpus": "fe9bfa4a6c521c0c73b234500e1c9d14bdeb6769470269daa38e588a7a877891",
+    "hash_alvo_ensemble": "8884d6098325734a0315e8976ffa1b8bd7da15cede3a6a959904a098fbe7d57c",
+    "classes_sha256": "9e6c742bd7f6410de10f857d4103a959316f588ae4f19afdb06d84a3dcea947a",
+    "partition_manifest_online_sha256": "d38c041695259e9204a7450955bed209191c829e0f99b269a28cfbf4bc53b404",
+    "fold_assignment_sha256": "dc17cfb2806d1c20b141c1e394b684f7c3e087a1ba922e4920497d96bcd64b7d"
+  },
+  "candidato_reproduz_os_5_hashes_metodologicos": true,
+  "contagens": {
+    "total_registros": 13972,
+    "total_grupos": 9735,
+    "h_dentro_de_c": 13970,
+    "h_fora_de_c": 2,
+    "total_classes": 41
+  },
+  "reconstrucao": {
+    "fonte": "base online atual (planilha operacional, leitura publica read-only) + patch dos 4 registros ja auditados, revertidos ao estado da revisao de Drive 11302",
+    "revisoes_de_drive_tentadas": {
+      "11230": "Revision not found (nao mais acessivel pela Drive API)",
+      "11291": "Revision not found (nao mais acessivel pela Drive API)",
+      "11302": "acessivel; usada como melhor evidencia historica disponivel"
+    },
+    "nivel_de_evidencia": "prova direta (patch verificado) para os 4 registros corrigidos; para os demais 13.968 registros, prova de igualdade NORMALIZADA (grupo_sha256 identico ao aprovado) mais ausencia de sinal de alteracao bruta detectavel — NAO e prova retroativa bit-a-bit do texto bruto exato recebido pela Execucao Cientifica 1. Ver docs/REPLAY_CONGELADO_FASE2B.md secao 6.",
+    "validado_por": "src/ensemble_fase2b_crossfit.py: calcular_replay_input_sha256 + gate_zero_replay (mesmo codigo de producao, executado localmente em modo READ-ONLY com registros_bundle injetado)"
+  },
+  "pendencias": [
+    "criar a spreadsheet privada e estatica e escrever o bundle (acao manual/humana)",
+    "auditar o conteudo do bundle escrito contra este manifesto",
+    "pinar REPLAY_INPUT_SHA256_ESPERADO em src/ensemble_fase2b_crossfit.py com o valor aprovado",
+    "so entao disparar [FASE2B-REPLAY]"
+  ]
+}

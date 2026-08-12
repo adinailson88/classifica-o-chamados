@@ -658,5 +658,203 @@ class TestComparacaoCanario(unittest.TestCase):
         self.assertTrue(comparacao["por_modelo"]["naive_bayes"]["outer_identico"])
 
 
+class TestCalcularReplayInputSha256(unittest.TestCase):
+    def _registro(self, id_sha="a", titulo="t", descricao_glpi="d", titulo_osm="",
+                  descricao_osm="", categoria_historica="Cat A",
+                  referencia_humana="Cat A", grupo_sha256="g", outer_fold=1):
+        return {
+            "id_sha256": id_sha, "titulo": titulo, "descricao_glpi": descricao_glpi,
+            "titulo_osm": titulo_osm, "descricao_osm": descricao_osm,
+            "categoria_historica": categoria_historica,
+            "referencia_humana": referencia_humana,
+            "grupo_sha256": grupo_sha256, "outer_fold": outer_fold,
+        }
+
+    def test_deterministico_e_insensivel_a_ordem(self):
+        a = [self._registro("a"), self._registro("b", titulo="outro")]
+        b = list(reversed(a))
+        self.assertEqual(f2b.calcular_replay_input_sha256(a),
+                         f2b.calcular_replay_input_sha256(b))
+
+    def test_sensivel_a_cada_um_dos_9_campos(self):
+        base = self._registro()
+        hash_base = f2b.calcular_replay_input_sha256([base])
+        for campo in ("id_sha256", "titulo", "descricao_glpi", "titulo_osm",
+                     "descricao_osm", "categoria_historica", "referencia_humana",
+                     "grupo_sha256"):
+            alterado = dict(base)
+            alterado[campo] = str(alterado[campo]) + "-mudou"
+            self.assertNotEqual(f2b.calcular_replay_input_sha256([alterado]),
+                                hash_base, campo)
+        alterado_fold = dict(base)
+        alterado_fold["outer_fold"] = base["outer_fold"] + 1
+        self.assertNotEqual(f2b.calcular_replay_input_sha256([alterado_fold]), hash_base)
+
+    def test_ignora_campos_extras_fora_do_schema_dos_9(self):
+        # Prova que um eventual "id_bruto" carregado a mais no dict do
+        # registro (nunca deveria existir no bundle) NAO entra no hash: o
+        # payload so le os 9 campos nomeados, por construcao.
+        base = self._registro()
+        com_extra = dict(base, id_bruto="2026070033")
+        self.assertEqual(f2b.calcular_replay_input_sha256([base]),
+                         f2b.calcular_replay_input_sha256([com_extra]))
+
+
+class TestGateZeroReplayBloqueios(unittest.TestCase):
+    def _registro(self, id_sha="a", titulo="t", descricao_glpi="d", titulo_osm="",
+                  descricao_osm="", categoria_historica="Cat A",
+                  referencia_humana="Cat A", grupo_sha256=None, outer_fold=1):
+        campos = [titulo, descricao_glpi, titulo_osm, descricao_osm]
+        if grupo_sha256 is None:
+            grupo_sha256 = f2b.rero.cgt.hash_grupo([f2b.rero.cgt.normalizar_texto(c) for c in campos])
+        return {
+            "id_sha256": id_sha, "titulo": titulo, "descricao_glpi": descricao_glpi,
+            "titulo_osm": titulo_osm, "descricao_osm": descricao_osm,
+            "categoria_historica": categoria_historica,
+            "referencia_humana": referencia_humana,
+            "grupo_sha256": grupo_sha256, "outer_fold": outer_fold,
+        }
+
+    def test_bloqueia_quando_replay_input_sha256_esperado_nao_pinado(self):
+        # Estado padrao do repositorio: REPLAY_INPUT_SHA256_ESPERADO = None.
+        self.assertIsNone(f2b.REPLAY_INPUT_SHA256_ESPERADO)
+        with self.assertRaises(f2b.ReplayBloqueado):
+            f2b.gate_zero_replay(registros_bundle=[self._registro()])
+
+    def test_bloqueia_quando_replay_input_sha256_diverge_do_pinado(self):
+        bundle = [self._registro()]
+        with unittest.mock.patch.object(f2b, "REPLAY_INPUT_SHA256_ESPERADO", "0" * 64):
+            with self.assertRaises(f2b.ReplayBloqueado):
+                f2b.gate_zero_replay(registros_bundle=bundle)
+
+    def test_bloqueia_quando_grupo_sha256_de_um_registro_esta_corrompido(self):
+        bundle = [self._registro("a"), self._registro("b", titulo="outro")]
+        bundle[1]["grupo_sha256"] = "f" * 64  # nao bate com os campos textuais
+        # Pina o esperado exatamente igual ao hash do bundle CORROMPIDO, para
+        # provar que a checagem de grupo_sha256 por registro (passo 2) pega o
+        # que a checagem de replay_input_sha256 (passo 1) sozinha nao pegaria.
+        replay_input_do_bundle_corrompido = f2b.calcular_replay_input_sha256(bundle)
+        with unittest.mock.patch.object(
+            f2b, "REPLAY_INPUT_SHA256_ESPERADO", replay_input_do_bundle_corrompido
+        ):
+            with self.assertRaises(f2b.ReplayBloqueado):
+                f2b.gate_zero_replay(registros_bundle=bundle)
+
+
+class TestGateZeroReplayParidadeComGateZeroVivo(unittest.TestCase):
+    """Corpus sintetico pequeno, alimentado nos dois formatos (registros_online
+    para gate_zero() e registros_bundle para gate_zero_replay()): prova que os
+    5 hashes metodologicos batem entre os dois modos quando os dados de
+    entrada representam o mesmo corpus — sem duplicar nenhuma logica
+    cientifica entre as duas funcoes."""
+
+    def _corpus_sintetico(self, n=10):
+        particoes, alvo_congelado, online, bundle = {}, {}, [], []
+        rotulos = ["Cat A", "Cat B"]
+        for i in range(1, n + 1):
+            id_ = str(i)
+            id_sha = hashlib.sha256(id_.encode("utf-8")).hexdigest()
+            fold = ((i - 1) % 5) + 1
+            cat = rotulos[i % 2]
+            titulo, descricao = f"titulo {i}", f"descricao {i}"
+            grupo = f2b.rero.cgt.hash_grupo(
+                [f2b.rero.cgt.normalizar_texto(c) for c in (titulo, descricao, "", "")]
+            )
+            particoes[id_sha] = {"grupo_sha256": grupo, "outer_fold": fold}
+            alvo_congelado[id_sha] = {
+                "id_sha256": id_sha, "grupo_sha256": grupo, "outer_fold": fold,
+                "categoria_historica": cat, "referencia_humana": cat,
+                "historico_no_espaco_de_classes": True, "alvo_inadequacao": 0,
+            }
+            online.append({
+                "id": id_, "titulo": titulo, "descricao_glpi": descricao,
+                "titulo_osm": "", "descricao_osm": "",
+                "categoria_historica": cat, "conferencia_glpi": "Correto",
+                "categoria_manual": "",
+            })
+            bundle.append({
+                "id_sha256": id_sha, "titulo": titulo, "descricao_glpi": descricao,
+                "titulo_osm": "", "descricao_osm": "",
+                "categoria_historica": cat, "referencia_humana": cat,
+                "grupo_sha256": grupo, "outer_fold": fold,
+            })
+        return particoes, alvo_congelado, online, bundle
+
+    def test_hashes_metodologicos_identicos_entre_run_e_replay(self):
+        import tempfile
+
+        n = 10
+        particoes, alvo_congelado, online, bundle = self._corpus_sintetico(n)
+
+        with tempfile.TemporaryDirectory() as tmp_str:
+            tmp = Path(tmp_str)
+            particoes_path = tmp / "particoes.csv"
+            with particoes_path.open("w", encoding="utf-8", newline="") as f:
+                f.write("id_sha256,grupo_sha256,dobra\n")
+                for id_sha, p in particoes.items():
+                    f.write(f"{id_sha},{p['grupo_sha256']},{p['outer_fold']}\n")
+            alvo_path = tmp / "alvo_ensemble.json"
+            alvo_path.write_text(
+                json.dumps({"metadata": {"schema_version": 1},
+                           "records": list(alvo_congelado.values())}),
+                encoding="utf-8",
+            )
+
+            with unittest.mock.patch.multiple(
+                f2b, TOTAL_ESPERADO=n, GRUPOS_ESPERADOS=n,
+                H_DENTRO_DE_C_ESPERADO=n, H_FORA_DE_C_ESPERADO=0,
+                CLASSES_ESPERADAS=2,
+            ), unittest.mock.patch.object(f2b.rero, "TOTAL_ESPERADO", n):
+                # 1a passagem: descobre os hashes "corretos" do corpus
+                # sintetico sem depender de HASHES_ESPERADOS (constante da
+                # producao, alheia a este corpus de teste).
+                with unittest.mock.patch.object(f2b, "_hashes_divergentes",
+                                                return_value={}):
+                    gate_provisorio = f2b.gate_zero(
+                        particoes_path=particoes_path, alvo_congelado_path=alvo_path,
+                        registros_online=online,
+                    )
+                hashes_sinteticos = gate_provisorio["hashes"]
+                replay_input_sintetico = f2b.calcular_replay_input_sha256(bundle)
+
+                with unittest.mock.patch.object(f2b, "HASHES_ESPERADOS",
+                                                hashes_sinteticos), \
+                     unittest.mock.patch.object(f2b, "REPLAY_INPUT_SHA256_ESPERADO",
+                                                replay_input_sintetico):
+                    gate_run = f2b.gate_zero(
+                        particoes_path=particoes_path, alvo_congelado_path=alvo_path,
+                        registros_online=online,
+                    )
+                    gate_replay = f2b.gate_zero_replay(
+                        particoes_path=particoes_path, registros_bundle=bundle,
+                    )
+
+        self.assertEqual(gate_run["hashes"], gate_replay["hashes"])
+        self.assertEqual(gate_run["hashes"], hashes_sinteticos)
+        self.assertEqual(gate_replay["replay_input_sha256"], replay_input_sintetico)
+        self.assertEqual(gate_run["registros"], gate_replay["registros"])
+        self.assertEqual(gate_run["textos_por_id"], gate_replay["textos_por_id"])
+
+
+class TestWorkflowMarcadorReplay(unittest.TestCase):
+    def test_workflow_reconhece_fase2b_replay_e_e_mutuamente_exclusivo(self):
+        caminho = (Path(__file__).resolve().parents[1] / ".github" / "workflows"
+                  / "ensemble_fase2b_crossfit.yml")
+        conteudo = caminho.read_text(encoding="utf-8")
+        self.assertIn("[FASE2B-REPLAY]", conteudo)
+        self.assertIn("autorizado_replay", conteudo)
+        # os tres marcadores continuam mutuamente exclusivos na mesma checagem
+        self.assertIn("[FASE2B-RUN]", conteudo)
+        self.assertIn("[FASE2B-CANARY]", conteudo)
+
+    def test_jobs_de_replay_dependem_do_marcador_autorizado_replay(self):
+        caminho = (Path(__file__).resolve().parents[1] / ".github" / "workflows"
+                  / "ensemble_fase2b_crossfit.yml")
+        conteudo = caminho.read_text(encoding="utf-8")
+        for job in ("gate_zero_replay:", "crossfit_fold_replay:", "agregar_replay:"):
+            self.assertIn(job, conteudo)
+        self.assertIn("needs.autorizacao.outputs.autorizado_replay == 'true'", conteudo)
+
+
 if __name__ == "__main__":
     unittest.main()

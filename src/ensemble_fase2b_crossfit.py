@@ -35,6 +35,7 @@ import numpy as np  # noqa: E402
 import congelar_alvo_ensemble as cae  # noqa: E402
 import modelos_zoo as zoo  # noqa: E402
 import recongelar_ensemble_online as rero  # noqa: E402
+import replay_bundle as rb  # noqa: E402
 import retreinar_modelos_canonicos as rmc  # noqa: E402
 from modelo_lstm import fixar_determinismo_lstm as _fixar_determinismo_lstm_real  # noqa: E402
 from tempo import agora_bahia  # noqa: E402
@@ -66,6 +67,18 @@ HASHES_ESPERADOS = {
     "fold_assignment_sha256": "dc17cfb2806d1c20b141c1e394b684f7c3e087a1ba922e4920497d96bcd64b7d",
 }
 
+# Sexto fingerprint, exclusivamente operacional/de reprodutibilidade (modo
+# REPLAY). NAO substitui, altera ou entra no calculo de nenhum dos 5 hashes
+# metodologicos acima: cobre o texto BRUTO (nao normalizado) dos 4 campos
+# textuais, que os 5 hashes metodologicos nao cobrem (eles so enxergam
+# grupo_sha256, ja normalizado). Fica None ate o bundle privado do REPLAY
+# CONGELADO ser criado e seu conteudo auditado/aprovado — com o valor em
+# None, `gate_zero_replay` bloqueia sempre, por construcao (nenhuma rodada de
+# replay roda sem um valor pinado e aprovado). Ver
+# docs/REPLAY_CONGELADO_FASE2B.md para o schema do bundle e o nivel de
+# evidencia da reconstrucao da Execucao Cientifica 1.
+REPLAY_INPUT_SHA256_ESPERADO: str | None = None
+
 
 class Fase2BBloqueado(RuntimeError):
     """Erro base: qualquer subclasse interrompe a rodada sem publicar nada."""
@@ -91,6 +104,12 @@ class NaoDeterminismoDetectado(Fase2BBloqueado):
     pass
 
 
+class ReplayBloqueado(Fase2BBloqueado):
+    """Bloqueio exclusivo do modo REPLAY: bundle privado ausente/inconsistente,
+    replay_input_sha256 nao pinado ou divergente, ou grupo_sha256 recomputado
+    de algum registro do bundle nao batendo com o armazenado."""
+
+
 # --------------------------------------------------------------------------
 # Gate Zero: releitura online + reconstrucao do corpus, sem treinar nada
 # --------------------------------------------------------------------------
@@ -104,6 +123,32 @@ def _hashes_divergentes(observados: dict[str, str]) -> dict[str, dict[str, str]]
         for chave, valor in observados.items()
         if valor != HASHES_ESPERADOS[chave]
     }
+
+
+def calcular_replay_input_sha256(registros_bundle: list[dict[str, Any]]) -> str:
+    """Sexto fingerprint, exclusivo do modo REPLAY: cobre o texto BRUTO (nao
+    normalizado) dos 4 campos textuais + os demais campos efetivamente
+    consumidos pelo treino/particionamento, ordenado por id_sha256, em
+    serializacao canonica (`cae.canonical_bytes`: ensure_ascii=False,
+    sort_keys=True, separators sem espaco — mesmo estilo de
+    `congelar_alvo_ensemble.hash_historico`). NAO entra no calculo de nenhum
+    dos 5 hashes metodologicos (`HASHES_ESPERADOS`); e uma checagem
+    inteiramente separada, somada a eles, nunca substituindo-os."""
+    payload = [
+        {
+            "id_sha256": r["id_sha256"],
+            "titulo": r["titulo"],
+            "descricao_glpi": r["descricao_glpi"],
+            "titulo_osm": r["titulo_osm"],
+            "descricao_osm": r["descricao_osm"],
+            "categoria_historica": r["categoria_historica"],
+            "referencia_humana": r["referencia_humana"],
+            "grupo_sha256": r["grupo_sha256"],
+            "outer_fold": r["outer_fold"],
+        }
+        for r in sorted(registros_bundle, key=lambda x: x["id_sha256"])
+    ]
+    return cae.sha256_json(payload)
 
 
 def gate_zero(
@@ -201,6 +246,156 @@ def gate_zero(
         "textos_por_id": textos_por_id,
         "classes": classes,
         "hashes": observados,
+        "total_registros": total,
+        "total_grupos": grupos,
+        "h_dentro_de_c": h_dentro,
+        "h_fora_de_c": h_fora,
+    }
+
+
+# --------------------------------------------------------------------------
+# Gate Zero REPLAY: input CONGELADO (bundle privado), nunca a planilha viva
+# --------------------------------------------------------------------------
+#
+# Separacao deliberada de `gate_zero()` acima, que permanece INALTERADA e e
+# a unica usada por [FASE2B-RUN]: aquela e o Gate de proveniencia da fonte
+# online viva (protege qualquer NOVO recongelamento/baseline). Esta e o
+# replay cientifico sobre um input ja congelado — nunca produz uma nova
+# baseline, so reproduz uma execucao ja aprovada. As duas nunca sao chamadas
+# na mesma rodada (marcadores [FASE2B-RUN] e [FASE2B-REPLAY] sao mutuamente
+# exclusivos no workflow).
+#
+# Reusa, sem reimplementar, as MESMAS funcoes de calculo cientifico de
+# `recongelar_ensemble_online`/`congelar_alvo_ensemble` que `gate_zero()` usa:
+# `montar_registros_recongelados`, `calcular_hash_corpus`, `cae.montar_classes`,
+# `montar_particoes_online_csv_bytes`, `calcular_fold_assignment_sha256`,
+# `cae.canonical_bytes`/`sha256_bytes`, `_hashes_divergentes`. A unica coisa
+# nova e de onde vem `registros_bundle` (bundle privado estatico, nunca a
+# planilha operacional) e as duas checagens que so fazem sentido no modo
+# replay: `replay_input_sha256` e a consistencia grupo_sha256 por registro.
+
+def gate_zero_replay(
+    spreadsheet_id: str | None = None,
+    credenciais: str | None = None,
+    particoes_path: Path = rero.PARTICOES_PADRAO,
+    registros_bundle: list[dict[str, Any]] | None = None,
+) -> dict[str, Any]:
+    """Equivalente de `gate_zero()` para o modo REPLAY: le o bundle PRIVADO e
+    estatico (nunca a planilha operacional viva) e exige, nesta ordem, ANTES
+    de liberar qualquer fit:
+
+      1. replay_input_sha256 recomputado == REPLAY_INPUT_SHA256_ESPERADO;
+      2. grupo_sha256 recomputado == grupo_sha256 armazenado, por registro;
+      3. os 5 hashes metodologicos recomputados == HASHES_ESPERADOS.
+
+    Qualquer divergencia em qualquer uma das tres levanta `ReplayBloqueado`
+    (ou `GateZeroBloqueado`/`ContagemEstruturalDivergente`, reaproveitando as
+    mesmas excecoes de `gate_zero()` onde a checagem e literalmente a mesma),
+    sem treinar nada. Cada job do workflow chama esta funcao de forma
+    independente — se o bundle privado mudar entre dois jobs de uma mesma
+    rodada, o job seguinte bloqueia em vez de treinar sobre um input
+    diferente dos irmaos."""
+    if registros_bundle is None:
+        registros_bundle = rb.ler_bundle_congelado(spreadsheet_id, credenciais)
+
+    if REPLAY_INPUT_SHA256_ESPERADO is None:
+        raise ReplayBloqueado(
+            "REPLAY_INPUT_SHA256_ESPERADO nao esta pinado: o bundle do REPLAY "
+            "CONGELADO ainda nao foi aprovado. Nenhum fit sera executado."
+        )
+
+    replay_input_sha256 = calcular_replay_input_sha256(registros_bundle)
+    if replay_input_sha256 != REPLAY_INPUT_SHA256_ESPERADO:
+        raise ReplayBloqueado(
+            "replay_input_sha256 divergente do bundle aprovado: "
+            f"esperado={REPLAY_INPUT_SHA256_ESPERADO!r} "
+            f"observado={replay_input_sha256!r}"
+        )
+
+    grupos_divergentes = rb.validar_grupos_por_registro(registros_bundle)
+    if grupos_divergentes:
+        raise ReplayBloqueado(
+            f"grupo_sha256 recomputado diverge do armazenado em "
+            f"{len(grupos_divergentes)} registro(s) do bundle: "
+            f"{sorted(grupos_divergentes)[:20]}"
+        )
+
+    particoes = rero.carregar_particoes_preservadas(particoes_path)
+    base = {
+        r["id_sha256"]: {
+            "grupo_atual": r["grupo_sha256"],
+            "categoria_historica_atual": r["categoria_historica"],
+            "referencia_humana_atual": r["referencia_humana"],
+            "texto_atual": rmc.montar_texto(r),
+            "outer_fold": particoes[r["id_sha256"]]["outer_fold"],
+        }
+        for r in registros_bundle
+    }
+    registros = rero.montar_registros_recongelados(base, particoes)
+
+    hash_corpus = rero.calcular_hash_corpus(registros)
+    classes_payload, classes_sha = cae.montar_classes(
+        registros, esperado=len({r["referencia_humana"] for r in registros})
+    )
+    particoes_online_bytes = rero.montar_particoes_online_csv_bytes(registros)
+    partition_manifest_online_sha256 = cae.sha256_bytes(particoes_online_bytes)
+    fold_assignment_sha256 = rero.calcular_fold_assignment_sha256(
+        [(r["id_sha256"], r["outer_fold"]) for r in registros]
+    )
+    alvo_obj = {
+        "metadata": {
+            "schema_version": 1,
+            "hash_corpus": hash_corpus,
+            "hash_historico_ensemble": cae.hash_historico(registros),
+            "partition_manifest_sha256": partition_manifest_online_sha256,
+            "partition_manifest_origem_sha256": cae.sha256_bytes(
+                particoes_path.read_bytes()
+            ),
+            "fold_assignment_sha256": fold_assignment_sha256,
+            "classes_sha256": classes_sha,
+            "total_records": len(registros),
+        },
+        "records": registros,
+    }
+    hash_alvo = cae.sha256_bytes(cae.canonical_bytes(alvo_obj))
+
+    observados = {
+        "hash_corpus": hash_corpus,
+        "hash_alvo_ensemble": hash_alvo,
+        "classes_sha256": classes_sha,
+        "partition_manifest_online_sha256": partition_manifest_online_sha256,
+        "fold_assignment_sha256": fold_assignment_sha256,
+    }
+    divergentes = _hashes_divergentes(observados)
+    if divergentes:
+        raise GateZeroBloqueado(
+            "Hashes metodologicos divergentes do congelamento aprovado (modo "
+            "replay): " + json.dumps(divergentes, ensure_ascii=False, sort_keys=True)
+        )
+
+    total = len(registros)
+    grupos = len({r["grupo_sha256"] for r in registros})
+    folds_vistos = sorted({r["outer_fold"] for r in registros})
+    h_dentro = sum(1 for r in registros if r["historico_no_espaco_de_classes"])
+    h_fora = total - h_dentro
+    classes = [c["label"] for c in classes_payload["classes"]]
+    if (total, grupos, folds_vistos, h_dentro, h_fora, len(classes)) != (
+        TOTAL_ESPERADO, GRUPOS_ESPERADOS, list(FOLDS),
+        H_DENTRO_DE_C_ESPERADO, H_FORA_DE_C_ESPERADO, CLASSES_ESPERADAS,
+    ):
+        raise ContagemEstruturalDivergente(
+            f"Contagens estruturais divergentes (replay): total={total}, "
+            f"grupos={grupos}, folds={folds_vistos}, H_dentro_de_C={h_dentro}, "
+            f"H_fora_de_C={h_fora}, classes={len(classes)}"
+        )
+
+    textos_por_id = {id_sha: item["texto_atual"] for id_sha, item in base.items()}
+    return {
+        "registros": registros,
+        "textos_por_id": textos_por_id,
+        "classes": classes,
+        "hashes": observados,
+        "replay_input_sha256": replay_input_sha256,
         "total_registros": total,
         "total_grupos": grupos,
         "h_dentro_de_c": h_dentro,
@@ -870,6 +1065,26 @@ def gravar_gate_zero(gate: dict[str, Any], saida_dir: Path) -> None:
     )
 
 
+def gravar_gate_zero_replay(gate: dict[str, Any], saida_dir: Path) -> None:
+    """Artefato sanitizado do Gate Zero REPLAY: hashes, contagens e o sexto
+    fingerprint replay_input_sha256 — nunca texto/ID."""
+    saida_dir.mkdir(parents=True, exist_ok=True)
+    payload = {
+        "status": "apto",
+        "modo": "replay",
+        "replay_input_sha256": gate["replay_input_sha256"],
+        "hashes": gate["hashes"],
+        "total_registros": gate["total_registros"],
+        "total_grupos": gate["total_grupos"],
+        "h_dentro_de_c": gate["h_dentro_de_c"],
+        "h_fora_de_c": gate["h_fora_de_c"],
+        "total_classes": len(gate["classes"]),
+    }
+    (saida_dir / "fase2b_gate_zero_replay.json").write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
+
+
 # --------------------------------------------------------------------------
 # Fingerprint do ambiente (DIAGNOSTICO — nunca entra nos hashes cientificos)
 # --------------------------------------------------------------------------
@@ -1002,6 +1217,14 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--particoes", type=Path, default=rero.PARTICOES_PADRAO)
     p.add_argument("--alvo-congelado", type=Path, default=rero.ALVO_CONGELADO_PADRAO)
     p.add_argument("--classes", type=Path, default=CLASSES_PATH_PADRAO)
+    p.add_argument("--modo-replay", action="store_true",
+                   help="usa gate_zero_replay() sobre o bundle privado congelado, "
+                        "em vez de gate_zero() sobre a planilha operacional viva "
+                        "(mutuamente exclusivo com a rodada [FASE2B-RUN])")
+    p.add_argument("--replay-spreadsheet-id", default=None,
+                   help="ID da spreadsheet privada do bundle REPLAY; se omitido, "
+                        "resolve via REPLAY_SPREADSHEET_ID (env/Secret) ou "
+                        "replay_spreadsheet_id.local")
     p.add_argument("--somente-gate-zero", action="store_true",
                    help="roda so o Gate Zero (releitura + validacao de hashes), sem treinar nada")
     p.add_argument("--outer-fold", type=int, default=None,
@@ -1022,16 +1245,36 @@ def parse_args() -> argparse.Namespace:
     return p.parse_args()
 
 
+def _montar_gate(args: argparse.Namespace) -> dict[str, Any]:
+    """Despacha entre `gate_zero()` (fonte online viva, [FASE2B-RUN]) e
+    `gate_zero_replay()` (bundle privado congelado, [FASE2B-REPLAY]),
+    conforme `--modo-replay`. Nenhuma das duas funcoes muda; so a escolha de
+    qual chamar e nova."""
+    if args.modo_replay:
+        return gate_zero_replay(
+            spreadsheet_id=args.replay_spreadsheet_id,
+            credenciais=args.credenciais,
+            particoes_path=args.particoes,
+        )
+    return gate_zero(
+        config_path=args.config, credenciais=args.credenciais,
+        particoes_path=args.particoes, alvo_congelado_path=args.alvo_congelado,
+        classes_path=args.classes,
+    )
+
+
 def main() -> int:
     args = parse_args()
     if args.somente_gate_zero:
-        gate = gate_zero(
-            config_path=args.config, credenciais=args.credenciais,
-            particoes_path=args.particoes, alvo_congelado_path=args.alvo_congelado,
-            classes_path=args.classes,
-        )
-        gravar_gate_zero(gate, args.saida_dir)
-        gravar_fingerprint_ambiente(args.saida_dir, "fase2b_fingerprint_gate_zero.json")
+        gate = _montar_gate(args)
+        if args.modo_replay:
+            gravar_gate_zero_replay(gate, args.saida_dir)
+            gravar_fingerprint_ambiente(
+                args.saida_dir, "fase2b_fingerprint_gate_zero_replay.json"
+            )
+        else:
+            gravar_gate_zero(gate, args.saida_dir)
+            gravar_fingerprint_ambiente(args.saida_dir, "fase2b_fingerprint_gate_zero.json")
         print(json.dumps(gate["hashes"], ensure_ascii=False, indent=2))
         return 0
 
@@ -1051,11 +1294,7 @@ def main() -> int:
         return 0 if comparacao["veredito"] == "CANARIO_DETERMINISTICO" else 1
 
     if args.agregar:
-        gate = gate_zero(
-            config_path=args.config, credenciais=args.credenciais,
-            particoes_path=args.particoes, alvo_congelado_path=args.alvo_congelado,
-            classes_path=args.classes,
-        )
+        gate = _montar_gate(args)
         resultados = [carregar_resultado_fold(args.entrada_dir, f) for f in FOLDS]
         agregado = agregar_execucao(gate, resultados)
         gravar_agregado(agregado, args.saida_dir)
@@ -1067,11 +1306,7 @@ def main() -> int:
         print("Informe --outer-fold N ou --agregar.", file=sys.stderr)
         return 2
 
-    gate = gate_zero(
-        config_path=args.config, credenciais=args.credenciais,
-        particoes_path=args.particoes, alvo_congelado_path=args.alvo_congelado,
-        classes_path=args.classes,
-    )
+    gate = _montar_gate(args)
     resultado = executar_outer_fold(args.outer_fold, gate)
     gravar_resultado_fold(resultado, args.saida_dir)
     gravar_fingerprint_ambiente(
