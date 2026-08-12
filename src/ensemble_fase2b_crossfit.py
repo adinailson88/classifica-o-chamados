@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from collections import defaultdict
 from pathlib import Path
@@ -274,6 +275,28 @@ def alinhar_scores(
 # Cross-fitting por outer fold
 # --------------------------------------------------------------------------
 
+# Modelos cujo n_jobs e puramente computacional (nao afeta random_state,
+# n_estimators, criterio de split ou qualquer outro hiperparametro cientifico)
+# e por isso e fixado em 1 so dentro da Fase 2B, para eliminar uma fonte de
+# nao-determinismo entre runners com contagem de CPU diferente. n_estimators,
+# random_state, class_weight etc. continuam exatamente os de modelos_zoo.py.
+MODELOS_COM_NJOBS_FIXADO_NA_FASE2B = ("extra_trees", "random_forest")
+
+
+def criar_modelo_fase2b(nome: str, criar_modelo_base: Callable = zoo.criar_modelo):
+    """Mesma fabrica de `modelos_zoo.criar_modelo`, sem duplicar nenhum
+    hiperparametro: constroi o modelo real e so sobrescreve `n_jobs=1` nos
+    dois modelos de arvore, via `set_params` no estimador ja instanciado.
+    Isso evita reconstruir o pipeline (zero risco de o TF-IDF ou os
+    hiperparametros de arvore divergirem de `modelos_zoo.py`) e nao altera
+    `n_jobs` de nenhuma outra rotina do repositorio que chame
+    `modelos_zoo.criar_modelo` diretamente."""
+    modelo = criar_modelo_base(nome)
+    if nome in MODELOS_COM_NJOBS_FIXADO_NA_FASE2B:
+        modelo.pipe.named_steps["clf"].set_params(n_jobs=1)
+    return modelo
+
+
 def _assert_sem_vazamento(grupos_treino: set[str], grupos_validacao: set[str],
                           grupos_externo: set[str], ids_treino: set[str],
                           ids_validacao: set[str], contexto: str) -> None:
@@ -308,7 +331,7 @@ def _fit_e_prever(nome_modelo: str, textos_treino, rotulos_treino, textos_alvo,
 def executar_outer_fold(
     outer_fold: int,
     gate: dict[str, Any],
-    criar_modelo: Callable = zoo.criar_modelo,
+    criar_modelo: Callable = criar_modelo_fase2b,
     seed: int = SEMENTE_PADRAO,
     fixar_determinismo_lstm: Callable = _fixar_determinismo_lstm_real,
 ) -> dict[str, Any]:
@@ -411,7 +434,7 @@ def executar_outer_fold(
 
 
 def executar_todos_os_folds(
-    gate: dict[str, Any], criar_modelo: Callable = zoo.criar_modelo,
+    gate: dict[str, Any], criar_modelo: Callable = criar_modelo_fase2b,
     seed: int = SEMENTE_PADRAO, folds=FOLDS,
     fixar_determinismo_lstm: Callable = _fixar_determinismo_lstm_real,
 ) -> list[dict[str, Any]]:
@@ -669,6 +692,70 @@ def comparar_execucoes(hashes_execucao_1: dict[str, str],
         )
 
 
+def comparar_canario(resultado_a: dict[str, Any], resultado_b: dict[str, Any]
+                     ) -> dict[str, Any]:
+    """Compara EXATAMENTE (sem arredondar nada) os resultados de UM outer
+    fold entre duas replicas independentes do canario de determinismo
+    (Parte 6). So diagnostico: nunca decide sozinho a validade cientifica de
+    uma Execucao Cientifica completa, so a do proprio canario."""
+    inner_hash_a = calcular_predicoes_canonical_sha256(resultado_a["inner_rows"], _chave_inner)
+    inner_hash_b = calcular_predicoes_canonical_sha256(resultado_b["inner_rows"], _chave_inner)
+    outer_hash_a = calcular_predicoes_canonical_sha256(resultado_a["outer_rows"], _chave_outer)
+    outer_hash_b = calcular_predicoes_canonical_sha256(resultado_b["outer_rows"], _chave_outer)
+
+    def _chave_fit(f):
+        return (f["inner_fold"] is None, f["inner_fold"] or 0, f["modelo"])
+
+    fits_hash_a = cae.sha256_json(sorted(resultado_a["fits_info"], key=_chave_fit))
+    fits_hash_b = cae.sha256_json(sorted(resultado_b["fits_info"], key=_chave_fit))
+
+    por_modelo: dict[str, Any] = {}
+    for modelo in MODELOS:
+        inner_a = {_chave_inner(l): l for l in resultado_a["inner_rows"] if l[4] == modelo}
+        inner_b = {_chave_inner(l): l for l in resultado_b["inner_rows"] if l[4] == modelo}
+        outer_a = {_chave_outer(l): l for l in resultado_a["outer_rows"] if l[3] == modelo}
+        outer_b = {_chave_outer(l): l for l in resultado_b["outer_rows"] if l[3] == modelo}
+
+        mesmas_chaves_inner = set(inner_a) == set(inner_b)
+        divergentes_inner = sorted(
+            chave for chave in (set(inner_a) & set(inner_b))
+            if inner_a[chave][5] != inner_b[chave][5] or inner_a[chave][6] != inner_b[chave][6]
+        )
+        mesmas_chaves_outer = set(outer_a) == set(outer_b)
+        divergentes_outer = sorted(
+            chave for chave in (set(outer_a) & set(outer_b))
+            if outer_a[chave][4] != outer_b[chave][4] or outer_a[chave][5] != outer_b[chave][5]
+        )
+        por_modelo[modelo] = {
+            "inner_total": len(inner_a),
+            "inner_identico": mesmas_chaves_inner and not divergentes_inner,
+            "inner_divergentes": len(divergentes_inner),
+            "outer_total": len(outer_a),
+            "outer_identico": mesmas_chaves_outer and not divergentes_outer,
+            "outer_divergentes": len(divergentes_outer),
+            "amostra_ids_divergentes_outer": [str(c[1]) for c in divergentes_outer[:10]],
+        }
+
+    todos_identicos = (
+        inner_hash_a == inner_hash_b and outer_hash_a == outer_hash_b
+        and fits_hash_a == fits_hash_b
+        and all(m["inner_identico"] and m["outer_identico"] for m in por_modelo.values())
+    )
+    return {
+        "veredito": "CANARIO_DETERMINISTICO" if todos_identicos else "CANARIO_NAO_DETERMINISTICO",
+        "inner_predictions_canonical_sha256_a": inner_hash_a,
+        "inner_predictions_canonical_sha256_b": inner_hash_b,
+        "inner_iguais": inner_hash_a == inner_hash_b,
+        "outer_predictions_canonical_sha256_a": outer_hash_a,
+        "outer_predictions_canonical_sha256_b": outer_hash_b,
+        "outer_iguais": outer_hash_a == outer_hash_b,
+        "fits_estrutural_sha256_a": fits_hash_a,
+        "fits_estrutural_sha256_b": fits_hash_b,
+        "fits_iguais": fits_hash_a == fits_hash_b,
+        "por_modelo": por_modelo,
+    }
+
+
 # --------------------------------------------------------------------------
 # Persistencia
 # --------------------------------------------------------------------------
@@ -783,6 +870,113 @@ def gravar_gate_zero(gate: dict[str, Any], saida_dir: Path) -> None:
     )
 
 
+# --------------------------------------------------------------------------
+# Fingerprint do ambiente (DIAGNOSTICO — nunca entra nos hashes cientificos)
+# --------------------------------------------------------------------------
+
+_ENV_DETERMINISMO = (
+    "PYTHONHASHSEED", "OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS",
+    "MKL_NUM_THREADS", "NUMEXPR_NUM_THREADS", "TF_DETERMINISTIC_OPS",
+    "TF_ENABLE_ONEDNN_OPTS", "TF_NUM_INTRAOP_THREADS", "TF_NUM_INTEROP_THREADS",
+)
+
+
+def coletar_fingerprint_ambiente() -> dict[str, Any]:
+    """Diagnostico sanitizado do ambiente de execucao: nenhum dado de chamado,
+    so versoes de biblioteca, CPU/SO e configuracao de paralelismo efetiva.
+    Usado apenas para investigar nao-determinismo entre runners; nunca entra
+    em `input_bundle_sha256`/`crossfit_manifest_sha256`/`fase2b_science_sha256`."""
+    import contextlib
+    import io
+    import platform
+    import subprocess
+
+    fingerprint: dict[str, Any] = {
+        "python_version": platform.python_version(),
+        "platform": platform.platform(),
+        "machine": platform.machine(),
+        "processor": platform.processor(),
+        "cpu_count": os.cpu_count(),
+        "image_os": os.environ.get("ImageOS"),
+        "image_version": os.environ.get("ImageVersion"),
+        "runner_os": os.environ.get("RUNNER_OS"),
+        "runner_arch": os.environ.get("RUNNER_ARCH"),
+        "runner_name": os.environ.get("RUNNER_NAME"),
+        "numpy_version": np.__version__,
+    }
+
+    try:
+        import scipy
+        fingerprint["scipy_version"] = scipy.__version__
+    except Exception as e:  # noqa: BLE001
+        fingerprint["scipy_version"] = f"indisponivel: {type(e).__name__}"
+
+    try:
+        import sklearn
+        fingerprint["sklearn_version"] = sklearn.__version__
+    except Exception as e:  # noqa: BLE001
+        fingerprint["sklearn_version"] = f"indisponivel: {type(e).__name__}"
+
+    try:
+        import tensorflow as tf
+        import keras
+        fingerprint["tensorflow_version"] = tf.__version__
+        fingerprint["keras_version"] = keras.__version__
+        fingerprint["tf_intra_op_parallelism_threads"] = (
+            tf.config.threading.get_intra_op_parallelism_threads()
+        )
+        fingerprint["tf_inter_op_parallelism_threads"] = (
+            tf.config.threading.get_inter_op_parallelism_threads()
+        )
+    except Exception as e:  # noqa: BLE001
+        fingerprint["tensorflow_erro"] = f"{type(e).__name__}: {e}"
+
+    try:
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            np.show_config()
+        fingerprint["numpy_show_config"] = buf.getvalue()
+    except Exception as e:  # noqa: BLE001
+        fingerprint["numpy_show_config"] = f"indisponivel: {type(e).__name__}"
+
+    try:
+        import threadpoolctl
+        fingerprint["threadpool_info"] = threadpoolctl.threadpool_info()
+    except Exception as e:  # noqa: BLE001
+        fingerprint["threadpool_info"] = f"indisponivel: {type(e).__name__}"
+
+    try:
+        resultado = subprocess.run(["lscpu"], capture_output=True, text=True, timeout=10)
+        fingerprint["lscpu"] = resultado.stdout
+    except Exception as e:  # noqa: BLE001
+        fingerprint["lscpu"] = f"indisponivel: {type(e).__name__}"
+
+    try:
+        conteudo = Path("/proc/cpuinfo").read_text(encoding="utf-8")
+        linhas_modelo = [l for l in conteudo.splitlines() if l.startswith("model name")]
+        linhas_flags = [l for l in conteudo.splitlines() if l.startswith("flags")]
+        fingerprint["cpu_model_name"] = linhas_modelo[0] if linhas_modelo else None
+        flags_relevantes = {"avx", "avx2", "avx512f", "avx512bw", "avx512vl",
+                            "avx512_vnni", "fma", "sse4_1", "sse4_2", "f16c"}
+        flags_presentes = set(linhas_flags[0].split()) if linhas_flags else set()
+        fingerprint["simd_flags_relevantes"] = sorted(flags_relevantes & flags_presentes)
+    except Exception as e:  # noqa: BLE001
+        fingerprint["cpuinfo_erro"] = f"{type(e).__name__}: {e}"
+
+    fingerprint["env_determinismo"] = {
+        chave: os.environ.get(chave) for chave in _ENV_DETERMINISMO
+    }
+    return fingerprint
+
+
+def gravar_fingerprint_ambiente(saida_dir: Path, nome_arquivo: str) -> None:
+    saida_dir.mkdir(parents=True, exist_ok=True)
+    payload = coletar_fingerprint_ambiente()
+    (saida_dir / nome_arquivo).write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
+
+
 def gravar_proveniencia(saida_dir: Path, run_id: str | None, commit_sha: str | None,
                         execucao: str | None) -> None:
     saida_dir.mkdir(parents=True, exist_ok=True)
@@ -814,6 +1008,12 @@ def parse_args() -> argparse.Namespace:
                    help="roda so este outer fold e grava scores parciais")
     p.add_argument("--agregar", action="store_true",
                    help="agrega os resultados parciais de --entrada-dir")
+    p.add_argument("--comparar-canario", action="store_true",
+                   help="compara EXATAMENTE duas replicas de --outer-fold (canario de determinismo)")
+    p.add_argument("--entrada-a", type=Path, default=None,
+                   help="diretorio com o resultado da replica A (--comparar-canario)")
+    p.add_argument("--entrada-b", type=Path, default=None,
+                   help="diretorio com o resultado da replica B (--comparar-canario)")
     p.add_argument("--entrada-dir", type=Path, default=SAIDA_DIR_PADRAO)
     p.add_argument("--saida-dir", type=Path, default=SAIDA_DIR_PADRAO)
     p.add_argument("--run-id", default=None)
@@ -831,8 +1031,24 @@ def main() -> int:
             classes_path=args.classes,
         )
         gravar_gate_zero(gate, args.saida_dir)
+        gravar_fingerprint_ambiente(args.saida_dir, "fase2b_fingerprint_gate_zero.json")
         print(json.dumps(gate["hashes"], ensure_ascii=False, indent=2))
         return 0
+
+    if args.comparar_canario:
+        if args.outer_fold is None or args.entrada_a is None or args.entrada_b is None:
+            print("Informe --outer-fold, --entrada-a e --entrada-b para --comparar-canario.",
+                  file=sys.stderr)
+            return 2
+        resultado_a = carregar_resultado_fold(args.entrada_a, args.outer_fold)
+        resultado_b = carregar_resultado_fold(args.entrada_b, args.outer_fold)
+        comparacao = comparar_canario(resultado_a, resultado_b)
+        args.saida_dir.mkdir(parents=True, exist_ok=True)
+        (args.saida_dir / "fase2b_canario_comparacao.json").write_text(
+            json.dumps(comparacao, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+        )
+        print(json.dumps(comparacao, ensure_ascii=False, indent=2))
+        return 0 if comparacao["veredito"] == "CANARIO_DETERMINISTICO" else 1
 
     if args.agregar:
         gate = gate_zero(
@@ -858,6 +1074,9 @@ def main() -> int:
     )
     resultado = executar_outer_fold(args.outer_fold, gate)
     gravar_resultado_fold(resultado, args.saida_dir)
+    gravar_fingerprint_ambiente(
+        args.saida_dir, f"fase2b_fingerprint_fold_{args.outer_fold}.json"
+    )
     print(json.dumps({
         "outer_fold": args.outer_fold,
         "fits": len(resultado["fits_info"]),

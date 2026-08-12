@@ -12,6 +12,7 @@ from __future__ import annotations
 import collections
 import hashlib
 import inspect
+import json
 import sys
 import unittest
 import unittest.mock
@@ -22,6 +23,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 import numpy as np  # noqa: E402
 
 import ensemble_fase2b_crossfit as f2b  # noqa: E402
+import modelos_zoo as zoo  # noqa: E402
+import modelo_lstm  # noqa: E402
 
 CLASSES = ["classe_a", "classe_b", "classe_c"]
 
@@ -493,6 +496,166 @@ class TestCarregarResultadoFoldRegressao(unittest.TestCase):
         self.assertEqual(set(originais), set(recarregados))
         for chave, vetor_original in originais.items():
             self.assertEqual(vetor_original, recarregados[chave])  # sem arredondamento
+
+
+class TestControlesDeParalelismoFase2B(unittest.TestCase):
+    """Regressao dos controles de determinismo adicionados apos o
+    BLOQUEADO_NAO_DETERMINISTICO das Execucoes 1x2: n_jobs=1 fixado so no
+    caminho da Fase 2B (nao em modelos_zoo.py) e nenhum hiperparametro
+    cientifico alterado."""
+
+    def test_extra_trees_fase2b_usa_n_jobs_1(self):
+        modelo = f2b.criar_modelo_fase2b("extra_trees")
+        clf = modelo.pipe.named_steps["clf"]
+        self.assertEqual(clf.n_jobs, 1)
+
+    def test_random_forest_fase2b_usa_n_jobs_1(self):
+        modelo = f2b.criar_modelo_fase2b("random_forest")
+        clf = modelo.pipe.named_steps["clf"]
+        self.assertEqual(clf.n_jobs, 1)
+
+    def test_random_state_e_hiperparametros_cientificos_preservados(self):
+        esperado = {
+            "extra_trees": {"n_estimators": 200, "random_state": 42,
+                            "class_weight": "balanced"},
+            "random_forest": {"n_estimators": 200, "random_state": 42,
+                              "class_weight": "balanced"},
+        }
+        for nome, campos in esperado.items():
+            clf = f2b.criar_modelo_fase2b(nome).pipe.named_steps["clf"]
+            for campo, valor in campos.items():
+                self.assertEqual(getattr(clf, campo), valor,
+                                 f"{nome}.{campo} mudou em relacao ao esperado")
+
+    def test_criar_modelo_fase2b_nao_altera_zoo_criar_modelo(self):
+        # calling criar_modelo_fase2b nao pode mudar o que zoo.criar_modelo
+        # devolve depois (cada chamada constroi um pipeline novo).
+        f2b.criar_modelo_fase2b("extra_trees")
+        f2b.criar_modelo_fase2b("random_forest")
+        direto_et = zoo.criar_modelo("extra_trees").pipe.named_steps["clf"]
+        direto_rf = zoo.criar_modelo("random_forest").pipe.named_steps["clf"]
+        self.assertEqual(direto_et.n_jobs, -1,
+                         "modelos_zoo.criar_modelo nao pode ter sido alterado pela Fase 2B")
+        self.assertEqual(direto_rf.n_jobs, -1,
+                         "modelos_zoo.criar_modelo nao pode ter sido alterado pela Fase 2B")
+
+    def test_outros_modelos_identicos_entre_fase2b_e_zoo(self):
+        for nome in ("naive_bayes", "regressao_logistica", "linear_svc", "sgd"):
+            m_fase2b = f2b.criar_modelo_fase2b(nome)
+            m_zoo = zoo.criar_modelo(nome)
+            self.assertEqual(type(m_fase2b), type(m_zoo))
+            self.assertEqual(
+                m_fase2b.pipe.named_steps["clf"].get_params(),
+                m_zoo.pipe.named_steps["clf"].get_params(),
+                f"hiperparametros de {nome} divergem entre Fase 2B e modelos_zoo",
+            )
+            self.assertEqual(
+                m_fase2b.pipe.named_steps["tfidf"].get_params(),
+                m_zoo.pipe.named_steps["tfidf"].get_params(),
+            )
+
+    def test_lstm_fase2b_e_zoo_sao_o_mesmo_tipo(self):
+        m_fase2b = f2b.criar_modelo_fase2b("lstm")
+        m_zoo = zoo.criar_modelo("lstm")
+        self.assertEqual(type(m_fase2b), type(m_zoo))
+
+    def test_semente_padrao_da_fase2b_e_42(self):
+        self.assertEqual(f2b.SEMENTE_PADRAO, 42)
+
+    def test_fixar_determinismo_lstm_seed_padrao_e_42(self):
+        import inspect as _inspect
+        assinatura = _inspect.signature(modelo_lstm.fixar_determinismo_lstm)
+        self.assertEqual(assinatura.parameters["seed"].default, 42)
+
+    def test_arquitetura_lstm_nao_mudou(self):
+        # Pin de regressao: garante que a microcorrecao de threading nao
+        # alterou nenhum hiperparametro cientifico da LSTM.
+        self.assertEqual(modelo_lstm.LSTM_VOCAB_SIZE, 8000)
+        self.assertEqual(modelo_lstm.LSTM_MAX_LEN, 120)
+        self.assertEqual(modelo_lstm.LSTM_EMBED_DIM, 128)
+        self.assertEqual(modelo_lstm.LSTM_UNITS, 64)
+        self.assertEqual(modelo_lstm.LSTM_DENSE_UNITS, 64)
+        self.assertEqual(modelo_lstm.LSTM_DROPOUT, 0.5)
+        self.assertEqual(modelo_lstm.LSTM_LAYERS, 1)
+        perfil_padrao = modelo_lstm.PERFIS_LSTM["padrao"]
+        self.assertEqual(perfil_padrao["epochs"], 15)
+        self.assertEqual(perfil_padrao["batch_size"], 128)
+        self.assertEqual(perfil_padrao["paciencia"], 3)
+
+    def test_workflow_define_threading_do_tensorflow(self):
+        caminho = (Path(__file__).resolve().parents[1] / ".github" / "workflows"
+                  / "ensemble_fase2b_crossfit.yml")
+        conteudo = caminho.read_text(encoding="utf-8")
+        self.assertIn('TF_NUM_INTRAOP_THREADS: "1"', conteudo)
+        self.assertIn('TF_NUM_INTEROP_THREADS: "1"', conteudo)
+        # variaveis preexistentes precisam continuar la
+        for var in ("PYTHONHASHSEED", "OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS",
+                    "MKL_NUM_THREADS", "NUMEXPR_NUM_THREADS", "TF_DETERMINISTIC_OPS",
+                    "TF_ENABLE_ONEDNN_OPTS"):
+            self.assertIn(var, conteudo)
+
+    def test_workflow_distingue_marcador_run_de_marcador_canary(self):
+        caminho = (Path(__file__).resolve().parents[1] / ".github" / "workflows"
+                  / "ensemble_fase2b_crossfit.yml")
+        conteudo = caminho.read_text(encoding="utf-8")
+        self.assertIn("[FASE2B-RUN]", conteudo)
+        self.assertIn("[FASE2B-CANARY]", conteudo)
+        self.assertIn("autorizado_cientifico", conteudo)
+        self.assertIn("autorizado_canario", conteudo)
+
+
+class TestFingerprintAmbiente(unittest.TestCase):
+    def test_coletar_fingerprint_nao_lanca_e_tem_campos_essenciais(self):
+        fp = f2b.coletar_fingerprint_ambiente()
+        for campo in ("python_version", "platform", "machine", "cpu_count",
+                      "numpy_version", "env_determinismo"):
+            self.assertIn(campo, fp)
+        self.assertIn("PYTHONHASHSEED", fp["env_determinismo"])
+        self.assertIn("TF_NUM_INTRAOP_THREADS", fp["env_determinismo"])
+        self.assertIn("TF_NUM_INTEROP_THREADS", fp["env_determinismo"])
+
+    def test_fingerprint_nao_contem_chaves_de_dados_de_chamados(self):
+        fp = f2b.coletar_fingerprint_ambiente()
+        proibidas = {"id", "id_chamado", "titulo", "descricao", "texto",
+                    "referencia_humana", "categoria_historica"}
+        self.assertEqual(proibidas & set(fp), set())
+
+
+class TestComparacaoCanario(unittest.TestCase):
+    def _executar_fold1(self, gate, seed_extra=0):
+        criar_modelo = _fabricar_criar_modelo()
+        return f2b.executar_outer_fold(
+            1, gate, criar_modelo=criar_modelo,
+            fixar_determinismo_lstm=_fixar_determinismo_lstm_fake,
+        )
+
+    def test_replicas_identicas_dao_canario_deterministico(self):
+        gate = _construir_gate_sintetico()
+        resultado_a = self._executar_fold1(gate)
+        resultado_b = self._executar_fold1(gate)
+        comparacao = f2b.comparar_canario(resultado_a, resultado_b)
+        self.assertEqual(comparacao["veredito"], "CANARIO_DETERMINISTICO")
+        self.assertTrue(comparacao["inner_iguais"])
+        self.assertTrue(comparacao["outer_iguais"])
+        self.assertTrue(comparacao["fits_iguais"])
+        for modelo, info in comparacao["por_modelo"].items():
+            self.assertTrue(info["inner_identico"], modelo)
+            self.assertTrue(info["outer_identico"], modelo)
+
+    def test_replica_divergente_e_detectada_e_reportada_por_modelo(self):
+        gate = _construir_gate_sintetico()
+        resultado_a = self._executar_fold1(gate)
+        resultado_b = json.loads(json.dumps(resultado_a))  # copia profunda
+        # perturba um unico score de um unico modelo na replica B
+        for linha in resultado_b["outer_rows"]:
+            if linha[3] == "lstm":
+                linha[4][0] = linha[4][0] + 0.5
+                break
+        comparacao = f2b.comparar_canario(resultado_a, resultado_b)
+        self.assertEqual(comparacao["veredito"], "CANARIO_NAO_DETERMINISTICO")
+        self.assertFalse(comparacao["outer_iguais"])
+        self.assertFalse(comparacao["por_modelo"]["lstm"]["outer_identico"])
+        self.assertTrue(comparacao["por_modelo"]["naive_bayes"]["outer_identico"])
 
 
 if __name__ == "__main__":
