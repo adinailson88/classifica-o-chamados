@@ -58,7 +58,7 @@ jobs:
           python -m unittest discover -s tests
 
   autorizacao:
-    name: Autorizacao (marcadores [FASE2B-RUN] / [FASE2B-CANARY] / [FASE2B-REPLAY-PREFLIGHT] / [FASE2B-REPLAY])
+    name: Autorizacao (marcadores [FASE2B-RUN] / [FASE2B-CANARY] / [FASE2B-REPLAY-PREFLIGHT] / [FASE2B-REPLAY] / [FASE2B-REPLAY-RECOVER])
     needs: testes
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -67,6 +67,7 @@ jobs:
       autorizado_canario: ${{ steps.checar.outputs.autorizado_canario }}
       autorizado_replay: ${{ steps.checar.outputs.autorizado_replay }}
       autorizado_replay_preflight: ${{ steps.checar.outputs.autorizado_replay_preflight }}
+      autorizado_replay_recover: ${{ steps.checar.outputs.autorizado_replay_recover }}
     steps:
       - name: Checar marcador no INICIO da primeira linha do commit
         id: checar
@@ -84,42 +85,55 @@ jobs:
           # dispararia a rodada pesada por acidente (ja aconteceu). Por isso
           # o gate exige que o marcador seja PREFIXO da PRIMEIRA linha (o
           # assunto do commit), nunca uma ocorrencia solta na mensagem. Os
-          # quatro marcadores sao mutuamente exclusivos por construcao: um
+          # cinco marcadores sao mutuamente exclusivos por construcao: um
           # commit so pode comecar com um prefixo por vez. [FASE2B-REPLAY-
-          # PREFLIGHT] e checado ANTES de [FASE2B-REPLAY] porque o segundo
-          # nome e prefixo textual do primeiro ate o caractere "]"/"-": a
-          # ordem evita qualquer ambiguidade de match, mesmo sendo os dois
-          # literais distintos por construcao (bash `==` com sufixo `*` e
-          # comparacao literal, nao regex).
+          # PREFLIGHT] e [FASE2B-REPLAY-RECOVER] sao checados ANTES de
+          # [FASE2B-REPLAY] porque os dois nomes sao prefixo textual do
+          # primeiro ate o caractere "]"/"-": a ordem evita qualquer
+          # ambiguidade de match, mesmo sendo os literais distintos por
+          # construcao (bash `==` com sufixo `*` e comparacao literal, nao
+          # regex).
           if [[ "$PRIMEIRA_LINHA" == "[FASE2B-RUN]"* ]]; then
             echo "autorizado_cientifico=true" >> "$GITHUB_OUTPUT"
             echo "autorizado_canario=false" >> "$GITHUB_OUTPUT"
             echo "autorizado_replay=false" >> "$GITHUB_OUTPUT"
             echo "autorizado_replay_preflight=false" >> "$GITHUB_OUTPUT"
+            echo "autorizado_replay_recover=false" >> "$GITHUB_OUTPUT"
             echo "Marcador [FASE2B-RUN] no inicio do assunto: execucao cientifica completa (175 fits) AUTORIZADA."
           elif [[ "$PRIMEIRA_LINHA" == "[FASE2B-CANARY]"* ]]; then
             echo "autorizado_cientifico=false" >> "$GITHUB_OUTPUT"
             echo "autorizado_canario=true" >> "$GITHUB_OUTPUT"
             echo "autorizado_replay=false" >> "$GITHUB_OUTPUT"
             echo "autorizado_replay_preflight=false" >> "$GITHUB_OUTPUT"
+            echo "autorizado_replay_recover=false" >> "$GITHUB_OUTPUT"
             echo "Marcador [FASE2B-CANARY] no inicio do assunto: canario de determinismo (2 replicas, so outer_fold=1) AUTORIZADO."
           elif [[ "$PRIMEIRA_LINHA" == "[FASE2B-REPLAY-PREFLIGHT]"* ]]; then
             echo "autorizado_cientifico=false" >> "$GITHUB_OUTPUT"
             echo "autorizado_canario=false" >> "$GITHUB_OUTPUT"
             echo "autorizado_replay=false" >> "$GITHUB_OUTPUT"
             echo "autorizado_replay_preflight=true" >> "$GITHUB_OUTPUT"
+            echo "autorizado_replay_recover=false" >> "$GITHUB_OUTPUT"
             echo "Marcador [FASE2B-REPLAY-PREFLIGHT] no inicio do assunto: preflight do bundle congelado (gate_zero_replay, ZERO fits) AUTORIZADO."
+          elif [[ "$PRIMEIRA_LINHA" == "[FASE2B-REPLAY-RECOVER]"* ]]; then
+            echo "autorizado_cientifico=false" >> "$GITHUB_OUTPUT"
+            echo "autorizado_canario=false" >> "$GITHUB_OUTPUT"
+            echo "autorizado_replay=false" >> "$GITHUB_OUTPUT"
+            echo "autorizado_replay_preflight=false" >> "$GITHUB_OUTPUT"
+            echo "autorizado_replay_recover=true" >> "$GITHUB_OUTPUT"
+            echo "Marcador [FASE2B-REPLAY-RECOVER] no inicio do assunto: recuperacao do bundle candidato (ZERO fits, sem escrita em nenhuma planilha) AUTORIZADA."
           elif [[ "$PRIMEIRA_LINHA" == "[FASE2B-REPLAY]"* ]]; then
             echo "autorizado_cientifico=false" >> "$GITHUB_OUTPUT"
             echo "autorizado_canario=false" >> "$GITHUB_OUTPUT"
             echo "autorizado_replay=true" >> "$GITHUB_OUTPUT"
             echo "autorizado_replay_preflight=false" >> "$GITHUB_OUTPUT"
+            echo "autorizado_replay_recover=false" >> "$GITHUB_OUTPUT"
             echo "Marcador [FASE2B-REPLAY] no inicio do assunto: replay cientifico completo sobre input CONGELADO AUTORIZADO."
           else
             echo "autorizado_cientifico=false" >> "$GITHUB_OUTPUT"
             echo "autorizado_canario=false" >> "$GITHUB_OUTPUT"
             echo "autorizado_replay=false" >> "$GITHUB_OUTPUT"
             echo "autorizado_replay_preflight=false" >> "$GITHUB_OUTPUT"
+            echo "autorizado_replay_recover=false" >> "$GITHUB_OUTPUT"
             echo "Nenhum marcador reconhecido no inicio do assunto do commit: somente testes."
           fi
 
@@ -637,4 +651,72 @@ jobs:
         if: steps.agregar_replay.outcome == 'failure'
         run: |
           echo "Agregacao REPLAY BLOQUEADA: contagem de fits, LSTM ou cardinalidade de previsoes nao bateu com o esperado. Rodada nao e valida." >&2
+          exit 1
+
+  # ---------------------------------------------------------------------
+  # Verificacao do bundle candidato (marcador [FASE2B-REPLAY-RECOVER]):
+  # rotina OPERACIONAL, temporaria e de ZERO FITS. Le a planilha
+  # operacional viva e aplica SOMENTE os patches de uma allowlist EXPLICITA
+  # indexada por id_sha256 (GRUPO A: 4 registros da Execucao Cientifica 1,
+  # valores vazios, diretamente no codigo; GRUPO B: 3 drifts adicionais,
+  # valor historico comprovado carregado via Secret, nunca versionado em
+  # texto puro). NAO consulta nenhuma API do Google Drive nem nenhuma
+  # revisao historica: o unico patch possivel e o da allowlist explicita —
+  # comparar a base inteira contra uma revisao seria allowlist implicita
+  # (proibido). Roda o candidato pelo Gate Zero de producao e so
+  # calcula/reporta se replay_input_sha256 e os 5 hashes metodologicos
+  # batem EXATAMENTE — NUNCA publica o bundle bruto (csv, log ou
+  # artifact): o unico artifact e o diagnostico sanitizado (hashes,
+  # contagens, id_sha256, nomes de campo). Nunca escreve em nenhuma
+  # planilha, nunca configura REPLAY_SPREADSHEET_ID, nunca pina
+  # REPLAY_INPUT_SHA256_ESPERADO. Sem caminho para crossfit/agregacao/
+  # modelos: nao aparece em nenhum `needs` de nenhum job de fit.
+  # ---------------------------------------------------------------------
+
+  bundle_recover:
+    name: Verificacao do bundle candidato REPLAY (allowlist explicita, ZERO fits)
+    needs: [testes, autorizacao]
+    if: needs.autorizacao.outputs.autorizado_replay_recover == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements.txt
+      - name: Dependencias
+        run: |
+          python -m pip install --retries 5 --timeout 300 -r requirements.txt
+      - name: Recriar chave da conta de servico
+        env:
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+        run: |
+          if [ -z "$GCP_SA_KEY" ]; then echo "Secret GCP_SA_KEY ausente." >&2; exit 1; fi
+          printf '%s' "$GCP_SA_KEY" > credenciais_sa.json
+      - name: Verificar bundle candidato (allowlist explicita, ZERO fits)
+        id: recover
+        continue-on-error: true
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: credenciais_sa.json
+          FASE2B_ALLOWLIST_GRUPO_B_JSON: ${{ secrets.FASE2B_ALLOWLIST_GRUPO_B_JSON }}
+        run: |
+          mkdir -p docs/dados/ensemble/replay
+          python src/recuperar_bundle_replay.py --saida-dir docs/dados/ensemble/replay
+      - name: Remover credenciais
+        if: always()
+        run: rm -f credenciais_sa.json
+      - name: Publicar diagnostico sanitizado (nunca o bundle bruto)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fase2b-replay-bundle-recover
+          path: docs/dados/ensemble/replay/recover_diagnostico.json
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Aplicar criterio de aceite
+        if: steps.recover.outcome == 'failure'
+        run: |
+          echo "Verificacao do bundle candidato BLOQUEADA ou incompleta: GRUPO A (4 registros originais) nao identificado, Gate Zero divergente, ou replay_input_sha256 recomputado nao bateu com o esperado. Consulte o artefato fase2b-replay-bundle-recover/recover_diagnostico.json (sanitizado, sem texto bruto). Nenhum modelo foi treinado, nenhuma planilha foi escrita, nenhum bundle bruto foi publicado." >&2
           exit 1
