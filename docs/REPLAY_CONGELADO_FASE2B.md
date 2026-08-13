@@ -196,3 +196,69 @@ limitação explícita e vinculante, não uma omissão.
 Enquanto `REPLAY_INPUT_SHA256_ESPERADO` for `None`, `gate_zero_replay()`
 bloqueia sempre, por construção — nenhuma rodada de replay roda sem um valor
 pinado e aprovado.
+
+## 9. Encerramento formal da Fase 2B — Execução 2 inconclusiva
+
+**Status do replay da Execução Científica 2:**
+`INCONCLUSIVO_POR_AUSENCIA_DE_SNAPSHOT_BRUTO_INTEGRAL`.
+
+A tentativa de reconstrução do bundle candidato (marcador
+`[FASE2B-REPLAY-RECOVER]`, ferramenta `src/recuperar_bundle_replay.py`,
+GitHub Actions run `31740951432`, commit `adc50531`) confirmou:
+
+- universo estrutural = 13.972 IDs, sem faltantes nem duplicados;
+- partições e alvo congelado cobrem exatamente o mesmo universo, com o
+  mesmo fold por ID nas duas fontes;
+- H, R e o alvo `Y=1(H!=R)` vieram diretamente dos artefatos já congelados
+  (`docs/dados/ensemble/alvo_ensemble.json` + `docs/dados/particoes_canonicas_mapa.csv`),
+  nunca recalculados a partir da planilha operacional atual;
+- a `ALLOWLIST_GRUPO_A` (4 registros) e a `ALLOWLIST_GRUPO_B` (3 registros)
+  aplicaram os patches auditados;
+- mesmo assim, **10 registros** têm texto atual cujo `grupo_sha256`
+  recomputado diverge do congelado — `status = bloqueado_grupo_textual_divergente`,
+  `recover_diagnostico.json` do run `31740951432` (artifact
+  `fase2b-replay-bundle-recover`).
+- **nenhum fit foi executado** nesta tentativa: o bloqueio ocorreu no job
+  `Verificacao do bundle candidato REPLAY (allowlist explicita, ZERO fits)`,
+  antes de `crossfit_fold_replay`/`agregar_replay`, que nem chegaram a
+  rodar (dependem exclusivamente de `autorizado_replay`, nunca de
+  `autorizado_replay_preflight`).
+
+**Motivo:** o input bruto integral efetivamente recebido pela Execução
+Científica 1 não foi preservado como snapshot independente no momento da
+execução. A reconstrução via allowlist explícita (Grupos A e B, 7
+registros no total) e revisões de Drive ainda acessíveis esgotou a
+evidência disponível sem resolver os 10 registros restantes — as revisões
+`11230`/`11291` do Drive não estão mais acessíveis pela API, e não existe,
+dentro deste repositório, nenhuma fonte independente adicional a
+consultar.
+
+**Decisão científica vinculante, registrada nesta rodada:**
+
+- não continuar tentando reconstruir esses 10 textos;
+- não procurar novas revisões do Google Drive;
+- não criar novas allowlists;
+- não inferir textos históricos para forçar um hash desejado;
+- não modificar dados para fazer o replay passar.
+
+Essa impossibilidade é uma **limitação de preservação/proveniência do X
+bruto**, não evidência de indeterminismo dos modelos, erro científico da
+Execução 1 ou divergência de resultados — nenhuma dessas três leituras deve
+ser atribuída a este achado. Também não se deve afirmar que os 13.972
+registros foram comprovados bit a bit idênticos ao input bruto original: a
+igualdade dos 5 hashes metodológicos (que só enxergam texto já normalizado
+via `grupo_sha256`) é necessária, mas não suficiente para essa afirmação —
+ver seção 6.
+
+**A Execução Científica 1 (run `31556028058`, commit `d6a5504c`) permanece
+válida e preservada.** Nenhuma Execução Científica 2 foi aprovada. Toda
+etapa posterior — a partir da Fase 2C — usa exclusivamente os artefatos da
+Execução Científica 1; ver `docs/FASE2C_ENSEMBLE_CONTRATO.md` para a
+auditoria de proveniência específica desses artefatos e o desenho da fase
+seguinte.
+
+A infraestrutura de RECOVER (`src/recuperar_bundle_replay.py`,
+`tests/test_recuperar_bundle_replay.py`, o job
+`[FASE2B-REPLAY-RECOVER]` do workflow) é preservada como evidência
+histórica do que foi tentado e por quê — nenhum gate, script ou
+diagnóstico deste desenho foi removido.
