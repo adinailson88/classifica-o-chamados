@@ -1,83 +1,117 @@
 {
- "total_chamados": 1,
- "com_conferencia_glpi": 1,
- "verdade_glpi": 1,
- "verdade_manual": 0,
+ "total_chamados": 14138,
+ "com_conferencia_glpi": 14060,
+ "verdade_glpi": 13463,
+ "verdade_manual": 597,
  "pendente_glpi_errado_sem_q": 0,
- "sem_conferencia": 0,
+ "sem_conferencia": 78,
  "correto_com_q_preenchida": 0,
- "errado_com_q_igual_a_c": 0,
+ "errado_com_q_igual_a_c": 6,
  "por_modelo": {
   "naive_bayes": {
-   "correto": 0,
-   "errado": 0,
+   "correto": 9925,
+   "errado": 4135,
    "pendente": 0,
-   "sem_predicao": 1,
-   "avaliados": 0,
-   "acuracia": null
+   "sem_predicao": 0,
+   "avaliados": 14060,
+   "acuracia": 0.7059
   },
   "regressao_logistica": {
-   "correto": 0,
-   "errado": 0,
+   "correto": 11105,
+   "errado": 2955,
    "pendente": 0,
-   "sem_predicao": 1,
-   "avaliados": 0,
-   "acuracia": null
+   "sem_predicao": 0,
+   "avaliados": 14060,
+   "acuracia": 0.7898
   },
   "linear_svc": {
-   "correto": 0,
-   "errado": 0,
+   "correto": 11420,
+   "errado": 2640,
    "pendente": 0,
-   "sem_predicao": 1,
-   "avaliados": 0,
-   "acuracia": null
+   "sem_predicao": 0,
+   "avaliados": 14060,
+   "acuracia": 0.8122
   },
   "sgd": {
-   "correto": 0,
-   "errado": 0,
+   "correto": 11169,
+   "errado": 2891,
    "pendente": 0,
-   "sem_predicao": 1,
-   "avaliados": 0,
-   "acuracia": null
+   "sem_predicao": 0,
+   "avaliados": 14060,
+   "acuracia": 0.7944
   },
   "extra_trees": {
-   "correto": 0,
-   "errado": 0,
+   "correto": 11170,
+   "errado": 2890,
    "pendente": 0,
-   "sem_predicao": 1,
-   "avaliados": 0,
-   "acuracia": null
+   "sem_predicao": 0,
+   "avaliados": 14060,
+   "acuracia": 0.7945
   },
   "random_forest": {
-   "correto": 0,
-   "errado": 0,
+   "correto": 11028,
+   "errado": 3032,
    "pendente": 0,
-   "sem_predicao": 1,
-   "avaliados": 0,
-   "acuracia": null
+   "sem_predicao": 0,
+   "avaliados": 14060,
+   "acuracia": 0.7844
   },
   "lstm": {
-   "correto": 0,
-   "errado": 0,
+   "correto": 9817,
+   "errado": 4243,
    "pendente": 0,
-   "sem_predicao": 1,
-   "avaliados": 0,
-   "acuracia": null
+   "sem_predicao": 0,
+   "avaliados": 14060,
+   "acuracia": 0.6982
   },
   "transformer_ft": {
-   "correto": 0,
-   "errado": 0,
+   "correto": 5740,
+   "errado": 3767,
    "pendente": 0,
-   "sem_predicao": 1,
-   "avaliados": 0,
-   "acuracia": null
+   "sem_predicao": 4553,
+   "avaliados": 9507,
+   "acuracia": 0.6038
   }
  },
- "distribuicao_q": {},
- "categorias_distintas_q": 0,
+ "distribuicao_q": {
+  "Manutenção Preventiva > Ar condicionado split": 189,
+  "Instalação de Acessórios e Mobiliário > Instalação/reparo de equipamentos (Suportes de TV, acessórios de banheiro e quadro branco)": 121,
+  "Estrutura Predial > Esquadrias, porta, portão e janelas": 39,
+  "Manutenção Preventiva > Reservatório": 39,
+  "Hidrossanitária > Hidráulica": 27,
+  "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi": 24,
+  "Estrutura Predial > Forro": 23,
+  "Elétrica > Nobreak": 21,
+  "Outros > Erro de chamado": 20,
+  "Suprimentos / Apoio Técnico > Materiais": 17,
+  "Elétrica > Iluminação": 16,
+  "Instalação de Acessórios e Mobiliário > Placas de identificação": 16,
+  "Estrutura Predial > Telhados, calhas, rufos, etc.": 12,
+  "Elétrica > Gerador": 6,
+  "Elétrica > Instalações elétricas": 6,
+  "Hidrossanitária > Bomba": 5,
+  "Estrutura Predial > Alvenaria / Pisos / Estrutura": 3,
+  "Manutenção Preventiva > Ar condicionado central": 3,
+  "Estrutura Predial > Instalações Especiais (gás, ar comprimido, etc.)": 2,
+  "Estrutura Predial > Pintura": 2,
+  "Climatização > Ar condicionado split": 1,
+  "Elétrica > Subestação": 1,
+  "Estrutura Predial > Infiltração": 1,
+  "Manutenção Preventiva > Telhados, calhas, rufos, etc.": 1,
+  "Suprimentos / Apoio Técnico > Transporte": 1,
+  "Área Externa e Ambiental > Manutenção área externa / meio ambiente / Poda de árvore / Roçagem": 1
+ },
+ "categorias_distintas_q": 26,
  "ids_correto_com_q_preenchida": [],
- "ids_errado_com_q_igual_a_c": [],
- "gerado_em": "13/08/2026 05:00",
+ "ids_errado_com_q_igual_a_c": [
+  "2022120099",
+  "2024020224",
+  "2025010263",
+  "2025014105",
+  "2025014107",
+  "2026070168"
+ ],
+ "gerado_em": "13/08/2026 10:55",
  "aba": "CONFERENCIA_MULTIMODELO",
  "regra": "M='Correto' -> verdade = C; M='Errado' + Q preenchida -> verdade = Q; M='Errado' sem Q -> pendente; M vazio -> ignorado"
 }
