@@ -29,16 +29,30 @@ Implementa os quatro metodos do contrato vigente:
   3. votacao suave ponderada (s_soft);
   4. stacking (s_stack = q_i).
 
-Duas escolhas metodologicas desta rodada NAO tem contrato congelado anterior
-(nenhum documento do repositorio definia Fase 2C antes desta implementacao)
-e ficam explicitas, parametrizaveis e sinalizadas para confirmacao, nunca
-travadas em silencio — ver docs/FASE2C_ENSEMBLE_CONTRATO.md:
+Contrato congelado e aprovado (auditoria independente) para as duas
+decisoes que a rodada anterior deixava parametrizaveis:
 
-  - peso da votacao suave = acuracia de cada modelo nas previsoes EXTERNAS
-    (out-of-fold por construcao) contra R, normalizada para somar 1
-    (`pesos_votacao_suave`);
-  - selecao de tau na curva Precision-Recall de Y=1 = maximo F1 por padrao,
-    outro criterio e explicito via parametro (`selecionar_tau`).
+  - peso da votacao suave: `w_{m,c}^(alpha) = (TP_{m,c} + alpha*pi_c) /
+    (N_{m,c} + alpha)`, por MODELO e por CLASSE, estimado exclusivamente a
+    partir das previsoes internas (`inner_rows`) do proprio outer fold —
+    nunca da dobra externa. `alpha` escolhido em {5, 20, 100} por validacao
+    interna (precisao da carga de referencia, depois recall, depois menor
+    log-loss multiclasse, persistindo empate o maior alpha) — ver
+    `pesos_e_alpha_votacao_suave_por_fold`, `selecionar_alpha_votacao_suave`;
+  - capacidade, nao limiar: a comparacao confirmatoria entre metodos usa
+    `K_f = |fila natural do LinearSVC na dobra f|` (registros com
+    `previsto_linear_svc != H`), a MESMA capacidade para todos os metodos
+    naquela dobra — nunca um tau otimizado na avaliacao externa. A curva
+    Precision-Recall (`curva_precisao_recall`) e `selecionar_tau` continuam
+    disponiveis como saida/utilitario exploratorio, nunca chamados pela
+    execucao confirmatoria nem declarando `max_f1` como contrato.
+
+Desempate de `c_alt` na votacao majoritaria: (1) mais votos; (2) maior
+media das probabilidades calibradas da categoria entre os sete modelos;
+(3) menor indice na ordem canonica das classes. A fila da votacao
+majoritaria ordena por `v_alt - v_H` decrescente, depois pela margem de
+probabilidade media decrescente, depois por `id_sha256` crescente — nunca a
+ordenacao generica de escore+id usada pelos demais metodos.
 """
 
 from __future__ import annotations
@@ -46,7 +60,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
-from collections import defaultdict
+from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any, Callable
 
@@ -67,6 +81,7 @@ SAIDA_DIR_PADRAO = DADOS_ENSEMBLE / "fase2c"
 MODELOS = list(efc.MODELOS)  # mesma ordem fixa dos 7 modelos-base, sem duplicar
 FOLDS = efc.FOLDS
 CLASSES_ESPERADAS = efc.CLASSES_ESPERADAS
+ALPHAS_PADRAO = (5, 20, 100)  # contrato congelado da votacao suave (secao 4.2)
 
 # Hashes de proveniencia da Execucao Cientifica 1 (unica fonte aprovada; ver
 # docs/REPLAY_CONGELADO_FASE2B.md secao 9 — nenhuma Execucao Cientifica 2 foi
@@ -358,63 +373,254 @@ def votos_top1(top1_por_modelo: dict[str, str], H: str) -> tuple[int, dict[str, 
     return v_h, dict(votos_alt)
 
 
-def escolher_c_alt_majoritario(votos_alt: dict[str, int], classes: list[str]) -> str | None:
-    """Categoria alternativa mais votada. Empate: menor indice na ordem
-    global de classes ja congelada (`classes_ensemble.json`) — nenhuma regra
-    nova de desempate. `None` se nenhum modelo votou fora de H (unanimidade
-    com o historico)."""
+def media_prob_calibrada(
+    scores_modelo: dict[str, np.ndarray], classes: list[str], classe: str,
+    modelos: list[str] = MODELOS,
+) -> float:
+    """Media das probabilidades calibradas de `classe` entre os sete
+    modelos (segundo criterio de desempate do c_alt majoritario)."""
+    idx = classes.index(classe)
+    return float(np.mean([scores_modelo[m][idx] for m in modelos]))
+
+
+def escolher_c_alt_majoritario(
+    votos_alt: dict[str, int], classes: list[str], scores_modelo: dict[str, np.ndarray],
+) -> str | None:
+    """Categoria alternativa. Contrato de desempate, nesta ordem:
+    (1) mais votos; (2) maior media das probabilidades calibradas da
+    categoria entre os sete modelos; (3) menor indice na ordem canonica das
+    classes. `None` se nenhum modelo votou fora de H (unanimidade com o
+    historico)."""
     if not votos_alt:
         return None
     maximo = max(votos_alt.values())
     empatados = [c for c, v in votos_alt.items() if v == maximo]
-    return min(empatados, key=classes.index)
+    if len(empatados) == 1:
+        return empatados[0]
+    medias = {c: media_prob_calibrada(scores_modelo, classes, c) for c in empatados}
+    melhor_media = max(medias.values())
+    empatados_media = [c for c in empatados if np.isclose(medias[c], melhor_media)]
+    if len(empatados_media) == 1:
+        return empatados_media[0]
+    return min(empatados_media, key=classes.index)
 
 
 def escore_votacao_majoritaria(
-    top1_por_modelo: dict[str, str], H: str, classes: list[str]
-) -> tuple[float, str | None]:
-    """s_maj = (v_alt - v_H) / M. Devolve (s_maj, c_alt)."""
+    top1_por_modelo: dict[str, str], scores_modelo: dict[str, np.ndarray],
+    H: str, classes: list[str],
+) -> tuple[float, str | None, int, int]:
+    """s_maj = (v_alt - v_H) / M. Devolve (s_maj, c_alt, v_alt, v_H)."""
     v_h, votos_alt = votos_top1(top1_por_modelo, H)
-    c_alt = escolher_c_alt_majoritario(votos_alt, classes)
+    c_alt = escolher_c_alt_majoritario(votos_alt, classes, scores_modelo)
     v_alt = votos_alt.get(c_alt, 0) if c_alt is not None else 0
-    return (v_alt - v_h) / len(MODELOS), c_alt
+    return (v_alt - v_h) / len(MODELOS), c_alt, v_alt, v_h
 
 
-def pesos_votacao_suave(
-    registros: dict[str, dict[str, Any]], modelos: list[str] = MODELOS
-) -> dict[str, float]:
-    """Peso de cada modelo = acuracia dele nas previsoes EXTERNAS (outer,
-    out-of-fold por construcao da Fase 2B) contra R, normalizada para somar
-    1. E a unica medida de 'desempenho dos modelos por fold' disponivel sem
-    retreinar nada e sem consultar a planilha viva; nenhum contrato anterior
-    do repositorio definia essa regra (Fase 2C e nova) — ver
-    docs/FASE2C_ENSEMBLE_CONTRATO.md para a justificativa completa e o
-    pedido de confirmacao explicita antes de qualquer resultado definitivo."""
-    total = len(registros)
-    if total == 0:
-        raise Fase2CBloqueado("Nenhum registro para calcular pesos da votacao suave.")
-    acertos: dict[str, int] = defaultdict(int)
-    for reg in registros.values():
-        for modelo in modelos:
-            if reg["top1_outer"][modelo] == reg["R"]:
-                acertos[modelo] += 1
-    desempenho = {m: acertos[m] / total for m in modelos}
-    soma = sum(desempenho.values())
+def montar_fila_majoritaria(contexto: dict[str, Any]) -> list[dict[str, Any]]:
+    """Fila da votacao majoritaria: NUNCA a ordenacao generica escore+id de
+    `montar_fila`. Ordena por (1) `v_alt - v_H` decrescente — equivalente a
+    `s_maj` decrescente, M e constante —, (2) margem da media de
+    probabilidade calibrada (`c_alt` menos `H`) decrescente, (3)
+    `id_sha256` crescente."""
+    classes = contexto["classes"]
+    linhas = []
+    for id_sha, reg in contexto["registros"].items():
+        s_maj, c_alt, v_alt, v_h = escore_votacao_majoritaria(
+            reg["top1_outer"], reg["scores_outer"], reg["H"], classes
+        )
+        media_h = media_prob_calibrada(reg["scores_outer"], classes, reg["H"])
+        media_alt = (
+            media_prob_calibrada(reg["scores_outer"], classes, c_alt)
+            if c_alt is not None else media_h
+        )
+        linhas.append({
+            "id_sha256": id_sha, "H": reg["H"], "R": reg["R"], "c_alt": c_alt,
+            "score": s_maj, "fold": reg["outer_fold"], "Y": reg["Y"],
+            "_ordem_votos": v_alt - v_h, "_ordem_prob": media_alt - media_h,
+        })
+    linhas.sort(key=lambda l: (-l["_ordem_votos"], -l["_ordem_prob"], l["id_sha256"]))
+    for linha in linhas:
+        del linha["_ordem_votos"]
+        del linha["_ordem_prob"]
+    return linhas
+
+
+def _agrupar_inner_por_id(linhas: list[list[Any]]) -> dict[str, dict[str, np.ndarray]]:
+    por_id: dict[str, dict[str, np.ndarray]] = defaultdict(dict)
+    for _of, _if, id_sha, _grupo, modelo, vetor, _top1 in linhas:
+        por_id[id_sha][modelo] = np.asarray(vetor, dtype=np.float64)
+    return dict(por_id)
+
+
+def pesos_votacao_suave_regularizados(
+    linhas_inner: list[list[Any]],
+    referencia_por_id: dict[str, dict[str, Any]],
+    classes: list[str],
+    alpha: float,
+    modelos: list[str] = MODELOS,
+) -> dict[str, np.ndarray]:
+    """`w_{m,c}^(alpha) = (TP_{m,c} + alpha*pi_c) / (N_{m,c} + alpha)`.
+
+    `TP_{m,c}`/`N_{m,c}` vem EXCLUSIVAMENTE de `linhas_inner` (previsoes OOF
+    internas de um outer fold): `N_{m,c}` conta quantas vezes o modelo `m`
+    previu top1=`c` nessas linhas; `TP_{m,c}`, quantas dessas o `R` do
+    registro tambem era `c`. `pi_c` e a frequencia de `R=c` entre os IDs
+    unicos de `linhas_inner`. Nunca consulta `outer_rows`/dobra externa —
+    contrato aprovado, ver docs/FASE2C_ENSEMBLE_CONTRATO.md."""
+    n = len(classes)
+    idx_de = {c: i for i, c in enumerate(classes)}
+    n_pred: dict[str, np.ndarray] = {m: np.zeros(n, dtype=np.float64) for m in modelos}
+    tp: dict[str, np.ndarray] = {m: np.zeros(n, dtype=np.float64) for m in modelos}
+    r_por_id: dict[str, str] = {}
+    for outer_fold, inner_fold, id_sha, grupo, modelo, vetor, top1 in linhas_inner:
+        if modelo not in n_pred or top1 not in idx_de:
+            continue
+        idx_pred = idx_de[top1]
+        n_pred[modelo][idx_pred] += 1
+        r = referencia_por_id[id_sha]["R"]
+        r_por_id[id_sha] = r
+        if top1 == r:
+            tp[modelo][idx_pred] += 1
+
+    if not r_por_id:
+        raise Fase2CBloqueado("Pool interno vazio; pesos da votacao suave indefinidos.")
+    contagem_r = Counter(r_por_id.values())
+    total_ids = len(r_por_id)
+    pi = np.array([contagem_r.get(c, 0) / total_ids for c in classes], dtype=np.float64)
+
+    return {
+        modelo: (tp[modelo] + alpha * pi) / (n_pred[modelo] + alpha)
+        for modelo in modelos
+    }
+
+
+def escore_combinado_suave(
+    scores_modelo: dict[str, np.ndarray], pesos: dict[str, np.ndarray], classes: list[str],
+) -> np.ndarray:
+    """`S(c|x) = [sum_m w_{m,c} * p_m(c|x)] / [sum_m w_{m,c}]`, normalizado
+    em seguida para somar 1 entre as `len(classes)` categorias."""
+    n = len(classes)
+    numerador = np.zeros(n, dtype=np.float64)
+    denominador = np.zeros(n, dtype=np.float64)
+    for modelo, w in pesos.items():
+        numerador += w * scores_modelo[modelo]
+        denominador += w
+    combinado = np.divide(
+        numerador, denominador, out=np.zeros(n, dtype=np.float64), where=denominador > 0
+    )
+    soma = combinado.sum()
     if soma <= 0:
-        raise Fase2CBloqueado("Soma de desempenho dos modelos e zero; pesos indefinidos.")
-    return {m: desempenho[m] / soma for m in modelos}
+        raise Fase2CBloqueado("Escore combinado da votacao suave e zero em todas as classes.")
+    return combinado / soma
 
 
 def escore_votacao_suave(
-    scores_modelo: dict[str, np.ndarray], pesos: dict[str, float], classes: list[str], H: str
+    scores_modelo: dict[str, np.ndarray], pesos: dict[str, np.ndarray], classes: list[str], H: str
 ) -> tuple[float, str]:
-    """S(c) = soma_m w_m * p_m(c). s_soft = max_{c != H} S(c) - S(H)."""
-    combinado = np.zeros(len(classes), dtype=np.float64)
-    for modelo, peso in pesos.items():
-        combinado += peso * scores_modelo[modelo]
+    """s_soft = max_{c != H} S(c) - S(H), com `S` ja normalizado (soma 1)."""
+    combinado = escore_combinado_suave(scores_modelo, pesos, classes)
     idx_h = classes.index(H)
     idx_alt, s_alt = _melhor_alternativa(combinado, idx_h)
     return s_alt - float(combinado[idx_h]), classes[idx_alt]
+
+
+def _avaliar_alpha_em_validacao(
+    linhas_treino: list[list[Any]], linhas_validacao: list[list[Any]],
+    referencia_por_id: dict[str, dict[str, Any]], classes: list[str], alpha: float,
+) -> tuple[float, float, float]:
+    """Precisao/recall da 'carga de referencia' (analogo a fila natural:
+    registros cujo top1 do escore combinado diverge de H) e log-loss
+    multiclasse, avaliados em `linhas_validacao` com pesos estimados
+    SOMENTE em `linhas_treino` — ambos ja restritos ao pool interno de um
+    outer fold (nunca a dobra externa)."""
+    from sklearn.metrics import log_loss
+
+    pesos = pesos_votacao_suave_regularizados(linhas_treino, referencia_por_id, classes, alpha)
+    por_id = _agrupar_inner_por_id(linhas_validacao)
+
+    flags: list[bool] = []
+    y_bin: list[int] = []
+    y_true_idx: list[int] = []
+    y_pred_dist: list[np.ndarray] = []
+    for id_sha, scores_modelo in por_id.items():
+        if set(scores_modelo) != set(MODELOS):
+            continue
+        reg = referencia_por_id[id_sha]
+        combinado = escore_combinado_suave(scores_modelo, pesos, classes)
+        idx_h = classes.index(reg["H"])
+        flags.append(int(np.argmax(combinado)) != idx_h)
+        y_bin.append(int(reg["Y"]))
+        y_true_idx.append(classes.index(reg["R"]))
+        y_pred_dist.append(combinado)
+
+    if not flags:
+        return 0.0, 0.0, float("inf")
+    flags_arr = np.asarray(flags, dtype=bool)
+    y_bin_arr = np.asarray(y_bin, dtype=np.int64)
+    na_carga = int(flags_arr.sum())
+    capturados = int((flags_arr & (y_bin_arr == 1)).sum())
+    total_y1 = int((y_bin_arr == 1).sum())
+    precisao = capturados / na_carga if na_carga else 0.0
+    recall = capturados / total_y1 if total_y1 else 0.0
+    logloss = float(
+        log_loss(y_true_idx, np.vstack(y_pred_dist), labels=list(range(len(classes))))
+    )
+    return precisao, recall, logloss
+
+
+def selecionar_alpha_votacao_suave(
+    linhas_inner_do_fold: list[list[Any]],
+    referencia_por_id: dict[str, dict[str, Any]],
+    classes: list[str],
+    alphas: tuple[float, ...] = ALPHAS_PADRAO,
+) -> tuple[float, list[dict[str, Any]]]:
+    """Selecao de alpha exclusivamente por validacao interna: dentro do pool
+    `linhas_inner_do_fold` (ja restrito a um outer fold), cada um dos ate 4
+    `inner_fold` vira validacao uma vez, treinando nos demais — nunca a
+    dobra externa. Criterio congelado, nesta ordem: maior precisao da carga
+    de referencia; depois maior recall; depois menor log-loss multiclasse;
+    persistindo empate, maior alpha."""
+    inner_folds_presentes = sorted({linha[1] for linha in linhas_inner_do_fold})
+    if len(inner_folds_presentes) < 2:
+        raise Fase2CBloqueado(
+            "Pool interno com menos de 2 rotacoes; validacao interna de alpha indefinida."
+        )
+    candidatos = []
+    for alpha in alphas:
+        precisoes, recalls, loglosses = [], [], []
+        for fold_validacao in inner_folds_presentes:
+            treino = [l for l in linhas_inner_do_fold if l[1] != fold_validacao]
+            validacao = [l for l in linhas_inner_do_fold if l[1] == fold_validacao]
+            p, r, ll = _avaliar_alpha_em_validacao(treino, validacao, referencia_por_id, classes, alpha)
+            precisoes.append(p)
+            recalls.append(r)
+            loglosses.append(ll)
+        candidatos.append({
+            "alpha": alpha,
+            "precisao": float(np.mean(precisoes)),
+            "recall": float(np.mean(recalls)),
+            "logloss": float(np.mean(loglosses)),
+        })
+    melhor = max(candidatos, key=lambda c: (c["precisao"], c["recall"], -c["logloss"], c["alpha"]))
+    return melhor["alpha"], candidatos
+
+
+def pesos_e_alpha_votacao_suave_por_fold(
+    contexto: dict[str, Any], alphas: tuple[float, ...] = ALPHAS_PADRAO,
+) -> dict[int, dict[str, Any]]:
+    """Para cada outer fold: seleciona alpha por validacao interna e estima
+    os pesos regularizados finais no pool interno inteiro daquele fold, com
+    o alpha escolhido. Nunca usa a dobra externa em nenhuma das duas
+    etapas."""
+    classes = contexto["classes"]
+    registros = contexto["registros"]
+    resultado: dict[int, dict[str, Any]] = {}
+    for outer_fold in FOLDS:
+        linhas = contexto["inner_por_outer_fold"].get(outer_fold, [])
+        alpha, candidatos = selecionar_alpha_votacao_suave(linhas, registros, classes, alphas)
+        pesos = pesos_votacao_suave_regularizados(linhas, registros, classes, alpha)
+        resultado[outer_fold] = {"alpha": alpha, "pesos": pesos, "candidatos_alpha": candidatos}
+    return resultado
 
 
 # --------------------------------------------------------------------------
@@ -541,13 +747,15 @@ def curva_precisao_recall(fila: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return pontos
 
 
-def selecionar_tau(pontos: list[dict[str, Any]], criterio: str = "max_f1") -> dict[str, Any]:
-    """Selecao de tau sobre a curva Precision-Recall de Y=1. `criterio` e
-    parametrizavel porque a regra de selecao definitiva (F1 maximo, precisao
-    minima alvo, recall minimo alvo) ainda nao foi confirmada como contrato
-    congelado desta fase — ver docs/FASE2C_ENSEMBLE_CONTRATO.md. 'max_f1' e
-    o unico criterio aplicado sem nenhum parametro extra e serve apenas como
-    referencia tecnica, nunca como resultado cientifico definitivo."""
+def selecionar_tau(pontos: list[dict[str, Any]], criterio: str) -> dict[str, Any]:
+    """UTILITARIO EXPLORATORIO — nunca chamado pela execucao confirmatoria
+    da Fase 2C e nunca usado para publicar resultado cientifico. `max_f1`
+    NAO foi aprovado como regra vinculante de selecao de limiar (a regra
+    aprovada e capacidade `K_f` por dobra — ver `capacidade_linear_svc_por_fold`/
+    `aplicar_capacidade_por_fold`). Otimizar `tau` sobre a mesma curva
+    Precision-Recall usada como avaliacao (dobra externa) e vazamento de
+    selecao — por isso `criterio` nao tem valor padrao: cada chamada precisa
+    ser deliberada, nunca implicita."""
     if not pontos:
         raise Fase2CBloqueado("Curva Precision-Recall vazia; tau indefinido.")
     if criterio == "max_f1":
@@ -556,6 +764,65 @@ def selecionar_tau(pontos: list[dict[str, Any]], criterio: str = "max_f1") -> di
             return 0.0 if soma == 0 else 2 * p["precisao"] * p["recall"] / soma
         return max(pontos, key=_f1)
     raise ValueError(f"Criterio de selecao de tau desconhecido: {criterio!r}")
+
+
+# --------------------------------------------------------------------------
+# Capacidade K_f (comparacao confirmatoria, nunca limiar otimizado na
+# avaliacao externa)
+# --------------------------------------------------------------------------
+
+def capacidade_linear_svc_por_fold(contexto: dict[str, Any]) -> dict[int, int]:
+    """`K_f = |B_f^{LSVC}|`: tamanho da fila natural do LinearSVC (registros
+    com `previsto != H`) em cada outer fold — mesmo conceito ja congelado em
+    `congelar_alvo_ensemble.reproduzir_baseline`, aqui so contado por
+    dobra."""
+    contagem: dict[int, int] = defaultdict(int)
+    for reg in contexto["registros"].values():
+        if reg["top1_outer"]["linear_svc"] != reg["H"]:
+            contagem[reg["outer_fold"]] += 1
+    return dict(contagem)
+
+
+def aplicar_capacidade_por_fold(
+    fila: list[dict[str, Any]], capacidade_por_fold: dict[int, int]
+) -> list[dict[str, Any]]:
+    """Mantem, em cada outer fold `f`, somente os `K_f` primeiros registros
+    da fila (ja ordenada pelo escore do proprio metodo) — nunca um limiar
+    unico escolhido pela avaliacao externa."""
+    por_fold: dict[int, list[dict[str, Any]]] = defaultdict(list)
+    for linha in fila:
+        por_fold[linha["fold"]].append(linha)
+    selecionados: list[dict[str, Any]] = []
+    for fold, linhas in por_fold.items():
+        k = capacidade_por_fold.get(fold, 0)
+        selecionados.extend(linhas[:k])
+    return selecionados
+
+
+def resumo_capacidade(fila_capacidade: list[dict[str, Any]]) -> dict[str, Any]:
+    """Contagem de `Y=1` capturados e precisao dentro da fila truncada em
+    `K_f` — comparacao confirmatoria entre metodos, sem escolha de limiar."""
+    total = len(fila_capacidade)
+    capturados = sum(linha["Y"] for linha in fila_capacidade)
+    return {
+        "total_na_fila": total,
+        "capturados_y1": capturados,
+        "precisao": capturados / total if total else 0.0,
+    }
+
+
+def comparar_metodos_por_capacidade(
+    contexto: dict[str, Any], filas_por_metodo: dict[str, list[dict[str, Any]]]
+) -> tuple[dict[str, dict[str, Any]], dict[int, int]]:
+    """Comparacao confirmatoria: cada metodo truncado na MESMA capacidade
+    `K_f` (fila natural do LinearSVC) por dobra — nunca um `tau` otimizado
+    na dobra externa."""
+    capacidade = capacidade_linear_svc_por_fold(contexto)
+    resultado = {
+        metodo: resumo_capacidade(aplicar_capacidade_por_fold(fila, capacidade))
+        for metodo, fila in filas_por_metodo.items()
+    }
+    return resultado, capacidade
 
 
 def curva_ganho(fila: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -590,39 +857,49 @@ def combinar_linear_svc(contexto: dict[str, Any]) -> list[dict[str, Any]]:
 
 
 def combinar_votacao_majoritaria(contexto: dict[str, Any]) -> list[dict[str, Any]]:
-    escores: dict[str, float] = {}
-    c_alt: dict[str, str | None] = {}
-    for id_sha, reg in contexto["registros"].items():
-        s, c = escore_votacao_majoritaria(reg["top1_outer"], reg["H"], contexto["classes"])
-        escores[id_sha], c_alt[id_sha] = s, c
-    return montar_fila(contexto["registros"], escores, c_alt)
+    """Usa `montar_fila_majoritaria`: NUNCA a ordenacao generica escore+id."""
+    return montar_fila_majoritaria(contexto)
 
 
 def combinar_votacao_suave(
-    contexto: dict[str, Any], pesos: dict[str, float] | None = None
-) -> tuple[list[dict[str, Any]], dict[str, float]]:
-    pesos = pesos if pesos is not None else pesos_votacao_suave(contexto["registros"])
+    contexto: dict[str, Any],
+    info_por_fold: dict[int, dict[str, Any]] | None = None,
+    alphas: tuple[float, ...] = ALPHAS_PADRAO,
+) -> tuple[list[dict[str, Any]], dict[int, dict[str, Any]]]:
+    """Pesos e alpha estimados POR OUTER FOLD (contrato aprovado); cada
+    registro usa exclusivamente os pesos do proprio outer fold."""
+    info_por_fold = (
+        info_por_fold if info_por_fold is not None
+        else pesos_e_alpha_votacao_suave_por_fold(contexto, alphas)
+    )
     escores: dict[str, float] = {}
     c_alt: dict[str, str | None] = {}
     for id_sha, reg in contexto["registros"].items():
+        pesos = info_por_fold[reg["outer_fold"]]["pesos"]
         s, c = escore_votacao_suave(reg["scores_outer"], pesos, contexto["classes"], reg["H"])
         escores[id_sha], c_alt[id_sha] = s, c
-    return montar_fila(contexto["registros"], escores, c_alt), pesos
+    return montar_fila(contexto["registros"], escores, c_alt), info_por_fold
 
 
 def combinar_stacking(
     contexto: dict[str, Any],
     criar_meta_modelo: Callable[[], Any] = _criar_meta_modelo_padrao,
-    pesos_c_alt: dict[str, float] | None = None,
+    info_por_fold: dict[int, dict[str, Any]] | None = None,
+    alphas: tuple[float, ...] = ALPHAS_PADRAO,
 ) -> list[dict[str, Any]]:
-    """c_alt do stacking reaproveita o c_alt da votacao suave: o stacking
-    produz somente q_i (um escore de prioridade), nunca uma categoria
-    alternativa propria — ver docs/FASE2C_ENSEMBLE_CONTRATO.md."""
+    """c_alt do stacking reaproveita o c_alt da votacao suave (pesos por
+    outer fold do contrato aprovado): o stacking produz somente q_i (um
+    escore de prioridade), nunca uma categoria alternativa propria — ver
+    docs/FASE2C_ENSEMBLE_CONTRATO.md."""
     modelos_por_fold = treinar_stacking_por_fold(contexto, criar_meta_modelo)
     escores = prever_stacking(contexto, modelos_por_fold)
-    pesos = pesos_c_alt if pesos_c_alt is not None else pesos_votacao_suave(contexto["registros"])
+    info_por_fold = (
+        info_por_fold if info_por_fold is not None
+        else pesos_e_alpha_votacao_suave_por_fold(contexto, alphas)
+    )
     c_alt: dict[str, str | None] = {}
     for id_sha, reg in contexto["registros"].items():
+        pesos = info_por_fold[reg["outer_fold"]]["pesos"]
         _, c = escore_votacao_suave(reg["scores_outer"], pesos, contexto["classes"], reg["H"])
         c_alt[id_sha] = c
     return montar_fila(contexto["registros"], escores, c_alt)
@@ -685,19 +962,37 @@ def main() -> int:
     metodos = (["linear_svc", "votacao_majoritaria", "votacao_suave", "stacking"]
                if args.metodo == "todos" else [args.metodo])
 
-    resultado_status = {}
+    # Pesos/alpha da votacao suave (contrato aprovado, so pool interno)
+    # calculados uma vez e reaproveitados por votacao_suave e stacking (c_alt).
+    info_por_fold = None
+    if {"votacao_suave", "stacking"} & set(metodos):
+        info_por_fold = pesos_e_alpha_votacao_suave_por_fold(contexto)
+
+    filas_por_metodo: dict[str, list[dict[str, Any]]] = {}
+    resultado_status: dict[str, Any] = {}
     for metodo in metodos:
         if metodo == "linear_svc":
             fila = combinar_linear_svc(contexto)
         elif metodo == "votacao_majoritaria":
             fila = combinar_votacao_majoritaria(contexto)
         elif metodo == "votacao_suave":
-            fila, pesos = combinar_votacao_suave(contexto)
-            resultado_status["pesos_votacao_suave"] = pesos
+            fila, info_por_fold = combinar_votacao_suave(contexto, info_por_fold)
+            resultado_status["alpha_por_fold"] = {
+                f: info["alpha"] for f, info in info_por_fold.items()
+            }
         else:
-            fila = combinar_stacking(contexto)
+            fila = combinar_stacking(contexto, info_por_fold=info_por_fold)
+        filas_por_metodo[metodo] = fila
         gravar_fila(fila, args.saida_dir / f"fase2c_fila_{metodo}.json")
         resultado_status[metodo] = {"total_fila": len(fila)}
+
+    # Comparacao confirmatoria: MESMA capacidade K_f (fila natural do
+    # LinearSVC por dobra) para todos os metodos rodados nesta chamada —
+    # nunca um tau otimizado na avaliacao externa.
+    if len(filas_por_metodo) > 1:
+        comparacao, capacidade = comparar_metodos_por_capacidade(contexto, filas_por_metodo)
+        resultado_status["comparacao_por_capacidade"] = comparacao
+        resultado_status["capacidade_k_f"] = capacidade
 
     print(json.dumps(resultado_status, ensure_ascii=False, indent=2))
     return 0

@@ -210,8 +210,28 @@ GitHub Actions run `31740951432`, commit `adc50531`) confirmou:
 - partições e alvo congelado cobrem exatamente o mesmo universo, com o
   mesmo fold por ID nas duas fontes;
 - H, R e o alvo `Y=1(H!=R)` vieram diretamente dos artefatos já congelados
-  (`docs/dados/ensemble/alvo_ensemble.json` + `docs/dados/particoes_canonicas_mapa.csv`),
-  nunca recalculados a partir da planilha operacional atual;
+  (`docs/dados/ensemble/alvo_ensemble.json` + `docs/dados/particoes_canonicas_mapa.csv`,
+  por desenho de `src/recuperar_bundle_replay.py`), nunca recalculados a
+  partir da planilha operacional atual. **Correção de proveniência:** esse
+  é o alvo que a ferramenta de RECOVER usa — não é o mesmo arquivo que o
+  Gate Zero da Execução Científica 1 efetivamente validou. O Gate Zero
+  (`ensemble_fase2b_crossfit.HASHES_ESPERADOS`) valida contra
+  `hash_alvo_ensemble = 8884d6098325734a0315e8976ffa1b8bd7da15cede3a6a959904a098fbe7d57c`,
+  que corresponde a
+  `docs/dados/ensemble/recongelamento_online/alvo_ensemble_online.json`
+  (não ao `docs/dados/ensemble/alvo_ensemble.json` mais antigo, de hash
+  `76d903c9e89039fd507524c9c836394bf005c7c757830677a3ed3d068818d569`).
+  Auditoria independente confirmou os 5 hashes recomputados a partir de
+  `alvo_ensemble_online.json` batendo exatamente com `HASHES_ESPERADOS`, e
+  confirmou também que o conteúdo de H/R/Y por registro é idêntico entre os
+  dois arquivos (`h_divergentes`/`r_divergentes`/`y_divergentes` = 0 em
+  `docs/dados/ensemble/recongelamento_online/resumo_recongelamento_online.json`;
+  a diferença de hash vem de 7 registros com `grupo_sha256` alterado, não de
+  H/R/Y). Isso não muda a conclusão do RECOVER acima — a ferramenta ainda
+  bloqueou por 10 registros com `grupo_sha256` divergente — mas o alvo que
+  qualquer etapa posterior deve tratar como o input real da Execução
+  Científica 1 é `alvo_ensemble_online.json`, não `alvo_ensemble.json`. Ver
+  `docs/FASE2C_ENSEMBLE_CONTRATO.md` seção 2.1 para a auditoria completa;
 - a `ALLOWLIST_GRUPO_A` (4 registros) e a `ALLOWLIST_GRUPO_B` (3 registros)
   aplicaram os patches auditados;
 - mesmo assim, **10 registros** têm texto atual cujo `grupo_sha256`

@@ -179,52 +179,97 @@ retreinados): somente `H_i ∈ C`.
 
 ```
 s_ls    = max_{c != H_i} p_ls(c) - p_ls(H_i)
-s_soft  = max_{c != H_i} S(c) - S(H_i),      S(c) = Σ_m w_m · p_m(c)
+s_soft  = max_{c != H_i} S(c) - S(H_i)
 s_stack = q_i                                 (P(Y_i=1) pelo meta-modelo)
 s_maj   = (v_alt - v_H) / M
 ```
 
-`v_H` = votos (top1) em `H_i`; `c_alt` = categoria alternativa mais votada
-entre os modelos que não votaram em `H_i`, com empate resolvido pelo menor
-índice na ordem global de `classes_ensemble.json` (única ordem canônica já
-congelada — nenhuma regra nova de desempate). `v_alt` = votos em `c_alt`.
-Implementado em `escore_linear_svc`, `escore_votacao_majoritaria`,
-`escore_votacao_suave`.
+`S(c|x) = [Σ_m w_{m,c}^(α) · p_m(c|x)] / [Σ_m w_{m,c}^(α)]`, normalizado em
+seguida para somar 1 entre as 41 classes — ver 4.2 para `w_{m,c}^(α)`.
 
-### 4.2 Duas escolhas metodológicas desta rodada sem contrato anterior
+`v_H` = votos (top1) em `H_i`; `v_alt` = votos na categoria alternativa
+`c_alt`. Desempate de `c_alt`, nesta ordem exata: (1) mais votos; (2) maior
+média das probabilidades calibradas da categoria entre os sete modelos; (3)
+menor índice na ordem canônica de `classes_ensemble.json`. A fila da
+votação majoritária (`montar_fila_majoritaria`) ordena por `v_alt - v_H`
+decrescente, depois pela margem de probabilidade média decrescente, depois
+por `id_sha256` crescente — **nunca** a ordenação genérica escore+id usada
+pelos demais métodos.
 
-Nenhum documento do repositório definia a Fase 2C antes desta implementação
-— não havia regra congelada para herdar. As duas escolhas abaixo são
-**decisões técnicas desta rodada, deliberadamente as mais simples e
-auditáveis disponíveis, e ficam sinalizadas para confirmação explícita**
-antes de qualquer resultado ser tratado como científico:
+Implementado em `escore_linear_svc`, `escore_votacao_majoritaria` +
+`escolher_c_alt_majoritario` + `montar_fila_majoritaria`,
+`escore_votacao_suave` + `escore_combinado_suave`.
 
-1. **Peso da votação suave** (`pesos_votacao_suave`): acurácia de cada
-   modelo nas previsões **externas** (`outer`, out-of-fold por construção)
-   contra `R`, normalizada para somar 1. É a única medida de "desempenho
-   dos modelos" disponível sem retreinar nada e sem consultar a planilha
-   viva. Alternativas não implementadas (peso por fold em vez de peso
-   único agregado, ponderação por macro-F1 em vez de acurácia, etc.) não
-   foram descartadas por avaliação — apenas não foram decididas.
-2. **Seleção de τ** (`selecionar_tau`): a função aceita `criterio` como
-   parâmetro; o único critério implementado é `"max_f1"` sobre a curva
-   Precision-Recall de `Y=1` (`curva_precisao_recall`, via
-   `sklearn.metrics.precision_recall_curve`, sem reimplementar). Critérios
-   alternativos (precisão mínima alvo, recall mínimo alvo, ponto de
-   equilíbrio com a precisão da fila natural do LinearSVC ≈ 0,1853) não
-   foram implementados nem escolhidos.
+### 4.2 Peso da votação suave — contrato aprovado (auditoria independente)
 
-Terceira escolha, de menor impacto: o **`c_alt` do stacking** reaproveita o
-`c_alt` da votação suave (`combinar_stacking`), porque o stacking em si só
-produz `q_i` (um escore escalar), nunca uma categoria alternativa própria.
+```
+w_{m,c}^(α) = (TP_{m,c} + α·π_c) / (N_{m,c} + α)
+```
 
-### 4.3 Filas de saída
+`TP_{m,c}`/`N_{m,c}` vêm **exclusivamente** das previsões OOF **internas**
+(`inner_rows`) do próprio outer fold — nunca da dobra externa: `N_{m,c}`
+conta quantas vezes o modelo `m` previu top1 = `c` nesse pool; `TP_{m,c}`,
+quantas dessas o `R` do registro também era `c`. `π_c` é a frequência de
+`R=c` entre os IDs únicos do mesmo pool interno. Implementado em
+`pesos_votacao_suave_regularizados` — a assinatura só aceita
+`linhas_inner`/`referencia_por_id`/`classes`/`alpha`, nunca `outer_rows`
+nem `scores_outer`/`top1_outer`: impossível vazar a dobra externa para
+dentro da estimativa por construção da função, não só por disciplina de
+uso.
 
-`montar_fila()` produz, por método, uma lista ordenada por escore
-decrescente com os campos de auditoria do contrato — `id_sha256`, `H`, `R`,
-`c_alt`, `score`, `fold` — mais `Y` (rótulo de avaliação, nunca feature).
+`α ∈ {5, 20, 100}`, escolhido **exclusivamente por validação interna**
+(`selecionar_alpha_votacao_suave`): dentro do pool interno de um outer
+fold, cada uma das (até 4) rotações internas vira validação uma vez,
+treinando nas demais. Critério de seleção, nesta ordem: (1) maior precisão
+da carga de referência (análogo à fila natural já congelada em
+`congelar_alvo_ensemble.reproduzir_baseline`, aqui sobre o top1 do escore
+combinado `S` em vez do top1 do LinearSVC); (2) maior recall da mesma
+carga; (3) menor log-loss multiclasse (`sklearn.metrics.log_loss`, sem
+reimplementar); (4) persistindo empate, maior `α`. Pesos e `α` são
+recalculados **por outer fold** (`pesos_e_alpha_votacao_suave_por_fold`) —
+cada registro usa exclusivamente os pesos do próprio outer fold.
 
-### 4.4 Curva de ganho
+### 4.3 Capacidade `K_f`, não limiar — contrato aprovado
+
+A comparação confirmatória entre métodos usa capacidade, nunca um `τ`
+otimizado na avaliação externa:
+
+```
+K_f = |B_f^{LSVC}|
+```
+
+`B_f^{LSVC}` = fila natural de divergências Top-1 do LinearSVC na dobra
+`f` (`previsto_linear_svc != H_i`, o mesmo conceito já congelado no
+baseline). Cada método é truncado na **mesma** `K_f` daquela dobra
+(`capacidade_linear_svc_por_fold`, `aplicar_capacidade_por_fold`,
+`comparar_metodos_por_capacidade`) antes de comparar quantas inadequações
+reais (`Y=1`) cada método capturou.
+
+`curva_precisao_recall()` continua disponível como **saída analítica**
+(nunca suprimida) e `selecionar_tau()` como **utilitário exploratório**:
+nenhum dos dois é chamado por nenhum orquestrador confirmatório
+(`combinar_linear_svc`, `combinar_votacao_majoritaria`,
+`combinar_votacao_suave`, `combinar_stacking`,
+`comparar_metodos_por_capacidade`) — confirmado por teste que substitui
+`selecionar_tau` por um espião que levanta exceção se chamado. `max_f1`
+**não** é regra vinculante de seleção de limiar; `selecionar_tau` não tem
+mais valor padrão de `criterio`, exatamente para que nenhuma chamada seja
+implícita.
+
+Terceira escolha, de menor impacto, mantida: o **`c_alt` do stacking**
+reaproveita o `c_alt` da votação suave (`combinar_stacking`), porque o
+stacking em si só produz `q_i` (um escore escalar), nunca uma categoria
+alternativa própria.
+
+### 4.4 Filas de saída
+
+`montar_fila()` (LinearSVC, votação suave, stacking) e
+`montar_fila_majoritaria()` (votação majoritária, ordenação dedicada de
+4.1) produzem, por método, uma lista com os campos de auditoria do
+contrato — `id_sha256`, `H`, `R`, `c_alt`, `score`, `fold` — mais `Y`
+(rótulo de avaliação, nunca feature).
+
+### 4.5 Curva de ganho
 
 `curva_ganho()`: para cada tamanho de fila `K` (ordenada por escore
 decrescente), quantas inadequações reais (`Y=1`) foram capturadas, com
@@ -233,22 +278,29 @@ precisão e recall acumulados — gains chart padrão, não uma métrica nova.
 ## 5. O que esta rodada implementou e o que não executou
 
 **Implementado e testado** (`src/ensemble_fase2c_combinacao.py`,
-`tests/test_ensemble_fase2c_combinacao.py`, 37 testes, dados sintéticos
+`tests/test_ensemble_fase2c_combinacao.py`, 52 testes, dados sintéticos
 minúsculos, nenhum fit real, nenhuma leitura de planilha):
 
 - carregamento + validação de proveniência (10 hashes) com bloqueio
   comprovado em dados não oficiais;
 - junção H/R/Y/grupo/fold × previsões externas, com bloqueio em
   inconsistência de fold/grupo/modelo faltante;
-- os quatro escores de prioridade e seus `c_alt`;
-- pesos da votação suave, com bloqueio se nenhum modelo acerta nada;
+- os quatro escores de prioridade e seus `c_alt`, incluindo o desempate
+  majoritário em três níveis e a ordenação dedicada da fila majoritária;
+- pesos regularizados da votação suave por modelo/classe, estimados
+  exclusivamente do pool interno por outer fold, com seleção de `α`
+  também restrita à validação interna — ambos comprovados por teste
+  diferencial (mudar dados que só existem na dobra externa de um fold não
+  muda nem os pesos nem o `α` escolhido daquele fold);
+- capacidade `K_f` do LinearSVC por dobra, aplicada igualmente a todos os
+  métodos, e confirmação de que nenhum orquestrador confirmatório chama
+  `selecionar_tau`;
 - stacking com meta-modelo por outer fold, leakage-free por construção
   (treino de cada fold usa exclusivamente o pool `inner` daquele fold —
   comprovado por reconstrução independente das features/rótulos esperados
   no teste, não apenas por inspeção do código), bloqueio se um fold não tem
   as duas classes de `Y` no meta-treino;
-- fila ordenada, curva Precision-Recall, seleção de τ por F1 máximo, curva
-  de ganho.
+- fila ordenada, curva Precision-Recall (saída analítica), curva de ganho.
 
 **Não executado nesta rodada, deliberadamente:**
 
@@ -258,10 +310,10 @@ minúsculos, nenhum fit real, nenhuma leitura de planilha):
   1 (a infraestrutura roda contra o `.npz` real via CLI —
   `python src/ensemble_fase2c_combinacao.py --metodo todos` — mas isso não
   foi disparado nesta rodada);
-- nenhuma seleção definitiva de τ nem de pesos "oficiais" — as duas
-  escolhas da seção 4.2 seguem abertas;
 - nenhuma comparação declarada como resultado científico da Fase 2C.
 
-Motivo: item 9 do prompt operacional desta rodada — não produzir análise
-científica final da Fase 2C enquanto ambiguidade de contrato (pesos, τ)
-permanecer sem confirmação.
+Motivo: item 9 do prompt operacional da rodada anterior — não produzir
+análise científica final da Fase 2C nesta etapa de infraestrutura. As duas
+escolhas que antes ficavam abertas (peso da votação suave, seleção de
+limiar) foram corrigidas nesta rodada pela auditoria independente e agora
+são contrato — ver seções 4.2 e 4.3.
