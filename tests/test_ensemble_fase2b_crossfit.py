@@ -861,13 +861,14 @@ class TestWorkflowMarcadorReplay(unittest.TestCase):
             self.assertIn(job, conteudo)
         self.assertIn("needs.autorizacao.outputs.autorizado_replay == 'true'", conteudo)
 
-    def test_autorizacao_expoe_os_quatro_outputs_mutuamente_exclusivos(self):
+    def test_autorizacao_expoe_os_cinco_outputs_mutuamente_exclusivos(self):
         wf = self._workflow()
         outputs = set(wf["jobs"]["autorizacao"]["outputs"])
         self.assertEqual(
             outputs,
             {"autorizado_cientifico", "autorizado_canario",
-             "autorizado_replay", "autorizado_replay_preflight"},
+             "autorizado_replay", "autorizado_replay_preflight",
+             "autorizado_replay_recover"},
         )
 
     def test_preflight_libera_apenas_gate_zero_replay(self):
