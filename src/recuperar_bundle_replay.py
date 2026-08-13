@@ -258,6 +258,65 @@ def montar_bundle(
 
 
 # --------------------------------------------------------------------------
+# Diagnostico estrutural detalhado (so quando o Gate Zero bloqueia)
+# --------------------------------------------------------------------------
+
+# `ensemble_fase2b_crossfit.gate_zero()` ja calcula este diagnostico
+# internamente (via `recongelar_ensemble_online.montar_diagnostico`), mas
+# so expoe a lista resumida `bloqueios` na mensagem da excecao — nunca as
+# amostras de id_sha256/grupo_sha256 por tipo de divergencia. Esta
+# allowlist de campos e a unica barreira entre o diagnostico completo (que
+# tambem inclui H/R atuais e congelados em outras chaves nao listadas
+# aqui) e o que sai no `recover_diagnostico.json`: qualquer chave de
+# `montar_diagnostico()` que nao esteja nesta tupla e descartada.
+CAMPOS_DIAGNOSTICO_ESTRUTURAL_PERMITIDOS = (
+    "h_divergentes", "amostra_h_divergentes",
+    "r_divergentes", "amostra_r_divergentes",
+    "y_divergentes", "amostra_y_divergentes",
+    "grupos_cruzando_dobras", "amostra_grupos_cruzando_dobras",
+    "total_grupos_atuais_distintos",
+    "total_faltantes_no_online", "amostra_faltantes_no_online",
+    "total_ids_duplicados_no_online",
+    "total_ids_particoes", "total_ids_alvo_congelado",
+    "total_ids_particao_sem_alvo", "amostra_ids_particao_sem_alvo",
+    "total_ids_alvo_sem_particao", "amostra_ids_alvo_sem_particao",
+    "folds_particao", "folds_alvo_congelado",
+    "total_dobra_historica_divergente", "amostra_dobra_historica_divergente",
+    "total_ids_encontrados_no_online",
+    "total_grupos_congelados_distintos",
+    "total_grupos_ou_textos_alterados_em_relacao_ao_historico",
+    "bloqueios", "status",
+)
+
+
+def montar_diagnostico_estrutural(
+    registros_patched: list[dict[str, str]],
+    particoes_path: Path,
+) -> dict[str, Any]:
+    """Recalcula o diagnostico estrutural detalhado do Gate Zero, reusando
+    SEM DUPLICAR as mesmas funcoes cientificas de
+    `recongelar_ensemble_online` que `ensemble_fase2b_crossfit.gate_zero()`
+    ja usa por dentro (`carregar_particoes_preservadas`, `carregar_alvo_
+    congelado`, `montar_base_atual`, `montar_diagnostico`, com os mesmos
+    `total_esperado`/`folds_esperados` que `gate_zero()` usa). So devolve
+    os campos de `CAMPOS_DIAGNOSTICO_ESTRUTURAL_PERMITIDOS` — hashes,
+    contagens, folds, id_sha256 e grupo_sha256 — nunca H/R atuais, texto
+    bruto ou qualquer outro campo que `montar_diagnostico` calcule."""
+    particoes = rero.carregar_particoes_preservadas(particoes_path)
+    alvo_congelado = rero.carregar_alvo_congelado(rero.ALVO_CONGELADO_PADRAO)
+    base_info = rero.montar_base_atual(registros_patched, particoes)
+    diagnostico_completo = rero.montar_diagnostico(
+        base_info, alvo_congelado, particoes,
+        total_esperado=rero.TOTAL_ESPERADO,
+        folds_esperados=rero.FOLDS_ESPERADOS_PADRAO,
+    )
+    return {
+        campo: valor for campo, valor in diagnostico_completo.items()
+        if campo in CAMPOS_DIAGNOSTICO_ESTRUTURAL_PERMITIDOS
+    }
+
+
+# --------------------------------------------------------------------------
 # Orquestracao
 # --------------------------------------------------------------------------
 
@@ -306,6 +365,12 @@ def executar(
             "bloqueador": str(exc),
             "bundle_publicado": False,
         })
+        try:
+            diagnostico["diagnostico_estrutural"] = montar_diagnostico_estrutural(
+                registros_patched, particoes_path
+            )
+        except Exception as exc_diagnostico:  # noqa: BLE001
+            diagnostico["diagnostico_estrutural_erro"] = str(exc_diagnostico)
         return diagnostico
 
     diagnostico["hashes_metodologicos"] = resultado["hashes"]

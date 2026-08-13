@@ -208,6 +208,63 @@ class TestMontarBundle(unittest.TestCase):
             rbr.montar_bundle(resultado_gate_zero, [registro_online("1")])
 
 
+class TestMontarDiagnosticoEstrutural(unittest.TestCase):
+    """Cobre `montar_diagnostico_estrutural`, que reusa (sem duplicar) as
+    mesmas funcoes de `recongelar_ensemble_online` que `gate_zero()` ja usa
+    por dentro, so que expondo as amostras id_sha256/grupo_sha256 que
+    `gate_zero()` nao expoe na excecao."""
+
+    def test_reusa_as_quatro_funcoes_oficiais_na_mesma_sequencia(self):
+        diagnostico_completo_fake = {
+            "h_divergentes": 1, "amostra_h_divergentes": [sha("x")],
+            "status": "bloqueado",
+        }
+        with unittest.mock.patch.object(
+            rbr.rero, "carregar_particoes_preservadas", return_value={}
+        ) as m_particoes, unittest.mock.patch.object(
+            rbr.rero, "carregar_alvo_congelado", return_value={}
+        ) as m_alvo, unittest.mock.patch.object(
+            rbr.rero, "montar_base_atual", return_value={"base": {}, "faltantes_no_online": [],
+                                                          "ids_duplicados_no_online": []}
+        ) as m_base, unittest.mock.patch.object(
+            rbr.rero, "montar_diagnostico", return_value=diagnostico_completo_fake
+        ) as m_diag:
+            resultado = rbr.montar_diagnostico_estrutural([registro_online("1")], Path("p.csv"))
+        m_particoes.assert_called_once_with(Path("p.csv"))
+        m_alvo.assert_called_once()
+        m_base.assert_called_once()
+        m_diag.assert_called_once()
+        _, kwargs = m_diag.call_args
+        self.assertEqual(kwargs["total_esperado"], rbr.rero.TOTAL_ESPERADO)
+        self.assertEqual(kwargs["folds_esperados"], rbr.rero.FOLDS_ESPERADOS_PADRAO)
+        self.assertEqual(resultado, diagnostico_completo_fake)
+
+    def test_descarta_qualquer_campo_fora_da_allowlist_de_campos_permitidos(self):
+        """Mesmo que `montar_diagnostico` (funcao oficial, fora do nosso
+        controle) um dia passe a incluir H/R atuais ou outro campo nao
+        sanitizado, `montar_diagnostico_estrutural` nunca repassa."""
+        diagnostico_completo_fake = {
+            "h_divergentes": 2,
+            "amostra_h_divergentes": [sha("1")],
+            "categoria_historica_atual_NUNCA_DEVERIA_VAZAR": "Categoria X",
+            "referencia_humana_atual_NUNCA_DEVERIA_VAZAR": "Categoria Y",
+        }
+        with unittest.mock.patch.object(
+            rbr.rero, "carregar_particoes_preservadas", return_value={}
+        ), unittest.mock.patch.object(
+            rbr.rero, "carregar_alvo_congelado", return_value={}
+        ), unittest.mock.patch.object(
+            rbr.rero, "montar_base_atual", return_value={"base": {}, "faltantes_no_online": [],
+                                                          "ids_duplicados_no_online": []}
+        ), unittest.mock.patch.object(
+            rbr.rero, "montar_diagnostico", return_value=diagnostico_completo_fake
+        ):
+            resultado = rbr.montar_diagnostico_estrutural([registro_online("1")], Path("p.csv"))
+        self.assertEqual(resultado, {"h_divergentes": 2, "amostra_h_divergentes": [sha("1")]})
+        self.assertNotIn("categoria_historica_atual_NUNCA_DEVERIA_VAZAR", resultado)
+        self.assertNotIn("referencia_humana_atual_NUNCA_DEVERIA_VAZAR", resultado)
+
+
 class TestExecutarFluxo(unittest.TestCase):
     def test_com_grupo_a_e_b_fornecidos_chega_ate_gate_zero(self):
         with unittest.mock.patch.object(
@@ -224,6 +281,42 @@ class TestExecutarFluxo(unittest.TestCase):
             )
         m_gate_zero.assert_called_once()
         self.assertEqual(diagnostico["status"], "bloqueado_gate_zero")
+        # particoes_path fake -> recalculo do diagnostico estrutural falha
+        # de forma controlada (nunca derruba a rodada, nunca mascara o
+        # bloqueador original).
+        self.assertIn("diagnostico_estrutural_erro", diagnostico)
+
+    def test_bloqueio_do_gate_zero_enriquece_com_diagnostico_estrutural(self):
+        """Quando o Gate Zero bloqueia, `executar()` recalcula o
+        diagnostico estrutural (h/r/y divergentes, grupos cruzando dobras
+        etc.) reusando as funcoes oficiais, e anexa so os campos
+        sanitizados ao resultado."""
+        diagnostico_estrutural_fake = {
+            "h_divergentes": 0, "amostra_h_divergentes": [],
+            "r_divergentes": 3, "amostra_r_divergentes": [sha("1"), sha("2")],
+            "y_divergentes": 3, "amostra_y_divergentes": [sha("1"), sha("2")],
+            "grupos_cruzando_dobras": 1,
+            "amostra_grupos_cruzando_dobras": ["g" * 64],
+            "status": "bloqueado",
+        }
+        with unittest.mock.patch.object(
+            rbr.rero, "ler_registros_online", return_value=[registro_online("1")]
+        ), unittest.mock.patch.object(
+            rbr.efc, "gate_zero",
+            side_effect=rbr.efc.GateZeroBloqueado("grupos_cruzando_dobras"),
+        ), unittest.mock.patch.object(
+            rbr, "montar_diagnostico_estrutural", return_value=diagnostico_estrutural_fake
+        ) as m_estrutural:
+            diagnostico = rbr.executar(
+                hash_esperado=rbr.REPLAY_INPUT_SHA256_ESPERADO_CANDIDATO,
+                config_path=Path("nao-usado.json"),
+                particoes_path=Path("nao-usado.csv"),
+                allowlist_grupo_a={sha("1"): {"titulo": "x"}},
+                allowlist_grupo_b={},
+            )
+        m_estrutural.assert_called_once()
+        self.assertEqual(diagnostico["diagnostico_estrutural"], diagnostico_estrutural_fake)
+        self.assertNotIn("diagnostico_estrutural_erro", diagnostico)
 
     def test_hash_divergente_reporta_status_especifico_sem_publicar(self):
         atuais = [registro_online("1")]
