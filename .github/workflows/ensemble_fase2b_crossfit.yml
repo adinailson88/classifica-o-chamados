@@ -51,7 +51,7 @@ jobs:
       - name: Dependencias
         run: |
           python -m pip install --retries 5 --timeout 300 -r requirements.txt
-          python -m pip install --retries 5 --timeout 120 scipy==1.14.1 statsmodels==0.14.4 matplotlib
+          python -m pip install --retries 5 --timeout 120 scipy==1.14.1 statsmodels==0.14.4 matplotlib pyyaml
       - name: py_compile + unittest discover
         run: |
           python -m py_compile src/*.py
