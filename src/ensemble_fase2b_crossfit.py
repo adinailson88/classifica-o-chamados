@@ -274,41 +274,38 @@ def gate_zero(
 # planilha operacional) e as duas checagens que so fazem sentido no modo
 # replay: `replay_input_sha256` e a consistencia grupo_sha256 por registro.
 
-def gate_zero_replay(
-    spreadsheet_id: str | None = None,
-    credenciais: str | None = None,
+def validar_bundle_replay(
+    registros_bundle: list[dict[str, Any]],
+    replay_input_sha256_esperado: str | None,
     particoes_path: Path = rero.PARTICOES_PADRAO,
-    registros_bundle: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
-    """Equivalente de `gate_zero()` para o modo REPLAY: le o bundle PRIVADO e
-    estatico (nunca a planilha operacional viva) e exige, nesta ordem, ANTES
-    de liberar qualquer fit:
+    """Logica cientifica do modo REPLAY, compartilhada por `gate_zero_replay()`
+    (producao, hash PINADO em `REPLAY_INPUT_SHA256_ESPERADO`) e pelo
+    mecanismo de recuperacao/verificacao do bundle candidato em
+    `src/recuperar_bundle_replay.py` (hash CANDIDATO, nunca pinado aqui).
+    `registros_bundle` ja e o input CONGELADO (H/R/grupo/fold vindos do
+    proprio bundle, nunca recalculados de fonte viva) — esta funcao so
+    valida, nesta ordem, ANTES de liberar qualquer fit:
 
-      1. replay_input_sha256 recomputado == REPLAY_INPUT_SHA256_ESPERADO;
+      1. replay_input_sha256 recomputado == replay_input_sha256_esperado;
       2. grupo_sha256 recomputado == grupo_sha256 armazenado, por registro;
       3. os 5 hashes metodologicos recomputados == HASHES_ESPERADOS.
 
     Qualquer divergencia em qualquer uma das tres levanta `ReplayBloqueado`
     (ou `GateZeroBloqueado`/`ContagemEstruturalDivergente`, reaproveitando as
     mesmas excecoes de `gate_zero()` onde a checagem e literalmente a mesma),
-    sem treinar nada. Cada job do workflow chama esta funcao de forma
-    independente — se o bundle privado mudar entre dois jobs de uma mesma
-    rodada, o job seguinte bloqueia em vez de treinar sobre um input
-    diferente dos irmaos."""
-    if registros_bundle is None:
-        registros_bundle = rb.ler_bundle_congelado(spreadsheet_id, credenciais)
-
-    if REPLAY_INPUT_SHA256_ESPERADO is None:
+    sem treinar nada."""
+    if replay_input_sha256_esperado is None:
         raise ReplayBloqueado(
-            "REPLAY_INPUT_SHA256_ESPERADO nao esta pinado: o bundle do REPLAY "
-            "CONGELADO ainda nao foi aprovado. Nenhum fit sera executado."
+            "replay_input_sha256_esperado nao foi informado: nenhum fit sera "
+            "executado."
         )
 
     replay_input_sha256 = calcular_replay_input_sha256(registros_bundle)
-    if replay_input_sha256 != REPLAY_INPUT_SHA256_ESPERADO:
+    if replay_input_sha256 != replay_input_sha256_esperado:
         raise ReplayBloqueado(
-            "replay_input_sha256 divergente do bundle aprovado: "
-            f"esperado={REPLAY_INPUT_SHA256_ESPERADO!r} "
+            "replay_input_sha256 divergente do esperado: "
+            f"esperado={replay_input_sha256_esperado!r} "
             f"observado={replay_input_sha256!r}"
         )
 
@@ -401,6 +398,26 @@ def gate_zero_replay(
         "h_dentro_de_c": h_dentro,
         "h_fora_de_c": h_fora,
     }
+
+
+def gate_zero_replay(
+    spreadsheet_id: str | None = None,
+    credenciais: str | None = None,
+    particoes_path: Path = rero.PARTICOES_PADRAO,
+    registros_bundle: list[dict[str, Any]] | None = None,
+) -> dict[str, Any]:
+    """Equivalente de `gate_zero()` para o modo REPLAY de PRODUCAO: le o
+    bundle PRIVADO e estatico (nunca a planilha operacional viva) e delega
+    toda a validacao cientifica a `validar_bundle_replay()`, usando o hash
+    PINADO `REPLAY_INPUT_SHA256_ESPERADO` — nunca um hash candidato. Cada
+    job do workflow chama esta funcao de forma independente — se o bundle
+    privado mudar entre dois jobs de uma mesma rodada, o job seguinte
+    bloqueia em vez de treinar sobre um input diferente dos irmaos."""
+    if registros_bundle is None:
+        registros_bundle = rb.ler_bundle_congelado(spreadsheet_id, credenciais)
+    return validar_bundle_replay(
+        registros_bundle, REPLAY_INPUT_SHA256_ESPERADO, particoes_path
+    )
 
 
 # --------------------------------------------------------------------------

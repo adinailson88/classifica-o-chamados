@@ -9,8 +9,9 @@ planilha (nem a operacional, nem a privada do bundle), nao configura
 
 DESENHO:
 
-    BASE ONLINE ATUAL + ALLOWLIST_GRUPO_A + ALLOWLIST_GRUPO_B -> validacao
-    criptografica (Gate Zero de producao + replay_input_sha256).
+    BASE ONLINE ATUAL (so texto bruto) + ALLOWLIST_GRUPO_A + ALLOWLIST_GRUPO_B
+    + H/R/grupo/fold CONGELADOS -> validacao cientifica compartilhada
+    (`ensemble_fase2b_crossfit.validar_bundle_replay`) + replay_input_sha256.
 
 1. NUNCA compara a base online inteira contra nenhuma revisao historica do
    Google Drive. Este modulo nao chama a Drive Revisions API: fazer isso
@@ -50,14 +51,30 @@ DESENHO:
    Fica registrado aqui para que qualquer revisor futuro saiba
    exatamente que tipo de evidencia embasa este patch.
 
-3. Roda o candidato pelo `ensemble_fase2b_crossfit.gate_zero()` de
-   producao (registros_online injetado, sem duplicar). So depois calcula
-   `replay_input_sha256` com `calcular_replay_input_sha256` oficial.
+3. NUNCA usa `ensemble_fase2b_crossfit.gate_zero()` (o gate da fonte ONLINE
+   VIVA — recalcula referencia_humana/alvo_inadequacao a partir das colunas
+   M/Q atuais da planilha, correto para autorizar um NOVO congelamento, mas
+   errado aqui: o RECOVER nao cria baseline nova, reproduz o INPUT
+   CONGELADO da Execucao Cientifica 1). H (`categoria_historica`) e R
+   (`referencia_humana`) vem DIRETAMENTE de `docs/dados/ensemble/
+   alvo_ensemble.json` (o alvo ja congelado); grupo_sha256 e outer_fold vem
+   DIRETAMENTE de `docs/dados/particoes_canonicas_mapa.csv` (as particoes ja
+   congeladas) — nunca recalculados a partir de M/Q ou de texto atual. So o
+   texto bruto (titulo/descricao_glpi/titulo_osm/descricao_osm) vem da base
+   online + allowlists. Ver `montar_bundle`.
 
-4. NUNCA publica o bundle bruto: nao escreve replay_bundle_candidato.csv
-   em disco, nao imprime titulo/descricao/ID bruto em log nem no
-   diagnostico. `recover_diagnostico.json` (unico artifact do job) so
-   contem hashes, contagens, id_sha256, nomes de campo e status —
+4. So depois do bundle montado, valida `grupo_sha256` recomputado do texto
+   patcheado contra o grupo_sha256 CONGELADO (`replay_bundle.
+   validar_grupos_por_registro`, reusada sem duplicar) e roda a mesma logica
+   cientifica de `gate_zero_replay()` — extraida para
+   `ensemble_fase2b_crossfit.validar_bundle_replay()` e compartilhada pelos
+   dois — comparando contra o hash CANDIDATO (nao o pinado de producao, que
+   continua None).
+
+5. NUNCA publica o bundle bruto: nao escreve replay_bundle_candidato.csv em
+   disco, nao imprime titulo/descricao/ID bruto em log nem no diagnostico.
+   `recover_diagnostico.json` (unico artifact do job) so contem hashes,
+   contagens, id_sha256, grupo_sha256, nomes de campo e status —
    `bundle_publicado` fica SEMPRE False; esta rotina nunca exporta o
    bundle, so verifica e reporta.
 """
@@ -220,100 +237,117 @@ def aplicar_allowlist(
     return resultado, aplicados
 
 
-def montar_bundle(
-    resultado_gate_zero: dict[str, Any],
+# --------------------------------------------------------------------------
+# Verificacoes estruturais (particoes/alvo congelado vs. base online) —
+# NUNCA envolvem H/R atuais: so contagens, folds e presenca/duplicidade de
+# id_sha256. `r_divergentes`/`y_divergentes` (que `recongelar_ensemble_
+# online.montar_diagnostico` tambem calcularia) sao DELIBERADAMENTE
+# ignorados aqui — comparar R/Y atuais contra o congelado e exatamente o
+# que `gate_zero()` faz para autorizar um NOVO congelamento; o RECOVER nao
+# cria baseline nova, entao R/Y atuais nunca bloqueiam esta rotina (ver
+# docstring do modulo, item 3).
+# --------------------------------------------------------------------------
+
+CAMPOS_DIAGNOSTICO_COBERTURA_PERMITIDOS = (
+    "total_ids_particoes", "total_ids_alvo_congelado",
+    "total_ids_particao_sem_alvo", "amostra_ids_particao_sem_alvo",
+    "total_ids_alvo_sem_particao", "amostra_ids_alvo_sem_particao",
+    "folds_particao", "folds_alvo_congelado",
+    "total_dobra_historica_divergente", "amostra_dobra_historica_divergente",
+    "bloqueios",
+)
+
+
+def validar_estrutura_congelada(
     registros_patched: list[dict[str, str]],
+    particoes: dict[str, dict[str, Any]],
+    alvo_congelado: dict[str, dict[str, Any]],
+) -> dict[str, Any]:
+    """Exige, SEM tocar em R/Y atuais: particoes e alvo_congelado descrevem
+    o mesmo universo de exatamente `rero.TOTAL_ESPERADO` IDs, com a mesma
+    dobra por ID nas duas fontes (reusa `rero.validar_cobertura_particoes_
+    alvo`, sem duplicar); e a base online patcheada, restrita a esse
+    universo, nao tem ID duplicado nem ID faltante, e cobre exatamente esse
+    mesmo conjunto de id_sha256 (reusa `rero.montar_base_atual` so pela
+    contabilidade de cobertura online — os campos H/R que essa funcao
+    tambem calcula internamente sao ignorados aqui, nunca usados). Devolve
+    um diagnostico 100% sanitizado (contagens/folds/id_sha256) e a lista
+    `bloqueios` (vazia se estrutura ok)."""
+    cobertura = rero.validar_cobertura_particoes_alvo(
+        particoes, alvo_congelado,
+        total_esperado=rero.TOTAL_ESPERADO,
+        folds_esperados=rero.FOLDS_ESPERADOS_PADRAO,
+    )
+    diagnostico = {
+        campo: valor for campo, valor in cobertura.items()
+        if campo in CAMPOS_DIAGNOSTICO_COBERTURA_PERMITIDOS
+    }
+    bloqueios = list(cobertura["bloqueios"])
+
+    base_info = rero.montar_base_atual(registros_patched, particoes)
+    faltantes_no_online = sorted(base_info["faltantes_no_online"])
+    duplicados_no_online = sorted(base_info["ids_duplicados_no_online"])
+    ids_online_no_corpus = set(base_info["base"])
+
+    diagnostico["total_faltantes_no_online"] = len(faltantes_no_online)
+    diagnostico["amostra_faltantes_no_online"] = faltantes_no_online[:20]
+    diagnostico["total_ids_duplicados_no_online"] = len(duplicados_no_online)
+    diagnostico["total_ids_online_no_corpus"] = len(ids_online_no_corpus)
+
+    if faltantes_no_online:
+        bloqueios.append("ids_faltantes_no_online")
+    if duplicados_no_online:
+        bloqueios.append("ids_duplicados_no_online")
+    if ids_online_no_corpus != set(particoes) or ids_online_no_corpus != set(alvo_congelado):
+        bloqueios.append("conjunto_ids_online_diverge_do_congelado")
+
+    diagnostico["bloqueios"] = bloqueios
+    return diagnostico
+
+
+def montar_bundle(
+    registros_patched: list[dict[str, str]],
+    particoes: dict[str, dict[str, Any]],
+    alvo_congelado: dict[str, dict[str, Any]],
 ) -> list[dict[str, Any]]:
-    """Junta os campos brutos (do candidato patcheado) com grupo_sha256/
-    outer_fold/referencia_humana ja validados pelo Gate Zero, nos 9 campos
-    do schema do bundle (mesma ordem de `replay_bundle.CAMPOS_BUNDLE`).
-    Resultado fica SOMENTE em memoria — nunca serializado em disco por
-    este modulo (ver docstring, item 4)."""
+    """Monta os 9 campos oficiais do bundle DIRETAMENTE dos artefatos
+    congelados — nunca recalcula H/R/grupo/fold a partir de M/Q ou de texto
+    atual. Texto bruto (titulo/descricao_glpi/titulo_osm/descricao_osm) vem
+    de `registros_patched` (base online + allowlists); categoria_historica
+    e referencia_humana vem de `alvo_congelado`; grupo_sha256 e outer_fold
+    vem de `particoes`. Itera sobre `particoes` (o universo CONGELADO dos
+    13.972 IDs), nunca sobre a base online — que pode ter registros fora do
+    corpus. So deve ser chamada depois de `validar_estrutura_congelada`
+    devolver `bloqueios` vazio (senao a contraparte de algum ID pode
+    faltar)."""
     brutos_por_id_sha = {
         hashlib.sha256(r["id"].encode("utf-8")).hexdigest(): r
         for r in registros_patched
         if r.get("id")
     }
     bundle = []
-    for r in resultado_gate_zero["registros"]:
-        bruto = brutos_por_id_sha.get(r["id_sha256"])
-        if bruto is None:
+    for id_sha256 in sorted(particoes):
+        bruto = brutos_por_id_sha.get(id_sha256)
+        alvo = alvo_congelado.get(id_sha256)
+        if bruto is None or alvo is None:
             raise RecuperacaoBloqueada(
-                f"id_sha256 {r['id_sha256']!r} presente no Gate Zero mas sem "
-                "contraparte bruta no candidato patcheado — inconsistencia "
-                "interna, rodada interrompida."
+                f"id_sha256 {id_sha256!r} do universo congelado sem "
+                "contraparte no online patcheado ou no alvo congelado — "
+                "inconsistencia interna, rodada interrompida."
             )
+        parte = particoes[id_sha256]
         bundle.append({
-            "id_sha256": r["id_sha256"],
+            "id_sha256": id_sha256,
             "titulo": bruto["titulo"],
             "descricao_glpi": bruto["descricao_glpi"],
             "titulo_osm": bruto["titulo_osm"],
             "descricao_osm": bruto["descricao_osm"],
-            "categoria_historica": r["categoria_historica"],
-            "referencia_humana": r["referencia_humana"],
-            "grupo_sha256": r["grupo_sha256"],
-            "outer_fold": r["outer_fold"],
+            "categoria_historica": alvo["categoria_historica"],
+            "referencia_humana": alvo["referencia_humana"],
+            "grupo_sha256": parte["grupo_sha256"],
+            "outer_fold": parte["outer_fold"],
         })
     return bundle
-
-
-# --------------------------------------------------------------------------
-# Diagnostico estrutural detalhado (so quando o Gate Zero bloqueia)
-# --------------------------------------------------------------------------
-
-# `ensemble_fase2b_crossfit.gate_zero()` ja calcula este diagnostico
-# internamente (via `recongelar_ensemble_online.montar_diagnostico`), mas
-# so expoe a lista resumida `bloqueios` na mensagem da excecao — nunca as
-# amostras de id_sha256/grupo_sha256 por tipo de divergencia. Esta
-# allowlist de campos e a unica barreira entre o diagnostico completo (que
-# tambem inclui H/R atuais e congelados em outras chaves nao listadas
-# aqui) e o que sai no `recover_diagnostico.json`: qualquer chave de
-# `montar_diagnostico()` que nao esteja nesta tupla e descartada.
-CAMPOS_DIAGNOSTICO_ESTRUTURAL_PERMITIDOS = (
-    "h_divergentes", "amostra_h_divergentes",
-    "r_divergentes", "amostra_r_divergentes",
-    "y_divergentes", "amostra_y_divergentes",
-    "grupos_cruzando_dobras", "amostra_grupos_cruzando_dobras",
-    "total_grupos_atuais_distintos",
-    "total_faltantes_no_online", "amostra_faltantes_no_online",
-    "total_ids_duplicados_no_online",
-    "total_ids_particoes", "total_ids_alvo_congelado",
-    "total_ids_particao_sem_alvo", "amostra_ids_particao_sem_alvo",
-    "total_ids_alvo_sem_particao", "amostra_ids_alvo_sem_particao",
-    "folds_particao", "folds_alvo_congelado",
-    "total_dobra_historica_divergente", "amostra_dobra_historica_divergente",
-    "total_ids_encontrados_no_online",
-    "total_grupos_congelados_distintos",
-    "total_grupos_ou_textos_alterados_em_relacao_ao_historico",
-    "bloqueios", "status",
-)
-
-
-def montar_diagnostico_estrutural(
-    registros_patched: list[dict[str, str]],
-    particoes_path: Path,
-) -> dict[str, Any]:
-    """Recalcula o diagnostico estrutural detalhado do Gate Zero, reusando
-    SEM DUPLICAR as mesmas funcoes cientificas de
-    `recongelar_ensemble_online` que `ensemble_fase2b_crossfit.gate_zero()`
-    ja usa por dentro (`carregar_particoes_preservadas`, `carregar_alvo_
-    congelado`, `montar_base_atual`, `montar_diagnostico`, com os mesmos
-    `total_esperado`/`folds_esperados` que `gate_zero()` usa). So devolve
-    os campos de `CAMPOS_DIAGNOSTICO_ESTRUTURAL_PERMITIDOS` — hashes,
-    contagens, folds, id_sha256 e grupo_sha256 — nunca H/R atuais, texto
-    bruto ou qualquer outro campo que `montar_diagnostico` calcule."""
-    particoes = rero.carregar_particoes_preservadas(particoes_path)
-    alvo_congelado = rero.carregar_alvo_congelado(rero.ALVO_CONGELADO_PADRAO)
-    base_info = rero.montar_base_atual(registros_patched, particoes)
-    diagnostico_completo = rero.montar_diagnostico(
-        base_info, alvo_congelado, particoes,
-        total_esperado=rero.TOTAL_ESPERADO,
-        folds_esperados=rero.FOLDS_ESPERADOS_PADRAO,
-    )
-    return {
-        campo: valor for campo, valor in diagnostico_completo.items()
-        if campo in CAMPOS_DIAGNOSTICO_ESTRUTURAL_PERMITIDOS
-    }
 
 
 # --------------------------------------------------------------------------
@@ -353,24 +387,44 @@ def executar(
         "replay_input_sha256_esperado": hash_esperado,
     }
 
+    particoes = rero.carregar_particoes_preservadas(particoes_path)
+    alvo_congelado = rero.carregar_alvo_congelado(rero.ALVO_CONGELADO_PADRAO)
+
+    diagnostico_estrutural = validar_estrutura_congelada(
+        registros_patched, particoes, alvo_congelado
+    )
+    diagnostico["diagnostico_estrutural"] = diagnostico_estrutural
+    if diagnostico_estrutural["bloqueios"]:
+        diagnostico.update({
+            "status": "bloqueado_estrutural",
+            "bloqueador": "Divergencia estrutural entre particoes/alvo congelado "
+                          "e a base online: " + ", ".join(diagnostico_estrutural["bloqueios"]),
+            "bundle_publicado": False,
+        })
+        return diagnostico
+
+    bundle = montar_bundle(registros_patched, particoes, alvo_congelado)
+
+    grupos_divergentes = rb.validar_grupos_por_registro(bundle)
+    if grupos_divergentes:
+        diagnostico.update({
+            "status": "bloqueado_grupo_textual_divergente",
+            "bloqueador": f"{len(grupos_divergentes)} registro(s) com grupo textual "
+                          "(texto patcheado) divergente do grupo_sha256 congelado.",
+            "bundle_publicado": False,
+            "total_grupos_divergentes": len(grupos_divergentes),
+            "amostra_ids_sha256_grupo_divergente": sorted(grupos_divergentes)[:20],
+        })
+        return diagnostico
+
     try:
-        resultado = efc.gate_zero(
-            config_path=config_path,
-            particoes_path=particoes_path,
-            registros_online=registros_patched,
-        )
+        resultado = efc.validar_bundle_replay(bundle, hash_esperado, particoes_path)
     except efc.Fase2BBloqueado as exc:
         diagnostico.update({
-            "status": "bloqueado_gate_zero",
+            "status": "bloqueado_validacao_cientifica",
             "bloqueador": str(exc),
             "bundle_publicado": False,
         })
-        try:
-            diagnostico["diagnostico_estrutural"] = montar_diagnostico_estrutural(
-                registros_patched, particoes_path
-            )
-        except Exception as exc_diagnostico:  # noqa: BLE001
-            diagnostico["diagnostico_estrutural_erro"] = str(exc_diagnostico)
         return diagnostico
 
     diagnostico["hashes_metodologicos"] = resultado["hashes"]
@@ -381,38 +435,13 @@ def executar(
         "h_fora_de_c": resultado["h_fora_de_c"],
         "total_classes": len(resultado["classes"]),
     }
-
-    bundle = montar_bundle(resultado, registros_patched)
-
-    grupos_divergentes = rb.validar_grupos_por_registro(bundle)
-    if grupos_divergentes:
-        diagnostico.update({
-            "status": "bloqueado_grupo_sha256_inconsistente",
-            "bloqueador": f"{len(grupos_divergentes)} registro(s) com grupo_sha256 "
-                          "inconsistente no bundle montado.",
-            "bundle_publicado": False,
-        })
-        return diagnostico
-
-    replay_input_sha256 = efc.calcular_replay_input_sha256(bundle)
-    diagnostico["replay_input_sha256_observado"] = replay_input_sha256
-
-    if replay_input_sha256 != hash_esperado:
-        diagnostico.update({
-            "status": "hash_candidato_divergente",
-            "bloqueador": (
-                f"replay_input_sha256 observado ({replay_input_sha256}) diverge "
-                f"do esperado ({hash_esperado})."
-            ),
-            "bundle_publicado": False,
-        })
-        return diagnostico
+    diagnostico["replay_input_sha256_observado"] = resultado["replay_input_sha256"]
 
     # Candidato verificado: replay_input_sha256 + os 5 hashes metodologicos
     # + as contagens estruturais batem exatamente. Mesmo assim, esta rotina
     # NUNCA publica o bundle (nem em disco, nem como artifact) — so
     # verifica e reporta. bundle_publicado fica sempre False por
-    # construcao (ver docstring do modulo, item 4).
+    # construcao (ver docstring do modulo, item 5).
     diagnostico.update({
         "status": "candidato_recuperado",
         "bloqueador": None,

@@ -836,6 +836,105 @@ class TestGateZeroReplayParidadeComGateZeroVivo(unittest.TestCase):
         self.assertEqual(gate_run["textos_por_id"], gate_replay["textos_por_id"])
 
 
+class TestValidarBundleReplayCompartilhada(unittest.TestCase):
+    """`validar_bundle_replay()` e a extracao minima da logica cientifica de
+    `gate_zero_replay()` (microcorrecao [FASE2B-REPLAY-RECOVER] separa
+    recuperacao do gate online): prova que a funcao compartilhada funciona
+    com um hash CANDIDATO passado explicitamente (sem tocar
+    REPLAY_INPUT_SHA256_ESPERADO) e que `gate_zero_replay()` continua
+    produzindo o MESMO resultado quando o mesmo hash e pinado na constante
+    de producao — ou seja, nenhuma logica foi duplicada entre as duas."""
+
+    def _registro(self, id_sha="a", titulo="t", descricao_glpi="d", titulo_osm="",
+                  descricao_osm="", categoria_historica="Cat A",
+                  referencia_humana="Cat A", grupo_sha256=None, outer_fold=1):
+        campos = [titulo, descricao_glpi, titulo_osm, descricao_osm]
+        if grupo_sha256 is None:
+            grupo_sha256 = f2b.rero.cgt.hash_grupo([f2b.rero.cgt.normalizar_texto(c) for c in campos])
+        return {
+            "id_sha256": id_sha, "titulo": titulo, "descricao_glpi": descricao_glpi,
+            "titulo_osm": titulo_osm, "descricao_osm": descricao_osm,
+            "categoria_historica": categoria_historica,
+            "referencia_humana": referencia_humana,
+            "grupo_sha256": grupo_sha256, "outer_fold": outer_fold,
+        }
+
+    def test_modulo_carrega_com_replay_input_sha256_esperado_none(self):
+        """Trava de regressao: esta microcorrecao NUNCA pina a constante de
+        producao — RECOVER usa `validar_bundle_replay` diretamente, sem
+        tocar `REPLAY_INPUT_SHA256_ESPERADO`."""
+        self.assertIsNone(f2b.REPLAY_INPUT_SHA256_ESPERADO)
+
+    def test_validar_bundle_replay_aceita_hash_candidato_sem_pinar_producao(self):
+        bundle = [self._registro()]
+        hash_candidato = f2b.calcular_replay_input_sha256(bundle)
+        particoes_sinteticas = {
+            "a": {"grupo_sha256": bundle[0]["grupo_sha256"], "outer_fold": 1},
+        }
+        with unittest.mock.patch.object(
+            f2b.rero, "carregar_particoes_preservadas", return_value=particoes_sinteticas
+        ), unittest.mock.patch.object(f2b, "_hashes_divergentes", return_value={}):
+            with self.assertRaises(f2b.ContagemEstruturalDivergente):
+                # replay_input_sha256 bate (passo 1), grupo_sha256 bate
+                # (passo 2, bundle sintetico de 1 registro), os 5 hashes
+                # metodologicos sao forcados a bater (mock) — chega ate a
+                # contagem estrutural (1 registro nunca bate com
+                # TOTAL_ESPERADO=13972 de producao). O que este teste prova:
+                # chegou ate a validacao cientifica completa SEM exigir
+                # REPLAY_INPUT_SHA256_ESPERADO pinado em lugar nenhum.
+                f2b.validar_bundle_replay(bundle, hash_candidato)
+        self.assertIsNone(f2b.REPLAY_INPUT_SHA256_ESPERADO)
+
+    def test_validar_bundle_replay_bloqueia_hash_candidato_divergente(self):
+        bundle = [self._registro()]
+        with self.assertRaises(f2b.ReplayBloqueado):
+            f2b.validar_bundle_replay(bundle, "0" * 64)
+
+    def test_gate_zero_replay_delega_para_validar_bundle_replay_com_hash_pinado(self):
+        bundle = [self._registro("a"), self._registro("b", titulo="outro")]
+        with unittest.mock.patch.object(
+            f2b, "validar_bundle_replay", wraps=f2b.validar_bundle_replay
+        ) as m_validar, unittest.mock.patch.object(
+            f2b, "REPLAY_INPUT_SHA256_ESPERADO", "0" * 64
+        ):
+            with self.assertRaises(f2b.ReplayBloqueado):
+                f2b.gate_zero_replay(registros_bundle=bundle)
+        m_validar.assert_called_once_with(bundle, "0" * 64, f2b.rero.PARTICOES_PADRAO)
+
+    def test_gate_zero_replay_e_validar_bundle_replay_produzem_o_mesmo_resultado(self):
+        """Mesma logica cientifica, dois pontos de entrada: chamar
+        `validar_bundle_replay` direto com um hash candidato e chamar
+        `gate_zero_replay` com esse mesmo hash pinado em
+        REPLAY_INPUT_SHA256_ESPERADO tem que bloquear pela MESMA razao
+        (aqui, contagem estrutural — corpus sintetico de 2 registros nunca
+        bate com TOTAL_ESPERADO de producao). particoes/hashes sao
+        mockados identicamente nas duas chamadas para isolar exatamente a
+        contagem estrutural como a diferenca (nao a presenca dos IDs
+        sinteticos nas particoes reais de producao)."""
+        bundle = [self._registro("a"), self._registro("b", titulo="outro")]
+        hash_candidato = f2b.calcular_replay_input_sha256(bundle)
+        particoes_sinteticas = {
+            "a": {"grupo_sha256": bundle[0]["grupo_sha256"], "outer_fold": 1},
+            "b": {"grupo_sha256": bundle[1]["grupo_sha256"], "outer_fold": 1},
+        }
+
+        with unittest.mock.patch.object(
+            f2b.rero, "carregar_particoes_preservadas", return_value=particoes_sinteticas
+        ), unittest.mock.patch.object(f2b, "_hashes_divergentes", return_value={}):
+            with self.assertRaises(f2b.ContagemEstruturalDivergente) as ctx_direto:
+                f2b.validar_bundle_replay(bundle, hash_candidato)
+
+        with unittest.mock.patch.object(
+            f2b, "REPLAY_INPUT_SHA256_ESPERADO", hash_candidato
+        ), unittest.mock.patch.object(
+            f2b.rero, "carregar_particoes_preservadas", return_value=particoes_sinteticas
+        ), unittest.mock.patch.object(f2b, "_hashes_divergentes", return_value={}):
+            with self.assertRaises(f2b.ContagemEstruturalDivergente) as ctx_wrapper:
+                f2b.gate_zero_replay(registros_bundle=bundle)
+
+        self.assertEqual(str(ctx_direto.exception), str(ctx_wrapper.exception))
+
+
 class TestWorkflowMarcadorReplay(unittest.TestCase):
     CAMINHO_WORKFLOW = (Path(__file__).resolve().parents[1] / ".github" / "workflows"
                        / "ensemble_fase2b_crossfit.yml")

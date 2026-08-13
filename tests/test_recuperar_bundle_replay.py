@@ -175,186 +175,306 @@ class TestAplicarAllowlist(unittest.TestCase):
 
 
 class TestMontarBundle(unittest.TestCase):
-    def test_montar_bundle_junta_bruto_com_gate_zero(self):
-        registros_patched = [registro_online("1", titulo="T1")]
-        resultado_gate_zero = {
-            "registros": [{
-                "id_sha256": sha("1"),
-                "categoria_historica": "Cat A",
-                "referencia_humana": "Cat A",
-                "grupo_sha256": "g1",
-                "outer_fold": 2,
-            }]
-        }
-        bundle = rbr.montar_bundle(resultado_gate_zero, registros_patched)
+    """`montar_bundle` e o coracao da correcao desta rodada: H/R/grupo/fold
+    vem SEMPRE dos artefatos congelados (particoes/alvo_congelado), nunca
+    de M/Q atuais nem recalculados — so o texto bruto vem da base online
+    patcheada."""
+
+    def test_texto_vem_da_base_patcheada_hrfoldgrupo_vem_do_congelado(self):
+        registros_patched = [registro_online("1", titulo="T1", descricao_glpi="D1")]
+        particoes = {sha("1"): {"grupo_sha256": "grupo-congelado", "outer_fold": 3}}
+        alvo_congelado = {sha("1"): {
+            "categoria_historica": "Categoria congelada",
+            "referencia_humana": "Referencia congelada",
+        }}
+        bundle = rbr.montar_bundle(registros_patched, particoes, alvo_congelado)
         self.assertEqual(len(bundle), 1)
         linha = bundle[0]
         self.assertEqual(linha["id_sha256"], sha("1"))
         self.assertEqual(linha["titulo"], "T1")
-        self.assertEqual(linha["outer_fold"], 2)
+        self.assertEqual(linha["descricao_glpi"], "D1")
+        self.assertEqual(linha["categoria_historica"], "Categoria congelada")
+        self.assertEqual(linha["referencia_humana"], "Referencia congelada")
+        self.assertEqual(linha["grupo_sha256"], "grupo-congelado")
+        self.assertEqual(linha["outer_fold"], 3)
         self.assertEqual(set(linha), set(rb.CAMPOS_BUNDLE))
 
-    def test_montar_bundle_levanta_se_id_sha_sem_contraparte_bruta(self):
-        resultado_gate_zero = {
-            "registros": [{
-                "id_sha256": "0" * 64,
-                "categoria_historica": "Cat A",
-                "referencia_humana": "Cat A",
-                "grupo_sha256": "g1",
-                "outer_fold": 1,
-            }]
-        }
+    def test_alteracao_de_mq_atuais_nunca_muda_referencia_humana_do_bundle(self):
+        """`registro_online` pode carregar conferencia_glpi/categoria_manual
+        (M/Q) quaisquer — `montar_bundle` nunca le essas chaves: R vem
+        exclusivamente do alvo congelado, nunca recalculado."""
+        registros_patched = [registro_online(
+            "1", conferencia_glpi="Errado", categoria_manual="Categoria manual nova",
+        )]
+        particoes = {sha("1"): {"grupo_sha256": "g", "outer_fold": 1}}
+        alvo_congelado = {sha("1"): {
+            "categoria_historica": "Categoria congelada",
+            "referencia_humana": "Referencia congelada",
+        }}
+        bundle = rbr.montar_bundle(registros_patched, particoes, alvo_congelado)
+        self.assertEqual(bundle[0]["referencia_humana"], "Referencia congelada")
+        self.assertEqual(bundle[0]["categoria_historica"], "Categoria congelada")
+
+    def test_itera_sobre_universo_congelado_ignora_registro_online_fora_do_corpus(self):
+        registros_patched = [
+            registro_online("fora-do-corpus"),
+            registro_online("dentro-do-corpus", titulo="T"),
+        ]
+        particoes = {sha("dentro-do-corpus"): {"grupo_sha256": "g", "outer_fold": 1}}
+        alvo_congelado = {sha("dentro-do-corpus"): {
+            "categoria_historica": "Cat A", "referencia_humana": "Cat A",
+        }}
+        bundle = rbr.montar_bundle(registros_patched, particoes, alvo_congelado)
+        self.assertEqual(len(bundle), 1)
+        self.assertEqual(bundle[0]["id_sha256"], sha("dentro-do-corpus"))
+
+    def test_levanta_se_id_do_corpus_congelado_sem_contraparte_bruta(self):
+        particoes = {sha("dentro-do-corpus"): {"grupo_sha256": "g", "outer_fold": 1}}
+        alvo_congelado = {sha("dentro-do-corpus"): {
+            "categoria_historica": "Cat A", "referencia_humana": "Cat A",
+        }}
         with self.assertRaises(rbr.RecuperacaoBloqueada):
-            rbr.montar_bundle(resultado_gate_zero, [registro_online("1")])
+            rbr.montar_bundle([], particoes, alvo_congelado)
 
 
-class TestMontarDiagnosticoEstrutural(unittest.TestCase):
-    """Cobre `montar_diagnostico_estrutural`, que reusa (sem duplicar) as
-    mesmas funcoes de `recongelar_ensemble_online` que `gate_zero()` ja usa
-    por dentro, so que expondo as amostras id_sha256/grupo_sha256 que
-    `gate_zero()` nao expoe na excecao."""
+class TestValidarEstruturaCongelada(unittest.TestCase):
+    """`validar_estrutura_congelada` NUNCA calcula nem reporta
+    h_divergentes/r_divergentes/y_divergentes — essa e a correcao central
+    desta rodada: R/Y atuais nao bloqueiam mais o RECOVER (eles so
+    determinam se um NOVO congelamento pode ser aprovado, papel exclusivo
+    de `gate_zero()`, que este modulo nao chama mais)."""
 
-    def test_reusa_as_quatro_funcoes_oficiais_na_mesma_sequencia(self):
-        diagnostico_completo_fake = {
-            "h_divergentes": 1, "amostra_h_divergentes": [sha("x")],
-            "status": "bloqueado",
-        }
-        with unittest.mock.patch.object(
-            rbr.rero, "carregar_particoes_preservadas", return_value={}
-        ) as m_particoes, unittest.mock.patch.object(
-            rbr.rero, "carregar_alvo_congelado", return_value={}
-        ) as m_alvo, unittest.mock.patch.object(
-            rbr.rero, "montar_base_atual", return_value={"base": {}, "faltantes_no_online": [],
-                                                          "ids_duplicados_no_online": []}
-        ) as m_base, unittest.mock.patch.object(
-            rbr.rero, "montar_diagnostico", return_value=diagnostico_completo_fake
-        ) as m_diag:
-            resultado = rbr.montar_diagnostico_estrutural([registro_online("1")], Path("p.csv"))
-        m_particoes.assert_called_once_with(Path("p.csv"))
-        m_alvo.assert_called_once()
-        m_base.assert_called_once()
-        m_diag.assert_called_once()
-        _, kwargs = m_diag.call_args
-        self.assertEqual(kwargs["total_esperado"], rbr.rero.TOTAL_ESPERADO)
-        self.assertEqual(kwargs["folds_esperados"], rbr.rero.FOLDS_ESPERADOS_PADRAO)
-        self.assertEqual(resultado, diagnostico_completo_fake)
+    def _contexto(self, total, folds):
+        return unittest.mock.patch.multiple(
+            rbr.rero, TOTAL_ESPERADO=total, FOLDS_ESPERADOS_PADRAO=folds,
+        )
 
-    def test_descarta_qualquer_campo_fora_da_allowlist_de_campos_permitidos(self):
-        """Mesmo que `montar_diagnostico` (funcao oficial, fora do nosso
-        controle) um dia passe a incluir H/R atuais ou outro campo nao
-        sanitizado, `montar_diagnostico_estrutural` nunca repassa."""
-        diagnostico_completo_fake = {
-            "h_divergentes": 2,
-            "amostra_h_divergentes": [sha("1")],
-            "categoria_historica_atual_NUNCA_DEVERIA_VAZAR": "Categoria X",
-            "referencia_humana_atual_NUNCA_DEVERIA_VAZAR": "Categoria Y",
-        }
-        with unittest.mock.patch.object(
-            rbr.rero, "carregar_particoes_preservadas", return_value={}
-        ), unittest.mock.patch.object(
-            rbr.rero, "carregar_alvo_congelado", return_value={}
-        ), unittest.mock.patch.object(
-            rbr.rero, "montar_base_atual", return_value={"base": {}, "faltantes_no_online": [],
-                                                          "ids_duplicados_no_online": []}
-        ), unittest.mock.patch.object(
-            rbr.rero, "montar_diagnostico", return_value=diagnostico_completo_fake
-        ):
-            resultado = rbr.montar_diagnostico_estrutural([registro_online("1")], Path("p.csv"))
-        self.assertEqual(resultado, {"h_divergentes": 2, "amostra_h_divergentes": [sha("1")]})
-        self.assertNotIn("categoria_historica_atual_NUNCA_DEVERIA_VAZAR", resultado)
-        self.assertNotIn("referencia_humana_atual_NUNCA_DEVERIA_VAZAR", resultado)
+    def test_estrutura_ok_devolve_bloqueios_vazio(self):
+        registros_patched = [registro_online("1")]
+        particoes = {sha("1"): {"grupo_sha256": "g", "outer_fold": 1}}
+        alvo_congelado = {sha("1"): {"outer_fold": 1}}
+        with self._contexto(1, [1]):
+            resultado = rbr.validar_estrutura_congelada(
+                registros_patched, particoes, alvo_congelado
+            )
+        self.assertEqual(resultado["bloqueios"], [])
+
+    def test_nunca_reporta_h_r_ou_y_divergentes(self):
+        registros_patched = [registro_online("1")]
+        particoes = {sha("1"): {"grupo_sha256": "g", "outer_fold": 1}}
+        alvo_congelado = {sha("1"): {"outer_fold": 1}}
+        with self._contexto(1, [1]):
+            resultado = rbr.validar_estrutura_congelada(
+                registros_patched, particoes, alvo_congelado
+            )
+        self.assertNotIn("h_divergentes", resultado)
+        self.assertNotIn("r_divergentes", resultado)
+        self.assertNotIn("y_divergentes", resultado)
+
+    def test_bloqueia_por_id_faltante_no_online(self):
+        particoes = {sha("1"): {"grupo_sha256": "g", "outer_fold": 1}}
+        alvo_congelado = {sha("1"): {"outer_fold": 1}}
+        with self._contexto(1, [1]):
+            resultado = rbr.validar_estrutura_congelada([], particoes, alvo_congelado)
+        self.assertIn("ids_faltantes_no_online", resultado["bloqueios"])
+        self.assertEqual(resultado["amostra_faltantes_no_online"], [sha("1")])
+
+    def test_bloqueia_por_id_duplicado_no_online(self):
+        registros_patched = [registro_online("1"), registro_online("1")]
+        particoes = {sha("1"): {"grupo_sha256": "g", "outer_fold": 1}}
+        alvo_congelado = {sha("1"): {"outer_fold": 1}}
+        with self._contexto(1, [1]):
+            resultado = rbr.validar_estrutura_congelada(
+                registros_patched, particoes, alvo_congelado
+            )
+        self.assertIn("ids_duplicados_no_online", resultado["bloqueios"])
+
+    def test_bloqueia_por_total_diferente_do_esperado(self):
+        registros_patched = [registro_online("1")]
+        particoes = {sha("1"): {"grupo_sha256": "g", "outer_fold": 1}}
+        alvo_congelado = {sha("1"): {"outer_fold": 1}}
+        with self._contexto(2, [1]):  # esperado 2, so ha 1
+            resultado = rbr.validar_estrutura_congelada(
+                registros_patched, particoes, alvo_congelado
+            )
+        self.assertIn(
+            "total_ids_particoes_divergente_do_denominador_esperado",
+            resultado["bloqueios"],
+        )
+
+    def test_bloqueia_por_fold_divergente_entre_particao_e_alvo(self):
+        registros_patched = [registro_online("1")]
+        particoes = {sha("1"): {"grupo_sha256": "g", "outer_fold": 1}}
+        alvo_congelado = {sha("1"): {"outer_fold": 2}}
+        with self._contexto(1, [1, 2]):
+            resultado = rbr.validar_estrutura_congelada(
+                registros_patched, particoes, alvo_congelado
+            )
+        self.assertIn(
+            "dobra_historica_divergente_entre_alvo_e_particao", resultado["bloqueios"]
+        )
 
 
 class TestExecutarFluxo(unittest.TestCase):
-    def test_com_grupo_a_e_b_fornecidos_chega_ate_gate_zero(self):
+    def _contexto_registro_unico(self, titulo="titulo", descricao_glpi="descricao",
+                                 titulo_osm="", descricao_osm=""):
+        online = [registro_online("1", titulo=titulo, descricao_glpi=descricao_glpi,
+                                  titulo_osm=titulo_osm, descricao_osm=descricao_osm)]
+        grupo = rbr.cgt.hash_grupo(
+            [rbr.cgt.normalizar_texto(c)
+             for c in (titulo, descricao_glpi, titulo_osm, descricao_osm)]
+        )
+        particoes = {sha("1"): {"grupo_sha256": grupo, "outer_fold": 1}}
+        alvo_congelado = {sha("1"): {
+            "categoria_historica": "Cat A", "referencia_humana": "Cat A", "outer_fold": 1,
+        }}
+        return online, particoes, alvo_congelado
+
+    # GRUPO A so precisa estar NAO-VAZIO para passar o gate inicial de
+    # `executar()` — usar um id fora deste fixture (nunca sha("1")) evita
+    # que o patch mexa no unico registro do teste e quebre o grupo_sha256
+    # congelado que cada teste monta com cuidado.
+    ALLOWLIST_GRUPO_A_INERTE = {sha("id-fora-deste-fixture"): {"titulo": "x"}}
+
+    def test_bloqueado_estruturalmente_nao_chega_a_montar_bundle(self):
+        """Sem overrides de TOTAL_ESPERADO/FOLDS_ESPERADOS_PADRAO, 1
+        registro sintetico nunca bate com os 13.972 de producao -> bloqueio
+        estrutural real (sem mockar `validar_estrutura_congelada`), e
+        `montar_bundle` nunca chega a ser chamada."""
+        online, particoes, alvo_congelado = self._contexto_registro_unico()
         with unittest.mock.patch.object(
-            rbr.rero, "ler_registros_online", return_value=[registro_online("1")]
+            rbr.rero, "ler_registros_online", return_value=online
         ), unittest.mock.patch.object(
-            rbr.efc, "gate_zero", side_effect=rbr.efc.GateZeroBloqueado("parede de teste")
-        ) as m_gate_zero:
+            rbr.rero, "carregar_particoes_preservadas", return_value=particoes
+        ), unittest.mock.patch.object(
+            rbr.rero, "carregar_alvo_congelado", return_value=alvo_congelado
+        ), unittest.mock.patch.object(rbr, "montar_bundle") as m_montar_bundle:
             diagnostico = rbr.executar(
                 hash_esperado=rbr.REPLAY_INPUT_SHA256_ESPERADO_CANDIDATO,
                 config_path=Path("nao-usado.json"),
                 particoes_path=Path("nao-usado.csv"),
-                allowlist_grupo_a={sha("1"): {"titulo": "x"}},
+                allowlist_grupo_a=self.ALLOWLIST_GRUPO_A_INERTE,
                 allowlist_grupo_b={},
             )
-        m_gate_zero.assert_called_once()
-        self.assertEqual(diagnostico["status"], "bloqueado_gate_zero")
-        # particoes_path fake -> recalculo do diagnostico estrutural falha
-        # de forma controlada (nunca derruba a rodada, nunca mascara o
-        # bloqueador original).
-        self.assertIn("diagnostico_estrutural_erro", diagnostico)
+        self.assertEqual(diagnostico["status"], "bloqueado_estrutural")
+        self.assertTrue(diagnostico["diagnostico_estrutural"]["bloqueios"])
+        m_montar_bundle.assert_not_called()
 
-    def test_bloqueio_do_gate_zero_enriquece_com_diagnostico_estrutural(self):
-        """Quando o Gate Zero bloqueia, `executar()` recalcula o
-        diagnostico estrutural (h/r/y divergentes, grupos cruzando dobras
-        etc.) reusando as funcoes oficiais, e anexa so os campos
-        sanitizados ao resultado."""
-        diagnostico_estrutural_fake = {
-            "h_divergentes": 0, "amostra_h_divergentes": [],
-            "r_divergentes": 3, "amostra_r_divergentes": [sha("1"), sha("2")],
-            "y_divergentes": 3, "amostra_y_divergentes": [sha("1"), sha("2")],
-            "grupos_cruzando_dobras": 1,
-            "amostra_grupos_cruzando_dobras": ["g" * 64],
-            "status": "bloqueado",
-        }
+    def test_estrutura_ok_mas_grupo_textual_divergente_bloqueia(self):
+        """TESTE OBRIGATORIO: grupo textual errado bloqueia e mostra apenas
+        id_sha256."""
+        online, particoes, alvo_congelado = self._contexto_registro_unico()
+        particoes[sha("1")]["grupo_sha256"] = "grupo-nunca-vai-bater-com-o-texto"
         with unittest.mock.patch.object(
-            rbr.rero, "ler_registros_online", return_value=[registro_online("1")]
+            rbr.rero, "ler_registros_online", return_value=online
         ), unittest.mock.patch.object(
-            rbr.efc, "gate_zero",
-            side_effect=rbr.efc.GateZeroBloqueado("grupos_cruzando_dobras"),
+            rbr.rero, "carregar_particoes_preservadas", return_value=particoes
         ), unittest.mock.patch.object(
-            rbr, "montar_diagnostico_estrutural", return_value=diagnostico_estrutural_fake
-        ) as m_estrutural:
+            rbr.rero, "carregar_alvo_congelado", return_value=alvo_congelado
+        ), unittest.mock.patch.object(
+            rbr, "validar_estrutura_congelada", return_value={"bloqueios": []}
+        ), unittest.mock.patch.object(
+            rbr.efc, "validar_bundle_replay"
+        ) as m_cientifico:
             diagnostico = rbr.executar(
                 hash_esperado=rbr.REPLAY_INPUT_SHA256_ESPERADO_CANDIDATO,
                 config_path=Path("nao-usado.json"),
                 particoes_path=Path("nao-usado.csv"),
-                allowlist_grupo_a={sha("1"): {"titulo": "x"}},
+                allowlist_grupo_a=self.ALLOWLIST_GRUPO_A_INERTE,
                 allowlist_grupo_b={},
             )
-        m_estrutural.assert_called_once()
-        self.assertEqual(diagnostico["diagnostico_estrutural"], diagnostico_estrutural_fake)
-        self.assertNotIn("diagnostico_estrutural_erro", diagnostico)
+        self.assertEqual(diagnostico["status"], "bloqueado_grupo_textual_divergente")
+        self.assertEqual(diagnostico["total_grupos_divergentes"], 1)
+        self.assertEqual(diagnostico["amostra_ids_sha256_grupo_divergente"], [sha("1")])
+        m_cientifico.assert_not_called()
 
-    def test_hash_divergente_reporta_status_especifico_sem_publicar(self):
-        atuais = [registro_online("1")]
-        resultado_gate_zero = {
-            "registros": [{
-                "id_sha256": sha("1"),
-                "categoria_historica": "Cat A",
-                "referencia_humana": "Cat A",
-                "grupo_sha256": rbr.cgt.hash_grupo(
-                    [rbr.cgt.normalizar_texto(c) for c in
-                     (atuais[0]["titulo"], atuais[0]["descricao_glpi"],
-                      atuais[0]["titulo_osm"], atuais[0]["descricao_osm"])]
-                ),
-                "outer_fold": 1,
-            }],
-            "hashes": {"hash_corpus": "x"},
-            "total_registros": 1, "total_grupos": 1,
-            "h_dentro_de_c": 1, "h_fora_de_c": 0, "classes": ["Cat A"],
-        }
+    def test_grupo_ok_mas_validacao_cientifica_bloqueia(self):
+        """TESTE OBRIGATORIO: cinco hashes divergentes bloqueiam."""
+        online, particoes, alvo_congelado = self._contexto_registro_unico()
         with unittest.mock.patch.object(
-            rbr.rero, "ler_registros_online", return_value=atuais
+            rbr.rero, "ler_registros_online", return_value=online
         ), unittest.mock.patch.object(
-            rbr.efc, "gate_zero", return_value=resultado_gate_zero
+            rbr.rero, "carregar_particoes_preservadas", return_value=particoes
+        ), unittest.mock.patch.object(
+            rbr.rero, "carregar_alvo_congelado", return_value=alvo_congelado
+        ), unittest.mock.patch.object(
+            rbr, "validar_estrutura_congelada", return_value={"bloqueios": []}
+        ), unittest.mock.patch.object(
+            rbr.efc, "validar_bundle_replay",
+            side_effect=rbr.efc.GateZeroBloqueado("5 hashes metodologicos divergentes"),
+        ) as m_cientifico:
+            diagnostico = rbr.executar(
+                hash_esperado=rbr.REPLAY_INPUT_SHA256_ESPERADO_CANDIDATO,
+                config_path=Path("nao-usado.json"),
+                particoes_path=Path("nao-usado.csv"),
+                allowlist_grupo_a=self.ALLOWLIST_GRUPO_A_INERTE,
+                allowlist_grupo_b={},
+            )
+        m_cientifico.assert_called_once()
+        self.assertEqual(diagnostico["status"], "bloqueado_validacao_cientifica")
+        self.assertFalse(diagnostico["bundle_publicado"])
+
+    def test_hash_candidato_divergente_bloqueia(self):
+        """TESTE OBRIGATORIO: hash candidato divergente bloqueia. A propria
+        `validar_bundle_replay` (real, na producao) levanta ReplayBloqueado
+        quando o hash nao bate — aqui simulamos exatamente essa excecao."""
+        online, particoes, alvo_congelado = self._contexto_registro_unico()
+        with unittest.mock.patch.object(
+            rbr.rero, "ler_registros_online", return_value=online
+        ), unittest.mock.patch.object(
+            rbr.rero, "carregar_particoes_preservadas", return_value=particoes
+        ), unittest.mock.patch.object(
+            rbr.rero, "carregar_alvo_congelado", return_value=alvo_congelado
+        ), unittest.mock.patch.object(
+            rbr, "validar_estrutura_congelada", return_value={"bloqueios": []}
+        ), unittest.mock.patch.object(
+            rbr.efc, "validar_bundle_replay",
+            side_effect=rbr.efc.ReplayBloqueado("replay_input_sha256 divergente"),
         ):
             diagnostico = rbr.executar(
                 hash_esperado="0" * 64,
                 config_path=Path("nao-usado.json"),
                 particoes_path=Path("nao-usado.csv"),
-                allowlist_grupo_a={sha("1"): {"titulo": "titulo"}},
+                allowlist_grupo_a=self.ALLOWLIST_GRUPO_A_INERTE,
                 allowlist_grupo_b={},
             )
-        self.assertEqual(diagnostico["status"], "hash_candidato_divergente")
+        self.assertEqual(diagnostico["status"], "bloqueado_validacao_cientifica")
         self.assertFalse(diagnostico["bundle_publicado"])
-        self.assertIn("replay_input_sha256_observado", diagnostico)
+
+    def test_fluxo_completo_aprovado_reporta_candidato_recuperado_sem_publicar(self):
+        online, particoes, alvo_congelado = self._contexto_registro_unico()
+        resultado_cientifico = {
+            "hashes": {"hash_corpus": "x"},
+            "total_registros": 1, "total_grupos": 1,
+            "h_dentro_de_c": 1, "h_fora_de_c": 0, "classes": ["Cat A"],
+            "replay_input_sha256": "HASH-FINAL-DE-TESTE",
+        }
+        with unittest.mock.patch.object(
+            rbr.rero, "ler_registros_online", return_value=online
+        ), unittest.mock.patch.object(
+            rbr.rero, "carregar_particoes_preservadas", return_value=particoes
+        ), unittest.mock.patch.object(
+            rbr.rero, "carregar_alvo_congelado", return_value=alvo_congelado
+        ), unittest.mock.patch.object(
+            rbr, "validar_estrutura_congelada", return_value={"bloqueios": []}
+        ), unittest.mock.patch.object(
+            rbr.efc, "validar_bundle_replay", return_value=resultado_cientifico
+        ):
+            diagnostico = rbr.executar(
+                hash_esperado=rbr.REPLAY_INPUT_SHA256_ESPERADO_CANDIDATO,
+                config_path=Path("nao-usado.json"),
+                particoes_path=Path("nao-usado.csv"),
+                allowlist_grupo_a=self.ALLOWLIST_GRUPO_A_INERTE,
+                allowlist_grupo_b={},
+            )
+        self.assertEqual(diagnostico["status"], "candidato_recuperado")
+        self.assertFalse(diagnostico["bundle_publicado"])
+        self.assertEqual(diagnostico["replay_input_sha256_observado"], "HASH-FINAL-DE-TESTE")
+        self.assertEqual(diagnostico["linhas"], 1)
 
 
 class TestDiagnosticoSanitizado(unittest.TestCase):
-    """TESTE OBRIGATORIO 7: diagnostico e sanitizado (nunca texto bruto).
+    """TESTE OBRIGATORIO: diagnostico e sanitizado (nunca texto bruto).
 
     Usa cenarios 100% sinteticos com sentinelas (nunca IDs/texto reais dos
     GRUPOS A/B): se `executar()` vazasse qualquer valor bruto no
@@ -378,21 +498,42 @@ class TestDiagnosticoSanitizado(unittest.TestCase):
         )
         self._sem_sentinelas(diagnostico)
 
-    def test_diagnostico_com_patch_aplicado_nao_vaza_id_bruto_nem_valor_historico(self):
-        """Registro sintetico cujo ID BRUTO e a propria sentinela proibida
-        (prova que o ID bruto, mesmo que fosse essa string, nunca vazaria —
-        so o id_sha256 aparece) e cujo valor historico comprovado tambem e
-        uma sentinela (prova que o CONTEUDO do campo nunca vaza — so o
-        NOME do campo, permitido por especificacao)."""
-        atuais = [registro_online(self.ID_BRUTO_SENTINELA,
-                                  descricao_osm="valor online, diferente do historico")]
+    def test_diagnostico_com_patch_aplicado_e_estrutura_ok_nao_vaza_nada(self):
+        """Registro sintetico cujo ID BRUTO e cujo valor historico
+        comprovado sao ambos sentinelas proibidas — prova que nem
+        `ids_sha256_com_patch_aplicado`/`campos_alterados_por_id_sha256`
+        nem `diagnostico_estrutural` jamais os repetem."""
+        titulo_online = "titulo bem diferente do historico"
+        online = [registro_online(self.ID_BRUTO_SENTINELA, titulo=titulo_online)]
         allowlist_sintetica = {
-            sha(self.ID_BRUTO_SENTINELA): {"descricao_osm": self.DADO_BRUTO_SENTINELA},
+            sha(self.ID_BRUTO_SENTINELA): {"titulo": self.DADO_BRUTO_SENTINELA},
         }
+        # grupo_sha256 congelado precisa bater com o texto JA PATCHEADO
+        # (titulo=DADO_BRUTO_SENTINELA, demais campos = default de
+        # registro_online) para o fluxo passar da checagem de grupo
+        # textual e chegar ate a validacao cientifica mockada abaixo.
+        grupo_pos_patch = rbr.cgt.hash_grupo([
+            rbr.cgt.normalizar_texto(c)
+            for c in (self.DADO_BRUTO_SENTINELA, "descricao", "", "")
+        ])
+        particoes = {
+            sha(self.ID_BRUTO_SENTINELA): {"grupo_sha256": grupo_pos_patch, "outer_fold": 1},
+        }
+        alvo_congelado = {sha(self.ID_BRUTO_SENTINELA): {
+            "categoria_historica": "Cat A", "referencia_humana": "Cat A", "outer_fold": 1,
+        }}
+
         with unittest.mock.patch.object(
-            rbr.rero, "ler_registros_online", return_value=atuais
+            rbr.rero, "ler_registros_online", return_value=online
         ), unittest.mock.patch.object(
-            rbr.efc, "gate_zero", side_effect=rbr.efc.GateZeroBloqueado("parede de teste")
+            rbr.rero, "carregar_particoes_preservadas", return_value=particoes
+        ), unittest.mock.patch.object(
+            rbr.rero, "carregar_alvo_congelado", return_value=alvo_congelado
+        ), unittest.mock.patch.multiple(
+            rbr.rero, TOTAL_ESPERADO=1, FOLDS_ESPERADOS_PADRAO=[1],
+        ), unittest.mock.patch.object(
+            rbr.efc, "validar_bundle_replay",
+            side_effect=rbr.efc.GateZeroBloqueado("parede de teste"),
         ):
             diagnostico = rbr.executar(
                 hash_esperado=rbr.REPLAY_INPUT_SHA256_ESPERADO_CANDIDATO,
@@ -402,20 +543,56 @@ class TestDiagnosticoSanitizado(unittest.TestCase):
                 allowlist_grupo_b={},
             )
         # confirma que o patch FOI de fato detectado e aplicado (nao e um
-        # teste vazio) — so o id_sha256 e o nome do campo aparecem.
+        # teste vazio) e que a estrutura passou (chegou ate a validacao
+        # cientifica) — so entao verifica que nada vazou.
         self.assertEqual(
-            diagnostico["ids_sha256_com_patch_aplicado"],
-            [sha(self.ID_BRUTO_SENTINELA)],
+            diagnostico["ids_sha256_com_patch_aplicado"], [sha(self.ID_BRUTO_SENTINELA)]
         )
         self.assertEqual(
             diagnostico["campos_alterados_por_id_sha256"],
-            {sha(self.ID_BRUTO_SENTINELA): ["descricao_osm"]},
+            {sha(self.ID_BRUTO_SENTINELA): ["titulo"]},
+        )
+        self.assertEqual(diagnostico["status"], "bloqueado_validacao_cientifica")
+        self._sem_sentinelas(diagnostico)
+
+    def test_diagnostico_de_grupo_textual_divergente_so_expoe_id_sha256(self):
+        online = [registro_online(self.ID_BRUTO_SENTINELA, titulo=self.DADO_BRUTO_SENTINELA)]
+        particoes = {
+            sha(self.ID_BRUTO_SENTINELA): {
+                "grupo_sha256": "grupo-nunca-vai-bater", "outer_fold": 1,
+            }
+        }
+        alvo_congelado = {sha(self.ID_BRUTO_SENTINELA): {
+            "categoria_historica": self.DADO_BRUTO_SENTINELA,
+            "referencia_humana": self.DADO_BRUTO_SENTINELA,
+            "outer_fold": 1,
+        }}
+        with unittest.mock.patch.object(
+            rbr.rero, "ler_registros_online", return_value=online
+        ), unittest.mock.patch.object(
+            rbr.rero, "carregar_particoes_preservadas", return_value=particoes
+        ), unittest.mock.patch.object(
+            rbr.rero, "carregar_alvo_congelado", return_value=alvo_congelado
+        ), unittest.mock.patch.multiple(
+            rbr.rero, TOTAL_ESPERADO=1, FOLDS_ESPERADOS_PADRAO=[1],
+        ):
+            diagnostico = rbr.executar(
+                hash_esperado=rbr.REPLAY_INPUT_SHA256_ESPERADO_CANDIDATO,
+                config_path=Path("nao-usado.json"),
+                particoes_path=Path("nao-usado.csv"),
+                allowlist_grupo_a={sha(self.ID_BRUTO_SENTINELA): {"titulo": ""}},
+                allowlist_grupo_b={},
+            )
+        self.assertEqual(diagnostico["status"], "bloqueado_grupo_textual_divergente")
+        self.assertEqual(
+            diagnostico["amostra_ids_sha256_grupo_divergente"],
+            [sha(self.ID_BRUTO_SENTINELA)],
         )
         self._sem_sentinelas(diagnostico)
 
 
 class TestSemDriveRevisionsApi(unittest.TestCase):
-    """TESTE OBRIGATORIO 8: nenhuma Drive Revisions API e necessaria."""
+    """TESTE OBRIGATORIO: nenhuma Drive Revisions API e necessaria."""
 
     def test_modulo_nao_expoe_nenhuma_funcao_de_drive_api(self):
         for nome_proibido in (
@@ -441,8 +618,26 @@ class TestSemDriveRevisionsApi(unittest.TestCase):
         self.assertNotIn("openpyxl", trecho)
 
 
+class TestNaoUsaGateZeroOnlineVivo(unittest.TestCase):
+    """TESTE OBRIGATORIO: gate_zero() online permanece inalterada, e o
+    RECOVER nunca a chama — usa exclusivamente `validar_bundle_replay`
+    (compartilhada com `gate_zero_replay()`), que nunca recalcula R/Y a
+    partir de M/Q atuais."""
+
+    def test_modulo_recover_nao_referencia_gate_zero_vivo(self):
+        fonte = Path(rbr.__file__).read_text(encoding="utf-8")
+        self.assertNotIn("efc.gate_zero(", fonte)
+        self.assertIn("efc.validar_bundle_replay(", fonte)
+
+    def test_ensemble_fase2b_crossfit_expoe_validar_bundle_replay(self):
+        self.assertTrue(hasattr(rbr.efc, "validar_bundle_replay"))
+        self.assertTrue(hasattr(rbr.efc, "gate_zero_replay"))
+        self.assertTrue(hasattr(rbr.efc, "gate_zero"))
+
+
 class TestWorkflowNaoLiberaFitsNemPublicaCsv(unittest.TestCase):
-    """TESTES OBRIGATORIOS 6 (csv), 9 (fits) e 10 (escrita)."""
+    """TESTES OBRIGATORIOS: csv nao publicado, marcador nao libera fits,
+    nenhuma escrita em planilha."""
 
     @classmethod
     def setUpClass(cls):
@@ -458,8 +653,6 @@ class TestWorkflowNaoLiberaFitsNemPublicaCsv(unittest.TestCase):
         self.assertIn("autorizado_replay_recover", job["if"])
 
     def test_bundle_recover_nao_aparece_no_needs_de_nenhum_job_de_fit(self):
-        """TESTE OBRIGATORIO 9: o marcador nao libera gate_zero cientifico,
-        canario, crossfit, crossfit replay nem agregacao."""
         jobs_de_fit_ou_gate = (
             "gate_zero", "crossfit_fold", "agregar",
             "replica_a", "replica_b", "canario_comparar",
@@ -474,8 +667,6 @@ class TestWorkflowNaoLiberaFitsNemPublicaCsv(unittest.TestCase):
             self.assertNotIn("autorizado_replay_recover", condicao, nome)
 
     def test_bundle_recover_so_publica_diagnostico_json_sanitizado(self):
-        """TESTE OBRIGATORIO 6: o workflow nao publica
-        replay_bundle_candidato.csv."""
         job = self.jobs["bundle_recover"]
         passos_upload = [
             passo for passo in job["steps"]
@@ -487,8 +678,6 @@ class TestWorkflowNaoLiberaFitsNemPublicaCsv(unittest.TestCase):
         self.assertNotIn(".csv", caminho_artifact)
 
     def test_bundle_recover_nao_escreve_em_nenhuma_planilha(self):
-        """TESTE OBRIGATORIO 10: nenhum passo do job escreve na Google
-        Sheet."""
         job = self.jobs["bundle_recover"]
         for passo in job["steps"]:
             run = passo.get("run", "")
@@ -512,8 +701,6 @@ class TestWorkflowNaoLiberaFitsNemPublicaCsv(unittest.TestCase):
 
 
 class TestGitignoreAllowlistGrupoB(unittest.TestCase):
-    """TESTE OBRIGATORIO 11."""
-
     def test_replay_allowlist_grupo_b_local_json_esta_no_gitignore(self):
         conteudo = (RAIZ / ".gitignore").read_text(encoding="utf-8")
         linhas = [l.strip() for l in conteudo.splitlines()]
