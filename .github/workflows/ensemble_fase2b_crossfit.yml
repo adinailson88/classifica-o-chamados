@@ -58,7 +58,7 @@ jobs:
           python -m unittest discover -s tests
 
   autorizacao:
-    name: Autorizacao (marcadores [FASE2B-RUN] / [FASE2B-CANARY] / [FASE2B-REPLAY])
+    name: Autorizacao (marcadores [FASE2B-RUN] / [FASE2B-CANARY] / [FASE2B-REPLAY-PREFLIGHT] / [FASE2B-REPLAY])
     needs: testes
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -66,6 +66,7 @@ jobs:
       autorizado_cientifico: ${{ steps.checar.outputs.autorizado_cientifico }}
       autorizado_canario: ${{ steps.checar.outputs.autorizado_canario }}
       autorizado_replay: ${{ steps.checar.outputs.autorizado_replay }}
+      autorizado_replay_preflight: ${{ steps.checar.outputs.autorizado_replay_preflight }}
     steps:
       - name: Checar marcador no INICIO da primeira linha do commit
         id: checar
@@ -83,27 +84,42 @@ jobs:
           # dispararia a rodada pesada por acidente (ja aconteceu). Por isso
           # o gate exige que o marcador seja PREFIXO da PRIMEIRA linha (o
           # assunto do commit), nunca uma ocorrencia solta na mensagem. Os
-          # tres marcadores sao mutuamente exclusivos por construcao: um
-          # commit so pode comecar com um prefixo por vez.
+          # quatro marcadores sao mutuamente exclusivos por construcao: um
+          # commit so pode comecar com um prefixo por vez. [FASE2B-REPLAY-
+          # PREFLIGHT] e checado ANTES de [FASE2B-REPLAY] porque o segundo
+          # nome e prefixo textual do primeiro ate o caractere "]"/"-": a
+          # ordem evita qualquer ambiguidade de match, mesmo sendo os dois
+          # literais distintos por construcao (bash `==` com sufixo `*` e
+          # comparacao literal, nao regex).
           if [[ "$PRIMEIRA_LINHA" == "[FASE2B-RUN]"* ]]; then
             echo "autorizado_cientifico=true" >> "$GITHUB_OUTPUT"
             echo "autorizado_canario=false" >> "$GITHUB_OUTPUT"
             echo "autorizado_replay=false" >> "$GITHUB_OUTPUT"
+            echo "autorizado_replay_preflight=false" >> "$GITHUB_OUTPUT"
             echo "Marcador [FASE2B-RUN] no inicio do assunto: execucao cientifica completa (175 fits) AUTORIZADA."
           elif [[ "$PRIMEIRA_LINHA" == "[FASE2B-CANARY]"* ]]; then
             echo "autorizado_cientifico=false" >> "$GITHUB_OUTPUT"
             echo "autorizado_canario=true" >> "$GITHUB_OUTPUT"
             echo "autorizado_replay=false" >> "$GITHUB_OUTPUT"
+            echo "autorizado_replay_preflight=false" >> "$GITHUB_OUTPUT"
             echo "Marcador [FASE2B-CANARY] no inicio do assunto: canario de determinismo (2 replicas, so outer_fold=1) AUTORIZADO."
+          elif [[ "$PRIMEIRA_LINHA" == "[FASE2B-REPLAY-PREFLIGHT]"* ]]; then
+            echo "autorizado_cientifico=false" >> "$GITHUB_OUTPUT"
+            echo "autorizado_canario=false" >> "$GITHUB_OUTPUT"
+            echo "autorizado_replay=false" >> "$GITHUB_OUTPUT"
+            echo "autorizado_replay_preflight=true" >> "$GITHUB_OUTPUT"
+            echo "Marcador [FASE2B-REPLAY-PREFLIGHT] no inicio do assunto: preflight do bundle congelado (gate_zero_replay, ZERO fits) AUTORIZADO."
           elif [[ "$PRIMEIRA_LINHA" == "[FASE2B-REPLAY]"* ]]; then
             echo "autorizado_cientifico=false" >> "$GITHUB_OUTPUT"
             echo "autorizado_canario=false" >> "$GITHUB_OUTPUT"
             echo "autorizado_replay=true" >> "$GITHUB_OUTPUT"
-            echo "Marcador [FASE2B-REPLAY] no inicio do assunto: replay cientifico sobre input CONGELADO AUTORIZADO."
+            echo "autorizado_replay_preflight=false" >> "$GITHUB_OUTPUT"
+            echo "Marcador [FASE2B-REPLAY] no inicio do assunto: replay cientifico completo sobre input CONGELADO AUTORIZADO."
           else
             echo "autorizado_cientifico=false" >> "$GITHUB_OUTPUT"
             echo "autorizado_canario=false" >> "$GITHUB_OUTPUT"
             echo "autorizado_replay=false" >> "$GITHUB_OUTPUT"
+            echo "autorizado_replay_preflight=false" >> "$GITHUB_OUTPUT"
             echo "Nenhum marcador reconhecido no inicio do assunto do commit: somente testes."
           fi
 
@@ -451,7 +467,11 @@ jobs:
   gate_zero_replay:
     name: Gate Zero REPLAY (bundle congelado, sem treinar)
     needs: [testes, autorizacao]
-    if: needs.autorizacao.outputs.autorizado_replay == 'true'
+    # Roda tanto no preflight ([FASE2B-REPLAY-PREFLIGHT], ZERO fits) quanto na
+    # execucao completa ([FASE2B-REPLAY]): e o UNICO job que os dois modos
+    # compartilham. crossfit_fold_replay/agregar_replay abaixo dependem
+    # exclusivamente de autorizado_replay — o preflight nunca os libera.
+    if: needs.autorizacao.outputs.autorizado_replay == 'true' || needs.autorizacao.outputs.autorizado_replay_preflight == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:

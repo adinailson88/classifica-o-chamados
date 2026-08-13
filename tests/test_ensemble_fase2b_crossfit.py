@@ -837,23 +837,84 @@ class TestGateZeroReplayParidadeComGateZeroVivo(unittest.TestCase):
 
 
 class TestWorkflowMarcadorReplay(unittest.TestCase):
+    CAMINHO_WORKFLOW = (Path(__file__).resolve().parents[1] / ".github" / "workflows"
+                       / "ensemble_fase2b_crossfit.yml")
+
+    def _workflow(self) -> dict:
+        import yaml
+        with self.CAMINHO_WORKFLOW.open(encoding="utf-8") as f:
+            return yaml.safe_load(f)
+
     def test_workflow_reconhece_fase2b_replay_e_e_mutuamente_exclusivo(self):
-        caminho = (Path(__file__).resolve().parents[1] / ".github" / "workflows"
-                  / "ensemble_fase2b_crossfit.yml")
-        conteudo = caminho.read_text(encoding="utf-8")
+        conteudo = self.CAMINHO_WORKFLOW.read_text(encoding="utf-8")
         self.assertIn("[FASE2B-REPLAY]", conteudo)
+        self.assertIn("[FASE2B-REPLAY-PREFLIGHT]", conteudo)
         self.assertIn("autorizado_replay", conteudo)
-        # os tres marcadores continuam mutuamente exclusivos na mesma checagem
+        self.assertIn("autorizado_replay_preflight", conteudo)
+        # os quatro marcadores continuam mutuamente exclusivos na mesma checagem
         self.assertIn("[FASE2B-RUN]", conteudo)
         self.assertIn("[FASE2B-CANARY]", conteudo)
 
     def test_jobs_de_replay_dependem_do_marcador_autorizado_replay(self):
-        caminho = (Path(__file__).resolve().parents[1] / ".github" / "workflows"
-                  / "ensemble_fase2b_crossfit.yml")
-        conteudo = caminho.read_text(encoding="utf-8")
+        conteudo = self.CAMINHO_WORKFLOW.read_text(encoding="utf-8")
         for job in ("gate_zero_replay:", "crossfit_fold_replay:", "agregar_replay:"):
             self.assertIn(job, conteudo)
         self.assertIn("needs.autorizacao.outputs.autorizado_replay == 'true'", conteudo)
+
+    def test_autorizacao_expoe_os_quatro_outputs_mutuamente_exclusivos(self):
+        wf = self._workflow()
+        outputs = set(wf["jobs"]["autorizacao"]["outputs"])
+        self.assertEqual(
+            outputs,
+            {"autorizado_cientifico", "autorizado_canario",
+             "autorizado_replay", "autorizado_replay_preflight"},
+        )
+
+    def test_preflight_libera_apenas_gate_zero_replay(self):
+        """Garantia central da microcorrecao: o job gate_zero_replay aceita
+        o preflight, mas crossfit_fold_replay e agregar_replay NUNCA podem
+        depender de autorizado_replay_preflight — so de autorizado_replay."""
+        wf = self._workflow()
+        jobs = wf["jobs"]
+
+        condicao_gate_zero_replay = jobs["gate_zero_replay"]["if"]
+        self.assertIn("autorizado_replay_preflight", condicao_gate_zero_replay)
+        self.assertIn("autorizado_replay ==", condicao_gate_zero_replay)
+
+        for nome_job in ("crossfit_fold_replay", "agregar_replay"):
+            condicao = jobs[nome_job]["if"]
+            self.assertNotIn(
+                "autorizado_replay_preflight", condicao,
+                f"{nome_job} nao pode depender de autorizado_replay_preflight "
+                "(o preflight nao pode liberar fits/agregacao)",
+            )
+            self.assertEqual(
+                condicao, "needs.autorizacao.outputs.autorizado_replay == 'true'",
+                f"{nome_job} deve depender exclusivamente de autorizado_replay",
+            )
+
+    def test_nenhum_job_de_fit_ou_lstm_referencia_o_preflight(self):
+        """Confere, por nome de job, que nenhum job que executa fits (RUN,
+        CANARY, replay completo) tem o preflight na sua condicao `if`."""
+        wf = self._workflow()
+        jobs_com_fit = (
+            "gate_zero", "crossfit_fold", "agregar",
+            "replica_a", "replica_b", "canario_comparar",
+            "crossfit_fold_replay", "agregar_replay",
+        )
+        for nome_job in jobs_com_fit:
+            condicao = wf["jobs"][nome_job]["if"]
+            self.assertNotIn("autorizado_replay_preflight", condicao, nome_job)
+
+    def test_ordem_de_checagem_preflight_antes_de_replay_no_shell(self):
+        # [FASE2B-REPLAY-PREFLIGHT] precisa ser checado antes de
+        # [FASE2B-REPLAY] no script de autorizacao (embora bash `==` com `*`
+        # ja distinga os dois literais sem ambiguidade, a ordem elif deixa a
+        # intencao explicita e evita regressao se a checagem mudar de forma).
+        conteudo = self.CAMINHO_WORKFLOW.read_text(encoding="utf-8")
+        pos_preflight = conteudo.index('"[FASE2B-REPLAY-PREFLIGHT]"')
+        pos_replay = conteudo.index('"[FASE2B-REPLAY]"')
+        self.assertLess(pos_preflight, pos_replay)
 
 
 if __name__ == "__main__":
