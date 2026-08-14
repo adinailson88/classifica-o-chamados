@@ -299,8 +299,8 @@ mantido por já concordar com a nova redação.
 
 Execução `workflow_dispatch` de `.github/workflows/artigo_pdf.yml` na
 própria branch (run
-[31823081905](https://github.com/adinailson88/classificacao-chamados/actions/runs/31823081905)),
-sucesso em 30s, commit automático `d1309aa6` incorporado por
+[31824803944](https://github.com/adinailson88/classificacao-chamados/actions/runs/31824803944)),
+sucesso, commit automático `f88089b9` incorporado por
 fast-forward.
 
 - **Páginas: 21**, dentro da faixa preferencial de 21–23 (idêntico à
