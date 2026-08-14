@@ -23,6 +23,16 @@ ENTRADA_PADRAO = RAIZ / "04_artigo" / "figuras" / "lstm_history.json"
 SAIDA_PADRAO = RAIZ / "04_artigo" / "figuras" / "fig_curva_aprendizado_lstm"
 
 
+def _formatar_decimal_ptbr(ax, eixo: str = "y", casas: int = 1) -> None:
+    """Vírgula decimal no eixo, para casar com o restante do artigo."""
+    from matplotlib.ticker import FuncFormatter
+
+    formatador = FuncFormatter(
+        lambda v, _p: f"{v:.{casas}f}".replace(".", ",")
+    )
+    (ax.xaxis if eixo == "x" else ax.yaxis).set_major_formatter(formatador)
+
+
 def gerar(entrada: Path, saida: Path) -> list[Path]:
     historico = json.loads(entrada.read_text(encoding="utf-8"))
     for campo in ("loss", "val_loss", "accuracy", "val_accuracy"):
@@ -41,6 +51,7 @@ def gerar(entrada: Path, saida: Path) -> list[Path]:
     ax_perda.set_xlabel("Época")
     ax_perda.set_ylabel("Perda")
     ax_perda.legend()
+    _formatar_decimal_ptbr(ax_perda, eixo="y")
     limpar_eixo(ax_perda)
 
     ax_acc.plot(epocas, historico["accuracy"], marker="o",
@@ -50,6 +61,7 @@ def gerar(entrada: Path, saida: Path) -> list[Path]:
     ax_acc.set_xlabel("Época")
     ax_acc.set_ylabel("Acurácia")
     ax_acc.legend()
+    _formatar_decimal_ptbr(ax_acc, eixo="y", casas=2)
     limpar_eixo(ax_acc)
 
     melhor = max(range(len(historico["val_accuracy"])),

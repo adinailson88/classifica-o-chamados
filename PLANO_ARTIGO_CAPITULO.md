@@ -2,7 +2,7 @@
 
 Este documento registra somente a estrutura, os critérios editoriais e o estado atual do artigo/capítulo. O plano operacional vigente, os critérios de aceite e o ponto de continuidade estão em [`PLANO_EXECUCAO_ATUAL.md`](PLANO_EXECUCAO_ATUAL.md). Os dois documentos têm finalidades distintas e não devem acumular versões concorrentes do mesmo estado.
 
-Atualizado em 14/08/2026, no fuso America/Bahia (Rodada 11, integração editorial do resultado confirmatório do ensemble da Fase 2C).
+Atualizado em 14/08/2026, no fuso America/Bahia (Rodada 12, revisão editorial v4: título, Subseção 3.6, IFES, Tabela 5, paginação e figuras).
 
 ## Regra de uso
 
@@ -98,59 +98,87 @@ artigo.
 **Rodada canônica:** `1e476243` (hash completo
 `1e4762438a7e3627d3e32c1025f6bcb169e786881d8e86207806fdf98846409a`). Os oito
 artefatos derivados e os três do congelamento conferem esse hash,
-verificável por `python src/matriz_proveniencia.py`.
+verificável por `python src/matriz_proveniencia.py`; a Rodada 12 não
+alterou nenhum artefato de dados, e a matriz seguiu sem divergências.
 
 **Onde está:** os Passos 0 a 10 estão concluídos, o 9 encerrado como não
-aplicável, e o Passo 11 (redução e reescrita editorial) está concluído. A
-PR #203 (Rodada 9) foi mesclada em `main` e o PDF foi regenerado
-automaticamente pelo workflow pós-merge. A Rodada 10 é uma auditoria final
-de submissão, sem reabertura de decisões científicas nem reestruturação do
-artigo; seu registro completo está em
-[`docs/AUDITORIA_FINAL_SUBMISSAO.md`](docs/AUDITORIA_FINAL_SUBMISSAO.md).
+aplicável, e os Passos 11 e 12 (redução/reescrita editorial e integração
+do ensemble) estão concluídos. A Rodada 12 é uma revisão editorial de
+forma — título, identificação institucional, composição de tabelas,
+paginação e legibilidade de figuras — sem reabrir decisões científicas,
+sem retreinar modelo algum e sem alterar número, tabela de dados ou
+referência além do explicitamente descrito em
+`TAREFA_CLAUDE_CODE_revisao_v4.md`. Zero fits de modelo-base, zero fits de
+stacking, zero execuções de LSTM.
 
-**Estrutura vigente.** Seis figuras e quatro tabelas principais no corpo;
+**Estrutura vigente.** Seis figuras e **cinco** tabelas principais no
+corpo (nova Tabela 5, comparação confirmatória do ensemble, Subseção 4.5);
 apêndice com as Tabelas A1 a A3, floats não divisíveis em `\footnotesize`
-com numeração própria (A1/A2/A3, independente da sequência 1–4 do corpo);
-material suplementar até S16. Discussão em quatro subseções (5.1 a 5.4);
-Considerações Finais em cinco parágrafos curtos. Lista de referências com
-45 entradas, todas citadas no corpo, sem duplicatas nem citação órfã.
+com numeração própria (A1/A2/A3, independente da sequência 1–5 do corpo),
+com o título e o parágrafo introdutório do Apêndice A agora impressos
+antes da Tabela A1; material suplementar até S17. Discussão em quatro
+subseções (5.1 a 5.4); Considerações Finais em cinco parágrafos curtos.
+Lista de referências com 44 entradas (a entrada órfã de BRASIL, 2018,
+saiu junto da prosa que a citava; duas entradas foram reordenadas
+alfabeticamente), todas citadas no corpo, sem duplicatas nem citação
+órfã.
 
-**Corpo científico: 8.999 palavras**, medidas pela mesma rotina única
+**Título e identificação institucional.** Título e subtítulo
+reformulados para "Classificação de chamados de manutenção predial com
+aprendizado de máquina: desempenho e limites da automação". O corpus é
+descrito como o de uma instituição federal de ensino superior (IFES), sem
+nomear a UFSB fora do bloco de afiliação dos autores (`UFSB` ocorre uma
+única vez no arquivo-fonte).
+
+**Corpo científico: 8.855 palavras**, medidas pela mesma rotina única
 (contagem de palavras do Markdown-fonte entre "**1. INTRODUÇÃO**" e
-"**REFERÊNCIAS**", exclusive). Partiu de 8.915 (Rodada 10) e recebeu, na
-Rodada 11, um parágrafo confirmatório do ensemble em cada uma das
-Subseções 3.5, 4.5 e 5.1 (resultado da Fase 2C: nenhuma combinação —
-votação majoritária, votação suave ponderada, stacking — superou o
-LinearSVC na mesma capacidade `K_f`), compensado por cortes locais de
-prosa nas mesmas três subseções, permanecendo dentro da faixa-meta de
-8.850 a 9.000.
+"**REFERÊNCIAS**", exclusive). Partiu de 8.999 (Rodada 11) e absorveu, na
+Rodada 12, a reescrita da Subseção 3.6, a supressão do parágrafo de
+"quatro achados" da Seção 4, a supressão da cauda sobre privacidade
+institucional da Subseção 5.3, a nova seção "Disponibilidade de dados e
+código" e a nova Tabela 5, com elaborações compensatórias em outros
+trechos para permanecer dentro da faixa-meta de 8.850 a 9.000.
 
-**PDF publicado: 21 páginas**, dentro da faixa preferencial de 21 a 23,
-verificado por renderização real (não apenas pelo LaTeX intermediário do
-pandoc), regenerado pelo workflow oficial após a Rodada 11. Figuras 2, 4 e
-5 em largura reduzida (`76%`/`73%`/`80%`); Figuras 1, 3 e 6 em tamanho
-padrão. As duas páginas com espaço em branco já documentadas (antes da
-Figura 3; acima da Tabela A3) são comportamento esperado de floats em
-LaTeX, não erro de posicionamento, e permanecem sem ajuste.
+**PDF:** regenerado pelo workflow oficial (`artigo_pdf.yml`,
+`workflow_dispatch`) na própria branch desta rodada; contagem de páginas e
+inspeção visual registradas em `verificacao/relatorio_revisao_v4.md`.
 
-**Material suplementar: S17 acrescentada.** `tabela_S17_ensemble_confirmatorio.csv`,
+**Figuras regeneradas nesta rodada (só parâmetros de apresentação, sem
+alterar dado ou ordenação):** Figura 1 (texto interno e rótulo de
+retroalimentação a 8 pt, rótulo em tom mais escuro), Figura 4 (fonte a
+8 pt, rótulos truncados substituídos por abreviações explícitas em
+`ABREVIACOES_EXPLICITAS`), Figura 5 (fonte a 8 pt, mesmo conjunto de
+rótulos abreviados nos dois eixos da matriz), Figura 6 (eixos dos dois
+painéis em formato decimal pt-BR). Resumo criptográfico dos dados de
+entrada de cada figura conferido idêntico antes e depois em
+`verificacao/relatorio_revisao_v4.md`.
+
+**Pendência conhecida:** a contagem de construções antitéticas ", e não"
+no corpo já estava em 23 antes desta rodada (acima do limite de 8 usado
+como critério de aceitação da tarefa) e caiu para 20 com os cortes desta
+rodada; reduzi-la a 8 exigiria reescrever dezenas de frases fora do
+escopo explícito desta tarefa, o que não foi feito — ver bloqueador no
+relatório da rodada.
+
+**Material suplementar: S17.** `tabela_S17_ensemble_confirmatorio.csv`,
 gerada programaticamente por `src/tabelas_suplementares_canonicas.py` a
 partir exclusivamente de
 `docs/dados/ensemble/fase2c/fase2c_execucao_cientifica_1_manifest.json`
 (sem `hash_corpus`, por pertencer à trilha experimental da Fase 2C, não à
 rodada canônica do artigo principal), com validação de proveniência
 (universo 13.970, denominador `Y=1` 593, capacidade `K` 2.840, run/commit
-da Fase 2B). Numeração provisória, mantida em sequência após S16 apesar da
-lacuna já existente em S4; a renumeração contínua de S5 a S17 fica para a
-adaptação ao periódico escolhido (ver `docs/AUDITORIA_FINAL_SUBMISSAO.md`,
-seção 9).
+da Fase 2B). Não modificada nesta rodada; a nova Tabela 5 do corpo apenas
+formata, sem alterar, os mesmos quatro valores já usados no parágrafo
+final da Subseção 4.5 desde a Rodada 11.
 
 O detalhamento rodada a rodada de como o estado anterior a este foi
 alcançado — reestruturação da Discussão, conversão das tabelas em floats,
 correções das duas auditorias independentes da PR #202, auditoria visual e
-paginação da Rodada 9, auditoria final de submissão da Rodada 10 — está
-nos commits e nas Pull Requests (#202, #203, #209) e não é repetido aqui,
-conforme a regra de uso deste documento.
+paginação da Rodada 9, auditoria final de submissão da Rodada 10,
+integração editorial do ensemble na Rodada 11 — está nos commits e nas
+Pull Requests (#202, #203, #209, #210) e não é repetido aqui, conforme a
+regra de uso deste documento. O relatório completo da Rodada 12 está em
+`verificacao/relatorio_revisao_v4.md`.
 
 ## Critérios para novo fechamento científico
 
