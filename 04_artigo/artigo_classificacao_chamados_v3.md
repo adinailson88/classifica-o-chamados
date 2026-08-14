@@ -374,13 +374,19 @@ equipamentos, pois palavras como *bomba*, *split* e *infiltração* são
 
 Sete modelos em três famílias compõem a comparação principal, escolhidas
 pelas características do domínio: texto curto, vocabulário técnico e forte
-desbalanceamento. Fronteiras lineares separam bem as classes
-sobre representação esparsa quando o vocabulário carrega poder discriminativo
-(JOACHIMS, 1998; SALTON; BUCKLEY, 1988). Os *ensembles* de árvores capturam
-interações não lineares a custo maior. O Naive Bayes assume independência
-condicional entre atributos dada a classe, suposição violada quando termos
-técnicos co-ocorrem dentro de uma mesma categoria (PEDREGOSA *et al.*, 2011).
-E a LSTM treina seus *embeddings* do zero (GRAVES; SCHMIDHUBER, 2005),
+desbalanceamento. Nenhuma das três famílias é descartada a priori, pois
+cada uma responde melhor a um subconjunto distinto dessas características,
+e a comparação sob o mesmo protocolo é o que permite decidir entre elas com
+evidência, em vez de por preferência de projeto. Fronteiras lineares
+separam bem as classes sobre representação esparsa quando o vocabulário
+carrega poder discriminativo (JOACHIMS, 1998; SALTON; BUCKLEY, 1988). Os
+*ensembles* de árvores capturam interações não lineares a custo maior,
+pagando por essa flexibilidade em tempo de treino. O Naive Bayes assume
+independência condicional entre atributos dada a classe, suposição violada
+quando termos técnicos co-ocorrem dentro de uma mesma categoria
+(PEDREGOSA *et al.*, 2011), mas serve de piso comparativo barato para as
+demais famílias. E a LSTM treina seus *embeddings* do zero (GRAVES;
+SCHMIDHUBER, 2005),
 concentrando nessa camada cerca de 1,02 milhão de parâmetros, ordem de
 grandeza próxima dos 11.178 exemplos de cada partição de treino. A Tabela 1
 resume representação, configuração e papel de cada modelo; os
@@ -1080,11 +1086,15 @@ para ordenar a fila de auditoria, complementar à baixa confiança de um
 **5.3 Limitações e alcance da evidência**
 
 A evidência tem alcance delimitado por características do desenho, que
-devem ser lidas em conjunto. Os dados provêm de uma única instituição
+devem ser lidas em conjunto, não isoladamente, sob pena de superestimar o
+que o protocolo já entrega. Os dados provêm de uma única instituição
 federal de ensino superior, em português brasileiro e taxonomia
 institucional própria, o que exige validação externa antes de generalizar
-a outras instituições, idiomas ou taxonomias. A referência humana resulta
-de auditoria administrativa por avaliador único, com a categoria histórica
+a outras instituições, idiomas ou taxonomias; instituições com vocabulário
+técnico distinto, outra língua ou outra estrutura de categorias podem
+produzir desempenho diferente do aqui medido, e essa transferência não foi
+testada. A referência humana resulta de auditoria administrativa por
+avaliador único, com a categoria histórica
 à vista, sem segunda avaliação, cegamento ou adjudicação, condição que
 impede estimar a prevalência de erro do rótulo histórico ou a
 reprodutibilidade da referência por outro especialista, restrição agravada

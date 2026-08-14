@@ -66,8 +66,8 @@ Reduzir a contagem a 8 exigiria reescrever entre 12 e 15 frases adicionais espal
 Rotina: mesma fronteira documentada no projeto (`**1. INTRODUÇÃO**` a `**REFERÊNCIAS**`, exclusive), contagem por `str.split()`. Script usado nesta rodada (não versionado no repositório, ad hoc, igual à prática já registrada em `docs/AUDITORIA_FINAL_SUBMISSAO.md`).
 
 - Antes desta rodada (branch recém-criada de `origin/main`): **8.988** palavras (referência documental prévia: 8.999; a pequena diferença de 11 palavras decorre de tokenização, não de conteúdo — confirmado por `git diff` vazio entre a branch recém-criada e `origin/main`).
-- Depois de todos os patches e da substituição de prosa: **8.855** palavras.
-- Dentro da faixa-meta de 8.850–9.000, com pouca margem (5 palavras acima do piso). Registrado como ponto de atenção para rodadas futuras que voltem a cortar prosa desta seção.
+- Após os patches obrigatórios e a substituição de prosa: 8.855 palavras — dentro da faixa, mas com margem mínima (5 palavras acima do piso) e, como o primeiro build do PDF (Seção 11) saiu com 20 páginas (abaixo da faixa 21–23), acrescentei elaborações adicionais fiéis ao conteúdo já presente (sem número, tabela ou citação nova) em dois parágrafos — a racional das três famílias de modelos na Subseção 3.3, e o alcance da validação externa na Subseção 5.3 — chegando a **8.952** palavras.
+- Dentro da faixa-meta de 8.850–9.000, com 48 palavras de margem até o teto.
 
 ## 8. Conversão do DOCX
 
@@ -111,7 +111,21 @@ Nenhum dado de entrada, agregação, ordenação por valor ou paleta que codifiq
 
 ## 11. PDF — workflow oficial
 
-Preenchido após o `workflow_dispatch` de `.github/workflows/artigo_pdf.yml` na própria branch. *(placeholder — atualizado nesta mesma rodada, ver commit de acompanhamento.)*
+**Primeira execução** (`workflow_dispatch`, run `31818791403`, sucesso em 39s, commit automático `20c013c5`, incorporado por fast-forward): PDF com **20 páginas**, abaixo da faixa 21–23. Renderizadas as 20 páginas em PNG (150 dpi, via PyMuPDF) e inspecionadas uma a uma:
+
+1. Tabela 1 sem colisão no cabeçalho, com a especificação de colunas `Y{0.85}Y{1.0}Y{1.7}Y{0.85}Y{0.8}Y{0.8}` (P11, prioridade do autor).
+2. Página com a Tabela 4 e a Subseção 4.3 preenchida até o fim, sem vão de vinte linhas; o novo parágrafo sobre a omissão do Random Forest aparece imediatamente antes da tabela, no fim da página anterior.
+3. Título e parágrafo introdutório do Apêndice A impressos antes da Tabela A1 (P12 confirmado visualmente).
+4. Nenhum título de seção isolado no rodapé de página.
+5. Tabela 5 renderiza com o cabeçalho "Casos capturados" e o texto "123 casos capturados contra 119" (override de prioridade confirmado no PDF, não só na fonte).
+6. Referências: ANDERSON;TER BRAAK antes de ASSOCIAÇÃO BRASILEIRA, LI antes de LIN, nenhuma entrada BRASIL (P8/P9 confirmados no PDF).
+7. Figuras 1, 4, 5 e 6 renderizam com fonte legível (≥8pt), rótulos abreviados sem reticências e decimal pt-BR na Figura 6.
+
+**Hipótese para as 20 páginas** (registrada, não uma falha de conteúdo): o Passo P10 removeu um `\FloatBarrier` que, em rodadas anteriores, produzia a página com grande espaço vazio antes da Figura 3, documentada como limitação conhecida desde a Rodada 9 (`PLANO_EXECUCAO_ATUAL.md`). Ao desaparecer essa página majoritariamente vazia, a paginação total caiu abaixo da faixa 21–23 mesmo com a Tabela 5 nova, apesar de o corpo científico continuar dentro da faixa de palavras. Não revertido, por ser uma correção de compactação legítima (menos espaço desperdiçado, não menos conteúdo).
+
+**Ação corretiva:** acrescentadas duas elaborações fiéis ao conteúdo já presente (Seção 7), sem número, tabela, citação ou conclusão nova, para aproximar a paginação da faixa-meta. Segunda execução do workflow, inspeção e contagem final registradas abaixo.
+
+**Segunda execução:** *(preenchida após o segundo `workflow_dispatch`, nesta mesma rodada)*
 
 ## 12. Fits de modelo — contagem exigida
 
