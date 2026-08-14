@@ -1435,7 +1435,16 @@ as 41 categorias que sustentaram suporte nas cinco dobras e compõem as
 ```
 
 ```{=latex}
-\begin{table}[!tbp]
+% Colocacao restrita a "h" (no ponto do texto): nesta imagem de build
+% (pandoc/extra) o pacote placeins nao esta disponivel e o \FloatBarrier
+% de contingencia so aciona \clearpage quando ja ha float pendente, sem
+% impedir que um float definido depois suba para o topo da pagina. Como
+% o titulo e o paragrafo introdutorio (texto corrido, nao flutuante) sao
+% tipografados antes deste ponto, restringir a Tabela A1 a "h" a mantem
+% logo apos eles, sem abrir vao em branco no meio da pagina (efeito
+% colateral de uma tentativa intermediaria com "b", que empurrava a
+% tabela para o rodape e deixava metade da pagina vazia).
+\begin{table}[!h]
 \centering
 \footnotesize
 \caption{Distribuição dos chamados por categoria histórica.}
