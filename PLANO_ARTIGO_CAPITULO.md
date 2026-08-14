@@ -2,7 +2,7 @@
 
 Este documento registra somente a estrutura, os critérios editoriais e o estado atual do artigo/capítulo. O plano operacional vigente, os critérios de aceite e o ponto de continuidade estão em [`PLANO_EXECUCAO_ATUAL.md`](PLANO_EXECUCAO_ATUAL.md). Os dois documentos têm finalidades distintas e não devem acumular versões concorrentes do mesmo estado.
 
-Atualizado em 06/08/2026, no fuso America/Bahia (Rodada 10, auditoria final de submissão).
+Atualizado em 14/08/2026, no fuso America/Bahia (Rodada 11, integração editorial do resultado confirmatório do ensemble da Fase 2C).
 
 ## Regra de uso
 
@@ -115,34 +115,42 @@ material suplementar até S16. Discussão em quatro subseções (5.1 a 5.4);
 Considerações Finais em cinco parágrafos curtos. Lista de referências com
 45 entradas, todas citadas no corpo, sem duplicatas nem citação órfã.
 
-**Corpo científico: 8.915 palavras**, medidas por uma única rotina (contagem
-de palavras do Markdown-fonte entre "**1. INTRODUÇÃO**" e "**REFERÊNCIAS**",
-exclusive, incluindo os comandos LaTeX brutos das tabelas em float, que não
-são prosa mas integravam a mesma rotina desde a Rodada 7). O valor de 8.917
-palavras registrado após a PR #202 refletia o corpo antes da conversão das
-Tabelas A1 a A3 para floats (Rodada 9) e da microcorreção do eixo da
-Figura 2, o que já o levou a 8.913 na própria Rodada 9; a Rodada 10
-acrescentou a chamada "(Tabela 4)", ausente na Subseção 4.3 enquanto as
-Tabelas 1 a 3 já eram citadas por número, o que soma as duas palavras
-finais até 8.915. Não há divergência de metodologia, apenas recontagem
-após essas alterações.
+**Corpo científico: 8.999 palavras**, medidas pela mesma rotina única
+(contagem de palavras do Markdown-fonte entre "**1. INTRODUÇÃO**" e
+"**REFERÊNCIAS**", exclusive). Partiu de 8.915 (Rodada 10) e recebeu, na
+Rodada 11, um parágrafo confirmatório do ensemble em cada uma das
+Subseções 3.5, 4.5 e 5.1 (resultado da Fase 2C: nenhuma combinação —
+votação majoritária, votação suave ponderada, stacking — superou o
+LinearSVC na mesma capacidade `K_f`), compensado por cortes locais de
+prosa nas mesmas três subseções, permanecendo dentro da faixa-meta de
+8.850 a 9.000.
 
-**PDF publicado: 22 páginas**, dentro da faixa preferencial de 21 a 23,
+**PDF publicado: 21 páginas**, dentro da faixa preferencial de 21 a 23,
 verificado por renderização real (não apenas pelo LaTeX intermediário do
-pandoc). Figuras 2, 4 e 5 em largura reduzida (`76%`/`73%`/`80%`); Figuras 1,
-3 e 6 em tamanho padrão. Uma página com espaço em branco antes da Figura 3
-(float não divisível migrando para a página seguinte) e espaço acima da
-Tabela A3 (último float do documento) são comportamento esperado de floats
-em LaTeX, não erro de posicionamento, e permanecem sem ajuste por não haver
-medida segura disponível (sem reduzir fonte ou margem) que os resolvesse sem
-recompilação iterativa.
+pandoc), regenerado pelo workflow oficial após a Rodada 11. Figuras 2, 4 e
+5 em largura reduzida (`76%`/`73%`/`80%`); Figuras 1, 3 e 6 em tamanho
+padrão. As duas páginas com espaço em branco já documentadas (antes da
+Figura 3; acima da Tabela A3) são comportamento esperado de floats em
+LaTeX, não erro de posicionamento, e permanecem sem ajuste.
 
-O detalhamento rodada a rodada de como esse estado foi alcançado —
-reestruturação da Discussão, conversão das tabelas em floats, correções das
-duas auditorias independentes da PR #202, auditoria visual e paginação da
-Rodada 9, microcorreção do eixo da Figura 2 — está nos commits e nas
-Pull Requests (#202, #203) e não é repetido aqui, conforme a regra de uso
-deste documento.
+**Material suplementar: S17 acrescentada.** `tabela_S17_ensemble_confirmatorio.csv`,
+gerada programaticamente por `src/tabelas_suplementares_canonicas.py` a
+partir exclusivamente de
+`docs/dados/ensemble/fase2c/fase2c_execucao_cientifica_1_manifest.json`
+(sem `hash_corpus`, por pertencer à trilha experimental da Fase 2C, não à
+rodada canônica do artigo principal), com validação de proveniência
+(universo 13.970, denominador `Y=1` 593, capacidade `K` 2.840, run/commit
+da Fase 2B). Numeração provisória, mantida em sequência após S16 apesar da
+lacuna já existente em S4; a renumeração contínua de S5 a S17 fica para a
+adaptação ao periódico escolhido (ver `docs/AUDITORIA_FINAL_SUBMISSAO.md`,
+seção 9).
+
+O detalhamento rodada a rodada de como o estado anterior a este foi
+alcançado — reestruturação da Discussão, conversão das tabelas em floats,
+correções das duas auditorias independentes da PR #202, auditoria visual e
+paginação da Rodada 9, auditoria final de submissão da Rodada 10 — está
+nos commits e nas Pull Requests (#202, #203, #209) e não é repetido aqui,
+conforme a regra de uso deste documento.
 
 ## Critérios para novo fechamento científico
 
