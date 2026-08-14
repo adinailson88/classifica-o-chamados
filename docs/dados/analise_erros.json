@@ -1,7 +1,7 @@
 {
-  "gerado_em": "12/08/2026 03:56",
+  "gerado_em": "14/08/2026 03:56",
   "natureza": "analise exploratoria de erros da IA contra a conferencia humana; orienta a qualidade da ABERTURA do chamado, nao e metrica de producao",
-  "n_conferidos_ia": 8661,
+  "n_conferidos_ia": 8663,
   "minimo_recomendado": 30,
   "campos_formulario_sugeridos": [
     {
@@ -22,62 +22,152 @@
     }
   ],
   "status": "ok",
-  "n_erros_ia": 258,
-  "n_acertos_ia": 8403,
+  "n_erros_ia": 259,
+  "n_acertos_ia": 8404,
   "comparacao_erros_vs_acertos": [
     {
       "caracteristica": "comprimento_titulo",
-      "n_erros": 258,
-      "n_acertos": 8403,
-      "mediana_erros": 54.0,
-      "mediana_acertos": 53.0,
-      "p_mann_whitney": 0.4156780691345252,
-      "delta_cliff": -0.0297
+      "n_erros": 259,
+      "n_acertos": 8404,
+      "mediana_erros": 55.0,
+      "mediana_acertos": 52.0,
+      "p_mann_whitney": 0.5472399443854056,
+      "delta_cliff": -0.0219
     },
     {
       "caracteristica": "comprimento_descricao",
-      "n_erros": 258,
-      "n_acertos": 8403,
-      "mediana_erros": 132.5,
+      "n_erros": 259,
+      "n_acertos": 8404,
+      "mediana_erros": 133.0,
       "mediana_acertos": 186.0,
-      "p_mann_whitney": 6.814074864050297e-14,
-      "delta_cliff": -0.2732
+      "p_mann_whitney": 3.225923832055859e-13,
+      "delta_cliff": -0.2651
     },
     {
       "caracteristica": "n_tokens",
-      "n_erros": 258,
-      "n_acertos": 8403,
+      "n_erros": 259,
+      "n_acertos": 8404,
       "mediana_erros": 32.0,
       "mediana_acertos": 39.0,
-      "p_mann_whitney": 4.425956360847759e-09,
-      "delta_cliff": -0.2141
+      "p_mann_whitney": 1.6525225151664568e-08,
+      "delta_cliff": -0.2056
     },
     {
       "caracteristica": "campos_preenchidos",
-      "n_erros": 258,
-      "n_acertos": 8403,
+      "n_erros": 259,
+      "n_acertos": 8404,
       "mediana_erros": 1.0,
       "mediana_acertos": 1.0,
-      "p_mann_whitney": 6.868205763002929e-06,
-      "delta_cliff": -0.1067
+      "p_mann_whitney": 4.568790155720036e-06,
+      "delta_cliff": -0.109
     },
     {
       "caracteristica": "cobertura_termos_categoria",
-      "n_erros": 258,
-      "n_acertos": 8048,
+      "n_erros": 259,
+      "n_acertos": 5647,
       "mediana_erros": 0.12,
-      "mediana_acertos": 0.16,
-      "p_mann_whitney": 9.723011064836173e-18,
-      "delta_cliff": -0.3116
+      "mediana_acertos": 0.24,
+      "p_mann_whitney": 5.969187321569064e-26,
+      "delta_cliff": -0.3844
     }
   ],
   "leitura": "Se 'cobertura_termos_categoria' e comprimentos forem significativamente menores nos ERROS (p<0,05 e |delta de Cliff|>=0,147), a hipotese se confirma: texto pobre -> erro de categoria. O checklist por categoria lista os termos discriminativos ausentes nos erros — e a informacao que o formulario deve induzir o solicitante a fornecer, sem nunca pedir a categoria em si.",
   "por_categoria": [
     {
+      "categoria": "Hidrossanitária > ETA / ETE",
+      "n_conferidos": 1,
+      "erros_ia": 1,
+      "taxa_erro_ia": 1.0,
+      "termos_que_faltaram_nos_erros": [],
+      "informacao_a_solicitar": null
+    },
+    {
+      "categoria": "Instalação de Acessórios e Mobiliário > Instalação/reparo de equipamentos (Suportes de TV, acessórios de banheiro e quadro branco)",
+      "n_conferidos": 71,
+      "erros_ia": 16,
+      "taxa_erro_ia": 0.2254,
+      "termos_que_faltaram_nos_erros": [
+        {
+          "termo": "liquido",
+          "ausente_em": 16
+        },
+        {
+          "termo": "papel",
+          "ausente_em": 16
+        },
+        {
+          "termo": "sabonete liquido",
+          "ausente_em": 16
+        },
+        {
+          "termo": "instalacao suporte",
+          "ausente_em": 16
+        },
+        {
+          "termo": "tvs",
+          "ausente_em": 16
+        },
+        {
+          "termo": "assento sanitario",
+          "ausente_em": 16
+        },
+        {
+          "termo": "substituicao assento",
+          "ausente_em": 16
+        },
+        {
+          "termo": "vaso sanitario",
+          "ausente_em": 16
+        }
+      ],
+      "informacao_a_solicitar": "Pedir que o solicitante descreva o problema citando o objeto e o sintoma (vocabulario tipico desta categoria: liquido, papel, sabonete liquido, instalacao suporte, tvs)."
+    },
+    {
+      "categoria": "Instalação de Acessórios e Mobiliário > Placas de identificação",
+      "n_conferidos": 14,
+      "erros_ia": 3,
+      "taxa_erro_ia": 0.2143,
+      "termos_que_faltaram_nos_erros": [
+        {
+          "termo": "identificacao",
+          "ausente_em": 3
+        },
+        {
+          "termo": "placa identificacao",
+          "ausente_em": 3
+        },
+        {
+          "termo": "confeccao",
+          "ausente_em": 3
+        },
+        {
+          "termo": "placas identificacao",
+          "ausente_em": 3
+        },
+        {
+          "termo": "instalacao placa",
+          "ausente_em": 3
+        },
+        {
+          "termo": "confeccao placa",
+          "ausente_em": 3
+        },
+        {
+          "termo": "troca placa",
+          "ausente_em": 3
+        },
+        {
+          "termo": "rede cuni",
+          "ausente_em": 3
+        }
+      ],
+      "informacao_a_solicitar": "Pedir que o solicitante descreva o problema citando o objeto e o sintoma (vocabulario tipico desta categoria: identificacao, placa identificacao, confeccao, placas identificacao, instalacao placa)."
+    },
+    {
       "categoria": "Projetos e Reformas > Reforma",
-      "n_conferidos": 48,
+      "n_conferidos": 47,
       "erros_ia": 10,
-      "taxa_erro_ia": 0.2083,
+      "taxa_erro_ia": 0.2128,
       "termos_que_faltaram_nos_erros": [
         {
           "termo": "iluminacao emergencia",
@@ -116,9 +206,9 @@
     },
     {
       "categoria": "Hidrossanitária > Bomba",
-      "n_conferidos": 24,
+      "n_conferidos": 17,
       "erros_ia": 3,
-      "taxa_erro_ia": 0.125,
+      "taxa_erro_ia": 0.1765,
       "termos_que_faltaram_nos_erros": [
         {
           "termo": "reparo bomba",
@@ -141,156 +231,33 @@
           "ausente_em": 3
         },
         {
-          "termo": "complementar",
-          "ausente_em": 3
-        },
-        {
           "termo": "poco artesiano",
           "ausente_em": 3
         },
         {
           "termo": "artesiano",
           "ausente_em": 3
+        },
+        {
+          "termo": "complementar",
+          "ausente_em": 3
         }
       ],
       "informacao_a_solicitar": "Pedir que o solicitante descreva o problema citando o objeto e o sintoma (vocabulario tipico desta categoria: reparo bomba, fossa, limpeza fossa, poco, bomba poco)."
     },
     {
-      "categoria": "Instalação de Acessórios e Mobiliário > Instalação/reparo de equipamentos (Suportes de TV, acessórios de banheiro e quadro branco)",
-      "n_conferidos": 155,
-      "erros_ia": 16,
-      "taxa_erro_ia": 0.1032,
-      "termos_que_faltaram_nos_erros": [
-        {
-          "termo": "liquido",
-          "ausente_em": 16
-        },
-        {
-          "termo": "papel",
-          "ausente_em": 16
-        },
-        {
-          "termo": "sabonete liquido",
-          "ausente_em": 16
-        },
-        {
-          "termo": "instalacao suporte",
-          "ausente_em": 16
-        },
-        {
-          "termo": "tvs",
-          "ausente_em": 16
-        },
-        {
-          "termo": "assento sanitario",
-          "ausente_em": 16
-        },
-        {
-          "termo": "substituicao assento",
-          "ausente_em": 16
-        },
-        {
-          "termo": "vaso sanitario",
-          "ausente_em": 16
-        }
-      ],
-      "informacao_a_solicitar": "Pedir que o solicitante descreva o problema citando o objeto e o sintoma (vocabulario tipico desta categoria: liquido, papel, sabonete liquido, instalacao suporte, tvs)."
-    },
-    {
-      "categoria": "Elétrica > Instalações elétricas",
-      "n_conferidos": 519,
-      "erros_ia": 44,
-      "taxa_erro_ia": 0.0848,
-      "termos_que_faltaram_nos_erros": [
-        {
-          "termo": "nobreak",
-          "ausente_em": 44
-        },
-        {
-          "termo": "instalacao tomada",
-          "ausente_em": 44
-        },
-        {
-          "termo": "instalacao tomadas",
-          "ausente_em": 44
-        },
-        {
-          "termo": "eletricas",
-          "ausente_em": 44
-        },
-        {
-          "termo": "estao funcionando",
-          "ausente_em": 44
-        },
-        {
-          "termo": "pontos energia",
-          "ausente_em": 44
-        },
-        {
-          "termo": "transformador",
-          "ausente_em": 44
-        },
-        {
-          "termo": "dupla",
-          "ausente_em": 44
-        }
-      ],
-      "informacao_a_solicitar": "Pedir que o solicitante descreva o problema citando o objeto e o sintoma (vocabulario tipico desta categoria: nobreak, instalacao tomada, instalacao tomadas, eletricas, estao funcionando)."
-    },
-    {
       "categoria": "Elétrica > Subestação",
-      "n_conferidos": 12,
+      "n_conferidos": 6,
       "erros_ia": 1,
-      "taxa_erro_ia": 0.0833,
+      "taxa_erro_ia": 0.1667,
       "termos_que_faltaram_nos_erros": [],
       "informacao_a_solicitar": null
     },
     {
-      "categoria": "Instalação de Acessórios e Mobiliário > Placas de identificação",
-      "n_conferidos": 38,
-      "erros_ia": 3,
-      "taxa_erro_ia": 0.0789,
-      "termos_que_faltaram_nos_erros": [
-        {
-          "termo": "identificacao",
-          "ausente_em": 3
-        },
-        {
-          "termo": "placa identificacao",
-          "ausente_em": 3
-        },
-        {
-          "termo": "confeccao",
-          "ausente_em": 3
-        },
-        {
-          "termo": "placas identificacao",
-          "ausente_em": 3
-        },
-        {
-          "termo": "instalacao placa",
-          "ausente_em": 3
-        },
-        {
-          "termo": "confeccao placa",
-          "ausente_em": 3
-        },
-        {
-          "termo": "troca placa",
-          "ausente_em": 3
-        },
-        {
-          "termo": "rede cuni",
-          "ausente_em": 3
-        }
-      ],
-      "informacao_a_solicitar": "Pedir que o solicitante descreva o problema citando o objeto e o sintoma (vocabulario tipico desta categoria: identificacao, placa identificacao, confeccao, placas identificacao, instalacao placa)."
-    },
-    {
       "categoria": "Estrutura Predial > Pintura",
-      "n_conferidos": 40,
+      "n_conferidos": 20,
       "erros_ia": 3,
-      "taxa_erro_ia": 0.075,
+      "taxa_erro_ia": 0.15,
       "termos_que_faltaram_nos_erros": [
         {
           "termo": "tinta",
@@ -328,26 +295,59 @@
       "informacao_a_solicitar": "Pedir que o solicitante descreva o problema citando o objeto e o sintoma (vocabulario tipico desta categoria: tinta, complementar pintura, varanda, latas, pintura paredes)."
     },
     {
-      "categoria": "Segurança contra Incêndio > Sistemas de combate a incêndio (extintores, hidrantes)",
-      "n_conferidos": 15,
-      "erros_ia": 1,
-      "taxa_erro_ia": 0.0667,
-      "termos_que_faltaram_nos_erros": [],
-      "informacao_a_solicitar": null
+      "categoria": "Elétrica > Instalações elétricas",
+      "n_conferidos": 362,
+      "erros_ia": 46,
+      "taxa_erro_ia": 0.1271,
+      "termos_que_faltaram_nos_erros": [
+        {
+          "termo": "nobreak",
+          "ausente_em": 46
+        },
+        {
+          "termo": "instalacao tomada",
+          "ausente_em": 46
+        },
+        {
+          "termo": "instalacao tomadas",
+          "ausente_em": 46
+        },
+        {
+          "termo": "eletricas",
+          "ausente_em": 46
+        },
+        {
+          "termo": "estao funcionando",
+          "ausente_em": 46
+        },
+        {
+          "termo": "pontos energia",
+          "ausente_em": 46
+        },
+        {
+          "termo": "transformador",
+          "ausente_em": 46
+        },
+        {
+          "termo": "dupla",
+          "ausente_em": 46
+        }
+      ],
+      "informacao_a_solicitar": "Pedir que o solicitante descreva o problema citando o objeto e o sintoma (vocabulario tipico desta categoria: nobreak, instalacao tomada, instalacao tomadas, eletricas, estao funcionando)."
     },
     {
-      "categoria": "Equipamentos de Transporte > Elevador",
-      "n_conferidos": 15,
+      "categoria": "Segurança contra Incêndio > Sistemas de combate a incêndio (extintores, hidrantes)",
+      "n_conferidos": 8,
       "erros_ia": 1,
-      "taxa_erro_ia": 0.0667,
+      "taxa_erro_ia": 0.125,
       "termos_que_faltaram_nos_erros": [],
       "informacao_a_solicitar": null
     },
     {
       "categoria": "Elétrica > Iluminação",
-      "n_conferidos": 453,
+      "n_conferidos": 297,
       "erros_ia": 29,
-      "taxa_erro_ia": 0.064,
+      "taxa_erro_ia": 0.0976,
       "termos_que_faltaram_nos_erros": [
         {
           "termo": "postes",
@@ -386,9 +386,9 @@
     },
     {
       "categoria": "Outros > Erro de chamado",
-      "n_conferidos": 138,
+      "n_conferidos": 73,
       "erros_ia": 7,
-      "taxa_erro_ia": 0.0507,
+      "taxa_erro_ia": 0.0959,
       "termos_que_faltaram_nos_erros": [
         {
           "termo": "computador",
@@ -415,7 +415,7 @@
           "ausente_em": 7
         },
         {
-          "termo": "senha",
+          "termo": "gfe",
           "ausente_em": 7
         },
         {
@@ -427,17 +427,17 @@
     },
     {
       "categoria": "Elétrica > Gerador",
-      "n_conferidos": 20,
+      "n_conferidos": 12,
       "erros_ia": 1,
-      "taxa_erro_ia": 0.05,
+      "taxa_erro_ia": 0.0833,
       "termos_que_faltaram_nos_erros": [],
       "informacao_a_solicitar": null
     },
     {
       "categoria": "Climatização > Ar condicionado split",
-      "n_conferidos": 885,
+      "n_conferidos": 532,
       "erros_ia": 44,
-      "taxa_erro_ia": 0.0497,
+      "taxa_erro_ia": 0.0827,
       "termos_que_faltaram_nos_erros": [
         {
           "termo": "aparelhos ar",
@@ -464,21 +464,21 @@
           "ausente_em": 44
         },
         {
-          "termo": "system",
+          "termo": "condicionado split",
           "ausente_em": 44
         },
         {
-          "termo": "aparelho ar",
-          "ausente_em": 43
+          "termo": "split system",
+          "ausente_em": 44
         }
       ],
       "informacao_a_solicitar": "Pedir que o solicitante descreva o problema citando o objeto e o sintoma (vocabulario tipico desta categoria: aparelhos ar, manutencao ar, instalacao ar, reparo ar, condicionado laboratorio)."
     },
     {
       "categoria": "Estrutura Predial > Telhados, calhas, rufos, etc.",
-      "n_conferidos": 106,
+      "n_conferidos": 69,
       "erros_ia": 5,
-      "taxa_erro_ia": 0.0472,
+      "taxa_erro_ia": 0.0725,
       "termos_que_faltaram_nos_erros": [
         {
           "termo": "goteira",
@@ -516,18 +516,10 @@
       "informacao_a_solicitar": "Pedir que o solicitante descreva o problema citando o objeto e o sintoma (vocabulario tipico desta categoria: goteira, goteiras, manutencao telhado, telhas, telhados)."
     },
     {
-      "categoria": "Climatização > Ar condicionado central",
-      "n_conferidos": 22,
-      "erros_ia": 1,
-      "taxa_erro_ia": 0.0455,
-      "termos_que_faltaram_nos_erros": [],
-      "informacao_a_solicitar": null
-    },
-    {
       "categoria": "Estrutura Predial > Esquadrias, porta, portão e janelas",
-      "n_conferidos": 568,
+      "n_conferidos": 329,
       "erros_ia": 22,
-      "taxa_erro_ia": 0.0387,
+      "taxa_erro_ia": 0.0669,
       "termos_que_faltaram_nos_erros": [
         {
           "termo": "janela",
@@ -565,141 +557,75 @@
       "informacao_a_solicitar": "Pedir que o solicitante descreva o problema citando o objeto e o sintoma (vocabulario tipico desta categoria: janela, janelas, portao, conserto, fechadura porta)."
     },
     {
-      "categoria": "Estrutura Predial > Forro",
-      "n_conferidos": 92,
-      "erros_ia": 3,
-      "taxa_erro_ia": 0.0326,
-      "termos_que_faltaram_nos_erros": [
-        {
-          "termo": "placas forro",
-          "ausente_em": 3
-        },
-        {
-          "termo": "reparo forro",
-          "ausente_em": 3
-        },
-        {
-          "termo": "placa forro",
-          "ausente_em": 3
-        },
-        {
-          "termo": "mineral",
-          "ausente_em": 3
-        },
-        {
-          "termo": "caiu",
-          "ausente_em": 3
-        },
-        {
-          "termo": "teto",
-          "ausente_em": 3
-        },
-        {
-          "termo": "forro mineral",
-          "ausente_em": 3
-        },
-        {
-          "termo": "instalacao forro",
-          "ausente_em": 3
-        }
-      ],
-      "informacao_a_solicitar": "Pedir que o solicitante descreva o problema citando o objeto e o sintoma (vocabulario tipico desta categoria: placas forro, reparo forro, placa forro, mineral, caiu)."
-    },
-    {
-      "categoria": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
-      "n_conferidos": 237,
-      "erros_ia": 7,
-      "taxa_erro_ia": 0.0295,
-      "termos_que_faltaram_nos_erros": [
-        {
-          "termo": "ponto rede",
-          "ausente_em": 7
-        },
-        {
-          "termo": "pontos rede",
-          "ausente_em": 7
-        },
-        {
-          "termo": "instalacao ponto",
-          "ausente_em": 7
-        },
-        {
-          "termo": "internet",
-          "ausente_em": 7
-        },
-        {
-          "termo": "mail",
-          "ausente_em": 7
-        },
-        {
-          "termo": "sigaa",
-          "ausente_em": 7
-        },
-        {
-          "termo": "email",
-          "ausente_em": 7
-        },
-        {
-          "termo": "rack",
-          "ausente_em": 7
-        }
-      ],
-      "informacao_a_solicitar": "Pedir que o solicitante descreva o problema citando o objeto e o sintoma (vocabulario tipico desta categoria: ponto rede, pontos rede, instalacao ponto, internet, mail)."
-    },
-    {
-      "categoria": "Manutenção Preventiva > Sistemas de combate a incêndio (extintores, hidrantes)",
-      "n_conferidos": 35,
+      "categoria": "Climatização > Ar condicionado central",
+      "n_conferidos": 16,
       "erros_ia": 1,
-      "taxa_erro_ia": 0.0286,
+      "taxa_erro_ia": 0.0625,
       "termos_que_faltaram_nos_erros": [],
       "informacao_a_solicitar": null
     },
     {
-      "categoria": "Hidrossanitária > Hidráulica",
-      "n_conferidos": 712,
-      "erros_ia": 16,
-      "taxa_erro_ia": 0.0225,
+      "categoria": "Manutenção Preventiva > Sistemas de combate a incêndio (extintores, hidrantes)",
+      "n_conferidos": 17,
+      "erros_ia": 1,
+      "taxa_erro_ia": 0.0588,
+      "termos_que_faltaram_nos_erros": [],
+      "informacao_a_solicitar": null
+    },
+    {
+      "categoria": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
+      "n_conferidos": 142,
+      "erros_ia": 8,
+      "taxa_erro_ia": 0.0563,
       "termos_que_faltaram_nos_erros": [
         {
-          "termo": "pia",
-          "ausente_em": 16
+          "termo": "ponto rede",
+          "ausente_em": 8
         },
         {
-          "termo": "reservatorio",
-          "ausente_em": 16
+          "termo": "pontos rede",
+          "ausente_em": 8
         },
         {
-          "termo": "banheiro masculino",
-          "ausente_em": 16
+          "termo": "instalacao ponto",
+          "ausente_em": 8
         },
         {
-          "termo": "copa",
-          "ausente_em": 16
+          "termo": "internet",
+          "ausente_em": 8
         },
         {
-          "termo": "proximo",
-          "ausente_em": 16
+          "termo": "sigaa",
+          "ausente_em": 8
         },
         {
-          "termo": "substituicao",
-          "ausente_em": 16
+          "termo": "rack",
+          "ausente_em": 8
         },
         {
-          "termo": "vazamento agua",
-          "ausente_em": 16
+          "termo": "institucional",
+          "ausente_em": 8
         },
         {
-          "termo": "mictorio",
-          "ausente_em": 16
+          "termo": "estou",
+          "ausente_em": 8
         }
       ],
-      "informacao_a_solicitar": "Pedir que o solicitante descreva o problema citando o objeto e o sintoma (vocabulario tipico desta categoria: pia, reservatorio, banheiro masculino, copa, proximo)."
+      "informacao_a_solicitar": "Pedir que o solicitante descreva o problema citando o objeto e o sintoma (vocabulario tipico desta categoria: ponto rede, pontos rede, instalacao ponto, internet, sigaa)."
+    },
+    {
+      "categoria": "Manutenção Preventiva > Esgoto",
+      "n_conferidos": 21,
+      "erros_ia": 1,
+      "taxa_erro_ia": 0.0476,
+      "termos_que_faltaram_nos_erros": [],
+      "informacao_a_solicitar": null
     },
     {
       "categoria": "Estrutura Predial > Infiltração",
-      "n_conferidos": 134,
+      "n_conferidos": 73,
       "erros_ia": 3,
-      "taxa_erro_ia": 0.0224,
+      "taxa_erro_ia": 0.0411,
       "termos_que_faltaram_nos_erros": [
         {
           "termo": "teto",
@@ -737,67 +663,108 @@
       "informacao_a_solicitar": "Pedir que o solicitante descreva o problema citando o objeto e o sintoma (vocabulario tipico desta categoria: teto, mofo, infiltracoes, parede, goteira)."
     },
     {
-      "categoria": "Suprimentos / Apoio Técnico > Materiais",
-      "n_conferidos": 49,
-      "erros_ia": 1,
-      "taxa_erro_ia": 0.0204,
-      "termos_que_faltaram_nos_erros": [],
-      "informacao_a_solicitar": null
-    },
-    {
-      "categoria": "Área Externa e Ambiental > Manutenção área externa / meio ambiente / Poda de árvore / Roçagem",
-      "n_conferidos": 54,
-      "erros_ia": 1,
-      "taxa_erro_ia": 0.0185,
-      "termos_que_faltaram_nos_erros": [],
-      "informacao_a_solicitar": null
+      "categoria": "Hidrossanitária > Hidráulica",
+      "n_conferidos": 448,
+      "erros_ia": 15,
+      "taxa_erro_ia": 0.0335,
+      "termos_que_faltaram_nos_erros": [
+        {
+          "termo": "pia",
+          "ausente_em": 15
+        },
+        {
+          "termo": "reservatorio",
+          "ausente_em": 15
+        },
+        {
+          "termo": "banheiro masculino",
+          "ausente_em": 15
+        },
+        {
+          "termo": "copa",
+          "ausente_em": 15
+        },
+        {
+          "termo": "proximo",
+          "ausente_em": 15
+        },
+        {
+          "termo": "substituicao",
+          "ausente_em": 15
+        },
+        {
+          "termo": "vazamento agua",
+          "ausente_em": 15
+        },
+        {
+          "termo": "mictorio",
+          "ausente_em": 15
+        }
+      ],
+      "informacao_a_solicitar": "Pedir que o solicitante descreva o problema citando o objeto e o sintoma (vocabulario tipico desta categoria: pia, reservatorio, banheiro masculino, copa, proximo)."
     },
     {
       "categoria": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-      "n_conferidos": 627,
-      "erros_ia": 11,
-      "taxa_erro_ia": 0.0175,
+      "n_conferidos": 426,
+      "erros_ia": 12,
+      "taxa_erro_ia": 0.0282,
       "termos_que_faltaram_nos_erros": [
         {
           "termo": "piso",
-          "ausente_em": 11
-        },
-        {
-          "termo": "parede",
-          "ausente_em": 11
-        },
-        {
-          "termo": "suporte",
-          "ausente_em": 11
+          "ausente_em": 12
         },
         {
           "termo": "pintura",
-          "ausente_em": 11
+          "ausente_em": 12
         },
         {
           "termo": "fixacao",
-          "ausente_em": 11
+          "ausente_em": 12
         },
         {
           "termo": "placas",
-          "ausente_em": 11
+          "ausente_em": 12
         },
         {
           "termo": "instalacao quadro",
-          "ausente_em": 11
+          "ausente_em": 12
         },
         {
           "termo": "tampa",
-          "ausente_em": 11
+          "ausente_em": 12
+        },
+        {
+          "termo": "infraestrutura",
+          "ausente_em": 12
+        },
+        {
+          "termo": "sinalizacao",
+          "ausente_em": 12
         }
       ],
-      "informacao_a_solicitar": "Pedir que o solicitante descreva o problema citando o objeto e o sintoma (vocabulario tipico desta categoria: piso, parede, suporte, pintura, fixacao)."
+      "informacao_a_solicitar": "Pedir que o solicitante descreva o problema citando o objeto e o sintoma (vocabulario tipico desta categoria: piso, pintura, fixacao, placas, instalacao quadro)."
+    },
+    {
+      "categoria": "Suprimentos / Apoio Técnico > Materiais",
+      "n_conferidos": 36,
+      "erros_ia": 1,
+      "taxa_erro_ia": 0.0278,
+      "termos_que_faltaram_nos_erros": [],
+      "informacao_a_solicitar": null
+    },
+    {
+      "categoria": "Estrutura Predial > Forro",
+      "n_conferidos": 47,
+      "erros_ia": 1,
+      "taxa_erro_ia": 0.0213,
+      "termos_que_faltaram_nos_erros": [],
+      "informacao_a_solicitar": null
     },
     {
       "categoria": "Manutenção Preventiva > Vistoria em Instalações",
-      "n_conferidos": 181,
+      "n_conferidos": 164,
       "erros_ia": 3,
-      "taxa_erro_ia": 0.0166,
+      "taxa_erro_ia": 0.0183,
       "termos_que_faltaram_nos_erros": [
         {
           "termo": "devera informada",
@@ -836,17 +803,17 @@
     },
     {
       "categoria": "Elétrica > Nobreak",
-      "n_conferidos": 85,
+      "n_conferidos": 56,
       "erros_ia": 1,
-      "taxa_erro_ia": 0.0118,
+      "taxa_erro_ia": 0.0179,
       "termos_que_faltaram_nos_erros": [],
       "informacao_a_solicitar": null
     },
     {
       "categoria": "Manutenção Preventiva > Gerador",
-      "n_conferidos": 767,
+      "n_conferidos": 745,
       "erros_ia": 8,
-      "taxa_erro_ia": 0.0104,
+      "taxa_erro_ia": 0.0107,
       "termos_que_faltaram_nos_erros": [
         {
           "termo": "coordenacao manutencao",
@@ -865,7 +832,7 @@
           "ausente_em": 8
         },
         {
-          "termo": "algum servicos",
+          "termo": "anomalia algum",
           "ausente_em": 8
         },
         {
@@ -873,28 +840,28 @@
           "ausente_em": 8
         },
         {
-          "termo": "anomalia algum",
+          "termo": "algum servicos",
           "ausente_em": 8
         }
       ],
-      "informacao_a_solicitar": "Pedir que o solicitante descreva o problema citando o objeto e o sintoma (vocabulario tipico desta categoria: coordenacao manutencao, documento anexo, manutencao coordenacao, informar coordenacao, algum servicos)."
+      "informacao_a_solicitar": "Pedir que o solicitante descreva o problema citando o objeto e o sintoma (vocabulario tipico desta categoria: coordenacao manutencao, documento anexo, manutencao coordenacao, informar coordenacao, anomalia algum)."
     },
     {
       "categoria": "Manutenção Preventiva > Quadros Elétricos",
-      "n_conferidos": 384,
+      "n_conferidos": 365,
       "erros_ia": 3,
-      "taxa_erro_ia": 0.0078,
+      "taxa_erro_ia": 0.0082,
       "termos_que_faltaram_nos_erros": [
         {
           "termo": "anexo pagina",
           "ausente_em": 3
         },
         {
-          "termo": "acompanhamento servicos",
+          "termo": "anexo acompanhamento",
           "ausente_em": 3
         },
         {
-          "termo": "anexo acompanhamento",
+          "termo": "acompanhamento servicos",
           "ausente_em": 3
         },
         {
@@ -918,13 +885,13 @@
           "ausente_em": 1
         }
       ],
-      "informacao_a_solicitar": "Pedir que o solicitante descreva o problema citando o objeto e o sintoma (vocabulario tipico desta categoria: anexo pagina, acompanhamento servicos, anexo acompanhamento, feito acordo, devera feito)."
+      "informacao_a_solicitar": "Pedir que o solicitante descreva o problema citando o objeto e o sintoma (vocabulario tipico desta categoria: anexo pagina, anexo acompanhamento, acompanhamento servicos, feito acordo, devera feito)."
     },
     {
       "categoria": "Manutenção Preventiva > Ar condicionado split",
-      "n_conferidos": 1209,
+      "n_conferidos": 1075,
       "erros_ia": 8,
-      "taxa_erro_ia": 0.0066,
+      "taxa_erro_ia": 0.0074,
       "termos_que_faltaram_nos_erros": [
         {
           "termo": "acordo anexo",
@@ -943,11 +910,11 @@
           "ausente_em": 8
         },
         {
-          "termo": "acompanhamento servicos",
+          "termo": "anexo acompanhamento",
           "ausente_em": 8
         },
         {
-          "termo": "anexo acompanhamento",
+          "termo": "acompanhamento servicos",
           "ausente_em": 8
         },
         {
@@ -959,19 +926,19 @@
           "ausente_em": 8
         }
       ],
-      "informacao_a_solicitar": "Pedir que o solicitante descreva o problema citando o objeto e o sintoma (vocabulario tipico desta categoria: acordo anexo, equipamentos ar, mensal ar, anexo pagina, acompanhamento servicos)."
+      "informacao_a_solicitar": "Pedir que o solicitante descreva o problema citando o objeto e o sintoma (vocabulario tipico desta categoria: acordo anexo, equipamentos ar, mensal ar, anexo pagina, anexo acompanhamento)."
     },
     {
       "categoria": "Manutenção Preventiva > Reservatório",
-      "n_conferidos": 207,
+      "n_conferidos": 151,
       "erros_ia": 1,
-      "taxa_erro_ia": 0.0048,
+      "taxa_erro_ia": 0.0066,
       "termos_que_faltaram_nos_erros": [],
       "informacao_a_solicitar": null
     },
     {
       "categoria": "Projetos e Reformas > Projeto",
-      "n_conferidos": 19,
+      "n_conferidos": 18,
       "erros_ia": 0,
       "taxa_erro_ia": 0.0,
       "termos_que_faltaram_nos_erros": [],
@@ -979,15 +946,7 @@
     },
     {
       "categoria": "Suprimentos / Apoio Técnico > Limpeza de equipamentos, ambiente e mobiliário",
-      "n_conferidos": 8,
-      "erros_ia": 0,
-      "taxa_erro_ia": 0.0,
-      "termos_que_faltaram_nos_erros": [],
-      "informacao_a_solicitar": null
-    },
-    {
-      "categoria": "Manutenção Preventiva > Esgoto",
-      "n_conferidos": 24,
+      "n_conferidos": 6,
       "erros_ia": 0,
       "taxa_erro_ia": 0.0,
       "termos_que_faltaram_nos_erros": [],
@@ -995,7 +954,15 @@
     },
     {
       "categoria": "Outros > Outros",
-      "n_conferidos": 13,
+      "n_conferidos": 5,
+      "erros_ia": 0,
+      "taxa_erro_ia": 0.0,
+      "termos_que_faltaram_nos_erros": [],
+      "informacao_a_solicitar": null
+    },
+    {
+      "categoria": "Área Externa e Ambiental > Manutenção área externa / meio ambiente / Poda de árvore / Roçagem",
+      "n_conferidos": 19,
       "erros_ia": 0,
       "taxa_erro_ia": 0.0,
       "termos_que_faltaram_nos_erros": [],
@@ -1003,7 +970,7 @@
     },
     {
       "categoria": "Manutenção Preventiva > Hidráulica",
-      "n_conferidos": 16,
+      "n_conferidos": 9,
       "erros_ia": 0,
       "taxa_erro_ia": 0.0,
       "termos_que_faltaram_nos_erros": [],
@@ -1018,8 +985,16 @@
       "informacao_a_solicitar": null
     },
     {
+      "categoria": "Equipamentos de Transporte > Elevador",
+      "n_conferidos": 1,
+      "erros_ia": 0,
+      "taxa_erro_ia": 0.0,
+      "termos_que_faltaram_nos_erros": [],
+      "informacao_a_solicitar": null
+    },
+    {
       "categoria": "Manutenção Preventiva > Nobreak",
-      "n_conferidos": 7,
+      "n_conferidos": 5,
       "erros_ia": 0,
       "taxa_erro_ia": 0.0,
       "termos_que_faltaram_nos_erros": [],
@@ -1027,7 +1002,7 @@
     },
     {
       "categoria": "Posto de trabalho > Contratação de Posto de trabalho",
-      "n_conferidos": 77,
+      "n_conferidos": 47,
       "erros_ia": 0,
       "taxa_erro_ia": 0.0,
       "termos_que_faltaram_nos_erros": [],
@@ -1035,7 +1010,7 @@
     },
     {
       "categoria": "TI / Dados / Rede > Coleta de dados",
-      "n_conferidos": 26,
+      "n_conferidos": 25,
       "erros_ia": 0,
       "taxa_erro_ia": 0.0,
       "termos_que_faltaram_nos_erros": [],
@@ -1043,7 +1018,7 @@
     },
     {
       "categoria": "Manutenção Preventiva > Ar condicionado central",
-      "n_conferidos": 97,
+      "n_conferidos": 52,
       "erros_ia": 0,
       "taxa_erro_ia": 0.0,
       "termos_que_faltaram_nos_erros": [],
@@ -1059,7 +1034,7 @@
     },
     {
       "categoria": "Manutenção Preventiva > Telhados, calhas, rufos, etc.",
-      "n_conferidos": 30,
+      "n_conferidos": 17,
       "erros_ia": 0,
       "taxa_erro_ia": 0.0,
       "termos_que_faltaram_nos_erros": [],
@@ -1067,7 +1042,7 @@
     },
     {
       "categoria": "Manutenção Preventiva > Iluminação",
-      "n_conferidos": 80,
+      "n_conferidos": 51,
       "erros_ia": 0,
       "taxa_erro_ia": 0.0,
       "termos_que_faltaram_nos_erros": [],
@@ -1075,7 +1050,7 @@
     },
     {
       "categoria": "Manutenção Preventiva > Elevador",
-      "n_conferidos": 48,
+      "n_conferidos": 1,
       "erros_ia": 0,
       "taxa_erro_ia": 0.0,
       "termos_que_faltaram_nos_erros": [],
@@ -1090,32 +1065,8 @@
       "informacao_a_solicitar": null
     },
     {
-      "categoria": "Hidrossanitária > ETA / ETE",
-      "n_conferidos": 10,
-      "erros_ia": 0,
-      "taxa_erro_ia": 0.0,
-      "termos_que_faltaram_nos_erros": [],
-      "informacao_a_solicitar": null
-    },
-    {
-      "categoria": "Elétrica > Sistema Fotovoltaico (FV)",
-      "n_conferidos": 4,
-      "erros_ia": 0,
-      "taxa_erro_ia": 0.0,
-      "termos_que_faltaram_nos_erros": [],
-      "informacao_a_solicitar": null
-    },
-    {
       "categoria": "Manutenção Preventiva > Poços artesianos",
-      "n_conferidos": 10,
-      "erros_ia": 0,
-      "taxa_erro_ia": 0.0,
-      "termos_que_faltaram_nos_erros": [],
-      "informacao_a_solicitar": null
-    },
-    {
-      "categoria": "Manutenção Preventiva > Bomba",
-      "n_conferidos": 1,
+      "n_conferidos": 5,
       "erros_ia": 0,
       "taxa_erro_ia": 0.0,
       "termos_que_faltaram_nos_erros": [],
