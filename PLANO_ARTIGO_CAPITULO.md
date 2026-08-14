@@ -2,7 +2,7 @@
 
 Este documento registra somente a estrutura, os critérios editoriais e o estado atual do artigo/capítulo. O plano operacional vigente, os critérios de aceite e o ponto de continuidade estão em [`PLANO_EXECUCAO_ATUAL.md`](PLANO_EXECUCAO_ATUAL.md). Os dois documentos têm finalidades distintas e não devem acumular versões concorrentes do mesmo estado.
 
-Atualizado em 14/08/2026, no fuso America/Bahia (Rodada 12, revisão editorial v4: título, Subseção 3.6, IFES, Tabela 5, paginação e figuras).
+Atualizado em 14/08/2026, no fuso America/Bahia (Rodada 13, correção bibliográfica: referências e chamadas conforme NBR 6023:2025/NBR 10520:2023, remoção do percentual não comprovado da Introdução).
 
 ## Regra de uso
 
@@ -118,10 +118,31 @@ com numeração própria (A1/A2/A3, independente da sequência 1–5 do corpo),
 com o título e o parágrafo introdutório do Apêndice A agora impressos
 antes da Tabela A1; material suplementar até S17. Discussão em quatro
 subseções (5.1 a 5.4); Considerações Finais em cinco parágrafos curtos.
-Lista de referências com 44 entradas (a entrada órfã de BRASIL, 2018,
-saiu junto da prosa que a citava; duas entradas foram reordenadas
-alfabeticamente), todas citadas no corpo, sem duplicatas nem citação
-órfã.
+Lista de referências com 44 entradas, todas citadas no corpo, sem
+duplicatas nem citação órfã, auditada e padronizada conforme a NBR
+6023:2025/NBR 10520:2023 na Rodada 13 (ver abaixo).
+
+**Rodada 13 (correção bibliográfica, `correcao-referencias-abnt-2025`):**
+auditoria completa da lista de 44 referências e das chamadas autor-data
+contra a NBR 6023:2025 e a NBR 10520:2023 — pendência registrada desde a
+Rodada 12. Chamadas parentéticas convertidas de caixa alta para
+Maiúscula/minúscula; ordem de autoria de Marcuzzo *et al.* (2022)
+corrigida conforme a ACL Anthology; referência de Brown *et al.* (2020)
+simplificada; destaque tipográfico (itálico) do título da publicação
+padronizado nas 44 entradas; DOIs verificados em fonte primária
+(CrossRef/ACL Anthology/página do periódico) e inseridos no formato
+`https://doi.org/...` em 23 referências, 3 reformatados, 1 (arXiv)
+completado com URL e data de acesso, e 10 confirmados sem DOI atribuído
+(não inventados); correções pontuais de metadados (título de Martins;
+Espejo, páginas de Morais; Paula; Reis, fascículo de Pampana *et al.* e
+de Sundaram; Zeid, cidade de Souza; Nogueira; Lotufo). Na Introdução, a
+afirmação não comprovada "menos de 2%" do orçamento institucional foi
+removida, mantendo apenas a restrição orçamentária genérica já sustentada
+pelas referências citadas. Nenhum número experimental, tabela, figura,
+resultado, conclusão ou contrato metodológico foi alterado; zero fits de
+modelo-base, zero fits de stacking, zero execuções de LSTM; PDF
+regenerado pelo workflow oficial, 21 páginas (dentro de 21–23). Relatório
+completo em `docs/AUDITORIA_REFERENCIAS_2025.md`.
 
 **Título e identificação institucional.** Título e subtítulo
 reformulados para "Classificação de chamados de manutenção predial com
