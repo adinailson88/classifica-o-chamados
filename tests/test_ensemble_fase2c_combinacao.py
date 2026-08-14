@@ -26,6 +26,7 @@ LinearSVC substituindo `max_f1`, e ausencia de chamada automatica a
 
 from __future__ import annotations
 
+import csv
 import json
 import sys
 import unittest
@@ -86,6 +87,10 @@ def _contexto_multi_fold(classes: list[str] = CLASSES, y_alternando: bool = True
         for id_sha in list(registros)[1::2]:
             registros[id_sha]["Y"] = 1
             registros[id_sha]["R"] = "classe_b"
+            # tambem diverge o top1 do linear_svc de H: sem isso, a fila
+            # natural do LinearSVC (K_f) fica vazia em todos os folds, o
+            # que quebraria qualquer teste de capacidade/comparacao.
+            registros[id_sha]["top1_outer"]["linear_svc"] = "classe_b"
 
     inner_por_fold: dict[int, list] = {f: [] for f in f2c.FOLDS}
     for fold in f2c.FOLDS:
@@ -166,6 +171,32 @@ class TestVotacaoMajoritaria(unittest.TestCase):
     def test_sem_votos_alternativos_devolve_none(self):
         scores = _scores_todos_modelos(CLASSES, "classe_a")
         self.assertIsNone(f2c.escolher_c_alt_majoritario({}, CLASSES, scores))
+
+    def test_pequena_diferenca_de_media_nao_e_tratada_como_empate(self):
+        # classe_b e classe_c comecam com media identica (0.2 nos 7
+        # modelos); perturbamos um UNICO modelo por um epsilon minusculo,
+        # criando uma diferenca real porem pequena o bastante para que
+        # np.isclose (tolerancia padrao) as considerasse "proximas".
+        epsilon = 1e-7
+        votos_alt = {"classe_b": 2, "classe_c": 2}
+        scores = {m: _vetor(CLASSES, "classe_a", intensidade=0.4) for m in MODELOS}
+        idx_b, idx_c = CLASSES.index("classe_b"), CLASSES.index("classe_c")
+        primeiro_modelo = MODELOS[0]
+        scores[primeiro_modelo] = scores[primeiro_modelo].copy()
+        scores[primeiro_modelo][idx_c] += epsilon
+        scores[primeiro_modelo][idx_b] -= epsilon
+
+        media_b = f2c.media_prob_calibrada(scores, CLASSES, "classe_b")
+        media_c = f2c.media_prob_calibrada(scores, CLASSES, "classe_c")
+        self.assertNotEqual(media_b, media_c)
+        # confirma que a diferenca esta de fato dentro da tolerancia padrao
+        # de np.isclose — e exatamente o cenario que o bug antigo tratava
+        # como empate e caia, incorretamente, no criterio 3 (ordem canonica,
+        # que elegeria classe_b por indice menor).
+        self.assertTrue(np.isclose(media_b, media_c))
+
+        c_alt = f2c.escolher_c_alt_majoritario(votos_alt, CLASSES, scores)
+        self.assertEqual(c_alt, "classe_c")  # media maior vence, nao a ordem canonica
 
     def test_formula_s_maj(self):
         top1 = {m: "classe_b" for m in MODELOS}
@@ -580,6 +611,113 @@ class TestOrquestradores(unittest.TestCase):
             fila_suave, info_por_fold = f2c.combinar_votacao_suave(ctx)
             f2c.combinar_stacking(ctx, criar_meta_modelo=_MetaModeloFake, info_por_fold=info_por_fold)
             f2c.comparar_metodos_por_capacidade(ctx, {"votacao_suave": fila_suave})
+
+
+# --------------------------------------------------------------------------
+# executar_confirmatoria: orquestracao completa de `--metodo todos`
+# --------------------------------------------------------------------------
+
+class TestExecutarConfirmatoria(unittest.TestCase):
+    METODOS = ("linear_svc", "votacao_majoritaria", "votacao_suave", "stacking")
+
+    def test_produz_as_quatro_filas_json_e_csv(self):
+        ctx = _contexto_multi_fold()
+        with TemporaryDirectory() as tmp:
+            saida_dir = Path(tmp)
+            status = f2c.executar_confirmatoria(
+                ctx, saida_dir, self.METODOS, criar_meta_modelo=_MetaModeloFake
+            )
+            for metodo in self.METODOS:
+                self.assertIn(metodo, status)
+                self.assertTrue((saida_dir / f"fase2c_fila_{metodo}.json").exists())
+                self.assertTrue((saida_dir / f"fase2c_fila_{metodo}.csv").exists())
+                fila_json = json.loads((saida_dir / f"fase2c_fila_{metodo}.json").read_text(encoding="utf-8"))
+                self.assertEqual(len(fila_json), len(ctx["registros"]))
+
+    def test_produz_quatro_curvas_de_ganho(self):
+        ctx = _contexto_multi_fold()
+        with TemporaryDirectory() as tmp:
+            saida_dir = Path(tmp)
+            f2c.executar_confirmatoria(ctx, saida_dir, self.METODOS, criar_meta_modelo=_MetaModeloFake)
+            for metodo in self.METODOS:
+                caminho = saida_dir / f"fase2c_curva_ganho_{metodo}.json"
+                self.assertTrue(caminho.exists())
+                pontos = json.loads(caminho.read_text(encoding="utf-8"))
+                self.assertEqual(len(pontos), len(ctx["registros"]))
+                self.assertAlmostEqual(pontos[-1]["recall_acumulado"], 1.0)
+
+    def test_csv_contem_exatamente_os_campos_canonicos(self):
+        ctx = _contexto_multi_fold()
+        with TemporaryDirectory() as tmp:
+            saida_dir = Path(tmp)
+            f2c.executar_confirmatoria(ctx, saida_dir, self.METODOS, criar_meta_modelo=_MetaModeloFake)
+            with (saida_dir / "fase2c_fila_linear_svc.csv").open(encoding="utf-8", newline="") as f:
+                leitor = csv.DictReader(f)
+                self.assertEqual(tuple(leitor.fieldnames), f2c.CAMPOS_FILA_CANONICOS)
+                self.assertNotIn("Y", leitor.fieldnames)
+                linhas = list(leitor)
+            self.assertEqual(len(linhas), len(ctx["registros"]))
+
+    def test_resumo_confirmatorio_contem_os_cinco_k_f(self):
+        ctx = _contexto_multi_fold()
+        with TemporaryDirectory() as tmp:
+            saida_dir = Path(tmp)
+            f2c.executar_confirmatoria(ctx, saida_dir, self.METODOS, criar_meta_modelo=_MetaModeloFake)
+            resumo = json.loads(
+                (saida_dir / "fase2c_resumo_confirmatorio.json").read_text(encoding="utf-8")
+            )
+            # chaves inteiras viram string na serializacao JSON.
+            self.assertEqual(
+                set(resumo["capacidade_k_f_por_fold"].keys()), {str(f) for f in f2c.FOLDS}
+            )
+            self.assertEqual(
+                set(resumo["alpha_votacao_suave_por_fold"].keys()), {str(f) for f in f2c.FOLDS}
+            )
+            self.assertEqual(
+                resumo["proveniencia_execucao_1"]["run_id"], f2c.RUN_ID_EXECUCAO_1
+            )
+            self.assertEqual(
+                resumo["proveniencia_execucao_1"]["hashes"], dict(f2c.HASHES_EXECUCAO_1_ESPERADOS)
+            )
+            self.assertNotIn("tau", json.dumps(resumo))
+
+    def test_comparacao_usa_a_mesma_capacidade_para_todos_os_metodos(self):
+        ctx = _contexto_multi_fold()
+        with TemporaryDirectory() as tmp:
+            saida_dir = Path(tmp)
+            f2c.executar_confirmatoria(ctx, saida_dir, self.METODOS, criar_meta_modelo=_MetaModeloFake)
+            resumo = json.loads(
+                (saida_dir / "fase2c_resumo_confirmatorio.json").read_text(encoding="utf-8")
+            )
+            capacidade_direta = f2c.capacidade_linear_svc_por_fold(ctx)
+            for metodo in self.METODOS:
+                filas = {
+                    "linear_svc": f2c.combinar_linear_svc(ctx),
+                    metodo: (
+                        f2c.combinar_stacking(ctx, criar_meta_modelo=_MetaModeloFake)
+                        if metodo == "stacking" else f2c.combinar_votacao_majoritaria(ctx)
+                    ),
+                }
+                _, capacidade = f2c.comparar_metodos_por_capacidade(ctx, filas)
+                self.assertEqual(capacidade, capacidade_direta)
+            # o proprio resumo tambem usa essa capacidade unica
+            self.assertEqual(
+                {int(f): k for f, k in resumo["capacidade_k_f_por_fold"].items()}, capacidade_direta
+            )
+
+    def test_um_unico_metodo_nao_grava_resumo_confirmatorio(self):
+        ctx = _contexto_multi_fold()
+        with TemporaryDirectory() as tmp:
+            saida_dir = Path(tmp)
+            f2c.executar_confirmatoria(ctx, saida_dir, ("linear_svc",))
+            self.assertFalse((saida_dir / "fase2c_resumo_confirmatorio.json").exists())
+
+    def test_executar_confirmatoria_nunca_chama_selecionar_tau(self):
+        ctx = _contexto_multi_fold()
+        with TemporaryDirectory() as tmp, unittest.mock.patch.object(
+            f2c, "selecionar_tau", side_effect=AssertionError("selecionar_tau nao deveria ser chamado")
+        ):
+            f2c.executar_confirmatoria(ctx, Path(tmp), self.METODOS, criar_meta_modelo=_MetaModeloFake)
 
 
 # --------------------------------------------------------------------------

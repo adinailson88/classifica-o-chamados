@@ -58,6 +58,7 @@ ordenacao generica de escore+id usada pelos demais metodos.
 from __future__ import annotations
 
 import argparse
+import csv
 import json
 import sys
 from collections import Counter, defaultdict
@@ -399,7 +400,11 @@ def escolher_c_alt_majoritario(
         return empatados[0]
     medias = {c: media_prob_calibrada(scores_modelo, classes, c) for c in empatados}
     melhor_media = max(medias.values())
-    empatados_media = [c for c in empatados if np.isclose(medias[c], melhor_media)]
+    # Igualdade EXATA, nunca np.isclose: o contrato so avanca ao criterio 3
+    # (ordem canonica) quando a media e efetivamente empatada, nao apenas
+    # proxima por tolerancia numerica — uma diferenca real, por menor que
+    # seja, decide no criterio 2.
+    empatados_media = [c for c in empatados if medias[c] == melhor_media]
     if len(empatados_media) == 1:
         return empatados_media[0]
     return min(empatados_media, key=classes.index)
@@ -909,7 +914,15 @@ def combinar_stacking(
 # Persistencia
 # --------------------------------------------------------------------------
 
+# Fila publica/operacional: exatamente estes 6 campos, nunca `Y` (rotulo de
+# avaliacao, nao faz parte do contrato publico da fila). `Y` permanece
+# disponivel no JSON interno/analitico (`gravar_fila`), necessario as
+# metricas (curva de ganho, comparacao por capacidade).
+CAMPOS_FILA_CANONICOS = ("id_sha256", "H", "R", "c_alt", "score", "fold")
+
+
 def gravar_fila(fila: list[dict[str, Any]], caminho: Path) -> None:
+    """Artefato interno/analitico: todos os campos da fila, incluindo `Y`."""
     caminho.parent.mkdir(parents=True, exist_ok=True)
     payload = [
         {**linha, "score": round(linha["score"], 10)}
@@ -918,6 +931,96 @@ def gravar_fila(fila: list[dict[str, Any]], caminho: Path) -> None:
     caminho.write_text(
         json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
     )
+
+
+def gravar_fila_csv(fila: list[dict[str, Any]], caminho: Path) -> None:
+    """Fila canonica/operacional em CSV, interoperavel: somente
+    `CAMPOS_FILA_CANONICOS` (nunca `Y`)."""
+    caminho.parent.mkdir(parents=True, exist_ok=True)
+    with caminho.open("w", encoding="utf-8", newline="") as f:
+        escritor = csv.DictWriter(f, fieldnames=CAMPOS_FILA_CANONICOS)
+        escritor.writeheader()
+        for linha in fila:
+            escritor.writerow({campo: linha[campo] for campo in CAMPOS_FILA_CANONICOS})
+
+
+def gravar_curva_ganho(pontos: list[dict[str, Any]], caminho: Path) -> None:
+    caminho.parent.mkdir(parents=True, exist_ok=True)
+    caminho.write_text(
+        json.dumps(pontos, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
+
+
+def montar_resumo_confirmatorio(
+    contexto: dict[str, Any],
+    filas_por_metodo: dict[str, list[dict[str, Any]]],
+    info_por_fold_votacao_suave: dict[int, dict[str, Any]],
+) -> dict[str, Any]:
+    """Resumo confirmatorio: `K_f` por outer fold, comparacao de cada
+    metodo na MESMA capacidade, `alpha` da votacao suave por fold e a
+    proveniencia (run/commit/hashes) da Execucao Cientifica 1 usada como
+    entrada. Nunca inclui `tau` otimizado — a comparacao e por capacidade,
+    nao por limiar (secao 4.3 de docs/FASE2C_ENSEMBLE_CONTRATO.md)."""
+    comparacao, capacidade = comparar_metodos_por_capacidade(contexto, filas_por_metodo)
+    return {
+        "proveniencia_execucao_1": {
+            "run_id": RUN_ID_EXECUCAO_1,
+            "commit_sha": COMMIT_SHA_EXECUCAO_1,
+            "hashes": dict(HASHES_EXECUCAO_1_ESPERADOS),
+        },
+        "capacidade_k_f_por_fold": capacidade,
+        "comparacao_por_metodo": comparacao,
+        "alpha_votacao_suave_por_fold": {
+            fold: info["alpha"] for fold, info in info_por_fold_votacao_suave.items()
+        },
+    }
+
+
+def executar_confirmatoria(
+    contexto: dict[str, Any],
+    saida_dir: Path,
+    metodos: tuple[str, ...] = ("linear_svc", "votacao_majoritaria", "votacao_suave", "stacking"),
+    criar_meta_modelo: Callable[[], Any] = _criar_meta_modelo_padrao,
+) -> dict[str, Any]:
+    """Orquestracao completa por tras de `--metodo todos`: roda os metodos
+    pedidos, grava fila (JSON interno + CSV canonico) e curva de ganho de
+    cada um, e — quando mais de um metodo roda — o resumo confirmatorio por
+    capacidade `K_f`. Nunca chama `selecionar_tau`. Extraida do CLI para
+    ser testavel diretamente, sem parsing de `sys.argv`."""
+    metodos = list(metodos)
+    info_por_fold: dict[int, dict[str, Any]] | None = None
+    if {"votacao_suave", "stacking"} & set(metodos):
+        info_por_fold = pesos_e_alpha_votacao_suave_por_fold(contexto)
+
+    filas_por_metodo: dict[str, list[dict[str, Any]]] = {}
+    status: dict[str, Any] = {}
+    for metodo in metodos:
+        if metodo == "linear_svc":
+            fila = combinar_linear_svc(contexto)
+        elif metodo == "votacao_majoritaria":
+            fila = combinar_votacao_majoritaria(contexto)
+        elif metodo == "votacao_suave":
+            fila, info_por_fold = combinar_votacao_suave(contexto, info_por_fold)
+        elif metodo == "stacking":
+            fila = combinar_stacking(contexto, criar_meta_modelo, info_por_fold=info_por_fold)
+        else:
+            raise ValueError(f"Metodo desconhecido: {metodo!r}")
+
+        filas_por_metodo[metodo] = fila
+        gravar_fila(fila, saida_dir / f"fase2c_fila_{metodo}.json")
+        gravar_fila_csv(fila, saida_dir / f"fase2c_fila_{metodo}.csv")
+        gravar_curva_ganho(curva_ganho(fila), saida_dir / f"fase2c_curva_ganho_{metodo}.json")
+        status[metodo] = {"total_fila": len(fila)}
+
+    if len(filas_por_metodo) > 1:
+        resumo = montar_resumo_confirmatorio(contexto, filas_por_metodo, info_por_fold or {})
+        caminho_resumo = saida_dir / "fase2c_resumo_confirmatorio.json"
+        caminho_resumo.write_text(
+            json.dumps(resumo, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+        )
+        status["resumo_confirmatorio"] = str(caminho_resumo)
+
+    return status
 
 
 # --------------------------------------------------------------------------
@@ -959,40 +1062,10 @@ def main() -> int:
         return 2
 
     contexto = montar_contexto(args.entrada_dir, args.alvo, args.classes)
-    metodos = (["linear_svc", "votacao_majoritaria", "votacao_suave", "stacking"]
-               if args.metodo == "todos" else [args.metodo])
+    metodos = (("linear_svc", "votacao_majoritaria", "votacao_suave", "stacking")
+               if args.metodo == "todos" else (args.metodo,))
 
-    # Pesos/alpha da votacao suave (contrato aprovado, so pool interno)
-    # calculados uma vez e reaproveitados por votacao_suave e stacking (c_alt).
-    info_por_fold = None
-    if {"votacao_suave", "stacking"} & set(metodos):
-        info_por_fold = pesos_e_alpha_votacao_suave_por_fold(contexto)
-
-    filas_por_metodo: dict[str, list[dict[str, Any]]] = {}
-    resultado_status: dict[str, Any] = {}
-    for metodo in metodos:
-        if metodo == "linear_svc":
-            fila = combinar_linear_svc(contexto)
-        elif metodo == "votacao_majoritaria":
-            fila = combinar_votacao_majoritaria(contexto)
-        elif metodo == "votacao_suave":
-            fila, info_por_fold = combinar_votacao_suave(contexto, info_por_fold)
-            resultado_status["alpha_por_fold"] = {
-                f: info["alpha"] for f, info in info_por_fold.items()
-            }
-        else:
-            fila = combinar_stacking(contexto, info_por_fold=info_por_fold)
-        filas_por_metodo[metodo] = fila
-        gravar_fila(fila, args.saida_dir / f"fase2c_fila_{metodo}.json")
-        resultado_status[metodo] = {"total_fila": len(fila)}
-
-    # Comparacao confirmatoria: MESMA capacidade K_f (fila natural do
-    # LinearSVC por dobra) para todos os metodos rodados nesta chamada —
-    # nunca um tau otimizado na avaliacao externa.
-    if len(filas_por_metodo) > 1:
-        comparacao, capacidade = comparar_metodos_por_capacidade(contexto, filas_por_metodo)
-        resultado_status["comparacao_por_capacidade"] = comparacao
-        resultado_status["capacidade_k_f"] = capacidade
+    resultado_status = executar_confirmatoria(contexto, args.saida_dir, metodos)
 
     print(json.dumps(resultado_status, ensure_ascii=False, indent=2))
     return 0

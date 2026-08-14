@@ -269,11 +269,30 @@ alternativa própria.
 contrato — `id_sha256`, `H`, `R`, `c_alt`, `score`, `fold` — mais `Y`
 (rótulo de avaliação, nunca feature).
 
+Persistência (`executar_confirmatoria`, chamada por `--metodo todos` ou por
+qualquer `--metodo` isolado):
+
+| Artefato | Campos | Papel |
+|---|---|---|
+| `fase2c_fila_{metodo}.json` | os 6 do contrato + `Y` | interno/analítico, insumo das métricas |
+| `fase2c_fila_{metodo}.csv` | exatamente `CAMPOS_FILA_CANONICOS` = `id_sha256, H, R, c_alt, score, fold` (nunca `Y`) | fila pública/operacional, tabular, interoperável |
+
 ### 4.5 Curva de ganho
 
 `curva_ganho()`: para cada tamanho de fila `K` (ordenada por escore
 decrescente), quantas inadequações reais (`Y=1`) foram capturadas, com
 precisão e recall acumulados — gains chart padrão, não uma métrica nova.
+Persistida por método em `fase2c_curva_ganho_{metodo}.json`.
+
+### 4.6 Resumo confirmatório
+
+`montar_resumo_confirmatorio()`, gravado em
+`fase2c_resumo_confirmatorio.json` sempre que mais de um método roda na
+mesma chamada: `capacidade_k_f_por_fold` (seção 4.3), a comparação de cada
+método truncado nessa mesma capacidade (`comparar_metodos_por_capacidade`
+— total selecionado, `Y=1` capturados, precisão), `alpha_votacao_suave_por_fold`
+(seção 4.2) e a proveniência (`run_id`, `commit_sha`, os 5 hashes) da
+Execução Científica 1 usada como entrada. Nunca contém `tau`.
 
 ## 5. O que esta rodada implementou e o que não executou
 
