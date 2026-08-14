@@ -1413,6 +1413,11 @@ label noise. *Engineering Applications of Artificial Intelligence*, v.
 146, art. 110157, 2025. DOI:
 https://doi.org/10.1016/j.engappai.2025.110157.
 
+```{=latex}
+\FloatBarrier
+\clearpage
+```
+
 **APÊNDICE A — CATEGORIAS DO CORPUS E DAS PARTIÇÕES**
 
 A Tabela A1 apresenta as 50 categorias históricas presentes nos 14.060
@@ -1423,8 +1428,6 @@ as 41 categorias que sustentaram suporte nas cinco dobras e compõem as
 13.972 linhas avaliadas, e a segunda, as 9 que ficaram de fora.
 
 ```{=latex}
-\FloatBarrier
-\clearpage
 % Numeracao propria do apendice (A1, A2, A3), independente da sequencia
 % 1 a 4 das tabelas do corpo.
 \renewcommand{\thetable}{A\arabic{table}}
