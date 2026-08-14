@@ -1432,13 +1432,17 @@ as 41 categorias que sustentaram suporte nas cinco dobras e compõem as
 % 1 a 4 das tabelas do corpo.
 \renewcommand{\thetable}{A\arabic{table}}
 \setcounter{table}{0}
-% Barreira para impedir que a Tabela A1 (float) suba antes do titulo e
-% do paragrafo introdutorio na pagina nova aberta pelo \clearpage acima.
-\FloatBarrier
 ```
 
 ```{=latex}
-\begin{table}[!tbp]
+% Colocacao restrita a "b" (rodape da pagina): nesta imagem de build
+% (pandoc/extra) o pacote placeins nao esta disponivel e o \FloatBarrier
+% de contingencia so aciona \clearpage quando ja ha float pendente, sem
+% impedir que um float definido depois suba para o topo da pagina. Como
+% o titulo e o paragrafo introdutorio (texto corrido, nao flutuante) sao
+% tipografados antes deste ponto, restringir a Tabela A1 ao rodape
+% garante que ela permaneca abaixo deles na mesma pagina.
+\begin{table}[!b]
 \centering
 \footnotesize
 \caption{Distribuição dos chamados por categoria histórica.}
