@@ -5,6 +5,7 @@ Branch: `revisao-editorial-v4`. Repositório: `adinailson88/classificacao-chamad
 ## 1. Pré-voo
 
 - SHA inicial de `origin/main`: `a0d9e957b60d9092fd5ff9e098ddc506d5e2067c` (14/08/2026 11:14, "dados do dashboard [skip ci]").
+- SHA final da branch (após os dois commits de conteúdo e os dois commits automáticos do PDF): `157f1174587124ad524711064c640b2c2b2457e6`.
 - `git fetch origin --prune`: sem PR editorial aberta, sem branch `revisao-editorial-v4` prévia (local ou remota).
 - **Bloqueador de pré-voo tratado antes de qualquer alteração:** a árvore continha um arquivo não rastreado na raiz, `NUMEROS_CANONICOS.md`, que não é um dos três arquivos de entrada autorizados como exceção. Reportado ao autor, que optou por movê-lo para fora do repositório (`_arquivo_repos_2026-07/NUMEROS_CANONICOS_backup_2026-08-14.md`, na pasta-mãe do clone). Com a árvore limpa, a branch foi criada a partir de `origin/main`.
 - Verificação adicional: o PR #210 (mesclado em `main` horas antes desta rodada) já havia integrado o resultado confirmatório do ensemble da Fase 2C ao corpo do artigo. Os patches P1–P13 do `TAREFA_CLAUDE_CODE_revisao_v4.md` continuavam com correspondência exata contra o arquivo-fonte atual. Só o P14 (Tabela 5) foi afetado: a Subseção 4.5 já trazia, em prosa, os números confirmatórios do ensemble, mas sem a tabela LaTeX `tab:ensembles`. Como o item P14 da tarefa não fornece um trecho `ANTES` literal (descreve o alvo como "o último parágrafo da Subseção 4.5"), apliquei a intenção do `DEPOIS` ao parágrafo efetivamente presente, documentado no item P14 abaixo.
@@ -106,8 +107,8 @@ Nenhum dado de entrada, agregação, ordenação por valor ou paleta que codifiq
 6. **Resumo, Abstract, Introdução, Considerações Finais e Referências**: só as alterações autorizadas (título/UFSB na Introdução; nenhuma mudança de dado no Resumo/Abstract além do necessário para casar com a Introdução; duas correções de ordem alfabética e a exclusão de BRASIL nas Referências; "veredito" trocado por "resultado" nas Considerações Finais, único termo proibido ali presente).
 7. **S17 e seu gerador**: `git status` confirma `src/tabelas_suplementares_canonicas.py` e `04_artigo/figuras/tabela_S17_ensemble_confirmatorio.csv` **intactos**.
 8. **Referências além de P8/P9**: `diff` isolado do bloco `**REFERÊNCIAS**` contra `origin/main` confirma que nenhuma outra entrada foi alterada (Seção 3, linha P9).
-9. **Inspeção visual do PDF**: pendente do workflow oficial (Seção 11).
-10. **Páginas do PDF**: pendente do workflow oficial (Seção 11).
+9. **Inspeção visual do PDF**: concluída nas duas execuções do workflow (Seção 11) — Tabela 1 sem colisão, Tabela 4/Subseção 4.3 preenchidas até o fim, Apêndice A antes da Tabela A1, nenhum título órfão.
+10. **Páginas do PDF**: 20 (primeira execução) → 21 (execução final, dentro de 21–23; Seção 11).
 
 ## 11. PDF — workflow oficial
 
@@ -125,7 +126,9 @@ Nenhum dado de entrada, agregação, ordenação por valor ou paleta que codifiq
 
 **Ação corretiva:** acrescentadas duas elaborações fiéis ao conteúdo já presente (Seção 7), sem número, tabela, citação ou conclusão nova, para aproximar a paginação da faixa-meta. Segunda execução do workflow, inspeção e contagem final registradas abaixo.
 
-**Segunda execução:** *(preenchida após o segundo `workflow_dispatch`, nesta mesma rodada)*
+**Segunda execução** (`workflow_dispatch`, run `31819313782`, sucesso em 32s, commit automático `157f1174`, incorporado por fast-forward): PDF com **21 páginas**, dentro da faixa preferencial de 21 a 23. Renderizadas as 21 páginas novamente e reconferidos os quatro pontos da Seção 5 da tarefa, mais as páginas alteradas pelas duas elaborações (3.3 e 5.3): texto flui normalmente, Tabela 1 continua sem colisão, nenhum título de seção isolado no rodapé, Apêndice A continua impresso antes da Tabela A1, e o restante da paginação permanece estável em relação à primeira execução.
+
+**Páginas:** 20 (primeiro build) → **21** (build final, dentro de 21–23).
 
 ## 12. Fits de modelo — contagem exigida
 
