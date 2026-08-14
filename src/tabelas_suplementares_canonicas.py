@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Tabelas suplementares S7 a S11, a partir da rodada canonica.
+"""Tabelas suplementares S7 a S17, a partir da rodada canonica.
 
 O Passo 11 do plano manda ao suplemento matrizes de confusao extensas,
 resultados por categoria, ablacoes e testes secundarios, mantendo no corpo do
@@ -13,9 +13,21 @@ citar seus valores em prosa:
     S10  curva ABC interna a cada tipo, para o LinearSVC
     S11  efeito da camada de regras de periodicidade
     S16  calibracao completa dos sete modelos, resumida no corpo (Tabela 4)
+    S17  Fase 2C: LinearSVC vs combinacoes (votacao majoritaria, votacao
+         suave, stacking), agregado e por outer fold. Numeracao provisoria,
+         mantida em sequencia apos S16 apesar da lacuna ja existente em S4;
+         a renumeracao continua de S5-S17 fica para a adaptacao ao periodico
+         (docs/AUDITORIA_FINAL_SUBMISSAO.md, secao 9).
 
 Le apenas artefatos com `hash_corpus` da rodada canonica e aborta se houver
-divergencia. Somente leitura: nao escreve na planilha nem no artigo.
+divergencia. S17 e excecao: sua fonte exclusiva e o manifesto confirmatorio
+da Fase 2C (docs/dados/ensemble/fase2c/fase2c_execucao_cientifica_1_manifest.json),
+que nao carrega `hash_corpus` por pertencer a outra trilha experimental
+(ver docs/FASE2C_RESOLUCAO_KF_DENOMINADOR.md); a funcao valida diretamente
+os valores confirmatorios congelados (universo, denominador, capacidade,
+proveniencia da Fase 2B) e aborta em qualquer divergencia. Somente leitura:
+nao escreve na planilha nem no artigo, e nao recalcula nenhum resultado do
+ensemble.
 """
 
 from __future__ import annotations
@@ -34,6 +46,8 @@ from tempo import agora_bahia  # noqa: E402
 RAIZ = Path(__file__).resolve().parents[1]
 DADOS = RAIZ / "docs" / "dados"
 FIGURAS = RAIZ / "04_artigo" / "figuras"
+FASE2C_MANIFEST = (RAIZ / "docs" / "dados" / "ensemble" / "fase2c"
+                   / "fase2c_execucao_cientifica_1_manifest.json")
 
 MODELO_DE_REFERENCIA = "linear_svc"
 
@@ -45,6 +59,21 @@ NOME = {
     "random_forest": "Random Forest",
     "lstm": "LSTM",
     "naive_bayes": "Naive Bayes",
+}
+
+NOME_METODO_FASE2C = {
+    "linear_svc": "LinearSVC",
+    "votacao_majoritaria": "Votacao majoritaria",
+    "votacao_suave": "Votacao suave ponderada",
+    "stacking": "Stacking",
+}
+
+FASE2C_VALORES_ESPERADOS = {
+    "total_modelaveis": 13970,
+    "total_y1": 593,
+    "k_total": 2840,
+    "run_id_fase2b": "31556028058",
+    "commit_fase2b": "d6a5504cd9c4360b97fd90dd88c13bd430155459",
 }
 
 
@@ -249,6 +278,74 @@ def s16_calibracao_completa(calibracao: dict[str, Any]) -> Path:
                     linhas)
 
 
+def s17_ensemble_confirmatorio() -> Path:
+    """Fase 2C: LinearSVC vs combinacoes, agregado e por outer fold.
+
+    Fonte exclusiva: o manifesto confirmatorio da Execucao Cientifica 1 da
+    Fase 2C. Nao le nenhum artefato da rodada canonica do artigo principal e
+    nao recalcula nenhum numero: cada valor gravado abaixo vem lido
+    diretamente do manifesto, apos validar que universo, denominador,
+    capacidade e proveniencia da Fase 2B batem com os valores confirmatorios
+    congelados (docs/dados/ensemble/fase2c/EXECUCAO_CIENTIFICA_1.md).
+    """
+    manifesto = json.loads(FASE2C_MANIFEST.read_text(encoding="utf-8"))
+
+    for campo, esperado in FASE2C_VALORES_ESPERADOS.items():
+        obtido = manifesto.get(campo)
+        if obtido != esperado:
+            raise SystemExit(
+                f"fase2c manifesto: {campo} esperado {esperado!r}, obtido {obtido!r}")
+
+    metodos_agregado = manifesto["comparacao_agregada_por_metodo"]
+    if set(metodos_agregado) != set(NOME_METODO_FASE2C):
+        raise SystemExit(
+            f"fase2c manifesto: metodos inesperados {sorted(metodos_agregado)}")
+
+    folds = sorted(int(f) for f in manifesto["k_f_por_fold"])
+    if folds != [1, 2, 3, 4, 5]:
+        raise SystemExit(f"fase2c manifesto: folds inesperados {folds}")
+
+    ordem_metodos = ("linear_svc", "votacao_majoritaria", "votacao_suave",
+                      "stacking")
+    ref_agregado = metodos_agregado[MODELO_DE_REFERENCIA]
+    por_fold = manifesto["comparacao_por_fold"]
+    y1_por_fold = manifesto["y1_por_fold"]
+
+    linhas = []
+    for metodo in ordem_metodos:
+        m = metodos_agregado[metodo]
+        linhas.append([
+            "agregado", "", NOME_METODO_FASE2C[metodo], m["total_na_fila"],
+            manifesto["total_y1"], m["capturados_y1"], m["precisao"],
+            m["recall"], m["capturados_y1"] - ref_agregado["capturados_y1"],
+            m["precisao"] - ref_agregado["precisao"],
+            m["recall"] - ref_agregado["recall"],
+        ])
+
+    for fold in (1, 2, 3, 4, 5):
+        chave = str(fold)
+        ref_fold = por_fold[MODELO_DE_REFERENCIA][chave]
+        for metodo in ordem_metodos:
+            f = por_fold[metodo][chave]
+            linhas.append([
+                "fold", fold, NOME_METODO_FASE2C[metodo], f["K_f"],
+                y1_por_fold[chave], f["capturados_y1"], f["precisao"],
+                f["recall_fold"],
+                f["capturados_y1"] - ref_fold["capturados_y1"],
+                f["precisao"] - ref_fold["precisao"],
+                f["recall_fold"] - ref_fold["recall_fold"],
+            ])
+
+    return escrever(
+        "tabela_S17_ensemble_confirmatorio.csv",
+        ["escopo", "outer_fold", "metodo", "K", "y1_denominador",
+         "capturados", "precisao", "recall",
+         "diff_capturados_vs_linear_svc", "diff_precisao_vs_linear_svc",
+         "diff_recall_vs_linear_svc"],
+        linhas,
+    )
+
+
 def parse_args() -> argparse.Namespace:
     return argparse.ArgumentParser(description=__doc__).parse_args()
 
@@ -277,6 +374,10 @@ def main() -> int:
                     s15_pressupostos(inferencia),
                     s16_calibracao_completa(calibracao)):
         print(f"  {caminho.name}")
+
+    caminho_s17 = s17_ensemble_confirmatorio()
+    print(f"  {caminho_s17.name} (fonte: fase2c_execucao_cientifica_1_manifest.json, sem hash_corpus)")
+
     print(f"gerado em {agora_bahia()}")
     return 0
 
