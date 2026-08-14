@@ -967,10 +967,9 @@ classificador estatístico competente, que já os captura: o ganho do
 fluxo híbrido está no eixo humano–IA (Subseção 4.3), não no eixo
 regra–modelo.
 
-A combinação dos sete modelos-base por votação majoritária, suave
-ponderada e stacking foi avaliada sobre os 593 registros modeláveis em
-que a categoria histórica divergia da referência revisada, cada método
-truncado em fila de igual capacidade — 2.840 no agregado. Nenhuma
+Nos 13.970 registros modeláveis, 593 divergiam entre a categoria
+histórica e a referência revisada; cada método foi comparado em fila de
+igual capacidade, totalizando 2.840 registros no agregado. Nenhuma
 combinação superou o LinearSVC (523; precisão 0,1842; recall 0,8820):
 majoritária 516 (−7; 0,1817; 0,8702), suave 503 (−20; 0,1771; 0,8482),
 stacking 512 (−11; 0,1803; 0,8634). O único ganho local, do stacking no
