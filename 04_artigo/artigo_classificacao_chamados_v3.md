@@ -478,18 +478,28 @@ suplementar.
 
 **3.5 Reclassificação, utilidade e análises complementares**
 
-Quatro análises complementam a comparação principal, sobre as mesmas
-partições e os mesmos registros, sem alterar a referência revisada. A
-reclassificação da base histórica conta apenas os registros em que a predição
-diverge da categoria histórica, com a referência arbitrando cada divergência,
-e é qualificada pela utilidade sob custos assimétricos da Subseção 4.2. A camada explícita de regras de periodicidade, em módulo próprio e auditável,
+Cinco análises complementam a comparação principal, sobre as mesmas
+partições, sem alterar a referência revisada. A
+reclassificação da base histórica conta os registros em que a predição
+diverge da categoria histórica, arbitrados pela referência,
+qualificada pela utilidade sob custos assimétricos (Subseção 4.2). A camada explícita de regras de periodicidade, em módulo próprio e auditável,
 tem desenho e termos na Subseção 4.5. A camada informacional de
 entropia de Shannon e divergência de Jensen-Shannon (SHANNON, 1948; LIN,
 1991) é calculada sobre agregados sanitizados e mede dispersão das predições,
 distância frente à distribuição histórica e desacordo entre modelos, este
-último usado para ordenar fila de auditoria; nada se afirma, a partir dela,
-sobre desordem do sistema físico. O teste de sensibilidade da cobertura sob
-três convenções de denominador consta da Subseção 4.1.
+último usado para ordenar fila de auditoria, sem inferir desordem do
+sistema físico. O teste de sensibilidade da cobertura sob três
+convenções de denominador consta da Subseção 4.1.
+
+Como análise confirmatória complementar (Subseção 4.5), votação
+majoritária, votação suave ponderada e stacking foram comparadas ao
+LinearSVC sobre os 13.970 registros cuja categoria histórica pertencia às
+41 classes avaliadas, com previsões *cross-fitted* dos sete modelos-base,
+sem novo ajuste, em filas de igual capacidade — definida, em cada dobra
+externa, pela fila natural de divergências do LinearSVC, sem limiar
+otimizado na avaliação externa. O parâmetro de suavização da votação
+ponderada foi escolhido só internamente, e cada metamodelo de stacking
+foi ajustado sem acesso à dobra externa avaliada.
 
 **3.6 Reprodutibilidade, dados e aspectos institucionais**
 
@@ -901,65 +911,70 @@ substituição do classificador atua apenas sobre seu efeito.
 
 **4.5 Análises complementares**
 
-O BERTimbau não integra a comparação principal por motivo computacional
-medido no mesmo ambiente dos demais modelos: o ajuste fino custou 10,774
-segundos por passo, e os 2.103 passos de cada dobra projetam 6,44 horas
-por dobra e 32,2 horas para as cinco, contra um teto de execução de seis
-horas, de modo que nem uma dobra completa cabe na infraestrutura do
-estudo. A limitação é de infraestrutura, e não do modelo; um experimento
-exploratório avaliou o transformador em lote de mil chamados, dos quais
-983 com referência humana, e os valores constam do material suplementar,
-sem serem comparáveis às métricas desta seção, por não cobrirem o corpus
-de modo probabilístico e por empregarem subamostragem estratificada com
+O BERTimbau não integra a comparação principal por custo computacional
+medido: o ajuste fino custou 10,774 segundos por passo, e os 2.103
+passos de cada dobra projetam 6,44 horas por dobra e 32,2 horas para as
+cinco, contra um teto de seis horas — nenhuma dobra completa cabe na
+infraestrutura do estudo. Um experimento exploratório avaliou o
+transformador em lote de mil chamados (983 com referência humana); os
+valores, no material suplementar, não são comparáveis por não cobrir o
+corpus probabilisticamente e por usar subamostragem estratificada com
 parada antecipada.
 
 O treino do LSTM parou por interrupção antecipada após 11 épocas, com
 menor perda de validação na época 8 e maior acurácia de validação na
-época 10 (0,6722), padrão de saturação precoce consistente com a hipótese
-de que *embeddings* treinados do zero são insuficientes para um corpus
-deste porte (Subseção 3.3; Figura 6). A justificativa do particionamento
-agrupado é anterior a essa medição e repousa na estrutura do corpus: a
+época 10 (0,6722), padrão de saturação precoce consistente com
+*embeddings* treinados do zero serem insuficientes para um corpus
+deste porte (Subseção 3.3; Figura 6). A justificativa do particionamento agrupado é anterior a essa medição: a
 partição por linha permitiria ao mesmo texto ocupar treino e teste, e
-duas estimativas de sensibilidade indicam ganho espúrio entre 0,89 e 1,84
-ponto percentual de acurácia sob esse desenho, valores que constam do
-material suplementar com o protocolo declarado.
+duas estimativas de sensibilidade indicam ganho espúrio entre 0,89 e
+1,84 ponto percentual sob esse desenho, no material suplementar com o
+protocolo declarado.
 
 ![Curva de aprendizado do LSTM por época, perda e acurácia em treino e validação.](04_artigo/figuras/fig_curva_aprendizado_lstm.pdf){width=95%}
 
-Dois recortes complementares qualificam a leitura agregada sem alterá-la.
+Dois recortes complementares qualificam a leitura agregada.
 A curva ABC sobre o suporte das 41 categorias concentra 81,83% do volume
 em 12 categorias de classe A, com macro-F1 do LinearSVC de 0,8207 nessa
-classe contra 0,5018 na classe C, o que localiza na cauda a distância
+classe contra 0,5018 na classe C, localizando na cauda a distância
 entre acurácia e macro-F1 agregados. A projeção da referência e das
-predições para o nível de tipo de manutenção, em três categorias e não na
-dicotomia usual entre preventivo e corretivo, eleva o desempenho a outro
+predições ao tipo de manutenção (três categorias, não a
+dicotomia usual entre preventivo e corretivo) eleva o desempenho a outro
 patamar: o LinearSVC alcança 0,9443 de acurácia contra 0,8253 na tarefa
 de 41 categorias, com F1 de 0,9742 na preventiva e 0,9547 na corretiva, e
 toda a perda concentra-se no terceiro tipo, cujo F1 não ultrapassa 0,5330
-em nenhum modelo. Cabe registrar a inversão de ordenação nessa
-granularidade: o Extra Trees lidera a acurácia, com 0,9497, e o LinearSVC
-lidera o macro-F1, com 0,8180, precisamente por ir melhor na classe
-difícil, o que faz a escolha do classificador depender tanto do nível de
-agregação da decisão quanto da métrica que ela privilegia. Depreende-se
-do conjunto dessas medições uma hierarquia de confiabilidade: a contagem
+em nenhum modelo. Nessa granularidade inverte-se a ordenação: o Extra
+Trees lidera a acurácia, com 0,9497, e o LinearSVC
+lidera o macro-F1, com 0,8180, por ir melhor na classe difícil — a
+escolha depende do nível de agregação e da métrica privilegiada.
+Depreende-se uma hierarquia de confiabilidade: a contagem
 por tipo de manutenção é a leitura mais segura, a leitura por categoria só
 se sustenta nas classes de maior volume de cada tipo, e nas classes B e C
 o desempenho medido não autoriza uso automático. O detalhamento por
 classe e por tipo consta do material suplementar.
 
 A camada explícita de regras de periodicidade, que atribui categoria
-preventiva quando o texto reúne um termo de periodicidade e um termo de
-equipamento, dispara em 4.487 dos 13.972 registros e ainda assim melhora
+preventiva quando o texto reúne termo de periodicidade e de equipamento,
+dispara em 4.487 dos 13.972 registros e melhora
 o macro-F1 de apenas três dos sete modelos, com ganho concentrado no
 Naive Bayes (+0,0586) e perdas marginais em Extra Trees, Random Forest e
-LinearSVC. Como a regra depende só do texto, ela dispara no mesmo
-conjunto para os sete modelos, e o que varia é a predição que substitui:
-no LinearSVC, os 4.487 disparos produzem apenas 31 divergências, contra
-219 no Naive Bayes, no qual a regra acerta 201 vezes contra 9 do modelo.
+LinearSVC. Como depende só do texto, a regra dispara no mesmo
+conjunto para os sete modelos; varia a predição substituída:
+no LinearSVC, os 4.487 disparos produzem 31 divergências, contra 219 no
+Naive Bayes, onde a regra acerta 201 vezes contra 9 do modelo.
 A leitura é que regras de domínio são redundantes diante de um
-classificador estatístico competente, que já captura implicitamente os
-sinais de periodicidade presentes no texto: o ganho do fluxo híbrido está
-no eixo humano–IA (Subseção 4.3), e não no eixo regra–modelo.
+classificador estatístico competente, que já os captura: o ganho do
+fluxo híbrido está no eixo humano–IA (Subseção 4.3), não no eixo
+regra–modelo.
+
+Nos 13.970 registros modeláveis, 593 divergiam entre a categoria
+histórica e a referência revisada; cada método foi comparado em fila de
+igual capacidade, totalizando 2.840 registros no agregado. Nenhuma
+combinação superou o LinearSVC (523; precisão 0,1842; recall 0,8820):
+majoritária 516 (−7; 0,1817; 0,8702), suave 503 (−20; 0,1771; 0,8482),
+stacking 512 (−11; 0,1803; 0,8634). O único ganho local, do stacking no
+fold 3 (123 contra 119), não se sustentou no agregado; detalhamento por
+dobra e proveniência no material suplementar (Tabela S17).
 
 **5. DISCUSSÃO**
 
@@ -969,35 +984,39 @@ O desempenho dos sete modelos (Tabela 2) não aponta vencedor absoluto: o
 LinearSVC lidera a acurácia, a Regressão Logística tem o macro-F1 pontual
 ligeiramente superior, e o SGD permanece próximo de ambos, com intervalos
 de confiança sobrepostos entre os três primeiros. A leitura operacional é,
-portanto, multicritério, e pesa acurácia, macro-F1 e custo computacional em
-conjunto: a superioridade estatística do LinearSVC sobre o segundo colocado
+portanto, multicritério, pesando acurácia, macro-F1 e custo: a
+superioridade estatística do LinearSVC sobre o segundo colocado
 (Subseção 4.1) não basta, isoladamente, para declará-lo vencedor único.
 
 O bom desempenho dos modelos lineares é compatível com a literatura sobre
 texto curto de vocabulário técnico, em que representações esparsas com
 fronteiras lineares sustentam desempenho competitivo (JOACHIMS, 1998;
-SALTON; BUCKLEY, 1988; GALKE; SCHERP, 2022), sem que isso autorize
-generalizar essa superioridade a outros domínios, corpora mais longos ou
-arquiteturas neurais e transformadoras mais profundas, cuja comparação
-direta este desenho não realizou.
+SALTON; BUCKLEY, 1988; GALKE; SCHERP, 2022), sem autorizar generalizar
+essa superioridade a outros domínios, corpora mais longos ou
+arquiteturas neurais e transformadoras mais profundas, não comparadas
+diretamente neste desenho.
 
 O BERTimbau permanece fora dessa comparação por custo computacional medido
-(Subseção 4.5), condição de infraestrutura, e não julgamento sobre seu
-desempenho: rankings produzidos sob protocolos distintos não sustentam
-comparação direta, e nada se afirma aqui sobre sua qualidade relativa aos
-sete modelos avaliados sob o protocolo agrupado.
+(Subseção 4.5), condição de infraestrutura, não julgamento sobre
+desempenho: rankings sob protocolos distintos não sustentam comparação
+direta, sem afirmação sobre sua qualidade relativa aos demais modelos
+sob o protocolo agrupado.
 
-O custo de treino pesa na decisão institucional tanto quanto a métrica de
-acerto: em ambiente sem acelerador gráfico, um modelo que treina em poucos
-segundos pode ser reexecutado e auditado a cada atualização da base sem
-infraestrutura dedicada, condição que a literatura sobre eficiência
-computacional recomenda reportar junto da acurácia (SCHWARTZ *et al.*,
-2020; TREVISO *et al.*, 2023). É esse critério, e não apenas o desempenho
-isolado, que torna o LinearSVC e o SGD os candidatos mais favoráveis no
-ambiente e no protocolo avaliados, por sustentarem acurácia e macro-F1
-competitivos a custo de treino próximo do menor observado, sem exigir
-aceleração gráfica nem infraestrutura fora do ambiente institucional
-(Subseção 4.1).
+O custo de treino pesa na decisão institucional tanto quanto o acerto: em
+ambiente sem acelerador gráfico, um modelo que treina em poucos segundos
+pode ser reexecutado e auditado a cada atualização da base sem
+infraestrutura dedicada, condição que a literatura de eficiência
+recomenda reportar com a acurácia (SCHWARTZ *et al.*,
+2020; TREVISO *et al.*, 2023). É esse critério, não só o desempenho
+isolado, que torna o LinearSVC e o SGD os candidatos mais favoráveis,
+por sustentar acurácia e macro-F1 competitivos a custo de treino mínimo,
+sem exigir infraestrutura fora do ambiente institucional (Subseção 4.1).
+
+A comparação confirmatória com as três combinações (Subseção 4.5)
+reforça, neste corpus e capacidade, a escolha parcimoniosa já
+justificada, sem provar que *ensembles* sejam genericamente ineficazes
+nem afastar a ausência de validação temporal, o avaliador único e a
+necessidade de monitoramento de deriva e auditoria humana.
 
 **5.2 Auditoria do histórico, reclassificação e fluxo humano–IA**
 
