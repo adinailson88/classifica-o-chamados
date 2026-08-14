@@ -1,0 +1,722 @@
+name: Fase 2B - cross-fitting aninhado dos sete modelos-base (read-only)
+
+on:
+  push:
+    branches:
+      - feat/ensemble-fase2b-crossfit-base
+
+permissions:
+  contents: read
+
+env:
+  # Determinismo: fixado ANTES de qualquer processo Python iniciar (PYTHONHASHSEED
+  # so tem efeito definido no arranque do interpretador). BLAS de 1 thread evita que
+  # soma de ponto-flutuante multi-thread mude margens perto de fronteiras de decisao
+  # entre execucoes (mesma razao do recongelamento online). TF_DETERMINISTIC_OPS e
+  # TF_ENABLE_ONEDNN_OPTS=0 fixam o comportamento numerico das operacoes do
+  # TensorFlow usadas pela LSTM. TF_NUM_INTRAOP/INTEROP_THREADS fixam o pool de
+  # threads proprio do runtime do TF (independente de OMP/OPENBLAS/MKL, que so
+  # afetam BLAS chamado de dentro do TF) — sem isso, reducoes paralelas do
+  # Eigen podem somar em ordem diferente entre runners com contagem de CPU
+  # distinta, mudando resultados de ponto flutuante mesmo com todas as seeds
+  # fixadas.
+  PYTHONHASHSEED: "42"
+  OMP_NUM_THREADS: "1"
+  OPENBLAS_NUM_THREADS: "1"
+  MKL_NUM_THREADS: "1"
+  NUMEXPR_NUM_THREADS: "1"
+  TF_DETERMINISTIC_OPS: "1"
+  TF_ENABLE_ONEDNN_OPTS: "0"
+  TF_NUM_INTRAOP_THREADS: "1"
+  TF_NUM_INTEROP_THREADS: "1"
+  TF_CPP_MIN_LOG_LEVEL: "2"
+  SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
+  # ID da spreadsheet PRIVADA e ESTATICA do bundle REPLAY CONGELADO (nunca a
+  # planilha operacional). So usado pelos jobs [FASE2B-REPLAY]; ausente/vazio
+  # nao afeta [FASE2B-RUN] nem [FASE2B-CANARY] em nada.
+  REPLAY_SPREADSHEET_ID: ${{ secrets.REPLAY_SPREADSHEET_ID }}
+
+jobs:
+  testes:
+    name: Testes (suite completa, sempre roda)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements.txt
+      - name: Dependencias
+        run: |
+          python -m pip install --retries 5 --timeout 300 -r requirements.txt
+          python -m pip install --retries 5 --timeout 120 scipy==1.14.1 statsmodels==0.14.4 matplotlib pyyaml
+      - name: py_compile + unittest discover
+        run: |
+          python -m py_compile src/*.py
+          python -m unittest discover -s tests
+
+  autorizacao:
+    name: Autorizacao (marcadores [FASE2B-RUN] / [FASE2B-CANARY] / [FASE2B-REPLAY-PREFLIGHT] / [FASE2B-REPLAY] / [FASE2B-REPLAY-RECOVER])
+    needs: testes
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      autorizado_cientifico: ${{ steps.checar.outputs.autorizado_cientifico }}
+      autorizado_canario: ${{ steps.checar.outputs.autorizado_canario }}
+      autorizado_replay: ${{ steps.checar.outputs.autorizado_replay }}
+      autorizado_replay_preflight: ${{ steps.checar.outputs.autorizado_replay_preflight }}
+      autorizado_replay_recover: ${{ steps.checar.outputs.autorizado_replay_recover }}
+    steps:
+      - name: Checar marcador no INICIO da primeira linha do commit
+        id: checar
+        env:
+          # Passado via env, nunca interpolado direto no `run:`, para nao expor
+          # o runner a injecao de shell a partir de uma mensagem de commit
+          # controlada pelo autor do push.
+          MENSAGEM_COMMIT: ${{ github.event.head_commit.message }}
+        run: |
+          PRIMEIRA_LINHA=$(printf '%s\n' "$MENSAGEM_COMMIT" | head -n1)
+          echo "Primeira linha do commit: $PRIMEIRA_LINHA"
+          # `contains()` sobre a mensagem inteira e fragil: um commit que so
+          # DESCREVE um marcador em prosa (ex.: documentando o proprio
+          # workflow) tambem "contem" a substring em algum lugar do corpo e
+          # dispararia a rodada pesada por acidente (ja aconteceu). Por isso
+          # o gate exige que o marcador seja PREFIXO da PRIMEIRA linha (o
+          # assunto do commit), nunca uma ocorrencia solta na mensagem. Os
+          # cinco marcadores sao mutuamente exclusivos por construcao: um
+          # commit so pode comecar com um prefixo por vez. [FASE2B-REPLAY-
+          # PREFLIGHT] e [FASE2B-REPLAY-RECOVER] sao checados ANTES de
+          # [FASE2B-REPLAY] porque os dois nomes sao prefixo textual do
+          # primeiro ate o caractere "]"/"-": a ordem evita qualquer
+          # ambiguidade de match, mesmo sendo os literais distintos por
+          # construcao (bash `==` com sufixo `*` e comparacao literal, nao
+          # regex).
+          if [[ "$PRIMEIRA_LINHA" == "[FASE2B-RUN]"* ]]; then
+            echo "autorizado_cientifico=true" >> "$GITHUB_OUTPUT"
+            echo "autorizado_canario=false" >> "$GITHUB_OUTPUT"
+            echo "autorizado_replay=false" >> "$GITHUB_OUTPUT"
+            echo "autorizado_replay_preflight=false" >> "$GITHUB_OUTPUT"
+            echo "autorizado_replay_recover=false" >> "$GITHUB_OUTPUT"
+            echo "Marcador [FASE2B-RUN] no inicio do assunto: execucao cientifica completa (175 fits) AUTORIZADA."
+          elif [[ "$PRIMEIRA_LINHA" == "[FASE2B-CANARY]"* ]]; then
+            echo "autorizado_cientifico=false" >> "$GITHUB_OUTPUT"
+            echo "autorizado_canario=true" >> "$GITHUB_OUTPUT"
+            echo "autorizado_replay=false" >> "$GITHUB_OUTPUT"
+            echo "autorizado_replay_preflight=false" >> "$GITHUB_OUTPUT"
+            echo "autorizado_replay_recover=false" >> "$GITHUB_OUTPUT"
+            echo "Marcador [FASE2B-CANARY] no inicio do assunto: canario de determinismo (2 replicas, so outer_fold=1) AUTORIZADO."
+          elif [[ "$PRIMEIRA_LINHA" == "[FASE2B-REPLAY-PREFLIGHT]"* ]]; then
+            echo "autorizado_cientifico=false" >> "$GITHUB_OUTPUT"
+            echo "autorizado_canario=false" >> "$GITHUB_OUTPUT"
+            echo "autorizado_replay=false" >> "$GITHUB_OUTPUT"
+            echo "autorizado_replay_preflight=true" >> "$GITHUB_OUTPUT"
+            echo "autorizado_replay_recover=false" >> "$GITHUB_OUTPUT"
+            echo "Marcador [FASE2B-REPLAY-PREFLIGHT] no inicio do assunto: preflight do bundle congelado (gate_zero_replay, ZERO fits) AUTORIZADO."
+          elif [[ "$PRIMEIRA_LINHA" == "[FASE2B-REPLAY-RECOVER]"* ]]; then
+            echo "autorizado_cientifico=false" >> "$GITHUB_OUTPUT"
+            echo "autorizado_canario=false" >> "$GITHUB_OUTPUT"
+            echo "autorizado_replay=false" >> "$GITHUB_OUTPUT"
+            echo "autorizado_replay_preflight=false" >> "$GITHUB_OUTPUT"
+            echo "autorizado_replay_recover=true" >> "$GITHUB_OUTPUT"
+            echo "Marcador [FASE2B-REPLAY-RECOVER] no inicio do assunto: recuperacao do bundle candidato (ZERO fits, sem escrita em nenhuma planilha) AUTORIZADA."
+          elif [[ "$PRIMEIRA_LINHA" == "[FASE2B-REPLAY]"* ]]; then
+            echo "autorizado_cientifico=false" >> "$GITHUB_OUTPUT"
+            echo "autorizado_canario=false" >> "$GITHUB_OUTPUT"
+            echo "autorizado_replay=true" >> "$GITHUB_OUTPUT"
+            echo "autorizado_replay_preflight=false" >> "$GITHUB_OUTPUT"
+            echo "autorizado_replay_recover=false" >> "$GITHUB_OUTPUT"
+            echo "Marcador [FASE2B-REPLAY] no inicio do assunto: replay cientifico completo sobre input CONGELADO AUTORIZADO."
+          else
+            echo "autorizado_cientifico=false" >> "$GITHUB_OUTPUT"
+            echo "autorizado_canario=false" >> "$GITHUB_OUTPUT"
+            echo "autorizado_replay=false" >> "$GITHUB_OUTPUT"
+            echo "autorizado_replay_preflight=false" >> "$GITHUB_OUTPUT"
+            echo "autorizado_replay_recover=false" >> "$GITHUB_OUTPUT"
+            echo "Nenhum marcador reconhecido no inicio do assunto do commit: somente testes."
+          fi
+
+  gate_zero:
+    name: Gate Zero (releitura online + validacao de hashes, sem treinar)
+    needs: [testes, autorizacao]
+    if: needs.autorizacao.outputs.autorizado_cientifico == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements.txt
+      - name: Dependencias
+        run: |
+          python -m pip install --retries 5 --timeout 300 -r requirements.txt
+      - name: Recriar chave da conta de servico
+        env:
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+        run: |
+          if [ -z "$GCP_SA_KEY" ]; then echo "Secret GCP_SA_KEY ausente." >&2; exit 1; fi
+          printf '%s' "$GCP_SA_KEY" > credenciais_sa.json
+      - name: Gate Zero
+        id: gate_zero
+        continue-on-error: true
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: credenciais_sa.json
+        run: |
+          mkdir -p docs/dados/ensemble/fase2b
+          python src/ensemble_fase2b_crossfit.py --somente-gate-zero \
+            --saida-dir docs/dados/ensemble/fase2b
+      - name: Remover credenciais
+        if: always()
+        run: rm -f credenciais_sa.json
+      - name: Publicar artefato sanitizado do Gate Zero
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fase2b-gate-zero
+          path: |
+            docs/dados/ensemble/fase2b/fase2b_gate_zero.json
+            docs/dados/ensemble/fase2b/fase2b_fingerprint_gate_zero.json
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Aplicar criterio de aceite
+        if: steps.gate_zero.outcome == 'failure'
+        run: |
+          echo "Gate Zero BLOQUEADO: a planilha online diverge do congelamento ja aprovado, ou as contagens estruturais nao batem. Nenhum modelo foi treinado." >&2
+          exit 1
+
+  crossfit_fold:
+    name: Cross-fitting por outer fold
+    needs: [gate_zero, autorizacao]
+    if: needs.autorizacao.outputs.autorizado_cientifico == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      matrix:
+        outer_fold: [1, 2, 3, 4, 5]
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements.txt
+      - name: Dependencias
+        run: |
+          python -m pip install --retries 5 --timeout 300 -r requirements.txt
+      - name: Recriar chave da conta de servico
+        env:
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+        run: |
+          if [ -z "$GCP_SA_KEY" ]; then echo "Secret GCP_SA_KEY ausente." >&2; exit 1; fi
+          printf '%s' "$GCP_SA_KEY" > credenciais_sa.json
+      - name: Cross-fitting do outer fold ${{ matrix.outer_fold }}
+        id: crossfit
+        continue-on-error: true
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: credenciais_sa.json
+        run: |
+          mkdir -p docs/dados/ensemble/fase2b
+          python src/ensemble_fase2b_crossfit.py --outer-fold ${{ matrix.outer_fold }} \
+            --saida-dir docs/dados/ensemble/fase2b
+      - name: Remover credenciais
+        if: always()
+        run: rm -f credenciais_sa.json
+      - name: Publicar scores parciais sanitizados (outer fold ${{ matrix.outer_fold }})
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fase2b-fold-${{ matrix.outer_fold }}
+          path: |
+            docs/dados/ensemble/fase2b/fase2b_fold_${{ matrix.outer_fold }}_scores.npz
+            docs/dados/ensemble/fase2b/fase2b_fold_${{ matrix.outer_fold }}_fits.json
+            docs/dados/ensemble/fase2b/fase2b_fingerprint_fold_${{ matrix.outer_fold }}.json
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Aplicar criterio de aceite
+        if: steps.crossfit.outcome == 'failure'
+        run: |
+          echo "Cross-fitting do outer fold ${{ matrix.outer_fold }} BLOQUEADO (vazamento, fallback de LSTM ou divergencia estrutural). Consulte o log do passo anterior." >&2
+          exit 1
+
+  agregar:
+    name: Agregacao final + hashes cientificos
+    needs: [crossfit_fold, autorizacao]
+    if: needs.autorizacao.outputs.autorizado_cientifico == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements.txt
+      - name: Dependencias
+        run: |
+          python -m pip install --retries 5 --timeout 300 -r requirements.txt
+      - name: Baixar scores parciais dos 5 outer folds
+        uses: actions/download-artifact@v4
+        with:
+          pattern: fase2b-fold-*
+          path: docs/dados/ensemble/fase2b
+          merge-multiple: true
+      - name: Recriar chave da conta de servico
+        env:
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+        run: |
+          if [ -z "$GCP_SA_KEY" ]; then echo "Secret GCP_SA_KEY ausente." >&2; exit 1; fi
+          printf '%s' "$GCP_SA_KEY" > credenciais_sa.json
+      - name: Agregar e validar as 20 invariantes obrigatorias
+        id: agregar
+        continue-on-error: true
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: credenciais_sa.json
+          RUN_ID: ${{ github.run_id }}
+          COMMIT_SHA: ${{ github.sha }}
+          # Via env, nao interpolado direto no `run:` (mesma razao do passo
+          # de autorizacao): evita injecao de shell a partir da mensagem de
+          # commit. So vai para fase2b_proveniencia_run.json (metadado
+          # volatil), nunca entra nos hashes cientificos.
+          MENSAGEM_COMMIT: ${{ github.event.head_commit.message }}
+        run: |
+          python src/ensemble_fase2b_crossfit.py --agregar \
+            --entrada-dir docs/dados/ensemble/fase2b \
+            --saida-dir docs/dados/ensemble/fase2b \
+            --run-id "$RUN_ID" \
+            --commit-sha "$COMMIT_SHA" \
+            --execucao "$MENSAGEM_COMMIT"
+      - name: Remover credenciais
+        if: always()
+        run: rm -f credenciais_sa.json
+      - name: Publicar resultado cientifico (manifesto, resumo, hashes e arrays)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fase2b-resultado-cientifico
+          path: |
+            docs/dados/ensemble/fase2b/fase2b_manifesto.json
+            docs/dados/ensemble/fase2b/fase2b_resumo.json
+            docs/dados/ensemble/fase2b/fase2b_hashes.json
+            docs/dados/ensemble/fase2b/fase2b_proveniencia_run.json
+            docs/dados/ensemble/fase2b/fase2b_inner_scores.npz
+            docs/dados/ensemble/fase2b/fase2b_outer_scores.npz
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Aplicar criterio de aceite
+        if: steps.agregar.outcome == 'failure'
+        run: |
+          echo "Agregacao BLOQUEADA: contagem de fits, LSTM ou cardinalidade de previsoes nao bateu com o esperado. Rodada nao e valida." >&2
+          exit 1
+
+  # ---------------------------------------------------------------------
+  # Canario de determinismo (marcador [FASE2B-CANARY]): so o outer_fold=1,
+  # em duas replicas independentes, para provar barato se os controles de
+  # paralelismo (n_jobs=1 nas arvores, threading do TF fixado) fecharam a
+  # divergencia encontrada entre as Execucoes Cientificas 1 e 2, ANTES de
+  # gastar duas rodadas completas de 175 fits de novo. Nao decide sozinho a
+  # validade cientifica da Fase 2B — so autoriza (ou nao) uma nova tentativa
+  # de Execucao Cientifica 1/2 completas, mediante nova auditoria.
+  # ---------------------------------------------------------------------
+
+  replica_a:
+    name: Canario - replica A (outer_fold=1)
+    needs: [testes, autorizacao]
+    if: needs.autorizacao.outputs.autorizado_canario == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements.txt
+      - name: Dependencias
+        run: |
+          python -m pip install --retries 5 --timeout 300 -r requirements.txt
+      - name: Recriar chave da conta de servico
+        env:
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+        run: |
+          if [ -z "$GCP_SA_KEY" ]; then echo "Secret GCP_SA_KEY ausente." >&2; exit 1; fi
+          printf '%s' "$GCP_SA_KEY" > credenciais_sa.json
+      - name: Replica A - Gate Zero + outer_fold=1 completo (35 fits, 5 LSTM)
+        id: replica_a
+        continue-on-error: true
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: credenciais_sa.json
+        run: |
+          mkdir -p docs/dados/ensemble/fase2b_canario/replica_a
+          python src/ensemble_fase2b_crossfit.py --outer-fold 1 \
+            --saida-dir docs/dados/ensemble/fase2b_canario/replica_a
+      - name: Remover credenciais
+        if: always()
+        run: rm -f credenciais_sa.json
+      - name: Publicar replica A
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fase2b-canario-replica-a
+          path: docs/dados/ensemble/fase2b_canario/replica_a
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Aplicar criterio de aceite
+        if: steps.replica_a.outcome == 'failure'
+        run: |
+          echo "Canario replica A BLOQUEADA (vazamento, fallback de LSTM ou divergencia estrutural)." >&2
+          exit 1
+
+  replica_b:
+    name: Canario - replica B (outer_fold=1)
+    needs: [testes, autorizacao]
+    if: needs.autorizacao.outputs.autorizado_canario == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements.txt
+      - name: Dependencias
+        run: |
+          python -m pip install --retries 5 --timeout 300 -r requirements.txt
+      - name: Recriar chave da conta de servico
+        env:
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+        run: |
+          if [ -z "$GCP_SA_KEY" ]; then echo "Secret GCP_SA_KEY ausente." >&2; exit 1; fi
+          printf '%s' "$GCP_SA_KEY" > credenciais_sa.json
+      - name: Replica B - Gate Zero + outer_fold=1 completo (35 fits, 5 LSTM)
+        id: replica_b
+        continue-on-error: true
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: credenciais_sa.json
+        run: |
+          mkdir -p docs/dados/ensemble/fase2b_canario/replica_b
+          python src/ensemble_fase2b_crossfit.py --outer-fold 1 \
+            --saida-dir docs/dados/ensemble/fase2b_canario/replica_b
+      - name: Remover credenciais
+        if: always()
+        run: rm -f credenciais_sa.json
+      - name: Publicar replica B
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fase2b-canario-replica-b
+          path: docs/dados/ensemble/fase2b_canario/replica_b
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Aplicar criterio de aceite
+        if: steps.replica_b.outcome == 'failure'
+        run: |
+          echo "Canario replica B BLOQUEADA (vazamento, fallback de LSTM ou divergencia estrutural)." >&2
+          exit 1
+
+  canario_comparar:
+    name: Canario - comparacao exata replica A x replica B
+    needs: [replica_a, replica_b, autorizacao]
+    if: needs.autorizacao.outputs.autorizado_canario == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements.txt
+      - name: Dependencias
+        run: |
+          python -m pip install --retries 5 --timeout 300 -r requirements.txt
+      - name: Baixar replica A
+        uses: actions/download-artifact@v4
+        with:
+          name: fase2b-canario-replica-a
+          path: docs/dados/ensemble/fase2b_canario/replica_a
+      - name: Baixar replica B
+        uses: actions/download-artifact@v4
+        with:
+          name: fase2b-canario-replica-b
+          path: docs/dados/ensemble/fase2b_canario/replica_b
+      - name: Comparar EXATAMENTE replica A x replica B (outer_fold=1)
+        id: comparar
+        continue-on-error: true
+        run: |
+          python src/ensemble_fase2b_crossfit.py --comparar-canario --outer-fold 1 \
+            --entrada-a docs/dados/ensemble/fase2b_canario/replica_a \
+            --entrada-b docs/dados/ensemble/fase2b_canario/replica_b \
+            --saida-dir docs/dados/ensemble/fase2b_canario
+      - name: Publicar resultado do canario
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fase2b-canario-comparacao
+          path: docs/dados/ensemble/fase2b_canario/fase2b_canario_comparacao.json
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Aplicar criterio de aceite
+        if: steps.comparar.outcome == 'failure'
+        run: |
+          echo "CANARIO_NAO_DETERMINISTICO: replica A e replica B nao bateram exatamente. Consulte o artefato fase2b-canario-comparacao." >&2
+          exit 1
+
+  # ---------------------------------------------------------------------
+  # REPLAY CONGELADO (marcador [FASE2B-REPLAY]): reproduz a Execucao
+  # Cientifica ja aprovada sobre um input CONGELADO (bundle privado e
+  # estatico), nunca sobre a planilha operacional viva. Nao produz uma nova
+  # baseline — so testa determinismo contra o mesmo input. Mutuamente
+  # exclusivo com [FASE2B-RUN]/[FASE2B-CANARY]. Cada job abaixo valida, de
+  # forma independente, replay_input_sha256 + grupo_sha256 por registro + os
+  # 5 hashes metodologicos ja aprovados, ANTES de rodar qualquer fit (ver
+  # `gate_zero_replay` em src/ensemble_fase2b_crossfit.py e
+  # docs/REPLAY_CONGELADO_FASE2B.md).
+  # ---------------------------------------------------------------------
+
+  gate_zero_replay:
+    name: Gate Zero REPLAY (bundle congelado, sem treinar)
+    needs: [testes, autorizacao]
+    # Roda tanto no preflight ([FASE2B-REPLAY-PREFLIGHT], ZERO fits) quanto na
+    # execucao completa ([FASE2B-REPLAY]): e o UNICO job que os dois modos
+    # compartilham. crossfit_fold_replay/agregar_replay abaixo dependem
+    # exclusivamente de autorizado_replay — o preflight nunca os libera.
+    if: needs.autorizacao.outputs.autorizado_replay == 'true' || needs.autorizacao.outputs.autorizado_replay_preflight == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements.txt
+      - name: Dependencias
+        run: |
+          python -m pip install --retries 5 --timeout 300 -r requirements.txt
+      - name: Recriar chave da conta de servico
+        env:
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+        run: |
+          if [ -z "$GCP_SA_KEY" ]; then echo "Secret GCP_SA_KEY ausente." >&2; exit 1; fi
+          printf '%s' "$GCP_SA_KEY" > credenciais_sa.json
+      - name: Gate Zero REPLAY
+        id: gate_zero_replay
+        continue-on-error: true
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: credenciais_sa.json
+        run: |
+          mkdir -p docs/dados/ensemble/fase2b
+          python src/ensemble_fase2b_crossfit.py --somente-gate-zero --modo-replay \
+            --saida-dir docs/dados/ensemble/fase2b
+      - name: Remover credenciais
+        if: always()
+        run: rm -f credenciais_sa.json
+      - name: Publicar artefato sanitizado do Gate Zero REPLAY
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fase2b-replay-gate-zero
+          path: |
+            docs/dados/ensemble/fase2b/fase2b_gate_zero_replay.json
+            docs/dados/ensemble/fase2b/fase2b_fingerprint_gate_zero_replay.json
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Aplicar criterio de aceite
+        if: steps.gate_zero_replay.outcome == 'failure'
+        run: |
+          echo "Gate Zero REPLAY BLOQUEADO: replay_input_sha256, grupo_sha256 por registro ou os 5 hashes metodologicos nao bateram contra o bundle congelado aprovado. Nenhum modelo foi treinado." >&2
+          exit 1
+
+  crossfit_fold_replay:
+    name: Cross-fitting REPLAY por outer fold
+    needs: [gate_zero_replay, autorizacao]
+    if: needs.autorizacao.outputs.autorizado_replay == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      matrix:
+        outer_fold: [1, 2, 3, 4, 5]
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements.txt
+      - name: Dependencias
+        run: |
+          python -m pip install --retries 5 --timeout 300 -r requirements.txt
+      - name: Recriar chave da conta de servico
+        env:
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+        run: |
+          if [ -z "$GCP_SA_KEY" ]; then echo "Secret GCP_SA_KEY ausente." >&2; exit 1; fi
+          printf '%s' "$GCP_SA_KEY" > credenciais_sa.json
+      - name: Cross-fitting REPLAY do outer fold ${{ matrix.outer_fold }}
+        id: crossfit_replay
+        continue-on-error: true
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: credenciais_sa.json
+        run: |
+          mkdir -p docs/dados/ensemble/fase2b
+          python src/ensemble_fase2b_crossfit.py --outer-fold ${{ matrix.outer_fold }} --modo-replay \
+            --saida-dir docs/dados/ensemble/fase2b
+      - name: Remover credenciais
+        if: always()
+        run: rm -f credenciais_sa.json
+      - name: Publicar scores parciais sanitizados (outer fold ${{ matrix.outer_fold }}, replay)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fase2b-replay-fold-${{ matrix.outer_fold }}
+          path: |
+            docs/dados/ensemble/fase2b/fase2b_fold_${{ matrix.outer_fold }}_scores.npz
+            docs/dados/ensemble/fase2b/fase2b_fold_${{ matrix.outer_fold }}_fits.json
+            docs/dados/ensemble/fase2b/fase2b_fingerprint_fold_${{ matrix.outer_fold }}.json
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Aplicar criterio de aceite
+        if: steps.crossfit_replay.outcome == 'failure'
+        run: |
+          echo "Cross-fitting REPLAY do outer fold ${{ matrix.outer_fold }} BLOQUEADO (bundle congelado divergente, vazamento, fallback de LSTM ou divergencia estrutural). Consulte o log do passo anterior." >&2
+          exit 1
+
+  agregar_replay:
+    name: Agregacao REPLAY final + hashes cientificos
+    needs: [crossfit_fold_replay, autorizacao]
+    if: needs.autorizacao.outputs.autorizado_replay == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements.txt
+      - name: Dependencias
+        run: |
+          python -m pip install --retries 5 --timeout 300 -r requirements.txt
+      - name: Baixar scores parciais dos 5 outer folds (replay)
+        uses: actions/download-artifact@v4
+        with:
+          pattern: fase2b-replay-fold-*
+          path: docs/dados/ensemble/fase2b
+          merge-multiple: true
+      - name: Recriar chave da conta de servico
+        env:
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+        run: |
+          if [ -z "$GCP_SA_KEY" ]; then echo "Secret GCP_SA_KEY ausente." >&2; exit 1; fi
+          printf '%s' "$GCP_SA_KEY" > credenciais_sa.json
+      - name: Agregar e validar as 20 invariantes obrigatorias (replay)
+        id: agregar_replay
+        continue-on-error: true
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: credenciais_sa.json
+          RUN_ID: ${{ github.run_id }}
+          COMMIT_SHA: ${{ github.sha }}
+          MENSAGEM_COMMIT: ${{ github.event.head_commit.message }}
+        run: |
+          python src/ensemble_fase2b_crossfit.py --agregar --modo-replay \
+            --entrada-dir docs/dados/ensemble/fase2b \
+            --saida-dir docs/dados/ensemble/fase2b \
+            --run-id "$RUN_ID" \
+            --commit-sha "$COMMIT_SHA" \
+            --execucao "$MENSAGEM_COMMIT"
+      - name: Remover credenciais
+        if: always()
+        run: rm -f credenciais_sa.json
+      - name: Publicar resultado cientifico do replay (manifesto, resumo, hashes e arrays)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fase2b-replay-resultado-cientifico
+          path: |
+            docs/dados/ensemble/fase2b/fase2b_manifesto.json
+            docs/dados/ensemble/fase2b/fase2b_resumo.json
+            docs/dados/ensemble/fase2b/fase2b_hashes.json
+            docs/dados/ensemble/fase2b/fase2b_proveniencia_run.json
+            docs/dados/ensemble/fase2b/fase2b_inner_scores.npz
+            docs/dados/ensemble/fase2b/fase2b_outer_scores.npz
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Aplicar criterio de aceite
+        if: steps.agregar_replay.outcome == 'failure'
+        run: |
+          echo "Agregacao REPLAY BLOQUEADA: contagem de fits, LSTM ou cardinalidade de previsoes nao bateu com o esperado. Rodada nao e valida." >&2
+          exit 1
+
+  # ---------------------------------------------------------------------
+  # Verificacao do bundle candidato (marcador [FASE2B-REPLAY-RECOVER]):
+  # rotina OPERACIONAL, temporaria e de ZERO FITS. Le a planilha
+  # operacional viva e aplica SOMENTE os patches de uma allowlist EXPLICITA
+  # indexada por id_sha256 (GRUPO A: 4 registros da Execucao Cientifica 1,
+  # valores vazios, diretamente no codigo; GRUPO B: 3 drifts adicionais,
+  # valor historico comprovado carregado via Secret, nunca versionado em
+  # texto puro). NAO consulta nenhuma API do Google Drive nem nenhuma
+  # revisao historica: o unico patch possivel e o da allowlist explicita —
+  # comparar a base inteira contra uma revisao seria allowlist implicita
+  # (proibido). Roda o candidato pelo Gate Zero de producao e so
+  # calcula/reporta se replay_input_sha256 e os 5 hashes metodologicos
+  # batem EXATAMENTE — NUNCA publica o bundle bruto (csv, log ou
+  # artifact): o unico artifact e o diagnostico sanitizado (hashes,
+  # contagens, id_sha256, nomes de campo). Nunca escreve em nenhuma
+  # planilha, nunca configura REPLAY_SPREADSHEET_ID, nunca pina
+  # REPLAY_INPUT_SHA256_ESPERADO. Sem caminho para crossfit/agregacao/
+  # modelos: nao aparece em nenhum `needs` de nenhum job de fit.
+  # ---------------------------------------------------------------------
+
+  bundle_recover:
+    name: Verificacao do bundle candidato REPLAY (allowlist explicita, ZERO fits)
+    needs: [testes, autorizacao]
+    if: needs.autorizacao.outputs.autorizado_replay_recover == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements.txt
+      - name: Dependencias
+        run: |
+          python -m pip install --retries 5 --timeout 300 -r requirements.txt
+      - name: Recriar chave da conta de servico
+        env:
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+        run: |
+          if [ -z "$GCP_SA_KEY" ]; then echo "Secret GCP_SA_KEY ausente." >&2; exit 1; fi
+          printf '%s' "$GCP_SA_KEY" > credenciais_sa.json
+      - name: Verificar bundle candidato (allowlist explicita, ZERO fits)
+        id: recover
+        continue-on-error: true
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: credenciais_sa.json
+          FASE2B_ALLOWLIST_GRUPO_B_JSON: ${{ secrets.FASE2B_ALLOWLIST_GRUPO_B_JSON }}
+        run: |
+          mkdir -p docs/dados/ensemble/replay
+          python src/recuperar_bundle_replay.py --saida-dir docs/dados/ensemble/replay
+      - name: Remover credenciais
+        if: always()
+        run: rm -f credenciais_sa.json
+      - name: Publicar diagnostico sanitizado (nunca o bundle bruto)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fase2b-replay-bundle-recover
+          path: docs/dados/ensemble/replay/recover_diagnostico.json
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Aplicar criterio de aceite
+        if: steps.recover.outcome == 'failure'
+        run: |
+          echo "Verificacao do bundle candidato BLOQUEADA ou incompleta: GRUPO A (4 registros originais) nao identificado, Gate Zero divergente, ou replay_input_sha256 recomputado nao bateu com o esperado. Consulte o artefato fase2b-replay-bundle-recover/recover_diagnostico.json (sanitizado, sem texto bruto). Nenhum modelo foi treinado, nenhuma planilha foi escrita, nenhum bundle bruto foi publicado." >&2
+          exit 1

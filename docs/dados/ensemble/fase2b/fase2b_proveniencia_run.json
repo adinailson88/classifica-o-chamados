@@ -1,0 +1,6 @@
+{
+  "gerado_em": "11/08/2026 23:36",
+  "run_id": "31556028058",
+  "commit_sha": "d6a5504cd9c4360b97fd90dd88c13bd430155459",
+  "execucao": "[FASE2B-RUN] execução científica 1 pós-controle de determinismo\n\nNova tentativa oficial da Execucao Cientifica 1 apos o canario de\ndeterminismo aprovado (run 31552179746, CANARIO_DETERMINISTICO nos sete\nmodelos, inclusive entre CPUs fisicas diferentes). Mesmo HEAD da\nimplementacao com os controles de paralelismo (f5a875ce): n_jobs=1 fixado\nso no caminho da Fase 2B para ExtraTrees/RandomForest, threading do\nTensorFlow (intra/inter-op) fixado em 1. Nenhuma alteracao de codigo neste\ncommit; refaz Gate Zero, os 5 outer folds (175 fits do zero) e a agregacao,\nsem reaproveitar nenhum artefato das execucoes anteriores (31500566977,\n31503746473), que ficam preservadas apenas como historico do diagnostico\nde nao-determinismo e nao servem de referencia cientifica final."
+}
