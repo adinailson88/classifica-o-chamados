@@ -86,6 +86,20 @@ def carregar_predicoes() -> dict[str, list[tuple[str, str]]]:
     return dict(por_modelo)
 
 
+# Abreviacoes explicitas para folhas que excederiam o limite de caracteres
+# do eixo. Substituem o corte com reticencias por uma abreviacao legivel
+# (nenhum dado, ordenacao ou valor da figura e alterado; so o rotulo).
+ABREVIACOES_EXPLICITAS = {
+    "Alvenaria / Pisos / Estrutura": "Alvenaria/Pisos/Estrutura",
+    "Instalação/reparo de equipamentos (Suportes de TV, acessórios de "
+    "banheiro e quadro branco)": "Instal./reparo equip.",
+    "Esquadrias, porta, portão e janelas": "Esquadrias/portas/janelas",
+    "Ponto de rede / fibra ótica / Wi-fi": "Ponto de rede/fibra/Wi-fi",
+    "Manutenção área externa / meio ambiente / Poda de árvore / Roçagem":
+        "Manut. área externa/poda árvore",
+}
+
+
 def abreviar(categoria: str, limite: int = 34) -> str:
     """Folha da categoria, com a sigla do tipo e encurtada para o eixo.
 
@@ -93,11 +107,21 @@ def abreviar(categoria: str, limite: int = 34) -> str:
     distintas, e 'Ar condicionado split' existe tanto sob Manutencao
     Preventiva quanto sob Climatizacao. Sem o prefixo, duas barras da figura
     ficariam com rotulo identico e valores diferentes.
+
+    Folhas longas demais para o limite usam uma abreviacao explicita
+    (ABREVIACOES_EXPLICITAS), nunca um corte com reticencias: reticencias
+    escondem parte do nome da categoria em vez de o resumir.
     """
     folha = categoria.split(">")[-1].strip()
     marca = sigla(tipo_manutencao(categoria))
-    if len(folha) > limite:
-        folha = folha[:limite - 1].rstrip() + "…"
+    if folha in ABREVIACOES_EXPLICITAS:
+        folha = ABREVIACOES_EXPLICITAS[folha]
+    elif len(folha) > limite:
+        raise ValueError(
+            f"Folha sem abreviacao explicita cadastrada e maior que o "
+            f"limite ({len(folha)} > {limite}): {folha!r}. Adicione uma "
+            f"entrada em ABREVIACOES_EXPLICITAS em vez de truncar."
+        )
     return f"[{marca}] {folha}"
 
 
@@ -169,12 +193,14 @@ def figura_categorias(pares: list[tuple[str, str]]) -> None:
     posicoes = range(len(selecao))
     ax.barh(list(posicoes), [f1[c] for c in selecao], color=cores, height=0.72)
     ax.set_yticks(list(posicoes))
-    ax.set_yticklabels([f"{abreviar(c)}  (n={suporte[c]})" for c in selecao])
+    ax.set_yticklabels([f"{abreviar(c)}  (n={suporte[c]})" for c in selecao],
+                       fontsize=8)
     ax.set_xlabel(f"F1 do {NOME[MODELO_PRINCIPAL]}")
     ax.set_xlim(0, 1.05)
+    ax.tick_params(axis="x", labelsize=8)
     for i, c in enumerate(selecao):
         ax.text(f1[c] + 0.012, i, f"{f1[c]:.3f}".replace(".", ","),
-                va="center", fontsize=6.5)
+                va="center", fontsize=8)
     formatar_decimal(ax)
     limpar_eixo(ax, eixo_grade="x")
     salvar(fig, FIGURAS / "fig_calor_categorias")
@@ -199,13 +225,17 @@ def figura_matriz(por_modelo: dict[str, list[tuple[str, str]]]) -> None:
     matriz = [[trocas.get((v, p), 0) if v != p else 0 for p in eixo]
               for v in eixo]
 
+    # Mesmo limite de abreviacao nos dois eixos, para que a categoria em
+    # comum entre linha e coluna apareca com o rotulo identico nos dois.
+    LIMITE_MATRIZ = 26
+    rotulos = [abreviar(c, LIMITE_MATRIZ) for c in eixo]
+
     fig, ax = plt.subplots(figsize=(LARGURA_DUPLA, 5.4))
     im = ax.imshow(matriz, cmap="YlOrRd", aspect="auto")
     ax.set_xticks(range(len(eixo)))
-    ax.set_xticklabels([abreviar(c, 22) for c in eixo], rotation=40,
-                       ha="right", fontsize=6.5)
+    ax.set_xticklabels(rotulos, rotation=40, ha="right", fontsize=8)
     ax.set_yticks(range(len(eixo)))
-    ax.set_yticklabels([abreviar(c, 26) for c in eixo], fontsize=6.5)
+    ax.set_yticklabels(rotulos, fontsize=8)
     ax.set_xlabel("Categoria prevista")
     ax.set_ylabel("Categoria de referência")
     ax.grid(False)
@@ -213,7 +243,7 @@ def figura_matriz(por_modelo: dict[str, list[tuple[str, str]]]) -> None:
     for i, linha in enumerate(matriz):
         for j, n in enumerate(linha):
             if n:
-                ax.text(j, i, str(n), ha="center", va="center", fontsize=6,
+                ax.text(j, i, str(n), ha="center", va="center", fontsize=8,
                         color="white" if n > 0.55 * maximo else "#222222")
     fig.colorbar(im, ax=ax, shrink=0.7, label="Chamados (soma dos 7 modelos)")
     salvar(fig, FIGURAS / "fig_matriz_confusao")

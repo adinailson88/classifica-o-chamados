@@ -44,6 +44,9 @@ POR_FILEIRA = 4
 COR_CAIXA = "#E8ECF1"
 COR_DESTAQUE = "#FBE3C4"
 COR_BORDA = "#8A94A0"
+# Mais escura que COR["vermelho"] (#D55E00), para legibilidade do rotulo em
+# itálico e fonte reduzida.
+COR_RETROALIMENTACAO = "#8C3D00"
 
 
 def _posicao(indice: int) -> tuple[float, float]:
@@ -64,7 +67,7 @@ def gerar(saida: Path = SAIDA) -> list[Path]:
             boxstyle="round,pad=0.02,rounding_size=0.06",
             linewidth=0.8, edgecolor=COR_BORDA, facecolor=cor,
         ))
-        ax.text(x + 0.5, y + 0.45, texto, ha="center", va="center", fontsize=6.5)
+        ax.text(x + 0.5, y + 0.45, texto, ha="center", va="center", fontsize=8)
 
         proximo = i + 1
         if proximo >= len(ETAPAS):
@@ -94,7 +97,7 @@ def gerar(saida: Path = SAIDA) -> list[Path]:
                 arrowprops=dict(arrowstyle="-|>", color=COR["vermelho"], linewidth=1.1))
     ax.text((POR_FILEIRA - 1) * 1.18 / 2 + 0.5, volta - 0.12,
             "retroalimentação: os casos encaminhados à revisão humana realimentam o treino",
-            ha="center", va="top", fontsize=6, style="italic", color=COR["vermelho"])
+            ha="center", va="top", fontsize=8, style="italic", color=COR_RETROALIMENTACAO)
 
     ax.set_xlim(-0.10, margem + 0.12)
     ax.set_ylim(volta - 0.45, 1.00)
