@@ -72,6 +72,58 @@ def _tf():
     return tf
 
 
+_THREADING_TF_CONFIGURADO = False
+
+
+def _fixar_threading_tf_uma_vez() -> None:
+    """Fixa o pool de threads intra/inter-op do TensorFlow em 1.
+
+    E independente de OMP_NUM_THREADS/OPENBLAS_NUM_THREADS/MKL_NUM_THREADS
+    (esses so afetam BLAS chamado de dentro do TF, nao o pool de threads
+    proprio do runtime do TF/Eigen para paralelizar operacoes). So pode ser
+    chamado UMA VEZ por processo, antes do primeiro op do TensorFlow rodar —
+    chamadas repetidas depois da inicializacao do runtime levantam
+    RuntimeError. Como a Fase 2B faz varios fits de LSTM no mesmo processo,
+    o efeito e aplicado uma unica vez (guardado por flag de modulo) e
+    qualquer RuntimeError residual (por exemplo se o runtime ja foi
+    inicializado por outro caminho antes desta chamada) e absorvido sem
+    interromper o fit: as variaveis de ambiente TF_NUM_INTRAOP_THREADS/
+    TF_NUM_INTEROP_THREADS, fixadas no `env:` do workflow antes do processo
+    Python iniciar, ja cobrem o mesmo efeito nesse caso.
+    """
+    global _THREADING_TF_CONFIGURADO
+    if _THREADING_TF_CONFIGURADO:
+        return
+    tf = _tf()
+    try:
+        tf.config.threading.set_intra_op_parallelism_threads(1)
+        tf.config.threading.set_inter_op_parallelism_threads(1)
+    except RuntimeError:
+        pass
+    _THREADING_TF_CONFIGURADO = True
+
+
+def fixar_determinismo_lstm(seed: int = 42) -> None:
+    """Torna um fit() de LSTM reprodutivel: fixa o threading do TF (uma vez
+    por processo), limpa a sessao Keras e fixa as sementes de
+    random/numpy/TensorFlow. Nao altera arquitetura, hiperparametros nem
+    comportamento do modelo — apenas o estado aleatorio/paralelismo antes do
+    fit(). PYTHONHASHSEED/TF_DETERMINISTIC_OPS precisam ser fixados no
+    ambiente ANTES de o processo Python iniciar (setar aqui nao teria
+    efeito), tipicamente no `env:` do workflow que chama o treino.
+    """
+    import random
+
+    import numpy as np
+
+    _fixar_threading_tf_uma_vez()
+    tf = _tf()
+    tf.keras.backend.clear_session()
+    random.seed(seed)
+    np.random.seed(seed)
+    tf.keras.utils.set_random_seed(seed)
+
+
 def _cel(linha, idx) -> str:
     return str(linha[idx] or "").strip() if idx is not None and idx < len(linha) else ""
 

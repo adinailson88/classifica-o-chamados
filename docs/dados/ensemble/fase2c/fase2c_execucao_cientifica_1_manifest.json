@@ -1,0 +1,293 @@
+{
+  "schema_version": 1,
+  "branch": "feat/ensemble-fase2c-combinacao",
+  "commit_codigo_executado": "b3e14af869f76484df9f61911a5a8e1017e74633",
+  "commit_resolucao_metodologica": "e8fb4373ef496c1aa3a3e26b6a5b4b7618dffd0d",
+  "release_input": "ensemble-fase2b-execucao-cientifica-1",
+  "zip_input_sha256": "8cd0c2df97257bdc003beb6a2912de3350a4ff7a0689b480bd4c4be946c2f6d1",
+  "run_id_fase2b": "31556028058",
+  "commit_fase2b": "d6a5504cd9c4360b97fd90dd88c13bd430155459",
+  "hashes_cientificos_fase2b": {
+    "input_bundle_sha256": "a533e245d97482f423bb9981df350ad6ec550133a2253c3a5f528f086459e83f",
+    "inner_predictions_canonical_sha256": "98e38ea42236210ba430ed322b5872062e7ac0eba2ec3d64d06566b11802b0d1",
+    "outer_predictions_canonical_sha256": "660d3f451040615a08bac1934f6ac157ac0052b5c98fe7890508c9e064d61e6d",
+    "crossfit_manifest_sha256": "5e9c8cd975017867b96dcf543b90ad90c7ec989939ad934cca5dd175c32179e3",
+    "fase2b_science_sha256": "931c8092e372d6d416b0763bc55bfd74c856aeb1cf4c321dd55081ea16d82470"
+  },
+  "ambiente": {
+    "python_version": "3.11.10",
+    "numpy_version": "1.26.4",
+    "sklearn_version": "1.5.2"
+  },
+  "total_modelaveis": 13970,
+  "total_y1": 593,
+  "k_f_por_fold": {
+    "1": 564,
+    "2": 560,
+    "3": 616,
+    "4": 507,
+    "5": 593
+  },
+  "k_total": 2840,
+  "y1_por_fold": {
+    "2": 95,
+    "4": 113,
+    "1": 124,
+    "3": 135,
+    "5": 126
+  },
+  "alpha_votacao_suave_por_fold": {
+    "1": 5,
+    "2": 20,
+    "3": 20,
+    "4": 20,
+    "5": 20
+  },
+  "comparacao_agregada_por_metodo": {
+    "linear_svc": {
+      "total_na_fila": 2840,
+      "capturados_y1": 523,
+      "precisao": 0.1841549295774648,
+      "recall": 0.8819561551433389
+    },
+    "votacao_majoritaria": {
+      "total_na_fila": 2840,
+      "capturados_y1": 516,
+      "precisao": 0.18169014084507043,
+      "recall": 0.8701517706576728
+    },
+    "votacao_suave": {
+      "total_na_fila": 2840,
+      "capturados_y1": 503,
+      "precisao": 0.17711267605633804,
+      "recall": 0.8482293423271501
+    },
+    "stacking": {
+      "total_na_fila": 2840,
+      "capturados_y1": 512,
+      "precisao": 0.18028169014084508,
+      "recall": 0.863406408094435
+    }
+  },
+  "comparacao_por_fold": {
+    "linear_svc": {
+      "1": {
+        "K_f": 564,
+        "selecionados": 564,
+        "capturados_y1": 104,
+        "precisao": 0.18439716312056736,
+        "recall_fold": 0.8387096774193549
+      },
+      "2": {
+        "K_f": 560,
+        "selecionados": 560,
+        "capturados_y1": 85,
+        "precisao": 0.15178571428571427,
+        "recall_fold": 0.8947368421052632
+      },
+      "3": {
+        "K_f": 616,
+        "selecionados": 616,
+        "capturados_y1": 119,
+        "precisao": 0.19318181818181818,
+        "recall_fold": 0.8814814814814815
+      },
+      "4": {
+        "K_f": 507,
+        "selecionados": 507,
+        "capturados_y1": 102,
+        "precisao": 0.20118343195266272,
+        "recall_fold": 0.9026548672566371
+      },
+      "5": {
+        "K_f": 593,
+        "selecionados": 593,
+        "capturados_y1": 113,
+        "precisao": 0.1905564924114671,
+        "recall_fold": 0.8968253968253969
+      }
+    },
+    "votacao_majoritaria": {
+      "1": {
+        "K_f": 564,
+        "selecionados": 564,
+        "capturados_y1": 102,
+        "precisao": 0.18085106382978725,
+        "recall_fold": 0.8225806451612904
+      },
+      "2": {
+        "K_f": 560,
+        "selecionados": 560,
+        "capturados_y1": 85,
+        "precisao": 0.15178571428571427,
+        "recall_fold": 0.8947368421052632
+      },
+      "3": {
+        "K_f": 616,
+        "selecionados": 616,
+        "capturados_y1": 117,
+        "precisao": 0.18993506493506493,
+        "recall_fold": 0.8666666666666667
+      },
+      "4": {
+        "K_f": 507,
+        "selecionados": 507,
+        "capturados_y1": 100,
+        "precisao": 0.19723865877712032,
+        "recall_fold": 0.8849557522123894
+      },
+      "5": {
+        "K_f": 593,
+        "selecionados": 593,
+        "capturados_y1": 112,
+        "precisao": 0.18887015177065766,
+        "recall_fold": 0.8888888888888888
+      }
+    },
+    "votacao_suave": {
+      "1": {
+        "K_f": 564,
+        "selecionados": 564,
+        "capturados_y1": 97,
+        "precisao": 0.17198581560283688,
+        "recall_fold": 0.782258064516129
+      },
+      "2": {
+        "K_f": 560,
+        "selecionados": 560,
+        "capturados_y1": 82,
+        "precisao": 0.14642857142857144,
+        "recall_fold": 0.8631578947368421
+      },
+      "3": {
+        "K_f": 616,
+        "selecionados": 616,
+        "capturados_y1": 118,
+        "precisao": 0.19155844155844157,
+        "recall_fold": 0.8740740740740741
+      },
+      "4": {
+        "K_f": 507,
+        "selecionados": 507,
+        "capturados_y1": 98,
+        "precisao": 0.1932938856015779,
+        "recall_fold": 0.8672566371681416
+      },
+      "5": {
+        "K_f": 593,
+        "selecionados": 593,
+        "capturados_y1": 108,
+        "precisao": 0.1821247892074199,
+        "recall_fold": 0.8571428571428571
+      }
+    },
+    "stacking": {
+      "1": {
+        "K_f": 564,
+        "selecionados": 564,
+        "capturados_y1": 101,
+        "precisao": 0.17907801418439717,
+        "recall_fold": 0.8145161290322581
+      },
+      "2": {
+        "K_f": 560,
+        "selecionados": 560,
+        "capturados_y1": 82,
+        "precisao": 0.14642857142857144,
+        "recall_fold": 0.8631578947368421
+      },
+      "3": {
+        "K_f": 616,
+        "selecionados": 616,
+        "capturados_y1": 123,
+        "precisao": 0.19967532467532467,
+        "recall_fold": 0.9111111111111111
+      },
+      "4": {
+        "K_f": 507,
+        "selecionados": 507,
+        "capturados_y1": 98,
+        "precisao": 0.1932938856015779,
+        "recall_fold": 0.8672566371681416
+      },
+      "5": {
+        "K_f": 593,
+        "selecionados": 593,
+        "capturados_y1": 108,
+        "precisao": 0.1821247892074199,
+        "recall_fold": 0.8571428571428571
+      }
+    }
+  },
+  "hashes_fisicos_outputs": {
+    "fase2c_curva_ganho_linear_svc.json": {
+      "sha256": "95e511f90431cbd1843fde5e00887b11aea7907340b5776c597ef8b2536043bf",
+      "tamanho_bytes": 1910336
+    },
+    "fase2c_curva_ganho_stacking.json": {
+      "sha256": "ce685ac658c6b5eac00f94e2bd0f6795e0357642c0ff263ca660be1e34194917",
+      "tamanho_bytes": 1920110
+    },
+    "fase2c_curva_ganho_votacao_majoritaria.json": {
+      "sha256": "2cb3a13c613e54f410752a695cf63e2f19df581253702c34a0c7ec66d6b82edf",
+      "tamanho_bytes": 1991428
+    },
+    "fase2c_curva_ganho_votacao_suave.json": {
+      "sha256": "0405b868d2e93c717c6de0ec8146e02a3ed40faf66893dbaca64a7f78d5f0203",
+      "tamanho_bytes": 1917065
+    },
+    "fase2c_fila_linear_svc.json": {
+      "sha256": "2112af392c91d19f821b15a9c935bf799daf6ab5f9ceb3858c20b6c3c1ce0ac2",
+      "tamanho_bytes": 4663585
+    },
+    "fase2c_fila_stacking.json": {
+      "sha256": "45e4b90e89421b631b5809f2cb372d06bbfcc8c9b1f3d2bcec79dce01b49798d",
+      "tamanho_bytes": 4593597
+    },
+    "fase2c_fila_votacao_majoritaria.json": {
+      "sha256": "9c0ec2a744ac11ddc46f6c751f20b980bd5b695c36eca7afac17474c26d7d810",
+      "tamanho_bytes": 4245140
+    },
+    "fase2c_fila_votacao_suave.json": {
+      "sha256": "0302649ebb415e52373130ff0ff49f9173a36c736bfe74f66abc4476a491f0f0",
+      "tamanho_bytes": 4604920
+    },
+    "fase2c_resumo_confirmatorio.json": {
+      "sha256": "13766e214e8418e377b31ec3f2bda33e46cb337d80429c7d9da2a62b47a2f537",
+      "tamanho_bytes": 1461
+    },
+    "fase2c_fila_linear_svc.csv": {
+      "sha256": "de5336cd26688218a4652c8345deb54eab26aadf8cafd0cc0e5401366486c389",
+      "tamanho_bytes": 3170164
+    },
+    "fase2c_fila_stacking.csv": {
+      "sha256": "9ab30943eb1261c728afa3a47e8be990de5ad325293b136afabd6fb656b068d3",
+      "tamanho_bytes": 3099725
+    },
+    "fase2c_fila_votacao_majoritaria.csv": {
+      "sha256": "81db7ee7108ff7ec4707acc9bd9b98bd63552477f7f7ac64e23448f6d61b3fd6",
+      "tamanho_bytes": 2664416
+    },
+    "fase2c_fila_votacao_suave.csv": {
+      "sha256": "51f633c726e1ab81448b533af41335243434fb6e540142a93326d2b6ef5d89d6",
+      "tamanho_bytes": 3098759
+    }
+  },
+  "fits_modelos_base": 0,
+  "fits_meta_stacking": 5,
+  "lstm_executada": false,
+  "tau_confirmatorio": null,
+  "valores_historicos_nao_utilizados": {
+    "total_y1": 595,
+    "k_total": 2849,
+    "k_f_por_fold": {
+      "1": 567,
+      "2": 563,
+      "3": 621,
+      "4": 508,
+      "5": 590
+    }
+  },
+  "motivo_valores_historicos_nao_utilizados": "Pertencem ao universo de 13.972 registros e ao LinearSVC standalone da trilha do artigo principal (docs/dados/retreino_canonico_predicoes.csv, execucao canonica hash 1e476243...), nao ao universo modelavel de 13.970 nem as previsoes outer cross-fitted da Execucao Cientifica 1 da Fase 2B (unica fonte que a Fase 2C tem autorizacao de consumir). Ver docs/FASE2C_RESOLUCAO_KF_DENOMINADOR.md.",
+  "declaracao": "Execucao cientifica real da Fase 2C sobre os 13.970 registros modelaveis da Execucao Cientifica 1 da Fase 2B. Nenhum dos sete modelos-base foi retreinado (fits_modelos_base=0); somente 5 meta-modelos LogisticRegression de stacking foram ajustados, um por outer fold (fits_meta_stacking=5). Nenhuma execucao de LSTM. Nenhum tau foi selecionado ou otimizado na avaliacao confirmatoria; a comparacao entre metodos usa capacidade K_f (fila natural do LinearSVC cross-fitted por dobra), identica para todos os quatro metodos."
+}

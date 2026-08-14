@@ -1,0 +1,302 @@
+{
+  "schema_version": 1,
+  "ordem_classes": [
+    "Climatização > Ar condicionado central",
+    "Climatização > Ar condicionado split",
+    "Elétrica > Gerador",
+    "Elétrica > Iluminação",
+    "Elétrica > Instalações elétricas",
+    "Elétrica > Nobreak",
+    "Elétrica > Subestação",
+    "Equipamentos de Transporte > Elevador",
+    "Estrutura Predial > Alvenaria / Pisos / Estrutura",
+    "Estrutura Predial > Esquadrias, porta, portão e janelas",
+    "Estrutura Predial > Forro",
+    "Estrutura Predial > Infiltração",
+    "Estrutura Predial > Pintura",
+    "Estrutura Predial > Telhados, calhas, rufos, etc.",
+    "Hidrossanitária > Bomba",
+    "Hidrossanitária > Hidráulica",
+    "Instalação de Acessórios e Mobiliário > Instalação/reparo de equipamentos (Suportes de TV, acessórios de banheiro e quadro branco)",
+    "Instalação de Acessórios e Mobiliário > Placas de identificação",
+    "Manutenção Preventiva > Ar condicionado central",
+    "Manutenção Preventiva > Ar condicionado split",
+    "Manutenção Preventiva > Elevador",
+    "Manutenção Preventiva > Esgoto",
+    "Manutenção Preventiva > Gerador",
+    "Manutenção Preventiva > Hidráulica",
+    "Manutenção Preventiva > Iluminação",
+    "Manutenção Preventiva > Poços artesianos",
+    "Manutenção Preventiva > Quadros Elétricos",
+    "Manutenção Preventiva > Reservatório",
+    "Manutenção Preventiva > Sistemas de combate a incêndio (extintores, hidrantes)",
+    "Manutenção Preventiva > Telhados, calhas, rufos, etc.",
+    "Manutenção Preventiva > Vistoria em Instalações",
+    "Outros > Erro de chamado",
+    "Outros > Outros",
+    "Posto de trabalho > Contratação de Posto de trabalho",
+    "Projetos e Reformas > Projeto",
+    "Projetos e Reformas > Reforma",
+    "Segurança contra Incêndio > Sistemas de combate a incêndio (extintores, hidrantes)",
+    "Suprimentos / Apoio Técnico > Limpeza de equipamentos, ambiente e mobiliário",
+    "Suprimentos / Apoio Técnico > Materiais",
+    "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
+    "Área Externa e Ambiental > Manutenção área externa / meio ambiente / Poda de árvore / Roçagem"
+  ],
+  "modelos": [
+    "naive_bayes",
+    "regressao_logistica",
+    "linear_svc",
+    "sgd",
+    "extra_trees",
+    "random_forest",
+    "lstm"
+  ],
+  "folds_externos": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "rotacoes_internas_por_fold": {
+    "1": [
+      {
+        "outer_fold": 1,
+        "validacao": 2,
+        "treino": [
+          3,
+          4,
+          5
+        ]
+      },
+      {
+        "outer_fold": 1,
+        "validacao": 3,
+        "treino": [
+          2,
+          4,
+          5
+        ]
+      },
+      {
+        "outer_fold": 1,
+        "validacao": 4,
+        "treino": [
+          2,
+          3,
+          5
+        ]
+      },
+      {
+        "outer_fold": 1,
+        "validacao": 5,
+        "treino": [
+          2,
+          3,
+          4
+        ]
+      }
+    ],
+    "2": [
+      {
+        "outer_fold": 2,
+        "validacao": 1,
+        "treino": [
+          3,
+          4,
+          5
+        ]
+      },
+      {
+        "outer_fold": 2,
+        "validacao": 3,
+        "treino": [
+          1,
+          4,
+          5
+        ]
+      },
+      {
+        "outer_fold": 2,
+        "validacao": 4,
+        "treino": [
+          1,
+          3,
+          5
+        ]
+      },
+      {
+        "outer_fold": 2,
+        "validacao": 5,
+        "treino": [
+          1,
+          3,
+          4
+        ]
+      }
+    ],
+    "3": [
+      {
+        "outer_fold": 3,
+        "validacao": 1,
+        "treino": [
+          2,
+          4,
+          5
+        ]
+      },
+      {
+        "outer_fold": 3,
+        "validacao": 2,
+        "treino": [
+          1,
+          4,
+          5
+        ]
+      },
+      {
+        "outer_fold": 3,
+        "validacao": 4,
+        "treino": [
+          1,
+          2,
+          5
+        ]
+      },
+      {
+        "outer_fold": 3,
+        "validacao": 5,
+        "treino": [
+          1,
+          2,
+          4
+        ]
+      }
+    ],
+    "4": [
+      {
+        "outer_fold": 4,
+        "validacao": 1,
+        "treino": [
+          2,
+          3,
+          5
+        ]
+      },
+      {
+        "outer_fold": 4,
+        "validacao": 2,
+        "treino": [
+          1,
+          3,
+          5
+        ]
+      },
+      {
+        "outer_fold": 4,
+        "validacao": 3,
+        "treino": [
+          1,
+          2,
+          5
+        ]
+      },
+      {
+        "outer_fold": 4,
+        "validacao": 5,
+        "treino": [
+          1,
+          2,
+          3
+        ]
+      }
+    ],
+    "5": [
+      {
+        "outer_fold": 5,
+        "validacao": 1,
+        "treino": [
+          2,
+          3,
+          4
+        ]
+      },
+      {
+        "outer_fold": 5,
+        "validacao": 2,
+        "treino": [
+          1,
+          3,
+          4
+        ]
+      },
+      {
+        "outer_fold": 5,
+        "validacao": 3,
+        "treino": [
+          1,
+          2,
+          4
+        ]
+      },
+      {
+        "outer_fold": 5,
+        "validacao": 4,
+        "treino": [
+          1,
+          2,
+          3
+        ]
+      }
+    ]
+  },
+  "fits_totais": 175,
+  "fits_internos": 140,
+  "fits_externos": 35,
+  "fits_lstm_esperados": 25,
+  "fits_lstm_reais": 25,
+  "fallbacks_lstm": 0,
+  "meta_exemplos_internos_esperados_por_modelo": 55880,
+  "meta_exemplos_internos_obtidos_por_modelo": {
+    "extra_trees": 55880,
+    "linear_svc": 55880,
+    "lstm": 55880,
+    "naive_bayes": 55880,
+    "random_forest": 55880,
+    "regressao_logistica": 55880,
+    "sgd": 55880
+  },
+  "previsoes_externas_esperadas_por_modelo": 13970,
+  "previsoes_externas_obtidas_por_modelo": {
+    "extra_trees": 13970,
+    "linear_svc": 13970,
+    "lstm": 13970,
+    "naive_bayes": 13970,
+    "random_forest": 13970,
+    "regressao_logistica": 13970,
+    "sgd": 13970
+  },
+  "total_modelaveis": 13970,
+  "total_excluidos_h_fora_de_c": 2,
+  "excluidos_h_fora_de_c": [
+    {
+      "id_sha256": "1b789719d49e29bc2fffd1b401ead5760f0917e9382807aaa0375c79f743022a",
+      "grupo_sha256": "005f5882622a3ebc8463da4213269f4745fc53bab00a6dc820492d96a25007b2",
+      "tratamento": "tratamento_taxonomico_deterministico"
+    },
+    {
+      "id_sha256": "d7b59bd29c5ebfde09a01d6ca5aec2d6936980ecaad1696bfd7240d8a9bba27a",
+      "grupo_sha256": "5963ebac8ab468d6243fd3b657f71226b0d8819e843873c679cc0c6c6e3ab5c9",
+      "tratamento": "tratamento_taxonomico_deterministico"
+    }
+  ],
+  "classes_ausentes_por_treino": [],
+  "hashes_entrada": {
+    "hash_corpus": "fe9bfa4a6c521c0c73b234500e1c9d14bdeb6769470269daa38e588a7a877891",
+    "hash_alvo_ensemble": "8884d6098325734a0315e8976ffa1b8bd7da15cede3a6a959904a098fbe7d57c",
+    "classes_sha256": "9e6c742bd7f6410de10f857d4103a959316f588ae4f19afdb06d84a3dcea947a",
+    "partition_manifest_online_sha256": "d38c041695259e9204a7450955bed209191c829e0f99b269a28cfbf4bc53b404",
+    "fold_assignment_sha256": "dc17cfb2806d1c20b141c1e394b684f7c3e087a1ba922e4920497d96bcd64b7d"
+  }
+}
