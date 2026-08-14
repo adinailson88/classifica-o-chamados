@@ -165,9 +165,9 @@ audit; calibration and selective classification; noisy labels.*
 
 A manutenção predial responde pela preservação do patrimônio edificado e
 pela continuidade das atividades finalísticas das instituições federais de
-ensino superior (IFES), ainda que disponha historicamente de menos de 2% do
-orçamento institucional (MARTINS; ESPEJO, 2024; PAMPANA *et al.*, 2022). Sob
-essa restrição, decidir onde intervir depende de evidência sobre o parque
+ensino superior (IFES), ainda que opere sob restrição orçamentária
+persistente (Martins; Espejo, 2024; Pampana *et al.*, 2022). Sob essa
+restrição, decidir onde intervir depende de evidência sobre o parque
 edificado, conforme a gestão sistematizada definida pela NBR 5674 (ABNT,
 2012).
 
@@ -175,30 +175,30 @@ O sinal disponível para essa decisão é textual. Um campus universitário
 constitui um biossistema construído, isto é, a integração dinâmica entre
 infraestrutura física, atividade humana, sistemas tecnológicos e
 condicionantes ambientais, cuja persistência depende de retroalimentação
-contínua entre uso, falha e reparo (CAPRA, 1996; ODUM, 1971). Sua
+contínua entre uso, falha e reparo (Capra, 1996; Odum, 1971). Sua
 governança repousa sobre a capacidade institucional de captar sinais
-operacionais e convertê-los em decisão (GRIMM *et al.*, 2008). Nas IFES,
+operacionais e convertê-los em decisão (Grimm *et al.*, 2008). Nas IFES,
 esse sinal assume a forma de registros de chamados de manutenção,
 armazenados em linguagem não estruturada, cuja interpretação individual
-impede o uso direto por mecanismos de decisão automatizada (MORAIS; PAULA;
-REIS, 2023; MOHAMMED; AMOAH, 2025). Convertê-los em dado estruturado e
+impede o uso direto por mecanismos de decisão automatizada (Morais; Paula;
+Reis, 2023; Mohammed; Amoah, 2025). Convertê-los em dado estruturado e
 auditável é condição anterior a qualquer camada preditiva.
 
 Três obstáculos condicionam essa conversão. O primeiro é a natureza textual
 curta e heterogênea dos registros, cujas abreviações locais e jargões de
 equipe dificultam a aplicação de modelos genéricos de processamento de
-linguagem natural (PLN) (SUNDARAM; ZEID, 2025). O segundo é o
+linguagem natural (PLN) (Sundaram; Zeid, 2025). O segundo é o
 desbalanceamento entre categorias, em que demandas recorrentes concentram
 grande parte da base e categorias raras dispõem de poucos exemplos para
-treinamento supervisionado (LI *et al.*, 2024). O terceiro é a qualidade do
+treinamento supervisionado (Li *et al.*, 2024). O terceiro é a qualidade do
 próprio rótulo histórico, que pode resultar de interpretação rápida ou de
 taxonomia ainda não estabilizada, e por isso constitui evidência importante
-sem ser referência definitiva (ZHANG *et al.*, 2025; KEJRIWAL *et al.*,
+sem ser referência definitiva (Zhang *et al.*, 2025; Kejriwal *et al.*,
 2024).
 
 A literatura confirma a viabilidade técnica da tarefa, com acurácia de 0,83
-sobre 15.623 ordens de serviço hospitalares (LI *et al.*, 2024) e 78% em
-requisições de edificação hospitalar (BOUABDALLAOUI *et al.*, 2020). Essas
+sobre 15.623 ordens de serviço hospitalares (Li *et al.*, 2024) e 78% em
+requisições de edificação hospitalar (Bouabdallaoui *et al.*, 2020). Essas
 aplicações concentram-se, todavia, em bases de outros idiomas e em domínios
 industriais ou hospitalares, e avaliam o classificador contra o rótulo
 registrado, sem submetê-lo a auditoria. Restam duas lacunas convergentes: a
@@ -239,33 +239,33 @@ reclassificação automática da base sob função de utilidade explícita.
 
 Ordens de manutenção documentam sintomas, locais, equipamentos e soluções em
 forma textual semiestruturada, o que lhes confere valor informacional
-elevado e uso habitualmente reduzido no planejamento (PAMPANA *et al.*,
-2022; MORAIS; PAULA; REIS, 2023). Li *et al.* (2024) são a referência-âncora
+elevado e uso habitualmente reduzido no planejamento (Pampana *et al.*,
+2022; Morais; Paula; Reis, 2023). Li *et al.* (2024) são a referência-âncora
 desta pesquisa por tratarem da automação de ordens de manutenção predial,
 ainda que em idioma e taxonomia distintos, e Sundaram e Zeid (2025)
 acrescentam que chamados curtos e descrições incompletas inviabilizam
 modelos genéricos sem adaptação lexical ao corpus.
 
 Na classificação de *tickets*, a evolução das representações lexicais aos
-modelos pré-treinados, como o Ticket-BERT (LIU; BENGE; JIANG, 2023), não se
+modelos pré-treinados, como o Ticket-BERT (Liu; Benge; Jiang, 2023), não se
 transfere sem cautela à manutenção predial, cujos sistemas e equipamentos
-não coincidem com categorias de incidentes digitais (SUNDARAM; ZEID, 2025).
+não coincidem com categorias de incidentes digitais (Sundaram; Zeid, 2025).
 Em texto curto de vocabulário especializado, ademais, classificadores
 lineares sobre representações TF-IDF sustentam desempenho equivalente ao de
-redes neurais em múltiplos *benchmarks* (GALKE; SCHERP, 2022).
+redes neurais em múltiplos *benchmarks* (Galke; Scherp, 2022).
 
 **2.2 Desbalanceamento e rótulos ruidosos**
 
 Duas propriedades da base condicionam a leitura das métricas. O
 desbalanceamento entre categorias faz a acurácia agregada ser dominada pelas
 classes majoritárias e mascarar falhas nas raras, o que recomenda métricas
-de média por classe com o suporte declarado (SOKOLOVA; LAPALME, 2009) e leva
+de média por classe com o suporte declarado (Sokolova; Lapalme, 2009) e leva
 a classificação hierárquica de chamados a excluir rótulos de frequência
-muito baixa (MARCUZZO *et al.*, 2022). O ruído de rótulo decorre de
-ambiguidade semântica, sobreposição taxonômica ou erro de registro (ZHANG
+muito baixa (Marcuzzo *et al.*, 2022). O ruído de rótulo decorre de
+ambiguidade semântica, sobreposição taxonômica ou erro de registro (Zhang
 *et al.*, 2025), e *benchmarks* rotulados por humanos contêm variabilidade
 relevante, o que questiona a prática de assumir referência única onde há
-julgamento subjetivo (KEJRIWAL *et al.*, 2024). A categoria histórica é,
+julgamento subjetivo (Kejriwal *et al.*, 2024). A categoria histórica é,
 por conseguinte, tratada como registro administrativo sujeito a auditoria,
 e a referência de avaliação provém dessa auditoria de rótulo, e não do
 registro original tomado como definitivo.
@@ -274,29 +274,29 @@ registro original tomado como definitivo.
 
 O escore de confiança de um classificador não é, por construção, uma
 probabilidade, e associá-lo à frequência de acerto exige calibração, seja
-por ajuste sigmoidal da margem (PLATT, 1999), seja por regressão isotônica,
-necessidade que persiste mesmo em arquiteturas de alto desempenho (GUO *et
+por ajuste sigmoidal da margem (Platt, 1999), seja por regressão isotônica,
+necessidade que persiste mesmo em arquiteturas de alto desempenho (Guo *et
 al.*, 2017). É a calibração que torna operável a classificação seletiva,
 regime no qual o modelo decide apenas acima de um limiar de confiança e
 transfere os demais casos a outro decisor, cujo compromisso entre erro e
 rejeição foi formulado por Chow (1970) e é hoje reportado como par entre
-cobertura e risco (EL-YANIV; WIENER, 2010). Em fluxo humano–IA, é esse par
+cobertura e risco (El-Yaniv; Wiener, 2010). Em fluxo humano–IA, é esse par
 que delimita quanto do volume pode ser decidido automaticamente e quanto
 deve ser encaminhado ao revisor humano.
 
 **2.4 Custo computacional e delimitação de escopo**
 
 A eficiência computacional deve ser reportada e valorizada na avaliação de
-modelos, não apenas a acurácia (SCHWARTZ *et al.*, 2020; TREVISO *et al.*,
+modelos, não apenas a acurácia (Schwartz *et al.*, 2020; Treviso *et al.*,
 2023). Em instituição pública o critério é decisório, pois um modelo que
 treina em segundos é reexecutado e auditado sem infraestrutura dedicada. É
 por esse critério que os modelos de linguagem de grande porte ficam fora
 desta comparação, embora dispensem ajuste supervisionado ao inferir a
-tarefa do próprio enunciado (BROWN *et al.*, 2020). Eles exigem
+tarefa do próprio enunciado (Brown *et al.*, 2020). Eles exigem
 aceleradores dedicados ou serviços tarifados por uso. Deslocam as
 descrições dos chamados para fora do domínio da instituição. E variam entre
 versões do serviço, o que compromete a reprodutibilidade exigida pelo
-delineamento (BENDER *et al.*, 2021). O protocolo integral não foi
+delineamento (Bender *et al.*, 2021). O protocolo integral não foi
 executado sobre essas arquiteturas nem sobre o BERTimbau, cujo custo medido
 é tratado na Subseção 4.5, de modo que nada se afirma sobre seu desempenho
 relativo.
@@ -307,15 +307,15 @@ relativo.
 
 O estudo adota delineamento experimental aplicado sobre base observacional
 retrospectiva de chamados de manutenção predial do sistema GLPI de uma
-instituição federal de ensino superior pública multicampi (MORAIS; PAULA;
-REIS, 2023). A unidade de análise é o chamado individual, representado pelo
+instituição federal de ensino superior pública multicampi (Morais; Paula;
+Reis, 2023). A unidade de análise é o chamado individual, representado pelo
 título e pela descrição do chamado e pelo título e pela descrição da ordem de
 serviço, aos quais se associa a categoria histórica registrada no sistema. O
 corpus congelado reúne 14.060 chamados de texto não vazio em 50 categorias
 históricas, cuja distribuição consta do Apêndice A, e corresponde a um corte
 único de extração sobre o qual os artefatos foram materializados e
 versionados. O idioma é o português brasileiro, com jargão técnico,
-abreviações locais e descrições incompletas (SUNDARAM; ZEID, 2025). O corte
+abreviações locais e descrições incompletas (Sundaram; Zeid, 2025). O corte
 não preserva a data de abertura do chamado, restrição tratada na Subseção
 5.3. A Figura 1 apresenta o fluxo metodológico como *pipeline* de governança
 preditiva, no qual a revisão humana precede o treinamento, pois dela sai o
@@ -348,7 +348,7 @@ só o reexame caso a caso separaria. A contagem consta da Subseção 4.4.
 **3.2 Pré-processamento e representação**
 
 A normalização altera a matriz de atributos e, com ela, o desempenho dos
-modelos (SALTON; BUCKLEY, 1988). Os quatro campos são localizados por
+modelos (Salton; Buckley, 1988). Os quatro campos são localizados por
 cabeçalho, despojados de espaços nas extremidades e concatenados por quebra
 de linha na ordem título do chamado, descrição do chamado, título da ordem
 de serviço e descrição da ordem de serviço. Campos vazios são descartados
@@ -379,14 +379,14 @@ cada uma responde melhor a um subconjunto distinto dessas características,
 e a comparação sob o mesmo protocolo é o que permite decidir entre elas com
 evidência, em vez de por preferência de projeto. Fronteiras lineares
 separam bem as classes sobre representação esparsa quando o vocabulário
-carrega poder discriminativo (JOACHIMS, 1998; SALTON; BUCKLEY, 1988). Os
+carrega poder discriminativo (Joachims, 1998; Salton; Buckley, 1988). Os
 *ensembles* de árvores capturam interações não lineares a custo maior,
 pagando por essa flexibilidade em tempo de treino. O Naive Bayes assume
 independência condicional entre atributos dada a classe, suposição violada
 quando termos técnicos co-ocorrem dentro de uma mesma categoria
-(PEDREGOSA *et al.*, 2011), mas serve de piso comparativo barato para as
-demais famílias. E a LSTM treina seus *embeddings* do zero (GRAVES;
-SCHMIDHUBER, 2005),
+(Pedregosa *et al.*, 2011), mas serve de piso comparativo barato para as
+demais famílias. E a LSTM treina seus *embeddings* do zero (Graves;
+Schmidhuber, 2005),
 concentrando nessa camada cerca de 1,02 milhão de parâmetros, ordem de
 grandeza próxima dos 11.178 exemplos de cada partição de treino. A Tabela 1
 resume representação, configuração e papel de cada modelo; os
@@ -418,8 +418,8 @@ LSTM Bidirecional & tokenização própria & \textit{embedding} de 128, 64 unida
 \end{table}
 ```
 
-Um oitavo modelo, o BERTimbau-Base (DEVLIN *et al.*, 2019; SOUZA; NOGUEIRA;
-LOTUFO, 2020), é experimento exploratório fora da comparação principal: foi
+Um oitavo modelo, o BERTimbau-Base (Devlin *et al.*, 2019; Souza; Nogueira;
+Lotufo, 2020), é experimento exploratório fora da comparação principal: foi
 ajustado sob protocolo distinto, com subamostragem estratificada e parada
 antecipada, sem predições *out-of-fold* sobre todo o corpus. A medição de
 custo que fundamenta a separação consta da Subseção 4.5, e nada se afirma,
@@ -432,9 +432,9 @@ dobras, embaralhamento e semente fixa, estratificação pela referência
 revisada e agrupamento pelo hash do texto normalizado da Subseção 3.2, de
 modo que nenhum grupo atravessa a fronteira entre treino e teste. As
 partições são geradas uma única vez, versionadas e reutilizadas por todos os
-modelos e pela camada de regras, o que legitima os testes pareados (SOKOLOVA;
-LAPALME, 2009), e foram preferidas a conjunto de teste fixo pela menor
-variância das estimativas em bases desbalanceadas (KOHAVI, 1995). A
+modelos e pela camada de regras, o que legitima os testes pareados (Sokolova;
+Lapalme, 2009), e foram preferidas a conjunto de teste fixo pela menor
+variância das estimativas em bases desbalanceadas (Kohavi, 1995). A
 separação é textual, e não cronológica: as métricas medem generalização para
 grupos de texto não vistos dentro do mesmo corte de extração, e não
 desempenho sobre chamados posteriores.
@@ -457,12 +457,12 @@ posterior ao congelamento da base. Registros de texto idêntico recebem a
 mesma predição de qualquer classificador e não são evidências
 independentes;
 tratá-los como tal estreita artificialmente intervalos e valores de *p*
-(COCHRAN, 1977).
+(Cochran, 1977).
 
 As métricas são assim definidas. A acurácia é a proporção de registros cuja
 predição coincide com a referência revisada, e o *macro*-F1, a média
 aritmética simples do F1 por categoria, que pondera igualmente classes de
-qualquer suporte (SOKOLOVA; LAPALME, 2009). O erro de calibração esperado
+qualquer suporte (Sokolova; Lapalme, 2009). O erro de calibração esperado
 (ECE) é a média, ponderada pelo número de registros, do módulo da diferença
 entre acurácia e confiança média em dez faixas de largura igual, e o escore de
 Brier, na formulação binária de acerto ou erro, pune má calibração e baixa
@@ -482,16 +482,16 @@ recai a avaliação. Transformações, tokenizadores, vocabulários, calibradore
 e limiares são, sem exceção, ajustados sem acesso à dobra externa.
 
 A hipótese global de igualdade das taxas de acerto é apurada pela estatística
-Q de Cochran (COCHRAN, 1950), com a distribuição qui-quadrado tabelada
+Q de Cochran (Cochran, 1950), com a distribuição qui-quadrado tabelada
 substituída por referência empírica obtida por permutação do rótulo de modelo
-dentro de cada grupo, o que preserva a dependência interna (GOOD, 2005;
-ANDERSON; TER BRAAK, 2003). Rejeitada a igualdade, os 21 pares são comparados
+dentro de cada grupo, o que preserva a dependência interna (Good, 2005;
+Anderson; Ter Braak, 2003). Rejeitada a igualdade, os 21 pares são comparados
 por permutação pareada com troca de sinal da diferença de acertos por grupo,
-com correção sequencial de Holm-Bonferroni (HOLM, 1979), e os intervalos das
+com correção sequencial de Holm-Bonferroni (Holm, 1979), e os intervalos das
 métricas e das diferenças vêm de *bootstrap* de conglomerados, que sorteia
 grupos com reposição e reconstrói a amostra com todos os registros de cada
-grupo sorteado (EFRON, 1979; EFRON; TIBSHIRANI, 1993; DICICCIO; EFRON, 1996;
-FIELD; WELSH, 2007; CAMERON; GELBACH; MILLER, 2008). A divisão aleatória por
+grupo sorteado (Efron, 1979; Efron; Tibshirani, 1993; Diciccio; Efron, 1996;
+Field; Welsh, 2007; Cameron; Gelbach; Miller, 2008). A divisão aleatória por
 linha permanece apenas como análise de sensibilidade, no material
 suplementar.
 
@@ -504,7 +504,7 @@ histórica, arbitrados pela referência, e é qualificada pela utilidade sob
 custos assimétricos (Subseção 4.2). Uma camada explícita de regras de
 periodicidade atribui categoria preventiva quando o texto reúne termo de
 periodicidade e de equipamento. A camada informacional de entropia de
-Shannon e divergência de Jensen-Shannon (SHANNON, 1948; LIN, 1991) é
+Shannon e divergência de Jensen-Shannon (Shannon, 1948; Lin, 1991) é
 calculada sobre agregados e mede dispersão das predições, distância frente
 à distribuição histórica e desacordo entre modelos, este último usado para
 ordenar fila de auditoria, sem inferir desordem do sistema físico. Um teste
@@ -639,7 +639,7 @@ implementação: as 13.972 linhas avaliadas distribuem-se por 9.735 grupos
 textuais, e 4.546 delas, ou 32,54%, pertencem a grupos com mais de um
 membro. O efeito de desenho, razão entre a variância da acurácia sob
 reamostragem de conglomerados e a variância binomial que a suposição de
-independência produziria (COCHRAN, 1977), fica entre 4,47 no LinearSVC e
+independência produziria (Cochran, 1977), fica entre 4,47 no LinearSVC e
 8,83 no Naive Bayes, de modo que toda inferência desta subseção adota o
 grupo textual como unidade. O teste global rejeita a igualdade entre os
 sete modelos: a estatística Q de Cochran vale 2.661,04 sobre seis graus de
@@ -994,8 +994,8 @@ superioridade estatística do LinearSVC sobre o segundo colocado
 
 O bom desempenho dos modelos lineares é compatível com a literatura sobre
 texto curto de vocabulário técnico, em que representações esparsas com
-fronteiras lineares sustentam desempenho competitivo (JOACHIMS, 1998;
-SALTON; BUCKLEY, 1988; GALKE; SCHERP, 2022). Essa convergência é
+fronteiras lineares sustentam desempenho competitivo (Joachims, 1998;
+Salton; Buckley, 1988; Galke; Scherp, 2022). Essa convergência é
 informativa por dois motivos. O corpus aqui analisado é institucional, em
 português brasileiro, e mantém a mesma regularidade observada em
 *benchmarks* de outra natureza. E a vantagem estatística do LinearSVC
@@ -1016,8 +1016,8 @@ O custo de treino pesa na decisão institucional tanto quanto o acerto: em
 ambiente sem acelerador gráfico, um modelo que treina em poucos segundos
 pode ser reexecutado e auditado a cada atualização da base sem
 infraestrutura dedicada, condição que a literatura de eficiência
-recomenda reportar com a acurácia (SCHWARTZ *et al.*,
-2020; TREVISO *et al.*, 2023). É esse critério, não só o desempenho
+recomenda reportar com a acurácia (Schwartz *et al.*,
+2020; Treviso *et al.*, 2023). É esse critério, não só o desempenho
 isolado, que torna o LinearSVC e o SGD os candidatos mais favoráveis,
 por sustentar acurácia e macro-F1 competitivos a custo de treino mínimo,
 sem exigir infraestrutura fora do ambiente institucional (Subseção 4.1).
@@ -1101,7 +1101,7 @@ reprodutibilidade da referência por outro especialista, restrição agravada
 pela ancoragem, condição constitutiva da auditoria de rótulo mas
 incompatível com anotação independente: a literatura registra
 variabilidade relevante entre anotadores em tarefas de rotulagem dessa
-natureza (KEJRIWAL *et al.*, 2024). Uma segunda avaliação sobre amostra
+natureza (Kejriwal *et al.*, 2024). Uma segunda avaliação sobre amostra
 estratificada, com adjudicação nos pares taxonômicos ambíguos, é a
 validação futura pertinente. As métricas cobrem 41 das 50 categorias da
 taxonomia, com as nove mais raras fora das partições por suporte
@@ -1211,180 +1211,207 @@ ao artigo.
 **REFERÊNCIAS**
 
 ANDERSON, M. J.; TER BRAAK, C. J. F. Permutation tests for
-multi-factorial analysis of variance. Journal of Statistical Computation
-and Simulation, v. 73, n. 2, p. 85--113, 2003.
+multi-factorial analysis of variance. *Journal of Statistical Computation
+and Simulation*, v. 73, n. 2, p. 85--113, 2003. DOI:
+https://doi.org/10.1080/00949650215733.
 
-ASSOCIAÇÃO BRASILEIRA DE NORMAS TÉCNICAS. ABNT NBR 5674: Manutenção de
-edificações: Requisitos para o sistema de gestão de manutenção. Rio de
+ASSOCIAÇÃO BRASILEIRA DE NORMAS TÉCNICAS. *ABNT NBR 5674: Manutenção de
+edificações: Requisitos para o sistema de gestão de manutenção*. Rio de
 Janeiro: ABNT, 2012.
 
 BENDER, E. M.; GEBRU, T.; McMILLAN-MAJOR, A.; SHMITCHELL, S. On the
 dangers of stochastic parrots: can language models be too big? In:
-Proceedings of the 2021 ACM Conference on Fairness, Accountability, and
-Transparency (FAccT '21). New York: ACM, 2021. p. 610--623.
+*Proceedings of the 2021 ACM Conference on Fairness, Accountability, and
+Transparency (FAccT '21)*. New York: ACM, 2021. p. 610--623. DOI:
+https://doi.org/10.1145/3442188.3445922.
 
 BOUABDALLAOUI, Y.; LAFHAJ, Z.; YIM, P.; DUCOULOMBIER, L.; BENNADJI, B.
 Natural Language Processing Model for Managing Maintenance Requests in
-Buildings. Buildings, v. 10, n. 9, art. 160, 2020.
+Buildings. *Buildings*, v. 10, n. 9, art. 160, 2020. DOI:
+https://doi.org/10.3390/buildings10090160.
 
-BROWN, T. B.; MANN, B.; RYDER, N.; SUBBIAH, M.; KAPLAN, J.; DHARIWAL,
-P.; NEELAKANTAN, A. et al. Language models are few-shot learners. In:
-Advances in Neural Information Processing Systems 33 (NeurIPS 2020).
+BROWN, T. B. et al. Language models are few-shot learners. In:
+*Advances in Neural Information Processing Systems 33 (NeurIPS 2020)*.
 Red Hook: Curran Associates, 2020. p. 1877--1901.
 
 CAMERON, A. C.; GELBACH, J. B.; MILLER, D. L. Bootstrap-based
-improvements for inference with clustered errors. The Review of Economics
-and Statistics, v. 90, n. 3, p. 414--427, 2008.
+improvements for inference with clustered errors. *The Review of Economics
+and Statistics*, v. 90, n. 3, p. 414--427, 2008. DOI:
+https://doi.org/10.1162/rest.90.3.414.
 
-CAPRA, F. A teia da vida: uma nova compreensão científica dos sistemas
-vivos. São Paulo: Cultrix, 1996.
+CAPRA, F. *A teia da vida: uma nova compreensão científica dos sistemas
+vivos*. São Paulo: Cultrix, 1996.
 
-CHOW, C. K. On optimum recognition error and reject tradeoff. IEEE
-Transactions on Information Theory, v. 16, n. 1, p. 41--46, 1970.
+CHOW, C. K. On optimum recognition error and reject tradeoff. *IEEE
+Transactions on Information Theory*, v. 16, n. 1, p. 41--46, 1970. DOI:
+https://doi.org/10.1109/tit.1970.1054406.
 
 COCHRAN, W. G. The comparison of percentages in matched samples.
-Biometrika, v. 37, n. 3-4, p. 256--266, 1950.
+*Biometrika*, v. 37, n. 3-4, p. 256--266, 1950. DOI:
+https://doi.org/10.2307/2332378.
 
-COCHRAN, W. G. Sampling techniques. 3. ed. New York: John Wiley & Sons,
+COCHRAN, W. G. *Sampling techniques*. 3. ed. New York: John Wiley & Sons,
 1977.
 
 DEVLIN, J.; CHANG, M.-W.; LEE, K.; TOUTANOVA, K. BERT:
 Pre-training of deep bidirectional transformers for language
 understanding. In: CONFERENCE OF THE NORTH AMERICAN CHAPTER OF THE
 ASSOCIATION FOR COMPUTATIONAL LINGUISTICS, 2019, Minneapolis.
-Proceedings [...]. Minneapolis: ACL, 2019. p. 4171--4186.
+*Proceedings [...]*. Minneapolis: ACL, 2019. p. 4171--4186. DOI:
+https://doi.org/10.18653/v1/N19-1423.
 
-DICICCIO, T. J.; EFRON, B. Bootstrap confidence intervals. Statistical
-Science, v. 11, n. 3, p. 189--228, 1996.
+DICICCIO, T. J.; EFRON, B. Bootstrap confidence intervals. *Statistical
+Science*, v. 11, n. 3, p. 189--228, 1996. DOI:
+https://doi.org/10.1214/ss/1032280214.
 
-EFRON, B. Bootstrap methods: another look at the jackknife. The Annals
-of Statistics, v. 7, n. 1, p. 1--26, 1979.
+EFRON, B. Bootstrap methods: another look at the jackknife. *The Annals
+of Statistics*, v. 7, n. 1, p. 1--26, 1979. DOI:
+https://doi.org/10.1214/aos/1176344552.
 
-EFRON, B.; TIBSHIRANI, R. J. An introduction to the bootstrap. New York:
-Chapman & Hall/CRC, 1993.
+EFRON, B.; TIBSHIRANI, R. J. *An introduction to the bootstrap*. New York:
+Chapman & Hall/CRC, 1993. DOI: https://doi.org/10.1201/9780429246593.
 
 EL-YANIV, R.; WIENER, Y. On the foundations of noise-free selective
-classification. Journal of Machine Learning Research, v. 11, p.
+classification. *Journal of Machine Learning Research*, v. 11, p.
 1605--1641, 2010.
 
-FIELD, C. A.; WELSH, A. H. Bootstrapping clustered data. Journal of the
-Royal Statistical Society: Series B, v. 69, n. 3, p. 369--390, 2007.
+FIELD, C. A.; WELSH, A. H. Bootstrapping clustered data. *Journal of the
+Royal Statistical Society: Series B*, v. 69, n. 3, p. 369--390, 2007. DOI:
+https://doi.org/10.1111/j.1467-9868.2007.00593.x.
 
 GALKE, L.; SCHERP, A. Bag-of-words vs. graph vs. sequence in text
 classification: questioning the necessity of text-graphs and the
 surprising strength of a wide MLP. In: ANNUAL MEETING OF THE ASSOCIATION
-FOR COMPUTATIONAL LINGUISTICS, 60., 2022, Dublin. Proceedings \[\...\].
-Dublin: ACL, 2022. p. 4038--4051.
+FOR COMPUTATIONAL LINGUISTICS, 60., 2022, Dublin. *Proceedings \[\...\]*.
+Dublin: ACL, 2022. p. 4038--4051. DOI:
+https://doi.org/10.18653/v1/2022.acl-long.279.
 
-GOOD, P. Permutation, parametric and bootstrap tests of hypotheses. 3.
-ed. New York: Springer, 2005.
+GOOD, P. *Permutation, parametric and bootstrap tests of hypotheses*. 3.
+ed. New York: Springer, 2005. DOI: https://doi.org/10.1007/b138696.
 
 GRAVES, A.; SCHMIDHUBER, J. Framewise phoneme classification with
-bidirectional LSTM and other neural network architectures. Neural
-Networks, v. 18, n. 5-6, p. 602--610, 2005.
+bidirectional LSTM and other neural network architectures. *Neural
+Networks*, v. 18, n. 5-6, p. 602--610, 2005. DOI:
+https://doi.org/10.1016/j.neunet.2005.06.042.
 
 GRIMM, N. B.; FAETH, S. H.; GOLUBIEWSKI, N. E.; REDMAN, C. L.; WU, J.;
-BAI, X.; BRIGGS, J. M. Global change and the ecology of cities. Science,
-v. 319, n. 5864, p. 756--760, 2008.
+BAI, X.; BRIGGS, J. M. Global change and the ecology of cities. *Science*,
+v. 319, n. 5864, p. 756--760, 2008. DOI:
+https://doi.org/10.1126/science.1150195.
 
 GUO, C.; PLEISS, G.; SUN, Y.; WEINBERGER, K. Q. On calibration of modern
 neural networks. In: INTERNATIONAL CONFERENCE ON MACHINE LEARNING, 34.,
-2017, Sydney. Proceedings \[\...\]. Sydney: PMLR, 2017. p. 1321--1330.
+2017, Sydney. *Proceedings \[\...\]*. Sydney: PMLR, 2017. p. 1321--1330.
 
 HOLM, S. A simple sequentially rejective multiple test procedure.
-Scandinavian Journal of Statistics, v. 6, n. 2, p. 65--70, 1979.
+*Scandinavian Journal of Statistics*, v. 6, n. 2, p. 65--70, 1979.
 
 JOACHIMS, T. Text categorization with support vector machines: learning
 with many relevant features. In: EUROPEAN CONFERENCE ON MACHINE
-LEARNING, 10., 1998, Chemnitz. Proceedings \[\...\]. Berlin: Springer,
-1998. p. 137--142.
+LEARNING, 10., 1998, Chemnitz. *Proceedings \[\...\]*. Berlin: Springer,
+1998. p. 137--142. DOI: https://doi.org/10.1007/BFb0026683.
 
 KEJRIWAL, M.; SANTOS, H.; SHEN, K.; MULVEHILL, A. M.; MCGUINNESS, D. L.
 A noise audit of human-labeled benchmarks for machine commonsense
-reasoning. Scientific Reports, v. 14, art. 8609, 2024.
+reasoning. *Scientific Reports*, v. 14, art. 8609, 2024. DOI:
+https://doi.org/10.1038/s41598-024-58937-4.
 
 KOHAVI, R. A study of cross-validation and bootstrap for accuracy
 estimation and model selection. In: INTERNATIONAL JOINT CONFERENCE ON
-ARTIFICIAL INTELLIGENCE, 14., 1995, Montreal. Proceedings \[\...\]. San
-Francisco: Morgan Kaufmann, 1995. p. 1137--1143.
+ARTIFICIAL INTELLIGENCE, 14., 1995, Montreal. *Proceedings \[\...\]*. San
+Francisco: Morgan Kaufmann, 1995. p. 1137--1143. DOI:
+https://doi.org/10.5555/1643031.1643047.
 
 LI, Y.; LIU, Y.; ZHANG, J.; CAO, L.; WANG, Q. Automated analysis and
 assignment of maintenance work orders using natural language processing.
-Automation in Construction, v. 165, art. 105501, 2024.
+*Automation in Construction*, v. 165, art. 105501, 2024. DOI:
+https://doi.org/10.1016/j.autcon.2024.105501.
 
-LIN, J. Divergence measures based on the Shannon entropy. IEEE
-Transactions on Information Theory, v. 37, n. 1, p. 145--151, 1991. DOI:
-10.1109/18.61115.
+LIN, J. Divergence measures based on the Shannon entropy. *IEEE
+Transactions on Information Theory*, v. 37, n. 1, p. 145--151, 1991. DOI:
+https://doi.org/10.1109/18.61115.
 
 LIU, Z.; BENGE, C.; JIANG, S. Ticket-BERT: labeling incident management
-tickets with language models. arXiv:2307.00108, 2023.
+tickets with language models. arXiv:2307.00108, 2023. DOI:
+https://doi.org/10.48550/arXiv.2307.00108. Disponível em:
+https://arxiv.org/abs/2307.00108. Acesso em: 14 ago. 2026.
 
-MARCUZZO, M.; ZANGARI, A.; GIUDICE, L.; GASPARETTO, A.; SCHIAVINATO, M.;
+MARCUZZO, M.; ZANGARI, A.; SCHIAVINATO, M.; GIUDICE, L.; GASPARETTO, A.;
 ALBARELLI, A. A multi-level approach for hierarchical Ticket
-Classification. In: PROCEEDINGS OF THE 8TH WORKSHOP ON NOISY
-USER-GENERATED TEXT (W-NUT 2022), 2022. Anais [...]. Association for
-Computational Linguistics, 2022. p. 201--214.
+Classification. In: WORKSHOP ON NOISY USER-GENERATED TEXT, 8., 2022,
+Gyeongju. *Proceedings [...]*. Gyeongju: ACL, 2022. p. 201--214.
 
 MARTINS, R. F. B.; ESPEJO, M. M. S. B. Análise de custos de manutenção
-predial em uma universidade federal brasileira com uso do modelo de SES.
-ABCustos, São Leopoldo, v. 19, n. 1, p. 79--98, 2024.
+predial em uma universidade federal brasileira com uso do modelo de
+Suavização Exponencial Simples (SES). *ABCustos*, São Leopoldo, v. 19,
+n. 1, p. 79--98, 2024. DOI: https://doi.org/10.47179/abcustos.v19i1.719.
 
 MOHAMMED, A. S.; AMOAH, C. Integration of technology in decision-making
-in university facilities management: a literature review. Facilities, v.
-43, n. 13/14, p. 1018--1052, 2025.
+in university facilities management: a literature review. *Facilities*, v.
+43, n. 13/14, p. 1018--1052, 2025. DOI:
+https://doi.org/10.1108/F-09-2024-0134.
 
 MORAIS, L. S. R. de; PAULA, H. M. de; REIS, R. P. A. Promoção da
 eficiência da manutenção predial em edificações públicas: abordagem
-baseada em registros de ordens de serviço. Paranoá, Brasília, v. 16, n.
-34, p. 1--18, 2023. DOI: 10.18830/issn.1679-0944.n34.2023.08.
+baseada em registros de ordens de serviço. *Paranoá*, Brasília, v. 16, n.
+34, p. 1--27, 2023. DOI:
+https://doi.org/10.18830/issn.1679-0944.n34.2023.08.
 
-ODUM, H. T. Environment, power, and society. New York:
+ODUM, H. T. *Environment, power, and society*. New York:
 Wiley-Interscience, 1971.
 
 PAMPANA, A. K. et al. Data-driven analysis for facility management in
-higher education institution. Buildings, v. 12, art. 2094, 2022.
+higher education institution. *Buildings*, v. 12, n. 12, art. 2094, 2022.
+DOI: https://doi.org/10.3390/buildings12122094.
 
-PEDREGOSA, F. et al. Scikit-learn: machine learning in Python. Journal
-of Machine Learning Research, v. 12, p. 2825--2830, 2011.
+PEDREGOSA, F. et al. Scikit-learn: machine learning in Python. *Journal
+of Machine Learning Research*, v. 12, p. 2825--2830, 2011.
 
 PLATT, J. C. Probabilistic outputs for support vector machines and
 comparisons to regularized likelihood methods. In: SMOLA, A. J. et al.
-(Ed.). Advances in Large Margin Classifiers. Cambridge: MIT Press, 1999.
+(Ed.). *Advances in Large Margin Classifiers*. Cambridge: MIT Press, 1999.
 p. 61--74.
 
 SALTON, G.; BUCKLEY, C. Term-weighting approaches in automatic text
-retrieval. Information Processing & Management, v. 24, n. 5, p.
-513--523, 1988.
+retrieval. *Information Processing & Management*, v. 24, n. 5, p.
+513--523, 1988. DOI:
+https://doi.org/10.1016/0306-4573(88)90021-0.
 
 SCHWARTZ, R.; DODGE, J.; SMITH, N. A.; ETZIONI, O. Green AI.
-Communications of the ACM, v. 63, n. 12, p. 54--63, 2020.
+*Communications of the ACM*, v. 63, n. 12, p. 54--63, 2020. DOI:
+https://doi.org/10.1145/3381831.
 
-SHANNON, C. E. A mathematical theory of communication. Bell System
-Technical Journal, v. 27, n. 3, p. 379--423, jul. 1948; v. 27, n. 4, p.
-623--656, out. 1948.
+SHANNON, C. E. A mathematical theory of communication. *Bell System
+Technical Journal*, v. 27, n. 3, p. 379--423, jul. 1948. DOI:
+https://doi.org/10.1002/j.1538-7305.1948.tb01338.x; v. 27, n. 4, p.
+623--656, out. 1948. DOI:
+https://doi.org/10.1002/j.1538-7305.1948.tb00917.x.
 
 SOKOLOVA, M.; LAPALME, G. A systematic analysis of performance measures
-for classification tasks. Information Processing & Management, v. 45, n.
-4, p. 427--437, 2009.
+for classification tasks. *Information Processing & Management*, v. 45, n.
+4, p. 427--437, 2009. DOI:
+https://doi.org/10.1016/j.ipm.2009.03.002.
 
 SOUZA, F.; NOGUEIRA, R.; LOTUFO, R. BERTimbau: pretrained BERT
 models for Brazilian Portuguese. In: BRAZILIAN CONFERENCE ON INTELLIGENT
-SYSTEMS, 9., 2020. Proceedings [...]. Cham: Springer, 2020. p. 403--417.
-DOI: 10.1007/978-3-030-61377-8_28.
+SYSTEMS, 9., 2020, Rio Grande. *Proceedings [...]*. Cham: Springer, 2020.
+p. 403--417. DOI: https://doi.org/10.1007/978-3-030-61377-8_28.
 
 SUNDARAM, S.; ZEID, A. Technical Language Processing for Prognostics and
 Health Management: applying text similarity and topic modeling to
-maintenance work orders. Journal of Intelligent Manufacturing, v. 36, p.
-1637--1657, 2025.
+maintenance work orders. *Journal of Intelligent Manufacturing*, v. 36,
+n. 3, p. 1637--1657, 2025. DOI:
+https://doi.org/10.1007/s10845-024-02323-4.
 
 TREVISO, M. et al. Efficient methods for Natural Language Processing: a
-survey. Transactions of the Association for Computational Linguistics,
-v. 11, p. 826--860, 2023.
+survey. *Transactions of the Association for Computational Linguistics*,
+v. 11, p. 826--860, 2023. DOI: https://doi.org/10.1162/tacl_a_00577.
 
 ZHANG, H.; ZHANG, Y.; LI, J.; LIU, J.; JI, L. A survey on learning with
 noisy labels in Natural Language Processing: how to train models with
-label noise. Engineering Applications of Artificial Intelligence, v.
-146, art. 110157, 2025.
+label noise. *Engineering Applications of Artificial Intelligence*, v.
+146, art. 110157, 2025. DOI:
+https://doi.org/10.1016/j.engappai.2025.110157.
 
 **APÊNDICE A — CATEGORIAS DO CORPUS E DAS PARTIÇÕES**
 
