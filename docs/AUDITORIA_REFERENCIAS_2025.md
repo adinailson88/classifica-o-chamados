@@ -180,14 +180,10 @@ quando falta o dado; aqui o dado é a própria ausência, confirmada):
 - **Capra (1996), Odum (1971), Cochran (1977):** monografias sem DOI
   atribuído (buscas CrossRef retornaram obras de terceiros não
   correspondentes, rejeitadas).
-- **Efron; Tibshirani (1993):** localizado apenas DOI de um capítulo
-  específico da obra ("Introduction"), não da obra completa citada;
-  não inserido, para não citar parte pelo todo.
 - **El-Yaniv; Wiener (2010):** JMLR não atribuiu DOI a este volume
   (confirmado no metadado oficial do artigo no GitHub da JMLR).
-- **Guo et al. (2017), Kohavi (1995):** proceedings PMLR/IJCAI sem DOI
-  próprio nessas plataformas (apenas identificador interno não-DOI da
-  ACM em um caso, descartado por não ser DOI real).
+- **Guo et al. (2017):** proceedings PMLR sem DOI próprio nessa
+  plataforma.
 - **Holm (1979):** Scandinavian Journal of Statistics, 1979; nenhum DOI
   localizado (apenas link estável JSTOR).
 - **Marcuzzo et al. (2022):** conferido diretamente na página da ACL
@@ -196,6 +192,46 @@ quando falta o dado; aqui o dado é a própria ausência, confirmada):
   em periódico não recebeu DOI, diferente da versão arXiv).
 - **Platt (1999):** busca por título retornou obra distinta; nenhum DOI
   correto localizado.
+
+### 4.8 Correção complementar (auditoria independente, 14/08/2026)
+
+A auditoria independente do PR #212 apontou três bloqueadores nesta
+rodada, corrigidos nesta correção complementar:
+
+- **Brown et al. (2020):** a Seção 4.3 já descrevia a substituição por
+  "BROWN, T. B. et al.", mas a entrada na lista de referências
+  permanecia com os sete autores nominais seguidos de "et al."
+  (divergência entre relatório e artigo). Corrigida para
+  "BROWN, T. B. et al.", conforme já documentado.
+- **Efron; Tibshirani (1993):** novo DOI localizado e confirmado para a
+  obra completa (não apenas um capítulo): `10.1201/9780429246593`
+  (DOI resolver / CrossRef). Inserido na referência; removida da lista
+  de referências sem DOI (Seção 4.7).
+- **Kohavi (1995):** o identificador `10.5555/1643031.1643047` é um DOI
+  real — o prefixo `10.5555` é um prefixo DOI registrado, atribuído às
+  Digital Library proceedings referenciadas pelo IJCAI 1995 — e não um
+  identificador interno não-DOI, como afirmado incorretamente na versão
+  anterior desta auditoria. Inserido na referência; removida da lista de
+  referências sem DOI (Seção 4.7).
+
+**Contagens finais harmonizadas** (substituem todos os valores
+anteriores desta rodada, incluindo "23 inseridos", "10 sem DOI" e "13
+sem DOI" citados em versões anteriores deste documento, do corpo do PR
+#212 e do changelog):
+
+| Métrica | Valor |
+|---|---:|
+| Total de referências | 44 |
+| Referências com ao menos um DOI | 33 |
+| Referências sem DOI | 11 |
+| Identificadores/URLs DOI no texto (Shannon possui dois) | 34 |
+| Referências que passaram a ter DOI em relação à base | 30 |
+| Novos identificadores DOI (Shannon recebeu dois) | 31 |
+| DOIs preexistentes apenas reformatados (Lin; Morais, Paula e Reis; Souza, Nogueira e Lotufo) | 3 |
+
+O DOI do arXiv de Liu; Benge; Jiang (2023) está incluído nesses totais
+(entre as 30 referências que passaram a ter DOI e os 33 com DOI); não é
+contado novamente como categoria aditiva separada.
 
 ## 5. Correção científica pontual — Introdução
 
@@ -234,7 +270,9 @@ mantido por já concordar com a nova redação.
 | Chamadas autor-data inteiramente em caixa alta | 0 |
 | Ordem de autoria de Marcuzzo | corrigida e conferida |
 | Ocorrências de "menos de 2%" | 0 |
-| DOIs verificados em fonte primária | 44/44 (23 inseridos, 3 reformatados, 1 completado com URL/acesso, 10 conferidos como inexistentes por publicação, 1 sem alteração — Lin, já correto) |
+| Brown et al. (2020) | `BROWN, T. B. et al.` |
+| Referências com ao menos um DOI / sem DOI | 33 / 11 (34 identificadores no texto — Shannon possui dois) |
+| DOIs verificados em fonte primária | 44/44 (30 referências passaram a ter DOI em relação à base — 31 novos identificadores, pois Shannon recebeu dois —, 3 preexistentes reformatados, 11 confirmadas sem DOI atribuído) |
 | Destaque tipográfico do título da publicação | uniforme nas 44 entradas |
 
 ### 6.2 Testes

@@ -1230,8 +1230,7 @@ Natural Language Processing Model for Managing Maintenance Requests in
 Buildings. *Buildings*, v. 10, n. 9, art. 160, 2020. DOI:
 https://doi.org/10.3390/buildings10090160.
 
-BROWN, T. B.; MANN, B.; RYDER, N.; SUBBIAH, M.; KAPLAN, J.; DHARIWAL,
-P.; NEELAKANTAN, A. et al. Language models are few-shot learners. In:
+BROWN, T. B. et al. Language models are few-shot learners. In:
 *Advances in Neural Information Processing Systems 33 (NeurIPS 2020)*.
 Red Hook: Curran Associates, 2020. p. 1877--1901.
 
@@ -1270,7 +1269,7 @@ of Statistics*, v. 7, n. 1, p. 1--26, 1979. DOI:
 https://doi.org/10.1214/aos/1176344552.
 
 EFRON, B.; TIBSHIRANI, R. J. *An introduction to the bootstrap*. New York:
-Chapman & Hall/CRC, 1993.
+Chapman & Hall/CRC, 1993. DOI: https://doi.org/10.1201/9780429246593.
 
 EL-YANIV, R.; WIENER, Y. On the foundations of noise-free selective
 classification. *Journal of Machine Learning Research*, v. 11, p.
@@ -1320,7 +1319,8 @@ https://doi.org/10.1038/s41598-024-58937-4.
 KOHAVI, R. A study of cross-validation and bootstrap for accuracy
 estimation and model selection. In: INTERNATIONAL JOINT CONFERENCE ON
 ARTIFICIAL INTELLIGENCE, 14., 1995, Montreal. *Proceedings \[\...\]*. San
-Francisco: Morgan Kaufmann, 1995. p. 1137--1143.
+Francisco: Morgan Kaufmann, 1995. p. 1137--1143. DOI:
+https://doi.org/10.5555/1643031.1643047.
 
 LI, Y.; LIU, Y.; ZHANG, J.; CAO, L.; WANG, Q. Automated analysis and
 assignment of maintenance work orders using natural language processing.
