@@ -1432,6 +1432,9 @@ as 41 categorias que sustentaram suporte nas cinco dobras e compõem as
 % 1 a 4 das tabelas do corpo.
 \renewcommand{\thetable}{A\arabic{table}}
 \setcounter{table}{0}
+% Barreira para impedir que a Tabela A1 (float) suba antes do titulo e
+% do paragrafo introdutorio na pagina nova aberta pelo \clearpage acima.
+\FloatBarrier
 ```
 
 ```{=latex}
