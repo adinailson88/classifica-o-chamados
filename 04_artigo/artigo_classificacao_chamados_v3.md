@@ -1195,9 +1195,8 @@ validação temporal (Subseção 5.3).
 As limitações mais consequentes são o avaliador único sem segunda
 avaliação independente, a ausência de validação temporal pela falta de
 data de abertura no corpus congelado, e o alcance restrito a uma única
-instituição, idioma e taxonomia (Subseção 5.3). Nenhuma delas invalida o
-protocolo: qualifica o que ele já entrega e delimita o que ainda depende
-de trabalho futuro para ser afirmado.
+instituição, idioma e taxonomia (Subseção 5.3). Essas limitações delimitam o alcance dos
+resultados e orientam as validações futuras.
 
 A continuidade da tese depende de reconstituir o corte preservando a data
 de abertura, o que viabiliza avaliação em períodos sucessivos, de

@@ -28,6 +28,12 @@ commit adicional na mesma branch, sobre o HEAD
 `9120e6d88c42ca0ef38d454a8a63a40b78db4710` e no commit automático do PDF
 `601248a50827b50309ea59d0270e8acad4c2cbe6`.
 
+**Terceira microcorreção (ver Seção 9):** substituição da formulação
+defensiva das Considerações Finais por uma frase neutra, sincronização
+com nove commits de timestamp de `origin/main` e recontagem do corpo
+científico (8.972 → 8.961 palavras). Sem nova PR, sem merge — commit
+adicional na mesma branch, sobre o HEAD `e99b7093f70997883ba9cc7bf308faf7e6e814ba`.
+
 ## 0. Estado verificado antes de iniciar
 
 - `git fetch origin --prune` e `gh pr list --state open`: nenhuma PR aberta.
@@ -410,6 +416,51 @@ PLANO_EXECUCAO_ATUAL.md
 docs/AUDITORIA_PARECER_ARTIGO_PROJETO.md (este arquivo)
 ```
 
-Não alterados: `docs/dados/*.json`, `docs/dados/ensemble/**`, planilha
-viva, repositório `malha-ia`, qualquer resultado, corpus, partição ou
-hash canônico.
+Não alterados: `docs/dados/*.json` (à exceção de `matriz_proveniencia.json`,
+campo `gerado_em`), `docs/dados/ensemble/**`, planilha viva, repositório
+`malha-ia`, qualquer resultado, corpus, partição ou hash canônico.
+
+## 9. Terceira microcorreção (mesma data)
+
+Sincronização com nove commits de `origin/main` (dados de dashboard e de
+estatística), verificados um a um como alteração exclusiva do campo
+`gerado_em`/`atualizado_em` em `docs/dados/*.json`, sem número científico,
+de corpus, de partição ou de resultado canônico modificado; incorporados
+por merge não destrutivo (commit `b855b29d`).
+
+Nas Considerações Finais do artigo, a frase "Nenhuma delas invalida o
+protocolo: qualifica o que ele já entrega e delimita o que ainda depende
+de trabalho futuro para ser afirmado" foi substituída por "Essas
+limitações delimitam o alcance dos resultados e orientam as validações
+futuras". A ressalva sobre a impossibilidade de comparar o desempenho do
+BERTimbau sem execução equivalente permanece inalterada no corpo do
+artigo. Nenhuma explicação sobre a substituição foi acrescentada ao
+texto do artigo.
+
+Corpo científico recontado pela mesma rotina histórica: de 8.972 para
+**8.961 palavras**, dentro da faixa-meta de 8.850 a 9.000.
+
+Validações: **767 testes aprovados**, `py_compile` limpo, matriz de
+proveniência sem divergência (0 artefatos com hash divergente, 0
+artefatos ausentes, 0 números legados), hash canônico completo
+`1e4762438a7e3627d3e32c1025f6bcb169e786881d8e86207806fdf98846409a`
+preservado; único campo alterado em `docs/MATRIZ_PROVENIENCIA.md` e em
+`docs/dados/matriz_proveniencia.json` é `gerado_em`.
+
+Arquivos alterados nesta microcorreção:
+
+```text
+04_artigo/artigo_classificacao_chamados_v3.md
+04_artigo/README.md
+PLANO_ARTIGO_CAPITULO.md
+PLANO_EXECUCAO_ATUAL.md
+docs/AUDITORIA_PARECER_ARTIGO_PROJETO.md (este arquivo)
+docs/MATRIZ_PROVENIENCIA.md
+docs/dados/matriz_proveniencia.json
+```
+
+Não alterados: demais `docs/dados/*.json`, `docs/dados/ensemble/**`,
+planilha viva, repositório `malha-ia`, qualquer resultado, corpus,
+partição ou hash canônico. Nenhum modelo executado; zero retreino: fits
+de modelo-base = 0, fits de stacking = 0, execuções LSTM = 0, execuções
+BERTimbau = 0.
