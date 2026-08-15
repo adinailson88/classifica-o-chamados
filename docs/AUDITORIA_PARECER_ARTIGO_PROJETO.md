@@ -17,6 +17,17 @@ contagem entre este documento e `04_artigo/README.md`/`PLANO_ARTIGO_CAPITULO.md`
 Sem nova PR, sem merge — commit adicional na mesma branch, sobre o HEAD
 `b5007a9c35b2b4f32007d4b2941cb92c9756209e`.
 
+**Segunda microcorreção (mesma data, ver Seção 8):** remoção da seção
+"Disponibilidade de dados e código" (promessa de disponibilização futura),
+auditoria final repetida dos itens 1 a 12 diretamente sobre o texto do
+artigo, confirmação do item 13 como pendência fora de escopo, recontagem
+do corpo científico (8.999 → 8.972 palavras), validações completas e
+regeneração/inspeção visual integral do PDF. Sem nova PR, sem merge —
+commit adicional na mesma branch, sobre o HEAD
+`3d86533800986ff2dc6765e8f26a59066910b1b9`, resultando no commit de texto
+`9120e6d88c42ca0ef38d454a8a63a40b78db4710` e no commit automático do PDF
+`601248a50827b50309ea59d0270e8acad4c2cbe6`.
+
 ## 0. Estado verificado antes de iniciar
 
 - `git fetch origin --prune` e `gh pr list --state open`: nenhuma PR aberta.
@@ -349,7 +360,45 @@ exclusive — a mesma rotina histórica usada nas rodadas anteriores.
 
 ### 8.6 Validações executadas
 
-Registradas na Seção 9 abaixo, após execução.
+- `python -m unittest discover -s tests`: **767 testes aprovados**, 0 falhas.
+- `python -m py_compile src/*.py tests/*.py`: limpo, sem erro.
+- `python src/matriz_proveniencia.py`: 0 artefatos com hash divergente, 0
+  artefatos do congelamento ausentes, 0 números legados no artigo; hash
+  canônico completo `1e4762438a7e3627d3e32c1025f6bcb169e786881d8e86207806fdf98846409a`
+  preservado em `docs/MATRIZ_PROVENIENCIA.md` e em `docs/dados/rodada_canonica.json`.
+- Commit único `9120e6d88c42ca0ef38d454a8a63a40b78db4710`, mensagem
+  "docs: remove promessa futura e conclui auditoria do parecer", incluindo
+  a atualização de `docs/dados/matriz_proveniencia.json` (único campo
+  alterado: `gerado_em`). Push para `origin/docs/correcoes-parecer-artigo-projeto`.
+- Workflow oficial `artigo_pdf.yml` disparado via `gh workflow run` na
+  própria branch (run `31903959626`), concluído com sucesso em 40s.
+  Commit automático do PDF: `601248a50827b50309ea59d0270e8acad4c2cbe6`
+  ("pdf do artigo gerado automaticamente [skip ci]").
+- PDF renderizado via PyMuPDF a 170 dpi: **21 páginas**, dentro da faixa
+  21–23, preservadas em relação à rodada anterior.
+- Inspeção visual: **21 das 21 páginas**, individualmente. Confirmados
+  sem alteração indevida: título, autores, Resumo/Abstract (página 1);
+  Introdução com "biossistema construído" e Capra/Odum/Grimm (página 2);
+  Figura 1 e revisão humana (página 4); Tabela 1 com ausência de busca de
+  hiperparâmetros (página 5); `p ≤ 0,0005` renderizado corretamente
+  (página 6, Subseção 3.4); Tabela 2 e Figura 2 (páginas 7–8); Tabela 3
+  com legenda "Neutros" e fórmula 18,53% (página 9); Tabela 4 e Figura 3
+  (página 10); Naive Bayes sem reponderação (página 11); Figura 5 e
+  duplicação taxonômica (página 12); Figura 6, Tabela 5 e curva ABC global
+  (página 13); reconciliação 598/593 (página 14, Subseção 5.2); otimismo
+  da seleção do LinearSVC (página 15, Subseção 5.3); **transição de
+  "6. CONSIDERAÇÕES FINAIS" diretamente para "REFERÊNCIAS", sem a seção
+  removida e sem título órfão** (página 16); Capra (1997) e Grimm *et al.*
+  (2000) na posição alfabética correta (página 17); Odum (1996) e
+  Ticket-BERT como `*Preprint*` (página 18); fim das referências (página
+  19); início do Apêndice A com Tabela A1 e parágrafo distinguindo A1 de
+  A2/A3 (página 20); Tabelas A2 e A3 com "classe da curva ABC interna ao
+  tipo" (página 21). Nenhuma sobreposição, corte, página vazia ou
+  problema de ordem encontrado em nenhuma página.
+- Contagem de referências recontada programaticamente (blocos separados
+  por linha em branco entre `**REFERÊNCIAS**` e `APÊNDICE A`, descontados
+  dois artefatos de LaTeX bruto — `\FloatBarrier`/`\clearpage`, não
+  entradas bibliográficas): **44 referências**, inalterado.
 
 ### 8.7 Arquivos alterados nesta microcorreção
 
