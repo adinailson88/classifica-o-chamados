@@ -136,15 +136,42 @@ DOI do artigo de Grimm), em 15/08/2026.
 
 ## 3. Inspeção visual do PDF
 
-Ver Seção 8 do relatório final ao usuário para o resultado completo
-(workflow, run, número de páginas, páginas inspecionadas). Esta seção
-resume apenas o que constava do parecer como pontos de atenção: página 1
-(autores/e-mails), página 5 (cabeçalho da Tabela 1), página 10 (vão antes
-da Tabela 4), página 12 (Figuras 4 e 5), página 13 (Figura 6), páginas 15
-e 16 (títulos órfãos), página 20 (ordem título → introdução → Tabela A1),
-página 21 (Tabela A2 e nota de fonte). Nenhuma correção visual das PRs
-#211–#214 foi refeita nesta rodada sem antes confirmar que o problema
-persistia no PDF atual.
+PDF regenerado duas vezes pelo workflow oficial (`artigo_pdf.yml`,
+`workflow_dispatch`) na própria branch, runs `31900772924` e
+`31901095700`. **21 páginas**, dentro da faixa 21–23. Renderização real
+via PyMuPDF a 150–400 dpi (não apenas o LaTeX intermediário), 18 das 21
+páginas inspecionadas individualmente (1, 2, 5–21).
+
+**Achado na primeira renderização (`31900772924`), corrigido antes da
+segunda:** o caractere Unicode cru `≤` inserido no item 8 foi
+silenciosamente descartado pelo pandoc/xelatex ao converter para PDF,
+deixando "com *p* 0,0005" sem o operador na página 8. Substituído por
+`$\leq$` em LaTeX — mesmo padrão já usado para $\rho$ e $\lambda$ em
+rodada anterior (ver `PLANO_EXECUCAO_ATUAL.md`, rodada de posicionamento
+editorial). Confirmado corrigido na segunda renderização
+(`31901095700`): "com *p* ≤ 0,0005" renderiza corretamente.
+
+Pontos do parecer conferidos (numeração de página pode ter deslocado
+frente ao parecer original, pois a estrutura do artigo mudou nas Rodadas
+12–13, já mescladas em `main` antes desta rodada): página 1 (autores e
+e-mails corretos), página 5 (Tabela 1 íntegra, com a frase de ausência de
+busca de hiperparâmetros), página 8 (Tabela 2, Figura 2 e o teste global
+com `p ≤ 0,0005`, após a correção acima), página 9 (Tabela 3 com a
+legenda de "Neutros" e a fórmula 18,53%), página 10 (Tabela 4, sem vão
+antes dela), página 11 (Figura 4 e a frase sobre o Naive Bayes sem
+reponderação), página 12 (Figura 5), página 13 (Figura 6, Tabela 5 e a
+distinção ABC global/interna ao tipo), página 14 (Subseção 5.2 com a
+reconciliação 598/593), página 15 (Subseção 5.3 com o otimismo da seleção
+do LinearSVC, sem título órfão), página 16 (Considerações Finais e início
+das Referências, sem título órfão), páginas 17–19 (Capra 1997, Grimm
+*et al.* 2000 com DOI completo, Ticket-BERT como preprint, Li e
+Bouabdallaoui inalterados e corretos), página 20 (ordem título →
+introdução → Tabela A1, com o novo parágrafo distinguindo A1 de A2/A3),
+página 21 (Tabela A2 com "classe da curva ABC interna ao tipo" e Tabela
+A3, ambas com nota de fonte visível). Nenhuma sobreposição, corte,
+título órfão ou tabela fora de ordem encontrada. Nenhuma correção visual
+das PRs #211–#214 foi refeita nesta rodada — o único ajuste visual foi o
+`$\leq$` acima, decorrente diretamente do item 8 desta própria rodada.
 
 ## 4. Controle de extensão
 
