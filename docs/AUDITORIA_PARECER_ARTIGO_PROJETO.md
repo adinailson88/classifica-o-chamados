@@ -260,3 +260,107 @@ Zero retreinamentos. Zero fits de modelos-base. Zero fits de stacking.
 Zero execuções de LSTM ou BERTimbau. Zero alterações em planilha, corpus,
 partições ou resultados canônicos. Nenhuma escrita foi realizada na
 planilha viva.
+
+## 8. Segunda microcorreção (15/08/2026): remoção da promessa de disponibilização futura
+
+**Branch:** `docs/correcoes-parecer-artigo-projeto` (mesma), sem nova PR.
+**Commit-base:** HEAD ao final da microcorreção do item 10 (Odum),
+`3d86533800986ff2dc6765e8f26a59066910b1b9`.
+
+### 8.1 Remoção do texto
+
+O bloco a seguir, localizado entre as Considerações Finais e a lista de
+Referências, foi excluído integralmente do artigo, sem substituição por
+outra declaração defensiva:
+
+> **DISPONIBILIDADE DE DADOS E CÓDIGO**
+>
+> Os dados e o código necessários à reprodução das análises, tabelas e
+> figuras serão disponibilizados em repositório público permanente
+> associado ao artigo.
+
+O trecho prometia uma ação administrativa futura sem conteúdo científico
+correspondente, contrária à diretriz editorial de texto afirmativo,
+direto e proporcional às evidências. A transição do artigo passa a ir
+diretamente das Considerações Finais para as Referências.
+
+### 8.2 Busca por promessas equivalentes
+
+```bash
+rg -n -i "será disponibiliz|serão disponibiliz|disponibilidade de dados|repositório público permanente|dados e código" 04_artigo/artigo_classificacao_chamados_v3.md
+```
+
+Nenhuma outra ocorrência encontrada no artigo após a remoção. Buscas
+complementares por variações ("será/serão publicado(s)", "ficará/estará
+disponível", "em versão/trabalho futuro") também não retornaram
+ocorrência. Nos documentos de acompanhamento (`04_artigo/README.md`,
+`PLANO_ARTIGO_CAPITULO.md`, `PLANO_EXECUCAO_ATUAL.md`, este arquivo), a
+única ocorrência remanescente da frase é uma menção histórica em
+`04_artigo/README.md` (linha da Rodada 12), que descreve a criação da
+seção "Disponibilidade de dados e código" naquela rodada como fato já
+ocorrido — registro histórico correto, não uma descrição do estado
+vigente do artigo, portanto não alterada.
+
+### 8.3 Auditoria final dos itens 1 a 12
+
+Repetida diretamente sobre o texto do artigo (`grep`/leitura de trecho),
+não apenas sobre o estado declarado na matriz da Seção 1. Todos os 12
+itens permanecem presentes e coerentes com a correção registrada:
+
+| # | Verificação repetida | Localização confirmada no artigo |
+|---|---|---|
+| 1 | "Das 598 alterações... 593... cinco ficam fora... não coincide com as 13.972... não são atribuídos diretamente às 593 alterações" | Subseção 5.2 |
+| 2 | "6,29 horas só de treino"; "6,44 horas por dobra e 32,2 horas para as cinco" | Subseção 4.5 |
+| 3 | Legenda "Neutros" na Tabela 3; fórmula "(475 + 53) / 2.849 = 18,53%" | Subseção 4.2 |
+| 4 | "curva ABC global"; legenda "classe da curva ABC interna ao tipo" na Tabela A2 | Subseção 4.5 e Tabela A2 |
+| 5 | Frase sobre uso das mesmas predições *out-of-fold* para seleção e estimativa | Subseção 5.3 |
+| 6 | "alvo de 0,95 de acurácia" (Resumo); "a target accuracy of 0.95" (Abstract) | Resumo e Abstract |
+| 7 | "busca de hiperparâmetros: a comparação avalia as configurações da Tabela..." | Subseção 3.3 |
+| 8 | "*p* $\leq$ 0,0005" (LaTeX, renderiza como ≤) | Subseção 4.1 |
+| 9 | "biossistema construído — definição operacional aqui..." | Introdução |
+| 10 | CAPRA (1997); GRIMM *et al.* (2000); ODUM, E. P. (1996) nas Referências | Lista de Referências |
+| 11 | "Naive Bayes é o único modelo sem reponderação de classes"; parágrafo A1/A2-A3 | Subseção 4.4 e introdução do Apêndice A |
+| 12 | "Ticket-BERT, preprint no arXiv"; entrada com `*Preprint*` nas Referências | Subseção 2.1 e Referências |
+
+Nenhum item ausente, contraditório ou apenas parcialmente implementado.
+Nenhuma decisão científica reaberta; nenhum resultado numérico alterado.
+
+### 8.4 Item 13
+
+Confirmado como pendência fora do escopo desta PR, para PR separada, nos
+três documentos de acompanhamento (`docs/AUDITORIA_PARECER_ARTIGO_PROJETO.md`
+Seção 0, `PLANO_ARTIGO_CAPITULO.md`, `PLANO_EXECUCAO_ATUAL.md`). Não
+implementado nesta rodada.
+
+### 8.5 Controle de extensão
+
+Rotina de contagem: divisão por espaços em branco (`str.split()`) do
+texto-fonte Markdown entre `**1. INTRODUÇÃO**` e `**REFERÊNCIAS**`,
+exclusive — a mesma rotina histórica usada nas rodadas anteriores.
+
+- Contagem antes da remoção (estado ao final da microcorreção do item 10):
+  **8.999 palavras**.
+- Contagem após a remoção da seção "Disponibilidade de dados e código":
+  **8.972 palavras**.
+- Diferença: −27 palavras, correspondente exatamente ao texto removido;
+  nenhum texto foi acrescentado para compensar a remoção ou para retornar
+  a um valor específico.
+- Permanece dentro da faixa-meta de 8.850 a 9.000 palavras.
+
+### 8.6 Validações executadas
+
+Registradas na Seção 9 abaixo, após execução.
+
+### 8.7 Arquivos alterados nesta microcorreção
+
+```text
+04_artigo/artigo_classificacao_chamados_v3.md
+04_artigo/README.md
+PLANO_ARTIGO_CAPITULO.md
+PLANO_EXECUCAO_ATUAL.md
+docs/AUDITORIA_PARECER_ARTIGO_PROJETO.md (este arquivo)
+```
+
+Não alterados: `docs/dados/*.json`, `docs/dados/ensemble/**`, planilha
+viva, repositório `malha-ia`, qualquer resultado, corpus, partição ou
+hash canônico.

@@ -1209,12 +1209,6 @@ essas etapas, a camada classificada e auditável poderá sustentar modelos de
 previsão de demanda, de custo e de priorização multicritério de
 intervenções sobre o biossistema construído.
 
-**DISPONIBILIDADE DE DADOS E CÓDIGO**
-
-Os dados e o código necessários à reprodução das análises, tabelas e
-figuras serão disponibilizados em repositório público permanente associado
-ao artigo.
-
 **REFERÊNCIAS**
 
 ANDERSON, M. J.; TER BRAAK, C. J. F. Permutation tests for

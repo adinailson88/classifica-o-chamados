@@ -156,12 +156,16 @@ Rodada 12); o corpus é descrito como o de uma instituição federal de
 ensino superior (IFES), sem nomear a UFSB fora do bloco de afiliação dos
 autores.
 
-**Corpo científico: 8.999 palavras**, medidas pela mesma rotina única
+**Corpo científico: 8.972 palavras**, medidas pela mesma rotina única
 (contagem de palavras do Markdown-fonte entre "**1. INTRODUÇÃO**" e
 "**REFERÊNCIAS**", exclusive). Partiu de 8.855 (estado de `main` no início
-da Rodada 14) e recebeu as adições textuais dos itens 1 a 12 do parecer
+da Rodada 14), recebeu as adições textuais dos itens 1 a 12 do parecer
 científico, compensadas por cortes locais de redundância nas mesmas
-subseções tocadas, permanecendo dentro da faixa-meta de 8.850 a 9.000.
+subseções tocadas, chegando a 8.999; a remoção subsequente da seção
+"Disponibilidade de dados e código" (promessa de disponibilização futura
+sem conteúdo científico) levou o corpo a 8.972 palavras, sem nenhum texto
+acrescentado para compensar a remoção. Permanece dentro da faixa-meta de
+8.850 a 9.000.
 
 **Material suplementar: S17**, inalterado nesta rodada — ver
 `docs/AUDITORIA_PARECER_ARTIGO_PROJETO.md` para os itens 1 a 12 e
