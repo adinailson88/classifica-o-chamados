@@ -464,3 +464,18 @@ planilha viva, repositório `malha-ia`, qualquer resultado, corpus,
 partição ou hash canônico. Nenhum modelo executado; zero retreino: fits
 de modelo-base = 0, fits de stacking = 0, execuções LSTM = 0, execuções
 BERTimbau = 0.
+
+Commit de texto `b81cc963`, push para
+`origin/docs/correcoes-parecer-artigo-projeto`. Workflow oficial
+`artigo_pdf.yml` disparado via `gh workflow run` na própria branch (run
+`31904852982`), concluído com sucesso em 29s. Commit automático do PDF:
+`74e7e9d00bce3f979749375c8bda32dd71c435e9`.
+
+PDF renderizado via PyMuPDF a 170 dpi: **21 páginas**, dentro da faixa
+21–23, preservadas em relação à rodada anterior. Inspeção visual nas
+páginas 1 (título, Resumo/Abstract), 15 (Subseção 5.3, ressalva do
+BERTimbau preservada), 16 (Considerações Finais com a nova frase e
+transição direta para REFERÊNCIAS, sem título órfão), 17 (lista de
+referências íntegra) e 21 (Tabelas A2/A3, fim do documento sem página
+vazia): nenhuma sobreposição, corte, título órfão ou página vazia
+encontrado.
