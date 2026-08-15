@@ -111,11 +111,16 @@ reconciliação 598/593, decomposição do custo do BERTimbau, definição de
 da seleção do LinearSVC, redação do alvo de 0,95 no Resumo/Abstract,
 ausência de busca de hiperparâmetros, renderização `p ≤ 0,0005`,
 "biossistema construído" como definição operacional autoral,
-harmonização parcial de Capra/Odum/Grimm com o projeto, meia frase sobre
+harmonização de Capra/Odum/Grimm com o projeto, meia frase sobre
 o Naive Bayes e a introdução do Apêndice A, e identificação do Ticket-BERT
 como preprint — sem reabrir decisões científicas, sem retreinar modelo
 algum e sem consolidar/renumerar o material suplementar (item 13, fora do
-escopo, fica para PR separada). Detalhe completo em
+escopo, fica para PR separada). Em microcorreção subsequente na mesma
+branch, o bloqueio do item 10 (Odum) foi resolvido a partir do acervo do
+projeto (Eugene P. Odum, *Fundamentos de ecologia*, 6. ed., 1996, em vez
+de Howard T. Odum), com ressalva bibliográfica apenas sobre a confirmação
+do ano na página de créditos do exemplar, e a inspeção visual do PDF foi
+completada nas 21 das 21 páginas. Detalhe completo em
 `docs/AUDITORIA_PARECER_ARTIGO_PROJETO.md`. Zero fits de modelo-base, zero
 fits de stacking, zero execuções de LSTM ou BERTimbau.
 
@@ -138,10 +143,12 @@ distinguir a base de rótulo de A1 (categoria histórica) da usada em A2/A3
 subseções (5.1 a 5.4); Considerações Finais em cinco parágrafos curtos.
 Lista de referências com 44 entradas, todas citadas no corpo, sem
 duplicatas nem citação órfã; nesta rodada, Capra passou a 1997, Grimm
-*et al.* passou de 2008 (*Science*) para 2000 (*BioScience*) e a entrada
-de Liu; Benge; Jiang (Ticket-BERT) passou a se declarar explicitamente
-como preprint sem publicação revisada por pares localizada — Odum
-permanece inalterado por bloqueio documentado (ver auditoria).
+*et al.* passou de 2008 (*Science*) para 2000 (*BioScience*), Odum passou
+de H. T. Odum (1971) para E. P. Odum, *Fundamentos de ecologia*, 6. ed.,
+Gulbenkian, 1996 (microcorreção posterior, a partir do acervo do
+projeto), e a entrada de Liu; Benge; Jiang (Ticket-BERT) passou a se
+declarar explicitamente como preprint sem publicação revisada por pares
+localizada.
 
 **Título vigente:** "Classificação de chamados de manutenção predial com
 aprendizado de máquina: desempenho e limites da automação" (reformulado na

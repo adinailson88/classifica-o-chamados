@@ -11,6 +11,12 @@
 **Commit-base:** `ce9211d2a3b5dcc9a802691aa82294f6b83428a1` (`origin/main` no início da rodada)
 **Data:** 15/08/2026, fuso America/Bahia
 
+**Microcorreção (mesma data):** resolvido o bloqueio do item 10 (Odum),
+completada a inspeção visual às 21 páginas, e corrigidas divergências de
+contagem entre este documento e `04_artigo/README.md`/`PLANO_ARTIGO_CAPITULO.md`.
+Sem nova PR, sem merge — commit adicional na mesma branch, sobre o HEAD
+`b5007a9c35b2b4f32007d4b2941cb92c9756209e`.
+
 ## 0. Estado verificado antes de iniciar
 
 - `git fetch origin --prune` e `gh pr list --state open`: nenhuma PR aberta.
@@ -20,7 +26,16 @@
   `py_compile` limpo, `python src/matriz_proveniencia.py` sem divergência
   (hash `1e4762438a7e` confirmado).
 - Contagem inicial do corpo científico (rotina histórica, entre
-  `**1. INTRODUÇÃO**` e `**REFERÊNCIAS**`, exclusive): **8.948 palavras**.
+  `**1. INTRODUÇÃO**` e `**REFERÊNCIAS**`, exclusive): **8.855 palavras**,
+  conforme `origin/main`, `04_artigo/README.md` e `PLANO_ARTIGO_CAPITULO.md`
+  no início da rodada. Nota de reconciliação: uma recontagem independente
+  desta rodada, por *split* de espaços em branco sobre o mesmo texto-fonte
+  em `ce9211d2` (o commit-base), mediu 8.948 palavras — 93 a mais. Não
+  existe script de contagem canônico versionado (a rotina é descrita como
+  "ad hoc" desde a Rodada 7); a divergência provavelmente decorre de
+  método de contagem distinto entre rodadas, e não de texto diferente.
+  Mantido 8.855 como valor de referência por ser o registrado em três
+  documentos independentes antes desta microcorreção.
 
 **Achado relevante não solicitado como item, mas registrado por
 transparência:** `PLANO_EXECUCAO_ATUAL.md` e `PLANO_ARTIGO_CAPITULO.md`
@@ -56,7 +71,7 @@ atualização dos planos (Seção 6 abaixo) reconcilia essa divergência.
 | 7 | Declarar ausência de busca de hiperparâmetros | Subseção 3.3 não mencionava o ponto | `src/modelos_zoo.py`/Tabela 1: hiperparâmetros fixos, sem `GridSearchCV`/`RandomizedSearchCV` no protocolo canônico | Frase acrescentada à Subseção 3.3: nenhum dos sete modelos passou por busca de hiperparâmetros; valores não representam o máximo desempenho alcançável | `04_artigo/artigo_classificacao_chamados_v3.md` | **resolvido** |
 | 8 | `p ≤ 0,0005` em vez de `p < 0,0005` (o valor é limite superior da permutação) | Artigo, `docs/INFERENCIA_AGRUPADA.md` e `src/inferencia_agrupada.py` usavam `p <` | `docs/dados/inferencia_agrupada.json`: `p_permutacional = 0.0005`, `p_permutacional_e_limite_superior = true` | Artigo, `docs/INFERENCIA_AGRUPADA.md` e a função `renderizar_markdown` de `src/inferencia_agrupada.py` passaram a usar `p ≤`; teste unitário dedicado criado | `04_artigo/artigo_classificacao_chamados_v3.md`, `docs/INFERENCIA_AGRUPADA.md`, `src/inferencia_agrupada.py`, `tests/test_inferencia_agrupada.py` | **resolvido** (JSON canônico não tocado; permutações não recalculadas) |
 | 9 | "Biossistema construído" como definição operacional do autor, não terminologia de Capra/Odum/Grimm | Introdução citava Capra/Odum/Grimm logo após a definição, sem distinguir autoria do termo | Nenhum dos três textos-fonte emprega literalmente "biossistema construído" (ver item 10) | Parágrafo da Introdução reescrito: a expressão é apresentada como definição operacional proposta neste estudo; Capra/Odum/Grimm citados como fundamentação sistêmica/ecológica; texto declara explicitamente que o artigo não mede diretamente a retroalimentação ecológica | `04_artigo/artigo_classificacao_chamados_v3.md` | **resolvido** |
-| 10 | Harmonizar Capra, Odum e Grimm com o projeto de doutorado | Artigo citava Capra (1996), Odum (1971, *Environment, Power, and Society*), Grimm *et al.* (2008, *Science*) | Ver Seção 2 abaixo (verificação externa) | Capra: ano corrigido para 1997 (edição harmonizada); Grimm: substituído por Grimm *et al.* (2000), *BioScience*, DOI conferido via redirecionamento para Oxford Academic; Odum: **não alterado** | `04_artigo/artigo_classificacao_chamados_v3.md` | **parcial** — Capra e Grimm resolvidos; Odum bloqueado (ver Seção 2) |
+| 10 | Harmonizar Capra, Odum e Grimm com o projeto de doutorado | Artigo citava Capra (1996), Odum (1971, *Environment, Power, and Society*, H. T. Odum), Grimm *et al.* (2008, *Science*) | Ver Seção 2 abaixo (verificação externa); acervo do projeto (Google Drive) confirma autoria e edição de Odum | Capra: ano corrigido para 1997 (edição harmonizada); Grimm: substituído por Grimm *et al.* (2000), *BioScience*, DOI conferido via redirecionamento para Oxford Academic; Odum: substituído por E. P. Odum, *Fundamentos de ecologia*, 6. ed., Fundação Calouste Gulbenkian, 1996, conforme exemplar e ficha de leitura do acervo do projeto | `04_artigo/artigo_classificacao_chamados_v3.md` | **resolvido, com ressalva bibliográfica** — autoria e edição de Odum confirmadas pelo exemplar; o ano de 1996 é o do projeto e do nome do arquivo do acervo, não confirmado na página de créditos (ver Seção 2) |
 | 11 | Meia frase sobre Naive Bayes sem reponderação; introdução do Apêndice A explicando A1 vs A2/A3 | Subseção 4.4 não mencionava o desbalanceamento de classes do Naive Bayes; introdução do Apêndice A não distinguia a base das duas fontes de rótulo | Tabela 1: Naive Bayes é o único com "Balanceamento: nenhum"; Tabela A1 usa categoria histórica, Tabelas A2/A3 usam referência revisada | Frase acrescentada à Subseção 4.4 (sem atribuir todo o desempenho inferior a esse fator); parágrafo acrescentado à introdução do Apêndice A distinguindo A1 (histórica) de A2/A3 (referência revisada) e atribuindo diferenças à auditoria de rótulo, não a erro de transcrição | `04_artigo/artigo_classificacao_chamados_v3.md` | **resolvido** |
 | 12 | Inspeção visual do PDF (não refazer correções já feitas em PRs anteriores); Ticket-BERT como preprint arXiv; conferir Li 2024 e Bouabdallaoui 2020 | Referência do Ticket-BERT já citava `arXiv:2307.00108` e DOI, mas sem a palavra "preprint"; Li e Bouabdallaoui já citados corretamente com DOI e valores (15.623/0,83; 78%) | Verificação externa: `arxiv.org/abs/2307.00108`, `doi.org/10.1016/j.autcon.2024.105501`, `doi.org/10.3390/buildings10090160`; busca por publicação revisada por pares do Ticket-BERT não encontrou evidência (apenas `CoRR abs/2307.00108`) | Referência do Ticket-BERT marcada explicitamente como `*Preprint*`, com nota de que não foi localizada publicação revisada por pares; citação no corpo (Subseção 2.1) passou a dizer "Ticket-BERT, preprint no arXiv"; Li e Bouabdallaoui conferidos e mantidos sem alteração (já corretos); inspeção visual do PDF registrada na Seção 3 abaixo | `04_artigo/artigo_classificacao_chamados_v3.md` | **resolvido** (textual); inspeção visual do PDF na Seção 3 |
 
@@ -102,37 +117,46 @@ DOI do artigo de Grimm), em 15/08/2026.
   edição; se o autor tiver o exemplar físico do projeto em mãos, a página
   de crédito editorial resolve a divergência de forma definitiva.
 
-### Odum — bloqueado, não alterado
+### Odum — resolvido, com ressalva bibliográfica sobre o ano
 
-- **Achado crítico:** *Fundamentos de Ecologia* (a obra indicada pelo
-  projeto) é de autoria de **Eugene P. Odum** (com Gary W. Barrett nas
-  edições mais recentes), tradução portuguesa publicada pela Fundação
-  Calouste Gulbenkian (edições confirmadas: 1ª ed. 1973, 2ª ed. 1976, 7ª
-  ed. 2004) e também por editoras brasileiras (Cengage/Thomson). **Já o
-  artigo cita Howard T. Odum** (*Environment, Power, and Society*, John
-  Wiley & Sons/Wiley-Interscience, 1971, confirmado por catálogos de
-  editora e livrarias) — irmão de Eugene P. Odum, ecólogo distinto, autor
-  de obra distinta.
-- Não foi localizada, nas buscas realizadas, uma edição de
-  *Fundamentos de Ecologia* datada exatamente de 1996 (as edições
-  Gulbenkian encontradas são 1973/1976/2004; a edição Cengage brasileira
-  não teve o ano de publicação confirmado com precisão nesta auditoria).
-- Como o projeto de doutorado não está acessível a partir deste
-  repositório (`classificacao-chamados` é repositório separado, sem
-  vínculo com os arquivos da tese), não foi possível confirmar se a
-  citação "Odum" do projeto se refere a Eugene P. Odum ou a Howard T.
-  Odum — a diferença de autoria é substantiva, não apenas de edição.
-  `Informação insuficiente para verificar.`
-- **Decisão:** a referência do artigo (Howard T. Odum, 1971) **não foi
-  alterada**. Substituí-la por Eugene P. Odum sem confirmação da autoria
-  pretendida pelo projeto arriscaria atribuir ao artigo uma obra e um autor
-  diferentes dos que o parágrafo da Introdução efetivamente sustenta (a
-  passagem trata de retroalimentação sistêmica entre uso, falha e reparo,
-  tema mais próximo da ecologia de sistemas de H. T. Odum do que do
-  manual geral de ecologia de E. P. Odum). Registrado como **item
-  parcial/bloqueado**: o autor deve confirmar, a partir do texto do
-  projeto, qual dos dois Odum e qual edição pretendia citar antes de
-  qualquer harmonização adicional nesta referência.
+Bloqueio da rodada anterior levantado nesta microcorreção, a partir de
+evidência direta do acervo do projeto de doutorado (Google Drive,
+fornecida pelo autor):
+
+- pasta do acervo: `https://drive.google.com/drive/u/0/folders/1QEOknZEip_x7rN27OvVecWK071relki9`;
+- exemplar: `https://drive.google.com/file/d/11x0sHewIweIOnL2mk17lEypdSsm05Rs5/view`;
+- ficha de leitura: `https://drive.google.com/file/d/1L9vrXCVJTMIEEGLBT_1TsZsV-gNmpDR0/view`;
+- nome do arquivo no acervo: `1996_OUTRO_Ecologia_Odum_Fundamentos_Ecologia.pdf`.
+
+O exemplar e a ficha de leitura do acervo confirmam, sem ambiguidade, que
+o autor pretendido pelo projeto é **Eugene P. Odum**, autor de
+*Fundamentos de Ecologia*, na **6ª edição**, e não Howard T. Odum (autor
+de *Environment, Power, and Society*, citado erroneamente na versão
+anterior do artigo — achado da rodada anterior, que identificou os dois
+Odum como pessoas e obras distintas, mas não tinha, até então, acesso ao
+acervo para decidir entre eles).
+
+- **Autoria e edição:** confirmadas diretamente pelo exemplar do acervo
+  (Eugene P. Odum, 6. ed.) — não são mais uma inferência bibliográfica
+  externa, mas leitura direta da fonte primária do projeto.
+- **Ano (1996):** consta do projeto e do nome do arquivo do acervo
+  (`1996_OUTRO_...`), mas **não foi confirmado na página de créditos do
+  exemplar** — a página de créditos não foi localizada nesta auditoria, ou
+  não trazia o ano de publicação de forma legível. O ano de 1996 é,
+  portanto, harmonizado com o projeto e com a identificação do arquivo,
+  não uma confirmação editorial independente. `Informação insuficiente
+  para verificar o ano diretamente na página de créditos do exemplar.`
+- **Decisão:** a referência do artigo foi substituída para
+  `ODUM, E. P. Fundamentos de ecologia. 6. ed. Lisboa: Fundação Calouste
+  Gulbenkian, 1996.`, e a citação no corpo passou a "Odum (1996)". A
+  publicadora (Fundação Calouste Gulbenkian, Lisboa) segue as edições
+  1ª (1973), 2ª (1976) e 7ª (2004) já confirmadas por esta auditoria em
+  fonte secundária (livrarias/catálogos); a 6ª edição citada pelo exemplar
+  do acervo situa-se cronologicamente entre a 2ª (1976) e a 7ª (2004), o
+  que é compatível com 1996. Item registrado como **resolvido, com
+  ressalva bibliográfica sobre a confirmação do ano na página de
+  créditos** — a ressalva não é mais um bloqueio de autoria, apenas uma
+  pendência de verificação editorial de detalhe.
 
 ## 3. Inspeção visual do PDF
 
@@ -175,14 +199,19 @@ das PRs #211–#214 foi refeita nesta rodada — o único ajuste visual foi o
 
 ## 4. Controle de extensão
 
-- Contagem inicial (antes das correções, `origin/main`): **8.948 palavras**.
+- Contagem inicial (antes das correções, `origin/main`): **8.855 palavras**
+  (ver nota de reconciliação na Seção 0).
 - Após aplicar os itens 1–12: pico de **9.313 palavras**, acima do teto de
   9.000.
 - Cortes compensatórios locais aplicados exclusivamente nas subseções
   tocadas pelas correções (Introdução, 3.3, 4.2, 4.4, 4.5, 5.2, 5.3,
   introdução do Apêndice A), eliminando redundância de prosa sem remover
   dado, ressalva, citação ou conclusão.
-- Contagem final: **8.999 palavras**, dentro da faixa-meta 8.850–9.000.
+- Contagem após a rodada original: **8.999 palavras**.
+- Microcorreção do item 10 (Odum): parágrafo da Introdução e referência
+  reescritos, com corte local mínimo no mesmo parágrafo para permanecer
+  dentro da faixa. Contagem final: **8.999 palavras**, dentro da
+  faixa-meta 8.850–9.000.
 
 ## 5. Arquivos alterados nesta rodada
 

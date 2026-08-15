@@ -175,10 +175,10 @@ O sinal disponível para essa decisão é textual. Este artigo trata o campus
 universitário como um biossistema construído — definição operacional aqui
 proposta para a integração dinâmica entre infraestrutura física, atividade
 humana, sistemas tecnológicos e condicionantes ambientais, cuja governança
-depende da capacidade institucional de captar sinais operacionais e
-convertê-los em decisão —, apoiada na perspectiva sistêmica de Capra
-(1997) e Odum (1971) e na ecologia urbana de Grimm *et al.* (2000), que
-fundamentam mas não cunham o termo; o artigo não mede diretamente a
+depende da capacidade institucional de captar sinais e convertê-los em
+decisão —, apoiada na perspectiva sistêmica de Capra
+(1997), na concepção de ecossistema de Odum (1996) e na ecologia urbana de
+Grimm *et al.* (2000) — nenhum cunha o termo; o artigo não mede a
 retroalimentação ecológica entre uso, falha e reparo (Subseção 5.4). Nas
 IFES,
 esse sinal assume a forma de registros de chamados de manutenção,
@@ -1365,8 +1365,8 @@ baseada em registros de ordens de serviço. *Paranoá*, Brasília, v. 16, n.
 34, p. 1--27, 2023. DOI:
 https://doi.org/10.18830/issn.1679-0944.n34.2023.08.
 
-ODUM, H. T. *Environment, power, and society*. New York:
-Wiley-Interscience, 1971.
+ODUM, E. P. *Fundamentos de ecologia*. 6. ed. Lisboa: Fundação Calouste
+Gulbenkian, 1996.
 
 PAMPANA, A. K. et al. Data-driven analysis for facility management in
 higher education institution. *Buildings*, v. 12, n. 12, art. 2094, 2022.
