@@ -160,42 +160,56 @@ acervo para decidir entre eles).
 
 ## 3. Inspeção visual do PDF
 
-PDF regenerado duas vezes pelo workflow oficial (`artigo_pdf.yml`,
-`workflow_dispatch`) na própria branch, runs `31900772924` e
-`31901095700`. **21 páginas**, dentro da faixa 21–23. Renderização real
-via PyMuPDF a 150–400 dpi (não apenas o LaTeX intermediário), 18 das 21
-páginas inspecionadas individualmente (1, 2, 5–21).
+PDF regenerado três vezes pelo workflow oficial (`artigo_pdf.yml`,
+`workflow_dispatch`) na própria branch, runs `31900772924`, `31901095700`
+(rodada original) e `31902939975` (microcorreção do item 10). **21
+páginas**, dentro da faixa 21–23, preservadas nas três renderizações.
+Renderização real via PyMuPDF a 150–400 dpi (não apenas o LaTeX
+intermediário).
 
 **Achado na primeira renderização (`31900772924`), corrigido antes da
 segunda:** o caractere Unicode cru `≤` inserido no item 8 foi
 silenciosamente descartado pelo pandoc/xelatex ao converter para PDF,
 deixando "com *p* 0,0005" sem o operador na página 8. Substituído por
 `$\leq$` em LaTeX — mesmo padrão já usado para $\rho$ e $\lambda$ em
-rodada anterior (ver `PLANO_EXECUCAO_ATUAL.md`, rodada de posicionamento
-editorial). Confirmado corrigido na segunda renderização
-(`31901095700`): "com *p* ≤ 0,0005" renderiza corretamente.
+rodada anterior. Confirmado corrigido na segunda renderização
+(`31901095700`) e preservado na terceira (`31902939975`).
 
-Pontos do parecer conferidos (numeração de página pode ter deslocado
-frente ao parecer original, pois a estrutura do artigo mudou nas Rodadas
-12–13, já mescladas em `main` antes desta rodada): página 1 (autores e
-e-mails corretos), página 5 (Tabela 1 íntegra, com a frase de ausência de
-busca de hiperparâmetros), página 8 (Tabela 2, Figura 2 e o teste global
-com `p ≤ 0,0005`, após a correção acima), página 9 (Tabela 3 com a
-legenda de "Neutros" e a fórmula 18,53%), página 10 (Tabela 4, sem vão
-antes dela), página 11 (Figura 4 e a frase sobre o Naive Bayes sem
-reponderação), página 12 (Figura 5), página 13 (Figura 6, Tabela 5 e a
-distinção ABC global/interna ao tipo), página 14 (Subseção 5.2 com a
-reconciliação 598/593), página 15 (Subseção 5.3 com o otimismo da seleção
-do LinearSVC, sem título órfão), página 16 (Considerações Finais e início
-das Referências, sem título órfão), páginas 17–19 (Capra 1997, Grimm
-*et al.* 2000 com DOI completo, Ticket-BERT como preprint, Li e
-Bouabdallaoui inalterados e corretos), página 20 (ordem título →
-introdução → Tabela A1, com o novo parágrafo distinguindo A1 de A2/A3),
-página 21 (Tabela A2 com "classe da curva ABC interna ao tipo" e Tabela
-A3, ambas com nota de fonte visível). Nenhuma sobreposição, corte,
-título órfão ou tabela fora de ordem encontrada. Nenhuma correção visual
-das PRs #211–#214 foi refeita nesta rodada — o único ajuste visual foi o
-`$\leq$` acima, decorrente diretamente do item 8 desta própria rodada.
+**Inspeção completa: 21 das 21 páginas**, individualmente, na
+renderização da microcorreção (`31902939975`). As páginas 3 e 4 — não
+registradas individualmente na rodada anterior — foram inspecionadas
+nesta microcorreção: página 3 traz o fim da Subseção 2.1 (Ticket-BERT
+como preprint), as Subseções 2.2 a 2.4 e o início da Seção 3
+(Subseção 3.1), toda em texto corrido sem tabela ou figura, sem
+sobreposição ou corte; página 4 traz a Figura 1 (*pipeline* de
+governança preditiva) íntegra e bem posicionada, seguida do restante da
+Subseção 3.1 e das Subseções 3.2–3.3, sem anomalia. A página 2 confirma
+"na concepção de ecossistema de Odum (1996)" renderizado corretamente,
+sem quebra; a página 18 confirma a entrada `ODUM, E. P. Fundamentos de
+ecologia. 6. ed. Lisboa: Fundação Calouste Gulbenkian, 1996.` na posição
+alfabética correta, sem corte.
+
+Demais páginas conferidas: página 1 (autores e e-mails corretos), página
+5 (Tabela 1 íntegra, com a frase de ausência de busca de
+hiperparâmetros), página 6 (Subseções 3.4 início e 3.5), página 7
+(Subseção 3.6, início da Seção 4 e Subseção 4.1), página 8 (Tabela 2,
+Figura 2 e o teste global com `p ≤ 0,0005`), página 9 (Tabela 3 com a
+legenda de "Neutros" e a fórmula 18,53%, início da Subseção 4.3), página
+10 (Tabela 4, sem vão antes dela, Figura 3), página 11 (Figura 4 e a
+frase sobre o Naive Bayes sem reponderação), página 12 (Figura 5), página
+13 (Figura 6, Tabela 5 e a distinção ABC global/interna ao tipo), página
+14 (Subseção 5.2 com a reconciliação 598/593), página 15 (Subseção 5.3
+com o otimismo da seleção do LinearSVC, sem título órfão), página 16
+(Considerações Finais e início das Referências, sem título órfão), página
+17 (Capra 1997 e Grimm *et al.* 2000 com DOI completo, ambos na posição
+alfabética correta), página 19 (fim das referências, Ticket-BERT já
+conferido na página 18, Li e Bouabdallaoui inalterados e corretos), página
+20 (ordem título → introdução → Tabela A1, com o parágrafo distinguindo
+A1 de A2/A3), página 21 (Tabela A2 com "classe da curva ABC interna ao
+tipo" e Tabela A3, ambas com nota de fonte visível). Nenhuma
+sobreposição, corte, título órfão, caractere matemático ausente ou
+tabela fora de ordem encontrada em nenhuma das 21 páginas. Nenhuma
+correção visual das PRs #211–#214 foi refeita nesta rodada.
 
 ## 4. Controle de extensão
 
