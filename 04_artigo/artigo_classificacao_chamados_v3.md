@@ -648,7 +648,7 @@ independência produziria (Cochran, 1977), fica entre 4,47 no LinearSVC e
 grupo textual como unidade. O teste global rejeita a igualdade entre os
 sete modelos: a estatística Q de Cochran vale 2.661,04 sobre seis graus de
 liberdade, apurada contra distribuição empírica de duas mil permutações
-do rótulo de modelo dentro de cada grupo, com *p* ≤ 0,0005. Só então os 21
+do rótulo de modelo dentro de cada grupo, com *p* $\leq$ 0,0005. Só então os 21
 pares foram comparados, por permutação pareada com troca de sinal da
 diferença de acertos por grupo e correção de Holm sobre a família:
 dezenove são significativos após a correção e dois não são, Extra Trees
