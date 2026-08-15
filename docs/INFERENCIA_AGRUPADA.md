@@ -26,7 +26,7 @@ Efeito de desenho entre 4.473 e 8.827. efeito de desenho acima de 1 indica que a
 
 ## 2. Teste global
 
-Q de Cochran = 2661.0353, 6 graus de liberdade. Referência empírica com 2000 permutações do rótulo de modelo por grupo textual: p < 0.0005. O p da distribuição qui-quadrado por linha seria 0.
+Q de Cochran = 2661.0353, 6 graus de liberdade. Referência empírica com 2000 permutações do rótulo de modelo por grupo textual: p ≤ 0.0005. O p da distribuição qui-quadrado por linha seria 0.
 
 a estatística Q permanece adequada por ser pareada e binária, mas a distribuição qui-quadrado tabelada pressupõe independência entre registros, violada aqui; a referência passa a ser empírica, obtida por permutação do rótulo de modelo dentro de cada grupo textual.
 

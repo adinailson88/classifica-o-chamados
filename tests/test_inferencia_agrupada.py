@@ -139,6 +139,47 @@ class TestTesteGlobal(unittest.TestCase):
         self.assertEqual(r["unidade_da_permutacao"], "grupo textual")
 
 
+class TestRenderizacaoDoLimiteSuperior(unittest.TestCase):
+    def _relatorio_minimo(self, p_e_limite_superior: bool) -> dict:
+        return {
+            "auditoria_da_unidade": {
+                "unidade_estatistica_anterior": "linha",
+                "unidade_estatistica_adotada": "grupo de texto normalizado idêntico",
+                "linhas": 10, "grupos": 8, "tamanho_medio_do_grupo": 1.25,
+                "maior_grupo": 2, "linhas_em_grupos_nao_unitarios": 4,
+                "proporcao_de_linhas_dependentes": 0.4, "por_modelo": [],
+                "efeito_de_desenho_min": 1.1, "efeito_de_desenho_max": 1.2,
+                "leitura": "leitura",
+            },
+            "teste_global": {
+                "estatistica_q": 1.0, "graus_de_liberdade": 1,
+                "permutacoes": 100, "unidade_da_permutacao": "grupo textual",
+                "p_permutacional": 0.0005,
+                "p_permutacional_e_limite_superior": p_e_limite_superior,
+                "p_qui_quadrado_por_linha": 0.0, "justificativa": "justificativa",
+            },
+            "protocolo": {
+                "permutacoes_pareadas": 100, "permutacoes_globais": 100,
+                "reamostragens_do_bootstrap": 100, "semente": 42,
+            },
+            "pares": [],
+            "conclusao_da_auditoria": {
+                "pares_que_mudam_de_veredito_com_a_unidade_correta": 0,
+                "leitura": "leitura",
+            },
+        }
+
+    def test_p_e_limite_superior_usa_menor_ou_igual(self):
+        md = ia.renderizar_markdown(self._relatorio_minimo(True))
+        self.assertIn("p ≤ 0.0005", md)
+        self.assertNotIn("p < 0.0005", md)
+
+    def test_p_exato_usa_igualdade(self):
+        md = ia.renderizar_markdown(self._relatorio_minimo(False))
+        self.assertIn("p = 0.0005", md)
+        self.assertNotIn("p ≤", md)
+
+
 class TestArtefatoPublicado(unittest.TestCase):
     def setUp(self):
         import json

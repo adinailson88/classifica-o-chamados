@@ -98,105 +98,75 @@ artigo.
 **Rodada canônica:** `1e476243` (hash completo
 `1e4762438a7e3627d3e32c1025f6bcb169e786881d8e86207806fdf98846409a`). Os oito
 artefatos derivados e os três do congelamento conferem esse hash,
-verificável por `python src/matriz_proveniencia.py`; a Rodada 12 não
+verificável por `python src/matriz_proveniencia.py`; a Rodada 14 não
 alterou nenhum artefato de dados, e a matriz seguiu sem divergências.
 
 **Onde está:** os Passos 0 a 10 estão concluídos, o 9 encerrado como não
 aplicável, e os Passos 11 e 12 (redução/reescrita editorial e integração
-do ensemble) estão concluídos. A Rodada 12 é uma revisão editorial de
-forma — título, identificação institucional, composição de tabelas,
-paginação e legibilidade de figuras — sem reabrir decisões científicas,
-sem retreinar modelo algum e sem alterar número, tabela de dados ou
-referência além do explicitamente descrito em
-`TAREFA_CLAUDE_CODE_revisao_v4.md`. Zero fits de modelo-base, zero fits de
-stacking, zero execuções de LSTM.
+do ensemble) estão concluídos. A Rodada 14 (branch
+`docs/correcoes-parecer-artigo-projeto`) tratou exclusivamente os itens 1
+a 12 de um parecer científico confrontado com o projeto de doutorado —
+reconciliação 598/593, decomposição do custo do BERTimbau, definição de
+"neutros", distinção entre curva ABC global e interna ao tipo, otimismo
+da seleção do LinearSVC, redação do alvo de 0,95 no Resumo/Abstract,
+ausência de busca de hiperparâmetros, renderização `p ≤ 0,0005`,
+"biossistema construído" como definição operacional autoral,
+harmonização parcial de Capra/Odum/Grimm com o projeto, meia frase sobre
+o Naive Bayes e a introdução do Apêndice A, e identificação do Ticket-BERT
+como preprint — sem reabrir decisões científicas, sem retreinar modelo
+algum e sem consolidar/renumerar o material suplementar (item 13, fora do
+escopo, fica para PR separada). Detalhe completo em
+`docs/AUDITORIA_PARECER_ARTIGO_PROJETO.md`. Zero fits de modelo-base, zero
+fits de stacking, zero execuções de LSTM ou BERTimbau.
+
+**Divergência de documentação encontrada e corrigida nesta rodada:** este
+documento e `PLANO_EXECUCAO_ATUAL.md` ainda descreviam, no início da
+Rodada 14, o estado da Rodada 11 (título "Classificação auditável...",
+Subseção 3.6 com declarações institucionais completas), desatualizado
+frente a `main`, que já havia recebido as Rodadas 12 (revisão editorial
+v4: título, Tabela 5, Subseção 3.6, figuras) e 13 (correção bibliográfica
+NBR 6023:2025/NBR 10520:2023). A Rodada 14 trabalhou sobre o artigo real
+em `main` e reconcilia aqui a documentação.
 
 **Estrutura vigente.** Seis figuras e **cinco** tabelas principais no
-corpo (nova Tabela 5, comparação confirmatória do ensemble, Subseção 4.5);
+corpo (Tabela 5, comparação confirmatória do ensemble, Subseção 4.5);
 apêndice com as Tabelas A1 a A3, floats não divisíveis em `\footnotesize`
 com numeração própria (A1/A2/A3, independente da sequência 1–5 do corpo),
-com o título e o parágrafo introdutório do Apêndice A agora impressos
-antes da Tabela A1; material suplementar até S17. Discussão em quatro
+com parágrafo introdutório do Apêndice A ampliado na Rodada 14 para
+distinguir a base de rótulo de A1 (categoria histórica) da usada em A2/A3
+(referência revisada); material suplementar até S17. Discussão em quatro
 subseções (5.1 a 5.4); Considerações Finais em cinco parágrafos curtos.
 Lista de referências com 44 entradas, todas citadas no corpo, sem
-duplicatas nem citação órfã, auditada e padronizada conforme a NBR
-6023:2025/NBR 10520:2023 na Rodada 13 (ver abaixo).
+duplicatas nem citação órfã; nesta rodada, Capra passou a 1997, Grimm
+*et al.* passou de 2008 (*Science*) para 2000 (*BioScience*) e a entrada
+de Liu; Benge; Jiang (Ticket-BERT) passou a se declarar explicitamente
+como preprint sem publicação revisada por pares localizada — Odum
+permanece inalterado por bloqueio documentado (ver auditoria).
 
-**Rodada 13 (correção bibliográfica, `correcao-referencias-abnt-2025`):**
-auditoria completa da lista de 44 referências e das chamadas autor-data
-contra a NBR 6023:2025 e a NBR 10520:2023 — pendência registrada desde a
-Rodada 12. Chamadas parentéticas convertidas de caixa alta para
-Maiúscula/minúscula; ordem de autoria de Marcuzzo *et al.* (2022)
-corrigida conforme a ACL Anthology; referência de Brown *et al.* (2020)
-simplificada; destaque tipográfico (itálico) do título da publicação
-padronizado nas 44 entradas; DOIs verificados em fonte primária
-(CrossRef/ACL Anthology/página do periódico) e inseridos no formato
-`https://doi.org/...` em 23 referências, 3 reformatados, 1 (arXiv)
-completado com URL e data de acesso, e 10 confirmados sem DOI atribuído
-(não inventados); correções pontuais de metadados (título de Martins;
-Espejo, páginas de Morais; Paula; Reis, fascículo de Pampana *et al.* e
-de Sundaram; Zeid, cidade de Souza; Nogueira; Lotufo). Na Introdução, a
-afirmação não comprovada "menos de 2%" do orçamento institucional foi
-removida, mantendo apenas a restrição orçamentária genérica já sustentada
-pelas referências citadas. Nenhum número experimental, tabela, figura,
-resultado, conclusão ou contrato metodológico foi alterado; zero fits de
-modelo-base, zero fits de stacking, zero execuções de LSTM; PDF
-regenerado pelo workflow oficial, 21 páginas (dentro de 21–23). Relatório
-completo em `docs/AUDITORIA_REFERENCIAS_2025.md`.
+**Título vigente:** "Classificação de chamados de manutenção predial com
+aprendizado de máquina: desempenho e limites da automação" (reformulado na
+Rodada 12); o corpus é descrito como o de uma instituição federal de
+ensino superior (IFES), sem nomear a UFSB fora do bloco de afiliação dos
+autores.
 
-**Título e identificação institucional.** Título e subtítulo
-reformulados para "Classificação de chamados de manutenção predial com
-aprendizado de máquina: desempenho e limites da automação". O corpus é
-descrito como o de uma instituição federal de ensino superior (IFES), sem
-nomear a UFSB fora do bloco de afiliação dos autores (`UFSB` ocorre uma
-única vez no arquivo-fonte).
-
-**Corpo científico: 8.855 palavras**, medidas pela mesma rotina única
+**Corpo científico: 8.999 palavras**, medidas pela mesma rotina única
 (contagem de palavras do Markdown-fonte entre "**1. INTRODUÇÃO**" e
-"**REFERÊNCIAS**", exclusive). Partiu de 8.999 (Rodada 11) e absorveu, na
-Rodada 12, a reescrita da Subseção 3.6, a supressão do parágrafo de
-"quatro achados" da Seção 4, a supressão da cauda sobre privacidade
-institucional da Subseção 5.3, a nova seção "Disponibilidade de dados e
-código" e a nova Tabela 5, com elaborações compensatórias em outros
-trechos para permanecer dentro da faixa-meta de 8.850 a 9.000.
+"**REFERÊNCIAS**", exclusive). Partiu de 8.855 (estado de `main` no início
+da Rodada 14) e recebeu as adições textuais dos itens 1 a 12 do parecer
+científico, compensadas por cortes locais de redundância nas mesmas
+subseções tocadas, permanecendo dentro da faixa-meta de 8.850 a 9.000.
 
-**PDF:** regenerado pelo workflow oficial (`artigo_pdf.yml`,
-`workflow_dispatch`) na própria branch desta rodada; contagem de páginas e
-inspeção visual registradas em `verificacao/relatorio_revisao_v4.md`.
-
-**Figuras regeneradas nesta rodada (só parâmetros de apresentação, sem
-alterar dado ou ordenação):** Figura 1 (texto interno e rótulo de
-retroalimentação a 8 pt, rótulo em tom mais escuro), Figura 4 (fonte a
-8 pt, rótulos truncados substituídos por abreviações explícitas em
-`ABREVIACOES_EXPLICITAS`), Figura 5 (fonte a 8 pt, mesmo conjunto de
-rótulos abreviados nos dois eixos da matriz), Figura 6 (eixos dos dois
-painéis em formato decimal pt-BR). Resumo criptográfico dos dados de
-entrada de cada figura conferido idêntico antes e depois em
-`verificacao/relatorio_revisao_v4.md`.
-
-**Pendência conhecida:** a contagem de construções antitéticas ", e não"
-no corpo já estava em 23 antes desta rodada (acima do limite de 8 usado
-como critério de aceitação da tarefa) e caiu para 20 com os cortes desta
-rodada; reduzi-la a 8 exigiria reescrever dezenas de frases fora do
-escopo explícito desta tarefa, o que não foi feito — ver bloqueador no
-relatório da rodada.
-
-**Material suplementar: S17.** `tabela_S17_ensemble_confirmatorio.csv`,
-gerada programaticamente por `src/tabelas_suplementares_canonicas.py` a
-partir exclusivamente de
-`docs/dados/ensemble/fase2c/fase2c_execucao_cientifica_1_manifest.json`
-(sem `hash_corpus`, por pertencer à trilha experimental da Fase 2C, não à
-rodada canônica do artigo principal), com validação de proveniência
-(universo 13.970, denominador `Y=1` 593, capacidade `K` 2.840, run/commit
-da Fase 2B). Não modificada nesta rodada; a nova Tabela 5 do corpo apenas
-formata, sem alterar, os mesmos quatro valores já usados no parágrafo
-final da Subseção 4.5 desde a Rodada 11.
+**Material suplementar: S17**, inalterado nesta rodada — ver
+`docs/AUDITORIA_PARECER_ARTIGO_PROJETO.md` para os itens 1 a 12 e
+`docs/AUDITORIA_REFERENCIAS_2025.md` para a auditoria bibliográfica da
+Rodada 13.
 
 O detalhamento rodada a rodada de como o estado anterior a este foi
 alcançado — reestruturação da Discussão, conversão das tabelas em floats,
 correções das duas auditorias independentes da PR #202, auditoria visual e
 paginação da Rodada 9, auditoria final de submissão da Rodada 10,
-integração editorial do ensemble na Rodada 11 — está nos commits e nas
+integração editorial do ensemble na Rodada 11, revisão editorial v4 na
+Rodada 12, correção bibliográfica ABNT na Rodada 13 — está nos commits e nas
 Pull Requests (#202, #203, #209, #210) e não é repetido aqui, conforme a
 regra de uso deste documento. O relatório completo da Rodada 12 está em
 `verificacao/relatorio_revisao_v4.md`.
