@@ -43,10 +43,16 @@ sua leitura consolidada.
 
 **Convenção de exibição.** Os CSVs-fonte usam ponto como separador decimal
 (formato de máquina); as tabelas abaixo convertem para vírgula, para manter
-a mesma convenção do corpo do artigo em português, e arredondam para quatro
-casas decimais quando a fonte tem mais precisão. Essa conversão é apenas de
-apresentação: nenhum valor foi recalculado, e o CSV correspondente, sem
-arredondamento, permanece a fonte de registro.
+a mesma convenção do corpo do artigo em português, preservando a
+quantidade de casas decimais do CSV-fonte (capada em quatro, para os
+poucos valores com mais precisão, como as diferenças de precisão/recall da
+Tabela S16). Os nomes de coluna mostram espaço no lugar do sublinhado do
+CSV-fonte, para permitir quebra de linha. Ambas as conversões são apenas de
+apresentação: nenhum valor foi recalculado, e o CSV correspondente
+permanece a fonte de registro. Tabelas com muitas colunas foram divididas
+em partes por largura de página; a chave (`modelo`, ou `escopo`/`outer
+fold`/`metodo`, conforme o caso) repete-se em cada parte para permitir o
+cruzamento.
 
 **Hash canônico.** As Tabelas S6 a S15 derivam de artefatos da rodada
 canônica identificada por `hash_corpus`
@@ -196,12 +202,12 @@ protocolo atual. **Denominador:** 9.096 linhas validadas na execução
 original. `units64_dropout05_atual` é a configuração usada no LSTM
 reportado no corpo do artigo.
 
-| variante | units | dropout | n_validado | acerto_validado | acertos | erros |
+| variante | units | dropout | n validado | acerto validado | acertos | erros |
 |---|---|---|---|---|---|---|
-| units64_dropout05_atual | 64 | 0,5000 | 9096 | 0,8635 | 7854 | 1242 |
-| units128_dropout03 | 128 | 0,3000 | 9096 | 0,8603 | 7825 | 1271 |
-| units128_dropout05 | 128 | 0,5000 | 9096 | 0,8497 | 7729 | 1367 |
-| units64_dropout03 | 64 | 0,3000 | 9096 | 0,8459 | 7694 | 1402 |
+| units64_dropout05_atual | 64 | 0,5 | 9096 | 0,8635 | 7854 | 1242 |
+| units128_dropout03 | 128 | 0,3 | 9096 | 0,8603 | 7825 | 1271 |
+| units128_dropout05 | 128 | 0,5 | 9096 | 0,8497 | 7729 | 1367 |
+| units64_dropout03 | 64 | 0,3 | 9096 | 0,8459 | 7694 | 1402 |
 
 ```{=latex}
 \FloatBarrier
@@ -219,15 +225,15 @@ prosa na Subseção 4.5 (ganho espúrio entre 0,89 e 1,84 ponto percentual).
 **Coluna `delta`:** acurácia sob KFold menos acurácia sob GroupKFold, por
 modelo.
 
-| modelo | acuracia_kfold | acuracia_groupkfold | delta | macro_f1_kfold | macro_f1_groupkfold |
+| modelo | acuracia kfold | acuracia groupkfold | delta | macro f1 kfold | macro f1 groupkfold |
 |---|---|---|---|---|---|
-| naive_bayes | 0,6969 | 0,6880 | 0,0089 | 0,2004 | 0,1815 |
+| naive_bayes | 0,6969 | 0,688 | 0,0089 | 0,2004 | 0,1815 |
 | regressao_logistica | 0,7645 | 0,7517 | 0,0128 | 0,5415 | 0,4979 |
 | linear_svc | 0,8004 | 0,7852 | 0,0152 | 0,5691 | 0,5178 |
-| sgd | 0,7717 | 0,7610 | 0,0107 | 0,5346 | 0,4878 |
+| sgd | 0,7717 | 0,761 | 0,0107 | 0,5346 | 0,4878 |
 | extra_trees | 0,7841 | 0,7686 | 0,0155 | 0,4884 | 0,4158 |
-| random_forest | 0,7779 | 0,7595 | 0,0184 | 0,4591 | 0,3770 |
-| lstm | 0,6836 | 0,6726 | 0,0110 | 0,3556 | 0,3302 |
+| random_forest | 0,7779 | 0,7595 | 0,0184 | 0,4591 | 0,377 |
+| lstm | 0,6836 | 0,6726 | 0,011 | 0,3556 | 0,3302 |
 
 ```{=latex}
 \FloatBarrier
@@ -248,7 +254,7 @@ por ser constante em todas as linhas — o texto está acima). `acerto_referenci
 é o acerto contra a referência humana revisada; `concordancia_historica`, a
 concordância com a categoria histórica.
 
-| modelo | concordancia_historica | acerto_referencia | ic95_min | ic95_max |
+| modelo | concordancia historica | acerto referencia | ic95 min | ic95 max |
 |---|---|---|---|---|
 | BERTimbau | 0,6650 | 0,6785 | 0,6490 | 0,7060 |
 | LinearSVC | 0,6500 | 0,6734 | 0,6450 | 0,7019 |
@@ -273,12 +279,12 @@ dispersão das predições de cada modelo entre as categorias;
 distribuição de predições do modelo e a distribuição da categoria
 histórica.
 
-| modelo | categorias_previstas | entropia_normalizada | js_contra_o_historico |
+| modelo | categorias previstas | entropia normalizada | js contra o historico |
 |---|---|---|---|
 | LSTM | 41 | 0,8362 | 0,0167 |
 | Regressao Logistica | 41 | 0,8045 | 0,0127 |
 | SGD | 41 | 0,8023 | 0,0092 |
-| LinearSVC | 41 | 0,7900 | 0,0055 |
+| LinearSVC | 41 | 0,79 | 0,0055 |
 | Extra Trees | 39 | 0,7466 | 0,0087 |
 | Random Forest | 39 | 0,7403 | 0,0117 |
 | Naive Bayes | 22 | 0,6131 | 0,0652 |
@@ -294,7 +300,7 @@ com `modelo = LinearSVC` correspondem aos números citados em prosa na
 Subseção 4.5 (classe A com 81,83% do volume; macro-F1 de 0,8207 em A contra
 0,5018 em C). **Denominador:** 13.972 linhas avaliadas.
 
-| modelo | classe | categorias | chamados | proporcao_do_volume | acuracia | macro_f1 |
+| modelo | classe | categorias | chamados | proporcao do volume | acuracia | macro f1 |
 |---|---|---|---|---|---|---|
 | Extra Trees | A | 12 | 11433 | 0,8183 | 0,8488 | 0,7978 |
 | Extra Trees | B | 12 | 1912 | 0,1368 | 0,6778 | 0,7447 |
@@ -303,9 +309,9 @@ Subseção 4.5 (classe A com 81,83% do volume; macro-F1 de 0,8207 em A contra
 | LinearSVC | B | 12 | 1912 | 0,1368 | 0,7416 | 0,7521 |
 | LinearSVC | C | 17 | 627 | 0,0449 | 0,5582 | 0,5018 |
 | LSTM | A | 12 | 11433 | 0,8183 | 0,7586 | 0,7435 |
-| LSTM | B | 12 | 1912 | 0,1368 | 0,6360 | 0,6356 |
+| LSTM | B | 12 | 1912 | 0,1368 | 0,636 | 0,6356 |
 | LSTM | C | 17 | 627 | 0,0449 | 0,4673 | 0,2903 |
-| Naive Bayes | A | 12 | 11433 | 0,8183 | 0,8239 | 0,6880 |
+| Naive Bayes | A | 12 | 11433 | 0,8183 | 0,8239 | 0,688 |
 | Naive Bayes | B | 12 | 1912 | 0,1368 | 0,2291 | 0,2527 |
 | Naive Bayes | C | 17 | 627 | 0,0449 | 0,0718 | 0,0477 |
 | Random Forest | A | 12 | 11433 | 0,8183 | 0,8388 | 0,7839 |
@@ -328,13 +334,13 @@ Subseção 4.5 (classe A com 81,83% do volume; macro-F1 de 0,8207 em A contra
 Desempenho de cada modelo na tarefa projetada de distinguir preventiva,
 corretiva e não manutenção. **Denominador:** 13.972 linhas avaliadas.
 
-| modelo | acuracia | macro_f1 | f1_preventiva | f1_corretiva | f1_nao_manutencao |
+| modelo | acuracia | macro f1 | f1 preventiva | f1 corretiva | f1 nao manutencao |
 |---|---|---|---|---|---|
 | Extra Trees | 0,9497 | 0,7999 | 0,9762 | 0,9596 | 0,4638 |
-| Random Forest | 0,9490 | 0,7907 | 0,9762 | 0,9592 | 0,4367 |
-| LinearSVC | 0,9443 | 0,8180 | 0,9742 | 0,9547 | 0,5250 |
+| Random Forest | 0,949 | 0,7907 | 0,9762 | 0,9592 | 0,4367 |
+| LinearSVC | 0,9443 | 0,818 | 0,9742 | 0,9547 | 0,525 |
 | Naive Bayes | 0,9421 | 0,7298 | 0,9662 | 0,9548 | 0,2684 |
-| SGD | 0,9355 | 0,8173 | 0,9718 | 0,9470 | 0,5330 |
+| SGD | 0,9355 | 0,8173 | 0,9718 | 0,947 | 0,533 |
 | Regressao Logistica | 0,9317 | 0,8116 | 0,9715 | 0,9437 | 0,5196 |
 | LSTM | 0,8999 | 0,7403 | 0,9559 | 0,9172 | 0,3478 |
 
@@ -351,7 +357,7 @@ não sobre o volume global — a mesma distinção declarada na Subseção 4.5 d
 artigo entre curva ABC global e curva ABC interna ao tipo. **Denominador:**
 13.972 linhas avaliadas, particionadas pelos três tipos de manutenção.
 
-| tipo | classe | categorias | chamados | proporcao_do_volume_do_tipo | acuracia | macro_f1 |
+| tipo | classe | categorias | chamados | proporcao do volume do tipo | acuracia | macro f1 |
 |---|---|---|---|---|---|---|
 | Preventiva | A | 4 | 4091 | 0,8346 | 0,9897 | 0,9727 |
 | Preventiva | B | 4 | 630 | 0,1285 | 0,9556 | 0,9645 |
@@ -371,18 +377,34 @@ artigo entre curva ABC global e curva ABC interna ao tipo. **Denominador:**
 
 **Fonte:** `docs/dados/regras_versus_modelos.json`, rodada canônica.
 Compara cada modelo puro ao híbrido com a camada de regras de
-periodicidade preventiva, nos disparos em que a regra se aplica.
+periodicidade preventiva, nos disparos em que a regra se aplica. Dividida
+em duas partes por largura de página: (a) acurácia e macro-F1, puros e
+híbridos; (b) disparos, conflitos e a quem cada conflito favorece.
 **Denominador:** 4.487 disparos da regra sobre as 13.972 linhas avaliadas.
 
-| modelo | acuracia_pura | acuracia_hibrida | macro_f1_puro | macro_f1_hibrido | delta_macro_f1 | disparos | conflitos | regra_acerta | modelo_acerta |
-|---|---|---|---|---|---|---|---|---|---|
-| Regressao Logistica | 0,8050 | 0,8060 | 0,6689 | 0,6686 | -0,0003 | 4487 | 47 | 27 | 14 |
-| LinearSVC | 0,8253 | 0,8252 | 0,6684 | 0,6667 | -0,0017 | 4487 | 31 | 11 | 13 |
-| SGD | 0,8093 | 0,8100 | 0,6669 | 0,6676 | 0,0007 | 4487 | 45 | 25 | 15 |
-| Extra Trees | 0,8073 | 0,8077 | 0,6362 | 0,6324 | -0,0038 | 4487 | 47 | 22 | 17 |
-| Random Forest | 0,7970 | 0,7975 | 0,6152 | 0,6114 | -0,0038 | 4487 | 48 | 23 | 16 |
-| LSTM | 0,7287 | 0,7305 | 0,5240 | 0,5267 | 0,0027 | 4487 | 53 | 31 | 7 |
-| Naive Bayes | 0,7088 | 0,7225 | 0,2951 | 0,3537 | 0,0586 | 4487 | 219 | 201 | 9 |
+**(a) Acurácia e macro-F1**
+
+| modelo | acuracia pura | acuracia hibrida | macro f1 puro | macro f1 hibrido | delta macro f1 |
+|---|---|---|---|---|---|
+| Regressao Logistica | 0,805 | 0,806 | 0,6689 | 0,6686 | -0,0003 |
+| LinearSVC | 0,8253 | 0,8252 | 0,6684 | 0,6667 | -0,0017 |
+| SGD | 0,8093 | 0,81 | 0,6669 | 0,6676 | 0,0007 |
+| Extra Trees | 0,8073 | 0,8077 | 0,6362 | 0,6324 | -0,0038 |
+| Random Forest | 0,797 | 0,7975 | 0,6152 | 0,6114 | -0,0038 |
+| LSTM | 0,7287 | 0,7305 | 0,524 | 0,5267 | 0,0027 |
+| Naive Bayes | 0,7088 | 0,7225 | 0,2951 | 0,3537 | 0,0586 |
+
+**(b) Disparos e conflitos**
+
+| modelo | disparos | conflitos | regra acerta | modelo acerta |
+|---|---|---|---|---|
+| Regressao Logistica | 4487 | 47 | 27 | 14 |
+| LinearSVC | 4487 | 31 | 11 | 13 |
+| SGD | 4487 | 45 | 25 | 15 |
+| Extra Trees | 4487 | 47 | 22 | 17 |
+| Random Forest | 4487 | 48 | 23 | 16 |
+| LSTM | 4487 | 53 | 31 | 7 |
+| Naive Bayes | 4487 | 219 | 201 | 9 |
 
 ```{=latex}
 \FloatBarrier
@@ -397,13 +419,12 @@ idêntico, não a linha (`04_artigo/README.md`, "Regra estatística
 obrigatória"). Dividida em duas partes por largura de página: (a)
 diferença de acurácia, intervalo de confiança e grupos a favor de cada
 modelo; (b) tamanho de efeito pareado, *p* permutacional, *p* ajustado por
-Holm e significância. As colunas `modelo_1`/`modelo_2` repetem-se nas duas
-partes para permitir o cruzamento. **Denominador:** 9.735 grupos textuais
-no recorte de 13.972 linhas avaliadas.
+Holm e significância. **Denominador:** 9.735 grupos textuais no recorte de
+13.972 linhas avaliadas.
 
 **(a) Diferença de acurácia e grupos a favor**
 
-| modelo_1 | modelo_2 | diferenca_de_acuracia | ic95_min | ic95_max | grupos_a_favor_do_1 | grupos_a_favor_do_2 | grupos_empatados |
+| modelo 1 | modelo 2 | diferenca de acuracia | ic95 min | ic95 max | grupos a favor do 1 | grupos a favor do 2 | grupos empatados |
 |---|---|---|---|---|---|---|---|
 | LinearSVC | Naive Bayes | 0,1165 | 0,1028 | 0,1329 | 1961 | 549 | 7225 |
 | SGD | Naive Bayes | 0,1005 | 0,0871 | 0,1163 | 1924 | 737 | 7074 |
@@ -417,36 +438,36 @@ no recorte de 13.972 linhas avaliadas.
 | Random Forest | LSTM | 0,0682 | 0,0604 | 0,0763 | 1555 | 615 | 7565 |
 | LinearSVC | Random Forest | 0,0283 | 0,0229 | 0,0341 | 896 | 503 | 8336 |
 | LinearSVC | Regressao Logistica | 0,0203 | 0,0156 | 0,0248 | 598 | 314 | 8823 |
-| LinearSVC | Extra Trees | 0,0180 | 0,0130 | 0,0232 | 759 | 515 | 8461 |
-| LinearSVC | SGD | 0,0160 | 0,0118 | 0,0204 | 533 | 308 | 8894 |
+| LinearSVC | Extra Trees | 0,018 | 0,013 | 0,0232 | 759 | 515 | 8461 |
+| LinearSVC | SGD | 0,016 | 0,0118 | 0,0204 | 533 | 308 | 8894 |
 | SGD | Random Forest | 0,0123 | 0,0071 | 0,0176 | 767 | 599 | 8369 |
 | Extra Trees | Random Forest | 0,0104 | 0,0073 | 0,0134 | 301 | 152 | 9282 |
 | SGD | Regressao Logistica | 0,0042 | 0,0019 | 0,0067 | 161 | 102 | 9472 |
-| LSTM | Naive Bayes | 0,0200 | 0,0068 | 0,0352 | 1487 | 1408 | 6840 |
+| LSTM | Naive Bayes | 0,02 | 0,0068 | 0,0352 | 1487 | 1408 | 6840 |
 | Regressao Logistica | Random Forest | 0,0081 | 0,0025 | 0,0135 | 803 | 694 | 8238 |
 | Extra Trees | Regressao Logistica | 0,0023 | -0,0031 | 0,0079 | 718 | 678 | 8339 |
 | SGD | Extra Trees | 0,0019 | -0,0031 | 0,0072 | 643 | 624 | 8468 |
 
 **(b) Tamanho de efeito e significância**
 
-| modelo_1 | modelo_2 | d_pareado_por_grupo | p_permutacional | p_ajustado_holm | significativo | p_ajustado_holm_por_linha |
+| modelo 1 | modelo 2 | d pareado por grupo | p permutacional | p ajustado holm | significativo | p ajustado holm por linha |
 |---|---|---|---|---|---|---|
-| LinearSVC | Naive Bayes | 0,1644 | 0,0001 | 0,0021 | sim | 0,0000 |
-| SGD | Naive Bayes | 0,1402 | 0,0001 | 0,0021 | sim | 0,0000 |
-| Extra Trees | Naive Bayes | 0,1413 | 0,0001 | 0,0021 | sim | 0,0000 |
-| LinearSVC | LSTM | 0,3133 | 0,0001 | 0,0021 | sim | 0,0000 |
-| Regressao Logistica | Naive Bayes | 0,1332 | 0,0001 | 0,0021 | sim | 0,0000 |
-| Random Forest | Naive Bayes | 0,1263 | 0,0001 | 0,0021 | sim | 0,0000 |
-| SGD | LSTM | 0,2610 | 0,0001 | 0,0021 | sim | 0,0000 |
-| Extra Trees | LSTM | 0,2428 | 0,0001 | 0,0021 | sim | 0,0000 |
-| Regressao Logistica | LSTM | 0,2467 | 0,0001 | 0,0021 | sim | 0,0000 |
-| Random Forest | LSTM | 0,2094 | 0,0001 | 0,0021 | sim | 0,0000 |
-| LinearSVC | Random Forest | 0,1076 | 0,0001 | 0,0021 | sim | 0,0000 |
-| LinearSVC | Regressao Logistica | 0,0941 | 0,0001 | 0,0021 | sim | 0,0000 |
-| LinearSVC | Extra Trees | 0,0707 | 0,0001 | 0,0021 | sim | 0,0000 |
-| LinearSVC | SGD | 0,0774 | 0,0001 | 0,0021 | sim | 0,0000 |
+| LinearSVC | Naive Bayes | 0,1644 | 0,0001 | 0,0021 | sim | 0,0 |
+| SGD | Naive Bayes | 0,1402 | 0,0001 | 0,0021 | sim | 0,0 |
+| Extra Trees | Naive Bayes | 0,1413 | 0,0001 | 0,0021 | sim | 0,0 |
+| LinearSVC | LSTM | 0,3133 | 0,0001 | 0,0021 | sim | 0,0 |
+| Regressao Logistica | Naive Bayes | 0,1332 | 0,0001 | 0,0021 | sim | 0,0 |
+| Random Forest | Naive Bayes | 0,1263 | 0,0001 | 0,0021 | sim | 0,0 |
+| SGD | LSTM | 0,261 | 0,0001 | 0,0021 | sim | 0,0 |
+| Extra Trees | LSTM | 0,2428 | 0,0001 | 0,0021 | sim | 0,0 |
+| Regressao Logistica | LSTM | 0,2467 | 0,0001 | 0,0021 | sim | 0,0 |
+| Random Forest | LSTM | 0,2094 | 0,0001 | 0,0021 | sim | 0,0 |
+| LinearSVC | Random Forest | 0,1076 | 0,0001 | 0,0021 | sim | 0,0 |
+| LinearSVC | Regressao Logistica | 0,0941 | 0,0001 | 0,0021 | sim | 0,0 |
+| LinearSVC | Extra Trees | 0,0707 | 0,0001 | 0,0021 | sim | 0,0 |
+| LinearSVC | SGD | 0,0774 | 0,0001 | 0,0021 | sim | 0,0 |
 | SGD | Random Forest | 0,0467 | 0,0001 | 0,0021 | sim | 2,1e-05 |
-| Extra Trees | Random Forest | 0,0679 | 0,0001 | 0,0021 | sim | 0,0000 |
+| Extra Trees | Random Forest | 0,0679 | 0,0001 | 0,0021 | sim | 0,0 |
 | SGD | Regressao Logistica | 0,0369 | 0,0007 | 0,0035 | sim | 0,0014 |
 | LSTM | Naive Bayes | 0,0272 | 0,0042 | 0,0164 | sim | 4e-06 |
 | Regressao Logistica | Random Forest | 0,0293 | 0,0041 | 0,0164 | sim | 0,0120 |
@@ -467,15 +488,15 @@ observado) e `macro_f1_14_familias` (14 famílias de categoria agregadas).
 **Denominador:** 13.972 linhas avaliadas; a acurácia não varia entre
 convenções, apenas o macro-F1.
 
-| modelo | acuracia | macro_f1_41_avaliadas | macro_f1_50_taxonomia | macro_f1_14_familias |
+| modelo | acuracia | macro f1 41 avaliadas | macro f1 50 taxonomia | macro f1 14 familias |
 |---|---|---|---|---|
-| Regressao Logistica | 0,8050 | 0,6689 | 0,5485 | 0,6801 |
+| Regressao Logistica | 0,805 | 0,6689 | 0,5485 | 0,6801 |
 | LinearSVC | 0,8253 | 0,6684 | 0,5481 | 0,6816 |
-| SGD | 0,8093 | 0,6669 | 0,5469 | 0,6730 |
+| SGD | 0,8093 | 0,6669 | 0,5469 | 0,673 |
 | Extra Trees | 0,8073 | 0,6362 | 0,5217 | 0,6548 |
-| Random Forest | 0,7970 | 0,6152 | 0,5044 | 0,6346 |
-| LSTM | 0,7287 | 0,5240 | 0,4297 | 0,5240 |
-| Naive Bayes | 0,7088 | 0,2951 | 0,2420 | 0,3626 |
+| Random Forest | 0,797 | 0,6152 | 0,5044 | 0,6346 |
+| LSTM | 0,7287 | 0,524 | 0,4297 | 0,524 |
+| Naive Bayes | 0,7088 | 0,2951 | 0,242 | 0,3626 |
 
 ```{=latex}
 \FloatBarrier
@@ -487,36 +508,48 @@ convenções, apenas o macro-F1.
 `ganho_liquido_simples` é `corrigidos − prejudicados`, o resultado principal
 citado no corpo, sob a suposição de custos iguais; as demais colunas
 qualificam esse resultado sob custos assimétricos, sem substituí-lo.
-Dividida em duas partes por largura de página: (a) aplicação direta da
-reclassificação, com `rho_de_equilibrio` (razão de custo em que o ganho
-líquido zera) e a utilidade sob cinco valores de ρ; (b) triagem por
-divergência entre modelo e categoria histórica, com a fila resultante, sua
-precisão e a utilidade sob quatro valores de λ. **Denominador:** 13.972
-linhas avaliadas.
+Dividida em três partes por largura de página: (a) contadores e ganho
+líquido simples, com `rho_de_equilibrio` (razão de custo em que o ganho
+líquido zera); (b) utilidade da aplicação direta sob cinco valores de ρ;
+(c) triagem por divergência entre modelo e categoria histórica, com a fila
+resultante, sua precisão e a utilidade sob quatro valores de λ.
+**Denominador:** 13.972 linhas avaliadas.
 
-**(a) Aplicação direta**
+**(a) Contadores e ganho líquido**
 
-| modelo | corrigidos | prejudicados | neutros | ganho_liquido_simples | rho_de_equilibrio | U_direta_rho_0.25 | U_direta_rho_0.5 | U_direta_rho_1 | U_direta_rho_2 | U_direta_rho_4 |
-|---|---|---|---|---|---|---|---|---|---|---|
-| LinearSVC | 475 | 2321 | 53 | -1846 | 0,2047 | -105,2000 | -685,5000 | -1846,0000 | -4167,0000 | -8809,0000 |
-| SGD | 489 | 2559 | 52 | -2070 | 0,1911 | -150,8000 | -790,5000 | -2070,0000 | -4629,0000 | -9747,0000 |
-| Extra Trees | 422 | 2519 | 71 | -2097 | 0,1675 | -207,8000 | -837,5000 | -2097,0000 | -4616,0000 | -9654,0000 |
-| Regressao Logistica | 492 | 2621 | 48 | -2129 | 0,1877 | -163,2000 | -818,5000 | -2129,0000 | -4750,0000 | -9992,0000 |
-| Random Forest | 416 | 2658 | 74 | -2242 | 0,1565 | -248,5000 | -913,0000 | -2242,0000 | -4900,0000 | -10216,0000 |
-| LSTM | 426 | 3621 | 121 | -3195 | 0,1176 | -479,2000 | -1384,5000 | -3195,0000 | -6816,0000 | -14058,0000 |
-| Naive Bayes | 309 | 3783 | 164 | -3474 | 0,0817 | -636,8000 | -1582,5000 | -3474,0000 | -7257,0000 | -14823,0000 |
+| modelo | corrigidos | prejudicados | neutros | ganho liquido simples | rho de equilibrio |
+|---|---|---|---|---|---|
+| LinearSVC | 475 | 2321 | 53 | -1846 | 0,2047 |
+| SGD | 489 | 2559 | 52 | -2070 | 0,1911 |
+| Extra Trees | 422 | 2519 | 71 | -2097 | 0,1675 |
+| Regressao Logistica | 492 | 2621 | 48 | -2129 | 0,1877 |
+| Random Forest | 416 | 2658 | 74 | -2242 | 0,1565 |
+| LSTM | 426 | 3621 | 121 | -3195 | 0,1176 |
+| Naive Bayes | 309 | 3783 | 164 | -3474 | 0,0817 |
 
-**(b) Triagem por divergência**
+**(b) Utilidade da aplicação direta por ρ**
 
-| modelo | fila_de_triagem | precisao_da_fila | U_triagem_lambda_0 | U_triagem_lambda_0.05 | U_triagem_lambda_0.1 | U_triagem_lambda_0.2 |
+| modelo | U direta rho 0.25 | U direta rho 0.5 | U direta rho 1 | U direta rho 2 | U direta rho 4 |
+|---|---|---|---|---|---|
+| LinearSVC | -105,2 | -685,5 | -1846,0 | -4167,0 | -8809,0 |
+| SGD | -150,8 | -790,5 | -2070,0 | -4629,0 | -9747,0 |
+| Extra Trees | -207,8 | -837,5 | -2097,0 | -4616,0 | -9654,0 |
+| Regressao Logistica | -163,2 | -818,5 | -2129,0 | -4750,0 | -9992,0 |
+| Random Forest | -248,5 | -913,0 | -2242,0 | -4900,0 | -10216,0 |
+| LSTM | -479,2 | -1384,5 | -3195,0 | -6816,0 | -14058,0 |
+| Naive Bayes | -636,8 | -1582,5 | -3474,0 | -7257,0 | -14823,0 |
+
+**(c) Triagem por divergência**
+
+| modelo | fila de triagem | precisao da fila | U triagem lambda 0 | U triagem lambda 0.05 | U triagem lambda 0.1 | U triagem lambda 0.2 |
 |---|---|---|---|---|---|---|
-| LinearSVC | 2849 | 0,1853 | 528,0000 | 385,5000 | 243,1000 | -41,8000 |
-| SGD | 3100 | 0,1745 | 541,0000 | 386,0000 | 231,0000 | -79,0000 |
-| Extra Trees | 3012 | 0,1637 | 493,0000 | 342,4000 | 191,8000 | -109,4000 |
-| Regressao Logistica | 3161 | 0,1708 | 540,0000 | 381,9000 | 223,9000 | -92,2000 |
-| Random Forest | 3148 | 0,1557 | 490,0000 | 332,6000 | 175,2000 | -139,6000 |
-| LSTM | 4168 | 0,1312 | 547,0000 | 338,6000 | 130,2000 | -286,6000 |
-| Naive Bayes | 4256 | 0,1111 | 473,0000 | 260,2000 | 47,4000 | -378,2000 |
+| LinearSVC | 2849 | 0,1853 | 528,0 | 385,5 | 243,1 | -41,8 |
+| SGD | 3100 | 0,1745 | 541,0 | 386,0 | 231,0 | -79,0 |
+| Extra Trees | 3012 | 0,1637 | 493,0 | 342,4 | 191,8 | -109,4 |
+| Regressao Logistica | 3161 | 0,1708 | 540,0 | 381,9 | 223,9 | -92,2 |
+| Random Forest | 3148 | 0,1557 | 490,0 | 332,6 | 175,2 | -139,6 |
+| LSTM | 4168 | 0,1312 | 547,0 | 338,6 | 130,2 | -286,6 |
+| Naive Bayes | 4256 | 0,1111 | 473,0 | 260,2 | 47,4 | -378,2 |
 
 ```{=latex}
 \FloatBarrier
@@ -531,18 +564,34 @@ Shapiro-Wilk, variância da confiança, VIF entre confianças, correlação de
 Spearman e ponto-bisserial entre confiança e acerto). Publicadas aqui por
 terem sido calculadas; `04_artigo/README.md` ("Regra estatística
 obrigatória") registra que nenhuma delas deve ser lida como prova de
-calibração ou como justificativa de escolha de modelo. **Denominador:**
-13.972 linhas avaliadas.
+calibração ou como justificativa de escolha de modelo. Dividida em duas
+partes por largura de página: (a) normalidade, variância e VIF; (b)
+correlações entre confiança e acerto. **Denominador:** 13.972 linhas
+avaliadas.
 
-| modelo | shapiro_w | shapiro_p | rejeita_normalidade | variancia_da_confianca | vif | spearman_confianca_acerto | pointbiserial_confianca_acerto |
-|---|---|---|---|---|---|---|---|
-| Extra Trees | 0,8606 | 5,81e-55 | sim | 0,0723 | 20,7840 | 0,5272 | 0,5569 |
-| LinearSVC | 0,9209 | 2,41e-45 | sim | 0,0046 | 4,2080 | 0,4850 | 0,4500 |
-| LSTM | 0,8211 | 1,67e-59 | sim | 0,0834 | 3,1090 | 0,6160 | 0,6560 |
-| Naive Bayes | 0,8335 | 3,55e-58 | sim | 0,0846 | 4,0160 | 0,6077 | 0,6277 |
-| Random Forest | 0,8633 | 1,3e-54 | sim | 0,0764 | 22,3220 | 0,5391 | 0,5644 |
-| Regressao Logistica | 0,8700 | 9,89e-54 | sim | 0,1078 | 26,9100 | 0,4809 | 0,4819 |
-| SGD | 0,9057 | 3,11e-48 | sim | 0,0903 | 29,9840 | 0,4941 | 0,4847 |
+**(a) Normalidade, variância e VIF**
+
+| modelo | shapiro w | shapiro p | rejeita normalidade | variancia da confianca | vif |
+|---|---|---|---|---|---|
+| Extra Trees | 0,8606 | 5,81e-55 | sim | 0,0723 | 20,784 |
+| LinearSVC | 0,9209 | 2,41e-45 | sim | 0,0046 | 4,208 |
+| LSTM | 0,8211 | 1,67e-59 | sim | 0,0834 | 3,109 |
+| Naive Bayes | 0,8335 | 3,55e-58 | sim | 0,0846 | 4,016 |
+| Random Forest | 0,8633 | 1,3e-54 | sim | 0,0764 | 22,322 |
+| Regressao Logistica | 0,87 | 9,89e-54 | sim | 0,1078 | 26,91 |
+| SGD | 0,9057 | 3,11e-48 | sim | 0,0903 | 29,984 |
+
+**(b) Correlações confiança-acerto**
+
+| modelo | spearman confianca acerto | pointbiserial confianca acerto |
+|---|---|---|
+| Extra Trees | 0,5272 | 0,5569 |
+| LinearSVC | 0,485 | 0,45 |
+| LSTM | 0,616 | 0,656 |
+| Naive Bayes | 0,6077 | 0,6277 |
+| Random Forest | 0,5391 | 0,5644 |
+| Regressao Logistica | 0,4809 | 0,4819 |
+| SGD | 0,4941 | 0,4847 |
 
 ```{=latex}
 \FloatBarrier
@@ -554,18 +603,34 @@ calibração ou como justificativa de escolha de modelo. **Denominador:**
 do artigo (Tabela 4) mostra uma versão reduzida, com os quatro modelos mais
 competitivos em acurácia e sem o Random Forest; esta tabela traz os sete,
 incluindo Naive Bayes e LSTM, cujo ECE aumenta após a calibração isotônica
-(Subseção 4.3). **Denominador:** 13.972 linhas avaliadas, cinco dobras com
-limiar de automação seletiva calculado.
+(Subseção 4.3). Dividida em duas partes por largura de página: (a) ECE e
+Brier, brutos e calibrados; (b) automação seletiva ao alvo de 0,95.
+**Denominador:** 13.972 linhas avaliadas, cinco dobras com limiar de
+automação seletiva calculado.
 
-| modelo | ece_bruto | ece_calibrado | brier_bruto | brier_calibrado | cobertura_alvo_0_95 | acuracia_seletiva_alvo_0_95 | dobras_com_limiar |
-|---|---|---|---|---|---|---|---|
-| LinearSVC | 0,6925 | 0,0178 | 0,6052 | 0,1034 | 0,6890 | 0,9464 | 5 |
-| SGD | 0,3046 | 0,0109 | 0,2230 | 0,1124 | 0,6162 | 0,9531 | 5 |
-| Extra Trees | 0,0859 | 0,0108 | 0,1171 | 0,1057 | 0,6732 | 0,9502 | 5 |
-| Regressao Logistica | 0,2351 | 0,0189 | 0,1946 | 0,1173 | 0,6237 | 0,9415 | 5 |
-| Random Forest | 0,0913 | 0,0145 | 0,1211 | 0,1082 | 0,6580 | 0,9495 | 5 |
-| LSTM | 0,0158 | 0,0479 | 0,1126 | 0,1221 | 0,6545 | 0,9210 | 5 |
-| Naive Bayes | 0,0144 | 0,0206 | 0,1252 | 0,1280 | 0,5518 | 0,9306 | 5 |
+**(a) ECE e Brier**
+
+| modelo | ece bruto | ece calibrado | brier bruto | brier calibrado |
+|---|---|---|---|---|
+| LinearSVC | 0,6925 | 0,0178 | 0,6052 | 0,1034 |
+| SGD | 0,3046 | 0,0109 | 0,223 | 0,1124 |
+| Extra Trees | 0,0859 | 0,0108 | 0,1171 | 0,1057 |
+| Regressao Logistica | 0,2351 | 0,0189 | 0,1946 | 0,1173 |
+| Random Forest | 0,0913 | 0,0145 | 0,1211 | 0,1082 |
+| LSTM | 0,0158 | 0,0479 | 0,1126 | 0,1221 |
+| Naive Bayes | 0,0144 | 0,0206 | 0,1252 | 0,128 |
+
+**(b) Automação seletiva**
+
+| modelo | cobertura alvo 0 95 | acuracia seletiva alvo 0 95 | dobras com limiar |
+|---|---|---|---|
+| LinearSVC | 0,689 | 0,9464 | 5 |
+| SGD | 0,6162 | 0,9531 | 5 |
+| Extra Trees | 0,6732 | 0,9502 | 5 |
+| Regressao Logistica | 0,6237 | 0,9415 | 5 |
+| Random Forest | 0,658 | 0,9495 | 5 |
+| LSTM | 0,6545 | 0,921 | 5 |
+| Naive Bayes | 0,5518 | 0,9306 | 5 |
 
 ```{=latex}
 \FloatBarrier
@@ -585,36 +650,69 @@ combinações (votação majoritária, votação suave ponderada, *stacking*) em
 fila de igual capacidade `K`, agregado e por dobra externa (`outer_fold`).
 Nenhuma combinação supera o LinearSVC no agregado (Subseção 4.5, Tabela 5
 do corpo); o único ganho local, do *stacking* na terceira dobra (123
-capturados contra 119), não se sustenta fora dela. **Denominador:** 13.970
+capturados contra 119), não se sustenta fora dela. Dividida em duas partes
+por largura de página: (a) contexto e desfecho de cada método; (b)
+diferença contra o LinearSVC do mesmo escopo/dobra. **Denominador:** 13.970
 registros modeláveis, 593 divergências entre categoria histórica e
 referência revisada (`y1_denominador`).
 
-| escopo | outer_fold | metodo | K | y1_denominador | capturados | precisao | recall | diff_capturados_vs_linear_svc | diff_precisao_vs_linear_svc | diff_recall_vs_linear_svc |
-|---|---|---|---|---|---|---|---|---|---|---|
-| agregado |  | LinearSVC | 2840 | 593 | 523 | 0,1842 | 0,8820 | 0 | 0,0000 | 0,0000 |
-| agregado |  | Votacao majoritaria | 2840 | 593 | 516 | 0,1817 | 0,8702 | -7 | -0,0025 | -0,0118 |
-| agregado |  | Votacao suave ponderada | 2840 | 593 | 503 | 0,1771 | 0,8482 | -20 | -0,0070 | -0,0337 |
-| agregado |  | Stacking | 2840 | 593 | 512 | 0,1803 | 0,8634 | -11 | -0,0039 | -0,0185 |
-| fold | 1 | LinearSVC | 564 | 124 | 104 | 0,1844 | 0,8387 | 0 | 0,0000 | 0,0000 |
-| fold | 1 | Votacao majoritaria | 564 | 124 | 102 | 0,1809 | 0,8226 | -2 | -0,0035 | -0,0161 |
-| fold | 1 | Votacao suave ponderada | 564 | 124 | 97 | 0,1720 | 0,7823 | -7 | -0,0124 | -0,0565 |
-| fold | 1 | Stacking | 564 | 124 | 101 | 0,1791 | 0,8145 | -3 | -0,0053 | -0,0242 |
-| fold | 2 | LinearSVC | 560 | 95 | 85 | 0,1518 | 0,8947 | 0 | 0,0000 | 0,0000 |
-| fold | 2 | Votacao majoritaria | 560 | 95 | 85 | 0,1518 | 0,8947 | 0 | 0,0000 | 0,0000 |
-| fold | 2 | Votacao suave ponderada | 560 | 95 | 82 | 0,1464 | 0,8632 | -3 | -0,0054 | -0,0316 |
-| fold | 2 | Stacking | 560 | 95 | 82 | 0,1464 | 0,8632 | -3 | -0,0054 | -0,0316 |
-| fold | 3 | LinearSVC | 616 | 135 | 119 | 0,1932 | 0,8815 | 0 | 0,0000 | 0,0000 |
-| fold | 3 | Votacao majoritaria | 616 | 135 | 117 | 0,1899 | 0,8667 | -2 | -0,0032 | -0,0148 |
-| fold | 3 | Votacao suave ponderada | 616 | 135 | 118 | 0,1916 | 0,8741 | -1 | -0,0016 | -0,0074 |
-| fold | 3 | Stacking | 616 | 135 | 123 | 0,1997 | 0,9111 | 4 | 0,0065 | 0,0296 |
-| fold | 4 | LinearSVC | 507 | 113 | 102 | 0,2012 | 0,9027 | 0 | 0,0000 | 0,0000 |
-| fold | 4 | Votacao majoritaria | 507 | 113 | 100 | 0,1972 | 0,8850 | -2 | -0,0039 | -0,0177 |
-| fold | 4 | Votacao suave ponderada | 507 | 113 | 98 | 0,1933 | 0,8673 | -4 | -0,0079 | -0,0354 |
-| fold | 4 | Stacking | 507 | 113 | 98 | 0,1933 | 0,8673 | -4 | -0,0079 | -0,0354 |
-| fold | 5 | LinearSVC | 593 | 126 | 113 | 0,1906 | 0,8968 | 0 | 0,0000 | 0,0000 |
-| fold | 5 | Votacao majoritaria | 593 | 126 | 112 | 0,1889 | 0,8889 | -1 | -0,0017 | -0,0079 |
-| fold | 5 | Votacao suave ponderada | 593 | 126 | 108 | 0,1821 | 0,8571 | -5 | -0,0084 | -0,0397 |
-| fold | 5 | Stacking | 593 | 126 | 108 | 0,1821 | 0,8571 | -5 | -0,0084 | -0,0397 |
+**(a) Contexto e desfecho**
+
+| escopo | outer fold | metodo | K | y1 denominador | capturados | precisao | recall |
+|---|---|---|---|---|---|---|---|
+| agregado |  | LinearSVC | 2840 | 593 | 523 | 0,1842 | 0,8820 |
+| agregado |  | Votacao majoritaria | 2840 | 593 | 516 | 0,1817 | 0,8702 |
+| agregado |  | Votacao suave ponderada | 2840 | 593 | 503 | 0,1771 | 0,8482 |
+| agregado |  | Stacking | 2840 | 593 | 512 | 0,1803 | 0,8634 |
+| fold | 1 | LinearSVC | 564 | 124 | 104 | 0,1844 | 0,8387 |
+| fold | 1 | Votacao majoritaria | 564 | 124 | 102 | 0,1809 | 0,8226 |
+| fold | 1 | Votacao suave ponderada | 564 | 124 | 97 | 0,1720 | 0,7823 |
+| fold | 1 | Stacking | 564 | 124 | 101 | 0,1791 | 0,8145 |
+| fold | 2 | LinearSVC | 560 | 95 | 85 | 0,1518 | 0,8947 |
+| fold | 2 | Votacao majoritaria | 560 | 95 | 85 | 0,1518 | 0,8947 |
+| fold | 2 | Votacao suave ponderada | 560 | 95 | 82 | 0,1464 | 0,8632 |
+| fold | 2 | Stacking | 560 | 95 | 82 | 0,1464 | 0,8632 |
+| fold | 3 | LinearSVC | 616 | 135 | 119 | 0,1932 | 0,8815 |
+| fold | 3 | Votacao majoritaria | 616 | 135 | 117 | 0,1899 | 0,8667 |
+| fold | 3 | Votacao suave ponderada | 616 | 135 | 118 | 0,1916 | 0,8741 |
+| fold | 3 | Stacking | 616 | 135 | 123 | 0,1997 | 0,9111 |
+| fold | 4 | LinearSVC | 507 | 113 | 102 | 0,2012 | 0,9027 |
+| fold | 4 | Votacao majoritaria | 507 | 113 | 100 | 0,1972 | 0,8850 |
+| fold | 4 | Votacao suave ponderada | 507 | 113 | 98 | 0,1933 | 0,8673 |
+| fold | 4 | Stacking | 507 | 113 | 98 | 0,1933 | 0,8673 |
+| fold | 5 | LinearSVC | 593 | 126 | 113 | 0,1906 | 0,8968 |
+| fold | 5 | Votacao majoritaria | 593 | 126 | 112 | 0,1889 | 0,8889 |
+| fold | 5 | Votacao suave ponderada | 593 | 126 | 108 | 0,1821 | 0,8571 |
+| fold | 5 | Stacking | 593 | 126 | 108 | 0,1821 | 0,8571 |
+
+**(b) Diferença contra o LinearSVC**
+
+| escopo | outer fold | metodo | diff capturados vs linear svc | diff precisao vs linear svc | diff recall vs linear svc |
+|---|---|---|---|---|---|
+| agregado |  | LinearSVC | 0 | 0,0 | 0,0 |
+| agregado |  | Votacao majoritaria | -7 | -0,0025 | -0,0118 |
+| agregado |  | Votacao suave ponderada | -20 | -0,0070 | -0,0337 |
+| agregado |  | Stacking | -11 | -0,0039 | -0,0185 |
+| fold | 1 | LinearSVC | 0 | 0,0 | 0,0 |
+| fold | 1 | Votacao majoritaria | -2 | -0,0035 | -0,0161 |
+| fold | 1 | Votacao suave ponderada | -7 | -0,0124 | -0,0565 |
+| fold | 1 | Stacking | -3 | -0,0053 | -0,0242 |
+| fold | 2 | LinearSVC | 0 | 0,0 | 0,0 |
+| fold | 2 | Votacao majoritaria | 0 | 0,0 | 0,0 |
+| fold | 2 | Votacao suave ponderada | -3 | -0,0054 | -0,0316 |
+| fold | 2 | Stacking | -3 | -0,0054 | -0,0316 |
+| fold | 3 | LinearSVC | 0 | 0,0 | 0,0 |
+| fold | 3 | Votacao majoritaria | -2 | -0,0032 | -0,0148 |
+| fold | 3 | Votacao suave ponderada | -1 | -0,0016 | -0,0074 |
+| fold | 3 | Stacking | 4 | 0,0065 | 0,0296 |
+| fold | 4 | LinearSVC | 0 | 0,0 | 0,0 |
+| fold | 4 | Votacao majoritaria | -2 | -0,0039 | -0,0177 |
+| fold | 4 | Votacao suave ponderada | -4 | -0,0079 | -0,0354 |
+| fold | 4 | Stacking | -4 | -0,0079 | -0,0354 |
+| fold | 5 | LinearSVC | 0 | 0,0 | 0,0 |
+| fold | 5 | Votacao majoritaria | -1 | -0,0017 | -0,0079 |
+| fold | 5 | Votacao suave ponderada | -5 | -0,0084 | -0,0397 |
+| fold | 5 | Stacking | -5 | -0,0084 | -0,0397 |
 
 ```{=latex}
 \FloatBarrier
