@@ -9,7 +9,7 @@
 
 **Branch:** `docs/consolidacao-material-suplementar`
 **SHA inicial** (`main`, ponto em que a branch foi criada): `aca9691116f8f73b1405ff3fa44c4d1ae5e1f30e`
-**SHA final** (topo desta branch ao fim da rodada): `c0ca9b2d5c1abf3ae3c57c8646b34527ad3fa11b`
+**SHA auditado antes do registro final desta rodada** (topo da branch no momento em que esta seção foi escrita, portanto anterior ao commit que a grava): `c0ca9b2d5c1abf3ae3c57c8646b34527ad3fa11b`. Este arquivo não registra um "SHA final", pois o commit que grava este próprio arquivo o tornaria desatualizado; o HEAD final da rodada consta apenas na descrição da PR #216 e no relatório final entregue ao usuário, que podem ser atualizados depois dos commits.
 **Confirmado:** o commit `52589c0c19dfd8b5b453b5844e0c13a1a87a45e3` (final da PR #215) é ancestral de `aca96911` — a PR #215 estava mesclada em `main` antes do início desta rodada, condição obrigatória verificada com `git fetch`/`gh pr view 215` no início da sessão.
 **Hash do corpus (rodada canônica):** `1e4762438a7e3627d3e32c1025f6bcb169e786881d8e86207806fdf98846409a`
 **Data:** 15–16/08/2026, fuso America/Bahia
@@ -99,7 +99,7 @@ lista (S1–S3, inalterados), somando as 16 tabelas.
 | Tabela | Título técnico | Fonte / gerador | Artefato científico | Trilha |
 |---|---|---|---|---|
 | S1 | Métricas por categoria (suporte, precisão, recall, F1) | aba viva da planilha (`TABELA_S1_METRICAS`, gid=1862157493) ou `docs/dados/metricas_por_categoria.json`; `src/exportar_tabela_por_categoria.py` | execução legada, anterior ao congelamento | legado, pré-congelamento |
-| S2 | Códigos de categoria da Figura 3 | `docs/dados/estatistica.json`; `src/gerar_figura4_confusoes.py` | execução legada | legado, pré-congelamento |
+| S2 | Códigos de categoria da figura legada de principais confusões | `docs/dados/estatistica.json`; `src/gerar_figura4_confusoes.py` | execução legada | legado, pré-congelamento |
 | S3 | *Ablation* do LSTM (unidades × *dropout*) | `04_artigo/figuras/ablation_lstm_resultados.json`; `src/ablation_lstm.py` (inoperante desde 02/08/2026) | *snapshot* de 24/07/2026, 9.096 linhas | legado, pré-congelamento |
 | S4 | KFold por linha *vs.* GroupKFold por grupo textual | `04_artigo/figuras/comparacao_kfold_groupkfold.json`; `src/comparacao_kfold_groupkfold.py` | base de 01/08/2026, 14.094 chamados | legado, pré-congelamento |
 | S5 | Holdout exploratório do BERTimbau | avaliação held-out complementar citada na Subseção 4.5; gerador não localizado no repositório | lote de 1.000 chamados (983 com referência humana) | exploratório (BERTimbau) |
@@ -273,22 +273,28 @@ O comportamento final do workflow (Seção 8) é idêntico ao de
 `artigo_pdf.yml`: dispara só em `main` ou por `workflow_dispatch`
 manual.
 
-**Inspeção final, página por página (13/13):**
+**Inspeção final desta rodada, página por página (13/13):** a
+alegação abaixo, registrada ao fim desta rodada, revelou-se **incorreta**
+numa auditoria independente subsequente, que encontrou sobreposição e
+corte em cinco pontos do mesmo PDF (Seção 13). Mantida aqui, riscada,
+como registro histórico; não deve ser tomada como estado atual do
+documento — o estado real está na Seção 13.
 
-- Página 1: título, identificação do artigo-fonte, convenções de
-  exibição e nota de hash canônico, íntegros.
-- Páginas 1–2: sumário (S1–S16, título, trilha), sem lacuna, sem S17.
-- Páginas 2–13: as 16 tabelas, cada uma com título, nota de fonte
+~~- Página 1: título, identificação do artigo-fonte, convenções de
+  exibição e nota de hash canônico, íntegros.~~
+~~- Páginas 1–2: sumário (S1–S16, título, trilha), sem lacuna, sem S17.~~
+~~- Páginas 2–13: as 16 tabelas, cada uma com título, nota de fonte
   completa e legível, e conteúdo tabular sem sobreposição, sem corte
   horizontal, com cabeçalhos repetidos ao quebrar página (S1, longa o
-  bastante para isso) e sem página em branco.
-- Símbolos ρ e λ renderizam corretamente na nota e no subtítulo da
-  Tabela S13.
-- Última página (13): lista de proveniência completa, sem corte,
-  terminando no item que remete a esta auditoria.
+  bastante para isso) e sem página em branco.~~
+~~- Símbolos ρ e λ renderizam corretamente na nota e no subtítulo da
+  Tabela S13.~~
+~~- Última página (13): lista de proveniência completa, sem corte,
+  terminando no item que remete a esta auditoria.~~
 - Nenhum conteúdo identificável de chamado individual (ID, título ou
   descrição livre) em nenhuma página — as únicas colunas de texto
-  livre são nomes de categoria da taxonomia, não de chamados.
+  livre são nomes de categoria da taxonomia, não de chamados. (Este
+  item permanece correto; não fazia parte da inspeção de layout.)
 
 ## 10. Regeneração do PDF principal
 
@@ -347,9 +353,83 @@ Todas as 16 tabelas do suplemento reproduzem, sem recálculo, artefatos
 já existentes no repositório antes desta rodada (rodada canônica,
 execuções legadas pré-congelamento, experimento exploratório do
 BERTimbau ou manifesto confirmatório da Fase 2C, conforme a trilha de
-cada uma — Seção 5). A única execução de código nesta rodada foi
-`python src/matriz_proveniencia.py`, que é somente leitura e não
-recalcula nenhum resultado do experimento.
+cada uma — Seção 5). Nesta rodada e na microcorreção subsequente, foram
+executados `python src/matriz_proveniencia.py` (somente leitura),
+`python -m py_compile` sobre os scripts alterados, a suíte de testes
+automatizados, a comparação programática entre o Markdown do suplemento e
+os 16 CSVs-fonte, e a renderização do PDF via workflow para inspeção
+visual. Nenhuma rotina científica de treinamento, inferência,
+recálculo experimental, calibração, *stacking* ou execução de LSTM/BERTimbau
+foi executada em nenhuma dessas etapas.
+
+## 13. Microcorreção — auditoria independente e correções (16/08/2026)
+
+Uma auditoria independente da PR #216, com o PDF gerado na rodada
+anterior (13 páginas), encontrou dois problemas que a Seção 9 desta
+auditoria não tinha registrado corretamente:
+
+**a) Referência errada da Tabela S2.** O suplemento e esta auditoria
+atribuíam os códigos `C01`–`C10` da Tabela S2 à "Figura 3" do artigo,
+mas a Figura 3 atual é a curva de confiabilidade do Extra Trees
+(Subseção 4.3); os códigos pertencem a uma figura legada de principais
+confusões (`src/gerar_figura4_confusoes.py`) que não integra mais o
+corpo do artigo. Corrigido no sumário, no título e na nota da Tabela
+S2 (`04_artigo/material_suplementar_classificacao_chamados.md`), na
+tabela de fontes da Seção 5 e na docstring do script gerador.
+
+**b) Layout do PDF: a alegação "sem sobreposição ou corte" da Seção 9
+era falsa.** A inspeção independente, com o PDF renderizado a 200 dpi,
+encontrou:
+
+- página 4 (S1, continuação): cabeçalho não repetido e células
+  numéricas muito próximas;
+- página 5 (S3): colisão entre `variante` e `units` (ex.:
+  `units64_dropout064_atual` colado ao número seguinte);
+- páginas 5–6 (S5): colisão entre colunas numéricas
+  (`concordancia_historica` e `acerto_referencia` coladas);
+- página 8 (S11a): nomes de modelo colidindo com números (ex.:
+  `Extra Trees0,0019`);
+- página 11 (introdução da S16): caminho do manifesto cortado na
+  margem direita;
+- página 12 (S16): espaçamento insuficiente entre `metodo` e `K`.
+
+A causa comum: as tabelas afetadas eram *pipe tables* Markdown comuns,
+cuja largura de coluna o pandoc infere proporcionalmente ao conteúdo da
+fonte, sem garantia de espaço suficiente para tokens longos e sem
+ponto de quebra (nomes de variante com `_`, nomes de modelo compostos,
+caminhos de arquivo). **Correção:** as Tabelas S1, S3, S5 e S11 (partes
+a1/a2/b) e a parte (a)/(b) da S16 foram reescritas como blocos LaTeX
+brutos (`longtable`, com `\setlength{\tabcolsep}{3pt}` e larguras de
+coluna explícitas em `p{...cm}`, cabeçalho repetido via
+`\endfirsthead`/`\endhead`), substituindo as *pipe tables* originais
+sem alterar nenhum valor. A parte (a) da S11 (8 colunas) foi dividida
+em (a1) diferença de acurácia/IC e (a2) grupos a favor/empatados, com
+`modelo 1`/`modelo 2` repetidos em ambas para permitir o cruzamento. O
+caminho do manifesto da S16 deixou de aparecer como um único token em
+crase e passou a "arquivo `fase2c_execucao_cientifica_1_manifest.json`,
+na pasta `docs/dados/ensemble/fase2c/`". Nenhum CSV, valor numérico ou
+resultado científico foi alterado — apenas apresentação.
+
+O PDF foi regenerado por `workflow_dispatch` (`material_suplementar_pdf.yml`,
+sem qualquer edição ao gatilho `push`, que segue restrito a `main`) e as
+12 páginas resultantes foram renderizadas a 200 dpi e inspecionadas
+individualmente. Resultado real:
+
+- 12/12 páginas presentes, nenhuma em branco, S1–S16 completas e na
+  ordem correta;
+- cabeçalho da Tabela S1 repete corretamente na página 3 (primeira
+  continuação);
+- nenhuma célula sobreposta ou colada à coluna vizinha em nenhuma
+  tabela, incluindo as cinco listadas acima;
+- nenhum texto ou número cortado na margem, incluindo o caminho do
+  manifesto da S16 (página 10) e os cabeçalhos `metodo`/`K` da S16
+  (páginas 11–12);
+- símbolos ρ/λ continuam renderizando corretamente (S13);
+- Tabela S2 sem qualquer menção à "Figura 3" (página 3).
+
+O PDF foi de 13 para 12 páginas nesta rodada, como efeito colateral das
+larguras de coluna mais compactas; a paginação não era um requisito
+fixo (Seção 9 já registrava 13 como resultado, não como alvo).
 
 ## Proveniência
 
