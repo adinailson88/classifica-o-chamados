@@ -2,7 +2,7 @@
 
 Este documento registra somente a estrutura, os critérios editoriais e o estado atual do artigo/capítulo. O plano operacional vigente, os critérios de aceite e o ponto de continuidade estão em [`PLANO_EXECUCAO_ATUAL.md`](PLANO_EXECUCAO_ATUAL.md). Os dois documentos têm finalidades distintas e não devem acumular versões concorrentes do mesmo estado.
 
-Atualizado em 14/08/2026, no fuso America/Bahia (Rodada 13, correção bibliográfica: referências e chamadas conforme NBR 6023:2025/NBR 10520:2023, remoção do percentual não comprovado da Introdução).
+Atualizado em 16/08/2026, no fuso America/Bahia (Rodada 15, consolidação e renumeração contínua do material suplementar — item 13 do parecer).
 
 ## Regra de uso
 
@@ -115,7 +115,7 @@ harmonização de Capra/Odum/Grimm com o projeto, meia frase sobre
 o Naive Bayes e a introdução do Apêndice A, e identificação do Ticket-BERT
 como preprint — sem reabrir decisões científicas, sem retreinar modelo
 algum e sem consolidar/renumerar o material suplementar (item 13, fora do
-escopo, fica para PR separada). Em microcorreção subsequente na mesma
+escopo, tratado na Rodada 15 em PR separada — ver abaixo). Em microcorreção subsequente na mesma
 branch, o bloqueio do item 10 (Odum) foi resolvido a partir do acervo do
 projeto (Eugene P. Odum, *Fundamentos de ecologia*, 6. ed., 1996, em vez
 de Howard T. Odum), com ressalva bibliográfica apenas sobre a confirmação
@@ -141,7 +141,7 @@ apêndice com as Tabelas A1 a A3, floats não divisíveis em `\footnotesize`
 com numeração própria (A1/A2/A3, independente da sequência 1–5 do corpo),
 com parágrafo introdutório do Apêndice A ampliado na Rodada 14 para
 distinguir a base de rótulo de A1 (categoria histórica) da usada em A2/A3
-(referência revisada); material suplementar até S17. Discussão em quatro
+(referência revisada); material suplementar em sequência contínua S1 a S16 (Rodada 15). Discussão em quatro
 subseções (5.1 a 5.4); Considerações Finais em cinco parágrafos curtos.
 Lista de referências com 44 entradas, todas citadas no corpo, sem
 duplicatas nem citação órfã; nesta rodada, Capra passou a 1997, Grimm
@@ -170,7 +170,13 @@ formulação defensiva das Considerações Finais levou o corpo a 8.961
 palavras, sem nenhum texto acrescentado para compensar a remoção.
 Permanece dentro da faixa-meta de 8.850 a 9.000.
 
-**Material suplementar: S17**, inalterado nesta rodada — ver
+**Material suplementar: S1 a S16**, sequência contínua desde a Rodada 15
+(branch `docs/consolidacao-material-suplementar`), que resolveu o item 13
+do parecer — renumerou S5–S17 para S4–S16 (sem recriar a antiga tabela
+legada S4, sem alterar conteúdo de nenhum CSV) e consolidou as 16 tabelas
+em `04_artigo/material_suplementar_classificacao_chamados.md`, publicado
+em `docs/material_suplementar_classificacao_chamados.pdf`. Ver
+`docs/AUDITORIA_MATERIAL_SUPLEMENTAR.md` para o detalhamento completo,
 `docs/AUDITORIA_PARECER_ARTIGO_PROJETO.md` para os itens 1 a 12 e
 `docs/AUDITORIA_REFERENCIAS_2025.md` para a auditoria bibliográfica da
 Rodada 13.
@@ -180,9 +186,10 @@ alcançado — reestruturação da Discussão, conversão das tabelas em floats,
 correções das duas auditorias independentes da PR #202, auditoria visual e
 paginação da Rodada 9, auditoria final de submissão da Rodada 10,
 integração editorial do ensemble na Rodada 11, revisão editorial v4 na
-Rodada 12, correção bibliográfica ABNT na Rodada 13 — está nos commits e nas
-Pull Requests (#202, #203, #209, #210) e não é repetido aqui, conforme a
-regra de uso deste documento. O relatório completo da Rodada 12 está em
+Rodada 12, correção bibliográfica ABNT na Rodada 13, consolidação do
+material suplementar na Rodada 15 — está nos commits e nas Pull Requests
+(#202, #203, #209, #210) e não é repetido aqui, conforme a regra de uso
+deste documento. O relatório completo da Rodada 12 está em
 `verificacao/relatorio_revisao_v4.md`.
 
 ## Critérios para novo fechamento científico
