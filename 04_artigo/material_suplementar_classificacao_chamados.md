@@ -732,5 +732,5 @@ referência revisada (`y1_denominador`).
 - A Tabela S16 vem do manifesto confirmatório da Fase 2C, trilha
   experimental própria, validada por proveniência (universo, denominador,
   capacidade e origem da Fase 2B) em vez de `hash_corpus`.
-- Detalhamento completo da renumeração S5–S17 para S4–S16 e da consolidação
-  deste documento: `docs/AUDITORIA_MATERIAL_SUPLEMENTAR.md`.
+- Detalhamento completo da renumeração S5–S17 para S4–S16 e da
+  consolidação deste documento: docs/AUDITORIA_MATERIAL_SUPLEMENTAR.md.
