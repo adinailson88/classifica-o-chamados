@@ -515,7 +515,7 @@ ordenar fila de auditoria, sem inferir desordem do sistema físico. Um teste
 de sensibilidade examina a cobertura sob três convenções de denominador.
 
 A quinta análise é confirmatória. Votação majoritária, votação suave
-ponderada e stacking foram comparadas ao LinearSVC sobre os 13.970
+ponderada e stacking foram comparadas ao LinearSVC sobre os 13.972
 registros cuja categoria histórica pertencia às 41 classes avaliadas, com
 previsões *cross-fitted* dos sete modelos-base, sem novo ajuste, em filas
 de igual capacidade. A capacidade da fila é definida, em cada dobra
@@ -772,10 +772,6 @@ melhora o ECE de cinco dos sete modelos (Tabela 4). Naive Bayes e LSTM foram as
 exceções, com aumento do ECE após a calibração, cuja causa não foi
 investigada.
 
-Random Forest é omitido desta versão reduzida da Tabela 4; a tabela com os
-sete modelos, incluindo Naive Bayes e LSTM, cujo ECE aumenta após a
-calibração, consta do material suplementar (Tabela S15).
-
 A calibração viabiliza a automação seletiva, em que o classificador
 decide sozinho acima de um limiar de confiança e encaminha o restante à
 revisão humana. Ao alvo de 0,95 de acurácia, o Extra Trees automatiza
@@ -792,10 +788,9 @@ cinco dobras, o que o desqualifica para esse regime.
 \begin{table}[!tbp]
 \centering
 \small
-\caption{Calibração e automação seletiva dos quatro modelos mais
-competitivos em acurácia (n = 13.972). O ECE refere-se ao escore antes e
-depois da calibração isotônica; a cobertura e a acurácia seletiva
-correspondem ao alvo de 0,95.}
+\caption{Calibração e automação seletiva dos sete modelos (n = 13.972). O
+ECE refere-se ao escore antes e depois da calibração isotônica; a
+cobertura e a acurácia seletiva correspondem ao alvo de 0,95.}
 \label{tab:calibracao}
 \setlength{\tabcolsep}{6pt}
 \renewcommand{\arraystretch}{1.15}
@@ -807,6 +802,9 @@ LinearSVC & 0,6925 & 0,0178 & 0,6890 & 0,9464 \\
 SGD & 0,3046 & 0,0109 & 0,6162 & 0,9531 \\
 Extra Trees & 0,0859 & 0,0108 & 0,6732 & 0,9502 \\
 Regressão Logística & 0,2351 & 0,0189 & 0,6237 & 0,9415 \\
+Random Forest & 0,0913 & 0,0145 & 0,6580 & 0,9495 \\
+LSTM & 0,0158 & 0,0479 & 0,6545 & 0,9210 \\
+Naive Bayes & 0,0144 & 0,0206 & 0,5518 & 0,9306 \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -901,14 +899,14 @@ apenas em seu efeito, como a troca de classificador.
 
 **4.5 Análises complementares**
 
-O BERTimbau não integra a comparação principal por custo computacional
-medido: o ajuste fino custou 10,774 segundos por passo, e os 2.103 passos
-de treino de cada dobra projetam 6,29 horas só de treino; somadas a
-inferência e a tokenização da dobra, o custo total projetado sobe a 6,44
-horas por dobra e 32,2 horas para as cinco, contra um teto de seis horas
-— nenhuma dobra completa cabe na infraestrutura do estudo. Ambos são
-extrapolação da taxa medida, não medição completa, e nada afirmam sobre o
-desempenho do BERTimbau. Um experimento exploratório avaliou o
+O BERTimbau não integra a comparação principal por custo computacional,
+tendo o custo medido parcialmente (10,774 segundos por passo) e projetado
+para a dobra completa, resultando em 6,44 horas, valor que excede o teto
+de seis horas do ambiente disponível. Os 2.103 passos de treino de cada
+dobra projetam 6,29 horas só de treino, e a soma das cinco dobras projeta
+32,2 horas, não cabendo nenhuma dobra completa, portanto, na
+infraestrutura do estudo. Tratando-se de extrapolação da taxa medida, e
+não de medição completa, nada se afirma sobre o desempenho do BERTimbau. Um experimento exploratório avaliou o
 transformador em lote de mil chamados (983 com referência humana); os
 valores (material suplementar) não são comparáveis, por não cobrir o
 corpus probabilisticamente e usar subamostragem estratificada com parada
@@ -960,7 +958,7 @@ classificador competente, que já as captura implicitamente do texto: o
 ganho do fluxo híbrido está no eixo humano–IA (Subseção 4.3), não no eixo
 regra–modelo.
 
-Nos 13.970 registros modeláveis, 593 divergiam entre a categoria histórica e
+Nos 13.972 registros modeláveis, 593 divergiam entre a categoria histórica e
 a referência revisada. Cada método foi comparado em fila de igual
 capacidade, e nenhuma combinação superou o LinearSVC (Tabela 5). O único ganho local, do stacking na
 terceira dobra, com 123 casos capturados contra 119, não se sustentou no
@@ -972,7 +970,7 @@ suplementar (Tabela S16).
 \centering
 \small
 \caption{Comparação confirmatória entre o LinearSVC e três combinações de
-modelos, em filas de igual capacidade (n = 13.970; 2.840 registros no
+modelos, em filas de igual capacidade (n = 13.972; 2.840 registros no
 agregado).}
 \label{tab:ensembles}
 \setlength{\tabcolsep}{4pt}
@@ -1044,7 +1042,7 @@ A acurácia do LinearSVC contra a referência revisada (0,8253) supera sua
 concordância com o histórico (0,7961) em 2,92 pontos percentuais (Tabela 2).
 A diferença reflete a substituição da categoria histórica pela referência
 revisada no recorte avaliado. Das 598 alterações do corpus congelado,
-593 ocorrem nos 13.970 registros modeláveis do experimento de ensemble e
+593 ocorrem nos 13.972 registros modeláveis do experimento de ensemble e
 cinco ficam fora; esse recorte não coincide com as 13.972 linhas da
 comparação principal (Subseção 3.4), de modo que os 2,92 pontos
 percentuais não são atribuídos diretamente às 593 alterações. A revisão manteve
