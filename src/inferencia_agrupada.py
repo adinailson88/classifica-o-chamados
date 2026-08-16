@@ -426,7 +426,7 @@ def renderizar_markdown(r: dict[str, Any]) -> str:
         f"Q de Cochran = {g['estatistica_q']}, {g['graus_de_liberdade']} graus "
         f"de liberdade. Referência empírica com {g['permutacoes']} permutações "
         f"do rótulo de modelo por {g['unidade_da_permutacao']}: "
-        + (f"p < {g['p_permutacional']}" if g["p_permutacional_e_limite_superior"]
+        + (f"p ≤ {g['p_permutacional']}" if g["p_permutacional_e_limite_superior"]
            else f"p = {g['p_permutacional']}")
         + f". O p da distribuição qui-quadrado por linha seria "
         f"{g['p_qui_quadrado_por_linha']:.3g}.",

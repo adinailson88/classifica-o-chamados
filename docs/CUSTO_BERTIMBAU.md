@@ -39,6 +39,16 @@
 | Limite de um job do executor (h) | 6.0 |
 | Dobras que cabem em um job | 0 |
 
+**Decomposição das 6,44 horas por dobra:** 2.103 passos de treino a
+10,774 s/passo somam 6,29 horas só de treino; a inferência sobre 2.758
+registros de teste a 5,24 registros/s soma cerca de 0,15 hora; a
+tokenização dos 13.972 registros a 5.005 registros/s soma poucos
+segundos. As 6,44 horas são a soma dos três componentes, e as 32,2 horas
+nas cinco dobras são essa soma multiplicada por cinco. Nenhuma dobra foi
+executada até o fim; os números são extrapolação linear a partir da taxa
+medida, não medição de dobra completa, e nenhuma conclusão de desempenho
+é feita sobre o BERTimbau.
+
 ## Ambiente
 
 - 3.11.15 em Linux-6.17.0-1020-azure-x86_64-with-glibc2.39, 4 processadores.
