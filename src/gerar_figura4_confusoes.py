@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""Gera a Figura 3 e a Tabela S2 do artigo a partir de estatistica.json.
+"""Gera a figura legada de principais confusoes e a Tabela S2 a partir de
+estatistica.json. Execucao legada, anterior ao congelamento do corpus; a
+figura nao integra o corpo atual do artigo.
 
 A figura usa codigos C01..Cnn para manter o grafico legivel; a Tabela S2
 mantem o mapeamento completo codigo -> categoria real em UTF-8.
