@@ -30,6 +30,7 @@ Os resultados alimentam o painel público e o artigo/capítulo da tese em Biossi
 | Painel público | [`docs/index.html`](docs/index.html) |
 | Dados agregados | [`docs/dados/`](docs/dados/) |
 | Plano editorial do artigo | [`PLANO_ARTIGO_CAPITULO.md`](PLANO_ARTIGO_CAPITULO.md) |
+| Guia de reprodutibilidade (planilha → scripts → artigo) | [`docs/GUIA_REPRODUTIBILIDADE.md`](docs/GUIA_REPRODUTIBILIDADE.md) |
 | Contexto técnico atual | [`CONTEXTO.md`](CONTEXTO.md) |
 | Regras do repositório | [`AGENTS.md`](AGENTS.md) |
 | Código do experimento | [`src/`](src/) |
