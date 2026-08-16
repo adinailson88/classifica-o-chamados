@@ -105,7 +105,7 @@ A triagem de chamados de manutenção predial em instituições públicas
 depende da categoria registrada no sistema de atendimento, que condiciona
 o uso analítico da base. A literatura sobre classificação automática de
 chamados vem principalmente de outros idiomas e domínios e costuma
-comparar o modelo com o rótulo histórico, sem questioná-lo. Essa prática
+comparar o modelo com o rótulo histórico sem questioná-lo, prática que
 mistura erro do modelo com erro do próprio registro e não mede o risco de
 reescrever a base. Este artigo propõe e testa um protocolo de
 classificação sobre 13.972 chamados de manutenção predial universitária,
@@ -187,16 +187,16 @@ impede o uso direto por mecanismos de decisão automatizada (Morais; Paula;
 Reis, 2023; Mohammed; Amoah, 2025). Convertê-los em dado estruturado e
 auditável é condição anterior a qualquer camada preditiva.
 
-Três obstáculos condicionam essa conversão: a natureza textual curta e
-heterogênea dos registros, cujas abreviações locais e jargões de equipe
-dificultam a aplicação de modelos genéricos de processamento de linguagem
-natural (PLN) (Sundaram; Zeid, 2025); o desbalanceamento entre categorias,
-em que demandas recorrentes concentram grande parte da base e categorias
-raras dispõem de poucos exemplos para treinamento supervisionado (Li *et
-al.*, 2024); e a qualidade do próprio rótulo histórico, que pode resultar
-de interpretação rápida ou de taxonomia ainda não estabilizada, e por
-isso constitui evidência importante sem ser referência definitiva (Zhang
-*et al.*, 2025; Kejriwal *et al.*, 2024).
+Essa conversão é condicionada pela natureza textual curta e heterogênea dos
+registros, cujas abreviações locais e jargões de equipe dificultam a
+aplicação de modelos genéricos de processamento de linguagem natural (PLN),
+pelo desbalanceamento entre categorias, em que demandas recorrentes
+concentram grande parte da base e categorias raras dispõem de poucos
+exemplos para treinamento supervisionado, e pela qualidade do próprio
+rótulo histórico, que pode resultar de interpretação rápida ou de taxonomia
+ainda não estabilizada e por isso constitui evidência importante sem ser
+referência definitiva (Sundaram; Zeid, 2025; Li *et al.*, 2024; Zhang *et
+al.*, 2025; Kejriwal *et al.*, 2024).
 
 A literatura confirma a viabilidade técnica da tarefa, com acurácia de 0,83
 sobre 15.623 ordens de serviço hospitalares (Li *et al.*, 2024) e 78% em
@@ -209,20 +209,20 @@ universitária, e a ausência de protocolo que trate a categoria histórica
 como objeto de auditoria e meça o risco de reescrevê-la.
 
 A pergunta que orienta este artigo não é qual classificador mais concorda
-com a categoria histórica. É sob que condições a classificação automática
-produz dado estruturado confiável sem herdar as inconsistências do registro
-que lhe deu origem.
+com a categoria histórica, mas sim sob que condições a classificação
+automática produz dado estruturado confiável sem herdar as inconsistências
+do registro que lhe deu origem.
 
 A resposta é um protocolo auditável, medido sobre 14.060 chamados reais de
 uma instituição federal de ensino superior. A contribuição não está na
 comparação entre algoritmos, aqui meio e não fim, mas na articulação de
-cinco elementos: auditoria administrativa de rótulo sobre o corpus
+cinco elementos: a auditoria administrativa de rótulo sobre o corpus
 integral, que separa a concordância com o histórico do acerto contra a
-referência revisada; inferência que respeita a dependência entre chamados
-de texto repetido, com o grupo textual como unidade na partição e nos
-testes; calibração dos escores de confiança; automação seletiva
+referência revisada; a inferência que respeita a dependência entre
+chamados de texto repetido, com o grupo textual como unidade na partição e
+nos testes; a calibração dos escores de confiança; a automação seletiva
 condicionada a esses escores, com encaminhamento do restante ao revisor; e
-avaliação do risco de reclassificação por função de utilidade explícita.
+a avaliação do risco de reclassificação por função de utilidade explícita.
 Sete classificadores percorrem o protocolo sob as mesmas partições; o
 BERTimbau fica fora por custo computacional medido.
 
@@ -379,18 +379,17 @@ Sete modelos em três famílias compõem a comparação principal, escolhidas
 pelas características do domínio: texto curto, vocabulário técnico e forte
 desbalanceamento. Nenhuma das três é descartada a priori: a comparação sob
 o mesmo protocolo permite decidir entre elas por evidência, não por
-preferência de projeto. Fronteiras lineares
-separam bem as classes sobre representação esparsa quando o vocabulário
-carrega poder discriminativo (Joachims, 1998; Salton; Buckley, 1988). Os
-*ensembles* de árvores capturam interações não lineares a custo maior,
-pagando por essa flexibilidade em tempo de treino. O Naive Bayes assume
-independência condicional entre atributos dada a classe, suposição violada
-quando termos técnicos co-ocorrem dentro de uma mesma categoria
-(Pedregosa *et al.*, 2011), mas serve de piso comparativo barato para as
-demais famílias. E a LSTM treina seus *embeddings* do zero (Graves;
-Schmidhuber, 2005),
-concentrando nessa camada cerca de 1,02 milhão de parâmetros, ordem de
-grandeza próxima dos 11.178 exemplos de cada partição de treino. A Tabela 1
+preferência de projeto. Fronteiras lineares separam bem as classes sobre
+representação esparsa quando o vocabulário carrega poder discriminativo
+(Joachims, 1998; Salton; Buckley, 1988), enquanto os *ensembles* de árvores
+capturam interações não lineares a custo maior, pagando por essa
+flexibilidade em tempo de treino. O Naive Bayes assume independência
+condicional entre atributos dada a classe, suposição violada quando termos
+técnicos co-ocorrem dentro de uma mesma categoria (Pedregosa *et al.*,
+2011), mas serve de piso comparativo barato para as demais famílias, ao
+passo que a LSTM treina seus *embeddings* do zero (Graves; Schmidhuber,
+2005), concentrando nessa camada cerca de 1,02 milhão de parâmetros, ordem
+de grandeza próxima dos 11.178 exemplos de cada partição de treino. A Tabela 1
 resume representação, configuração e papel de cada modelo; os
 hiperparâmetros não declarados permanecem nos padrões da biblioteca e estão
 versionados com o ambiente de execução. Nenhum dos sete modelos passou por
@@ -1005,12 +1004,13 @@ Stacking & 512 & $-$11 & 0,1803 & 0,8634 \\
 
 **5.1 Adequação dos modelos e decisão por múltiplos critérios**
 
-O desempenho dos sete modelos (Tabela 2) não aponta vencedor absoluto. O
-LinearSVC lidera a acurácia, a Regressão Logística tem o macro-F1 pontual
-ligeiramente superior, e o SGD permanece próximo de ambos, com intervalos
-de confiança sobrepostos entre os três primeiros. A leitura operacional, portanto, segue os mesmos múltiplos critérios da
-Subseção 4.1, e a superioridade estatística do LinearSVC sobre o segundo
-colocado não basta, isoladamente, para declará-lo vencedor único.
+Embora o desempenho dos sete modelos (Tabela 2) não aponte um vencedor
+absoluto, o LinearSVC lidera a acurácia, a Regressão Logística apresenta
+macro-F1 pontual ligeiramente superior e o SGD permanece próximo de ambos,
+com intervalos de confiança sobrepostos entre os três primeiros. A leitura
+operacional, portanto, segue os mesmos múltiplos critérios da Subseção 4.1,
+e a superioridade estatística do LinearSVC sobre o segundo colocado não
+basta, isoladamente, para declará-lo vencedor único.
 
 O bom desempenho dos modelos lineares é compatível com a literatura sobre
 texto curto de vocabulário técnico, em que representações esparsas com
@@ -1018,8 +1018,8 @@ fronteiras lineares sustentam desempenho competitivo (Joachims, 1998;
 Salton; Buckley, 1988; Galke; Scherp, 2022). Essa convergência é
 informativa por dois motivos. O corpus aqui analisado é institucional, em
 português brasileiro, e mantém a mesma regularidade observada em
-*benchmarks* de outra natureza. E a vantagem estatística do LinearSVC
-sobre o segundo colocado, embora estabelecida (Subseção 4.1), não se
+*benchmarks* de outra natureza; além disso, a vantagem estatística do
+LinearSVC sobre o segundo colocado, embora estabelecida (Subseção 4.1), não se
 traduz em vantagem prática na maioria dos grupos textuais. Sob as
 configurações de referência adotadas (Tabela 1) e custo computacional
 comparável, a fronteira linear não é superada pelos *ensembles* nem pela
