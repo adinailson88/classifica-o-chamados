@@ -101,30 +101,30 @@ em Biossistemas
 
 **RESUMO**
 
-A triagem de chamados de manutenção predial em instituições públicas depende
-da categoria registrada no sistema de atendimento, e esse registro
-condiciona todo uso analítico posterior da base. A literatura sobre
-classificação automática desses registros trata sobretudo de corpora em
-outros idiomas e domínios, e avalia o classificador contra o rótulo
-histórico. Essa prática impede separar erro do modelo de erro do registro, e
-deixa sem medida o risco de reescrever a base. Este artigo propõe e mede um
-protocolo de classificação sobre 14.060 chamados de manutenção predial
-universitária em português brasileiro, com métricas nas 13.972 linhas das 41
-categorias com suporte. As predições vêm de validação cruzada agrupada pelo
-texto normalizado, unidade também adotada na inferência, de modo que
-registros de texto idêntico não atravessam a fronteira entre treino e teste
-nem contam como evidência independente. A referência de avaliação provém de
-auditoria administrativa de rótulo sobre todo o corpus, que alterou a
-categoria histórica em 4,25% dos registros. O melhor dos sete classificadores
-comparados alcança acurácia de 0,8253 contra essa referência. A calibração
-isotônica viabiliza automação seletiva de cerca de dois terços do volume no
-alvo de 0,95 de acurácia, e o restante segue ao revisor humano. A reclassificação
-automática da base, ao contrário, produz ganho líquido negativo nos sete
-modelos, resultado que se mantém sob custos assimétricos: a divergência
-entre modelo e histórico serve para priorizar a auditoria, não para
-reescrever o registro. A contribuição é o protocolo que articula governança
-de rótulo, inferência sob dependência textual, calibração, automação
-seletiva e medida explícita do risco de reclassificação.
+A triagem de chamados de manutenção predial em instituições públicas
+depende da categoria registrada no sistema de atendimento, que condiciona
+o uso analítico da base. A literatura sobre classificação automática de
+chamados vem principalmente de outros idiomas e domínios e costuma
+comparar o modelo com o rótulo histórico, sem questioná-lo. Essa prática
+mistura erro do modelo com erro do próprio registro e não mede o risco de
+reescrever a base. Este artigo propõe e testa um protocolo de
+classificação sobre 13.972 chamados de manutenção predial universitária,
+em português brasileiro, em 41 categorias. As previsões vêm de validação
+cruzada agrupada pelo texto normalizado, a mesma unidade usada na
+inferência, de modo que um mesmo texto não entra ao mesmo tempo em treino
+e teste nem conta duas vezes como evidência. A referência de avaliação vem
+de auditoria administrativa sobre todo o corpus, que corrigiu a categoria
+de 4,25% dos registros. O melhor classificador, o LinearSVC, atinge 0,8253
+de acurácia contra essa referência, à frente dos demais modelos
+comparados. Com calibração isotônica, esse mesmo modelo automatiza 68,90%
+do volume com 0,9464 de acurácia seletiva, perto da meta de 0,95, e
+encaminha o restante para revisão humana. A reclassificação automática da
+base, ao contrário, produz ganho líquido negativo nos sete modelos mesmo
+sob custos assimétricos, porque a divergência entre modelo e histórico
+prioriza a auditoria em vez de reescrever o registro. A contribuição deste
+artigo é esse protocolo, que une auditoria de rótulo, inferência que
+respeita a dependência entre textos, calibração, automação seletiva e uma
+medida explícita do risco de reclassificação.
 
 **Palavras-chave:** manutenção predial; classificação de chamados;
 auditoria de rótulo; calibração e classificação seletiva; rótulos
@@ -132,30 +132,30 @@ ruidosos.
 
 **ABSTRACT**
 
-*Triage of building maintenance work orders in public institutions relies on
-the category recorded in the service-management system, and that record
-conditions every later analytical use of the database. Research on the
-automatic classification of such records deals mostly with corpora from
-other languages and domains, and evaluates the classifier against the
-historical label. This practice prevents telling model error from record
-error, and leaves the risk of rewriting the database unmeasured. This paper
-proposes and measures a classification protocol over 14,060 university
-building maintenance work orders in Brazilian Portuguese, with metrics
-computed on the 13,972 records of the 41 categories with support.
-Predictions come from cross-validation grouped by normalised text, the same
-unit adopted for inference, so that records sharing identical text neither
-cross the train-test boundary nor count as independent evidence. The
-evaluation reference comes from an administrative label audit over the
-entire corpus, which changed the historical category in 4.25% of records.
-The best of the seven classifiers compared reaches 0.8253 accuracy against
-that reference. Isotonic calibration enables selective automation of about
-two thirds of the volume under a target accuracy of 0.95, with the
-remainder routed to human review. Automatic reclassification of the base, by contrast, yields a
-negative net gain across the seven models, a result that holds under
-asymmetric costs: divergence between model and historical record serves to
-prioritise the audit queue, not to rewrite the record. The contribution is
-the protocol that articulates label governance, inference under textual
-dependence, calibration, selective automation, and an explicit measure of
+*Triage of building maintenance work orders in public institutions relies
+on the category recorded in the service-management system, which
+conditions the later analytical use of the database. Research on automatic
+classification comes mostly from other languages and domains and usually
+compares the model to the historical label without questioning it. This
+practice mixes model error with record error and leaves the risk of
+rewriting the database unmeasured. This paper proposes and tests a
+classification protocol over 13,972 university building maintenance work
+orders in Brazilian Portuguese, across 41 categories. Predictions come from
+cross-validation grouped by normalised text, the same unit used at
+inference, so that the same text never appears in both training and test
+at once nor counts twice as evidence. The evaluation reference comes from
+an administrative audit over the entire corpus, which corrected the
+category of 4.25% of records. The best classifier, LinearSVC, reaches
+0.8253 accuracy against that reference, ahead of the other models compared.
+Under isotonic calibration, the same model automates 68.90% of the volume
+with 0.9464 selective accuracy, close to the 0.95 target, and routes the
+remainder to human review. Automatic reclassification of the base, by
+contrast, yields a negative net gain across the seven models even under
+asymmetric costs, because divergence between model and historical record
+prioritises the audit queue rather than rewriting the record. The
+contribution of this paper is precisely this protocol, which brings
+together label audit, inference that respects textual dependence,
+calibration, selective automation, and an explicit measure of
 reclassification risk.*
 
 ***Keywords:** building maintenance; work-order classification; label
@@ -172,17 +172,17 @@ edificado, conforme a gestão sistematizada definida pela NBR 5674 (ABNT,
 2012).
 
 O sinal disponível para essa decisão é textual. Este artigo trata o campus
-universitário como um biossistema construído — definição operacional aqui
+universitário como um biossistema construído, definição operacional aqui
 proposta para a integração dinâmica entre infraestrutura física, atividade
 humana, sistemas tecnológicos e condicionantes ambientais, cuja governança
 depende da capacidade institucional de captar sinais e convertê-los em
-decisão —, apoiada na perspectiva sistêmica de Capra
-(1997), na concepção de ecossistema de Odum (1996) e na ecologia urbana de
-Grimm *et al.* (2000) — nenhum cunha o termo; o artigo não mede a
-retroalimentação ecológica entre uso, falha e reparo (Subseção 5.4). Nas
-IFES,
-esse sinal assume a forma de registros de chamados de manutenção,
-armazenados em linguagem não estruturada, cuja interpretação individual
+decisão. Essa definição apoia-se na perspectiva sistêmica de Capra (1997),
+na concepção de ecossistema de Odum (1996) e na ecologia urbana de Grimm
+*et al.* (2000), ainda que nenhum desses autores cunhe o termo. O artigo
+não mede a retroalimentação ecológica entre uso, falha e reparo (Subseção
+5.4); seu objeto é o protocolo de classificação que organiza o sinal
+textual. Nas IFES, esse sinal assume a forma de registros de chamados de
+manutenção, armazenados em linguagem não estruturada, cuja interpretação individual
 impede o uso direto por mecanismos de decisão automatizada (Morais; Paula;
 Reis, 2023; Mohammed; Amoah, 2025). Convertê-los em dado estruturado e
 auditável é condição anterior a qualquer camada preditiva.
@@ -455,9 +455,11 @@ constam da Subseção 4.1 e do material suplementar.
 A unidade da inferência é o grupo textual, e não o chamado. Das 14.060
 linhas, 4.586, ou 32,62%, compartilham texto normalizado com outra; a base
 congelada resolve-se em 9.786 grupos, 9.474 deles unitários, e 9.735
-sobrevivem ao recorte das 13.972 linhas avaliadas, ao passo que o mapa
-recalculado sobre o texto vivo registra 9.734 grupos, por edição textual
-posterior ao congelamento da base. Registros de texto idêntico recebem a
+sobrevivem ao recorte das 13.972 linhas avaliadas. O mapa recalculado
+sobre o texto vivo, calculado após o congelamento da base, registra 9.734
+grupos; a diferença de um grupo decorre de edição textual posterior ao
+congelamento e não altera o artefato canônico, cujos números são os
+únicos reportados neste artigo. Registros de texto idêntico recebem a
 mesma predição de qualquer classificador e não são evidências
 independentes;
 tratá-los como tal estreita artificialmente intervalos e valores de *p*
