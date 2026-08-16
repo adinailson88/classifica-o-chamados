@@ -40,7 +40,7 @@ from tempo import agora_bahia  # noqa: E402
 RAIZ = Path(__file__).resolve().parents[1]
 CONFIG_PADRAO = RAIZ / "config_experimento.json"
 SAIDA_JSON = RAIZ / "04_artigo" / "figuras" / "comparacao_kfold_groupkfold.json"
-SAIDA_CSV = RAIZ / "04_artigo" / "figuras" / "tabela_S5_kfold_vs_groupkfold.csv"
+SAIDA_CSV = RAIZ / "04_artigo" / "figuras" / "tabela_S4_kfold_vs_groupkfold.csv"
 
 MODELOS = [
     "naive_bayes", "regressao_logistica", "linear_svc", "sgd",
