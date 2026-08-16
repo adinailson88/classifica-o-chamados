@@ -510,10 +510,10 @@ citado no corpo, sob a suposição de custos iguais; as demais colunas
 qualificam esse resultado sob custos assimétricos, sem substituí-lo.
 Dividida em três partes por largura de página: (a) contadores e ganho
 líquido simples, com `rho_de_equilibrio` (razão de custo em que o ganho
-líquido zera); (b) utilidade da aplicação direta sob cinco valores de ρ;
-(c) triagem por divergência entre modelo e categoria histórica, com a fila
-resultante, sua precisão e a utilidade sob quatro valores de λ.
-**Denominador:** 13.972 linhas avaliadas.
+líquido zera); (b) utilidade da aplicação direta sob cinco valores de
+$\rho$; (c) triagem por divergência entre modelo e categoria histórica,
+com a fila resultante, sua precisão e a utilidade sob quatro valores de
+$\lambda$. **Denominador:** 13.972 linhas avaliadas.
 
 **(a) Contadores e ganho líquido**
 
@@ -527,7 +527,7 @@ resultante, sua precisão e a utilidade sob quatro valores de λ.
 | LSTM | 426 | 3621 | 121 | -3195 | 0,1176 |
 | Naive Bayes | 309 | 3783 | 164 | -3474 | 0,0817 |
 
-**(b) Utilidade da aplicação direta por ρ**
+**(b) Utilidade da aplicação direta por $\rho$**
 
 | modelo | U direta rho 0.25 | U direta rho 0.5 | U direta rho 1 | U direta rho 2 | U direta rho 4 |
 |---|---|---|---|---|---|
