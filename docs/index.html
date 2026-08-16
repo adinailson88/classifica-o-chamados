@@ -478,15 +478,23 @@
 
   <section id="tab-reclass" class="hide">
     <span class="artref">&#8627; Subsecao 4.5 do artigo &mdash; Reclassificacao e ganho liquido</span>
+    <div class="card full" style="padding-bottom:8px">
+      <label for="selReclassFonte" class="muted" style="display:block;margin-bottom:6px">Fonte da secao "Reclassificacao por modelo"</label>
+      <select id="selReclassFonte" style="border:1px solid var(--bd);border-radius:6px;padding:7px 9px;background:#fff;color:var(--tx)">
+        <option value="artigo" selected>Artigo (congelado, n=13.972, Tabela 3)</option>
+        <option value="operacional">Operacional (ao vivo, base crescente)</option>
+      </select>
+      <p class="muted" id="reclassFonteNota" style="margin-top:8px"></p>
+    </div>
     <div class="alerta" id="reclassAviso">Etapa 2 (reclassificacao) ainda nao executada apos o reset. Nao iniciar a validacao humana ainda; o proximo passo tecnico e um dry-run ou aplicacao controlada da reclassificacao.</div>
     <div class="kpis" id="kpisRM"></div>
     <div class="grid">
       <div class="card full">
-        <h2>Reclassificacao por modelo (inclui casos validados pelo humano)</h2>
-        <div class="tablebox"><table id="tabReclassModelo"><thead><tr>
+        <h2 id="hReclassModelo">Reclassificacao por modelo (inclui casos validados pelo humano)</h2>
+        <div class="tablebox"><table id="tabReclassModelo"><thead><tr id="tabReclassModeloHead">
           <th>Modelo</th><th>Avaliados</th><th>Reuso decisao humana</th><th>Corrigidos</th><th>Prejudicados</th><th>Ganho liquido</th><th>Mudou categoria</th><th>Sem referencia</th><th>Base validada</th><th>Ultima execucao</th>
         </tr></thead><tbody></tbody></table></div>
-        <p class="muted">"Avaliados" = quantos chamados o modelo processou nesta rodada de reclassificacao (proximo da base inteira, ~13.965; nao e quantos mudaram de categoria — isso e "Mudou categoria"). "Reuso decisao humana" = chamados com conferencia 'Correto' reaproveitados sem reprocessar (regra de memoria). "Sem referencia" = historico conferido como errado e ainda sem verdade travada (nao conta em corrigidos/prejudicados). "Base validada" = registros cuja comparacao usou a verdade conferida por humano.</p>
+        <p class="muted" id="tabReclassModeloNota">"Avaliados" = quantos chamados o modelo processou nesta rodada de reclassificacao (proximo da base inteira, ~13.965; nao e quantos mudaram de categoria — isso e "Mudou categoria"). "Reuso decisao humana" = chamados com conferencia 'Correto' reaproveitados sem reprocessar (regra de memoria). "Sem referencia" = historico conferido como errado e ainda sem verdade travada (nao conta em corrigidos/prejudicados). "Base validada" = registros cuja comparacao usou a verdade conferida por humano.</p>
       </div>
       <div class="card"><h2>Ganho liquido por modelo</h2><canvas id="cReclassModelo"></canvas></div>
       <div class="card"><h2>Composicao dos resultados por modelo</h2><canvas id="cReclassComp"></canvas></div>
@@ -1414,6 +1422,75 @@ function renderReclassModelo(rr){
     options:{...chartOpts(""),scales:{x:{stacked:true,ticks:{color:"#24303a"}},y:{stacked:true,ticks:{color:"#24303a"}}}}});
   return true;
 }
+// Tabela 3 do artigo (congelada): comparacao_historica.json, mesma rodada
+// canonica das figuras do PDF (hash_corpus travado, n=13.972). Ganho liquido
+// negativo nos sete modelos e o achado central da Subsecao 4.2/6 do artigo;
+// esta view existe para nao confundir esse resultado com o ganho liquido
+// operacional (positivo, base crescente, protocolo diferente).
+function renderReclassModeloArtigo(ch){
+  const box=document.getElementById("kpisRM");
+  const tb=document.querySelector("#tabReclassModelo tbody");
+  const head=document.getElementById("tabReclassModeloHead");
+  const nota=document.getElementById("tabReclassModeloNota");
+  const titulo=document.getElementById("hReclassModelo");
+  if(!tb) return;
+  const lin=(ch&&ch.modelos)||[];
+  if(titulo) titulo.textContent="Reclassificacao por modelo (Tabela 3 do artigo, congelado)";
+  if(head) head.innerHTML=`<th>Modelo</th><th>Divergencias</th><th>Corrigidos</th><th>Prejudicados</th><th>Neutros</th><th>Ganho liquido</th>`;
+  if(nota) nota.textContent=`Fonte: comparacao_historica.json, artefato congelado (hash_corpus travado na rodada canonica) que gerou a Tabela 3 do artigo. "Divergencias" = predicao diferente da categoria historica; a referencia humana revisada arbitra se cada divergencia corrigiu ("Corrigidos") ou prejudicou ("Prejudicados") o registro; "Neutros" = divergiu do historico sem que predicao ou historico coincidam com a referencia. Ganho liquido = Corrigidos - Prejudicados; negativo nos sete modelos no corte avaliado.`;
+  if(!lin.length){
+    if(box) box.innerHTML=kpi("0","Modelos com dado congelado")+kpi("—","comparacao_historica.json ausente");
+    tb.innerHTML=`<tr><td colspan="6" class="muted">comparacao_historica.json nao publicado neste corte.</td></tr>`;
+    destroy("cReclassModelo"); destroy("cReclassComp");
+    return;
+  }
+  const tot=k=>lin.reduce((s,m)=>s+N(m.reclassificacao&&m.reclassificacao[k]),0);
+  if(box) box.innerHTML = kpi(fmt(tot("ganho_liquido")),"Ganho liquido (soma dos 7 modelos)")
+    +kpi(fmt(tot("corrigidos")),"Corrigidos")
+    +kpi(fmt(tot("prejudicados")),"Prejudicados")
+    +kpi(fmt(tot("divergencias_com_o_historico")),"Divergencias (soma dos 7 modelos)")
+    +kpi(fmt(N(ch.corpus&&ch.corpus.registros)),"Registros avaliados (n)");
+  const ord=[...lin].sort((a,b)=>N(b.reclassificacao&&b.reclassificacao.ganho_liquido)-N(a.reclassificacao&&a.reclassificacao.ganho_liquido));
+  tb.innerHTML = ord.map(m=>{
+    const r=m.reclassificacao||{};
+    return `<tr><td>${esc(m.modelo)}</td><td>${fmt(r.divergencias_com_o_historico)}</td>`
+      +`<td>${fmt(r.corrigidos)}</td><td>${fmt(r.prejudicados)}</td><td>${fmt(r.neutros)}</td>`
+      +`<td class="${N(r.ganho_liquido)>=0?'status-ok':'status-bad'}">${fmt(r.ganho_liquido)}</td></tr>`;
+  }).join("");
+  destroy("cReclassModelo"); destroy("cReclassComp");
+  const labels=ord.map(m=>m.modelo);
+  charts.cReclassModelo = new Chart(cReclassModelo,{type:"bar",
+    data:{labels,datasets:[{label:"Ganho liquido",data:ord.map(m=>N(m.reclassificacao&&m.reclassificacao.ganho_liquido)),
+      backgroundColor:ord.map(m=>N(m.reclassificacao&&m.reclassificacao.ganho_liquido)>=0?"#2563eb":"#b42318")}]},
+    options:chartOpts("")});
+  charts.cReclassComp = new Chart(cReclassComp,{type:"bar",
+    data:{labels,datasets:[
+      {label:"Corrigidos",data:ord.map(m=>N(m.reclassificacao&&m.reclassificacao.corrigidos)),backgroundColor:"#2563eb"},
+      {label:"Prejudicados",data:ord.map(m=>N(m.reclassificacao&&m.reclassificacao.prejudicados)),backgroundColor:"#b42318"},
+      {label:"Neutros",data:ord.map(m=>N(m.reclassificacao&&m.reclassificacao.neutros)),backgroundColor:"#68737d"}]},
+    options:{...chartOpts(""),scales:{x:{stacked:true,ticks:{color:"#24303a"}},y:{stacked:true,ticks:{color:"#24303a"}}}}});
+}
+function theadReclassModeloOperacional(){
+  const head=document.getElementById("tabReclassModeloHead");
+  const titulo=document.getElementById("hReclassModelo");
+  const nota=document.getElementById("tabReclassModeloNota");
+  if(head) head.innerHTML=`<th>Modelo</th><th>Avaliados</th><th>Reuso decisao humana</th><th>Corrigidos</th><th>Prejudicados</th><th>Ganho liquido</th><th>Mudou categoria</th><th>Sem referencia</th><th>Base validada</th><th>Ultima execucao</th>`;
+  if(titulo) titulo.textContent="Reclassificacao por modelo (inclui casos validados pelo humano)";
+  if(nota) nota.textContent=`"Avaliados" = quantos chamados o modelo processou nesta rodada de reclassificacao (proximo da base inteira, ~13.965; nao e quantos mudaram de categoria — isso e "Mudou categoria"). "Reuso decisao humana" = chamados com conferencia 'Correto' reaproveitados sem reprocessar (regra de memoria). "Sem referencia" = historico conferido como errado e ainda sem verdade travada (nao conta em corrigidos/prejudicados). "Base validada" = registros cuja comparacao usou a verdade conferida por humano.`;
+}
+function aplicarFonteReclassModelo(){
+  const sel=document.getElementById("selReclassFonte");
+  const modo = sel ? sel.value : "artigo";
+  const notaFonte=document.getElementById("reclassFonteNota");
+  if(modo==="artigo"){
+    if(notaFonte) notaFonte.innerHTML = `Numeros congelados que sustentam a Tabela 3 do artigo (protocolo <em>out-of-fold</em> agrupado por texto, n=13.972). Nao mudam com a base operacional; ganho liquido negativo nos sete modelos e o achado central do artigo, nao um problema do painel.`;
+    renderReclassModeloArtigo(COMP_HIST||{});
+  } else {
+    theadReclassModeloOperacional();
+    if(notaFonte) notaFonte.innerHTML = `Acompanhamento operacional ao vivo (base crescente, protocolo diferente do artigo, sem partição agrupada nem revisão integral do rótulo). Não é o resultado publicado no artigo; não usar como substituto da Tabela 3.`;
+    renderReclassModelo(RECLASS_RESUMO_OP||{});
+  }
+}
 function renderReclass(rt, temMulti){
   const box=document.getElementById("kpisR"), vazio=document.getElementById("reclassVazio");
   const aviso=document.getElementById("reclassAviso");
@@ -1717,6 +1794,11 @@ let TAXON_CORR=null, TAXON_TERMOS=null, TAXON_CRUZ=null;
    isso nada aqui e recortado por data ou por rodada. */
 let CONFUSAO = null;
 const CONFUSAO_TOP_CATS = 20;
+// ---- Reclassificacao por modelo: fonte alternavel artigo/operacional ----
+// comparacao_historica.json e artefato congelado (hash_corpus travado na
+// rodada canonica que gerou a Tabela 3 do artigo, n=13.972); reclass_resumo.json
+// e o resumo operacional ao vivo (base crescente). Ver src/gerar_figuras_canonicas.py.
+let COMP_HIST = null, RECLASS_RESUMO_OP = null;
 
 function confusaoModelos(){
   if(!CONFUSAO || !CONFUSAO.modelos) return [];
@@ -2471,11 +2553,11 @@ function renderBertimbauCoreset(cs){
     getJSON("estatistica.json"),
     getJSON("correlacao_categorias.json"), getJSON("termos_relevantes.json"), getJSON("cruzamento_taxonomia.json")
   ]);
-  const [avFinal, anErros, reclassResumo, shResumo, shModelos, jsModelos, shCategorias, shVotos, bertState, bertHoldout] = await Promise.all([
+  const [avFinal, anErros, reclassResumo, shResumo, shModelos, jsModelos, shCategorias, shVotos, bertState, bertHoldout, compHist] = await Promise.all([
     getJSON("avaliacao_final.json"), getJSON("analise_erros.json"), getJSON("reclass_resumo.json"),
     getJSON("shannon_resumo.json"), getJSON("shannon_modelos.json"), getJSON("jensen_shannon_modelos.json"),
     getJSON("shannon_categorias.json"), getJSON("shannon_votos.json"), getJSON("bertimbau_training_state.json"),
-    getJSON("avaliacao_bertimbau_holdout.json")
+    getJSON("avaliacao_bertimbau_holdout.json"), getJSON("comparacao_historica.json")
   ]);
   CONFUSAO = await getJSON("matriz_confusao.json");
   renderConfusao();
@@ -2512,7 +2594,13 @@ function renderBertimbauCoreset(cs){
   renderReclassMulti(Array.isArray(multiRecl) ? multiRecl : []);
   renderTaxonomia(taxCorr, taxTermos, taxCruz);
   renderEstatistica(estat);
-  const temMulti = renderReclassModelo(Array.isArray(reclassResumo)?null:reclassResumo);
+  COMP_HIST = (compHist && !Array.isArray(compHist)) ? compHist : null;
+  RECLASS_RESUMO_OP = Array.isArray(reclassResumo)?null:reclassResumo;
+  const linOp=(RECLASS_RESUMO_OP&&RECLASS_RESUMO_OP.por_modelo)||[];
+  const temMulti = linOp.length>0;
+  const selRF=document.getElementById("selReclassFonte");
+  if(selRF) selRF.addEventListener("change", aplicarFonteReclassModelo);
+  aplicarFonteReclassModelo();
   prepararReclassPorModelo(Array.isArray(rt) ? rt : [], Array.isArray(multiRecl) ? multiRecl : []);
   const selRT=document.getElementById("selReclassTurno");
   if(selRT) selRT.addEventListener("change", ()=>renderReclassSelecionado(temMulti));
