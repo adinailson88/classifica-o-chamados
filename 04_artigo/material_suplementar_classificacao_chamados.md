@@ -70,7 +70,7 @@ cada tabela.
 | Tabela | Título | Trilha |
 |---|---|---|
 | S1 | Métricas por categoria (suporte, precisão, recall, F1) | legado, pré-congelamento |
-| S2 | Códigos de categoria usados na Figura 3 | legado, pré-congelamento |
+| S2 | Códigos de categoria da figura legada de principais confusões | legado, pré-congelamento |
 | S3 | *Ablation* do LSTM: unidades × *dropout* | legado, pré-congelamento |
 | S4 | KFold por linha *versus* GroupKFold por grupo textual | legado, pré-congelamento |
 | S5 | Holdout exploratório do BERTimbau | exploratório (BERTimbau) |
@@ -103,75 +103,91 @@ linhas avaliadas. A coluna `concordancia`, sempre vazia nesta execução, e a
 coluna `fonte`, constante em todas as linhas (o texto acima), foram
 omitidas da tabela impressa por não variarem entre categorias.
 
-| categoria | support | precision | recall | f1 |
-|---|---|---|---|---|
-| Elétrica > Sistema Fotovoltaico (FV) | 7 | 0,0000 | 0,0000 | 0,0000 |
-| Manutenção Preventiva | 2 | 0,0000 | 0,0000 | 0,0000 |
-| Estrutura Predial > Instalações Especiais (gás, ar comprimido, etc.) | 3 | 0,0380 | 1,0000 | 0,0732 |
-| Suprimentos / Apoio Técnico > Transporte | 1 | 0,0556 | 1,0000 | 0,1053 |
-| Área Externa e Ambiental > Drenagem | 3 | 0,0833 | 0,3333 | 0,1333 |
-| Manutenção Preventiva > Sistemas de incêndio | 9 | 0,2000 | 0,1111 | 0,1429 |
-| Manutenção Preventiva > Aplicação cupinicida | 3 | 0,0857 | 1,0000 | 0,1579 |
-| Manutenção Preventiva > Bomba | 3 | 0,0968 | 1,0000 | 0,1765 |
-| Instalação de Acessórios e Mobiliário > Instalação/reparo de equipamentos (Suportes de TV, acessórios de banheiro e quadro branco) | 262 | 0,2407 | 0,1489 | 0,1840 |
-| Projetos e Reformas > Projeto | 25 | 0,1691 | 0,9200 | 0,2857 |
-| Projetos e Reformas > Reforma | 83 | 0,1875 | 0,6506 | 0,2911 |
-| Manutenção Preventiva > Esgoto | 33 | 0,1985 | 0,7879 | 0,3171 |
-| Suprimentos / Apoio Técnico > Limpeza de equipamentos, ambiente e mobiliário | 14 | 0,2391 | 0,7857 | 0,3667 |
-| Outros > Outros | 33 | 0,8000 | 0,2424 | 0,3721 |
-| Área Externa e Ambiental > Poda de Árvore / Roçagem | 9 | 0,2353 | 0,8889 | 0,3721 |
-| Manutenção Preventiva > Hidráulica | 32 | 0,2667 | 0,7500 | 0,3934 |
-| Outros > Erro de chamado | 243 | 0,3939 | 0,4280 | 0,4103 |
-| Estrutura Predial > Alvenaria / Pisos / Estrutura | 1300 | 0,6559 | 0,3269 | 0,4363 |
-| Manutenção Preventiva > Telhados, calhas, rufos, etc. | 44 | 0,3551 | 0,8636 | 0,5033 |
-| Hidrossanitária > ETA / ETE | 16 | 0,3488 | 0,9375 | 0,5085 |
-| Estrutura Predial > Pintura | 58 | 0,3676 | 0,8621 | 0,5155 |
-| Estrutura Predial > Telhados, calhas, rufos, etc. | 206 | 0,5783 | 0,4660 | 0,5161 |
-| Equipamentos de Transporte > Elevador | 22 | 0,4082 | 0,9091 | 0,5634 |
-| Área Externa e Ambiental > Manutenção área externa / meio ambiente | 94 | 0,7121 | 0,5000 | 0,5875 |
-| Suprimentos / Apoio Técnico > Materiais | 85 | 0,4851 | 0,7647 | 0,5936 |
-| Manutenção Preventiva > Nobreak | 10 | 0,4500 | 0,9000 | 0,6000 |
-| Segurança contra Incêndio > Sistemas de combate a incêndio (extintores, hidrantes) | 27 | 0,5278 | 0,7037 | 0,6032 |
-| Climatização > Ar condicionado central | 36 | 0,5091 | 0,7778 | 0,6154 |
-| Elétrica > Subestação | 18 | 0,5417 | 0,7222 | 0,6190 |
-| TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi | 399 | 0,5524 | 0,8195 | 0,6599 |
-| Elétrica > Instalações elétricas | 940 | 0,7675 | 0,5830 | 0,6626 |
-| Instalação de Acessórios e Mobiliário > Placas de identificação | 54 | 0,5393 | 0,8889 | 0,6713 |
-| Estrutura Predial > Infiltração | 213 | 0,6113 | 0,8122 | 0,6976 |
-| Elétrica > Gerador | 38 | 0,5806 | 0,9474 | 0,7200 |
-| Hidrossanitária > Bomba | 38 | 0,6346 | 0,8684 | 0,7333 |
-| Climatização > Ar condicionado | 517 | 0,9873 | 0,5996 | 0,7461 |
-| Estrutura Predial > Forro | 144 | 0,6760 | 0,8403 | 0,7492 |
-| Elétrica > Nobreak | 127 | 0,6421 | 0,9606 | 0,7697 |
-| Hidrossanitária > Hidráulica | 1276 | 0,9173 | 0,6865 | 0,7853 |
-| Estrutura Predial > Esquadrias, porta, portão e janelas | 969 | 0,8407 | 0,8390 | 0,8399 |
-| Elétrica > Iluminação | 747 | 0,8769 | 0,8675 | 0,8721 |
-| Manutenção Preventiva > Reservatório | 279 | 0,7982 | 0,9785 | 0,8792 |
-| Manutenção Preventiva > Poços artesianos | 13 | 0,8667 | 1,0000 | 0,9286 |
-| Manutenção Preventiva > Ar condicionado split | 1795 | 0,9012 | 0,9811 | 0,9395 |
-| Climatização > Ar condicionado split | 1117 | 0,9444 | 0,9427 | 0,9435 |
-| TI / Dados / Rede > Coleta de dados | 40 | 0,9286 | 0,9750 | 0,9512 |
-| Manutenção Preventiva > Vistoria em Instalações | 247 | 0,9831 | 0,9393 | 0,9607 |
-| Posto de trabalho > Contratação de Posto de trabalho | 102 | 0,9612 | 0,9706 | 0,9659 |
-| Manutenção Preventiva > Iluminação | 132 | 0,9844 | 0,9545 | 0,9692 |
-| Manutenção Preventiva > Elevador | 86 | 0,9655 | 0,9767 | 0,9711 |
-| Manutenção Preventiva > Ar condicionado central | 165 | 0,9819 | 0,9879 | 0,9849 |
-| Manutenção Preventiva > Quadros Elétricos | 576 | 0,9965 | 0,9774 | 0,9869 |
-| Manutenção Preventiva > Sistemas de combate a incêndio (extintores, hidrantes) | 45 | 0,9783 | 1,0000 | 0,9890 |
-| Manutenção Preventiva > Gerador | 1211 | 0,9992 | 0,9827 | 0,9908 |
-| Manutenção Preventiva > Extintor | 14 | 1,0000 | 1,0000 | 1,0000 |
+```{=latex}
+\begingroup
+\small
+\setlength{\tabcolsep}{3pt}
+\begin{longtable}{>{\raggedright\arraybackslash}p{8.6cm}>{\raggedleft\arraybackslash}p{1.3cm}>{\raggedleft\arraybackslash}p{1.5cm}>{\raggedleft\arraybackslash}p{1.5cm}>{\raggedleft\arraybackslash}p{1.5cm}}
+\toprule
+\textbf{categoria} & \textbf{support} & \textbf{precision} & \textbf{recall} & \textbf{f1} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{categoria} & \textbf{support} & \textbf{precision} & \textbf{recall} & \textbf{f1} \\
+\midrule
+\endhead
+\bottomrule
+\endlastfoot
+Elétrica > Sistema Fotovoltaico (FV) & 7 & 0,0000 & 0,0000 & 0,0000 \\
+Manutenção Preventiva & 2 & 0,0000 & 0,0000 & 0,0000 \\
+Estrutura Predial > Instalações Especiais (gás, ar comprimido, etc.) & 3 & 0,0380 & 1,0000 & 0,0732 \\
+Suprimentos / Apoio Técnico > Transporte & 1 & 0,0556 & 1,0000 & 0,1053 \\
+Área Externa e Ambiental > Drenagem & 3 & 0,0833 & 0,3333 & 0,1333 \\
+Manutenção Preventiva > Sistemas de incêndio & 9 & 0,2000 & 0,1111 & 0,1429 \\
+Manutenção Preventiva > Aplicação cupinicida & 3 & 0,0857 & 1,0000 & 0,1579 \\
+Manutenção Preventiva > Bomba & 3 & 0,0968 & 1,0000 & 0,1765 \\
+Instalação de Acessórios e Mobiliário > Instalação/reparo de equipamentos (Suportes de TV, acessórios de banheiro e quadro branco) & 262 & 0,2407 & 0,1489 & 0,1840 \\
+Projetos e Reformas > Projeto & 25 & 0,1691 & 0,9200 & 0,2857 \\
+Projetos e Reformas > Reforma & 83 & 0,1875 & 0,6506 & 0,2911 \\
+Manutenção Preventiva > Esgoto & 33 & 0,1985 & 0,7879 & 0,3171 \\
+Suprimentos / Apoio Técnico > Limpeza de equipamentos, ambiente e mobiliário & 14 & 0,2391 & 0,7857 & 0,3667 \\
+Outros > Outros & 33 & 0,8000 & 0,2424 & 0,3721 \\
+Área Externa e Ambiental > Poda de Árvore / Roçagem & 9 & 0,2353 & 0,8889 & 0,3721 \\
+Manutenção Preventiva > Hidráulica & 32 & 0,2667 & 0,7500 & 0,3934 \\
+Outros > Erro de chamado & 243 & 0,3939 & 0,4280 & 0,4103 \\
+Estrutura Predial > Alvenaria / Pisos / Estrutura & 1300 & 0,6559 & 0,3269 & 0,4363 \\
+Manutenção Preventiva > Telhados, calhas, rufos, etc. & 44 & 0,3551 & 0,8636 & 0,5033 \\
+Hidrossanitária > ETA / ETE & 16 & 0,3488 & 0,9375 & 0,5085 \\
+Estrutura Predial > Pintura & 58 & 0,3676 & 0,8621 & 0,5155 \\
+Estrutura Predial > Telhados, calhas, rufos, etc. & 206 & 0,5783 & 0,4660 & 0,5161 \\
+Equipamentos de Transporte > Elevador & 22 & 0,4082 & 0,9091 & 0,5634 \\
+Área Externa e Ambiental > Manutenção área externa / meio ambiente & 94 & 0,7121 & 0,5000 & 0,5875 \\
+Suprimentos / Apoio Técnico > Materiais & 85 & 0,4851 & 0,7647 & 0,5936 \\
+Manutenção Preventiva > Nobreak & 10 & 0,4500 & 0,9000 & 0,6000 \\
+Segurança contra Incêndio > Sistemas de combate a incêndio (extintores, hidrantes) & 27 & 0,5278 & 0,7037 & 0,6032 \\
+Climatização > Ar condicionado central & 36 & 0,5091 & 0,7778 & 0,6154 \\
+Elétrica > Subestação & 18 & 0,5417 & 0,7222 & 0,6190 \\
+TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi & 399 & 0,5524 & 0,8195 & 0,6599 \\
+Elétrica > Instalações elétricas & 940 & 0,7675 & 0,5830 & 0,6626 \\
+Instalação de Acessórios e Mobiliário > Placas de identificação & 54 & 0,5393 & 0,8889 & 0,6713 \\
+Estrutura Predial > Infiltração & 213 & 0,6113 & 0,8122 & 0,6976 \\
+Elétrica > Gerador & 38 & 0,5806 & 0,9474 & 0,7200 \\
+Hidrossanitária > Bomba & 38 & 0,6346 & 0,8684 & 0,7333 \\
+Climatização > Ar condicionado & 517 & 0,9873 & 0,5996 & 0,7461 \\
+Estrutura Predial > Forro & 144 & 0,6760 & 0,8403 & 0,7492 \\
+Elétrica > Nobreak & 127 & 0,6421 & 0,9606 & 0,7697 \\
+Hidrossanitária > Hidráulica & 1276 & 0,9173 & 0,6865 & 0,7853 \\
+Estrutura Predial > Esquadrias, porta, portão e janelas & 969 & 0,8407 & 0,8390 & 0,8399 \\
+Elétrica > Iluminação & 747 & 0,8769 & 0,8675 & 0,8721 \\
+Manutenção Preventiva > Reservatório & 279 & 0,7982 & 0,9785 & 0,8792 \\
+Manutenção Preventiva > Poços artesianos & 13 & 0,8667 & 1,0000 & 0,9286 \\
+Manutenção Preventiva > Ar condicionado split & 1795 & 0,9012 & 0,9811 & 0,9395 \\
+Climatização > Ar condicionado split & 1117 & 0,9444 & 0,9427 & 0,9435 \\
+TI / Dados / Rede > Coleta de dados & 40 & 0,9286 & 0,9750 & 0,9512 \\
+Manutenção Preventiva > Vistoria em Instalações & 247 & 0,9831 & 0,9393 & 0,9607 \\
+Posto de trabalho > Contratação de Posto de trabalho & 102 & 0,9612 & 0,9706 & 0,9659 \\
+Manutenção Preventiva > Iluminação & 132 & 0,9844 & 0,9545 & 0,9692 \\
+Manutenção Preventiva > Elevador & 86 & 0,9655 & 0,9767 & 0,9711 \\
+Manutenção Preventiva > Ar condicionado central & 165 & 0,9819 & 0,9879 & 0,9849 \\
+Manutenção Preventiva > Quadros Elétricos & 576 & 0,9965 & 0,9774 & 0,9869 \\
+Manutenção Preventiva > Sistemas de combate a incêndio (extintores, hidrantes) & 45 & 0,9783 & 1,0000 & 0,9890 \\
+Manutenção Preventiva > Gerador & 1211 & 0,9992 & 0,9827 & 0,9908 \\
+Manutenção Preventiva > Extintor & 14 & 1,0000 & 1,0000 & 1,0000 \\
+\end{longtable}
+\endgroup
+```
 
 ```{=latex}
 \FloatBarrier
 ```
 
-## Tabela S2 — Códigos de categoria (Figura 3)
+## Tabela S2 — Códigos de categoria (figura legada de principais confusões)
 
 **Fonte:** `docs/dados/estatistica.json`, execução legada anterior ao
 congelamento (`src/gerar_figura4_confusoes.py`); não carrega
-`hash_corpus`. Mapeia os códigos `C01`–`C10` usados para manter a Figura 3
-(principais confusões) legível, para a categoria histórica completa que
-cada código representa.
+`hash_corpus`. Mapeia os códigos `C01`–`C10` usados para manter legível a
+figura legada de principais confusões, que não integra o corpo atual do
+artigo, para a categoria histórica completa que cada código representa.
 
 | codigo | categoria |
 |---|---|
@@ -202,12 +218,28 @@ protocolo atual. **Denominador:** 9.096 linhas validadas na execução
 original. `units64_dropout05_atual` é a configuração usada no LSTM
 reportado no corpo do artigo.
 
-| variante | units | dropout | n validado | acerto validado | acertos | erros |
-|---|---|---|---|---|---|---|
-| units64_dropout05_atual | 64 | 0,5 | 9096 | 0,8635 | 7854 | 1242 |
-| units128_dropout03 | 128 | 0,3 | 9096 | 0,8603 | 7825 | 1271 |
-| units128_dropout05 | 128 | 0,5 | 9096 | 0,8497 | 7729 | 1367 |
-| units64_dropout03 | 64 | 0,3 | 9096 | 0,8459 | 7694 | 1402 |
+```{=latex}
+\begingroup
+\small
+\setlength{\tabcolsep}{3pt}
+\begin{longtable}{>{\raggedright\arraybackslash}p{4.4cm}>{\raggedleft\arraybackslash}p{1.3cm}>{\raggedleft\arraybackslash}p{1.4cm}>{\raggedleft\arraybackslash}p{1.7cm}>{\raggedleft\arraybackslash}p{2.0cm}>{\raggedleft\arraybackslash}p{1.6cm}>{\raggedleft\arraybackslash}p{1.5cm}}
+\toprule
+\textbf{variante} & \textbf{units} & \textbf{dropout} & \textbf{n validado} & \textbf{acerto validado} & \textbf{acertos} & \textbf{erros} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{variante} & \textbf{units} & \textbf{dropout} & \textbf{n validado} & \textbf{acerto validado} & \textbf{acertos} & \textbf{erros} \\
+\midrule
+\endhead
+\bottomrule
+\endlastfoot
+units64\_dropout05\_atual & 64 & 0,5 & 9096 & 0,8635 & 7854 & 1242 \\
+units128\_dropout03 & 128 & 0,3 & 9096 & 0,8603 & 7825 & 1271 \\
+units128\_dropout05 & 128 & 0,5 & 9096 & 0,8497 & 7729 & 1367 \\
+units64\_dropout03 & 64 & 0,3 & 9096 & 0,8459 & 7694 & 1402 \\
+\end{longtable}
+\endgroup
+```
 
 ```{=latex}
 \FloatBarrier
@@ -254,16 +286,32 @@ por ser constante em todas as linhas — o texto está acima). `acerto_referenci
 é o acerto contra a referência humana revisada; `concordancia_historica`, a
 concordância com a categoria histórica.
 
-| modelo | concordancia historica | acerto referencia | ic95 min | ic95 max |
-|---|---|---|---|---|
-| BERTimbau | 0,6650 | 0,6785 | 0,6490 | 0,7060 |
-| LinearSVC | 0,6500 | 0,6734 | 0,6450 | 0,7019 |
-| Regressao Logistica | 0,6210 | 0,6511 | 0,6236 | 0,6816 |
-| SGD | 0,6210 | 0,6511 | 0,6205 | 0,6806 |
-| Extra Trees | 0,5950 | 0,6022 | 0,5727 | 0,6328 |
-| Random Forest | 0,5880 | 0,6002 | 0,5717 | 0,6307 |
-| Naive Bayes | 0,5230 | 0,5209 | 0,4903 | 0,5493 |
-| LSTM | 0,4560 | 0,4802 | 0,4486 | 0,5107 |
+```{=latex}
+\begingroup
+\small
+\setlength{\tabcolsep}{3pt}
+\begin{longtable}{>{\raggedright\arraybackslash}p{4.2cm}>{\raggedleft\arraybackslash}p{3.1cm}>{\raggedleft\arraybackslash}p{2.8cm}>{\raggedleft\arraybackslash}p{2.1cm}>{\raggedleft\arraybackslash}p{2.1cm}}
+\toprule
+\textbf{modelo} & \textbf{concordancia historica} & \textbf{acerto referencia} & \textbf{ic95 min} & \textbf{ic95 max} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{modelo} & \textbf{concordancia historica} & \textbf{acerto referencia} & \textbf{ic95 min} & \textbf{ic95 max} \\
+\midrule
+\endhead
+\bottomrule
+\endlastfoot
+BERTimbau & 0,6650 & 0,6785 & 0,6490 & 0,7060 \\
+LinearSVC & 0,6500 & 0,6734 & 0,6450 & 0,7019 \\
+Regressao Logistica & 0,6210 & 0,6511 & 0,6236 & 0,6816 \\
+SGD & 0,6210 & 0,6511 & 0,6205 & 0,6806 \\
+Extra Trees & 0,5950 & 0,6022 & 0,5727 & 0,6328 \\
+Random Forest & 0,5880 & 0,6002 & 0,5717 & 0,6307 \\
+Naive Bayes & 0,5230 & 0,5209 & 0,4903 & 0,5493 \\
+LSTM & 0,4560 & 0,4802 & 0,4486 & 0,5107 \\
+\end{longtable}
+\endgroup
+```
 
 ```{=latex}
 \FloatBarrier
@@ -416,63 +464,139 @@ híbridos; (b) disparos, conflitos e a quem cada conflito favorece.
 pares completos entre os sete modelos, que o corpo do artigo resume em seis
 linhas (Subseção 4.2). Unidade de análise: grupo de texto normalizado
 idêntico, não a linha (`04_artigo/README.md`, "Regra estatística
-obrigatória"). Dividida em duas partes por largura de página: (a)
-diferença de acurácia, intervalo de confiança e grupos a favor de cada
-modelo; (b) tamanho de efeito pareado, *p* permutacional, *p* ajustado por
-Holm e significância. **Denominador:** 9.735 grupos textuais no recorte de
-13.972 linhas avaliadas.
+obrigatória"). Dividida em três partes por largura de página: (a1)
+diferença de acurácia e intervalo de confiança; (a2) grupos a favor de
+cada modelo e grupos empatados; (b) tamanho de efeito pareado, *p*
+permutacional, *p* ajustado por Holm e significância. As partes (a1) e
+(a2) repetem `modelo 1`/`modelo 2` para permitir o cruzamento entre elas.
+**Denominador:** 9.735 grupos textuais no recorte de 13.972 linhas
+avaliadas.
 
-**(a) Diferença de acurácia e grupos a favor**
+**(a1) Diferença de acurácia e intervalo de confiança**
 
-| modelo 1 | modelo 2 | diferenca de acuracia | ic95 min | ic95 max | grupos a favor do 1 | grupos a favor do 2 | grupos empatados |
-|---|---|---|---|---|---|---|---|
-| LinearSVC | Naive Bayes | 0,1165 | 0,1028 | 0,1329 | 1961 | 549 | 7225 |
-| SGD | Naive Bayes | 0,1005 | 0,0871 | 0,1163 | 1924 | 737 | 7074 |
-| Extra Trees | Naive Bayes | 0,0986 | 0,0856 | 0,1141 | 1636 | 468 | 7631 |
-| LinearSVC | LSTM | 0,0966 | 0,0875 | 0,1061 | 1682 | 349 | 7704 |
-| Regressao Logistica | Naive Bayes | 0,0963 | 0,0826 | 0,1121 | 1970 | 842 | 6923 |
-| Random Forest | Naive Bayes | 0,0882 | 0,0753 | 0,1035 | 1559 | 540 | 7636 |
-| SGD | LSTM | 0,0805 | 0,0724 | 0,0891 | 1537 | 429 | 7769 |
-| Extra Trees | LSTM | 0,0786 | 0,0704 | 0,0873 | 1622 | 533 | 7580 |
-| Regressao Logistica | LSTM | 0,0763 | 0,0684 | 0,0846 | 1505 | 456 | 7774 |
-| Random Forest | LSTM | 0,0682 | 0,0604 | 0,0763 | 1555 | 615 | 7565 |
-| LinearSVC | Random Forest | 0,0283 | 0,0229 | 0,0341 | 896 | 503 | 8336 |
-| LinearSVC | Regressao Logistica | 0,0203 | 0,0156 | 0,0248 | 598 | 314 | 8823 |
-| LinearSVC | Extra Trees | 0,018 | 0,013 | 0,0232 | 759 | 515 | 8461 |
-| LinearSVC | SGD | 0,016 | 0,0118 | 0,0204 | 533 | 308 | 8894 |
-| SGD | Random Forest | 0,0123 | 0,0071 | 0,0176 | 767 | 599 | 8369 |
-| Extra Trees | Random Forest | 0,0104 | 0,0073 | 0,0134 | 301 | 152 | 9282 |
-| SGD | Regressao Logistica | 0,0042 | 0,0019 | 0,0067 | 161 | 102 | 9472 |
-| LSTM | Naive Bayes | 0,02 | 0,0068 | 0,0352 | 1487 | 1408 | 6840 |
-| Regressao Logistica | Random Forest | 0,0081 | 0,0025 | 0,0135 | 803 | 694 | 8238 |
-| Extra Trees | Regressao Logistica | 0,0023 | -0,0031 | 0,0079 | 718 | 678 | 8339 |
-| SGD | Extra Trees | 0,0019 | -0,0031 | 0,0072 | 643 | 624 | 8468 |
+```{=latex}
+\begingroup
+\small
+\setlength{\tabcolsep}{3pt}
+\begin{longtable}{>{\raggedright\arraybackslash}p{3.2cm}>{\raggedright\arraybackslash}p{3.2cm}>{\raggedleft\arraybackslash}p{3.1cm}>{\raggedleft\arraybackslash}p{2.0cm}>{\raggedleft\arraybackslash}p{2.0cm}}
+\toprule
+\textbf{modelo 1} & \textbf{modelo 2} & \textbf{diferenca de acuracia} & \textbf{ic95 min} & \textbf{ic95 max} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{modelo 1} & \textbf{modelo 2} & \textbf{diferenca de acuracia} & \textbf{ic95 min} & \textbf{ic95 max} \\
+\midrule
+\endhead
+\bottomrule
+\endlastfoot
+LinearSVC & Naive Bayes & 0,1165 & 0,1028 & 0,1329 \\
+SGD & Naive Bayes & 0,1005 & 0,0871 & 0,1163 \\
+Extra Trees & Naive Bayes & 0,0986 & 0,0856 & 0,1141 \\
+LinearSVC & LSTM & 0,0966 & 0,0875 & 0,1061 \\
+Regressao Logistica & Naive Bayes & 0,0963 & 0,0826 & 0,1121 \\
+Random Forest & Naive Bayes & 0,0882 & 0,0753 & 0,1035 \\
+SGD & LSTM & 0,0805 & 0,0724 & 0,0891 \\
+Extra Trees & LSTM & 0,0786 & 0,0704 & 0,0873 \\
+Regressao Logistica & LSTM & 0,0763 & 0,0684 & 0,0846 \\
+Random Forest & LSTM & 0,0682 & 0,0604 & 0,0763 \\
+LinearSVC & Random Forest & 0,0283 & 0,0229 & 0,0341 \\
+LinearSVC & Regressao Logistica & 0,0203 & 0,0156 & 0,0248 \\
+LinearSVC & Extra Trees & 0,018 & 0,013 & 0,0232 \\
+LinearSVC & SGD & 0,016 & 0,0118 & 0,0204 \\
+SGD & Random Forest & 0,0123 & 0,0071 & 0,0176 \\
+Extra Trees & Random Forest & 0,0104 & 0,0073 & 0,0134 \\
+SGD & Regressao Logistica & 0,0042 & 0,0019 & 0,0067 \\
+LSTM & Naive Bayes & 0,02 & 0,0068 & 0,0352 \\
+Regressao Logistica & Random Forest & 0,0081 & 0,0025 & 0,0135 \\
+Extra Trees & Regressao Logistica & 0,0023 & -0,0031 & 0,0079 \\
+SGD & Extra Trees & 0,0019 & -0,0031 & 0,0072 \\
+\end{longtable}
+\endgroup
+```
+
+**(a2) Grupos a favor de cada modelo e grupos empatados**
+
+```{=latex}
+\begingroup
+\small
+\setlength{\tabcolsep}{3pt}
+\begin{longtable}{>{\raggedright\arraybackslash}p{3.2cm}>{\raggedright\arraybackslash}p{3.2cm}>{\raggedleft\arraybackslash}p{2.5cm}>{\raggedleft\arraybackslash}p{2.5cm}>{\raggedleft\arraybackslash}p{2.5cm}}
+\toprule
+\textbf{modelo 1} & \textbf{modelo 2} & \textbf{grupos a favor do 1} & \textbf{grupos a favor do 2} & \textbf{grupos empatados} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{modelo 1} & \textbf{modelo 2} & \textbf{grupos a favor do 1} & \textbf{grupos a favor do 2} & \textbf{grupos empatados} \\
+\midrule
+\endhead
+\bottomrule
+\endlastfoot
+LinearSVC & Naive Bayes & 1961 & 549 & 7225 \\
+SGD & Naive Bayes & 1924 & 737 & 7074 \\
+Extra Trees & Naive Bayes & 1636 & 468 & 7631 \\
+LinearSVC & LSTM & 1682 & 349 & 7704 \\
+Regressao Logistica & Naive Bayes & 1970 & 842 & 6923 \\
+Random Forest & Naive Bayes & 1559 & 540 & 7636 \\
+SGD & LSTM & 1537 & 429 & 7769 \\
+Extra Trees & LSTM & 1622 & 533 & 7580 \\
+Regressao Logistica & LSTM & 1505 & 456 & 7774 \\
+Random Forest & LSTM & 1555 & 615 & 7565 \\
+LinearSVC & Random Forest & 896 & 503 & 8336 \\
+LinearSVC & Regressao Logistica & 598 & 314 & 8823 \\
+LinearSVC & Extra Trees & 759 & 515 & 8461 \\
+LinearSVC & SGD & 533 & 308 & 8894 \\
+SGD & Random Forest & 767 & 599 & 8369 \\
+Extra Trees & Random Forest & 301 & 152 & 9282 \\
+SGD & Regressao Logistica & 161 & 102 & 9472 \\
+LSTM & Naive Bayes & 1487 & 1408 & 6840 \\
+Regressao Logistica & Random Forest & 803 & 694 & 8238 \\
+Extra Trees & Regressao Logistica & 718 & 678 & 8339 \\
+SGD & Extra Trees & 643 & 624 & 8468 \\
+\end{longtable}
+\endgroup
+```
 
 **(b) Tamanho de efeito e significância**
 
-| modelo 1 | modelo 2 | d pareado por grupo | p permutacional | p ajustado holm | significativo | p ajustado holm por linha |
-|---|---|---|---|---|---|---|
-| LinearSVC | Naive Bayes | 0,1644 | 0,0001 | 0,0021 | sim | 0,0 |
-| SGD | Naive Bayes | 0,1402 | 0,0001 | 0,0021 | sim | 0,0 |
-| Extra Trees | Naive Bayes | 0,1413 | 0,0001 | 0,0021 | sim | 0,0 |
-| LinearSVC | LSTM | 0,3133 | 0,0001 | 0,0021 | sim | 0,0 |
-| Regressao Logistica | Naive Bayes | 0,1332 | 0,0001 | 0,0021 | sim | 0,0 |
-| Random Forest | Naive Bayes | 0,1263 | 0,0001 | 0,0021 | sim | 0,0 |
-| SGD | LSTM | 0,261 | 0,0001 | 0,0021 | sim | 0,0 |
-| Extra Trees | LSTM | 0,2428 | 0,0001 | 0,0021 | sim | 0,0 |
-| Regressao Logistica | LSTM | 0,2467 | 0,0001 | 0,0021 | sim | 0,0 |
-| Random Forest | LSTM | 0,2094 | 0,0001 | 0,0021 | sim | 0,0 |
-| LinearSVC | Random Forest | 0,1076 | 0,0001 | 0,0021 | sim | 0,0 |
-| LinearSVC | Regressao Logistica | 0,0941 | 0,0001 | 0,0021 | sim | 0,0 |
-| LinearSVC | Extra Trees | 0,0707 | 0,0001 | 0,0021 | sim | 0,0 |
-| LinearSVC | SGD | 0,0774 | 0,0001 | 0,0021 | sim | 0,0 |
-| SGD | Random Forest | 0,0467 | 0,0001 | 0,0021 | sim | 2,1e-05 |
-| Extra Trees | Random Forest | 0,0679 | 0,0001 | 0,0021 | sim | 0,0 |
-| SGD | Regressao Logistica | 0,0369 | 0,0007 | 0,0035 | sim | 0,0014 |
-| LSTM | Naive Bayes | 0,0272 | 0,0042 | 0,0164 | sim | 4e-06 |
-| Regressao Logistica | Random Forest | 0,0293 | 0,0041 | 0,0164 | sim | 0,0120 |
-| Extra Trees | Regressao Logistica | 0,0085 | 0,4212 | 0,8423 | nao | 0,8194 |
-| SGD | Extra Trees | 0,0076 | 0,4771 | 0,8423 | nao | 0,8194 |
+```{=latex}
+\begingroup
+\small
+\setlength{\tabcolsep}{3pt}
+\begin{longtable}{>{\raggedright\arraybackslash}p{2.4cm}>{\raggedright\arraybackslash}p{2.4cm}>{\raggedleft\arraybackslash}p{1.9cm}>{\raggedleft\arraybackslash}p{1.8cm}>{\raggedleft\arraybackslash}p{1.8cm}>{\centering\arraybackslash}p{1.5cm}>{\raggedleft\arraybackslash}p{2.0cm}}
+\toprule
+\textbf{modelo 1} & \textbf{modelo 2} & \textbf{d pareado por grupo} & \textbf{p permutacional} & \textbf{p ajustado holm} & \textbf{significativo} & \textbf{p ajustado holm por linha} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{modelo 1} & \textbf{modelo 2} & \textbf{d pareado por grupo} & \textbf{p permutacional} & \textbf{p ajustado holm} & \textbf{significativo} & \textbf{p ajustado holm por linha} \\
+\midrule
+\endhead
+\bottomrule
+\endlastfoot
+LinearSVC & Naive Bayes & 0,1644 & 0,0001 & 0,0021 & sim & 0,0 \\
+SGD & Naive Bayes & 0,1402 & 0,0001 & 0,0021 & sim & 0,0 \\
+Extra Trees & Naive Bayes & 0,1413 & 0,0001 & 0,0021 & sim & 0,0 \\
+LinearSVC & LSTM & 0,3133 & 0,0001 & 0,0021 & sim & 0,0 \\
+Regressao Logistica & Naive Bayes & 0,1332 & 0,0001 & 0,0021 & sim & 0,0 \\
+Random Forest & Naive Bayes & 0,1263 & 0,0001 & 0,0021 & sim & 0,0 \\
+SGD & LSTM & 0,261 & 0,0001 & 0,0021 & sim & 0,0 \\
+Extra Trees & LSTM & 0,2428 & 0,0001 & 0,0021 & sim & 0,0 \\
+Regressao Logistica & LSTM & 0,2467 & 0,0001 & 0,0021 & sim & 0,0 \\
+Random Forest & LSTM & 0,2094 & 0,0001 & 0,0021 & sim & 0,0 \\
+LinearSVC & Random Forest & 0,1076 & 0,0001 & 0,0021 & sim & 0,0 \\
+LinearSVC & Regressao Logistica & 0,0941 & 0,0001 & 0,0021 & sim & 0,0 \\
+LinearSVC & Extra Trees & 0,0707 & 0,0001 & 0,0021 & sim & 0,0 \\
+LinearSVC & SGD & 0,0774 & 0,0001 & 0,0021 & sim & 0,0 \\
+SGD & Random Forest & 0,0467 & 0,0001 & 0,0021 & sim & 2,1e-05 \\
+Extra Trees & Random Forest & 0,0679 & 0,0001 & 0,0021 & sim & 0,0 \\
+SGD & Regressao Logistica & 0,0369 & 0,0007 & 0,0035 & sim & 0,0014 \\
+LSTM & Naive Bayes & 0,0272 & 0,0042 & 0,0164 & sim & 4e-06 \\
+Regressao Logistica & Random Forest & 0,0293 & 0,0041 & 0,0164 & sim & 0,0120 \\
+Extra Trees & Regressao Logistica & 0,0085 & 0,4212 & 0,8423 & nao & 0,8194 \\
+SGD & Extra Trees & 0,0076 & 0,4771 & 0,8423 & nao & 0,8194 \\
+\end{longtable}
+\endgroup
+```
 
 ```{=latex}
 \FloatBarrier
@@ -638,9 +762,10 @@ automação seletiva calculado.
 
 ## Tabela S16 — Fase 2C: LinearSVC *versus* combinações de *ensemble*
 
-**Fonte:** manifesto confirmatório da Execução Científica 1 da Fase 2C
-(`docs/dados/ensemble/fase2c/fase2c_execucao_cientifica_1_manifest.json`),
-lido por `src/tabelas_suplementares_canonicas.py`, que valida universo
+**Fonte:** manifesto confirmatório da Execução Científica 1 da Fase 2C —
+arquivo `fase2c_execucao_cientifica_1_manifest.json`, na pasta
+`docs/dados/ensemble/fase2c/` —, lido por
+`src/tabelas_suplementares_canonicas.py`, que valida universo
 modelável, denominador, capacidade da fila e proveniência da Fase 2B antes
 de gravar qualquer valor, e aborta em caso de divergência. **Trilha
 própria:** não pertence à rodada canônica do artigo principal e não carrega
@@ -658,61 +783,93 @@ referência revisada (`y1_denominador`).
 
 **(a) Contexto e desfecho**
 
-| escopo | outer fold | metodo | K | y1 denominador | capturados | precisao | recall |
-|---|---|---|---|---|---|---|---|
-| agregado |  | LinearSVC | 2840 | 593 | 523 | 0,1842 | 0,8820 |
-| agregado |  | Votacao majoritaria | 2840 | 593 | 516 | 0,1817 | 0,8702 |
-| agregado |  | Votacao suave ponderada | 2840 | 593 | 503 | 0,1771 | 0,8482 |
-| agregado |  | Stacking | 2840 | 593 | 512 | 0,1803 | 0,8634 |
-| fold | 1 | LinearSVC | 564 | 124 | 104 | 0,1844 | 0,8387 |
-| fold | 1 | Votacao majoritaria | 564 | 124 | 102 | 0,1809 | 0,8226 |
-| fold | 1 | Votacao suave ponderada | 564 | 124 | 97 | 0,1720 | 0,7823 |
-| fold | 1 | Stacking | 564 | 124 | 101 | 0,1791 | 0,8145 |
-| fold | 2 | LinearSVC | 560 | 95 | 85 | 0,1518 | 0,8947 |
-| fold | 2 | Votacao majoritaria | 560 | 95 | 85 | 0,1518 | 0,8947 |
-| fold | 2 | Votacao suave ponderada | 560 | 95 | 82 | 0,1464 | 0,8632 |
-| fold | 2 | Stacking | 560 | 95 | 82 | 0,1464 | 0,8632 |
-| fold | 3 | LinearSVC | 616 | 135 | 119 | 0,1932 | 0,8815 |
-| fold | 3 | Votacao majoritaria | 616 | 135 | 117 | 0,1899 | 0,8667 |
-| fold | 3 | Votacao suave ponderada | 616 | 135 | 118 | 0,1916 | 0,8741 |
-| fold | 3 | Stacking | 616 | 135 | 123 | 0,1997 | 0,9111 |
-| fold | 4 | LinearSVC | 507 | 113 | 102 | 0,2012 | 0,9027 |
-| fold | 4 | Votacao majoritaria | 507 | 113 | 100 | 0,1972 | 0,8850 |
-| fold | 4 | Votacao suave ponderada | 507 | 113 | 98 | 0,1933 | 0,8673 |
-| fold | 4 | Stacking | 507 | 113 | 98 | 0,1933 | 0,8673 |
-| fold | 5 | LinearSVC | 593 | 126 | 113 | 0,1906 | 0,8968 |
-| fold | 5 | Votacao majoritaria | 593 | 126 | 112 | 0,1889 | 0,8889 |
-| fold | 5 | Votacao suave ponderada | 593 | 126 | 108 | 0,1821 | 0,8571 |
-| fold | 5 | Stacking | 593 | 126 | 108 | 0,1821 | 0,8571 |
+```{=latex}
+\begingroup
+\small
+\setlength{\tabcolsep}{3pt}
+\begin{longtable}{>{\raggedright\arraybackslash}p{1.4cm}>{\centering\arraybackslash}p{1.0cm}>{\raggedright\arraybackslash}p{3.2cm}>{\raggedleft\arraybackslash}p{0.9cm}>{\raggedleft\arraybackslash}p{1.7cm}>{\raggedleft\arraybackslash}p{1.7cm}>{\raggedleft\arraybackslash}p{1.4cm}>{\raggedleft\arraybackslash}p{1.4cm}}
+\toprule
+\textbf{escopo} & \textbf{outer fold} & \textbf{metodo} & \textbf{K} & \textbf{y1 denominador} & \textbf{capturados} & \textbf{precisao} & \textbf{recall} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{escopo} & \textbf{outer fold} & \textbf{metodo} & \textbf{K} & \textbf{y1 denominador} & \textbf{capturados} & \textbf{precisao} & \textbf{recall} \\
+\midrule
+\endhead
+\bottomrule
+\endlastfoot
+agregado &  & LinearSVC & 2840 & 593 & 523 & 0,1842 & 0,8820 \\
+agregado &  & Votacao majoritaria & 2840 & 593 & 516 & 0,1817 & 0,8702 \\
+agregado &  & Votacao suave ponderada & 2840 & 593 & 503 & 0,1771 & 0,8482 \\
+agregado &  & Stacking & 2840 & 593 & 512 & 0,1803 & 0,8634 \\
+fold & 1 & LinearSVC & 564 & 124 & 104 & 0,1844 & 0,8387 \\
+fold & 1 & Votacao majoritaria & 564 & 124 & 102 & 0,1809 & 0,8226 \\
+fold & 1 & Votacao suave ponderada & 564 & 124 & 97 & 0,1720 & 0,7823 \\
+fold & 1 & Stacking & 564 & 124 & 101 & 0,1791 & 0,8145 \\
+fold & 2 & LinearSVC & 560 & 95 & 85 & 0,1518 & 0,8947 \\
+fold & 2 & Votacao majoritaria & 560 & 95 & 85 & 0,1518 & 0,8947 \\
+fold & 2 & Votacao suave ponderada & 560 & 95 & 82 & 0,1464 & 0,8632 \\
+fold & 2 & Stacking & 560 & 95 & 82 & 0,1464 & 0,8632 \\
+fold & 3 & LinearSVC & 616 & 135 & 119 & 0,1932 & 0,8815 \\
+fold & 3 & Votacao majoritaria & 616 & 135 & 117 & 0,1899 & 0,8667 \\
+fold & 3 & Votacao suave ponderada & 616 & 135 & 118 & 0,1916 & 0,8741 \\
+fold & 3 & Stacking & 616 & 135 & 123 & 0,1997 & 0,9111 \\
+fold & 4 & LinearSVC & 507 & 113 & 102 & 0,2012 & 0,9027 \\
+fold & 4 & Votacao majoritaria & 507 & 113 & 100 & 0,1972 & 0,8850 \\
+fold & 4 & Votacao suave ponderada & 507 & 113 & 98 & 0,1933 & 0,8673 \\
+fold & 4 & Stacking & 507 & 113 & 98 & 0,1933 & 0,8673 \\
+fold & 5 & LinearSVC & 593 & 126 & 113 & 0,1906 & 0,8968 \\
+fold & 5 & Votacao majoritaria & 593 & 126 & 112 & 0,1889 & 0,8889 \\
+fold & 5 & Votacao suave ponderada & 593 & 126 & 108 & 0,1821 & 0,8571 \\
+fold & 5 & Stacking & 593 & 126 & 108 & 0,1821 & 0,8571 \\
+\end{longtable}
+\endgroup
+```
 
 **(b) Diferença contra o LinearSVC**
 
-| escopo | outer fold | metodo | diff capturados vs linear svc | diff precisao vs linear svc | diff recall vs linear svc |
-|---|---|---|---|---|---|
-| agregado |  | LinearSVC | 0 | 0,0 | 0,0 |
-| agregado |  | Votacao majoritaria | -7 | -0,0025 | -0,0118 |
-| agregado |  | Votacao suave ponderada | -20 | -0,0070 | -0,0337 |
-| agregado |  | Stacking | -11 | -0,0039 | -0,0185 |
-| fold | 1 | LinearSVC | 0 | 0,0 | 0,0 |
-| fold | 1 | Votacao majoritaria | -2 | -0,0035 | -0,0161 |
-| fold | 1 | Votacao suave ponderada | -7 | -0,0124 | -0,0565 |
-| fold | 1 | Stacking | -3 | -0,0053 | -0,0242 |
-| fold | 2 | LinearSVC | 0 | 0,0 | 0,0 |
-| fold | 2 | Votacao majoritaria | 0 | 0,0 | 0,0 |
-| fold | 2 | Votacao suave ponderada | -3 | -0,0054 | -0,0316 |
-| fold | 2 | Stacking | -3 | -0,0054 | -0,0316 |
-| fold | 3 | LinearSVC | 0 | 0,0 | 0,0 |
-| fold | 3 | Votacao majoritaria | -2 | -0,0032 | -0,0148 |
-| fold | 3 | Votacao suave ponderada | -1 | -0,0016 | -0,0074 |
-| fold | 3 | Stacking | 4 | 0,0065 | 0,0296 |
-| fold | 4 | LinearSVC | 0 | 0,0 | 0,0 |
-| fold | 4 | Votacao majoritaria | -2 | -0,0039 | -0,0177 |
-| fold | 4 | Votacao suave ponderada | -4 | -0,0079 | -0,0354 |
-| fold | 4 | Stacking | -4 | -0,0079 | -0,0354 |
-| fold | 5 | LinearSVC | 0 | 0,0 | 0,0 |
-| fold | 5 | Votacao majoritaria | -1 | -0,0017 | -0,0079 |
-| fold | 5 | Votacao suave ponderada | -5 | -0,0084 | -0,0397 |
-| fold | 5 | Stacking | -5 | -0,0084 | -0,0397 |
+```{=latex}
+\begingroup
+\small
+\setlength{\tabcolsep}{3pt}
+\begin{longtable}{>{\raggedright\arraybackslash}p{1.4cm}>{\centering\arraybackslash}p{1.0cm}>{\raggedright\arraybackslash}p{3.4cm}>{\raggedleft\arraybackslash}p{2.6cm}>{\raggedleft\arraybackslash}p{2.6cm}>{\raggedleft\arraybackslash}p{2.6cm}}
+\toprule
+\textbf{escopo} & \textbf{outer fold} & \textbf{metodo} & \textbf{diff capturados vs linear svc} & \textbf{diff precisao vs linear svc} & \textbf{diff recall vs linear svc} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{escopo} & \textbf{outer fold} & \textbf{metodo} & \textbf{diff capturados vs linear svc} & \textbf{diff precisao vs linear svc} & \textbf{diff recall vs linear svc} \\
+\midrule
+\endhead
+\bottomrule
+\endlastfoot
+agregado &  & LinearSVC & 0 & 0,0 & 0,0 \\
+agregado &  & Votacao majoritaria & -7 & -0,0025 & -0,0118 \\
+agregado &  & Votacao suave ponderada & -20 & -0,0070 & -0,0337 \\
+agregado &  & Stacking & -11 & -0,0039 & -0,0185 \\
+fold & 1 & LinearSVC & 0 & 0,0 & 0,0 \\
+fold & 1 & Votacao majoritaria & -2 & -0,0035 & -0,0161 \\
+fold & 1 & Votacao suave ponderada & -7 & -0,0124 & -0,0565 \\
+fold & 1 & Stacking & -3 & -0,0053 & -0,0242 \\
+fold & 2 & LinearSVC & 0 & 0,0 & 0,0 \\
+fold & 2 & Votacao majoritaria & 0 & 0,0 & 0,0 \\
+fold & 2 & Votacao suave ponderada & -3 & -0,0054 & -0,0316 \\
+fold & 2 & Stacking & -3 & -0,0054 & -0,0316 \\
+fold & 3 & LinearSVC & 0 & 0,0 & 0,0 \\
+fold & 3 & Votacao majoritaria & -2 & -0,0032 & -0,0148 \\
+fold & 3 & Votacao suave ponderada & -1 & -0,0016 & -0,0074 \\
+fold & 3 & Stacking & 4 & 0,0065 & 0,0296 \\
+fold & 4 & LinearSVC & 0 & 0,0 & 0,0 \\
+fold & 4 & Votacao majoritaria & -2 & -0,0039 & -0,0177 \\
+fold & 4 & Votacao suave ponderada & -4 & -0,0079 & -0,0354 \\
+fold & 4 & Stacking & -4 & -0,0079 & -0,0354 \\
+fold & 5 & LinearSVC & 0 & 0,0 & 0,0 \\
+fold & 5 & Votacao majoritaria & -1 & -0,0017 & -0,0079 \\
+fold & 5 & Votacao suave ponderada & -5 & -0,0084 & -0,0397 \\
+fold & 5 & Stacking & -5 & -0,0084 & -0,0397 \\
+\end{longtable}
+\endgroup
+```
 
 ```{=latex}
 \FloatBarrier
