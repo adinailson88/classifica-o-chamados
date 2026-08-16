@@ -545,7 +545,12 @@ estão em segundos e correspondem à mediana de três repetições de treino ún
 sobre a base completa, não à soma das cinco dobras. Uma matriz de proveniência
 versionada associa cada número, tabela e figura ao script que o gerou, à
 entrada utilizada, ao denominador, à taxonomia, às partições e ao resumo
-criptográfico do corpus congelado.
+criptográfico do corpus congelado.[^zenodo]
+
+[^zenodo]: Artefatos congelados, código de análise e matriz de proveniência
+    disponíveis em: OLIVEIRA, A. G. *Dados e código de reprodutibilidade —
+    Classificação de chamados de manutenção predial com aprendizado de
+    máquina*. Zenodo, 2026. DOI: 10.5281/zenodo.21970430.
 
 **4. RESULTADOS**
 
