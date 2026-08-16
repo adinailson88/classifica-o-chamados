@@ -575,9 +575,7 @@ Extra Trees, Regressão Logística e Random Forest, com LSTM e Naive Bayes
 bem atrás. A cobertura integral da revisão evita o viés decorrente de
 selecionar apenas uma subamostra para revisão, de modo que a acurácia
 relatada não constitui limite superior de amostra conferida; ela não
-elimina, porém, a ancoragem na categoria histórica, o avaliador único, a
-ausência de cegamento e a ausência de avaliação independente, ressalvas
-detalhadas na Subseção 5.3.
+elimina, porém, as ressalvas metodológicas detalhadas na Subseção 5.3.
 
 Nenhum modelo vence em todos os critérios. As três melhores marcas de
 macro-F1 ficam a menos de três milésimos umas das outras, com Regressão
@@ -588,8 +586,8 @@ LinearSVC lidera a acurácia sem pagar por isso em desempenho na cauda, ao
 contrário dos *ensembles* de árvores, que perdem cerca de três centésimos
 de macro-F1 na mesma faixa de acurácia. O SGD permanece competitivo nas
 duas métricas a um custo de treino semelhante ao do LinearSVC. A escolha
-operacional é, portanto, multicritério, e deve pesar acurácia, macro-F1 e
-custo computacional em conjunto.
+operacional é, portanto, orientada por múltiplos critérios de avaliação, e
+deve pesar acurácia, macro-F1 e custo computacional em conjunto.
 
 ```{=latex}
 \begin{table}[!tbp]
@@ -622,7 +620,7 @@ Naive Bayes & 0,6954 & 0,7088 & 0,2951 & 0,6860 -- 0,7311 & 1,12 \\
 
 O custo de treino, medido no mesmo ambiente computacional para os sete
 modelos sobre a base completa, com mediana de três execuções, reforça a
-leitura multicritério: os modelos lineares treinam em poucos segundos, de
+leitura orientada por múltiplos critérios. Os modelos lineares treinam em poucos segundos, de
 1,12 s no Naive Bayes a 8,43 s na Regressão Logística, os *ensembles* de
 árvores exigem entre vinte e trinta segundos e a rede neural LSTM consome
 83,44 segundos, cerca de 34 vezes o tempo do LinearSVC, para 9,7 pontos
@@ -632,10 +630,9 @@ sem acelerador gráfico; a estabilidade relativa desses tempos em outras
 infraestruturas não foi testada. A Figura 2 cruza essas medições
 de custo
 com a acurácia e mostra o LinearSVC na posição mais favorável, com a
-maior acurácia a um custo de treino próximo do menor observado. Contra o
-BERTimbau, o que se afirma é mais restrito: o custo medido de 6,44 horas
-por dobra inviabiliza a validação cruzada agrupada no ambiente do estudo
-(Subseção 4.5), sem que disso decorra juízo sobre seu desempenho.
+maior acurácia a um custo de treino próximo do menor observado. O
+BERTimbau segue fora dessa leitura pelo mesmo motivo computacional
+(Subseção 4.5).
 
 ![Trade-off entre acurácia e tempo de treino dos sete modelos comparados.](04_artigo/figuras/fig_tradeoff_custo.pdf){width=76%}
 
@@ -685,10 +682,9 @@ modelo constam do material suplementar.
 
 **4.2 Auditoria do histórico e risco de reclassificação**
 
-A revisão humana manteve a categoria histórica em 13.462 dos 14.060
-chamados da base congelada, ou 95,75% do corpus, e a substituiu em 598
-registros, taxa de alteração do rótulo histórico de 4,25%, e não
-estimativa de prevalência de erro (Subseção 3.1). Essa estabilidade da
+A revisão humana manteve a categoria histórica em 95,75% dos casos da
+base congelada, taxa de alteração de 4,25% (Subseção 3.1), e não
+estimativa de prevalência de erro. Essa estabilidade da
 referência explica o resultado da reclassificação automática: como o
 histórico concorda com a revisão na quase totalidade dos casos, divergir
 dele costuma significar divergir também da referência.
@@ -779,10 +775,11 @@ decide sozinho acima de um limiar de confiança e encaminha o restante à
 revisão humana. Ao alvo de 0,95 de acurácia, o Extra Trees automatiza
 67,32% dos chamados com acurácia seletiva de 0,9502, o SGD automatiza
 61,62% com 0,9531 e o LinearSVC automatiza 68,90% com 0,9464, faixa que
-ilustra a mesma escolha multicritério da Subseção 4.1 entre cobertura e
-acurácia seletiva. Parte das acurácias seletivas fica pouco abaixo do
-alvo, consequência esperada de escolher o limiar em dobra interna sem
-acesso ao conjunto de teste. Elevar o alvo a 0,99 reduz a cobertura à
+ilustra a mesma escolha por múltiplos critérios da Subseção 4.1 entre
+cobertura e acurácia seletiva. Parte das acurácias seletivas fica pouco
+abaixo do alvo, consequência esperada de escolher o limiar em dobra
+interna sem acesso ao conjunto de teste. Elevar o alvo a 0,99 reduz a
+cobertura à
 faixa de 31,94% a 47,04%, e o Naive Bayes só alcança o limiar em duas das
 cinco dobras, o que o desqualifica para esse regime.
 
@@ -851,6 +848,15 @@ natural, e não aleatório. O desempenho por categoria, com suporte, tipo e
 classe de volume, consta da Tabela A2.
 
 ![F1 do LinearSVC e suporte, para as dez categorias de maior e de menor desempenho entre as 33 com suporte mínimo de 30 chamados.](04_artigo/figuras/fig_calor_categorias.pdf){width=73%}
+
+Abaixo desse piso de suporte, três categorias chegam a F1 nulo ou próximo
+de nulo. Duas têm F1 zerado para o LinearSVC, Manutenção Preventiva >
+Hidráulica, com 27 registros, e Projetos e Reformas > Projeto, com 23, e
+uma terceira, Suprimentos / Apoio Técnico > Limpeza de equipamentos,
+ambiente e mobiliário, com 13 registros, registra F1 de 0,0909 (Tabela
+A2). Uma categoria com F1 nulo é inutilizável como insumo de série
+temporal por categoria, pois a predição sistematicamente errada desloca a
+contagem para outra classe.
 
 A Figura 5 recorta a matriz de confusão sobre as oito categorias mais
 envolvidas em troca recíproca. A célula dominante registra 1.066 chamados
@@ -992,15 +998,14 @@ Stacking & 512 & $-$11 & 0,1803 & 0,8634 \\
 
 **5. DISCUSSÃO**
 
-**5.1 Adequação dos modelos e decisão multicritério**
+**5.1 Adequação dos modelos e decisão por múltiplos critérios**
 
-O desempenho dos sete modelos (Tabela 2) não aponta vencedor absoluto: o
+O desempenho dos sete modelos (Tabela 2) não aponta vencedor absoluto. O
 LinearSVC lidera a acurácia, a Regressão Logística tem o macro-F1 pontual
 ligeiramente superior, e o SGD permanece próximo de ambos, com intervalos
-de confiança sobrepostos entre os três primeiros. A leitura operacional é,
-portanto, multicritério, pesando acurácia, macro-F1 e custo: a
-superioridade estatística do LinearSVC sobre o segundo colocado
-(Subseção 4.1) não basta, isoladamente, para declará-lo vencedor único.
+de confiança sobrepostos entre os três primeiros. A leitura operacional, portanto, segue os mesmos múltiplos critérios da
+Subseção 4.1, e a superioridade estatística do LinearSVC sobre o segundo
+colocado não basta, isoladamente, para declará-lo vencedor único.
 
 O bom desempenho dos modelos lineares é compatível com a literatura sobre
 texto curto de vocabulário técnico, em que representações esparsas com
@@ -1010,23 +1015,19 @@ informativa por dois motivos. O corpus aqui analisado é institucional, em
 português brasileiro, e mantém a mesma regularidade observada em
 *benchmarks* de outra natureza. E a vantagem estatística do LinearSVC
 sobre o segundo colocado, embora estabelecida (Subseção 4.1), não se
-traduz em vantagem prática na maioria dos grupos textuais, o que confirma
-a leitura de que a fronteira linear já esgota a informação disponível na
-representação. Nada disso autoriza generalizar essa superioridade a
+traduz em vantagem prática na maioria dos grupos textuais. Sob as
+configurações de referência adotadas (Tabela 1) e custo computacional
+comparável, a fronteira linear não é superada pelos *ensembles* nem pela
+LSTM treinada do zero neste corpus. Nada disso autoriza generalizar essa superioridade a
 outros domínios, corpora mais longos ou arquiteturas neurais e
 transformadoras mais profundas, não comparadas diretamente neste desenho.
 
-O BERTimbau permanece fora dessa comparação por custo computacional medido
-(Subseção 4.5), condição de infraestrutura, não julgamento sobre
-desempenho: rankings sob protocolos distintos não sustentam comparação
-direta, sem afirmação sobre sua qualidade relativa aos demais modelos
-sob o protocolo agrupado.
+O BERTimbau segue fora dessa comparação por condição de infraestrutura,
+não julgamento sobre desempenho (Subseção 4.5).
 
-O custo de treino pesa na decisão institucional tanto quanto o acerto: em
-ambiente sem acelerador gráfico, um modelo que treina em poucos segundos
-pode ser reexecutado e auditado a cada atualização da base sem
-infraestrutura dedicada, condição que a literatura de eficiência
-recomenda reportar com a acurácia (Schwartz *et al.*,
+O custo de treino pesa na decisão institucional tanto quanto o acerto,
+pela mesma razão institucional da Subseção 2.4, condição que a literatura
+de eficiência recomenda reportar com a acurácia (Schwartz *et al.*,
 2020; Treviso *et al.*, 2023). É esse critério, não só o desempenho
 isolado, que torna o LinearSVC e o SGD os candidatos mais favoráveis,
 por sustentar acurácia e macro-F1 competitivos a custo de treino mínimo,
@@ -1035,8 +1036,7 @@ sem exigir infraestrutura fora do ambiente institucional (Subseção 4.1).
 A comparação confirmatória com as três combinações (Subseção 4.5)
 reforça, neste corpus e capacidade, a escolha parcimoniosa já
 justificada, sem provar que *ensembles* sejam genericamente ineficazes
-nem afastar a ausência de validação temporal, o avaliador único e a
-necessidade de monitoramento de deriva e auditoria humana.
+nem afastar as limitações discutidas na Subseção 5.3.
 
 **5.2 Auditoria do histórico, reclassificação e fluxo humano–IA**
 
@@ -1049,10 +1049,8 @@ cinco ficam fora; esse recorte não coincide com as 13.972 linhas da
 comparação principal (Subseção 3.4), de modo que os 2,92 pontos
 percentuais não são atribuídos diretamente às 593 alterações. A revisão manteve
 a categoria histórica em 95,75% dos casos; os 4,25% restantes são taxa de
-alteração do rótulo sob auditoria administrativa de avaliador único, com a
-categoria histórica à vista, sem segunda avaliação, cegamento ou
-adjudicação, e nenhuma medida de concordância interavaliadores é reportada
-(Subseção 3.1). É essa estabilidade da linha de base, não uma limitação
+alteração do rótulo sob a auditoria administrativa descrita na Subseção
+3.1. É essa estabilidade da linha de base, não uma limitação
 estatística isolada, que explica por que a correção a partir da
 divergência fracassa.
 
@@ -1076,11 +1074,8 @@ A ambiguidade taxonômica contribui para esse quadro: pares que nomeiam o
 mesmo objeto sob famílias distintas de natureza preventiva ou corretiva,
 e grupos de texto idêntico com referência divergente entre tipos de
 manutenção, mostram que parte do erro decorre da própria taxonomia, não
-apenas do classificador (Subseção 4.4). Essa distinção
-fica irrecuperável para qualquer modelo restrito aos quatro campos
-textuais deste estudo, e a contagem de grupos divergentes não define
-teto quantitativo: sinaliza ambiguidade a resolver por revisão da
-taxonomia, não limite estatístico do classificador.
+apenas do classificador. Essa distinção segue irrecuperável ao
+classificador, como discutido na Subseção 4.4.
 
 O diagnóstico de entropia de Shannon e divergência de Jensen-Shannon entre
 as predições dos sete modelos (Subseção 4.4) amplia esse repertório de
@@ -1156,6 +1151,16 @@ enquadramento funcional, e não um achado sobre o sistema físico, que
 justifica tratar a auditoria de rótulo como etapa de governança e não como
 mero pré-processamento estatístico.
 
+Este recorte reivindica contribuição para o ODS 12, consumo e produção
+responsáveis, pela rastreabilidade que o corpus com resumo criptográfico,
+a matriz de proveniência por artefato, as partições versionadas e a
+auditoria de rótulo com taxa declarada proporcionam, somada à eficiência
+computacional discutida nas Subseções 2.4 e 4.1. A dimensão de governança
+do ODS 9, indústria, inovação e infraestrutura, comparece pela capacidade
+institucional de decisão por evidência a partir de texto não estruturado.
+O ODS 11, cidades e comunidades sustentáveis, não é sustentado por este
+recorte, por ausência de dimensão territorial no corpus.
+
 Toda aplicação futura sobre chamados novos permanece condicionada à
 inclusão de variável temporal na extração, à validação em período
 posterior ao corte avaliado, ao monitoramento de deriva de vocabulário e
@@ -1183,14 +1188,13 @@ nos sete modelos, resultado que se sustenta mesmo sob custos assimétricos
 
 A implicação operacional é dupla. No corte avaliado, o LinearSVC constitui
 o principal candidato a piloto controlado com calibração isotônica e
-automação seletiva, condicionado à validação temporal, ao monitoramento de
-deriva e à auditoria humana, regime em que cerca de dois terços do volume
+automação seletiva, sob as condições da Subseção 5.4, regime em que cerca
+de dois terços do volume
 poderiam ser decididos automaticamente com acurácia próxima de 0,95 e o
 restante encaminhado à revisão humana; e usar a divergência entre modelo e
 histórico não para reescrever a base, mas para priorizar a fila de
 auditoria, com enriquecimento de cerca de quatro vezes sobre a revisão
-aleatória. Ambas as recomendações permanecem condicionadas à ausência de
-validação temporal (Subseção 5.3).
+aleatória.
 
 As limitações mais consequentes são o avaliador único sem segunda
 avaliação independente, a ausência de validação temporal pela falta de
