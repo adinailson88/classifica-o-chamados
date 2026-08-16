@@ -119,8 +119,10 @@ escopo, fica para PR separada). Em microcorreção subsequente na mesma
 branch, o bloqueio do item 10 (Odum) foi resolvido a partir do acervo do
 projeto (Eugene P. Odum, *Fundamentos de ecologia*, 6. ed., 1996, em vez
 de Howard T. Odum), com ressalva bibliográfica apenas sobre a confirmação
-do ano na página de créditos do exemplar, e a inspeção visual do PDF foi
-completada nas 21 das 21 páginas. Detalhe completo em
+do ano na página de créditos do exemplar. Após a terceira microcorreção,
+o PDF final de 21 páginas foi inspecionado integralmente; a divergência de
+contagem no estado atual de `04_artigo/README.md` foi reconciliada para
+8.961 palavras. Detalhe completo em
 `docs/AUDITORIA_PARECER_ARTIGO_PROJETO.md`. Zero fits de modelo-base, zero
 fits de stacking, zero execuções de LSTM ou BERTimbau.
 
@@ -157,8 +159,8 @@ ensino superior (IFES), sem nomear a UFSB fora do bloco de afiliação dos
 autores.
 
 **Corpo científico: 8.961 palavras**, medidas pela mesma rotina única
-(contagem de palavras do Markdown-fonte entre "**1. INTRODUÇÃO**" e
-"**REFERÊNCIAS**", exclusive). Partiu de 8.855 (estado de `main` no início
+(contagem de palavras do Markdown-fonte desde "**1. INTRODUÇÃO**",
+inclusive, até "**REFERÊNCIAS**", exclusive). Partiu de 8.855 (estado de `main` no início
 da Rodada 14), recebeu as adições textuais dos itens 1 a 12 do parecer
 científico, compensadas por cortes locais de redundância nas mesmas
 subseções tocadas, chegando a 8.999; a remoção subsequente da seção

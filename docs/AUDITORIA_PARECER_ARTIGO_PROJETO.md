@@ -42,8 +42,8 @@ adicional na mesma branch, sobre o HEAD `e99b7093f70997883ba9cc7bf308faf7e6e814b
 - Baseline: 765 testes aprovados (`python -m unittest discover -s tests`),
   `py_compile` limpo, `python src/matriz_proveniencia.py` sem divergência
   (hash `1e4762438a7e` confirmado).
-- Contagem inicial do corpo científico (rotina histórica, entre
-  `**1. INTRODUÇÃO**` e `**REFERÊNCIAS**`, exclusive): **8.855 palavras**,
+- Contagem inicial do corpo científico (rotina histórica, desde
+  `**1. INTRODUÇÃO**`, inclusive, até `**REFERÊNCIAS**`, exclusive): **8.855 palavras**,
   conforme `origin/main`, `04_artigo/README.md` e `PLANO_ARTIGO_CAPITULO.md`
   no início da rodada. Nota de reconciliação: uma recontagem independente
   desta rodada, por *split* de espaços em branco sobre o mesmo texto-fonte
@@ -352,8 +352,9 @@ implementado nesta rodada.
 ### 8.5 Controle de extensão
 
 Rotina de contagem: divisão por espaços em branco (`str.split()`) do
-texto-fonte Markdown entre `**1. INTRODUÇÃO**` e `**REFERÊNCIAS**`,
-exclusive — a mesma rotina histórica usada nas rodadas anteriores.
+texto-fonte Markdown desde `**1. INTRODUÇÃO**`, inclusive, até
+`**REFERÊNCIAS**`, exclusive — a mesma rotina histórica usada nas rodadas
+anteriores.
 
 - Contagem antes da remoção (estado ao final da microcorreção do item 10):
   **8.999 palavras**.
@@ -479,3 +480,24 @@ transição direta para REFERÊNCIAS, sem título órfão), 17 (lista de
 referências íntegra) e 21 (Tabelas A2/A3, fim do documento sem página
 vazia): nenhuma sobreposição, corte, título órfão ou página vazia
 encontrado.
+
+## 10. Verificação independente do artefato final
+
+Verificação realizada sobre o HEAD `329bcb38` e o PDF produzido pelo run
+`31904852982`. O artefato contém 21 páginas, todas inspecionadas
+individualmente. Não foram encontrados sobreposição, corte, título órfão,
+página vazia ou quebra indevida. As seis figuras, as cinco tabelas do corpo,
+as Tabelas A1 a A3 e as 44 referências permanecem legíveis; a transição entre
+Considerações Finais e Referências está íntegra na página 16. A expressão
+`p $\leq$ 0,0005` está renderizada corretamente na página 8.
+
+A auditoria documental identificou uma única inconsistência: o primeiro
+período do estado atual em `04_artigo/README.md` ainda informava 8.972
+palavras, embora o mesmo parágrafo, o artigo e os dois planos já registrassem
+o valor final de 8.961. A recontagem confirmou esse total pela rotina histórica:
+`str.split()` desde o marcador `**1. INTRODUÇÃO**`, inclusive, até
+`**REFERÊNCIAS**`, exclusive. O período foi corrigido para 8.961. Nenhum arquivo do
+artigo, PDF, dado, resultado, partição ou modelo foi alterado nesta
+verificação. A suíte completa passou com 767 testes e o `py_compile` de
+`src/*.py` terminou sem erro. Como o fonte do artigo e o PDF não mudaram, não
+houve nova geração do PDF nem execução da matriz de proveniência.
