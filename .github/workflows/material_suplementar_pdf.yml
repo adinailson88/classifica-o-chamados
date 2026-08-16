@@ -1,0 +1,58 @@
+name: Gerar PDF do material suplementar
+
+# Converte 04_artigo/material_suplementar_classificacao_chamados.md em PDF via
+# pandoc/xelatex e publica em docs/ (GitHub Pages), ao lado do artigo. So LE o
+# .md do repositorio; nao le a planilha e nao usa credenciais. Workflow
+# proprio, separado de artigo_pdf.yml, para nao acoplar a publicacao do
+# suplemento ao pipeline ja em producao do artigo principal (decisao
+# registrada em docs/AUDITORIA_MATERIAL_SUPLEMENTAR.md). Ver 04_artigo/README.md.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "04_artigo/material_suplementar_classificacao_chamados.md"
+      - ".github/workflows/material_suplementar_pdf.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: gerar-pdf-material-suplementar
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  gerar-pdf:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+
+      # placeins.sty nao existe na imagem pandoc/extra e vive versionado em
+      # 04_artigo/latex; TEXINPUTS aponta o xelatex para la. Se nao alcancar,
+      # o \FloatBarrier do .md cai sem efeito em vez de falhar.
+      - name: Gerar PDF (pandoc + xelatex)
+        uses: docker://pandoc/extra:latest
+        env:
+          TEXINPUTS: ".:./04_artigo/latex:"
+        with:
+          args: >-
+            04_artigo/material_suplementar_classificacao_chamados.md
+            -o docs/material_suplementar_classificacao_chamados.pdf
+            --pdf-engine=xelatex
+            -V lang=pt-BR
+            -V geometry:margin=2cm
+            --standalone
+
+      - name: Commitar PDF gerado
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/material_suplementar_classificacao_chamados.pdf
+          if git diff --cached --quiet; then
+            echo "PDF sem mudancas, nada a commitar."
+          else
+            git commit -m "pdf do material suplementar gerado automaticamente [skip ci]"
+            git push
+          fi
