@@ -1,5 +1,27 @@
 ---
 title: "Material suplementar"
+header-includes:
+  - |
+    ```{=latex}
+    % O placeins vive em 04_artigo/latex porque nao existe na imagem
+    % pandoc/extra do workflow (TEXINPUTS aponta para la); o ramo
+    % alternativo evita falha de build caso o TEXINPUTS nao o alcance.
+    % Mesmo mecanismo usado em artigo_classificacao_chamados_v3.md.
+    \IfFileExists{placeins.sty}{%
+      \usepackage{placeins}%
+    }{%
+      \makeatletter
+      \newcommand\FloatBarrier{%
+        \par
+        \begingroup
+          \let\@elt\relax
+          \xdef\fb@pendentes{\@deferlist}%
+        \endgroup
+        \ifx\fb@pendentes\@empty\else\clearpage\fi
+      }
+      \makeatother
+    }
+    ```
 ---
 
 ```{=latex}
