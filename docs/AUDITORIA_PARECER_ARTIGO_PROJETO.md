@@ -349,6 +349,14 @@ três documentos de acompanhamento (`docs/AUDITORIA_PARECER_ARTIGO_PROJETO.md`
 Seção 0, `PLANO_ARTIGO_CAPITULO.md`, `PLANO_EXECUCAO_ATUAL.md`). Não
 implementado nesta rodada.
 
+**Resolvido na Rodada 15** (branch `docs/consolidacao-material-suplementar`,
+PR draft separada, sem empilhamento sobre a PR #215 desta auditoria):
+material suplementar renumerado em sequência contínua S1–S16 (S5–S17 para
+S4–S16, sem recriar a antiga tabela legada S4) e consolidado em
+`04_artigo/material_suplementar_classificacao_chamados.md`/
+`docs/material_suplementar_classificacao_chamados.pdf`. Detalhes completos
+em `docs/AUDITORIA_MATERIAL_SUPLEMENTAR.md`.
+
 ### 8.5 Controle de extensão
 
 Rotina de contagem: divisão por espaços em branco (`str.split()`) do

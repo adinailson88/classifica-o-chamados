@@ -774,7 +774,7 @@ investigada.
 
 Random Forest é omitido desta versão reduzida da Tabela 4; a tabela com os
 sete modelos, incluindo Naive Bayes e LSTM, cujo ECE aumenta após a
-calibração, consta do material suplementar (Tabela S16).
+calibração, consta do material suplementar (Tabela S15).
 
 A calibração viabiliza a automação seletiva, em que o classificador
 decide sozinho acima de um limiar de confiança e encaminha o restante à
@@ -965,7 +965,7 @@ a referência revisada. Cada método foi comparado em fila de igual
 capacidade, e nenhuma combinação superou o LinearSVC (Tabela 5). O único ganho local, do stacking na
 terceira dobra, com 123 casos capturados contra 119, não se sustentou no
 agregado; o detalhamento por dobra e a proveniência constam do material
-suplementar (Tabela S17).
+suplementar (Tabela S16).
 
 ```{=latex}
 \begin{table}[!tbp]

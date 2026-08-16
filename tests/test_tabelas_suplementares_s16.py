@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Teste direcionado da S17 (Fase 2C) em `tabelas_suplementares_canonicas`.
+"""Teste direcionado da S16 (Fase 2C) em `tabelas_suplementares_canonicas`.
 
 Usa um manifesto sintetico minusculo, nunca o real de 13.970 registros;
 verifica que os valores gravados no CSV vem literalmente do manifesto (sem
@@ -53,7 +53,7 @@ def manifesto_valido() -> dict:
     }
 
 
-class TestS17EnsembleConfirmatorio(unittest.TestCase):
+class TestS16EnsembleConfirmatorio(unittest.TestCase):
     def _rodar(self, manifesto: dict) -> Path:
         with TemporaryDirectory() as tmp:
             tmp_path = Path(tmp)
@@ -61,7 +61,7 @@ class TestS17EnsembleConfirmatorio(unittest.TestCase):
             manifesto_path.write_text(json.dumps(manifesto), encoding="utf-8")
             with unittest.mock.patch.object(tsc, "FASE2C_MANIFEST", manifesto_path), \
                  unittest.mock.patch.object(tsc, "FIGURAS", tmp_path):
-                caminho = tsc.s17_ensemble_confirmatorio()
+                caminho = tsc.s16_ensemble_confirmatorio()
                 conteudo = caminho.read_text(encoding="utf-8")
             return conteudo
 
