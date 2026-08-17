@@ -55,8 +55,86 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add docs/dados
-          git diff --cached --quiet && { echo "sem mudancas nos dados"; exit 0; }
+
+          # Allowlist default-deny: so os arquivos que src/exportar_dashboard.py e
+          # src/analise_shannon.py realmente escrevem podem ser commitados. Qualquer
+          # outro arquivo alterado em docs/dados (por exemplo um artefato
+          # cientifico/canonico) falha o job antes de qualquer git add/commit/push.
+          FIXAS=(
+            log_turnos_classificacao.json
+            metricas_por_categoria.json
+            log_turnos_reclassificacao.json
+            metricas_experimento.json
+            comparacao_modelos.json
+            comparacao_categoria.json
+            multimodelo_turnos.json
+            multimodelo_metricas.json
+            multimodelo_reclass_turnos.json
+            comparacao_previsoes.json
+            reclass_resumo.json
+            calibracao.json
+            registros.json
+            calibracao_modelos.json
+            calibracao_ajustada_modelos.json
+            resumo.json
+            shannon_resumo.json
+            shannon_modelos.json
+            jensen_shannon_modelos.json
+            shannon_categorias.json
+            shannon_votos.json
+          )
+
+          # Nomes dinamicos permitidos: docs/dados/registros_<modelo>.json, um por
+          # modelo em multimodelo.modelos_leves/modelos_pesados do
+          # config_experimento.json (mesma fonte que exportar_dashboard.py usa para
+          # decidir quais registros_<modelo>.json gravar). Cada nome e validado
+          # contra um padrao estrito antes de virar path esperado.
+          MODELOS="$(python3 -c "
+import json, re, sys
+c = json.load(open('config_experimento.json', encoding='utf-8'))
+mm = c.get('multimodelo', {}) or {}
+nomes = list(mm.get('modelos_leves', [])) + list(mm.get('modelos_pesados', []))
+for n in nomes:
+    if not re.fullmatch(r'[a-z0-9_]+', str(n)):
+        print(f'modelo invalido em config_experimento.json: {n!r}', file=sys.stderr)
+        sys.exit(1)
+    print(n)
+")"
+
+          ALLOWLIST="$(mktemp)"
+          printf '%s\n' "${FIXAS[@]}" > "$ALLOWLIST"
+          while IFS= read -r modelo; do
+            [ -n "$modelo" ] && echo "registros_${modelo}.json" >> "$ALLOWLIST"
+          done <<< "$MODELOS"
+
+          # Arquivos tracked modificados + novos nao tracked + removidos, dentro de
+          # docs/dados, nesta execucao.
+          CHANGED="$(git status --porcelain -- docs/dados | sed -E 's/^...//')"
+
+          INESPERADOS=""
+          STAGE_LIST=()
+          while IFS= read -r path; do
+            [ -z "$path" ] && continue
+            dir="$(dirname "$path")"
+            base="$(basename "$path")"
+            if [ "$dir" != "docs/dados" ] || ! grep -qxF "$base" "$ALLOWLIST"; then
+              INESPERADOS="${INESPERADOS}${path}\n"
+              continue
+            fi
+            STAGE_LIST+=("$path")
+          done <<< "$CHANGED"
+
+          if [ -n "$INESPERADOS" ]; then
+            echo "BLOQUEADO: arquivo(s) inesperado(s) alterado(s) em docs/dados (fora da allowlist deste workflow):" >&2
+            printf '%b' "$INESPERADOS" >&2
+            exit 1
+          fi
+
+          if [ "${#STAGE_LIST[@]}" -eq 0 ]; then
+            echo "sem mudancas nos dados"; exit 0
+          fi
+
+          git add -- "${STAGE_LIST[@]}"
           git commit -m "dados do dashboard [skip ci]"
           for i in 1 2 3 4 5; do
             # -X theirs: conflito em docs/dados/*.json (regerados por workflows concorrentes)
