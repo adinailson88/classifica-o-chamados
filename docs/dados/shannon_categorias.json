@@ -182,17 +182,17 @@
       "maior_risco": "ambiguidade_moderada"
     },
     {
-      "categoria_historica": "Elétrica > Gerador",
+      "categoria_historica": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
       "modelos": 9,
-      "suporte_max": 152,
+      "suporte_max": 1645,
       "entropia_media_normalizada": 0.4265,
       "maior_risco": "alta_ambiguidade"
     },
     {
-      "categoria_historica": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
+      "categoria_historica": "Elétrica > Gerador",
       "modelos": 9,
-      "suporte_max": 1644,
-      "entropia_media_normalizada": 0.426,
+      "suporte_max": 152,
+      "entropia_media_normalizada": 0.4265,
       "maior_risco": "alta_ambiguidade"
     },
     {
@@ -758,6 +758,21 @@
       "risco": "alta_ambiguidade"
     },
     {
+      "modelo": "naive_bayes",
+      "categoria_historica": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
+      "suporte": 417,
+      "categorias_previstas": 5,
+      "entropia_previsoes": 1.7914,
+      "entropia_normalizada": 0.7715,
+      "categorias_efetivas": 3.4616,
+      "top_1_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
+      "top_1_pct": 0.4125,
+      "top_2_previsto": "Elétrica > Instalações elétricas",
+      "top_2_pct": 0.3453,
+      "concordancia_historico": 0.06,
+      "risco": "alta_ambiguidade"
+    },
+    {
       "modelo": "transformer_ft",
       "categoria_historica": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
       "suporte": 1300,
@@ -770,21 +785,6 @@
       "top_2_previsto": "Estrutura Predial > Esquadrias, porta, portão e janelas",
       "top_2_pct": 0.1038,
       "concordancia_historico": 0.2169,
-      "risco": "alta_ambiguidade"
-    },
-    {
-      "modelo": "naive_bayes",
-      "categoria_historica": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
-      "suporte": 416,
-      "categorias_previstas": 5,
-      "entropia_previsoes": 1.7859,
-      "entropia_normalizada": 0.7692,
-      "categorias_efetivas": 3.4484,
-      "top_1_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-      "top_1_pct": 0.4135,
-      "top_2_previsto": "Elétrica > Instalações elétricas",
-      "top_2_pct": 0.3462,
-      "concordancia_historico": 0.0577,
       "risco": "alta_ambiguidade"
     },
     {
@@ -2605,16 +2605,16 @@
     {
       "modelo": "lstm",
       "categoria_historica": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
-      "suporte": 1644,
+      "suporte": 1645,
       "categorias_previstas": 38,
-      "entropia_previsoes": 2.5228,
-      "entropia_normalizada": 0.4807,
-      "categorias_efetivas": 5.747,
+      "entropia_previsoes": 2.524,
+      "entropia_normalizada": 0.481,
+      "categorias_efetivas": 5.7518,
       "top_1_previsto": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
-      "top_1_pct": 0.587,
+      "top_1_pct": 0.5866,
       "top_2_previsto": "Outros > Erro de chamado",
-      "top_2_pct": 0.0882,
-      "concordancia_historico": 0.587,
+      "top_2_pct": 0.0881,
+      "concordancia_historico": 0.5866,
       "risco": "ambiguidade_moderada"
     },
     {
@@ -2873,6 +2873,21 @@
       "risco": "estavel"
     },
     {
+      "modelo": "random_forest",
+      "categoria_historica": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
+      "suporte": 829,
+      "categorias_previstas": 11,
+      "entropia_previsoes": 1.4616,
+      "entropia_normalizada": 0.4225,
+      "categorias_efetivas": 2.7542,
+      "top_1_previsto": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
+      "top_1_pct": 0.6429,
+      "top_2_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
+      "top_2_pct": 0.2521,
+      "concordancia_historico": 0.6429,
+      "risco": "ambiguidade_moderada"
+    },
+    {
       "modelo": "linear_svc",
       "categoria_historica": "Elétrica > Instalações elétricas",
       "suporte": 1897,
@@ -2885,21 +2900,6 @@
       "top_2_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
       "top_2_pct": 0.0564,
       "concordancia_historico": 0.6879,
-      "risco": "ambiguidade_moderada"
-    },
-    {
-      "modelo": "random_forest",
-      "categoria_historica": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
-      "suporte": 828,
-      "categorias_previstas": 11,
-      "entropia_previsoes": 1.4581,
-      "entropia_normalizada": 0.4215,
-      "categorias_efetivas": 2.7475,
-      "top_1_previsto": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
-      "top_1_pct": 0.6437,
-      "top_2_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-      "top_2_pct": 0.2524,
-      "concordancia_historico": 0.6437,
       "risco": "ambiguidade_moderada"
     },
     {
@@ -2935,16 +2935,16 @@
     {
       "modelo": "sgd",
       "categoria_historica": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
-      "suporte": 416,
+      "suporte": 417,
       "categorias_previstas": 12,
-      "entropia_previsoes": 1.4883,
-      "entropia_normalizada": 0.4152,
-      "categorias_efetivas": 2.8056,
+      "entropia_previsoes": 1.4897,
+      "entropia_normalizada": 0.4155,
+      "categorias_efetivas": 2.8083,
       "top_1_previsto": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
-      "top_1_pct": 0.6635,
+      "top_1_pct": 0.6619,
       "top_2_previsto": "Outros > Erro de chamado",
-      "top_2_pct": 0.238,
-      "concordancia_historico": 0.6635,
+      "top_2_pct": 0.2398,
+      "concordancia_historico": 0.6619,
       "risco": "ambiguidade_moderada"
     },
     {
@@ -2995,16 +2995,16 @@
     {
       "modelo": "extra_trees",
       "categoria_historica": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
-      "suporte": 824,
+      "suporte": 825,
       "categorias_previstas": 11,
-      "entropia_previsoes": 1.4041,
-      "entropia_normalizada": 0.4059,
-      "categorias_efetivas": 2.6465,
+      "entropia_previsoes": 1.4074,
+      "entropia_normalizada": 0.4068,
+      "categorias_efetivas": 2.6526,
       "top_1_previsto": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
-      "top_1_pct": 0.6893,
+      "top_1_pct": 0.6885,
       "top_2_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-      "top_2_pct": 0.2015,
-      "concordancia_historico": 0.6893,
+      "top_2_pct": 0.2012,
+      "concordancia_historico": 0.6885,
       "risco": "ambiguidade_moderada"
     },
     {
@@ -3070,16 +3070,16 @@
     {
       "modelo": "regressao_logistica",
       "categoria_historica": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
-      "suporte": 416,
+      "suporte": 417,
       "categorias_previstas": 13,
-      "entropia_previsoes": 1.4784,
-      "entropia_normalizada": 0.3995,
-      "categorias_efetivas": 2.7865,
+      "entropia_previsoes": 1.4797,
+      "entropia_normalizada": 0.3999,
+      "categorias_efetivas": 2.7889,
       "top_1_previsto": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
-      "top_1_pct": 0.6587,
+      "top_1_pct": 0.6571,
       "top_2_previsto": "Outros > Erro de chamado",
-      "top_2_pct": 0.25,
-      "concordancia_historico": 0.6587,
+      "top_2_pct": 0.2518,
+      "concordancia_historico": 0.6571,
       "risco": "ambiguidade_moderada"
     },
     {
@@ -3280,16 +3280,16 @@
     {
       "modelo": "linear_svc",
       "categoria_historica": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
-      "suporte": 824,
+      "suporte": 825,
       "categorias_previstas": 15,
-      "entropia_previsoes": 1.3052,
-      "entropia_normalizada": 0.3341,
-      "categorias_efetivas": 2.4712,
+      "entropia_previsoes": 1.3041,
+      "entropia_normalizada": 0.3338,
+      "categorias_efetivas": 2.4693,
       "top_1_previsto": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
-      "top_1_pct": 0.767,
+      "top_1_pct": 0.7673,
       "top_2_previsto": "Outros > Erro de chamado",
-      "top_2_pct": 0.1238,
-      "concordancia_historico": 0.767,
+      "top_2_pct": 0.1236,
+      "concordancia_historico": 0.7673,
       "risco": "estavel"
     },
     {
@@ -4765,16 +4765,16 @@
     {
       "modelo": "etapa1_oficial",
       "categoria_historica": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
-      "suporte": 415,
+      "suporte": 416,
       "categorias_previstas": 4,
-      "entropia_previsoes": 0.1967,
-      "entropia_normalizada": 0.0983,
-      "categorias_efetivas": 1.146,
+      "entropia_previsoes": 0.1963,
+      "entropia_normalizada": 0.0981,
+      "categorias_efetivas": 1.1457,
       "top_1_previsto": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
-      "top_1_pct": 0.9759,
+      "top_1_pct": 0.976,
       "top_2_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
       "top_2_pct": 0.012,
-      "concordancia_historico": 0.9759,
+      "concordancia_historico": 0.976,
       "risco": "estavel"
     },
     {
