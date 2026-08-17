@@ -814,12 +814,12 @@ Naive Bayes & 0,0144 & 0,0206 & 0,5518 & 0,9306 \\
 \end{table}
 ```
 
-A Figura 3 apresenta a curva de confiabilidade do Extra Trees calibrado,
-tornando visível a aderência entre confiança declarada e acerto observado
-ao longo das dez faixas, ao lado da mesma curva para o LinearSVC, modelo
-recomendado para produção pela Subseção 5.1: a calibração deste último
-(ECE de 0,0178, Tabela 4) acompanha a do Extra Trees sem perda visível de
-aderência.
+A Figura 3 apresenta as curvas de confiabilidade do Extra Trees e do
+LinearSVC após calibração isotônica, tornando visível a aderência entre
+confiança declarada e acerto observado ao longo das dez faixas. O
+LinearSVC, modelo recomendado para produção pela Subseção 5.1, tem
+calibração (ECE de 0,0178, Tabela 4) que acompanha a do Extra Trees sem
+perda visível de aderência.
 
 ![Curva de confiabilidade do Extra Trees e do LinearSVC após calibração isotônica, com confiança média e acurácia observada por faixa.](04_artigo/figuras/fig_confianca_desfecho.pdf){width=98%}
 
