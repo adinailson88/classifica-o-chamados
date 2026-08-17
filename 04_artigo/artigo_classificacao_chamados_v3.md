@@ -179,11 +179,11 @@ decisão. Essa definição apoia-se na perspectiva sistêmica de Capra (1997),
 na concepção de ecossistema de Odum (1996) e na ecologia urbana de Grimm
 *et al.* (2000), ainda que nenhum desses autores cunhe o termo. O artigo
 não mede a retroalimentação ecológica entre uso, falha e reparo (Subseção
-5.4), seu objeto é o protocolo de classificação que organiza o sinal
+5.4), visto que seu objeto é o protocolo de classificação que organiza o sinal
 textual. Nas IFES, esse sinal assume a forma de registros de chamados de
 manutenção, armazenados em linguagem não estruturada, cuja interpretação individual
 impede o uso direto por mecanismos de decisão automatizada (Morais; Paula;
-Reis, 2023; Mohammed; Amoah, 2025). Convertê-los em dado estruturado e
+Reis, 2023; Mohammed; Amoah, 2025) e convertê-los em dado estruturado e
 auditável é condição anterior a qualquer camada preditiva.
 
 Essa conversão é condicionada pela natureza textual curta e heterogênea dos
