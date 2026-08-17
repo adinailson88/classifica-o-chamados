@@ -202,7 +202,7 @@ sobre 15.623 ordens de serviço hospitalares (Li *et al.*, 2024) e 78% em
 requisições de edificação hospitalar (Bouabdallaoui *et al.*, 2020). Essas
 aplicações concentram-se, todavia, em bases de outros idiomas e em domínios
 industriais ou hospitalares, e avaliam o classificador contra o rótulo
-registrado, sem submetê-lo a auditoria. Restam duas lacunas: a escassez de
+registrado, sem submetê-lo a auditoria. Restam duas lacunas, que são a escassez de
 corpora em português brasileiro na manutenção predial pública
 universitária, e a ausência de protocolo que trate a categoria histórica
 como objeto de auditoria e meça o risco de reescrevê-la.
