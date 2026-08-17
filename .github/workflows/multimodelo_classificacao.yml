@@ -9,8 +9,10 @@ name: Multimodelo - classificacao completa
 # e barato depois da materializacao inicial: classificacao_multimodelo.py so
 # processa as linhas ainda nao feitas e encerra rapido quando nao ha pendentes
 # (no-op) — so fica pesado de novo apos um reset ou grande avanco da base.
-# Serializado com a Etapa 1 e o dashboard pelo concurrency 'escrita-planilha'
-# (um escritor por vez).
+# Compartilha o concurrency 'multimodelo-pipeline' com a reclassificacao
+# multimodelo (multimodelo_reclassificacao.yml): a reclassificacao LE
+# CLASSIF__<modelo>, que esta classificacao ESCREVE, entao as duas nunca
+# rodam ao mesmo tempo (mas nenhuma cancela a outra em andamento).
 
 on:
   # Cron reativado em 02/08/2026, depois de corrigidas as DUAS causas do
@@ -57,7 +59,7 @@ on:
           - robusto
 
 concurrency:
-  group: multimodelo-classif
+  group: multimodelo-pipeline
   cancel-in-progress: false
 
 permissions:

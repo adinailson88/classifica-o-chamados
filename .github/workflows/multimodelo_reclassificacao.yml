@@ -5,8 +5,11 @@ name: Multimodelo - reclassificacao
 
 on:
   schedule:
-    # 05:47 America/Bahia = 08:47 UTC. Fica fora dos ciclos :00/:15/:30
-    # e, se outro workflow ainda estiver escrevendo, aguarda em escrita-planilha.
+    # 05:47 America/Bahia = 08:47 UTC. Compartilha o concurrency
+    # 'multimodelo-pipeline' com a classificacao multimodelo
+    # (multimodelo_classificacao.yml, cron a cada 15 min): esta
+    # reclassificacao LE CLASSIF__<modelo>, que a classificacao ESCREVE, e
+    # aguarda nesse grupo se a classificacao ainda estiver rodando.
     - cron: "47 8 * * *"
   workflow_dispatch:
     inputs:
@@ -41,7 +44,7 @@ on:
           - robusto
 
 concurrency:
-  group: multimodelo-reclass
+  group: multimodelo-pipeline
   cancel-in-progress: false
 
 permissions:
