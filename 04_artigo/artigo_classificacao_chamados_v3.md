@@ -171,8 +171,7 @@ restrição, decidir onde intervir depende de evidência sobre o parque
 edificado, conforme a gestão sistematizada definida pela NBR 5674 (ABNT,
 2012).
 
-O sinal disponível para essa decisão é textual. Este artigo trata o campus
-universitário como um biossistema construído, definição operacional aqui
+Este artigo trata o campus universitário como um biossistema construído, definição operacional aqui
 proposta para a integração dinâmica entre infraestrutura física, atividade
 humana, sistemas tecnológicos e condicionantes ambientais, cuja governança
 depende da capacidade institucional de captar sinais e convertê-los em
