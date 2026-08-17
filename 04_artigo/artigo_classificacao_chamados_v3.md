@@ -602,7 +602,8 @@ contra a referência humana revisada, e custo de treino, por modelo
 (n = 13.972; 41 categorias). O intervalo é da acurácia, obtido por
 \textit{bootstrap} de grupo textual com mil repetições sobre os 9.735
 grupos congelados; o custo de treino é mediana de três execuções sobre a
-base completa.}
+base completa. Em negrito, o maior valor de cada coluna de desempenho e,
+por se tratar de custo, o menor tempo de treino.}
 \label{tab:desempenho}
 \setlength{\tabcolsep}{4pt}
 \renewcommand{\arraystretch}{1.15}
@@ -610,13 +611,13 @@ base completa.}
 \toprule
 Modelo & Concordância histórica & Acurácia & Macro-F1 & Intervalo essencial (IC95\% da acurácia) & Tempo de treino (s) \\
 \midrule
-LinearSVC & 0,7961 & 0,8253 & 0,6684 & 0,8115 -- 0,8378 & 2,44 \\
+LinearSVC & \textbf{0,7961} & \textbf{0,8253} & 0,6684 & 0,8115 -- 0,8378 & 2,44 \\
 SGD & 0,7781 & 0,8093 & 0,6669 & 0,7950 -- 0,8227 & 2,28 \\
 Extra Trees & 0,7844 & 0,8073 & 0,6362 & 0,7923 -- 0,8211 & 26,69 \\
-Regressão Logística & 0,7738 & 0,8050 & 0,6689 & 0,7907 -- 0,8189 & 8,43 \\
+Regressão Logística & 0,7738 & 0,8050 & \textbf{0,6689} & 0,7907 -- 0,8189 & 8,43 \\
 Random Forest & 0,7747 & 0,7970 & 0,6152 & 0,7812 -- 0,8111 & 22,62 \\
 LSTM & 0,7017 & 0,7287 & 0,5240 & 0,7080 -- 0,7480 & 83,44 \\
-Naive Bayes & 0,6954 & 0,7088 & 0,2951 & 0,6860 -- 0,7311 & 1,12 \\
+Naive Bayes & 0,6954 & 0,7088 & 0,2951 & 0,6860 -- 0,7311 & \textbf{1,12} \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -815,9 +816,12 @@ Naive Bayes & 0,0144 & 0,0206 & 0,5518 & 0,9306 \\
 
 A Figura 3 apresenta a curva de confiabilidade do Extra Trees calibrado,
 tornando visível a aderência entre confiança declarada e acerto observado
-ao longo das dez faixas.
+ao longo das dez faixas, ao lado da mesma curva para o LinearSVC, modelo
+recomendado para produção pela Subseção 5.1: a calibração deste último
+(ECE de 0,0178, Tabela 4) acompanha a do Extra Trees sem perda visível de
+aderência.
 
-![Curva de confiabilidade do Extra Trees após calibração isotônica, com confiança média e acurácia observada por faixa.](04_artigo/figuras/fig_confianca_desfecho.pdf){width=85%}
+![Curva de confiabilidade do Extra Trees e do LinearSVC após calibração isotônica, com confiança média e acurácia observada por faixa.](04_artigo/figuras/fig_confianca_desfecho.pdf){width=98%}
 
 **4.4 Erros por categoria e implicações taxonômicas**
 
