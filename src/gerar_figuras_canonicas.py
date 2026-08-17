@@ -97,6 +97,7 @@ ABREVIACOES_EXPLICITAS = {
     "Ponto de rede / fibra ótica / Wi-fi": "Ponto de rede/fibra/Wi-fi",
     "Manutenção área externa / meio ambiente / Poda de árvore / Roçagem":
         "Manut. área externa/poda árvore",
+    "Telhados, calhas, rufos, etc.": "Telhados/calhas/rufos",
 }
 
 
@@ -136,39 +137,50 @@ def formatar_decimal(ax, eixo: str = "x", casas: int = 1) -> None:
 
 
 # --------------------------------------------------------------------------
-# Figura 2 — curva de confiabilidade do melhor modelo calibrado
+# Figura 2 — curva de confiabilidade do modelo calibrado, ao lado da do
+# LinearSVC (modelo recomendado para producao): o leitor ve as duas sem
+# precisar de uma figura suplementar separada.
 # --------------------------------------------------------------------------
 def figura_confiabilidade(calibracao: dict[str, Any]) -> None:
-    modelo = next(m for m in calibracao["modelos"]
-                  if m["modelo"] == MODELO_CALIBRADO)
-    faixas = modelo["calibrada"]["confiabilidade"]
-    # 'faixa' vem como '[0.0, 0.1)'; o centro sai dos limites declarados.
-    centros = [(float(f["faixa"][1:-1].split(",")[0])
-                + float(f["faixa"][1:-1].split(",")[1])) / 2 for f in faixas]
-    confianca = [f["confianca_media"] for f in faixas]
-    acuracia = [f["acuracia"] for f in faixas]
-    registros = [f["n"] for f in faixas]
+    colunas = [MODELO_CALIBRADO, MODELO_PRINCIPAL]
 
-    fig, (ax, ax2) = plt.subplots(
-        2, 1, figsize=(LARGURA_DUPLA, 4.2), sharex=True,
-        gridspec_kw={"height_ratios": [3, 1], "hspace": 0.12})
+    fig, eixos = plt.subplots(
+        2, 2, figsize=(LARGURA_DUPLA, 4.6), sharex="col", sharey="row",
+        gridspec_kw={"height_ratios": [3, 1], "hspace": 0.14, "wspace": 0.10})
 
-    ax.plot([0, 1], [0, 1], color=COR["cinza"], linestyle=":", linewidth=1.0,
-            label="calibração perfeita")
-    ax.plot(confianca, acuracia, marker="o", color=COR["azul"],
-            label="acurácia observada")
-    ax.set_ylabel("Acurácia observada")
-    ax.set_ylim(0, 1.02)
-    ax.legend(loc="upper left")
-    formatar_decimal(ax, eixo="y")
-    limpar_eixo(ax)
+    for coluna, chave in enumerate(colunas):
+        modelo = next(m for m in calibracao["modelos"]
+                      if m["modelo"] == chave)
+        faixas = modelo["calibrada"]["confiabilidade"]
+        # 'faixa' vem como '[0.0, 0.1)'; o centro sai dos limites declarados.
+        centros = [(float(f["faixa"][1:-1].split(",")[0])
+                    + float(f["faixa"][1:-1].split(",")[1])) / 2
+                   for f in faixas]
+        confianca = [f["confianca_media"] for f in faixas]
+        acuracia = [f["acuracia"] for f in faixas]
+        registros = [f["n"] for f in faixas]
 
-    ax2.bar(centros, registros, width=0.085, color=COR["laranja"])
-    ax2.set_ylabel("Registros")
-    ax2.set_xlabel("Confiança calibrada")
-    ax2.set_xlim(0, 1)
-    formatar_decimal(ax2)
-    limpar_eixo(ax2)
+        ax, ax2 = eixos[0][coluna], eixos[1][coluna]
+
+        ax.plot([0, 1], [0, 1], color=COR["cinza"], linestyle=":",
+                linewidth=1.0, label="calibração perfeita")
+        ax.plot(confianca, acuracia, marker="o", color=COR["azul"],
+                label="acurácia observada")
+        ax.set_title(NOME[chave])
+        ax.set_ylim(0, 1.02)
+        formatar_decimal(ax, eixo="y")
+        limpar_eixo(ax)
+        if coluna == 0:
+            ax.set_ylabel("Acurácia observada")
+            ax.legend(loc="upper left")
+
+        ax2.bar(centros, registros, width=0.085, color=COR["laranja"])
+        ax2.set_xlabel("Confiança calibrada")
+        ax2.set_xlim(0, 1)
+        formatar_decimal(ax2)
+        limpar_eixo(ax2)
+        if coluna == 0:
+            ax2.set_ylabel("Registros")
 
     salvar(fig, FIGURAS / "fig_confianca_desfecho")
 
