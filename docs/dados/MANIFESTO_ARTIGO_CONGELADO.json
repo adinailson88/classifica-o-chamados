@@ -1,0 +1,135 @@
+{
+  "schema_version": 1,
+  "status": "CONGELADO",
+  "trilha": "ARTIGO_CONGELADO",
+  "manifesto_criado_a_partir_do_sha": "ea4a6c06a3cd3cd8b4d39067114b35ecbb3aadb0",
+  "invariantes": {
+    "hash_corpus": "1e4762438a7e3627d3e32c1025f6bcb169e786881d8e86207806fdf98846409a",
+    "corpus_completo": 14060,
+    "corpus_modelagem": 13972,
+    "categorias_modelagem": 41,
+    "dobras": 5
+  },
+  "arquivos": [
+    {
+      "path": "docs/dados/auditoria_base_canonica.json",
+      "sha256": "53de021d590dd11e264894bc8b68d766f0759cedbe6842e2e4f8693a5e32fbcf",
+      "possui_hash_corpus": false,
+      "papel": "Congelamento do corpus (Passo 1): auditoria da base e da referencia humana; define o corpus completo (14.060) que ancora a cobertura da revisao."
+    },
+    {
+      "path": "docs/dados/calibracao_canonica.json",
+      "sha256": "9b869e1e6e6bb148d163c0ac01e47920fe3043c8e9ee95e69be1b1b21dcfdfe6",
+      "possui_hash_corpus": true,
+      "papel": "Passo 7: calibracao de confianca (ECE, Brier, curva de confiabilidade) e automacao seletiva por limiar."
+    },
+    {
+      "path": "docs/dados/comparacao_historica.json",
+      "sha256": "7c30a12d24b4a0b61906e2c77b6c371af3e67854760dff753cf15e8aeb0cf220",
+      "possui_hash_corpus": true,
+      "papel": "Passos 4/5/7: concordancia historica, Kappa, ganho liquido e dispersao das predicoes (Jensen-Shannon) contra o historico."
+    },
+    {
+      "path": "docs/dados/custo_bertimbau.json",
+      "sha256": "323d0b2cab390e153e2a0730d82ecc81f0152744b49434c1b132316e7b55800a",
+      "possui_hash_corpus": false,
+      "papel": "Passo 6: medicao de custo computacional do BERTimbau (fine-tuning), base da decisao de mante-lo como experimento exploratorio fora da comparacao principal."
+    },
+    {
+      "path": "docs/dados/custo_computacional_canonico.json",
+      "sha256": "3b73e34d1d11001acfa47e84657a60e9a8a4575ef11833897842c6a31d3ed4db",
+      "possui_hash_corpus": true,
+      "papel": "Passos 4/5/7: custo computacional (tempo/memoria) do treino dos sete modelos principais."
+    },
+    {
+      "path": "docs/dados/disponibilidade_temporal.json",
+      "sha256": "21d441d5955a17b10c6bb91470143fec35fd627de0a65c85f61a5cd00d710a62",
+      "possui_hash_corpus": false,
+      "papel": "Analise complementar: veredito sobre a ausencia de variavel temporal no corpus congelado, base da limitacao declarada no artigo."
+    },
+    {
+      "path": "docs/dados/grupos_divergentes_canonicos.json",
+      "sha256": "cb70ffbc8d7d0700572cd0898fde5076861cabdbe640cf20c7444f2e0e60a7d9",
+      "possui_hash_corpus": false,
+      "papel": "Analise complementar: caracterizacao dos grupos textuais com referencia humana divergente, citada no artigo."
+    },
+    {
+      "path": "docs/dados/grupos_textuais.json",
+      "sha256": "e15e624eba050f10ab623a369e702ac200113bd40e9b054f610712f8f84243cd",
+      "possui_hash_corpus": false,
+      "papel": "Congelamento do corpus (Passo 2): grupos de textos identicos/quase identicos, base do StratifiedGroupKFold."
+    },
+    {
+      "path": "docs/dados/inferencia_agrupada.json",
+      "sha256": "da6ba4a5bf37f13e83cb6ad0f033dd9a20b4e4f092ca36d3343bbb260a194317",
+      "possui_hash_corpus": true,
+      "papel": "Passo 8: inferencia estatistica pareada no nivel do grupo textual (Cochran Q, McNemar por permutacao, bootstrap de conglomerados)."
+    },
+    {
+      "path": "docs/dados/inferencia_canonica.json",
+      "sha256": "7444e17f28dc9e34236a7139256dd52eee4d4b4ec925e150fbf9fce267513125",
+      "possui_hash_corpus": true,
+      "papel": "Passo 8: inferencia estatistica por linha (mantida para contraste) e conciliacao das contagens de grupos textuais."
+    },
+    {
+      "path": "docs/dados/particoes_canonicas.json",
+      "sha256": "076aa1bc70800e6c53eb0fe986feb136af059a908d277164bd943a5b93980535",
+      "possui_hash_corpus": false,
+      "papel": "Congelamento do corpus (Passo 3): particoes StratifiedGroupKFold (5 dobras) usadas por todos os modelos e pela camada de regras."
+    },
+    {
+      "path": "docs/dados/particoes_canonicas_mapa.csv",
+      "sha256": "c58a3865b17f9d46346ab896b5dc417f3f823c5d53ada5efe8a2c68c3a8b5edb",
+      "possui_hash_corpus": false,
+      "papel": "Congelamento do corpus (Passo 3): mapa linha-a-linha das particoes canonicas (id/grupo/dobra)."
+    },
+    {
+      "path": "docs/dados/recortes_canonicos.json",
+      "sha256": "3a774c1ac1b3e70398c19d3742ec07b815a6eef76d57de3fd57b6f310b587d2d",
+      "possui_hash_corpus": true,
+      "papel": "Passos 4/5/7: recortes de desempenho por tipo de manutencao e curva ABC por volume."
+    },
+    {
+      "path": "docs/dados/regras_versus_modelos.json",
+      "sha256": "947b60ad8167a80fb8262bce59751da356214cb34d0c6f128d64cfb5785ad8d8",
+      "possui_hash_corpus": true,
+      "papel": "Passo 5: comparacao entre a camada de regras preventivas e os modelos estatisticos."
+    },
+    {
+      "path": "docs/dados/retreino_canonico.json",
+      "sha256": "19a5fba015e20e85f9c6c75a78cd8eaa8fefdede7b01e1bee1fb5fced1ee8dd5",
+      "possui_hash_corpus": true,
+      "papel": "Passo 4: retreino dos sete modelos principais com predicao out-of-fold sobre as particoes canonicas."
+    },
+    {
+      "path": "docs/dados/retreino_canonico_predicoes.csv",
+      "sha256": "aa1ae1d21dd582406c390d670a3940a5875442de2803a22cc87a093e1ec13d79",
+      "possui_hash_corpus": false,
+      "papel": "Passo 4: predicoes out-of-fold linha-a-linha dos sete modelos, insumo de Passos 5/7/8 e do apendice."
+    },
+    {
+      "path": "docs/dados/rodada_canonica.json",
+      "sha256": "bb4fa05575b3314be0d03f7d2ec78c7625000fca670e49049bd9e4d4737cf56b",
+      "possui_hash_corpus": true,
+      "papel": "Manifesto da rodada canonica (Passos 4/5/7): define e carimba o hash_corpus que os demais artefatos derivados devem conferir."
+    },
+    {
+      "path": "docs/dados/sensibilidade_classes_raras.json",
+      "sha256": "b095f3e9d815bfee97b4360ba7933c5de1c3af2727ba65b7b4dfde9d9f095445",
+      "possui_hash_corpus": true,
+      "papel": "Analise complementar: cobertura e macro-F1 sob tres convencoes de denominador, para classes raras."
+    },
+    {
+      "path": "docs/dados/tabelas_apendice_canonicas.json",
+      "sha256": "b7e300f2324da41f3ae38209602867cb17c639a3ef40bb856ece4d52bdbf443b",
+      "possui_hash_corpus": false,
+      "papel": "Tabelas A1 a A3 do Apendice A do artigo."
+    },
+    {
+      "path": "docs/dados/utilidade_reclassificacao.json",
+      "sha256": "1e4b22f38c6577d81e0586b1158ff56b8f4f52644aa40fe89d89a0b754e92d8e",
+      "possui_hash_corpus": true,
+      "papel": "Analise complementar: razao de equilibrio e funcao de utilidade da reclassificacao."
+    }
+  ]
+}

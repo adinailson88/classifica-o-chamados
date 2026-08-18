@@ -105,6 +105,18 @@ Quatro arquivos de requirements, por peso da tarefa:
 | `requirements-estatistica.txt` | inferência estatística (Passo 8) |
 | `requirements-transformer.txt` | só para o experimento exploratório do BERTimbau |
 
+## 5.1 Proteção técnica do baseline congelado
+
+`docs/dados/MANIFESTO_ARTIGO_CONGELADO.json` lista, com SHA-256 de conteúdo,
+exatamente os artefatos que sustentam os números atuais do artigo (a
+"Trilha A" descrita no plano de arquitetura). `python
+src/verificar_artigo_congelado.py` confere esse manifesto contra os arquivos
+reais — sem rede, sem planilha, sem credenciais — e retorna código de saída
+diferente de zero se algum arquivo protegido sumir, mudar de conteúdo ou
+tiver `hash_corpus` divergente do valor canônico. É um check detectivo, não
+uma trava absoluta: reduz o risco de sobrescrita acidental e oferece
+verificação pré-merge, mas não substitui configuração de branch protection.
+
 ## 6. Painel público (fora do escopo deste guia)
 
 O painel (`docs/index.html`) lê os mesmos JSONs canônicos desta lista para a

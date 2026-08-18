@@ -69,3 +69,9 @@ python -m py_compile src/*.py
 ```
 
 Nao declarar acesso ao Google Sheets como validado sem execucao real com credenciais.
+
+## Trilha cientifica congelada
+
+Os artefatos listados em `docs/dados/MANIFESTO_ARTIGO_CONGELADO.json` pertencem ao artigo atual (Trilha A, hash `1e4762438a7e...`) e nao devem ser sobrescritos por rotinas operacionais. Verificar com `python src/verificar_artigo_congelado.py`.
+
+Futuras rodadas cientificas devem gerar novo corte/hash/namespace proprio, sem reaproveitar silenciosamente os paths protegidos. Qualquer mudanca intencional no baseline atual exige decisao explicita do autor e atualizacao consciente do manifesto — nunca uma consequencia automatica de rodar um script.
