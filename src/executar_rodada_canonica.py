@@ -26,15 +26,9 @@ from typing import Any
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-import calibrar_confianca as cal  # noqa: E402
-import comparacao_historica as chi  # noqa: E402
-import comparar_regras_modelos as crm  # noqa: E402
 import construir_grupos_textuais as cgt  # noqa: E402
 import custo_computacional_canonico as ccc  # noqa: E402
-import planilha as pl  # noqa: E402
-import recortes_canonicos as rec  # noqa: E402
 import retreinar_modelos_canonicos as rmc  # noqa: E402
-from tempo import agora_bahia  # noqa: E402
 
 RAIZ = Path(__file__).resolve().parents[1]
 CONFIG_PADRAO = RAIZ / "config_experimento.json"
@@ -50,6 +44,21 @@ SAIDA_HISTORICO_MD = RAIZ / "docs" / "COMPARACAO_HISTORICA.md"
 # ponto de comparacao que torna a rodada canonica fail-closed.
 HASH_CORPUS_ESPERADO = (
     "1e4762438a7e3627d3e32c1025f6bcb169e786881d8e86207806fdf98846409a")
+
+# Aposentadoria fail-closed da rodada canonica: ver docs/RETREINO_CANONICO.md
+# e o achado metodologico do lote 8D-3B. HASH_CORPUS_ESPERADO combina
+# id_sha256, grupo textual normalizado e referencia humana, mas nao congela o
+# model-input bruto entregue ao Tokenizer da LSTM; por isso ele permanece no
+# modulo como registro/defesa historica, sem servir de autorizacao suficiente
+# para regenerar os artefatos do ARTIGO_CONGELADO a partir da planilha viva.
+MENSAGEM_APOSENTADORIA = (
+    "Regeneracao da rodada canonica aposentada: o ARTIGO_CONGELADO nao "
+    "possui fingerprint congelado do model-input textual bruto suficiente "
+    "para provar identidade exata da entrada da LSTM. A planilha "
+    "operacional viva nao pode ser usada para recriar resultados sob a "
+    "identidade canonica. Um novo experimento deve ser executado como NOVO "
+    "CORTE CIENTIFICO, com nova identidade."
+)
 
 
 def hash_corpus(corpus: dict[str, Any]) -> str:
@@ -125,142 +134,9 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> int:
-    args = parse_args()
-    if not args.particoes.exists():
-        print(f"Mapa de particoes nao encontrado em {args.particoes}.", file=sys.stderr)
-        return 2
-    modelos = [m.strip() for m in args.modelos.split(",") if m.strip()]
-    config = json.loads(args.config.read_text(encoding="utf-8"))
-
-    # ---- leitura unica da aba -------------------------------------------
-    particoes = rmc.carregar_particoes(args.particoes)
-    congelados = (rmc.carregar_grupos_congelados(args.grupos_congelados)
-                  if args.grupos_congelados.exists() else None)
-    sh = pl.abrir_planilha(pl.id_planilha(config), args.credenciais)
-    registros = cgt.ler_registros(sh, config)
-    corpus = rmc.preparar_corpus(registros, particoes, congelados)
-    if len(corpus["textos"]) < 10:
-        print("Corpus insuficiente para a rodada.", file=sys.stderr)
-        return 2
-
-    impressao = hash_corpus(corpus)
-    quando = agora_bahia()
-    rmc._log(f"[rodada] corpus com {len(corpus['textos'])} linhas, hash {impressao[:12]}")
-
-    if not validar_hash_corpus(impressao, HASH_CORPUS_ESPERADO):
-        return 2
-
-    # ---- Passo 4: retreino ----------------------------------------------
-    retreino = rmc.montar_relatorio(corpus, modelos, semente=args.semente)
-    retreino["fonte"] = config["aba_principal"]
-    retreino["script_origem"] = "src/executar_rodada_canonica.py"
-    carimbar(retreino, impressao, quando, corpus)
-    rmc.escrever_predicoes(rmc.SAIDA_PRED_PADRAO, corpus, retreino["_resultados"])
-    gravar(rmc.SAIDA_JSON_PADRAO, rmc.SAIDA_MD_PADRAO, retreino,
-           rmc.renderizar_markdown(retreino))
-
-    # As predicoes seguem em memoria: nenhuma releitura da aba entre os passos.
-    por_modelo_previsto = {r["modelo"]: dict(zip(corpus["chaves"], r["_predicoes"]))
-                           for r in retreino["_resultados"]}
-    referencia = dict(zip(corpus["chaves"], corpus["rotulos"]))
-    textos = dict(zip(corpus["chaves"], corpus["textos"]))
-
-    # ---- Passo 5: regras contra modelos ---------------------------------
-    regras = crm.montar_relatorio(list(corpus["chaves"]), referencia, textos,
-                                  por_modelo_previsto)
-    regras["script_origem"] = "src/executar_rodada_canonica.py"
-    carimbar(regras, impressao, quando, corpus)
-    gravar(crm.SAIDA_JSON_PADRAO, crm.SAIDA_MD_PADRAO, regras,
-           crm.renderizar_markdown(regras))
-
-    # ---- Passo 7: calibracao --------------------------------------------
-    calibracao = None
-    if not args.sem_calibracao:
-        externas = {
-            r["modelo"]: {
-                chave: {"acerto": int(previsto == referencia[chave]),
-                        "confianca": escore}
-                for chave, previsto, escore in zip(
-                    corpus["chaves"], r["_predicoes"], r["_escores"])
-            }
-            for r in retreino["_resultados"]
-        }
-        calibracao = cal.montar_relatorio(corpus, externas, modelos)
-        calibracao["script_origem"] = "src/executar_rodada_canonica.py"
-        carimbar(calibracao, impressao, quando, corpus)
-        gravar(cal.SAIDA_JSON_PADRAO, cal.SAIDA_MD_PADRAO, calibracao,
-               cal.renderizar_markdown(calibracao))
-
-    # ---- recortes por tipo e por volume ---------------------------------
-    pares = {r["modelo"]: list(zip(corpus["rotulos"], r["_predicoes"]))
-             for r in retreino["_resultados"]}
-    recortes = rec.montar_relatorio(pares, {"hash_corpus": impressao})
-    recortes["script_origem"] = "src/executar_rodada_canonica.py"
-    carimbar(recortes, impressao, quando, corpus)
-    gravar(rec.SAIDA_JSON_PADRAO, rec.SAIDA_MD_PADRAO, recortes,
-           rec.renderizar_markdown(recortes))
-
-    # ---- comparacoes contra a categoria historica -----------------------
-    historico = chi.montar_relatorio(corpus["historicas"], corpus["rotulos"],
-                                     {r["modelo"]: r["_predicoes"]
-                                      for r in retreino["_resultados"]})
-    historico["script_origem"] = "src/executar_rodada_canonica.py"
-    carimbar(historico, impressao, quando, corpus)
-    gravar(SAIDA_HISTORICO_JSON, SAIDA_HISTORICO_MD, historico,
-           chi.renderizar_markdown(historico))
-
-    # ---- custo computacional --------------------------------------------
-    custo = None
-    if not args.sem_custo:
-        custo = ccc.montar_relatorio(corpus["textos"], corpus["rotulos"],
-                                     modelos, args.custo_repeticoes)
-        custo["script_origem"] = "src/executar_rodada_canonica.py"
-        carimbar(custo, impressao, quando, corpus)
-        gravar(ccc.SAIDA_JSON_PADRAO, ccc.SAIDA_MD_PADRAO, custo,
-               ccc.renderizar_markdown(custo))
-
-    # ---- manifesto -------------------------------------------------------
-    manifesto = {
-        "schema_version": 1,
-        "gerado_em": quando,
-        "hash_corpus": impressao,
-        "fonte": config["aba_principal"],
-        "semente": args.semente,
-        "modelos": modelos,
-        "corpus": {
-            "linhas": len(corpus["textos"]),
-            "grupos_textuais": len(set(corpus["grupos"])),
-            "categorias": len(set(corpus["rotulos"])),
-            "dobras": len(set(corpus["dobras"])),
-            "linhas_fora_das_particoes": corpus["linhas_fora_das_particoes"],
-            "linhas_com_texto_alterado_apos_o_congelamento":
-                corpus["linhas_com_texto_alterado_apos_o_congelamento"],
-        },
-        "passos": {
-            "4_retreino": {"status": retreino["status"],
-                           "arquivo": "docs/dados/retreino_canonico.json"},
-            "5_regras": {"status": regras["status"],
-                         "arquivo": "docs/dados/regras_versus_modelos.json"},
-            "7_calibracao": ({"status": calibracao["status"],
-                              "arquivo": "docs/dados/calibracao_canonica.json"}
-                             if calibracao else {"status": "nao_executado"}),
-            "recortes": {"status": recortes["status"],
-                         "arquivo": "docs/dados/recortes_canonicos.json"},
-            "comparacao_historica": {"status": historico["status"],
-                                     "arquivo": "docs/dados/comparacao_historica.json"},
-            "custo_computacional": ({"status": custo["status"],
-                                     "arquivo": "docs/dados/custo_computacional_canonico.json"}
-                                    if custo else {"status": "nao_executado"}),
-        },
-        "garantia": ("os tres passos usaram a mesma leitura da aba e o mesmo "
-                     "corpus em memoria; artefatos com hash_corpus igual sao "
-                     "mutuamente consistentes"),
-    }
-    args.manifesto.parent.mkdir(parents=True, exist_ok=True)
-    args.manifesto.write_text(
-        json.dumps(manifesto, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    print(json.dumps(manifesto, ensure_ascii=False, indent=2))
-    return 0 if retreino["status"] == "apto_para_regras" else 2
+    parse_args()
+    print(MENSAGEM_APOSENTADORIA, file=sys.stderr)
+    return 2
 
 
 if __name__ == "__main__":
