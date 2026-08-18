@@ -42,8 +42,8 @@ scripts partem do corpus já congelado.
 | Passo | Script | Entrada | Saída principal | Workflow (se houver) |
 |---|---|---|---|---|
 | 1. Congelar e auditar a base | `src/auditar_base_canonica.py` | Planilha (A:Q) | `docs/dados/auditoria_base_canonica.json`, `docs/AUDITORIA_BASE_CANONICA.md` | `auditar_base_canonica.yml` |
-| 2. Construir grupos textuais | `src/construir_grupos_textuais.py` | Planilha + auditoria do Passo 1 | `docs/dados/grupos_textuais.json`, `docs/GRUPOS_TEXTUAIS.md` | `construir_grupos_textuais.yml` |
-| 3. Gerar partições canônicas | `src/gerar_particoes_canonicas.py` | Planilha + grupos do Passo 2 | `docs/dados/particoes_canonicas.json`, `docs/dados/particoes_canonicas_mapa.csv`, `docs/PARTICOES_CANONICAS.md` | `gerar_particoes_canonicas.yml` |
+| 2. Construir grupos textuais | `src/construir_grupos_textuais.py` | Planilha + auditoria do Passo 1 | `docs/dados/grupos_textuais.json`, `docs/dados/grupos_textuais_mapa.csv` (mapa por registro, congelado), `docs/GRUPOS_TEXTUAIS.md` | `construir_grupos_textuais.yml` |
+| 3. Gerar partições canônicas | `src/gerar_particoes_canonicas.py` | Planilha + mapa congelado do Passo 2 (`grupos_textuais_mapa.csv`, delimita os IDs do corpus congelado usados aqui) | `docs/dados/particoes_canonicas.json`, `docs/dados/particoes_canonicas_mapa.csv`, `docs/PARTICOES_CANONICAS.md` | `gerar_particoes_canonicas.yml` |
 | 4, 5, 7. Retreino, regras e calibração | `src/executar_rodada_canonica.py` (orquestra `retreinar_modelos_canonicos.py`, `comparar_regras_modelos.py`, `calibrar_confianca.py`, `recortes_canonicos.py`, `custo_computacional_canonico.py` internamente) | Planilha + partições do Passo 3 | `docs/dados/rodada_canonica.json`, `retreino_canonico.json` (+ `.csv` de predições), `regras_versus_modelos.json`, `calibracao_canonica.json`, `recortes_canonicos.json`, `comparacao_historica.json`, `custo_computacional_canonico.json` | `rodada_canonica.yml` |
 | 6. Decisão sobre o BERTimbau | — (decisão documentada, ver `docs/CUSTO_BERTIMBAU.md`) | `src/medir_custo_bertimbau.py` para a medição de custo | `docs/dados/custo_bertimbau.json` | `medir_custo_bertimbau.yml` |
 | 8. Inferência estatística | `src/inferencia_canonica.py`, `src/inferencia_agrupada.py` | Predições do Passo 4 (`retreino_canonico_predicoes.csv`) | `docs/dados/inferencia_canonica.json`, `docs/dados/inferencia_agrupada.json` | `inferencia_canonica.yml` |
@@ -104,6 +104,18 @@ Quatro arquivos de requirements, por peso da tarefa:
 | `requirements.txt` | pipeline principal (`gspread`, `google-auth`, `numpy`, `scikit-learn`, `tensorflow`) — cobre a rodada canônica inteira |
 | `requirements-estatistica.txt` | inferência estatística (Passo 8) |
 | `requirements-transformer.txt` | só para o experimento exploratório do BERTimbau |
+
+## 5.1 Proteção técnica do baseline congelado
+
+`docs/dados/MANIFESTO_ARTIGO_CONGELADO.json` lista, com SHA-256 de conteúdo,
+exatamente os artefatos que sustentam os números atuais do artigo (a
+"Trilha A" descrita no plano de arquitetura). `python
+src/verificar_artigo_congelado.py` confere esse manifesto contra os arquivos
+reais — sem rede, sem planilha, sem credenciais — e retorna código de saída
+diferente de zero se algum arquivo protegido sumir, mudar de conteúdo ou
+tiver `hash_corpus` divergente do valor canônico. É um check detectivo, não
+uma trava absoluta: reduz o risco de sobrescrita acidental e oferece
+verificação pré-merge, mas não substitui configuração de branch protection.
 
 ## 6. Painel público (fora do escopo deste guia)
 

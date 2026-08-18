@@ -1,0 +1,35 @@
+name: Verificar integridade do artigo congelado
+
+# Check de PR: confere docs/dados/MANIFESTO_ARTIGO_CONGELADO.json contra os
+# artefatos que sustentam o artigo (Trilha A). NAO acessa a planilha, NAO usa
+# secrets, NAO recongela nada -- so hashes de conteudo ja versionado e os
+# campos hash_corpus/corpus dos proprios JSONs. Detecta alteracao, remocao ou
+# substituicao acidental; oferece check pre-merge. Nao impede sozinho um
+# merge que ignore checks -- isso depende de branch protection, tratado a
+# parte.
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: verificar-artigo-congelado-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verificar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Verificar manifesto do artigo congelado
+        run: python src/verificar_artigo_congelado.py
+      - name: Testes do verificador
+        run: |
+          python -m unittest discover -s tests \
+            -p "test_verificar_artigo_congelado.py" -t tests

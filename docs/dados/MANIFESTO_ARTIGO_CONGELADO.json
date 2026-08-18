@@ -1,0 +1,142 @@
+{
+  "schema_version": 1,
+  "status": "CONGELADO",
+  "trilha": "ARTIGO_CONGELADO",
+  "hash_mode": "sha256_lf_normalized",
+  "manifesto_criado_a_partir_do_sha": "ea4a6c06a3cd3cd8b4d39067114b35ecbb3aadb0",
+  "invariantes": {
+    "hash_corpus": "1e4762438a7e3627d3e32c1025f6bcb169e786881d8e86207806fdf98846409a",
+    "corpus_completo": 14060,
+    "corpus_modelagem": 13972,
+    "categorias_modelagem": 41,
+    "dobras": 5
+  },
+  "arquivos": [
+    {
+      "path": "docs/dados/auditoria_base_canonica.json",
+      "sha256": "df678f639d82400088f06e096a190b643d0cf9795472f9e224fc1f791254297a",
+      "possui_hash_corpus": false,
+      "papel": "Congelamento do corpus (Passo 1): auditoria da base e da referencia humana; define o corpus completo (14.060) que ancora a cobertura da revisao."
+    },
+    {
+      "path": "docs/dados/calibracao_canonica.json",
+      "sha256": "3bea0ab8826c99afbfd8fc9f93aba877e93e3fe78d128232ba716361557dd934",
+      "possui_hash_corpus": true,
+      "papel": "Passo 7: calibracao de confianca (ECE, Brier, curva de confiabilidade) e automacao seletiva por limiar."
+    },
+    {
+      "path": "docs/dados/comparacao_historica.json",
+      "sha256": "b7e323c92d61bc8b3c5cd480ad870952dba5b5e5505cce8724b5b68d0ceae479",
+      "possui_hash_corpus": true,
+      "papel": "Passos 4/5/7: concordancia historica, Kappa, ganho liquido e dispersao das predicoes (Jensen-Shannon) contra o historico."
+    },
+    {
+      "path": "docs/dados/custo_bertimbau.json",
+      "sha256": "d51ec178737a85bedd45d09f69af6257997e897b06eac2392562eb8b1ac3156a",
+      "possui_hash_corpus": false,
+      "papel": "Passo 6: medicao de custo computacional do BERTimbau (fine-tuning), base da decisao de mante-lo como experimento exploratorio fora da comparacao principal."
+    },
+    {
+      "path": "docs/dados/custo_computacional_canonico.json",
+      "sha256": "89a80526043c7c7f978c048781226dfe3f25ccb150de70d18de4add02c69ea59",
+      "possui_hash_corpus": true,
+      "papel": "Passos 4/5/7: custo computacional (tempo/memoria) do treino dos sete modelos principais."
+    },
+    {
+      "path": "docs/dados/disponibilidade_temporal.json",
+      "sha256": "158facef3f51a9b6af198e5ce72c6f7793add6d1d9b183ce75e1113e1fc0c89d",
+      "possui_hash_corpus": false,
+      "papel": "Analise complementar: veredito sobre a ausencia de variavel temporal no corpus congelado, base da limitacao declarada no artigo."
+    },
+    {
+      "path": "docs/dados/grupos_divergentes_canonicos.json",
+      "sha256": "b7011c1c99c78ab7ea8b8152773b6b485eeb2a9e65194b4c4c29e3fbed598bfa",
+      "possui_hash_corpus": false,
+      "papel": "Analise complementar: caracterizacao dos grupos textuais com referencia humana divergente, citada no artigo."
+    },
+    {
+      "path": "docs/dados/grupos_textuais.json",
+      "sha256": "1eb376385562f602b7c96fc1122f0253fcb6f6f68325be738a6cb3840132c65a",
+      "possui_hash_corpus": false,
+      "papel": "Congelamento do corpus (Passo 2): grupos de textos identicos/quase identicos, base do StratifiedGroupKFold."
+    },
+    {
+      "path": "docs/dados/grupos_textuais_mapa.csv",
+      "sha256": "29cccf02eaa818b667003df60f8ffe96c9c88b75004ad4cb86a84756aa19f048",
+      "possui_hash_corpus": false,
+      "papel": "Passo 2: mapa por registro dos grupos textuais congelados; delimita os IDs do corpus congelado usados na geracao das particoes e na rodada canonica."
+    },
+    {
+      "path": "docs/dados/inferencia_agrupada.json",
+      "sha256": "00e29f4532e62f302d66cbd5ef501ba8637f40faaafaab90dddcddd8c9b53f7f",
+      "possui_hash_corpus": true,
+      "papel": "Passo 8: inferencia estatistica pareada no nivel do grupo textual (Cochran Q, McNemar por permutacao, bootstrap de conglomerados)."
+    },
+    {
+      "path": "docs/dados/inferencia_canonica.json",
+      "sha256": "66a32afa0439507cf81ad56bb0dfd640891fed635a63d14cca0842555fafc246",
+      "possui_hash_corpus": true,
+      "papel": "Passo 8: inferencia estatistica por linha (mantida para contraste) e conciliacao das contagens de grupos textuais."
+    },
+    {
+      "path": "docs/dados/particoes_canonicas.json",
+      "sha256": "1281df399d87862c0398059e26db65021f65dbecdb4e4128ed4c64d860737df8",
+      "possui_hash_corpus": false,
+      "papel": "Congelamento do corpus (Passo 3): particoes StratifiedGroupKFold (5 dobras) usadas por todos os modelos e pela camada de regras."
+    },
+    {
+      "path": "docs/dados/particoes_canonicas_mapa.csv",
+      "sha256": "6d7d7384276644d057acc6d8d42ec5da8d14e6b0745a5abdb97a3f52be812f1d",
+      "possui_hash_corpus": false,
+      "papel": "Congelamento do corpus (Passo 3): mapa linha-a-linha das particoes canonicas (id/grupo/dobra)."
+    },
+    {
+      "path": "docs/dados/recortes_canonicos.json",
+      "sha256": "e80ca9aff498d4d1bdf717282c7ae302902721f867e0a8e82278aaee26694a7f",
+      "possui_hash_corpus": true,
+      "papel": "Passos 4/5/7: recortes de desempenho por tipo de manutencao e curva ABC por volume."
+    },
+    {
+      "path": "docs/dados/regras_versus_modelos.json",
+      "sha256": "ee3e6f574ef83c246e0200959ffaa122970de70d33aafb469b45610b8f35c789",
+      "possui_hash_corpus": true,
+      "papel": "Passo 5: comparacao entre a camada de regras preventivas e os modelos estatisticos."
+    },
+    {
+      "path": "docs/dados/retreino_canonico.json",
+      "sha256": "d1f479a358a85f5ead0e223146ff31234eac89079e6c137fe11392af7a727fa5",
+      "possui_hash_corpus": true,
+      "papel": "Passo 4: retreino dos sete modelos principais com predicao out-of-fold sobre as particoes canonicas."
+    },
+    {
+      "path": "docs/dados/retreino_canonico_predicoes.csv",
+      "sha256": "ab1d45355ff2d359b5023dd2ccb580a8b407a9f4a575fb51180fdfa975a9d5a6",
+      "possui_hash_corpus": false,
+      "papel": "Passo 4: predicoes out-of-fold linha-a-linha dos sete modelos, insumo de Passos 5/7/8 e do apendice."
+    },
+    {
+      "path": "docs/dados/rodada_canonica.json",
+      "sha256": "af264f25d253e44c27043e7f9de69cdac7e2e570b022a3d96e7b3a69da7de2c1",
+      "possui_hash_corpus": true,
+      "papel": "Manifesto da rodada canonica (Passos 4/5/7): define e carimba o hash_corpus que os demais artefatos derivados devem conferir."
+    },
+    {
+      "path": "docs/dados/sensibilidade_classes_raras.json",
+      "sha256": "a2ba480603a146fac326a9949b1c06ac45b54a6dc162ac53625976a9fb2ba6a0",
+      "possui_hash_corpus": true,
+      "papel": "Analise complementar: cobertura e macro-F1 sob tres convencoes de denominador, para classes raras."
+    },
+    {
+      "path": "docs/dados/tabelas_apendice_canonicas.json",
+      "sha256": "b87cedeabd8f96be124247fd59aa68812cd9933712cff6982f6496f27de87a43",
+      "possui_hash_corpus": false,
+      "papel": "Tabelas A1 a A3 do Apendice A do artigo."
+    },
+    {
+      "path": "docs/dados/utilidade_reclassificacao.json",
+      "sha256": "e9438e0f5be2ae6069f5309b508c57e46c5a17cf4331ffaa7341aebb9af9cb2a",
+      "possui_hash_corpus": true,
+      "papel": "Analise complementar: razao de equilibrio e funcao de utilidade da reclassificacao."
+    }
+  ]
+}
