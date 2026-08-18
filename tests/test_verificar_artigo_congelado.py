@@ -15,7 +15,11 @@ HASH = vac.HASH_CORPUS_ESPERADO
 
 
 def _sha256(caminho: Path) -> str:
-    return hashlib.sha256(caminho.read_bytes()).hexdigest()
+    # Mesma funcao que o validador usa (LF-normalizada), nao um sha256 cru:
+    # o manifesto declara hashes nesse modo, entao as fixtures dos testes
+    # B-F tambem precisam declarar nesse modo para nao confundir "conteudo
+    # realmente mudou" com "so mudou hash_mode".
+    return vac.sha256_lf_normalizado(caminho)
 
 
 def construir_fixture(base_dir: Path) -> Path:
@@ -63,6 +67,7 @@ def construir_fixture(base_dir: Path) -> Path:
         "schema_version": vac.SCHEMA_VERSION_ESPERADA,
         "status": vac.STATUS_ESPERADO,
         "trilha": vac.TRILHA_ESPERADA,
+        "hash_mode": vac.HASH_MODE_ESPERADO,
         "manifesto_criado_a_partir_do_sha": "0" * 40,
         "invariantes": {
             "hash_corpus": HASH,
@@ -165,6 +170,58 @@ class TestVerificarArtigoCongelado(unittest.TestCase):
             (dados / "estatistica_operacional_teste.json").write_text(
                 json.dumps({"qualquer": "coisa"}), encoding="utf-8")
             self.assertEqual(_rodar(manifesto_path, base), 0)
+
+    def test_g_portabilidade_crlf_lf(self):
+        """CRLF <-> LF do MESMO conteudo semantico nao pode falsear violacao
+        (motivo desta microcorrecao: passou nos testes A-F originais e so
+        falhou no runner Ubuntu, porque o worktree Windows grava CRLF)."""
+        with tempfile.TemporaryDirectory() as d:
+            base = Path(d)
+            manifesto_path = construir_fixture(base)
+            dados = base / "docs" / "dados"
+
+            conteudo_lf = b"id,grupo\n1,A\n2,B\n3,C\n"
+            caminho = dados / "mapa_portabilidade_teste.csv"
+            caminho.write_bytes(conteudo_lf)
+            sha_esperado = vac.sha256_lf_normalizado(caminho)
+
+            manifesto = json.loads(manifesto_path.read_text(encoding="utf-8"))
+            manifesto["arquivos"].append({
+                "path": "docs/dados/mapa_portabilidade_teste.csv",
+                "sha256": sha_esperado,
+                "possui_hash_corpus": False,
+                "papel": "fixture de teste de portabilidade CRLF/LF",
+            })
+            manifesto_path.write_text(json.dumps(manifesto), encoding="utf-8")
+
+            # Conteudo com LF puro (equivalente a um checkout Ubuntu/CI): PASSA.
+            self.assertEqual(_rodar(manifesto_path, base), 0)
+
+            # MESMO conteudo semantico, so com CRLF (equivalente a um
+            # checkout Windows com core.autocrlf=true): continua PASSANDO,
+            # sem editar o manifesto -- e exatamente o cenario do bug real.
+            conteudo_crlf = conteudo_lf.replace(b"\n", b"\r\n")
+            caminho.write_bytes(conteudo_crlf)
+            self.assertEqual(_rodar(manifesto_path, base), 0)
+
+            # Mudanca REAL de um caractere (nao so de fim de linha): FALHA.
+            conteudo_alterado = conteudo_crlf.replace(b"2,B", b"2,Z")
+            caminho.write_bytes(conteudo_alterado)
+            self.assertNotEqual(_rodar(manifesto_path, base), 0)
+
+    def test_h_hash_mode_ausente_ou_divergente_falha(self):
+        with tempfile.TemporaryDirectory() as d:
+            base = Path(d)
+            manifesto_path = construir_fixture(base)
+
+            manifesto = json.loads(manifesto_path.read_text(encoding="utf-8"))
+            manifesto["hash_mode"] = "sha256_puro"  # nao e o modo aceito
+            manifesto_path.write_text(json.dumps(manifesto), encoding="utf-8")
+            self.assertNotEqual(_rodar(manifesto_path, base), 0)
+
+            del manifesto["hash_mode"]
+            manifesto_path.write_text(json.dumps(manifesto), encoding="utf-8")
+            self.assertNotEqual(_rodar(manifesto_path, base), 0)
 
 
 if __name__ == "__main__":

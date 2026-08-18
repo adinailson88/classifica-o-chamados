@@ -17,7 +17,15 @@ O que verifica:
      manifesto tambem seja detectada;
   3. todo path listado em "arquivos" existe;
   4. o SHA-256 do CONTEUDO de cada arquivo listado bate com o valor
-     declarado no manifesto;
+     declarado no manifesto. O hash e calculado no modo declarado em
+     "hash_mode" (unico modo aceito: "sha256_lf_normalized"), que
+     substitui CRLF por LF antes de hashear -- e SOMENTE isso. Nenhuma
+     outra normalizacao (espacos, tabs, encoding, ordenacao de chaves,
+     trailing whitespace) e aplicada; uma mudanca substantiva de
+     conteudo continua alterando o hash. Isso existe porque o checkout
+     do Windows (core.autocrlf) grava CRLF no worktree local enquanto o
+     checkout do GitHub Actions/Ubuntu grava LF -- sem essa normalizacao
+     o mesmo conteudo produzia hashes diferentes por plataforma;
   5. para os arquivos marcados "possui_hash_corpus": true, o campo
      hash_corpus do proprio JSON bate com o hash esperado. Arquivos
      marcados false NAO sao exigidos a ter esse campo -- eles definem o
@@ -63,13 +71,24 @@ DOBRAS_ESPERADAS = 5
 SCHEMA_VERSION_ESPERADA = 1
 STATUS_ESPERADO = "CONGELADO"
 TRILHA_ESPERADA = "ARTIGO_CONGELADO"
+HASH_MODE_ESPERADO = "sha256_lf_normalized"
 
 RODADA_CANONICA_PATH = "docs/dados/rodada_canonica.json"
 AUDITORIA_BASE_PATH = "docs/dados/auditoria_base_canonica.json"
 
 
-def sha256_arquivo(caminho: Path) -> str:
-    return hashlib.sha256(caminho.read_bytes()).hexdigest()
+def sha256_lf_normalizado(caminho: Path) -> str:
+    """SHA-256 do conteudo apos normalizar SOMENTE fim de linha CRLF->LF.
+
+    Nao mexe em mais nada: espacos, tabs, encoding, ordenacao de chaves e
+    trailing whitespace continuam contando para o hash. O objetivo unico e
+    tornar o hash independente de o checkout ter sido feito com
+    core.autocrlf=true (Windows, grava CRLF) ou sem conversao (Ubuntu/CI,
+    grava LF como esta no blob do git) -- nao mascarar mudanca de conteudo.
+    """
+    dados = caminho.read_bytes()
+    dados = dados.replace(b"\r\n", b"\n")
+    return hashlib.sha256(dados).hexdigest()
 
 
 def carregar_manifesto(caminho: Path) -> tuple[dict[str, Any] | None, list[str]]:
@@ -103,6 +122,10 @@ def verificar_estrutura_manifesto(manifesto: dict[str, Any]) -> list[str]:
     if manifesto.get("trilha") != TRILHA_ESPERADA:
         problemas.append(
             f"trilha inesperada: obtido={manifesto.get('trilha')!r}, esperado={TRILHA_ESPERADA!r}"
+        )
+    if manifesto.get("hash_mode") != HASH_MODE_ESPERADO:
+        problemas.append(
+            f"hash_mode inesperado: obtido={manifesto.get('hash_mode')!r}, esperado={HASH_MODE_ESPERADO!r}"
         )
 
     invariantes = manifesto.get("invariantes")
@@ -148,7 +171,7 @@ def verificar_arquivos(manifesto: dict[str, Any], base_dir: Path) -> list[str]:
             problemas.append(f"AUSENTE: {path}")
             continue
 
-        sha_obtido = sha256_arquivo(caminho)
+        sha_obtido = sha256_lf_normalizado(caminho)
         if sha_obtido != sha_esperado:
             problemas.append(
                 f"HASH DIVERGENTE: {path} (obtido={sha_obtido}, esperado={sha_esperado})"
