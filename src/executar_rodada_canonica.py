@@ -45,6 +45,12 @@ MANIFESTO_PADRAO = DADOS / "rodada_canonica.json"
 SAIDA_HISTORICO_JSON = DADOS / "comparacao_historica.json"
 SAIDA_HISTORICO_MD = RAIZ / "docs" / "COMPARACAO_HISTORICA.md"
 
+# Hash do corpus do ARTIGO_CONGELADO (docs/dados/MANIFESTO_ARTIGO_CONGELADO.json).
+# Constante fixa, nunca derivada da execucao atual nem lida da planilha: e o
+# ponto de comparacao que torna a rodada canonica fail-closed.
+HASH_CORPUS_ESPERADO = (
+    "1e4762438a7e3627d3e32c1025f6bcb169e786881d8e86207806fdf98846409a")
+
 
 def hash_corpus(corpus: dict[str, Any]) -> str:
     """Identidade do conteudo efetivamente usado nesta rodada.
@@ -65,6 +71,26 @@ def carimbar(relatorio: dict[str, Any], impressao: str, quando: str,
     relatorio["linhas_com_texto_alterado_apos_o_congelamento"] = corpus[
         "linhas_com_texto_alterado_apos_o_congelamento"]
     return relatorio
+
+
+def validar_hash_corpus(impressao: str, esperado: str = HASH_CORPUS_ESPERADO,
+                        saida: Any = sys.stderr) -> bool:
+    """Gate fail-closed: bloqueia a rodada se o corpus atual divergir do
+    ARTIGO_CONGELADO. Esta e a rodada canonica do artigo congelado, nao um
+    novo corte cientifico; um hash diferente nao e aceito nem substitui
+    `esperado`, apenas interrompe a execucao.
+    """
+    if impressao == esperado:
+        return True
+    print(
+        "Corpus divergente do ARTIGO_CONGELADO: rodada canonica interrompida.\n"
+        f"hash obtido:   {impressao}\n"
+        f"hash esperado: {esperado}\n"
+        "A planilha operacional nao corresponde ao artigo congelado; "
+        "nenhuma rodada canonica sera executada.",
+        file=saida,
+    )
+    return False
 
 
 def publicavel(relatorio: dict[str, Any]) -> dict[str, Any]:
@@ -120,6 +146,9 @@ def main() -> int:
     impressao = hash_corpus(corpus)
     quando = agora_bahia()
     rmc._log(f"[rodada] corpus com {len(corpus['textos'])} linhas, hash {impressao[:12]}")
+
+    if not validar_hash_corpus(impressao, HASH_CORPUS_ESPERADO):
+        return 2
 
     # ---- Passo 4: retreino ----------------------------------------------
     retreino = rmc.montar_relatorio(corpus, modelos, semente=args.semente)
