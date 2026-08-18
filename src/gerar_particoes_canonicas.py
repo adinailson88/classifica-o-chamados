@@ -73,47 +73,101 @@ MAPA_PARTICOES_SHA256_ESPERADO = (
 STATUS_ESPERADO = "apto_para_treinar"
 
 
-def carregar_grupos_congelados(caminho: Path) -> dict[str, str]:
-    """Le `id_sha256 -> grupo_sha256` do mapa de grupos textuais do Passo 2."""
+def ler_linhas_mapa_congelado(caminho: Path) -> list[dict[str, str]]:
+    """Le as linhas cruas do mapa de grupos textuais do Passo 2, sem colapsar
+    em dict. Preservar a lista bruta e essencial: um dict `id_sha256 ->
+    grupo_sha256` colapsa linhas duplicadas antes de qualquer verificacao, e
+    um CSV adulterado com uma linha repetida podia produzir o mesmo mapa
+    logico apos o colapso, escondendo a adulteracao do hash.
+    """
     with caminho.open("r", encoding="utf-8", newline="") as f:
-        return {linha["id_sha256"]: linha["grupo_sha256"]
-                for linha in csv.DictReader(f) if linha.get("id_sha256")}
+        return [{"id_sha256": linha.get("id_sha256", ""),
+                 "grupo_sha256": linha.get("grupo_sha256", "")}
+                for linha in csv.DictReader(f) if linha.get("id_sha256")]
 
 
 def validar_mapa_congelado(
     caminho: Path,
     *,
     mapa_sha256_esperado: str = cgt.MAPA_SHA256_ESPERADO,
+    corpus_esperado: int = cgt.CORPUS_COMPLETO_ESPERADO,
     saida: Any = sys.stderr,
 ) -> tuple[bool, dict[str, str]]:
     """Gate fail-closed: confere a identidade do mapa de grupos do Passo 2.
 
-    Reconstroi a mesma estrutura ordenada usada por `construir_grupos_textuais
-    .agrupar` e recalcula o hash com `cgt._sha256_json`. Um conteudo alterado
-    (ID trocado, grupo recalculado, linha removida ou acrescentada) muda o
-    hash e bloqueia antes de qualquer leitura da planilha.
+    Le as linhas cruas do CSV (sem colapsar em dict), confere quantidade de
+    linhas, IDs unicos, campos vazios e duplicatas, e SO ENTAO reconstroi a
+    mesma estrutura ordenada usada por `construir_grupos_textuais.agrupar` e
+    recalcula o hash com `cgt._sha256_json` a partir da lista bruta. Um
+    conteudo alterado (ID trocado, grupo recalculado, linha removida,
+    acrescentada ou duplicada) muda o hash e bloqueia antes de qualquer
+    leitura da planilha. O dict `id_sha256 -> grupo_sha256` so e produzido
+    depois que todas as verificacoes passam.
     """
     if not caminho.exists():
         print(f"Mapa da base congelada nao encontrado em {caminho}. "
               "Execute o Passo 2 ou aponte --mapa-congelado para o arquivo "
               "correto.", file=saida)
         return False, {}
-    grupos = carregar_grupos_congelados(caminho)
-    reconstruido = sorted(
-        ({"id_sha256": k, "grupo_sha256": v} for k, v in grupos.items()),
-        key=lambda x: (x["id_sha256"], x["grupo_sha256"]))
+
+    linhas = ler_linhas_mapa_congelado(caminho)
+    ids = [linha["id_sha256"] for linha in linhas]
+    ids_unicos = set(ids)
+
+    divergencias = []
+    if len(linhas) != corpus_esperado:
+        divergencias.append(
+            f"linhas: obtido={len(linhas)} esperado={corpus_esperado}")
+    if len(ids_unicos) != corpus_esperado:
+        divergencias.append(
+            f"ids_unicos: obtido={len(ids_unicos)} esperado={corpus_esperado}")
+    duplicados = len(ids) - len(ids_unicos)
+    if duplicados:
+        divergencias.append(f"ids_duplicados: obtido={duplicados} esperado=0")
+    vazios_grupo = sum(1 for linha in linhas if not linha["grupo_sha256"])
+    if vazios_grupo:
+        divergencias.append(
+            f"grupo_sha256_vazios: obtido={vazios_grupo} esperado=0")
+
+    reconstruido = sorted(linhas, key=lambda x: (x["id_sha256"], x["grupo_sha256"]))
     obtido = cgt._sha256_json(reconstruido)
     if obtido != mapa_sha256_esperado:
+        divergencias.append(f"mapa_sha256: obtido={obtido} esperado={mapa_sha256_esperado}")
+
+    if divergencias:
         print(
             "Mapa de grupos textuais divergente do ARTIGO_CONGELADO: "
             "particionamento interrompido antes de ler a planilha e antes de "
             "gravar qualquer artefato canonico.\n"
-            f"mapa_sha256: obtido={obtido} esperado={mapa_sha256_esperado}\n"
-            f"caminho={caminho}",
+            + "\n".join(divergencias) + f"\ncaminho={caminho}",
             file=saida,
         )
         return False, {}
+
+    grupos = {linha["id_sha256"]: linha["grupo_sha256"] for linha in linhas}
     return True, grupos
+
+
+def filtrar_registros_congelados(
+    registros: list[dict[str, str]],
+    grupos_congelados: dict[str, str],
+) -> list[dict[str, str]]:
+    """Mantem somente os registros vivos cujo ID pertence ao mapa congelado.
+
+    Usado para restringir o gate de identidade do Passo 1
+    (`auditar_base_canonica`) ao corpus congelado no Passo 2: linhas
+    operacionais novas, com ID fora do mapa, precisam continuar liberadas sem
+    influenciar a validacao de identidade da referencia humana.
+    """
+    congelados = []
+    for r in registros:
+        id_chamado = r.get("id", "")
+        if not id_chamado:
+            continue
+        digest = hashlib.sha256(id_chamado.encode("utf-8")).hexdigest()
+        if digest in grupos_congelados:
+            congelados.append(r)
+    return congelados
 
 
 def preparar(registros: list[dict[str, str]],
@@ -557,7 +611,14 @@ def main() -> int:
     sh = pl.abrir_planilha(pl.id_planilha(config), args.credenciais)
     registros = cgt.ler_registros(sh, config)
 
-    auditoria = abc.auditar(registros)
+    # O gate do Passo 1 valida a identidade da referencia humana APENAS para
+    # os IDs do corpus congelado no Passo 2. Linhas operacionais novas (fora
+    # do mapa) sao um crescimento esperado da planilha viva e nao podem
+    # influenciar essa validacao; elas continuam contabilizadas a parte em
+    # `linhas_vivas_fora_da_base_congelada`, calculado por `montar_relatorio`
+    # sobre a lista viva completa logo abaixo.
+    registros_congelados = filtrar_registros_congelados(registros, grupos_congelados)
+    auditoria = abc.auditar(registros_congelados)
     if not abc.validar_identidade_congelada(
             auditoria, corpus_esperado=abc.CORPUS_COMPLETO_ESPERADO,
             hash_esperado=abc.HASH_BASE_CANONICA_ESPERADO):

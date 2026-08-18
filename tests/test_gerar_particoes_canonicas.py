@@ -266,7 +266,7 @@ class TestBlindagemFailClosed(unittest.TestCase):
             caminho = Path(d) / "mapa.csv"
             escrever_mapa_csv(caminho, mapa)
             ok, carregado = gpc.validar_mapa_congelado(
-                caminho, mapa_sha256_esperado=esperado)
+                caminho, mapa_sha256_esperado=esperado, corpus_esperado=len(mapa))
         self.assertTrue(ok)
         self.assertEqual(carregado, mapa)
 
@@ -282,7 +282,7 @@ class TestBlindagemFailClosed(unittest.TestCase):
             caminho = Path(d) / "mapa.csv"
             escrever_mapa_csv(caminho, adulterado)
             ok, carregado = gpc.validar_mapa_congelado(
-                caminho, mapa_sha256_esperado=esperado)
+                caminho, mapa_sha256_esperado=esperado, corpus_esperado=len(mapa))
         self.assertFalse(ok)
         self.assertEqual(carregado, {})
 
@@ -406,6 +406,96 @@ class TestBlindagemFailClosed(unittest.TestCase):
             m_escrever.assert_not_called()
             self.assertFalse(saida_json.exists())
             self.assertFalse(saida_md.exists())
+
+    # L: crescimento operacional (linhas fora do mapa congelado) nao entra no
+    # gate do Passo 1 e nao bloqueia a identidade congelada.
+    def test_L_registros_fora_do_mapa_nao_entram_no_gate_passo1(self):
+        congelados = [
+            {"id": "1", "categoria_historica": "Cat A",
+             "conferencia_glpi": "Correto", "categoria_manual": ""},
+            {"id": "2", "categoria_historica": "Cat B",
+             "conferencia_glpi": "Correto", "categoria_manual": ""},
+        ]
+        grupos = {hashlib.sha256(r["id"].encode("utf-8")).hexdigest(): "grupo-x"
+                  for r in congelados}
+        hash_esperado = abc.auditar(congelados)["hash_base_canonica_sha256"]
+
+        vivos = congelados + [
+            {"id": "9001", "categoria_historica": "Cat Nova",
+             "conferencia_glpi": "", "categoria_manual": ""},
+        ]
+
+        # Sem filtrar, a linha operacional nova muda o corpus e quebraria o gate.
+        auditoria_sem_filtro = abc.auditar(vivos)
+        self.assertFalse(abc.validar_identidade_congelada(
+            auditoria_sem_filtro, corpus_esperado=2, hash_esperado=hash_esperado))
+
+        # Filtrando pelo mapa congelado, a linha nova fica de fora e o gate aceita.
+        filtrados = gpc.filtrar_registros_congelados(vivos, grupos)
+        self.assertEqual({r["id"] for r in filtrados}, {"1", "2"})
+        auditoria_filtrada = abc.auditar(filtrados)
+        self.assertTrue(abc.validar_identidade_congelada(
+            auditoria_filtrada, corpus_esperado=2, hash_esperado=hash_esperado))
+
+    # M: alteracao de referencia humana dentro do corpus congelado bloqueia.
+    def test_M_alteracao_de_referencia_dentro_do_corpus_congelado_bloqueia(self):
+        congelados = [
+            {"id": "1", "categoria_historica": "Cat A",
+             "conferencia_glpi": "Correto", "categoria_manual": ""},
+            {"id": "2", "categoria_historica": "Cat B",
+             "conferencia_glpi": "Correto", "categoria_manual": ""},
+        ]
+        grupos = {hashlib.sha256(r["id"].encode("utf-8")).hexdigest(): "grupo-x"
+                  for r in congelados}
+        hash_esperado = abc.auditar(congelados)["hash_base_canonica_sha256"]
+
+        alterados = [dict(r) for r in congelados]
+        alterados[0]["categoria_historica"] = "Cat C"  # mesmo N, referencia muda
+        filtrados = gpc.filtrar_registros_congelados(alterados, grupos)
+        self.assertEqual(len(filtrados), 2)
+        auditoria = abc.auditar(filtrados)
+        self.assertFalse(abc.validar_identidade_congelada(
+            auditoria, corpus_esperado=2, hash_esperado=hash_esperado))
+
+    # N: linha duplicada no CSV do Passo 2 bloqueia (o dict colapsaria a
+    # duplicata antes do hash; a validacao agora usa a lista crua).
+    def test_N_linha_duplicada_no_mapa_do_passo2_bloqueia(self):
+        registros = base_equilibrada()
+        mapa = mapa_grupos_congelados(registros)
+        esperado = hash_esperado_do_mapa(mapa)
+        with tempfile.TemporaryDirectory() as d:
+            caminho = Path(d) / "mapa.csv"
+            caminho.parent.mkdir(parents=True, exist_ok=True)
+            linhas_ordenadas = sorted(mapa.items())
+            with caminho.open("w", encoding="utf-8", newline="") as f:
+                escritor = csv.writer(f)
+                escritor.writerow(["id_sha256", "grupo_sha256"])
+                escritor.writerows(linhas_ordenadas)
+                # Linha repetida, identica a uma ja existente: o mapa logico
+                # (colapsado em dict) ficaria igual, mas o CSV real mudou.
+                escritor.writerow(linhas_ordenadas[0])
+            ok, carregado = gpc.validar_mapa_congelado(
+                caminho, mapa_sha256_esperado=esperado, corpus_esperado=len(mapa))
+        self.assertFalse(ok)
+        self.assertEqual(carregado, {})
+
+    # O: linha operacional extra nao entra nas particoes nem muda o grupo dos
+    # registros congelados.
+    def test_O_linha_operacional_extra_nao_altera_grupos_nem_particoes(self):
+        congelados = base_equilibrada()
+        grupos = mapa_grupos_congelados(congelados)
+        extra = registro("9001", "chamado novo", m="")
+        vivos = congelados + [extra]
+
+        sem_extra = gpc.montar_relatorio(congelados, grupos_congelados=grupos)
+        com_extra = gpc.montar_relatorio(vivos, grupos_congelados=grupos)
+
+        self.assertEqual(com_extra["linhas_vivas_fora_da_base_congelada"], 1)
+        self.assertEqual(com_extra["linhas_particionadas"],
+                         sem_extra["linhas_particionadas"])
+        self.assertEqual(com_extra["grupos_particionados"],
+                         sem_extra["grupos_particionados"])
+        self.assertEqual(com_extra["mapa_sha256"], sem_extra["mapa_sha256"])
 
 
 if __name__ == "__main__":
