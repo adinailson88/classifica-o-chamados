@@ -1,11 +1,21 @@
 #!/usr/bin/env python3
 """Gera as particoes canonicas usadas por todos os modelos do experimento.
 
-Ferramenta estritamente READ-ONLY. Reaproveita os grupos textuais do Passo 2 e
-aplica `StratifiedGroupKFold` com semente fixa sobre a referencia humana
-congelada no Passo 1, de modo que nenhum grupo textual atravesse treino e
-teste. As mesmas particoes devem servir aos sete modelos, a camada de regras e
-ao BERTimbau, conforme o Passo 3 de PLANO_EXECUCAO_ATUAL.md.
+Ferramenta estritamente READ-ONLY. Reaproveita os grupos textuais congelados no
+Passo 2 e aplica `StratifiedGroupKFold` com semente fixa sobre a referencia
+humana viva (validada contra a identidade congelada no Passo 1), de modo que
+nenhum grupo textual atravesse treino e teste. As mesmas particoes devem
+servir aos sete modelos, a camada de regras e ao BERTimbau, conforme o Passo 3
+de PLANO_EXECUCAO_ATUAL.md.
+
+O grupo textual de cada registro vem DIRETAMENTE do mapa congelado do Passo 2
+(`docs/dados/grupos_textuais_mapa.csv`), nunca recalculado do texto vivo da
+planilha: se um titulo ou descricao for editado depois do congelamento, o
+grupo cientifico usado na estratificacao permanece o congelado. Isso torna o
+Passo 3 reprodutivel mesmo quando o texto operacional muda, e e o motivo pelo
+qual este script exige protocolo canonico fixo (k=5, semente=42, base
+congelada aplicada) e valida a identidade do mapa do Passo 2 e da referencia
+humana do Passo 1 antes de particionar.
 
 As saidas sao sanitizadas: nao publicam titulos, descricoes nem IDs. O mapa por
 registro usa o SHA-256 do ID, igual ao do Passo 2, para que a juncao seja
@@ -25,6 +35,7 @@ from typing import Any
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+import auditar_base_canonica as abc  # noqa: E402
 import construir_grupos_textuais as cgt  # noqa: E402
 import planilha as pl  # noqa: E402
 from tempo import agora_bahia  # noqa: E402
@@ -44,26 +55,81 @@ SEMENTE_PADRAO = 42
 # em operacao normal.
 RODADAS_MAXIMAS = 20
 
+# Identidade do protocolo canonico deste script (ARTIGO_CONGELADO, Passo 3).
+# Constantes fixas, nunca derivadas da execucao atual: sao o ponto de
+# comparacao que torna o CLI oficial fail-closed. Funcoes puras como
+# `particionar` e `montar_relatorio` continuam aceitando outros valores, para
+# uso cientifico comparativo fora deste script.
+K_ESPERADO = 5
+SEMENTE_ESPERADA = 42
+MINIMO_GRUPOS_ESPERADO = 5
+LINHAS_PARTICIONADAS_ESPERADAS = 13972
+GRUPOS_PARTICIONADOS_ESPERADOS = 9734
+CATEGORIAS_PARTICIONADAS_ESPERADAS = 41
+CATEGORIAS_NA_REFERENCIA_ESPERADAS = 50
+LINHAS_EXCLUIDAS_TOTAL_ESPERADAS = 88
+MAPA_PARTICOES_SHA256_ESPERADO = (
+    "9465857d83ba76ec193974982835d91e03e783587153e26597051d4dfd9abcf2")
+STATUS_ESPERADO = "apto_para_treinar"
 
-def carregar_base_congelada(caminho: Path) -> set[str]:
-    """Le os `id_sha256` do mapa de grupos textuais produzido no Passo 2."""
+
+def carregar_grupos_congelados(caminho: Path) -> dict[str, str]:
+    """Le `id_sha256 -> grupo_sha256` do mapa de grupos textuais do Passo 2."""
     with caminho.open("r", encoding="utf-8", newline="") as f:
-        return {linha["id_sha256"] for linha in csv.DictReader(f)
-                if linha.get("id_sha256")}
+        return {linha["id_sha256"]: linha["grupo_sha256"]
+                for linha in csv.DictReader(f) if linha.get("id_sha256")}
+
+
+def validar_mapa_congelado(
+    caminho: Path,
+    *,
+    mapa_sha256_esperado: str = cgt.MAPA_SHA256_ESPERADO,
+    saida: Any = sys.stderr,
+) -> tuple[bool, dict[str, str]]:
+    """Gate fail-closed: confere a identidade do mapa de grupos do Passo 2.
+
+    Reconstroi a mesma estrutura ordenada usada por `construir_grupos_textuais
+    .agrupar` e recalcula o hash com `cgt._sha256_json`. Um conteudo alterado
+    (ID trocado, grupo recalculado, linha removida ou acrescentada) muda o
+    hash e bloqueia antes de qualquer leitura da planilha.
+    """
+    if not caminho.exists():
+        print(f"Mapa da base congelada nao encontrado em {caminho}. "
+              "Execute o Passo 2 ou aponte --mapa-congelado para o arquivo "
+              "correto.", file=saida)
+        return False, {}
+    grupos = carregar_grupos_congelados(caminho)
+    reconstruido = sorted(
+        ({"id_sha256": k, "grupo_sha256": v} for k, v in grupos.items()),
+        key=lambda x: (x["id_sha256"], x["grupo_sha256"]))
+    obtido = cgt._sha256_json(reconstruido)
+    if obtido != mapa_sha256_esperado:
+        print(
+            "Mapa de grupos textuais divergente do ARTIGO_CONGELADO: "
+            "particionamento interrompido antes de ler a planilha e antes de "
+            "gravar qualquer artefato canonico.\n"
+            f"mapa_sha256: obtido={obtido} esperado={mapa_sha256_esperado}\n"
+            f"caminho={caminho}",
+            file=saida,
+        )
+        return False, {}
+    return True, grupos
 
 
 def preparar(registros: list[dict[str, str]],
-             ids_congelados: set[str] | None = None) -> dict[str, Any]:
+             grupos_congelados: dict[str, str] | None = None) -> dict[str, Any]:
     """Extrai grupo textual e referencia humana de cada registro elegivel.
 
     Elegivel e o registro que tem ID e referencia humana. Sem referencia nao ha
     o que estratificar; sem ID nao ha como registrar a particao.
 
     A aba principal e viva: o GLPI continua alimentando linhas novas depois do
-    congelamento. Com `ids_congelados`, o passo considera apenas os registros do
-    corpus congelado no Passo 2 e contabiliza o excedente a parte, para que o
-    crescimento operacional da planilha nao altere as particoes nem seja
-    confundido com defeito de dados.
+    congelamento, e textos ja lidos podem ser editados. Com
+    `grupos_congelados` (mapa `id_sha256 -> grupo_sha256` do Passo 2), o passo
+    considera apenas os registros do corpus congelado, contabiliza o
+    excedente a parte, e usa o grupo textual JA CONGELADO em vez de recalcula-
+    lo do texto vivo: o grupo cientifico usado na estratificacao nao muda
+    ainda que o texto do chamado mude depois do congelamento.
     """
     ids: list[str] = []
     grupos: list[str] = []
@@ -72,19 +138,25 @@ def preparar(registros: list[dict[str, str]],
     fora_da_base = 0
     for r in registros:
         id_chamado = r.get("id", "")
-        if ids_congelados is not None:
+        grupo_congelado = None
+        if grupos_congelados is not None:
             digest = hashlib.sha256(id_chamado.encode("utf-8")).hexdigest()
-            if not id_chamado or digest not in ids_congelados:
+            grupo_congelado = grupos_congelados.get(digest) if id_chamado else None
+            if grupo_congelado is None:
                 fora_da_base += 1
                 continue
         rotulo = cgt.referencia_humana(r)
         if not id_chamado or not rotulo:
             descartados += 1
             continue
-        normalizados = [cgt.normalizar_texto(r.get(c, ""))
-                        for c in cgt.CAMPOS_TEXTUAIS]
+        if grupo_congelado is not None:
+            grupo = grupo_congelado
+        else:
+            normalizados = [cgt.normalizar_texto(r.get(c, ""))
+                            for c in cgt.CAMPOS_TEXTUAIS]
+            grupo = cgt.hash_grupo(normalizados)
         ids.append(id_chamado)
-        grupos.append(cgt.hash_grupo(normalizados))
+        grupos.append(grupo)
         rotulos.append(rotulo)
     return {"ids": ids, "grupos": grupos, "rotulos": rotulos,
             "descartados": descartados, "fora_da_base_congelada": fora_da_base}
@@ -174,7 +246,7 @@ def particionar(ids: list[str], grupos: list[str], rotulos: list[str],
 def montar_relatorio(registros: list[dict[str, str]], k: int = K_PADRAO,
                      semente: int = SEMENTE_PADRAO,
                      minimo_grupos: int | None = None,
-                     ids_congelados: set[str] | None = None) -> dict[str, Any]:
+                     grupos_congelados: dict[str, str] | None = None) -> dict[str, Any]:
     """Particiona somente as categorias com suporte defensavel em cada dobra.
 
     Categorias com menos de `minimo_grupos` grupos textuais distintos ficam fora
@@ -182,7 +254,7 @@ def montar_relatorio(registros: list[dict[str, str]], k: int = K_PADRAO,
     retirada aparece no relatorio com o numero de grupos e de linhas.
     """
     minimo = k if minimo_grupos is None else minimo_grupos
-    dados = preparar(registros, ids_congelados)
+    dados = preparar(registros, grupos_congelados)
     raras = classes_sem_estratificacao(dados["grupos"], dados["rotulos"], minimo)
     excluidas = {r["categoria"] for r in raras}
 
@@ -218,9 +290,9 @@ def montar_relatorio(registros: list[dict[str, str]], k: int = K_PADRAO,
     relatorio["categorias_excluidas_por_sorteio"] = por_sorteio
     relatorio["rodadas_de_exclusao"] = len(rodadas)
     relatorio["registros_descartados"] = dados["descartados"]
-    relatorio["base_congelada_aplicada"] = ids_congelados is not None
+    relatorio["base_congelada_aplicada"] = grupos_congelados is not None
     relatorio["linhas_da_base_congelada"] = (
-        len(ids_congelados) if ids_congelados is not None else None)
+        len(grupos_congelados) if grupos_congelados is not None else None)
     relatorio["linhas_vivas_fora_da_base_congelada"] = dados["fora_da_base_congelada"]
     relatorio["categorias_na_referencia"] = len(set(dados["rotulos"]))
     relatorio["categorias_particionadas"] = len(
@@ -362,6 +434,58 @@ def renderizar_markdown(relatorio: dict[str, Any]) -> str:
     return "\n".join(linhas)
 
 
+def validar_particoes_congeladas(
+    relatorio: dict[str, Any],
+    *,
+    k_esperado: int = K_ESPERADO,
+    semente_esperada: int = SEMENTE_ESPERADA,
+    linhas_esperadas: int = LINHAS_PARTICIONADAS_ESPERADAS,
+    grupos_esperados: int = GRUPOS_PARTICIONADOS_ESPERADOS,
+    categorias_particionadas_esperadas: int = CATEGORIAS_PARTICIONADAS_ESPERADAS,
+    categorias_na_referencia_esperadas: int = CATEGORIAS_NA_REFERENCIA_ESPERADAS,
+    linhas_excluidas_total_esperadas: int = LINHAS_EXCLUIDAS_TOTAL_ESPERADAS,
+    mapa_sha256_esperado: str = MAPA_PARTICOES_SHA256_ESPERADO,
+    status_esperado: str = STATUS_ESPERADO,
+    saida: Any = sys.stderr,
+) -> bool:
+    """Gate fail-closed: confere a identidade das particoes do ARTIGO_CONGELADO.
+
+    Roda depois do particionamento e ANTES de qualquer escrita de artefato.
+    `linhas_vivas_fora_da_base_congelada` deliberadamente NAO entra neste gate:
+    o crescimento operacional da planilha fora do corpus congelado e esperado
+    e nao deve bloquear o Passo 3.
+    """
+    ausentes = relatorio.get("categorias_sem_suporte_em_alguma_dobra") or []
+    checagens = [
+        ("k", relatorio.get("k"), k_esperado),
+        ("semente", relatorio.get("semente"), semente_esperada),
+        ("linhas_particionadas", relatorio.get("linhas_particionadas"), linhas_esperadas),
+        ("grupos_particionados", relatorio.get("grupos_particionados"), grupos_esperados),
+        ("categorias_particionadas", relatorio.get("categorias_particionadas"),
+         categorias_particionadas_esperadas),
+        ("categorias_na_referencia", relatorio.get("categorias_na_referencia"),
+         categorias_na_referencia_esperadas),
+        ("linhas_excluidas_total", relatorio.get("linhas_excluidas_total"),
+         linhas_excluidas_total_esperadas),
+        ("mapa_sha256", relatorio.get("mapa_sha256"), mapa_sha256_esperado),
+        ("status", relatorio.get("status"), status_esperado),
+        ("linhas_sem_dobra", relatorio.get("linhas_sem_dobra"), 0),
+        ("grupos_divididos_entre_dobras", relatorio.get("grupos_divididos_entre_dobras"), 0),
+        ("registros_descartados", relatorio.get("registros_descartados"), 0),
+        ("categorias_sem_suporte_em_alguma_dobra", len(ausentes), 0),
+    ]
+    divergencias = [f"{nome}: obtido={obtido} esperado={esperado}"
+                    for nome, obtido, esperado in checagens if obtido != esperado]
+    if not divergencias:
+        return True
+    print(
+        "Particoes obtidas divergentes do ARTIGO_CONGELADO: nenhum artefato "
+        "canonico foi escrito.\n" + "\n".join(divergencias),
+        file=saida,
+    )
+    return False
+
+
 def escrever_mapa(caminho: Path, mapa: list[dict[str, Any]]) -> None:
     caminho.parent.mkdir(parents=True, exist_ok=True)
     with caminho.open("w", encoding="utf-8", newline="") as f:
@@ -392,24 +516,63 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> int:
-    args = parse_args()
-    config = json.loads(args.config.read_text(encoding="utf-8"))
-    ids_congelados = None
-    if not args.sem_base_congelada:
-        if not args.mapa_congelado.exists():
-            print(f"Mapa da base congelada nao encontrado em {args.mapa_congelado}. "
-                  "Execute o Passo 2 ou use --sem-base-congelada.", file=sys.stderr)
-            return 2
-        ids_congelados = carregar_base_congelada(args.mapa_congelado)
+    """CLI oficial das particoes canonicas do ARTIGO_CONGELADO.
 
+    Representa um unico protocolo (k=5, semente=42, minimo-grupos efetivo=5,
+    base congelada aplicada) e e fail-closed em quatro pontos, nesta ordem:
+    protocolo do CLI, identidade do mapa de grupos do Passo 2, identidade da
+    referencia humana do Passo 1 e identidade do resultado do particionamento.
+    Qualquer divergencia interrompe antes da proxima etapa cara e antes de
+    qualquer escrita de artefato. As funcoes puras (`particionar`,
+    `montar_relatorio`) continuam aceitando outros valores para uso cientifico
+    comparativo fora deste script.
+    """
+    args = parse_args()
+
+    if args.sem_base_congelada:
+        print("Protocolo canonico exige a base congelada do Passo 2; "
+              "--sem-base-congelada nao e permitido neste script.",
+              file=sys.stderr)
+        return 2
+    if args.k != K_ESPERADO:
+        print(f"Protocolo canonico exige k={K_ESPERADO}; recebido --k={args.k}.",
+              file=sys.stderr)
+        return 2
+    if args.semente != SEMENTE_ESPERADA:
+        print(f"Protocolo canonico exige semente={SEMENTE_ESPERADA}; "
+              f"recebido --semente={args.semente}.", file=sys.stderr)
+        return 2
+    minimo_efetivo = args.k if args.minimo_grupos is None else args.minimo_grupos
+    if minimo_efetivo != MINIMO_GRUPOS_ESPERADO:
+        print(f"Protocolo canonico exige minimo-grupos efetivo="
+              f"{MINIMO_GRUPOS_ESPERADO}; recebido={minimo_efetivo}.",
+              file=sys.stderr)
+        return 2
+
+    ok, grupos_congelados = validar_mapa_congelado(args.mapa_congelado)
+    if not ok:
+        return 2
+
+    config = json.loads(args.config.read_text(encoding="utf-8"))
     sh = pl.abrir_planilha(pl.id_planilha(config), args.credenciais)
-    relatorio = montar_relatorio(cgt.ler_registros(sh, config),
+    registros = cgt.ler_registros(sh, config)
+
+    auditoria = abc.auditar(registros)
+    if not abc.validar_identidade_congelada(
+            auditoria, corpus_esperado=abc.CORPUS_COMPLETO_ESPERADO,
+            hash_esperado=abc.HASH_BASE_CANONICA_ESPERADO):
+        return 2
+
+    relatorio = montar_relatorio(registros,
                                  k=args.k, semente=args.semente,
                                  minimo_grupos=args.minimo_grupos,
-                                 ids_congelados=ids_congelados)
+                                 grupos_congelados=grupos_congelados)
     relatorio["gerado_em"] = agora_bahia()
     relatorio["fonte"] = config["aba_principal"]
     relatorio["script_origem"] = "src/gerar_particoes_canonicas.py"
+
+    if not validar_particoes_congeladas(relatorio):
+        return 2
 
     escrever_mapa(args.mapa, relatorio["_mapa"])
     publicavel = {k: v for k, v in relatorio.items() if not k.startswith("_")}
