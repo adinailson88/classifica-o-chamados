@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+import io
 import sys
+import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
@@ -80,6 +83,43 @@ class TestRelatorio(unittest.TestCase):
         self.assertIn("torch", a)
         self.assertIn("transformers", a)
         self.assertIn("cuda_disponivel", a)
+
+
+class TestMainAposentado(unittest.TestCase):
+    """main() nao pode mais medir o custo do BERTimbau a partir da planilha
+    viva: ver lote 8D-3C1, na esteira do 8D-3B. As funcoes cientificas
+    (medir, extrapolar, montar_relatorio, renderizar_markdown, ambiente)
+    continuam disponiveis para import e teste direto, como as demais classes
+    deste arquivo comprovam; somente o CLI e bloqueado.
+    """
+
+    def test_main_retorna_2_sem_tocar_planilha_nem_treinar(self):
+        d = self.enterContext(tempfile.TemporaryDirectory())
+        destino_json = Path(d) / "custo_bertimbau.json"
+        destino_md = Path(d) / "CUSTO_BERTIMBAU.md"
+        argv = [
+            "medir_custo_bertimbau.py",
+            "--json", str(destino_json),
+            "--markdown", str(destino_md),
+        ]
+        with mock.patch.object(sys, "argv", argv), \
+             mock.patch("planilha.abrir_planilha") as m_abrir, \
+             mock.patch("retreinar_modelos_canonicos.preparar_corpus") as m_prep, \
+             mock.patch("medir_custo_bertimbau.montar_relatorio") as m_rel, \
+             mock.patch("medir_custo_bertimbau.medir") as m_medir, \
+             mock.patch("sys.stderr", new_callable=io.StringIO) as m_stderr:
+            codigo = mcb.main()
+
+        self.assertEqual(codigo, 2)
+        for m in (m_abrir, m_prep, m_rel, m_medir):
+            m.assert_not_called()
+        self.assertFalse(destino_json.exists())
+        self.assertFalse(destino_md.exists())
+
+        mensagem = m_stderr.getvalue()
+        self.assertIn("ARTIGO_CONGELADO", mensagem)
+        self.assertIn("model-input", mensagem)
+        self.assertIn("NOVO CORTE CIENTIFICO", mensagem)
 
 
 if __name__ == "__main__":

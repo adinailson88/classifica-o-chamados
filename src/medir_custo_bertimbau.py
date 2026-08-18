@@ -21,7 +21,6 @@ Nao treina modelo ate o fim, nao publica predicao e nao escreve na planilha.
 from __future__ import annotations
 
 import argparse
-import json
 import math
 import os
 import platform
@@ -31,11 +30,6 @@ from pathlib import Path
 from typing import Any
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-
-import construir_grupos_textuais as cgt  # noqa: E402
-import planilha as pl  # noqa: E402
-import retreinar_modelos_canonicos as rmc  # noqa: E402
-from tempo import agora_bahia  # noqa: E402
 
 RAIZ = Path(__file__).resolve().parents[1]
 CONFIG_PADRAO = RAIZ / "config_experimento.json"
@@ -49,6 +43,19 @@ LIMITE_JOB_S = 6 * 3600
 
 PASSOS_MEDIDOS_PADRAO = 30
 PASSOS_AQUECIMENTO = 3
+
+# Aposentadoria fail-closed da medicao de custo do BERTimbau: ver lote 8D-3C1,
+# na esteira do 8D-3B. Esta medicao depende do corpus preparado por
+# retreinar_modelos_canonicos.preparar_corpus a partir da planilha viva, e
+# executa fine-tuning parcial real; o ARTIGO_CONGELADO nao possui fingerprint
+# congelado do model-input textual bruto suficiente para provar identidade
+# exata dessa entrada. O CLI canonico recusa a execucao.
+MENSAGEM_APOSENTADORIA = (
+    "Regeneracao canonica aposentada porque o ARTIGO_CONGELADO nao possui "
+    "fingerprint historico suficiente do model-input textual bruto para "
+    "provar reproducao exata a partir da planilha operacional viva. Novas "
+    "execucoes devem ser NOVO CORTE CIENTIFICO."
+)
 
 
 def ambiente() -> dict[str, Any]:
@@ -279,55 +286,9 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> int:
-    args = parse_args()
-    if not args.particoes.exists():
-        print(f"Mapa de particoes nao encontrado em {args.particoes}.", file=sys.stderr)
-        return 2
-    amb = ambiente()
-    if amb["torch"] == "indisponivel" or amb["transformers"] == "indisponivel":
-        print("torch/transformers indisponiveis; instale requirements-transformer.txt.",
-              file=sys.stderr)
-        return 2
-
-    config = json.loads(args.config.read_text(encoding="utf-8"))
-    particoes = rmc.carregar_particoes(args.particoes)
-    sh = pl.abrir_planilha(pl.id_planilha(config), args.credenciais)
-    corpus = rmc.preparar_corpus(cgt.ler_registros(sh, config), particoes)
-
-    treino = [i for i, d in enumerate(corpus["dobras"]) if d != args.dobra]
-    teste = [i for i, d in enumerate(corpus["dobras"]) if d == args.dobra]
-    if not treino or not teste:
-        print(f"Dobra {args.dobra} inexistente nas particoes.", file=sys.stderr)
-        return 2
-
-    base = os.environ.get("TRANSFORMER_BASE", "neuralmind/bert-base-portuguese-cased")
-    epochs = int(os.environ.get("TRANSFORMER_EPOCHS", "3"))
-    max_len = int(os.environ.get("TRANSFORMER_MAXLEN", "192"))
-    batch = int(os.environ.get("TRANSFORMER_BATCH", "16"))
-    lr = float(os.environ.get("TRANSFORMER_LR", "2e-5"))
-
-    medida = medir([corpus["textos"][i] for i in treino],
-                   [corpus["rotulos"][i] for i in treino],
-                   base, epochs, max_len, batch, lr, passos=args.passos)
-    projecao = extrapolar(medida, len(treino), len(teste),
-                          k=len(set(corpus["dobras"])), epochs=epochs, batch=batch)
-    contexto = {
-        "modelo_base": base, "epochs": epochs, "max_len": max_len,
-        "batch": batch, "lr": lr, "dobra_medida": args.dobra,
-        "n_treino": len(treino), "n_teste": len(teste),
-        "categorias": len(set(corpus["rotulos"])),
-    }
-
-    relatorio = montar_relatorio(medida, projecao, contexto)
-    relatorio["gerado_em"] = agora_bahia()
-    relatorio["script_origem"] = "src/medir_custo_bertimbau.py"
-    args.json.parent.mkdir(parents=True, exist_ok=True)
-    args.markdown.parent.mkdir(parents=True, exist_ok=True)
-    args.json.write_text(json.dumps(relatorio, ensure_ascii=False, indent=2) + "\n",
-                         encoding="utf-8")
-    args.markdown.write_text(renderizar_markdown(relatorio), encoding="utf-8")
-    print(renderizar_markdown(relatorio))
-    return 0
+    parse_args()
+    print(MENSAGEM_APOSENTADORIA, file=sys.stderr)
+    return 2
 
 
 if __name__ == "__main__":

@@ -19,7 +19,6 @@ acontece sem aviso.
 from __future__ import annotations
 
 import argparse
-import json
 import platform
 import statistics
 import sys
@@ -29,12 +28,8 @@ from typing import Any
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-import construir_grupos_textuais as cgt  # noqa: E402
-import executar_rodada_canonica as erc  # noqa: E402
 import modelos_zoo as zoo  # noqa: E402
-import planilha as pl  # noqa: E402
 import retreinar_modelos_canonicos as rmc  # noqa: E402
-from tempo import agora_bahia  # noqa: E402
 
 RAIZ = Path(__file__).resolve().parents[1]
 CONFIG_PADRAO = RAIZ / "config_experimento.json"
@@ -46,6 +41,19 @@ SAIDA_JSON_PADRAO = DADOS / "custo_computacional_canonico.json"
 SAIDA_MD_PADRAO = RAIZ / "docs" / "CUSTO_COMPUTACIONAL_CANONICO.md"
 
 REPETICOES_PADRAO = 3
+
+# Aposentadoria fail-closed da medicao de custo canonica: ver lote 8D-3C1, na
+# esteira do 8D-3B. Esta medicao depende do corpus preparado por
+# retreinar_modelos_canonicos.preparar_corpus a partir da planilha viva, que
+# nao possui fingerprint congelado do model-input textual bruto suficiente
+# para provar identidade exata com o ARTIGO_CONGELADO. O CLI canonico recusa
+# a execucao.
+MENSAGEM_APOSENTADORIA = (
+    "Regeneracao canonica aposentada porque o ARTIGO_CONGELADO nao possui "
+    "fingerprint historico suficiente do model-input textual bruto para "
+    "provar reproducao exata a partir da planilha operacional viva. Novas "
+    "execucoes devem ser NOVO CORTE CIENTIFICO."
+)
 
 
 def medir_modelo(nome: str, textos: list[str], rotulos: list[str],
@@ -168,36 +176,9 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> int:
-    args = parse_args()
-    if not args.particoes.exists():
-        print(f"Mapa de particoes nao encontrado em {args.particoes}.", file=sys.stderr)
-        return 2
-    modelos = [m.strip() for m in args.modelos.split(",") if m.strip()]
-    config = json.loads(args.config.read_text(encoding="utf-8"))
-    particoes = rmc.carregar_particoes(args.particoes)
-    congelados = (rmc.carregar_grupos_congelados(args.grupos_congelados)
-                  if args.grupos_congelados.exists() else None)
-    sh = pl.abrir_planilha(pl.id_planilha(config), args.credenciais)
-    corpus = rmc.preparar_corpus(cgt.ler_registros(sh, config), particoes, congelados)
-    if len(corpus["textos"]) < 10:
-        print("Corpus insuficiente para medir custo.", file=sys.stderr)
-        return 2
-
-    relatorio = montar_relatorio(corpus["textos"], corpus["rotulos"], modelos,
-                                 args.repeticoes)
-    relatorio["hash_corpus"] = erc.hash_corpus(corpus)
-    relatorio["gerado_em"] = agora_bahia()
-    relatorio["script_origem"] = "src/custo_computacional_canonico.py"
-    relatorio["linhas_com_texto_alterado_apos_o_congelamento"] = corpus[
-        "linhas_com_texto_alterado_apos_o_congelamento"]
-
-    args.json.parent.mkdir(parents=True, exist_ok=True)
-    args.markdown.parent.mkdir(parents=True, exist_ok=True)
-    args.json.write_text(json.dumps(relatorio, ensure_ascii=False, indent=2) + "\n",
-                         encoding="utf-8")
-    args.markdown.write_text(renderizar_markdown(relatorio), encoding="utf-8")
-    print(renderizar_markdown(relatorio))
-    return 0
+    parse_args()
+    print(MENSAGEM_APOSENTADORIA, file=sys.stderr)
+    return 2
 
 
 if __name__ == "__main__":
