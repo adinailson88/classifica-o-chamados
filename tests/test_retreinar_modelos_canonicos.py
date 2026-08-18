@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 import hashlib
+import io
 import sys
+import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
@@ -177,6 +180,48 @@ class TestRetreinoCanonico(unittest.TestCase):
         self.assertEqual(corpus["linhas_sem_rotulo"], 1)
         rel = rmc.montar_relatorio(corpus, ["naive_bayes"], registrar=self.silencio)
         self.assertIn("linhas_do_corpus_sem_rotulo", rel["bloqueios"])
+
+
+class TestMainAposentado(unittest.TestCase):
+    """main() nao pode mais regenerar o retreino canonico a partir da planilha
+    viva: ver lote 8D-3B. As funcoes cientificas (preparar_corpus,
+    avaliar_modelo, montar_relatorio, escrever_predicoes, criar_modelo)
+    continuam disponiveis para import e teste direto, como as demais classes
+    deste arquivo comprovam; somente o CLI e bloqueado.
+    """
+
+    def test_main_retorna_2_sem_tocar_planilha_nem_treinar_nem_escrever(self):
+        d = self.enterContext(tempfile.TemporaryDirectory())
+        destino_json = Path(d) / "retreino_canonico.json"
+        destino_md = Path(d) / "RETREINO_CANONICO.md"
+        destino_pred = Path(d) / "retreino_canonico_predicoes.csv"
+        argv = [
+            "retreinar_modelos_canonicos.py",
+            "--json", str(destino_json),
+            "--markdown", str(destino_md),
+            "--predicoes", str(destino_pred),
+        ]
+        with mock.patch.object(sys, "argv", argv), \
+             mock.patch("planilha.abrir_planilha") as m_abrir, \
+             mock.patch("retreinar_modelos_canonicos.preparar_corpus") as m_prep, \
+             mock.patch("retreinar_modelos_canonicos.montar_relatorio") as m_rel, \
+             mock.patch("retreinar_modelos_canonicos.avaliar_modelo") as m_aval, \
+             mock.patch("modelos_zoo.criar_modelo") as m_criar, \
+             mock.patch("retreinar_modelos_canonicos.escrever_predicoes") as m_escr, \
+             mock.patch("sys.stderr", new_callable=io.StringIO) as m_stderr:
+            codigo = rmc.main()
+
+        self.assertEqual(codigo, 2)
+        for m in (m_abrir, m_prep, m_rel, m_aval, m_criar, m_escr):
+            m.assert_not_called()
+        self.assertFalse(destino_json.exists())
+        self.assertFalse(destino_md.exists())
+        self.assertFalse(destino_pred.exists())
+
+        mensagem = m_stderr.getvalue()
+        self.assertIn("ARTIGO_CONGELADO", mensagem)
+        self.assertIn("model-input", mensagem)
+        self.assertIn("NOVO CORTE CIENTIFICO", mensagem)
 
 
 if __name__ == "__main__":

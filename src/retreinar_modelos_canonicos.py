@@ -19,7 +19,6 @@ from __future__ import annotations
 import argparse
 import csv
 import hashlib
-import json
 import platform
 import sys
 import time
@@ -31,8 +30,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import construir_grupos_textuais as cgt  # noqa: E402
 import modelos_zoo as zoo  # noqa: E402
-import planilha as pl  # noqa: E402
-from tempo import agora_bahia  # noqa: E402
 
 RAIZ = Path(__file__).resolve().parents[1]
 CONFIG_PADRAO = RAIZ / "config_experimento.json"
@@ -48,6 +45,22 @@ MODELOS_PADRAO = ["naive_bayes", "regressao_logistica", "linear_svc", "sgd",
                   "extra_trees", "random_forest", "lstm"]
 
 SEMENTE_PADRAO = 42
+
+# Aposentadoria fail-closed do retreino canonico: ver docs/RETREINO_CANONICO.md
+# e o achado metodologico do lote 8D-3B. hash_corpus combina id_sha256, grupo
+# textual normalizado e referencia humana, mas nao congela o model-input bruto
+# entregue ao Tokenizer da LSTM; textos que convergem no normalizador (ex.:
+# "lampada" vs "lâmpada") podem ainda assim produzir entradas diferentes para
+# esse modelo. Sem esse fingerprint, a planilha viva nao pode provar identidade
+# exata com o ARTIGO_CONGELADO, e o CLI canonico recusa a execucao.
+MENSAGEM_APOSENTADORIA = (
+    "Regeneracao do retreino canonico aposentada: o ARTIGO_CONGELADO nao "
+    "possui fingerprint congelado do model-input textual bruto suficiente "
+    "para provar identidade exata da entrada da LSTM. A planilha "
+    "operacional viva nao pode ser usada para recriar resultados sob a "
+    "identidade canonica. Um novo experimento deve ser executado como NOVO "
+    "CORTE CIENTIFICO, com nova identidade."
+)
 
 
 def carregar_particoes(caminho: Path) -> dict[str, int]:
@@ -348,37 +361,9 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> int:
-    args = parse_args()
-    if not args.particoes.exists():
-        print(f"Mapa de particoes nao encontrado em {args.particoes}. "
-              "Execute o Passo 3 antes deste.", file=sys.stderr)
-        return 2
-    modelos = [m.strip() for m in args.modelos.split(",") if m.strip()]
-    config = json.loads(args.config.read_text(encoding="utf-8"))
-    particoes = carregar_particoes(args.particoes)
-
-    sh = pl.abrir_planilha(pl.id_planilha(config), args.credenciais)
-    congelados = (carregar_grupos_congelados(args.grupos_congelados)
-                  if args.grupos_congelados.exists() else None)
-    corpus = preparar_corpus(cgt.ler_registros(sh, config), particoes, congelados)
-    if len(corpus["textos"]) < 10:
-        print("Corpus insuficiente para retreinar.", file=sys.stderr)
-        return 2
-
-    relatorio = montar_relatorio(corpus, modelos, semente=args.semente)
-    relatorio["gerado_em"] = agora_bahia()
-    relatorio["fonte"] = config["aba_principal"]
-    relatorio["script_origem"] = "src/retreinar_modelos_canonicos.py"
-
-    escrever_predicoes(args.predicoes, corpus, relatorio["_resultados"])
-    publicavel = {k: v for k, v in relatorio.items() if not k.startswith("_")}
-    args.json.parent.mkdir(parents=True, exist_ok=True)
-    args.markdown.parent.mkdir(parents=True, exist_ok=True)
-    args.json.write_text(json.dumps(publicavel, ensure_ascii=False, indent=2) + "\n",
-                         encoding="utf-8")
-    args.markdown.write_text(renderizar_markdown(relatorio), encoding="utf-8")
-    print(renderizar_markdown(relatorio))
-    return 0 if relatorio["status"] == "apto_para_regras" else 2
+    parse_args()
+    print(MENSAGEM_APOSENTADORIA, file=sys.stderr)
+    return 2
 
 
 if __name__ == "__main__":
