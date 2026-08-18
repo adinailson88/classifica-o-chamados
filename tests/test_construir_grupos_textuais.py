@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import contextlib
 import sys
 import unittest
 from pathlib import Path
+from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
@@ -143,6 +145,192 @@ class TestGruposTextuais(unittest.TestCase):
         self.assertNotIn("2026079999", bruto)
         self.assertNotIn("vazamento", bruto)
         self.assertIn("apto_para_particionar", bruto)
+
+
+@contextlib.contextmanager
+def _aplicar(patches):
+    with contextlib.ExitStack() as pilha:
+        for p in patches:
+            pilha.enter_context(p)
+        yield
+
+
+def _corpus_congelado_sintetico():
+    """Corpus offline pequeno cujos fingerprints servem de baseline nos testes
+    do gate, sem depender da base real de 14.060 linhas / 9.786 grupos.
+
+    Sete linhas para que o maior grupo (tamanho 2) caiba no limite de uma
+    dobra (ceil(7/5)=2): a identidade fica aprovavel e o status final permite
+    testar main() prosseguindo ate `apto_para_particionar`.
+    """
+    registros = [
+        registro("1", "porta emperrada", historico="Cat A", m="Correto"),
+        registro("2", "porta emperrada", historico="Cat A",
+                 m="Errado", q="Cat B"),
+        registro("3", "lampada queimada"),
+        registro("4", "vazamento no banheiro"),
+        registro("5", "ar condicionado sem gelar"),
+        registro("6", "torneira pingando"),
+        registro("7", "janela quebrada"),
+    ]
+    return registros, cgt.agrupar(registros)
+
+
+class TestValidarIdentidadeCongelada(unittest.TestCase):
+    def setUp(self):
+        self.registros, self.relatorio = _corpus_congelado_sintetico()
+        self.baseline = dict(
+            corpus_esperado=self.relatorio["corpus"]["linhas_nao_vazias"],
+            grupos_esperado=self.relatorio["corpus"]["grupos_textuais"],
+            mapa_sha256_esperado=self.relatorio["mapa_sha256"],
+            hash_grupos_esperado=self.relatorio["hash_grupos_sha256"],
+            grupos_divergentes_esperado=self.relatorio["rotulos_conflitantes"][
+                "grupos_com_referencia_divergente"],
+            linhas_afetadas_esperado=self.relatorio["rotulos_conflitantes"][
+                "linhas_afetadas"],
+        )
+
+    def test_fingerprints_esperados_gate_aceita(self):
+        self.assertTrue(cgt.validar_identidade_congelada(
+            self.relatorio, **self.baseline))
+
+    def test_mesmo_n_mapa_sha256_divergente_gate_bloqueia(self):
+        params = dict(self.baseline, mapa_sha256_esperado="mapa-divergente")
+        self.assertEqual(
+            params["corpus_esperado"], self.relatorio["corpus"]["linhas_nao_vazias"])
+        self.assertFalse(cgt.validar_identidade_congelada(self.relatorio, **params))
+
+    def test_mesmo_n_hash_grupos_sha256_divergente_gate_bloqueia(self):
+        params = dict(self.baseline, hash_grupos_esperado="grupos-divergente")
+        self.assertEqual(
+            params["corpus_esperado"], self.relatorio["corpus"]["linhas_nao_vazias"])
+        self.assertFalse(cgt.validar_identidade_congelada(self.relatorio, **params))
+
+    def test_numero_de_grupos_divergente_gate_bloqueia(self):
+        params = dict(self.baseline, grupos_esperado=999)
+        self.assertFalse(cgt.validar_identidade_congelada(self.relatorio, **params))
+
+    def test_valores_de_conflito_divergentes_gate_bloqueia(self):
+        params = dict(self.baseline, grupos_divergentes_esperado=0)
+        self.assertFalse(cgt.validar_identidade_congelada(self.relatorio, **params))
+        params = dict(self.baseline, linhas_afetadas_esperado=0)
+        self.assertFalse(cgt.validar_identidade_congelada(self.relatorio, **params))
+
+    def test_valores_de_conflito_congelados_nao_bloqueiam_por_existirem(self):
+        # Os 17 grupos / 85 linhas divergentes fazem parte do congelamento
+        # cientifico conhecido: o gate so bloqueia se o VALOR divergir do
+        # baseline, nunca porque grupos conflitantes existem.
+        self.assertGreater(self.baseline["grupos_divergentes_esperado"], 0)
+        self.assertTrue(cgt.validar_identidade_congelada(
+            self.relatorio, **self.baseline))
+
+    def test_mensagem_de_erro_contem_obtido_esperado_e_explicacao(self):
+        import io
+        saida = io.StringIO()
+        params = dict(self.baseline, mapa_sha256_esperado="mapa-esperado-diferente")
+        cgt.validar_identidade_congelada(self.relatorio, saida=saida, **params)
+        mensagem = saida.getvalue()
+        self.assertIn(self.relatorio["mapa_sha256"], mensagem)
+        self.assertIn("mapa-esperado-diferente", mensagem)
+        self.assertIn("ARTIGO_CONGELADO", mensagem)
+
+    def test_constantes_padrao_sao_as_do_artigo_congelado(self):
+        self.assertEqual(cgt.CORPUS_COMPLETO_ESPERADO, 14060)
+        self.assertEqual(cgt.GRUPOS_TEXTUAIS_ESPERADO, 9786)
+        self.assertEqual(
+            cgt.MAPA_SHA256_ESPERADO,
+            "ab352b9424e31d2644ed6d075643adf562acc38767e0098eed77595e2dea0bb6")
+        self.assertEqual(
+            cgt.HASH_GRUPOS_SHA256_ESPERADO,
+            "ad8557c109af55fd6f4a6cdd69d0eeb426c1602b66bade9473b6b8f0dc7dc32f")
+        self.assertEqual(cgt.GRUPOS_COM_REFERENCIA_DIVERGENTE_ESPERADO, 17)
+        self.assertEqual(cgt.LINHAS_AFETADAS_ESPERADO, 85)
+
+
+class TestGateBloqueiaMainComBaseDivergente(unittest.TestCase):
+    """Reproduz main() ate o gate sem tocar Google Sheets nem calcular o
+    diagnostico caro de quase duplicados."""
+
+    def setUp(self):
+        self.registros, self.relatorio_esperado = _corpus_congelado_sintetico()
+        self.tmp = Path(self.enterContext(
+            __import__("tempfile").TemporaryDirectory()))
+        self.config_path = self.tmp / "config.json"
+        self.config_path.write_text('{"aba_principal": "teste"}', encoding="utf-8")
+        self.json_path = self.tmp / "grupos.json"
+        self.md_path = self.tmp / "grupos.md"
+        self.mapa_path = self.tmp / "mapa.csv"
+
+    def _contexto_offline(self, **constantes):
+        argv = [
+            "construir_grupos_textuais.py",
+            "--config", str(self.config_path),
+            "--json", str(self.json_path),
+            "--markdown", str(self.md_path),
+            "--mapa", str(self.mapa_path),
+        ]
+        patches = [
+            mock.patch.object(sys, "argv", argv),
+            mock.patch("construir_grupos_textuais.pl.abrir_planilha",
+                       return_value=object()),
+            mock.patch("construir_grupos_textuais.pl.id_planilha",
+                       return_value="planilha-teste"),
+            mock.patch("construir_grupos_textuais.ler_registros",
+                       return_value=self.registros),
+        ]
+        nomes_constantes = {
+            "corpus_esperado": "CORPUS_COMPLETO_ESPERADO",
+            "grupos_esperado": "GRUPOS_TEXTUAIS_ESPERADO",
+            "mapa_sha256_esperado": "MAPA_SHA256_ESPERADO",
+            "hash_grupos_esperado": "HASH_GRUPOS_SHA256_ESPERADO",
+            "grupos_divergentes_esperado": "GRUPOS_COM_REFERENCIA_DIVERGENTE_ESPERADO",
+            "linhas_afetadas_esperado": "LINHAS_AFETADAS_ESPERADO",
+        }
+        for chave, valor in constantes.items():
+            patches.append(mock.patch.object(cgt, nomes_constantes[chave], valor))
+        return patches
+
+    def test_identidade_divergente_retorna_nao_zero_e_nao_escreve_saidas(self):
+        patches = self._contexto_offline(
+            corpus_esperado=self.relatorio_esperado["corpus"]["linhas_nao_vazias"],
+            grupos_esperado=self.relatorio_esperado["corpus"]["grupos_textuais"],
+            mapa_sha256_esperado="mapa-divergente-de-proposito",
+            hash_grupos_esperado=self.relatorio_esperado["hash_grupos_sha256"],
+            grupos_divergentes_esperado=self.relatorio_esperado[
+                "rotulos_conflitantes"]["grupos_com_referencia_divergente"],
+            linhas_afetadas_esperado=self.relatorio_esperado[
+                "rotulos_conflitantes"]["linhas_afetadas"],
+        )
+        with _aplicar(patches), \
+             mock.patch("construir_grupos_textuais.diagnosticar_quase_duplicados") as m_diag, \
+             mock.patch("construir_grupos_textuais.escrever_mapa") as m_mapa:
+            codigo = cgt.main()
+
+        self.assertNotEqual(codigo, 0)
+        m_diag.assert_not_called()
+        m_mapa.assert_not_called()
+        self.assertFalse(self.json_path.exists())
+        self.assertFalse(self.md_path.exists())
+        self.assertFalse(self.mapa_path.exists())
+
+    def test_identidade_correta_permite_main_prosseguir(self):
+        patches = self._contexto_offline(
+            corpus_esperado=self.relatorio_esperado["corpus"]["linhas_nao_vazias"],
+            grupos_esperado=self.relatorio_esperado["corpus"]["grupos_textuais"],
+            mapa_sha256_esperado=self.relatorio_esperado["mapa_sha256"],
+            hash_grupos_esperado=self.relatorio_esperado["hash_grupos_sha256"],
+            grupos_divergentes_esperado=self.relatorio_esperado[
+                "rotulos_conflitantes"]["grupos_com_referencia_divergente"],
+            linhas_afetadas_esperado=self.relatorio_esperado[
+                "rotulos_conflitantes"]["linhas_afetadas"],
+        )
+        with _aplicar(patches):
+            codigo = cgt.main()
+
+        self.assertEqual(codigo, 0)
+        self.assertTrue(self.json_path.exists())
+        self.assertTrue(self.md_path.exists())
+        self.assertTrue(self.mapa_path.exists())
 
 
 if __name__ == "__main__":

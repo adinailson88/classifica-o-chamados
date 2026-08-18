@@ -29,6 +29,13 @@ CONFIG_PADRAO = RAIZ / "config_experimento.json"
 SAIDA_JSON_PADRAO = RAIZ / "docs" / "dados" / "auditoria_base_canonica.json"
 SAIDA_MD_PADRAO = RAIZ / "docs" / "AUDITORIA_BASE_CANONICA.md"
 
+# Identidade do corpus do ARTIGO_CONGELADO (docs/dados/MANIFESTO_ARTIGO_CONGELADO.json).
+# Constantes fixas, nunca derivadas da planilha nem da execucao atual: sao o
+# ponto de comparacao que torna este passo fail-closed.
+CORPUS_COMPLETO_ESPERADO = 14060
+HASH_BASE_CANONICA_ESPERADO = (
+    "e10c78e4db0026cfcbfa5267ddac034a3c8d3a7a0a1d63fa0cf2ce52f165b174")
+
 
 def _sha256_json(objeto: Any) -> str:
     bruto = json.dumps(objeto, ensure_ascii=False, sort_keys=True,
@@ -177,6 +184,53 @@ def auditar(registros: list[dict[str, str]]) -> dict[str, Any]:
     }
 
 
+def validar_identidade_congelada(
+    relatorio: dict[str, Any],
+    *,
+    corpus_esperado: int = CORPUS_COMPLETO_ESPERADO,
+    hash_esperado: str = HASH_BASE_CANONICA_ESPERADO,
+    saida: Any = sys.stderr,
+) -> bool:
+    """Gate fail-closed: confere a identidade semantica do ARTIGO_CONGELADO.
+
+    Uma contagem de linhas igual a 14.060 nao basta: dois corpora podem ter o
+    mesmo N e conteudo diferente. `hash_base_canonica_sha256` cobre ID,
+    categoria historica, referencia humana e fonte da decisao, e por isso e a
+    verificacao decisiva; as contagens do corpus sao conferidas em conjunto
+    para que a mensagem de erro aponte exatamente onde a base operacional
+    viva deixou de corresponder ao corpus do artigo congelado.
+    """
+    corpus = relatorio.get("corpus", {})
+    divergencias = []
+    hash_obtido = relatorio.get("hash_base_canonica_sha256", "")
+    if hash_obtido != hash_esperado:
+        divergencias.append(
+            f"hash_base_canonica_sha256: obtido={hash_obtido} esperado={hash_esperado}")
+    for campo in ("linhas_nao_vazias", "ids_validos", "ids_unicos",
+                  "referencias_validas"):
+        obtido = corpus.get(campo)
+        if obtido != corpus_esperado:
+            divergencias.append(
+                f"corpus.{campo}: obtido={obtido} esperado={corpus_esperado}")
+    status_obtido = relatorio.get("status")
+    if status_obtido != "apto_para_congelar":
+        divergencias.append(
+            f"status: obtido={status_obtido} esperado=apto_para_congelar")
+
+    if not divergencias:
+        return True
+
+    print(
+        "Base operacional divergente do ARTIGO_CONGELADO: auditoria "
+        "interrompida antes de gravar qualquer artefato canonico.\n"
+        + "\n".join(divergencias) + "\n"
+        "A base lida na planilha operacional viva nao corresponde ao corpus "
+        "do artigo congelado; nenhum arquivo canonico foi atualizado.",
+        file=saida,
+    )
+    return False
+
+
 def renderizar_markdown(relatorio: dict[str, Any]) -> str:
     corpus = relatorio["corpus"]
     hist = relatorio["taxonomia_historica"]
@@ -253,6 +307,10 @@ def main() -> int:
     config = json.loads(args.config.read_text(encoding="utf-8"))
     sh = pl.abrir_planilha(pl.id_planilha(config), args.credenciais)
     relatorio = auditar(ler_registros(sh, config))
+    if not validar_identidade_congelada(
+            relatorio, corpus_esperado=CORPUS_COMPLETO_ESPERADO,
+            hash_esperado=HASH_BASE_CANONICA_ESPERADO):
+        return 2
     relatorio["gerado_em"] = agora_bahia()
     relatorio["fonte"] = config["aba_principal"]
     relatorio["script_origem"] = "src/auditar_base_canonica.py"

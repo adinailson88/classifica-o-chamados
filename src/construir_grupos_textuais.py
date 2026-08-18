@@ -51,6 +51,19 @@ LIMIARES_SENSIBILIDADE = (0.80, 0.85, 0.90, 0.95)
 # linear e e reportado no relatorio para que a cobertura nao pareca total.
 VIZINHOS_POR_GRUPO = 5
 
+# Identidade dos grupos textuais do ARTIGO_CONGELADO (docs/dados/grupos_textuais.json
+# e docs/dados/grupos_textuais_mapa.csv). Constantes fixas, nunca derivadas da
+# planilha nem da execucao atual: sao o ponto de comparacao que torna este
+# passo fail-closed.
+CORPUS_COMPLETO_ESPERADO = 14060
+GRUPOS_TEXTUAIS_ESPERADO = 9786
+MAPA_SHA256_ESPERADO = (
+    "ab352b9424e31d2644ed6d075643adf562acc38767e0098eed77595e2dea0bb6")
+HASH_GRUPOS_SHA256_ESPERADO = (
+    "ad8557c109af55fd6f4a6cdd69d0eeb426c1602b66bade9473b6b8f0dc7dc32f")
+GRUPOS_COM_REFERENCIA_DIVERGENTE_ESPERADO = 17
+LINHAS_AFETADAS_ESPERADO = 85
+
 
 def _sha256_json(objeto: Any) -> str:
     bruto = json.dumps(objeto, ensure_ascii=False, sort_keys=True,
@@ -251,6 +264,76 @@ def agrupar(registros: list[dict[str, str]]) -> dict[str, Any]:
     }
 
 
+def validar_identidade_congelada(
+    relatorio: dict[str, Any],
+    *,
+    corpus_esperado: int = CORPUS_COMPLETO_ESPERADO,
+    grupos_esperado: int = GRUPOS_TEXTUAIS_ESPERADO,
+    mapa_sha256_esperado: str = MAPA_SHA256_ESPERADO,
+    hash_grupos_esperado: str = HASH_GRUPOS_SHA256_ESPERADO,
+    grupos_divergentes_esperado: int = GRUPOS_COM_REFERENCIA_DIVERGENTE_ESPERADO,
+    linhas_afetadas_esperado: int = LINHAS_AFETADAS_ESPERADO,
+    saida: Any = sys.stderr,
+) -> bool:
+    """Gate fail-closed: confere a identidade dos grupos textuais congelados.
+
+    `mapa_sha256` detecta alteracao no universo de IDs ou na associacao
+    ID/texto normalizado; `hash_grupos_sha256` identifica o conjunto de
+    grupos textuais. Os 17 grupos / 85 linhas com referencia divergente fazem
+    parte do congelamento cientifico conhecido: o gate bloqueia apenas se
+    esses valores DIVERGIREM do baseline congelado, nao porque eles existem.
+    """
+    corpus = relatorio.get("corpus", {})
+    conflitos = relatorio.get("rotulos_conflitantes", {})
+    divergencias = []
+
+    obtido = corpus.get("linhas_nao_vazias")
+    if obtido != corpus_esperado:
+        divergencias.append(
+            f"corpus.linhas_nao_vazias: obtido={obtido} esperado={corpus_esperado}")
+
+    obtido = corpus.get("grupos_textuais")
+    if obtido != grupos_esperado:
+        divergencias.append(
+            f"corpus.grupos_textuais: obtido={obtido} esperado={grupos_esperado}")
+
+    obtido = relatorio.get("mapa_sha256", "")
+    if obtido != mapa_sha256_esperado:
+        divergencias.append(
+            f"mapa_sha256: obtido={obtido} esperado={mapa_sha256_esperado}")
+
+    obtido = relatorio.get("hash_grupos_sha256", "")
+    if obtido != hash_grupos_esperado:
+        divergencias.append(
+            f"hash_grupos_sha256: obtido={obtido} esperado={hash_grupos_esperado}")
+
+    obtido = conflitos.get("grupos_com_referencia_divergente")
+    if obtido != grupos_divergentes_esperado:
+        divergencias.append(
+            "rotulos_conflitantes.grupos_com_referencia_divergente: "
+            f"obtido={obtido} esperado={grupos_divergentes_esperado}")
+
+    obtido = conflitos.get("linhas_afetadas")
+    if obtido != linhas_afetadas_esperado:
+        divergencias.append(
+            f"rotulos_conflitantes.linhas_afetadas: obtido={obtido} "
+            f"esperado={linhas_afetadas_esperado}")
+
+    if not divergencias:
+        return True
+
+    print(
+        "Base operacional divergente do ARTIGO_CONGELADO: construcao dos "
+        "grupos textuais interrompida antes do diagnostico de quase "
+        "duplicados e antes de gravar qualquer artefato canonico.\n"
+        + "\n".join(divergencias) + "\n"
+        "A base lida na planilha operacional viva nao corresponde ao corpus "
+        "do artigo congelado; nenhum arquivo canonico foi atualizado.",
+        file=saida,
+    )
+    return False
+
+
 def diagnosticar_quase_duplicados(
     textos_por_grupo: dict[str, str],
     limiares: tuple[float, ...] = LIMIARES_SENSIBILIDADE,
@@ -383,9 +466,13 @@ def renderizar_markdown(relatorio: dict[str, Any]) -> str:
     return "\n".join(linhas)
 
 
-def montar_relatorio(registros: list[dict[str, str]],
-                     com_quase_duplicados: bool = True) -> dict[str, Any]:
-    relatorio = agrupar(registros)
+def completar_relatorio(relatorio: dict[str, Any],
+                        com_quase_duplicados: bool = True) -> dict[str, Any]:
+    """Completa um relatorio ja produzido por `agrupar` com o diagnostico caro
+    de quase duplicados e os campos de status. Separado de `agrupar` para que
+    o gate de identidade (`validar_identidade_congelada`) possa rodar entre os
+    dois: so vale pagar o custo do diagnostico se a identidade for aprovada.
+    """
     relatorio["quase_duplicados"] = (
         diagnosticar_quase_duplicados(relatorio["_textos_por_grupo"])
         if com_quase_duplicados
@@ -410,6 +497,11 @@ def montar_relatorio(registros: list[dict[str, str]],
     relatorio["bloqueios"] = bloqueios
     relatorio["status"] = "apto_para_particionar" if not bloqueios else "bloqueado"
     return relatorio
+
+
+def montar_relatorio(registros: list[dict[str, str]],
+                     com_quase_duplicados: bool = True) -> dict[str, Any]:
+    return completar_relatorio(agrupar(registros), com_quase_duplicados)
 
 
 def escrever_mapa(caminho: Path, mapa: list[dict[str, str]]) -> None:
@@ -448,8 +540,18 @@ def main() -> int:
         return 2
     sh = pl.abrir_planilha(pl.id_planilha(config), args.credenciais)
     registros = ler_registros(sh, config)
-    relatorio = montar_relatorio(registros,
-                                 com_quase_duplicados=not args.sem_quase_duplicados)
+    relatorio = agrupar(registros)
+    if not validar_identidade_congelada(
+            relatorio,
+            corpus_esperado=CORPUS_COMPLETO_ESPERADO,
+            grupos_esperado=GRUPOS_TEXTUAIS_ESPERADO,
+            mapa_sha256_esperado=MAPA_SHA256_ESPERADO,
+            hash_grupos_esperado=HASH_GRUPOS_SHA256_ESPERADO,
+            grupos_divergentes_esperado=GRUPOS_COM_REFERENCIA_DIVERGENTE_ESPERADO,
+            linhas_afetadas_esperado=LINHAS_AFETADAS_ESPERADO):
+        return 2
+    relatorio = completar_relatorio(
+        relatorio, com_quase_duplicados=not args.sem_quase_duplicados)
     relatorio["gerado_em"] = agora_bahia()
     relatorio["fonte"] = config["aba_principal"]
     relatorio["script_origem"] = "src/construir_grupos_textuais.py"
