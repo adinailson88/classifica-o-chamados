@@ -1,13 +1,20 @@
 name: Lote noturno com cache da planilha
 
-# Reduz cota do Google Sheets: le a planilha uma vez, grava cache efemero em
-# dados/cache_planilha.json (gitignored) e roda os calculos agregados sobre esse
-# snapshot local. So docs/dados/*.json e commitado.
+# Ferramenta consolidada de execucao MANUAL (Lote 6B): le a planilha uma vez,
+# grava cache efemero em dados/cache_planilha.json (gitignored) e roda os
+# calculos agregados sobre esse snapshot local, reduzindo cota do Google
+# Sheets numa unica leitura. So docs/dados/*.json e commitado.
+#
+# NAO possui mais agendamento automatico. A auditoria do Lote 6A mostrou que
+# praticamente todos os outputs deste workflow ja possuem workflow dedicado
+# proprio (dashboard.yml, estatistica.yml, auditar_conferencias.yml,
+# relevancia_termos.yml, avaliacao_final.yml), que continuam responsaveis
+# pela atualizacao automatica de cada arquivo. O unico output exclusivo deste
+# workflow e docs/dados/cache_planilha_manifest.json. Use workflow_dispatch
+# quando precisar de uma consolidacao excepcional com uma unica leitura da
+# planilha (ex.: reduzir cota antes de um pico de uso).
 
 on:
-  schedule:
-    # 02:30 America/Bahia = 05:30 UTC.
-    - cron: "30 5 * * *"
   workflow_dispatch:
     inputs:
       min_validados:
@@ -71,8 +78,92 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add docs/dados
-          git diff --cached --quiet && { echo "sem mudancas nos dados"; exit 0; }
+
+          # Allowlist default-deny (mesmo padrao de dashboard.yml): so os
+          # arquivos que os scripts executados acima realmente escrevem podem
+          # ser commitados. Qualquer outro arquivo alterado em docs/dados (por
+          # exemplo um artefato cientifico/canonico) falha o job antes de
+          # qualquer git add/commit/push.
+          FIXAS=(
+            cache_planilha_manifest.json
+            auditoria_conferencias.json
+            log_turnos_classificacao.json
+            metricas_por_categoria.json
+            log_turnos_reclassificacao.json
+            metricas_experimento.json
+            comparacao_modelos.json
+            comparacao_categoria.json
+            comparacao_previsoes.json
+            multimodelo_turnos.json
+            multimodelo_metricas.json
+            multimodelo_reclass_turnos.json
+            reclass_resumo.json
+            calibracao.json
+            registros.json
+            calibracao_modelos.json
+            calibracao_ajustada_modelos.json
+            resumo.json
+            termos_relevantes.json
+            correlacao_categorias.json
+            confusao_historico_ia.json
+            cruzamento_taxonomia.json
+            avaliacao_final.json
+            analise_erros.json
+            estatistica.json
+          )
+
+          # Nomes dinamicos permitidos: docs/dados/registros_<modelo>.json, um por
+          # modelo em multimodelo.modelos_leves/modelos_pesados do
+          # config_experimento.json (mesma fonte que exportar_dashboard.py usa para
+          # decidir quais registros_<modelo>.json gravar). Cada nome e validado
+          # contra um padrao estrito antes de virar path esperado.
+          MODELOS="$(python3 - <<'PY'
+          import json, re, sys
+          c = json.load(open('config_experimento.json', encoding='utf-8'))
+          mm = c.get('multimodelo', {}) or {}
+          nomes = list(mm.get('modelos_leves', [])) + list(mm.get('modelos_pesados', []))
+          for n in nomes:
+              if not re.fullmatch(r'[a-z0-9_]+', str(n)):
+                  print(f'modelo invalido em config_experimento.json: {n!r}', file=sys.stderr)
+                  sys.exit(1)
+              print(n)
+          PY
+          )"
+
+          ALLOWLIST="$(mktemp)"
+          printf '%s\n' "${FIXAS[@]}" > "$ALLOWLIST"
+          while IFS= read -r modelo; do
+            [ -n "$modelo" ] && echo "registros_${modelo}.json" >> "$ALLOWLIST"
+          done <<< "$MODELOS"
+
+          # Arquivos tracked modificados + novos nao tracked + removidos, dentro de
+          # docs/dados, nesta execucao.
+          CHANGED="$(git status --porcelain -- docs/dados | sed -E 's/^...//')"
+
+          INESPERADOS=""
+          STAGE_LIST=()
+          while IFS= read -r path; do
+            [ -z "$path" ] && continue
+            dir="$(dirname "$path")"
+            base="$(basename "$path")"
+            if [ "$dir" != "docs/dados" ] || ! grep -qxF "$base" "$ALLOWLIST"; then
+              INESPERADOS="${INESPERADOS}${path}\n"
+              continue
+            fi
+            STAGE_LIST+=("$path")
+          done <<< "$CHANGED"
+
+          if [ -n "$INESPERADOS" ]; then
+            echo "BLOQUEADO: arquivo inesperado alterado em docs/dados (fora da allowlist deste workflow):" >&2
+            printf '%b' "$INESPERADOS" >&2
+            exit 1
+          fi
+
+          if [ "${#STAGE_LIST[@]}" -eq 0 ]; then
+            echo "sem mudancas nos dados"; exit 0
+          fi
+
+          git add -- "${STAGE_LIST[@]}"
           git commit -m "lote noturno com cache da planilha [skip ci]"
           for i in 1 2 3 4 5; do
             # -X theirs: conflito em docs/dados/*.json (regerados por workflows concorrentes)
