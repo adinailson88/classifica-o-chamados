@@ -1,136 +1,45 @@
-name: Pendencias artigo com credencial
+name: Figuras do artigo (read-only)
+
+# Regenera, somente para inspecao (artifact), as seis figuras oficiais do
+# artigo atual. Read-only em relacao ao repositorio: nao acessa Google
+# Sheets, nao treina modelo e nunca commita/da push.
+#
+# Por decisao cientifica do Lote 7G, as demais rotinas historicas que este
+# workflow expunha ate o Lote 7F deixaram de ser disparaveis por GitHub
+# Actions: os resultados ja versionados sao preservados, mas nao sao mais
+# recalculados a partir da planilha viva. Os scripts e os artefatos que
+# produziram continuam no repositorio, disponiveis para execucao manual
+# fora de Actions se uma decisao futura exigir (ver historico deste
+# arquivo antes do Lote 7G).
 
 on:
   workflow_dispatch:
-    inputs:
-      tarefa:
-        description: "tabela_s1, history, diagnostico_ablation, diagnostico_protocolo_ablation, diagnostico_materializacao_lstm, ablation, sensibilidade_vies, holdout_vs_kfold, kfold_vs_groupkfold ou figuras_artigo"
-        required: true
-        default: "tabela_s1"
-        type: choice
-        options:
-          - tabela_s1
-          - history
-          - diagnostico_ablation
-          - diagnostico_protocolo_ablation
-          - diagnostico_materializacao_lstm
-          - ablation
-          - sensibilidade_vies
-          - holdout_vs_kfold
-          - kfold_vs_groupkfold
-          - figuras_artigo
-      epochs:
-        description: "Epocas de treino"
-        required: false
-        default: "15"
-      k_folds:
-        description: "Folds para ablation"
-        required: false
-        default: "3"
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  lstm-artigo:
+  figuras-artigo:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
 
       - name: Instalar dependencias
         run: |
           python -m pip install --upgrade pip
-          python -m pip install -r requirements.txt
-          python -m pip install matplotlib tensorflow scikit-learn statsmodels
+          python -m pip install matplotlib
 
-      - name: Preparar credencial da planilha
-        if: ${{ github.event.inputs.tarefa != 'figuras_artigo' }}
-        env:
-          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+      - name: Validar sintaxe dos geradores
         run: |
-          test -n "$GCP_SA_KEY"
-          printf '%s' "$GCP_SA_KEY" > credenciais_sa.json
-
-      - name: Validar sintaxe e testes
-        run: |
-          python -m py_compile src/exportar_tabela_por_categoria.py src/modelo_lstm.py src/ablation_lstm.py src/limpar_classif_multimodelo.py src/analise_sensibilidade_vies_validacao.py src/comparacao_holdout_kfold.py src/comparacao_kfold_groupkfold.py src/congelar_alvo_ensemble.py
-          python -m unittest discover -s tests
-
-      - name: Exportar tabela S1 da aba viva
-        if: ${{ github.event.inputs.tarefa == 'tabela_s1' }}
-        env:
-          SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
-          GOOGLE_APPLICATION_CREDENTIALS: credenciais_sa.json
-        run: |
-          python src/exportar_tabela_por_categoria.py
-
-      - name: Gerar history real do LSTM
-        if: ${{ github.event.inputs.tarefa == 'history' }}
-        env:
-          SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
-          GOOGLE_APPLICATION_CREDENTIALS: credenciais_sa.json
-        run: |
-          python src/modelo_lstm.py --epochs "${{ github.event.inputs.epochs }}"
-
-      - name: Rodar ablation real do LSTM
-        if: ${{ github.event.inputs.tarefa == 'ablation' }}
-        env:
-          SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
-          GOOGLE_APPLICATION_CREDENTIALS: credenciais_sa.json
-        run: |
-          python src/ablation_lstm.py --epochs "${{ github.event.inputs.epochs }}" --k-folds "${{ github.event.inputs.k_folds }}"
-
-      - name: Diagnosticar duplicatas entre folds do ablation
-        if: ${{ github.event.inputs.tarefa == 'diagnostico_ablation' }}
-        env:
-          SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
-          GOOGLE_APPLICATION_CREDENTIALS: credenciais_sa.json
-        run: |
-          python src/ablation_lstm.py --diagnostico-only --k-folds "${{ github.event.inputs.k_folds }}"
-
-      - name: Diagnosticar protocolo residual do ablation
-        if: ${{ github.event.inputs.tarefa == 'diagnostico_protocolo_ablation' }}
-        env:
-          SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
-          GOOGLE_APPLICATION_CREDENTIALS: credenciais_sa.json
-        run: |
-          python src/ablation_lstm.py --diagnostico-protocolo-only --k-folds "${{ github.event.inputs.k_folds }}"
-
-      - name: Diagnosticar materializacao oficial nova do LSTM
-        if: ${{ github.event.inputs.tarefa == 'diagnostico_materializacao_lstm' }}
-        env:
-          SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
-          GOOGLE_APPLICATION_CREDENTIALS: credenciais_sa.json
-        run: |
-          python src/ablation_lstm.py --diagnostico-materializacao-oficial-only
-
-      - name: Quantificar vies estrutural da amostra validada
-        if: ${{ github.event.inputs.tarefa == 'sensibilidade_vies' }}
-        env:
-          SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
-          GOOGLE_APPLICATION_CREDENTIALS: credenciais_sa.json
-        run: |
-          python src/analise_sensibilidade_vies_validacao.py
-
-      - name: Comparar holdout fixo (85/15) com a referencia k-fold
-        if: ${{ github.event.inputs.tarefa == 'holdout_vs_kfold' }}
-        env:
-          SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
-          GOOGLE_APPLICATION_CREDENTIALS: credenciais_sa.json
-        run: |
-          python src/comparacao_holdout_kfold.py
-
-      - name: Comparar KFold por linha com GroupKFold por hash de texto
-        if: ${{ github.event.inputs.tarefa == 'kfold_vs_groupkfold' }}
-        env:
-          SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
-          GOOGLE_APPLICATION_CREDENTIALS: credenciais_sa.json
-        run: |
-          python src/comparacao_kfold_groupkfold.py --k-folds "${{ github.event.inputs.k_folds }}"
+          python -m py_compile \
+            src/gerar_figura1_pipeline.py \
+            src/gerar_figuras_canonicas.py \
+            src/gerar_figura5_curva_aprendizado.py \
+            src/estilo_figuras.py
 
       # As seis figuras atuais do artigo usam somente as fontes cientificas
       # oficiais (Lote 7C/7D): Figura 1 e diagrama estatico; Figuras 2-5 vem
@@ -140,7 +49,6 @@ jobs:
       # vivo, nao verificam hash_corpus e escrevem por cima dos mesmos nomes
       # de arquivo -- ficam fora deste caminho.
       - name: Regerar as figuras oficiais do artigo (PDF vetorial + PNG 300 dpi)
-        if: ${{ github.event.inputs.tarefa == 'figuras_artigo' }}
         run: |
           python src/gerar_figura1_pipeline.py
           python src/gerar_figuras_canonicas.py \
@@ -152,7 +60,6 @@ jobs:
       # renderizacao e do metadado de timestamp do backend PDF do
       # Matplotlib). O criterio cientifico e o hash_corpus conferido acima.
       - name: Relatorio de auditoria das figuras regeneradas
-        if: ${{ github.event.inputs.tarefa == 'figuras_artigo' }}
         run: |
           sha256sum \
             04_artigo/figuras/fig_pipeline_governanca.pdf \
@@ -174,7 +81,6 @@ jobs:
       # caminhos das seis figuras atuais falha o job antes do upload -- nao
       # ha git add/commit/push neste caminho.
       - name: Verificar allowlist das figuras regeneradas
-        if: ${{ github.event.inputs.tarefa == 'figuras_artigo' }}
         run: |
           ALLOWLIST="$(mktemp)"
           cat > "$ALLOWLIST" <<'EOF'
@@ -209,7 +115,6 @@ jobs:
           echo "Allowlist conferida: somente os 12 caminhos autorizados foram alterados (ou nenhum)."
 
       - name: Publicar figuras regeneradas como artefato
-        if: ${{ github.event.inputs.tarefa == 'figuras_artigo' }}
         uses: actions/upload-artifact@v4
         with:
           name: figuras-artigo-regeneradas
@@ -228,33 +133,3 @@ jobs:
             04_artigo/figuras/fig_curva_aprendizado_lstm.png
           if-no-files-found: error
           retention-days: 30
-
-      - name: Remover credencial e cache temporarios
-        if: ${{ always() }}
-        run: |
-          rm -f credenciais_sa.json dados/cache_planilha.json
-
-      - name: Commitar resultados
-        if: ${{ github.event.inputs.tarefa != 'figuras_artigo' }}
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add 04_artigo/figuras
-          if git diff --cached --quiet; then
-            echo "Sem resultados novos para commitar."
-          else
-            git commit -m "Atualiza resultados LSTM do artigo"
-            # Rebase antes do push: a branch pode ter avancado durante a execucao
-            # (os fluxos de 15 min commitam dados). Sem isso o push e rejeitado por
-            # non-fast-forward e o resultado do run e perdido -- ver run de 27/07.
-            # Mesmo laco ja usado em transformer_ft.yml.
-            for i in 1 2 3 4 5; do
-              git pull --rebase --autostash origin "${GITHUB_REF_NAME}" \
-                && git push origin "HEAD:${GITHUB_REF_NAME}" && exit 0
-              git rebase --abort 2>/dev/null || true
-              echo "push rejeitado (tentativa $i/5); novo rebase em 5s"
-              sleep 5
-            done
-            echo "push falhou apos 5 tentativas" >&2
-            exit 1
-          fi
