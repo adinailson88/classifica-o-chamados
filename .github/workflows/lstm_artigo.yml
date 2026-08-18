@@ -49,6 +49,7 @@ jobs:
           python -m pip install matplotlib tensorflow scikit-learn statsmodels
 
       - name: Preparar credencial da planilha
+        if: ${{ github.event.inputs.tarefa != 'figuras_artigo' }}
         env:
           GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
         run: |
@@ -132,17 +133,102 @@ jobs:
         run: |
           python src/comparacao_kfold_groupkfold.py --k-folds "${{ github.event.inputs.k_folds }}"
 
-      # As seis figuras leem apenas JSON ja versionado, sem credencial de planilha.
-      - name: Regerar as figuras do artigo (PDF vetorial + PNG 300 dpi)
+      # As seis figuras atuais do artigo usam somente as fontes cientificas
+      # oficiais (Lote 7C/7D): Figura 1 e diagrama estatico; Figuras 2-5 vem
+      # do gerador canonico, que confere hash_corpus contra a rodada
+      # congelada e aborta se divergir; Figura 6 e o unico gerador do LSTM.
+      # Os geradores legados (figura2/3/4/6/7 antigos) leem JSON operacional
+      # vivo, nao verificam hash_corpus e escrevem por cima dos mesmos nomes
+      # de arquivo -- ficam fora deste caminho.
+      - name: Regerar as figuras oficiais do artigo (PDF vetorial + PNG 300 dpi)
         if: ${{ github.event.inputs.tarefa == 'figuras_artigo' }}
         run: |
           python src/gerar_figura1_pipeline.py
-          python src/gerar_figura2_confianca_desfecho.py
-          python src/gerar_figura3_tradeoff_custo.py
-          python src/gerar_figura4_confusoes.py
+          python src/gerar_figuras_canonicas.py \
+            --apenas custo confiabilidade categorias matriz
           python src/gerar_figura5_curva_aprendizado.py
-          python src/gerar_figura6_ablation.py
-          python src/gerar_figura7_mapas_calor.py
+
+      # So informativo: SHA-256 e diffstat nao sao usados como criterio de
+      # aprovacao (a identidade byte-a-byte depende do ambiente de
+      # renderizacao e do metadado de timestamp do backend PDF do
+      # Matplotlib). O criterio cientifico e o hash_corpus conferido acima.
+      - name: Relatorio de auditoria das figuras regeneradas
+        if: ${{ github.event.inputs.tarefa == 'figuras_artigo' }}
+        run: |
+          sha256sum \
+            04_artigo/figuras/fig_pipeline_governanca.pdf \
+            04_artigo/figuras/fig_pipeline_governanca.png \
+            04_artigo/figuras/fig_tradeoff_custo.pdf \
+            04_artigo/figuras/fig_tradeoff_custo.png \
+            04_artigo/figuras/fig_confianca_desfecho.pdf \
+            04_artigo/figuras/fig_confianca_desfecho.png \
+            04_artigo/figuras/fig_calor_categorias.pdf \
+            04_artigo/figuras/fig_calor_categorias.png \
+            04_artigo/figuras/fig_matriz_confusao.pdf \
+            04_artigo/figuras/fig_matriz_confusao.png \
+            04_artigo/figuras/fig_curva_aprendizado_lstm.pdf \
+            04_artigo/figuras/fig_curva_aprendizado_lstm.png
+          git diff --stat -- 04_artigo/figuras
+
+      # Default-deny: a regeneracao das figuras e read-only em relacao ao
+      # repositorio. Qualquer arquivo alterado ou nao rastreado fora dos 12
+      # caminhos das seis figuras atuais falha o job antes do upload -- nao
+      # ha git add/commit/push neste caminho.
+      - name: Verificar allowlist das figuras regeneradas
+        if: ${{ github.event.inputs.tarefa == 'figuras_artigo' }}
+        run: |
+          ALLOWLIST="$(mktemp)"
+          cat > "$ALLOWLIST" <<'EOF'
+          04_artigo/figuras/fig_pipeline_governanca.pdf
+          04_artigo/figuras/fig_pipeline_governanca.png
+          04_artigo/figuras/fig_tradeoff_custo.pdf
+          04_artigo/figuras/fig_tradeoff_custo.png
+          04_artigo/figuras/fig_confianca_desfecho.pdf
+          04_artigo/figuras/fig_confianca_desfecho.png
+          04_artigo/figuras/fig_calor_categorias.pdf
+          04_artigo/figuras/fig_calor_categorias.png
+          04_artigo/figuras/fig_matriz_confusao.pdf
+          04_artigo/figuras/fig_matriz_confusao.png
+          04_artigo/figuras/fig_curva_aprendizado_lstm.pdf
+          04_artigo/figuras/fig_curva_aprendizado_lstm.png
+          EOF
+
+          CHANGED="$(git status --porcelain | sed -E 's/^...//')"
+          INESPERADOS=""
+          while IFS= read -r path; do
+            [ -z "$path" ] && continue
+            if ! grep -qxF "$path" "$ALLOWLIST"; then
+              INESPERADOS="${INESPERADOS}${path}\n"
+            fi
+          done <<< "$CHANGED"
+
+          if [ -n "$INESPERADOS" ]; then
+            echo "ERRO: figuras_artigo alterou arquivo fora da allowlist." >&2
+            printf '%b' "$INESPERADOS" >&2
+            exit 1
+          fi
+          echo "Allowlist conferida: somente os 12 caminhos autorizados foram alterados (ou nenhum)."
+
+      - name: Publicar figuras regeneradas como artefato
+        if: ${{ github.event.inputs.tarefa == 'figuras_artigo' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: figuras-artigo-regeneradas
+          path: |
+            04_artigo/figuras/fig_pipeline_governanca.pdf
+            04_artigo/figuras/fig_pipeline_governanca.png
+            04_artigo/figuras/fig_tradeoff_custo.pdf
+            04_artigo/figuras/fig_tradeoff_custo.png
+            04_artigo/figuras/fig_confianca_desfecho.pdf
+            04_artigo/figuras/fig_confianca_desfecho.png
+            04_artigo/figuras/fig_calor_categorias.pdf
+            04_artigo/figuras/fig_calor_categorias.png
+            04_artigo/figuras/fig_matriz_confusao.pdf
+            04_artigo/figuras/fig_matriz_confusao.png
+            04_artigo/figuras/fig_curva_aprendizado_lstm.pdf
+            04_artigo/figuras/fig_curva_aprendizado_lstm.png
+          if-no-files-found: error
+          retention-days: 30
 
       - name: Congelar alvo do ensemble
         if: ${{ github.event.inputs.tarefa == 'congelar_alvo_ensemble' }}
@@ -180,7 +266,7 @@ jobs:
           rm -f credenciais_sa.json dados/cache_planilha.json
 
       - name: Commitar resultados
-        if: ${{ github.event.inputs.tarefa != 'congelar_alvo_ensemble' }}
+        if: ${{ github.event.inputs.tarefa != 'congelar_alvo_ensemble' && github.event.inputs.tarefa != 'figuras_artigo' }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
