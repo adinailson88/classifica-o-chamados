@@ -32,7 +32,6 @@ from __future__ import annotations
 
 import argparse
 import csv
-import json
 import sys
 from collections import defaultdict
 from pathlib import Path
@@ -40,11 +39,8 @@ from typing import Any
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-import construir_grupos_textuais as cgt  # noqa: E402
 import modelos_zoo as zoo  # noqa: E402
-import planilha as pl  # noqa: E402
 import retreinar_modelos_canonicos as rmc  # noqa: E402
-from tempo import agora_bahia  # noqa: E402
 
 RAIZ = Path(__file__).resolve().parents[1]
 CONFIG_PADRAO = RAIZ / "config_experimento.json"
@@ -58,6 +54,19 @@ FAIXAS_PADRAO = 10
 # atinge o alvo na dobra interna; se nenhum atingir, a configuracao e
 # reportada como inalcancavel em vez de silenciosamente omitida.
 ALVOS_PADRAO = (0.90, 0.95, 0.99)
+
+# Aposentadoria fail-closed da calibracao canonica: ver lote 8D-3C1, na esteira
+# do 8D-3B. Esta calibracao depende do corpus preparado por
+# retreinar_modelos_canonicos.preparar_corpus a partir da planilha viva, que
+# nao possui fingerprint congelado do model-input textual bruto suficiente
+# para provar identidade exata com o ARTIGO_CONGELADO. O CLI canonico recusa
+# a execucao.
+MENSAGEM_APOSENTADORIA = (
+    "Regeneracao canonica aposentada porque o ARTIGO_CONGELADO nao possui "
+    "fingerprint historico suficiente do model-input textual bruto para "
+    "provar reproducao exata a partir da planilha operacional viva. Novas "
+    "execucoes devem ser NOVO CORTE CIENTIFICO."
+)
 
 
 def dobra_interna(f: int, dobras: list[int]) -> int:
@@ -384,32 +393,9 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> int:
-    args = parse_args()
-    for caminho, passo in ((args.particoes, "3"), (args.predicoes, "4")):
-        if not caminho.exists():
-            print(f"Arquivo do Passo {passo} nao encontrado em {caminho}.",
-                  file=sys.stderr)
-            return 2
-    config = json.loads(args.config.read_text(encoding="utf-8"))
-    dados = carregar_predicoes(args.predicoes)
-    modelos = ([m.strip() for m in args.modelos.split(",") if m.strip()]
-               or sorted(dados["por_modelo"]))
-
-    particoes = rmc.carregar_particoes(args.particoes)
-    sh = pl.abrir_planilha(pl.id_planilha(config), args.credenciais)
-    corpus = rmc.preparar_corpus(cgt.ler_registros(sh, config), particoes)
-
-    relatorio = montar_relatorio(corpus, dados["por_modelo"], modelos,
-                                 faixas=args.faixas)
-    relatorio["gerado_em"] = agora_bahia()
-    relatorio["script_origem"] = "src/calibrar_confianca.py"
-    args.json.parent.mkdir(parents=True, exist_ok=True)
-    args.markdown.parent.mkdir(parents=True, exist_ok=True)
-    args.json.write_text(json.dumps(relatorio, ensure_ascii=False, indent=2) + "\n",
-                         encoding="utf-8")
-    args.markdown.write_text(renderizar_markdown(relatorio), encoding="utf-8")
-    print(renderizar_markdown(relatorio))
-    return 0
+    parse_args()
+    print(MENSAGEM_APOSENTADORIA, file=sys.stderr)
+    return 2
 
 
 if __name__ == "__main__":
