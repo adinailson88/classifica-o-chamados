@@ -18,6 +18,10 @@ on:
         description: "Digite REMATERIALIZAR para confirmar a limpeza real (ignorado se aplicar=false)"
         default: ""
 
+concurrency:
+  group: escrita-planilha
+  cancel-in-progress: false
+
 permissions:
   contents: read
 
