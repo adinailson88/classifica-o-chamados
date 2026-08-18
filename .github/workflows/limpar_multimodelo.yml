@@ -1,0 +1,87 @@
+name: Manutencao - limpar e rematerializar multimodelo
+
+# Ferramenta operacional destrutiva: esvazia CLASSIF__<modelo> e filtra
+# MULTIMODELO_TURNOS/MULTIMODELO_METRICAS para forcar uma rematerializacao
+# COMPLETA (nao incremental) na proxima execucao de
+# src/classificacao_multimodelo.py. Nao pertence ao workflow cientifico do
+# artigo (ver Lote 7A/7B). So Google Sheets e afetado; este workflow nunca
+# faz commit no repositorio.
+
+on:
+  workflow_dispatch:
+    inputs:
+      modelos:
+        description: "Modelos a limpar ('comparaveis' = 7, sem transformer_ft, ou lista separada por virgula)"
+        required: true
+        default: "comparaveis"
+      aplicar:
+        description: "false = dry-run (so conta); true = apaga de verdade"
+        required: true
+        default: false
+        type: boolean
+      confirmacao:
+        description: "Obrigatorio quando aplicar=true: digite exatamente APAGAR_E_REMATERIALIZAR"
+        required: false
+        default: ""
+
+concurrency:
+  group: multimodelo-pipeline
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  limpar-multimodelo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Instalar dependencias
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements-leves.txt
+
+      - name: Preparar credencial da planilha
+        env:
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+        run: |
+          test -n "$GCP_SA_KEY"
+          printf '%s' "$GCP_SA_KEY" > credenciais_sa.json
+
+      - name: Guard de dupla confirmacao
+        run: |
+          if [ "${{ github.event.inputs.aplicar }}" = "true" ]; then
+            if [ "${{ github.event.inputs.confirmacao }}" != "APAGAR_E_REMATERIALIZAR" ]; then
+              echo "BLOQUEADO: para aplicar a limpeza informe exatamente APAGAR_E_REMATERIALIZAR no campo confirmacao." >&2
+              exit 1
+            fi
+            echo "Modelos selecionados: ${{ github.event.inputs.modelos }}"
+            echo "CLASSIF__<modelo> sera completamente esvaziada para cada modelo selecionado."
+            echo "MULTIMODELO_TURNOS e MULTIMODELO_METRICAS serao filtrados/regravados (linhas dos modelos selecionados removidas)."
+          else
+            echo "MODO DRY-RUN — nenhuma escrita sera realizada."
+          fi
+
+      - name: Limpar CLASSIF__/turnos/metricas para forcar rematerializacao
+        env:
+          SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
+          GOOGLE_APPLICATION_CREDENTIALS: credenciais_sa.json
+        run: |
+          if [ "${{ github.event.inputs.aplicar }}" = "true" ]; then
+            python src/limpar_classif_multimodelo.py \
+              --modelos "${{ github.event.inputs.modelos }}" \
+              --aplicar
+          else
+            python src/limpar_classif_multimodelo.py \
+              --modelos "${{ github.event.inputs.modelos }}"
+          fi
+
+      - name: Remover credencial
+        if: ${{ always() }}
+        run: |
+          rm -f credenciais_sa.json

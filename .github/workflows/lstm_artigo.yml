@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       tarefa:
-        description: "tabela_s1, history, diagnostico_ablation, diagnostico_protocolo_ablation, diagnostico_materializacao_lstm, ablation, limpar_multimodelo, sensibilidade_vies, holdout_vs_kfold, kfold_vs_groupkfold, figuras_artigo ou congelar_alvo_ensemble"
+        description: "tabela_s1, history, diagnostico_ablation, diagnostico_protocolo_ablation, diagnostico_materializacao_lstm, ablation, sensibilidade_vies, holdout_vs_kfold, kfold_vs_groupkfold, figuras_artigo ou congelar_alvo_ensemble"
         required: true
         default: "tabela_s1"
         type: choice
@@ -15,7 +15,6 @@ on:
           - diagnostico_protocolo_ablation
           - diagnostico_materializacao_lstm
           - ablation
-          - limpar_multimodelo
           - sensibilidade_vies
           - holdout_vs_kfold
           - kfold_vs_groupkfold
@@ -29,15 +28,6 @@ on:
         description: "Folds para ablation"
         required: false
         default: "3"
-      modelos_limpeza:
-        description: "Modelos para limpar_multimodelo ('comparaveis' = 7, sem transformer_ft, ou lista separada por virgula)"
-        required: false
-        default: "comparaveis"
-      aplicar_limpeza:
-        description: "limpar_multimodelo: false = so conta (dry-run); true = apaga de verdade"
-        required: false
-        default: false
-        type: boolean
 
 permissions:
   contents: write
@@ -117,18 +107,6 @@ jobs:
           GOOGLE_APPLICATION_CREDENTIALS: credenciais_sa.json
         run: |
           python src/ablation_lstm.py --diagnostico-materializacao-oficial-only
-
-      - name: Limpar CLASSIF__/turnos/metricas para forcar rematerializacao
-        if: ${{ github.event.inputs.tarefa == 'limpar_multimodelo' }}
-        env:
-          SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
-          GOOGLE_APPLICATION_CREDENTIALS: credenciais_sa.json
-        run: |
-          if [ "${{ github.event.inputs.aplicar_limpeza }}" = "true" ]; then
-            python src/limpar_classif_multimodelo.py --modelos "${{ github.event.inputs.modelos_limpeza }}" --aplicar
-          else
-            python src/limpar_classif_multimodelo.py --modelos "${{ github.event.inputs.modelos_limpeza }}"
-          fi
 
       - name: Quantificar vies estrutural da amostra validada
         if: ${{ github.event.inputs.tarefa == 'sensibilidade_vies' }}
