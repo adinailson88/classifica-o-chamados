@@ -1,12 +1,33 @@
 name: Fase 2B - cross-fitting aninhado dos sete modelos-base (read-only)
 
 on:
-  push:
-    branches:
-      - feat/ensemble-fase2b-crossfit-base
+  workflow_dispatch:
+    inputs:
+      modo:
+        description: >-
+          testes = so a suite de testes (zero ciencia, seguro, default).
+          run_online = Gate Zero vivo + execucao cientifica completa (175
+          fits, pesado). canary = canario de determinismo (2 replicas, so
+          outer_fold=1). replay_preflight = so preflight do bundle replay
+          congelado (zero fits). replay = replay cientifico completo sobre
+          o bundle congelado (pesado). replay_recover = recuperacao do
+          bundle candidato (zero fits, sem escrita em nenhuma planilha).
+        type: choice
+        default: testes
+        options:
+          - testes
+          - run_online
+          - canary
+          - replay_preflight
+          - replay
+          - replay_recover
 
 permissions:
   contents: read
+
+concurrency:
+  group: ensemble-fase2b-crossfit
+  cancel-in-progress: false
 
 env:
   # Determinismo: fixado ANTES de qualquer processo Python iniciar (PYTHONHASHSEED
@@ -32,8 +53,8 @@ env:
   TF_CPP_MIN_LOG_LEVEL: "2"
   SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
   # ID da spreadsheet PRIVADA e ESTATICA do bundle REPLAY CONGELADO (nunca a
-  # planilha operacional). So usado pelos jobs [FASE2B-REPLAY]; ausente/vazio
-  # nao afeta [FASE2B-RUN] nem [FASE2B-CANARY] em nada.
+  # planilha operacional). So usado pelos jobs do modo replay/replay_preflight;
+  # ausente/vazio nao afeta o modo run_online nem o modo canary em nada.
   REPLAY_SPREADSHEET_ID: ${{ secrets.REPLAY_SPREADSHEET_ID }}
 
 jobs:
@@ -58,7 +79,7 @@ jobs:
           python -m unittest discover -s tests
 
   autorizacao:
-    name: Autorizacao (marcadores [FASE2B-RUN] / [FASE2B-CANARY] / [FASE2B-REPLAY-PREFLIGHT] / [FASE2B-REPLAY] / [FASE2B-REPLAY-RECOVER])
+    name: Autorizacao (leitura do input `modo` do workflow_dispatch)
     needs: testes
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -69,73 +90,69 @@ jobs:
       autorizado_replay_preflight: ${{ steps.checar.outputs.autorizado_replay_preflight }}
       autorizado_replay_recover: ${{ steps.checar.outputs.autorizado_replay_recover }}
     steps:
-      - name: Checar marcador no INICIO da primeira linha do commit
+      - name: Checar o modo selecionado no disparo manual
         id: checar
         env:
-          # Passado via env, nunca interpolado direto no `run:`, para nao expor
-          # o runner a injecao de shell a partir de uma mensagem de commit
-          # controlada pelo autor do push.
-          MENSAGEM_COMMIT: ${{ github.event.head_commit.message }}
+          # Passado via env, nunca interpolado direto no `run:`. O input e
+          # do tipo `choice` (um dos seis literais fixos na secao `options`
+          # acima), entao nao ha risco de injecao de shell vindo do
+          # disparo manual, mas o padrao de env-primeiro e mantido por
+          # consistencia com o resto do workflow. Os seis modos sao
+          # mutuamente exclusivos por construcao: o `choice` so aceita um
+          # valor por disparo.
+          MODO: ${{ inputs.modo }}
         run: |
-          PRIMEIRA_LINHA=$(printf '%s\n' "$MENSAGEM_COMMIT" | head -n1)
-          echo "Primeira linha do commit: $PRIMEIRA_LINHA"
-          # `contains()` sobre a mensagem inteira e fragil: um commit que so
-          # DESCREVE um marcador em prosa (ex.: documentando o proprio
-          # workflow) tambem "contem" a substring em algum lugar do corpo e
-          # dispararia a rodada pesada por acidente (ja aconteceu). Por isso
-          # o gate exige que o marcador seja PREFIXO da PRIMEIRA linha (o
-          # assunto do commit), nunca uma ocorrencia solta na mensagem. Os
-          # cinco marcadores sao mutuamente exclusivos por construcao: um
-          # commit so pode comecar com um prefixo por vez. [FASE2B-REPLAY-
-          # PREFLIGHT] e [FASE2B-REPLAY-RECOVER] sao checados ANTES de
-          # [FASE2B-REPLAY] porque os dois nomes sao prefixo textual do
-          # primeiro ate o caractere "]"/"-": a ordem evita qualquer
-          # ambiguidade de match, mesmo sendo os literais distintos por
-          # construcao (bash `==` com sufixo `*` e comparacao literal, nao
-          # regex).
-          if [[ "$PRIMEIRA_LINHA" == "[FASE2B-RUN]"* ]]; then
-            echo "autorizado_cientifico=true" >> "$GITHUB_OUTPUT"
-            echo "autorizado_canario=false" >> "$GITHUB_OUTPUT"
-            echo "autorizado_replay=false" >> "$GITHUB_OUTPUT"
-            echo "autorizado_replay_preflight=false" >> "$GITHUB_OUTPUT"
-            echo "autorizado_replay_recover=false" >> "$GITHUB_OUTPUT"
-            echo "Marcador [FASE2B-RUN] no inicio do assunto: execucao cientifica completa (175 fits) AUTORIZADA."
-          elif [[ "$PRIMEIRA_LINHA" == "[FASE2B-CANARY]"* ]]; then
-            echo "autorizado_cientifico=false" >> "$GITHUB_OUTPUT"
-            echo "autorizado_canario=true" >> "$GITHUB_OUTPUT"
-            echo "autorizado_replay=false" >> "$GITHUB_OUTPUT"
-            echo "autorizado_replay_preflight=false" >> "$GITHUB_OUTPUT"
-            echo "autorizado_replay_recover=false" >> "$GITHUB_OUTPUT"
-            echo "Marcador [FASE2B-CANARY] no inicio do assunto: canario de determinismo (2 replicas, so outer_fold=1) AUTORIZADO."
-          elif [[ "$PRIMEIRA_LINHA" == "[FASE2B-REPLAY-PREFLIGHT]"* ]]; then
-            echo "autorizado_cientifico=false" >> "$GITHUB_OUTPUT"
-            echo "autorizado_canario=false" >> "$GITHUB_OUTPUT"
-            echo "autorizado_replay=false" >> "$GITHUB_OUTPUT"
-            echo "autorizado_replay_preflight=true" >> "$GITHUB_OUTPUT"
-            echo "autorizado_replay_recover=false" >> "$GITHUB_OUTPUT"
-            echo "Marcador [FASE2B-REPLAY-PREFLIGHT] no inicio do assunto: preflight do bundle congelado (gate_zero_replay, ZERO fits) AUTORIZADO."
-          elif [[ "$PRIMEIRA_LINHA" == "[FASE2B-REPLAY-RECOVER]"* ]]; then
-            echo "autorizado_cientifico=false" >> "$GITHUB_OUTPUT"
-            echo "autorizado_canario=false" >> "$GITHUB_OUTPUT"
-            echo "autorizado_replay=false" >> "$GITHUB_OUTPUT"
-            echo "autorizado_replay_preflight=false" >> "$GITHUB_OUTPUT"
-            echo "autorizado_replay_recover=true" >> "$GITHUB_OUTPUT"
-            echo "Marcador [FASE2B-REPLAY-RECOVER] no inicio do assunto: recuperacao do bundle candidato (ZERO fits, sem escrita em nenhuma planilha) AUTORIZADA."
-          elif [[ "$PRIMEIRA_LINHA" == "[FASE2B-REPLAY]"* ]]; then
-            echo "autorizado_cientifico=false" >> "$GITHUB_OUTPUT"
-            echo "autorizado_canario=false" >> "$GITHUB_OUTPUT"
-            echo "autorizado_replay=true" >> "$GITHUB_OUTPUT"
-            echo "autorizado_replay_preflight=false" >> "$GITHUB_OUTPUT"
-            echo "autorizado_replay_recover=false" >> "$GITHUB_OUTPUT"
-            echo "Marcador [FASE2B-REPLAY] no inicio do assunto: replay cientifico completo sobre input CONGELADO AUTORIZADO."
-          else
-            echo "autorizado_cientifico=false" >> "$GITHUB_OUTPUT"
-            echo "autorizado_canario=false" >> "$GITHUB_OUTPUT"
-            echo "autorizado_replay=false" >> "$GITHUB_OUTPUT"
-            echo "autorizado_replay_preflight=false" >> "$GITHUB_OUTPUT"
-            echo "autorizado_replay_recover=false" >> "$GITHUB_OUTPUT"
-            echo "Nenhum marcador reconhecido no inicio do assunto do commit: somente testes."
-          fi
+          echo "Modo selecionado: $MODO"
+          case "$MODO" in
+            run_online)
+              echo "autorizado_cientifico=true" >> "$GITHUB_OUTPUT"
+              echo "autorizado_canario=false" >> "$GITHUB_OUTPUT"
+              echo "autorizado_replay=false" >> "$GITHUB_OUTPUT"
+              echo "autorizado_replay_preflight=false" >> "$GITHUB_OUTPUT"
+              echo "autorizado_replay_recover=false" >> "$GITHUB_OUTPUT"
+              echo "Modo run_online: execucao cientifica completa (175 fits) AUTORIZADA."
+              ;;
+            canary)
+              echo "autorizado_cientifico=false" >> "$GITHUB_OUTPUT"
+              echo "autorizado_canario=true" >> "$GITHUB_OUTPUT"
+              echo "autorizado_replay=false" >> "$GITHUB_OUTPUT"
+              echo "autorizado_replay_preflight=false" >> "$GITHUB_OUTPUT"
+              echo "autorizado_replay_recover=false" >> "$GITHUB_OUTPUT"
+              echo "Modo canary: canario de determinismo (2 replicas, so outer_fold=1) AUTORIZADO."
+              ;;
+            replay_preflight)
+              echo "autorizado_cientifico=false" >> "$GITHUB_OUTPUT"
+              echo "autorizado_canario=false" >> "$GITHUB_OUTPUT"
+              echo "autorizado_replay=false" >> "$GITHUB_OUTPUT"
+              echo "autorizado_replay_preflight=true" >> "$GITHUB_OUTPUT"
+              echo "autorizado_replay_recover=false" >> "$GITHUB_OUTPUT"
+              echo "Modo replay_preflight: preflight do bundle congelado (gate_zero_replay, ZERO fits) AUTORIZADO."
+              ;;
+            replay_recover)
+              echo "autorizado_cientifico=false" >> "$GITHUB_OUTPUT"
+              echo "autorizado_canario=false" >> "$GITHUB_OUTPUT"
+              echo "autorizado_replay=false" >> "$GITHUB_OUTPUT"
+              echo "autorizado_replay_preflight=false" >> "$GITHUB_OUTPUT"
+              echo "autorizado_replay_recover=true" >> "$GITHUB_OUTPUT"
+              echo "Modo replay_recover: recuperacao do bundle candidato (ZERO fits, sem escrita em nenhuma planilha) AUTORIZADA."
+              ;;
+            replay)
+              echo "autorizado_cientifico=false" >> "$GITHUB_OUTPUT"
+              echo "autorizado_canario=false" >> "$GITHUB_OUTPUT"
+              echo "autorizado_replay=true" >> "$GITHUB_OUTPUT"
+              echo "autorizado_replay_preflight=false" >> "$GITHUB_OUTPUT"
+              echo "autorizado_replay_recover=false" >> "$GITHUB_OUTPUT"
+              echo "Modo replay: replay cientifico completo sobre input CONGELADO AUTORIZADO."
+              ;;
+            *)
+              echo "autorizado_cientifico=false" >> "$GITHUB_OUTPUT"
+              echo "autorizado_canario=false" >> "$GITHUB_OUTPUT"
+              echo "autorizado_replay=false" >> "$GITHUB_OUTPUT"
+              echo "autorizado_replay_preflight=false" >> "$GITHUB_OUTPUT"
+              echo "autorizado_replay_recover=false" >> "$GITHUB_OUTPUT"
+              echo "Modo testes (ou nao reconhecido): somente testes."
+              ;;
+          esac
 
   gate_zero:
     name: Gate Zero (releitura online + validacao de hashes, sem treinar)
@@ -277,11 +294,10 @@ jobs:
           GOOGLE_APPLICATION_CREDENTIALS: credenciais_sa.json
           RUN_ID: ${{ github.run_id }}
           COMMIT_SHA: ${{ github.sha }}
-          # Via env, nao interpolado direto no `run:` (mesma razao do passo
-          # de autorizacao): evita injecao de shell a partir da mensagem de
-          # commit. So vai para fase2b_proveniencia_run.json (metadado
-          # volatil), nunca entra nos hashes cientificos.
-          MENSAGEM_COMMIT: ${{ github.event.head_commit.message }}
+          # Via env, nao interpolado direto no `run:` (mesma pratica do
+          # passo de autorizacao). So vai para fase2b_proveniencia_run.json
+          # (metadado volatil), nunca entra nos hashes cientificos.
+          MENSAGEM_COMMIT: "workflow_dispatch modo=${{ inputs.modo }} acionado por ${{ github.actor }} (run ${{ github.run_id }})"
         run: |
           python src/ensemble_fase2b_crossfit.py --agregar \
             --entrada-dir docs/dados/ensemble/fase2b \
@@ -313,7 +329,7 @@ jobs:
           exit 1
 
   # ---------------------------------------------------------------------
-  # Canario de determinismo (marcador [FASE2B-CANARY]): so o outer_fold=1,
+  # Canario de determinismo (modo canary): so o outer_fold=1,
   # em duas replicas independentes, para provar barato se os controles de
   # paralelismo (n_jobs=1 nas arvores, threading do TF fixado) fecharam a
   # divergencia encontrada entre as Execucoes Cientificas 1 e 2, ANTES de
@@ -467,11 +483,12 @@ jobs:
           exit 1
 
   # ---------------------------------------------------------------------
-  # REPLAY CONGELADO (marcador [FASE2B-REPLAY]): reproduz a Execucao
+  # REPLAY CONGELADO (modo replay): reproduz a Execucao
   # Cientifica ja aprovada sobre um input CONGELADO (bundle privado e
   # estatico), nunca sobre a planilha operacional viva. Nao produz uma nova
   # baseline — so testa determinismo contra o mesmo input. Mutuamente
-  # exclusivo com [FASE2B-RUN]/[FASE2B-CANARY]. Cada job abaixo valida, de
+  # exclusivo com os modos run_online/canary (o `choice` so aceita um por
+  # disparo). Cada job abaixo valida, de
   # forma independente, replay_input_sha256 + grupo_sha256 por registro + os
   # 5 hashes metodologicos ja aprovados, ANTES de rodar qualquer fit (ver
   # `gate_zero_replay` em src/ensemble_fase2b_crossfit.py e
@@ -481,8 +498,8 @@ jobs:
   gate_zero_replay:
     name: Gate Zero REPLAY (bundle congelado, sem treinar)
     needs: [testes, autorizacao]
-    # Roda tanto no preflight ([FASE2B-REPLAY-PREFLIGHT], ZERO fits) quanto na
-    # execucao completa ([FASE2B-REPLAY]): e o UNICO job que os dois modos
+    # Roda tanto no preflight (modo replay_preflight, ZERO fits) quanto na
+    # execucao completa (modo replay): e o UNICO job que os dois modos
     # compartilham. crossfit_fold_replay/agregar_replay abaixo dependem
     # exclusivamente de autorizado_replay — o preflight nunca os libera.
     if: needs.autorizacao.outputs.autorizado_replay == 'true' || needs.autorizacao.outputs.autorizado_replay_preflight == 'true'
@@ -622,7 +639,7 @@ jobs:
           GOOGLE_APPLICATION_CREDENTIALS: credenciais_sa.json
           RUN_ID: ${{ github.run_id }}
           COMMIT_SHA: ${{ github.sha }}
-          MENSAGEM_COMMIT: ${{ github.event.head_commit.message }}
+          MENSAGEM_COMMIT: "workflow_dispatch modo=${{ inputs.modo }} acionado por ${{ github.actor }} (run ${{ github.run_id }})"
         run: |
           python src/ensemble_fase2b_crossfit.py --agregar --modo-replay \
             --entrada-dir docs/dados/ensemble/fase2b \
@@ -654,7 +671,7 @@ jobs:
           exit 1
 
   # ---------------------------------------------------------------------
-  # Verificacao do bundle candidato (marcador [FASE2B-REPLAY-RECOVER]):
+  # Verificacao do bundle candidato (modo replay_recover):
   # rotina OPERACIONAL, temporaria e de ZERO FITS. Le a planilha
   # operacional viva e aplica SOMENTE os patches de uma allowlist EXPLICITA
   # indexada por id_sha256 (GRUPO A: 4 registros da Execucao Cientifica 1,
