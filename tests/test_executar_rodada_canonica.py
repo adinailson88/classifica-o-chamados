@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import io
 import sys
 import unittest
 from pathlib import Path
+from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
@@ -50,6 +52,92 @@ class TestHashCorpus(unittest.TestCase):
         self.assertNotEqual(erc.hash_corpus(self.corpus),
                             erc.hash_corpus(rmc.preparar_corpus(registros,
                                                                 particoes)))
+
+
+class TestValidarHashCorpus(unittest.TestCase):
+    def test_hash_igual_ao_esperado_libera_a_rodada(self):
+        self.assertTrue(erc.validar_hash_corpus("abc123", "abc123"))
+
+    def test_hash_divergente_bloqueia_e_relata_ambos_os_hashes(self):
+        saida = io.StringIO()
+        self.assertFalse(erc.validar_hash_corpus("obtido999", "esperado111",
+                                                  saida=saida))
+        mensagem = saida.getvalue()
+        self.assertIn("obtido999", mensagem)
+        self.assertIn("esperado111", mensagem)
+
+    def test_constante_padrao_e_o_hash_oficial_do_artigo_congelado(self):
+        self.assertEqual(
+            erc.HASH_CORPUS_ESPERADO,
+            "1e4762438a7e3627d3e32c1025f6bcb169e786881d8e86207806fdf98846409a")
+
+
+class TestGateBloqueiaRodadaComCorpusDivergente(unittest.TestCase):
+    """Reproduz main() ate o gate sem tocar Google Sheets nem treinar nada."""
+
+    def setUp(self):
+        self.registros, self.particoes = corpus_sintetico()
+        self.tmp = Path(self.enterContext(
+            __import__("tempfile").TemporaryDirectory()))
+        self.config_path = self.tmp / "config.json"
+        self.config_path.write_text('{"aba_principal": "teste"}', encoding="utf-8")
+        self.particoes_path = self.tmp / "particoes.csv"
+        self.particoes_path.write_text("id_sha256,dobra\n", encoding="utf-8")
+        self.grupos_ausentes = self.tmp / "grupos_inexistentes.csv"
+
+    def _contexto_offline(self, hash_esperado):
+        argv = [
+            "executar_rodada_canonica.py",
+            "--config", str(self.config_path),
+            "--particoes", str(self.particoes_path),
+            "--grupos-congelados", str(self.grupos_ausentes),
+        ]
+        return (
+            mock.patch.object(sys, "argv", argv),
+            mock.patch("executar_rodada_canonica.pl.abrir_planilha",
+                       return_value=object()),
+            mock.patch("executar_rodada_canonica.pl.id_planilha",
+                       return_value="planilha-teste"),
+            mock.patch("executar_rodada_canonica.cgt.ler_registros",
+                       return_value=self.registros),
+            mock.patch("executar_rodada_canonica.rmc.carregar_particoes",
+                       return_value=self.particoes),
+            mock.patch.object(erc, "HASH_CORPUS_ESPERADO", hash_esperado),
+        )
+
+    def test_hash_divergente_interrompe_antes_de_qualquer_calculo(self):
+        argv, abrir, id_pl, ler, part, hash_esp = self._contexto_offline(
+            "hash-divergente-de-proposito")
+        with argv, abrir, id_pl, ler, part, hash_esp, \
+             mock.patch("executar_rodada_canonica.rmc.montar_relatorio") as m_treino, \
+             mock.patch("executar_rodada_canonica.crm.montar_relatorio") as m_regras, \
+             mock.patch("executar_rodada_canonica.cal.montar_relatorio") as m_calib, \
+             mock.patch("executar_rodada_canonica.rec.montar_relatorio") as m_recortes, \
+             mock.patch("executar_rodada_canonica.chi.montar_relatorio") as m_historico, \
+             mock.patch("executar_rodada_canonica.ccc.montar_relatorio") as m_custo, \
+             mock.patch("executar_rodada_canonica.gravar") as m_gravar:
+            codigo = erc.main()
+
+        self.assertNotEqual(codigo, 0)
+        for mock_calculo in (m_treino, m_regras, m_calib, m_recortes,
+                             m_historico, m_custo):
+            mock_calculo.assert_not_called()
+        m_gravar.assert_not_called()
+
+    def test_hash_igual_permite_a_rodada_prosseguir(self):
+        hash_real = erc.hash_corpus(
+            rmc.preparar_corpus(self.registros, self.particoes))
+        marcador = RuntimeError("prosseguiu-ate-o-passo-4")
+        argv, abrir, id_pl, ler, part, hash_esp = self._contexto_offline(
+            hash_real)
+
+        with argv, abrir, id_pl, ler, part, hash_esp, \
+             mock.patch("executar_rodada_canonica.rmc.montar_relatorio",
+                        side_effect=marcador) as m_treino:
+            with self.assertRaises(RuntimeError):
+                erc.main()
+
+        m_treino.assert_called_once()
 
 
 class TestCarimbo(unittest.TestCase):
