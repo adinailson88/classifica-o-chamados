@@ -497,6 +497,26 @@ class TestBlindagemFailClosed(unittest.TestCase):
                          sem_extra["grupos_particionados"])
         self.assertEqual(com_extra["mapa_sha256"], sem_extra["mapa_sha256"])
 
+    # P: linha com id_sha256 vazio no CSV do Passo 2 bloqueia, em vez de ser
+    # silenciosamente ignorada na leitura.
+    def test_P_id_vazio_no_csv_bloqueia(self):
+        registros = base_equilibrada()
+        mapa = mapa_grupos_congelados(registros)
+        esperado = hash_esperado_do_mapa(mapa)
+        with tempfile.TemporaryDirectory() as d:
+            caminho = Path(d) / "mapa.csv"
+            caminho.parent.mkdir(parents=True, exist_ok=True)
+            with caminho.open("w", encoding="utf-8", newline="") as f:
+                escritor = csv.writer(f)
+                escritor.writerow(["id_sha256", "grupo_sha256"])
+                escritor.writerows(sorted(mapa.items()))
+                # Linha adicional malformada: id_sha256 vazio, grupo preenchido.
+                escritor.writerow(["", "a" * 64])
+            ok, carregado = gpc.validar_mapa_congelado(
+                caminho, mapa_sha256_esperado=esperado, corpus_esperado=len(mapa))
+        self.assertFalse(ok)
+        self.assertEqual(carregado, {})
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -74,16 +74,19 @@ STATUS_ESPERADO = "apto_para_treinar"
 
 
 def ler_linhas_mapa_congelado(caminho: Path) -> list[dict[str, str]]:
-    """Le as linhas cruas do mapa de grupos textuais do Passo 2, sem colapsar
-    em dict. Preservar a lista bruta e essencial: um dict `id_sha256 ->
-    grupo_sha256` colapsa linhas duplicadas antes de qualquer verificacao, e
-    um CSV adulterado com uma linha repetida podia produzir o mesmo mapa
-    logico apos o colapso, escondendo a adulteracao do hash.
+    """Le TODAS as linhas cruas do mapa de grupos textuais do Passo 2, sem
+    colapsar em dict e sem descartar linha alguma. Preservar a lista bruta
+    completa e essencial em dois sentidos: um dict `id_sha256 -> grupo_sha256`
+    colapsa linhas duplicadas antes de qualquer verificacao, e filtrar por
+    `id_sha256` no momento da leitura descartaria silenciosamente uma linha
+    malformada (ID vazio) antes de `validar_mapa_congelado` poder bloquear por
+    ela. Linhas invalidas precisam chegar ate a validacao para serem
+    rejeitadas explicitamente, nao somem da leitura.
     """
     with caminho.open("r", encoding="utf-8", newline="") as f:
-        return [{"id_sha256": linha.get("id_sha256", ""),
-                 "grupo_sha256": linha.get("grupo_sha256", "")}
-                for linha in csv.DictReader(f) if linha.get("id_sha256")]
+        return [{"id_sha256": linha.get("id_sha256", "") or "",
+                 "grupo_sha256": linha.get("grupo_sha256", "") or ""}
+                for linha in csv.DictReader(f)]
 
 
 def validar_mapa_congelado(
@@ -112,16 +115,20 @@ def validar_mapa_congelado(
 
     linhas = ler_linhas_mapa_congelado(caminho)
     ids = [linha["id_sha256"] for linha in linhas]
-    ids_unicos = set(ids)
+    ids_vazios = sum(1 for i in ids if not i)
+    ids_validos = [i for i in ids if i]
+    ids_unicos = set(ids_validos)
 
     divergencias = []
     if len(linhas) != corpus_esperado:
         divergencias.append(
             f"linhas: obtido={len(linhas)} esperado={corpus_esperado}")
+    if ids_vazios:
+        divergencias.append(f"id_sha256_vazios: obtido={ids_vazios} esperado=0")
     if len(ids_unicos) != corpus_esperado:
         divergencias.append(
             f"ids_unicos: obtido={len(ids_unicos)} esperado={corpus_esperado}")
-    duplicados = len(ids) - len(ids_unicos)
+    duplicados = len(ids_validos) - len(ids_unicos)
     if duplicados:
         divergencias.append(f"ids_duplicados: obtido={duplicados} esperado=0")
     vazios_grupo = sum(1 for linha in linhas if not linha["grupo_sha256"])
