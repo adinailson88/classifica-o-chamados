@@ -89,17 +89,18 @@ jobs:
           # config_experimento.json (mesma fonte que exportar_dashboard.py usa para
           # decidir quais registros_<modelo>.json gravar). Cada nome e validado
           # contra um padrao estrito antes de virar path esperado.
-          MODELOS="$(python3 -c "
-import json, re, sys
-c = json.load(open('config_experimento.json', encoding='utf-8'))
-mm = c.get('multimodelo', {}) or {}
-nomes = list(mm.get('modelos_leves', [])) + list(mm.get('modelos_pesados', []))
-for n in nomes:
-    if not re.fullmatch(r'[a-z0-9_]+', str(n)):
-        print(f'modelo invalido em config_experimento.json: {n!r}', file=sys.stderr)
-        sys.exit(1)
-    print(n)
-")"
+          MODELOS="$(python3 - <<'PY'
+          import json, re, sys
+          c = json.load(open('config_experimento.json', encoding='utf-8'))
+          mm = c.get('multimodelo', {}) or {}
+          nomes = list(mm.get('modelos_leves', [])) + list(mm.get('modelos_pesados', []))
+          for n in nomes:
+              if not re.fullmatch(r'[a-z0-9_]+', str(n)):
+                  print(f'modelo invalido em config_experimento.json: {n!r}', file=sys.stderr)
+                  sys.exit(1)
+              print(n)
+          PY
+          )"
 
           ALLOWLIST="$(mktemp)"
           printf '%s\n' "${FIXAS[@]}" > "$ALLOWLIST"
