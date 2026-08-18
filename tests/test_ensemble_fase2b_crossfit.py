@@ -594,12 +594,12 @@ class TestControlesDeParalelismoFase2B(unittest.TestCase):
                     "TF_ENABLE_ONEDNN_OPTS"):
             self.assertIn(var, conteudo)
 
-    def test_workflow_distingue_marcador_run_de_marcador_canary(self):
+    def test_workflow_distingue_modo_run_online_de_modo_canary(self):
         caminho = (Path(__file__).resolve().parents[1] / ".github" / "workflows"
                   / "ensemble_fase2b_crossfit.yml")
         conteudo = caminho.read_text(encoding="utf-8")
-        self.assertIn("[FASE2B-RUN]", conteudo)
-        self.assertIn("[FASE2B-CANARY]", conteudo)
+        self.assertIn("run_online)", conteudo)
+        self.assertIn("canary)", conteudo)
         self.assertIn("autorizado_cientifico", conteudo)
         self.assertIn("autorizado_canario", conteudo)
 
@@ -944,15 +944,16 @@ class TestWorkflowMarcadorReplay(unittest.TestCase):
         with self.CAMINHO_WORKFLOW.open(encoding="utf-8") as f:
             return yaml.safe_load(f)
 
-    def test_workflow_reconhece_fase2b_replay_e_e_mutuamente_exclusivo(self):
+    def test_workflow_reconhece_modo_replay_e_e_mutuamente_exclusivo(self):
         conteudo = self.CAMINHO_WORKFLOW.read_text(encoding="utf-8")
-        self.assertIn("[FASE2B-REPLAY]", conteudo)
-        self.assertIn("[FASE2B-REPLAY-PREFLIGHT]", conteudo)
+        self.assertIn("replay)", conteudo)
+        self.assertIn("replay_preflight)", conteudo)
         self.assertIn("autorizado_replay", conteudo)
         self.assertIn("autorizado_replay_preflight", conteudo)
-        # os quatro marcadores continuam mutuamente exclusivos na mesma checagem
-        self.assertIn("[FASE2B-RUN]", conteudo)
-        self.assertIn("[FASE2B-CANARY]", conteudo)
+        # os seis modos continuam mutuamente exclusivos: o input e um `choice`
+        # que so aceita um valor por disparo, checado num unico `case`.
+        self.assertIn("run_online)", conteudo)
+        self.assertIn("canary)", conteudo)
 
     def test_jobs_de_replay_dependem_do_marcador_autorizado_replay(self):
         conteudo = self.CAMINHO_WORKFLOW.read_text(encoding="utf-8")
@@ -1006,15 +1007,14 @@ class TestWorkflowMarcadorReplay(unittest.TestCase):
             condicao = wf["jobs"][nome_job]["if"]
             self.assertNotIn("autorizado_replay_preflight", condicao, nome_job)
 
-    def test_ordem_de_checagem_preflight_antes_de_replay_no_shell(self):
-        # [FASE2B-REPLAY-PREFLIGHT] precisa ser checado antes de
-        # [FASE2B-REPLAY] no script de autorizacao (embora bash `==` com `*`
-        # ja distinga os dois literais sem ambiguidade, a ordem elif deixa a
-        # intencao explicita e evita regressao se a checagem mudar de forma).
+    def test_case_do_shell_distingue_replay_preflight_de_replay(self):
+        # O `case "$MODO" in ... esac` faz correspondencia EXATA de string
+        # (nao prefixo), entao replay_preflight e replay nunca colidem
+        # independente da ordem dos ramos no script de autorizacao.
         conteudo = self.CAMINHO_WORKFLOW.read_text(encoding="utf-8")
-        pos_preflight = conteudo.index('"[FASE2B-REPLAY-PREFLIGHT]"')
-        pos_replay = conteudo.index('"[FASE2B-REPLAY]"')
-        self.assertLess(pos_preflight, pos_replay)
+        self.assertIn("replay_preflight)", conteudo)
+        self.assertIn("replay_recover)", conteudo)
+        self.assertIn("replay)", conteudo)
 
 
 if __name__ == "__main__":

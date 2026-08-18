@@ -25,16 +25,16 @@ real na fonte, não falha de leitura.
 
 | | Gate de proveniência (vivo) | Replay científico (congelado) |
 |---|---|---|
-| Marcador | `[FASE2B-RUN]` | `[FASE2B-REPLAY-PREFLIGHT]` / `[FASE2B-REPLAY]` |
+| Modo (`workflow_dispatch`) | `run_online` | `replay_preflight` / `replay` |
 | Função Python | `gate_zero()` — **inalterada** | `gate_zero_replay()` — nova, paralela |
 | Fonte dos dados | Planilha operacional, sempre relida | Bundle privado, estático |
 | Propósito | Autorizar um *novo* congelamento/baseline | Reproduzir uma execução **já aprovada** |
 | Pode produzir nova baseline? | Sim | **Não, nunca** |
 
-As duas nunca rodam na mesma execução — os quatro marcadores de commit
-(`[FASE2B-RUN]`, `[FASE2B-CANARY]`, `[FASE2B-REPLAY-PREFLIGHT]`,
-`[FASE2B-REPLAY]`) são mutuamente
-exclusivos por construção no job `autorizacao` do workflow.
+As duas nunca rodam na mesma execução — o input `modo` do disparo manual
+(`workflow_dispatch`), um `choice` com os valores `testes` (default),
+`run_online`, `canary`, `replay_preflight`, `replay` e `replay_recover`, só
+aceita um valor por disparo, checado no job `autorizacao` do workflow.
 
 `executar_outer_fold`, `montar_registros_modelaveis`, `agregar_execucao` etc.
 recebem um `gate: dict` e não sabem (nem precisam saber) se ele veio de
@@ -42,19 +42,21 @@ recebem um `gate: dict` e não sabem (nem precisam saber) se ele veio de
 
 ### 2.1 Duas etapas do modo replay: PREFLIGHT → auditoria → REPLAY completo
 
-O modo replay é disparado em **dois marcadores separados**, nunca de uma vez:
+O modo replay é disparado em **dois passos separados**, nunca de uma vez:
 
-1. **`[FASE2B-REPLAY-PREFLIGHT]`** — roda **exclusivamente** `testes` +
-   `autorizacao` + `gate_zero_replay` (o job `gate_zero_replay` do workflow
-   aceita os dois marcadores). **Não libera `crossfit_fold_replay` nem
-   `agregar_replay`** — zero fits, zero LSTM. Serve para validar, isolado e
-   barato, que o bundle privado bate com `replay_input_sha256` e com os 5
-   hashes metodológicos, antes de gastar os 175 fits.
+1. **`modo = replay_preflight`** (Actions → Run workflow) — roda
+   **exclusivamente** `testes` + `autorizacao` + `gate_zero_replay` (o job
+   `gate_zero_replay` do workflow aceita os dois modos, `replay_preflight` e
+   `replay`). **Não libera `crossfit_fold_replay` nem `agregar_replay`** —
+   zero fits, zero LSTM. Serve para validar, isolado e barato, que o bundle
+   privado bate com `replay_input_sha256` e com os 5 hashes metodológicos,
+   antes de gastar os 175 fits.
 2. **Auditoria** do resultado do preflight (ChatGPT/humano), fora do
    workflow.
-3. **`[FASE2B-REPLAY]`** — só depois da auditoria aprovar o preflight: roda
-   `gate_zero_replay` de novo (mesma checagem, sem atalho) **e** os 5
-   `crossfit_fold_replay` (175 fits, 25 LSTM) **e** `agregar_replay`.
+3. **`modo = replay`** (Actions → Run workflow) — só depois da auditoria
+   aprovar o preflight: roda `gate_zero_replay` de novo (mesma checagem, sem
+   atalho) **e** os 5 `crossfit_fold_replay` (175 fits, 25 LSTM) **e**
+   `agregar_replay`.
 
 `crossfit_fold_replay` e `agregar_replay` dependem, na condição `if` do
 workflow, exclusivamente de `autorizado_replay` — nunca de
@@ -113,10 +115,10 @@ Acesso: conta de serviço de CI em **Leitor**; o proprietário humano mantém
 acesso administrativo. A escrita inicial do bundle é sempre manual/humana —
 nenhum job de CI grava nesta spreadsheet.
 
-## 5. Sequência de validação em cada job `[FASE2B-REPLAY-PREFLIGHT]` / `[FASE2B-REPLAY]`
+## 5. Sequência de validação em cada job do modo `replay_preflight` / `replay`
 
-Todo job (Gate Zero replay — que roda nos dois marcadores — e, só no
-`[FASE2B-REPLAY]` completo, os 5 outer folds e a agregação) roda,
+Todo job (Gate Zero replay — que roda nos dois modos — e, só no modo
+`replay` completo, os 5 outer folds e a agregação) roda,
 independentemente, **antes de qualquer fit**:
 
 1. Carregar o bundle (`replay_bundle.ler_bundle_congelado`).
@@ -173,10 +175,11 @@ limitação explícita e vinculante, não uma omissão.
   `gate_zero_replay`, `ReplayBloqueado`, `REPLAY_INPUT_SHA256_ESPERADO`,
   `gravar_gate_zero_replay`, flag `--modo-replay` na CLI. `gate_zero()`
   permanece inalterada.
-- `.github/workflows/ensemble_fase2b_crossfit.yml` — marcadores
-  `[FASE2B-REPLAY-PREFLIGHT]` e `[FASE2B-REPLAY]`, jobs `gate_zero_replay`
-  (compartilhado pelos dois marcadores), `crossfit_fold_replay` (matriz
-  1–5, só `[FASE2B-REPLAY]`), `agregar_replay` (idem).
+- `.github/workflows/ensemble_fase2b_crossfit.yml` — disparo manual
+  (`workflow_dispatch`) com input `modo` (`replay_preflight` / `replay`
+  entre outros), jobs `gate_zero_replay` (compartilhado pelos dois modos),
+  `crossfit_fold_replay` (matriz 1–5, só modo `replay`), `agregar_replay`
+  (idem).
 - `docs/dados/ensemble/replay/bundle_manifesto.json` — só fingerprints e
   contagens, nunca texto/ID.
 - `tests/test_replay_bundle.py`, `tests/test_ensemble_fase2b_crossfit.py`.
@@ -188,10 +191,11 @@ limitação explícita e vinculante, não uma omissão.
    documento.
 3. Pinar `REPLAY_INPUT_SHA256_ESPERADO` em
    `src/ensemble_fase2b_crossfit.py` com o valor aprovado.
-4. Disparar `[FASE2B-REPLAY-PREFLIGHT]` — só `gate_zero_replay`, zero fits —
-   e auditar o resultado (ChatGPT).
-5. Só depois da auditoria do preflight aprovar, disparar `[FASE2B-REPLAY]`
-   (execução completa: 175 fits, 25 LSTM, agregação).
+4. Disparar manualmente (Actions → "Fase 2B - cross-fitting aninhado dos
+   sete modelos-base (read-only)" → Run workflow → `modo = replay_preflight`)
+   — só `gate_zero_replay`, zero fits — e auditar o resultado (ChatGPT).
+5. Só depois da auditoria do preflight aprovar, disparar manualmente com
+   `modo = replay` (execução completa: 175 fits, 25 LSTM, agregação).
 
 Enquanto `REPLAY_INPUT_SHA256_ESPERADO` for `None`, `gate_zero_replay()`
 bloqueia sempre, por construção — nenhuma rodada de replay roda sem um valor
