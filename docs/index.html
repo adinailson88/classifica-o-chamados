@@ -231,87 +231,139 @@
   </section>
 
   <section id="tab-metrics" class="hide">
-    <span class="artref">&#8627; Subsecoes 4.2 e 4.4 do artigo &mdash; Ranking validado por conferencia humana; Confianca, calibracao e faixas de decisao</span>
-    <div class="alerta bad" id="metaAviso">Carregando estado da meta...</div>
-    <div class="card full" style="margin-bottom:12px">
-      <h2>Validacao humana (conferencia dupla M x N)</h2>
-      <div class="kpis" id="kpisValidacao"></div>
-      <p class="muted" id="kpisValidacaoNota"></p>
+    <span class="artref">&#8627; Fonte selecionavel: Artigo &mdash; calibracao canonica | Operacional &mdash; validacao e calibracao da base viva</span>
+    <div class="card full" style="padding-bottom:8px">
+      <label for="selCalibFonte" class="muted" style="display:block;margin-bottom:6px">Fonte / protocolo</label>
+      <select id="selCalibFonte" style="border:1px solid var(--bd);border-radius:6px;padding:7px 9px;background:#fff;color:var(--tx)">
+        <option value="artigo" selected>Artigo &mdash; corpus congelado</option>
+        <option value="operacional">Operacional &mdash; base viva</option>
+      </select>
+      <p class="muted" id="calibFonteNota" style="margin-top:8px"></p>
     </div>
-    <div class="grid">
-      <div class="card">
-        <h2>Metricas consolidadas</h2>
-        <div class="tablebox"><table id="tabMet"><thead><tr><th>Metrica</th><th>Valor</th></tr></thead><tbody></tbody></table></div>
+    <div id="metricsArtigoBox">
+      <div class="grid">
+        <div class="card full">
+          <h2>Calibracao &mdash; rodada cientifica congelada</h2>
+          <p class="muted" id="calibArtigoNota">Carregando dados canonicos...</p>
+          <div class="tablebox"><table id="tabCalibArtigo"><thead><tr>
+            <th>Modelo</th><th>Acuracia global</th><th>ECE bruto</th><th>ECE calibrado</th><th>Brier bruto</th><th>Brier calibrado</th><th>Cobertura alvo seletivo 95%</th><th>Acuracia seletiva (alvo 95%)</th><th>Encaminhamento humano (alvo 95%)</th>
+          </tr></thead><tbody></tbody></table></div>
+          <p class="muted" style="margin-top:8px"><strong>ARTIGO:</strong> o limiar do alvo seletivo 95% e escolhido em dobra interna para buscar 95% de acuracia e avaliado na dobra externa. Nao equivale a selecionar previsoes cuja confianca bruta seja &gt;=0,95. ECE usa 10 faixas de largura igual; alvo = acerto contra a referencia humana revisada.</p>
+        </div>
       </div>
-      <div class="card">
-        <h2>Leitura analitica</h2>
-        <div id="analise"></div>
+    </div>
+    <div id="metricsOperacionalBox" class="hide">
+      <div class="alerta bad" id="metaAviso">Carregando estado da meta...</div>
+      <p class="muted"><strong>OPERACIONAL:</strong> calibracao preliminar contra a categoria historica; a faixa &gt;=95% aqui e um bucket estatico de confianca bruta, nao um limiar aprendido.</p>
+      <div class="card full" style="margin-bottom:12px">
+        <h2>Validacao humana (conferencia dupla M x N)</h2>
+        <div class="kpis" id="kpisValidacao"></div>
+        <p class="muted" id="kpisValidacaoNota"></p>
       </div>
-      <div class="card full">
-        <h2>Resumo tecnico</h2>
-        <div class="tablebox"><table id="tabResumo"><thead><tr><th>Item</th><th>Valor</th></tr></thead><tbody></tbody></table></div>
-      </div>
-      <div class="card full">
-        <h2>Calibracao da confianca (confianca x acerto)</h2>
-        <p class="muted" id="calibInfo">Carregando calibracao...</p>
-        <canvas id="cCalib"></canvas>
-      </div>
-      <div class="card full">
-        <h2>Diagnostico de calibracao por IA</h2>
-        <p class="muted" id="calibModelosInfo">Mede ECE, Brier e faixa &gt;=95% de cada IA contra a categoria historica. Ainda nao e calibrador ajustado.</p>
-        <div class="tablebox"><table id="tabCalibModelos"><thead><tr>
-          <th>Modelo</th><th>Chamados</th><th>Acerto hist.</th><th>Conf. media</th><th>ECE</th><th>Brier</th><th>&gt;=95% n</th><th>&gt;=95% acerto hist.</th>
-        </tr></thead><tbody></tbody></table></div>
-      </div>
-      <div class="card full">
-        <h2>Calibracao ajustada preliminar</h2>
-        <p class="muted" id="calibAjustadaInfo">Calibra a pergunta P(previsao correta | confianca bruta) contra o historico, sem texto de chamado. A versao definitiva depende da validacao humana.</p>
-        <div class="tablebox"><table id="tabCalibAjustada"><thead><tr>
-          <th>Modelo</th><th>Metodo</th><th>ECE antes</th><th>ECE depois</th><th>Brier antes</th><th>Brier depois</th><th>&gt;=95% ajustado n</th><th>&gt;=95% acerto hist.</th>
-        </tr></thead><tbody></tbody></table></div>
+      <div class="grid">
+        <div class="card">
+          <h2>Metricas consolidadas</h2>
+          <div class="tablebox"><table id="tabMet"><thead><tr><th>Metrica</th><th>Valor</th></tr></thead><tbody></tbody></table></div>
+        </div>
+        <div class="card">
+          <h2>Leitura analitica</h2>
+          <div id="analise"></div>
+        </div>
+        <div class="card full">
+          <h2>Resumo tecnico</h2>
+          <div class="tablebox"><table id="tabResumo"><thead><tr><th>Item</th><th>Valor</th></tr></thead><tbody></tbody></table></div>
+        </div>
+        <div class="card full">
+          <h2>Calibracao da confianca (confianca x acerto)</h2>
+          <p class="muted" id="calibInfo">Carregando calibracao...</p>
+          <canvas id="cCalib"></canvas>
+        </div>
+        <div class="card full">
+          <h2>Diagnostico de calibracao por IA</h2>
+          <p class="muted" id="calibModelosInfo">Mede ECE, Brier e faixa &gt;=95% de cada IA contra a categoria historica. Ainda nao e calibrador ajustado.</p>
+          <div class="tablebox"><table id="tabCalibModelos"><thead><tr>
+            <th>Modelo</th><th>Chamados</th><th>Acerto hist.</th><th>Conf. media</th><th>ECE</th><th>Brier</th><th>&gt;=95% n</th><th>&gt;=95% acerto hist.</th>
+          </tr></thead><tbody></tbody></table></div>
+        </div>
+        <div class="card full">
+          <h2>Calibracao ajustada preliminar</h2>
+          <p class="muted" id="calibAjustadaInfo">Calibra a pergunta P(previsao correta | confianca bruta) contra o historico, sem texto de chamado. A versao definitiva depende da validacao humana.</p>
+          <div class="tablebox"><table id="tabCalibAjustada"><thead><tr>
+            <th>Modelo</th><th>Metodo</th><th>ECE antes</th><th>ECE depois</th><th>Brier antes</th><th>Brier depois</th><th>&gt;=95% ajustado n</th><th>&gt;=95% acerto hist.</th>
+          </tr></thead><tbody></tbody></table></div>
+        </div>
       </div>
     </div>
   </section>
 
   <section id="tab-modelos" class="hide">
-    <span class="artref">&#8627; Subsecao 4.1 do artigo &mdash; Concordancia com o historico (base completa)</span>
-    <p class="muted">Comparacao entre IAs locais. Quando os JSONs multimodelo estao publicados, esta aba mostra a base materializada por modelo; se eles ainda estiverem vazios, usa <code>estatistica.json</code> como fallback e identifica os resultados como concordancia contra historico.</p>
-    <div class="grid">
-      <div class="card">
-        <h2>Base completa por modelo</h2>
-        <canvas id="cModelos"></canvas>
+    <span class="artref">&#8627; Fonte selecionavel: Artigo &mdash; rodada cientifica congelada | Operacional &mdash; comparativos da base viva</span>
+    <div class="card full" style="padding-bottom:8px">
+      <label for="selModelosFonte" class="muted" style="display:block;margin-bottom:6px">Fonte / protocolo</label>
+      <select id="selModelosFonte" style="border:1px solid var(--bd);border-radius:6px;padding:7px 9px;background:#fff;color:var(--tx)">
+        <option value="artigo" selected>Artigo &mdash; corpus congelado</option>
+        <option value="operacional">Operacional &mdash; base viva</option>
+      </select>
+      <p class="muted" id="modelosFonteNota" style="margin-top:8px"></p>
+    </div>
+    <div id="modelosArtigoBox">
+      <div class="grid">
+        <div class="card full">
+          <h2>Desempenho dos modelos &mdash; rodada cientifica congelada</h2>
+          <p class="muted" id="modelosArtigoNota">Carregando dados canonicos...</p>
+          <div class="kpis" id="kpisModelosArtigo"></div>
+          <div class="tablebox"><table id="tabModelosArtigo"><thead><tr>
+            <th>Modelo</th><th>Acuracia</th><th>Macro-F1</th><th>Balanced accuracy</th><th>Tempo de treino</th><th>Tempo de inferencia</th><th>Pico de memoria</th>
+          </tr></thead><tbody></tbody></table></div>
+        </div>
+        <div class="card full">
+          <h2>Concordancia com o historico &mdash; rodada congelada (Tabela 3 do artigo)</h2>
+          <p class="muted" id="modelosArtigoHistNota">"Concordancia com historico" e "Kappa IA x historico" NAO sao a acuracia cientifica contra a referencia humana revisada; sao a comparacao das predicoes <em>out-of-fold</em> congeladas com a categoria historica.</p>
+          <div class="tablebox"><table id="tabModelosArtigoHist"><thead><tr>
+            <th>Modelo</th><th>Concordancia com historico</th><th>Kappa IA x historico</th><th>Corrigidos</th><th>Prejudicados</th><th>Ganho liquido</th>
+          </tr></thead><tbody></tbody></table></div>
+        </div>
       </div>
-      <div class="card">
-        <h2>Ranking na base completa</h2>
-        <div class="tablebox"><table id="tabRankModelos"><thead><tr>
-          <th>#</th><th>Modelo</th><th>Chamados</th><th>Concordancia</th><th>Pendentes</th><th>Metodo</th>
+    </div>
+    <div id="modelosOperacionalBox" class="hide">
+      <p class="muted">Comparacao entre IAs locais. Quando os JSONs multimodelo estao publicados, esta aba mostra a base materializada por modelo; se eles ainda estiverem vazios, usa <code>estatistica.json</code> como fallback e identifica os resultados como concordancia contra historico.</p>
+      <div class="grid">
+        <div class="card">
+          <h2>Base completa por modelo</h2>
+          <canvas id="cModelos"></canvas>
+        </div>
+        <div class="card">
+          <h2>Ranking na base completa</h2>
+          <div class="tablebox"><table id="tabRankModelos"><thead><tr>
+            <th>#</th><th>Modelo</th><th>Chamados</th><th>Concordancia</th><th>Pendentes</th><th>Metodo</th>
+          </tr></thead><tbody></tbody></table></div>
+        </div>
+        <div class="card full">
+          <h2>Evolucao por turno na base completa</h2>
+          <p class="muted" id="modelosLoteInfo">Carregando serie por turno.</p>
+          <select id="selMetricaModelo" style="margin-bottom:10px;border:1px solid var(--bd);border-radius:6px;padding:7px 9px;background:#fff;color:var(--tx)">
+            <option value="concordancia_acumulada">Concordancia acumulada</option>
+            <option value="taxa_concordancia">Concordancia do turno</option>
+            <option value="confianca_media">Confianca media do turno</option>
+          </select>
+          <canvas id="cModelosLote"></canvas>
+        </div>
+      </div>
+      <div class="card full">
+        <h2>Comparacao held-out por janela (cobre toda a base, janelas de 1.000)</h2>
+        <p class="muted">Cada linha: um modelo avaliado numa janela [inicio-fim) tendo treinado em todo o resto (held-out). As janelas percorrem 0 a 13.825 &mdash; nao param em 1.000.</p>
+        <div class="tablebox"><table id="tabModelos"><thead><tr>
+          <th>Modelo</th><th>Lote</th><th>N</th><th>Acuracia</th><th>F1-macro</th><th>Bal.acc</th><th>Revisao</th><th>Treino</th>
         </tr></thead><tbody></tbody></table></div>
       </div>
       <div class="card full">
-        <h2>Evolucao por turno na base completa</h2>
-        <p class="muted" id="modelosLoteInfo">Carregando serie por turno.</p>
-        <select id="selMetricaModelo" style="margin-bottom:10px;border:1px solid var(--bd);border-radius:6px;padding:7px 9px;background:#fff;color:var(--tx)">
-          <option value="concordancia_acumulada">Concordancia acumulada</option>
-          <option value="taxa_concordancia">Concordancia do turno</option>
-          <option value="confianca_media">Confianca media do turno</option>
-        </select>
-        <canvas id="cModelosLote"></canvas>
+        <h2>Reclassificacao multimodelo (ganho liquido por modelo)</h2>
+        <p class="muted">Ganho liquido (corrigidos &minus; prejudicados) da Etapa 2 por modelo, contra o historico. Comecar sempre por dry-run; nao usar <code>aplicar=true</code> sem revisar o ganho.</p>
+        <div class="tablebox"><table id="tabMultiReclass"><thead><tr>
+          <th>Modelo</th><th>Turnos</th><th>Corrigidos</th><th>Prejudicados</th><th>Ganho liquido</th>
+        </tr></thead><tbody></tbody></table></div>
+        <p class="muted" id="multiReclassVazio"></p>
       </div>
-    </div>
-    <div class="card full">
-      <h2>Comparacao held-out por janela (cobre toda a base, janelas de 1.000)</h2>
-      <p class="muted">Cada linha: um modelo avaliado numa janela [inicio-fim) tendo treinado em todo o resto (held-out). As janelas percorrem 0 a 13.825 &mdash; nao param em 1.000.</p>
-      <div class="tablebox"><table id="tabModelos"><thead><tr>
-        <th>Modelo</th><th>Lote</th><th>N</th><th>Acuracia</th><th>F1-macro</th><th>Bal.acc</th><th>Revisao</th><th>Treino</th>
-      </tr></thead><tbody></tbody></table></div>
-    </div>
-    <div class="card full">
-      <h2>Reclassificacao multimodelo (ganho liquido por modelo)</h2>
-      <p class="muted">Ganho liquido (corrigidos &minus; prejudicados) da Etapa 2 por modelo, contra o historico. Comecar sempre por dry-run; nao usar <code>aplicar=true</code> sem revisar o ganho.</p>
-      <div class="tablebox"><table id="tabMultiReclass"><thead><tr>
-        <th>Modelo</th><th>Turnos</th><th>Corrigidos</th><th>Prejudicados</th><th>Ganho liquido</th>
-      </tr></thead><tbody></tbody></table></div>
-      <p class="muted" id="multiReclassVazio"></p>
     </div>
   </section>
 
@@ -563,62 +615,109 @@
   </section>
 
   <section id="tab-estat" class="hide">
-    <span class="artref">&#8627; Subsecoes 4.1, 4.2 e 4.9 do artigo &mdash; concordancia e IC95%, ranking validado, robustez estatistica (Kappa, McNemar/Holm, pressupostos)</span>
-    <div class="alerta" id="estatAviso">Carregando estatísticas. A interpretação deve separar concordância com o histórico de acerto na amostra humana parcial e não aleatória.</div>
-    <div class="grid">
-      <div class="card">
-        <h2>Acuracia com IC 95% (bootstrap)</h2>
-        <canvas id="cEstAcc"></canvas>
+    <span class="artref">&#8627; Fonte selecionavel: Artigo &mdash; inferencia canonica/agrupada | Operacional &mdash; estatistica da base viva</span>
+    <div class="card full" style="padding-bottom:8px">
+      <label for="selEstatFonte" class="muted" style="display:block;margin-bottom:6px">Fonte / protocolo</label>
+      <select id="selEstatFonte" style="border:1px solid var(--bd);border-radius:6px;padding:7px 9px;background:#fff;color:var(--tx)">
+        <option value="artigo" selected>Artigo &mdash; corpus congelado</option>
+        <option value="operacional">Operacional &mdash; base viva</option>
+      </select>
+      <p class="muted" id="estatFonteNota" style="margin-top:8px"></p>
+    </div>
+    <div id="estatArtigoBox">
+      <div class="grid">
+        <div class="card full">
+          <h2>Acuracia e Macro-F1 com incerteza (bootstrap de conglomerados)</h2>
+          <p class="muted" id="estArtigoIcNota">Carregando dados canonicos...</p>
+          <div class="tablebox"><table id="tabEstArtigoIC"><thead><tr>
+            <th>Modelo</th><th>Acuracia</th><th>IC95% acuracia</th><th>Macro-F1</th><th>IC95% Macro-F1</th>
+          </tr></thead><tbody></tbody></table></div>
+        </div>
+        <div class="card full">
+          <h2>Correlacao confianca x acerto</h2>
+          <p class="muted" id="estArtigoCorrNota"><strong>ARTIGO:</strong> acerto definido contra a referencia humana revisada.</p>
+          <div class="tablebox"><table id="tabEstArtigoCorr"><thead><tr>
+            <th>Modelo</th><th>N</th><th>Spearman</th><th>p</th><th>Ponto-bisserial</th><th>p</th>
+          </tr></thead><tbody></tbody></table></div>
+        </div>
+        <div class="card full">
+          <h2>Inferencia agrupada: Q de Cochran e comparacoes pareadas</h2>
+          <p class="muted" id="estArtigoQNota">Unidade estatistica: grupo de texto normalizado (nao a linha), porque registros do mesmo grupo nao sao independentes.</p>
+          <div class="kpis" id="kpisEstArtigoQ"></div>
+          <details style="margin-top:10px">
+            <summary style="cursor:pointer"><strong>Comparacoes pareadas (21 pares, Holm-Bonferroni)</strong> &mdash; clique para expandir</summary>
+            <div class="tablebox"><table id="tabEstArtigoPares"><thead><tr>
+              <th>Par</th><th>Diferenca de acuracia</th><th>IC95%</th><th>p permutacional agrupado</th><th>p ajustado Holm</th><th>Significativo</th>
+            </tr></thead><tbody></tbody></table></div>
+          </details>
+        </div>
+        <div class="card full">
+          <h2>Kappa IA x historico</h2>
+          <p class="muted" id="estArtigoKappaNota">Kappa compara a predicao <em>out-of-fold</em> da rodada congelada com a categoria historica. Nao e a acuracia contra a referencia humana.</p>
+          <div class="tablebox"><table id="tabEstArtigoKappa"><thead><tr>
+            <th>Modelo</th><th>N</th><th>Concordancia bruta</th><th>Kappa</th>
+          </tr></thead><tbody></tbody></table></div>
+        </div>
       </div>
-      <div class="card">
-        <h2>Correlacao confianca x acerto</h2>
-        <canvas id="cEstCorr"></canvas>
-      </div>
-      <div class="card full">
-        <h2>Resumo dos testes estatisticos</h2>
-        <div class="tablebox"><table id="tabEstResumo"><thead><tr><th>Teste</th><th>Resultado</th><th>Como interpretar</th></tr></thead><tbody></tbody></table></div>
-      </div>
-      <div class="card full">
-        <h2>Protocolo de exploracao de dados (Zuur, Ieno &amp; Elphick, 2010)</h2>
-        <p class="muted" id="zuurInfo">Oito passos de exploracao aplicados <strong>antes</strong> da inferencia, adaptados ao objeto categorico do experimento. Passe o mouse sobre cada linha para a leitura metodologica.</p>
-        <div class="tablebox"><table id="tabZuur"><thead><tr><th>#</th><th>Passo</th><th>Ferramenta</th><th>Status</th><th>Resultado</th></tr></thead><tbody></tbody></table></div>
-        <p class="muted" id="zuurRef" style="margin-top:8px"></p>
-      </div>
-      <div class="card">
-        <h2>Ranking por acuracia e intervalo</h2>
-        <div class="tablebox"><table id="tabEstAcc"><thead><tr><th>Modelo</th><th>Acuracia</th><th>IC 95%</th></tr></thead><tbody></tbody></table></div>
-      </div>
-      <div class="card">
-        <h2>Kappa IA x historico</h2>
-        <div class="tablebox"><table id="tabEstKappa"><thead><tr><th>Modelo</th><th>Kappa</th><th>Leitura</th></tr></thead><tbody></tbody></table></div>
-      </div>
-      <div class="card">
-        <h2>Distribuicao da concordancia por turno</h2>
-        <p class="muted" id="normInfo">Histograma da concordancia por turno. Se nao tem formato de sino, a distribuicao nao e normal &mdash; por isso a analise usa so testes nao-parametricos.</p>
-        <canvas id="cNorm"></canvas>
-      </div>
-      <div class="card">
-        <h2>Tendencia da concordancia por turno (residuos)</h2>
-        <div class="tablebox"><table id="tabEstDiag"><thead><tr><th>Modelo</th><th>Shapiro p</th><th>Distribuicao</th><th>Tendencia</th><th>R2</th><th>Durbin-Watson</th></tr></thead><tbody></tbody></table></div>
-      </div>
-      <div class="card full">
-        <h2>Validacao humana: IA x GLPI (conferencia dupla)</h2>
-        <p class="muted" id="matrizInfo">Carregando validacao...</p>
-        <div id="matrizBox"></div>
-      </div>
-      <div class="card">
-        <h2>Macro-F1 e Recall macro (IC95 bootstrap)</h2>
-        <div class="tablebox"><table id="tabEstF1"><thead><tr><th>Modelo</th><th>Macro-F1</th><th>IC95</th><th>Recall macro</th></tr></thead><tbody></tbody></table></div>
-      </div>
-      <div class="card">
-        <h2>Pares significativos (McNemar + Holm-Bonferroni)</h2>
-        <p class="muted" id="holmInfo">Carregando...</p>
-        <div class="tablebox"><table id="tabEstHolm"><thead><tr><th>Par de modelos</th><th>p</th><th>Significativo</th></tr></thead><tbody></tbody></table></div>
-      </div>
-      <div class="card full">
-        <h2>Acerto por modelo contra a VERDADE VALIDADA (M/N)</h2>
-        <p class="muted" id="valModInfo">Aparece quando houver conferencia humana (M e N). Verdade derivada: N=Correto &rarr; categoria da IA (G); senao M=Correto &rarr; historico (C).</p>
-        <div class="tablebox"><table id="tabEstValMod"><thead><tr><th>Modelo</th><th>n validados</th><th>Acerto validado</th></tr></thead><tbody></tbody></table></div>
+    </div>
+    <div id="estatOperacionalBox" class="hide">
+      <div class="alerta" id="estatAviso">Carregando estatísticas. A interpretação deve separar concordância com o histórico de acerto na amostra humana parcial e não aleatória.</div>
+      <p class="muted"><strong>OPERACIONAL:</strong> análises sobre <code>CLASSIF__&lt;modelo&gt;</code> materializada na base viva; "acerto" é concordância com a categoria histórica, salvo indicação explícita de validação humana.</p>
+      <div class="grid">
+        <div class="card">
+          <h2>Acuracia com IC 95% (bootstrap)</h2>
+          <canvas id="cEstAcc"></canvas>
+        </div>
+        <div class="card">
+          <h2>Correlacao confianca x acerto</h2>
+          <canvas id="cEstCorr"></canvas>
+        </div>
+        <div class="card full">
+          <h2>Resumo dos testes estatisticos</h2>
+          <div class="tablebox"><table id="tabEstResumo"><thead><tr><th>Teste</th><th>Resultado</th><th>Como interpretar</th></tr></thead><tbody></tbody></table></div>
+        </div>
+        <div class="card full">
+          <h2>Protocolo de exploracao de dados (Zuur, Ieno &amp; Elphick, 2010)</h2>
+          <p class="muted" id="zuurInfo">Oito passos de exploracao aplicados <strong>antes</strong> da inferencia, adaptados ao objeto categorico do experimento. Passe o mouse sobre cada linha para a leitura metodologica.</p>
+          <div class="tablebox"><table id="tabZuur"><thead><tr><th>#</th><th>Passo</th><th>Ferramenta</th><th>Status</th><th>Resultado</th></tr></thead><tbody></tbody></table></div>
+          <p class="muted" id="zuurRef" style="margin-top:8px"></p>
+        </div>
+        <div class="card">
+          <h2>Ranking por acuracia e intervalo</h2>
+          <div class="tablebox"><table id="tabEstAcc"><thead><tr><th>Modelo</th><th>Acuracia</th><th>IC 95%</th></tr></thead><tbody></tbody></table></div>
+        </div>
+        <div class="card">
+          <h2>Kappa IA x historico</h2>
+          <div class="tablebox"><table id="tabEstKappa"><thead><tr><th>Modelo</th><th>Kappa</th><th>Leitura</th></tr></thead><tbody></tbody></table></div>
+        </div>
+        <div class="card">
+          <h2>Distribuicao da concordancia por turno</h2>
+          <p class="muted" id="normInfo">Histograma da concordancia por turno. Se nao tem formato de sino, a distribuicao nao e normal &mdash; por isso a analise usa so testes nao-parametricos.</p>
+          <canvas id="cNorm"></canvas>
+        </div>
+        <div class="card">
+          <h2>Tendencia da concordancia por turno (residuos)</h2>
+          <div class="tablebox"><table id="tabEstDiag"><thead><tr><th>Modelo</th><th>Shapiro p</th><th>Distribuicao</th><th>Tendencia</th><th>R2</th><th>Durbin-Watson</th></tr></thead><tbody></tbody></table></div>
+        </div>
+        <div class="card full">
+          <h2>Validacao humana: IA x GLPI (conferencia dupla)</h2>
+          <p class="muted" id="matrizInfo">Carregando validacao...</p>
+          <div id="matrizBox"></div>
+        </div>
+        <div class="card">
+          <h2>Macro-F1 e Recall macro (IC95 bootstrap)</h2>
+          <div class="tablebox"><table id="tabEstF1"><thead><tr><th>Modelo</th><th>Macro-F1</th><th>IC95</th><th>Recall macro</th></tr></thead><tbody></tbody></table></div>
+        </div>
+        <div class="card">
+          <h2>Pares significativos (McNemar + Holm-Bonferroni)</h2>
+          <p class="muted" id="holmInfo">Carregando...</p>
+          <div class="tablebox"><table id="tabEstHolm"><thead><tr><th>Par de modelos</th><th>p</th><th>Significativo</th></tr></thead><tbody></tbody></table></div>
+        </div>
+        <div class="card full">
+          <h2>Acerto por modelo contra a VERDADE VALIDADA (M/N)</h2>
+          <p class="muted" id="valModInfo">Aparece quando houver conferencia humana (M e N). Verdade derivada: N=Correto &rarr; categoria da IA (G); senao M=Correto &rarr; historico (C).</p>
+          <div class="tablebox"><table id="tabEstValMod"><thead><tr><th>Modelo</th><th>n validados</th><th>Acerto validado</th></tr></thead><tbody></tbody></table></div>
+        </div>
       </div>
     </div>
   </section>
@@ -1799,6 +1898,19 @@ const CONFUSAO_TOP_CATS = 20;
 // rodada canonica que gerou a Tabela 3 do artigo, n=13.972); reclass_resumo.json
 // e o resumo operacional ao vivo (base crescente). Ver src/gerar_figuras_canonicas.py.
 let COMP_HIST = null, RECLASS_RESUMO_OP = null;
+// ---- Blocos cientificos congelados (Lote 5B): retreino/custo/inferencia/calibracao
+// canonica, mesma rodada que sustenta o artigo (hash_corpus travado). Nao tem
+// fallback para dado operacional: se o JSON canonico faltar, o bloco Artigo
+// mostra mensagem de indisponibilidade, nunca troca silenciosamente de fonte.
+let RETREINO_CANON = null, CUSTO_CANON = null, INFERENCIA_CANON = null, INFERENCIA_AGRUPADA = null, CALIBRACAO_CANON = null;
+function ehCanonicoValido(d){ return !!(d && typeof d==="object" && !Array.isArray(d)); }
+function fmtP(v){ if(v==null || v==="") return "—"; const n=N(v); if(n<0.0001) return "<0,0001"; return n.toFixed(4).replace(".",","); }
+function fmtDec(v,c){ if(v==null || v==="") return "—"; return N(v).toFixed(c==null?4:c).replace(".",","); }
+function fmtSeg(v){ if(v==null || v==="") return "—"; return N(v).toFixed(2).replace(".",",")+" s"; }
+function indisponivelCanonico(id, cols){
+  const tb=document.querySelector(`#${id} tbody`);
+  if(tb) tb.innerHTML = `<tr><td colspan="${cols}" class="muted">Dados cientificos congelados indisponiveis nesta publicacao.</td></tr>`;
+}
 
 function confusaoModelos(){
   if(!CONFUSAO || !CONFUSAO.modelos) return [];
@@ -2543,6 +2655,204 @@ function renderBertimbauCoreset(cs){
   if(mot) mot.textContent = txt;
 }
 
+// ============================================================
+// Lote 5B: separacao visual Artigo (corpus congelado) x Operacional
+// (base viva) nas abas Modelos, Estatistica e Metricas/Calibracao.
+// O seletor significa "qual protocolo/dataset estou visualizando",
+// nao "mesma metrica em duas fontes equivalentes" — ver AGENTS.md e
+// PLANO_ARTIGO_CAPITULO.md. Nunca fazer fallback operacional quando
+// o modo selecionado for Artigo.
+// ============================================================
+function renderModelosArtigo(){
+  const box=document.getElementById("kpisModelosArtigo");
+  const tb=document.querySelector("#tabModelosArtigo tbody");
+  const nota=document.getElementById("modelosArtigoNota");
+  if(!tb) return;
+  if(!ehCanonicoValido(RETREINO_CANON)){
+    if(box) box.innerHTML="";
+    indisponivelCanonico("tabModelosArtigo",7);
+    if(nota) nota.textContent="Dados cientificos congelados indisponiveis nesta publicacao (retreino_canonico.json).";
+    return;
+  }
+  const c=RETREINO_CANON.corpus||{};
+  if(nota) nota.textContent=`Fonte: retreino_canonico.json, rodada canonica que sustenta a Tabela 2 do artigo. Protocolo StratifiedGroupKFold, predicoes out-of-fold, grupos textuais congelados.`;
+  if(box) box.innerHTML = kpi(fmt(c.linhas_avaliadas),"n avaliado")
+    +kpi(fmt(c.categorias),"Categorias")
+    +kpi(fmt(c.dobras),"Dobras")
+    +kpi(fmt(c.grupos_textuais),"Grupos textuais");
+  const custoPorModelo={};
+  if(ehCanonicoValido(CUSTO_CANON) && Array.isArray(CUSTO_CANON.modelos)){
+    CUSTO_CANON.modelos.forEach(m=>{ custoPorModelo[m.modelo]=m; });
+  }
+  const lin=[...(RETREINO_CANON.modelos||[])].sort((a,b)=>N(b.acuracia)-N(a.acuracia));
+  tb.innerHTML = lin.map(m=>{
+    const cm=custoPorModelo[m.modelo]||{};
+    const tTreino = m.tempo_treino_s!=null ? m.tempo_treino_s : cm.tempo_treino_s;
+    const tInfer = m.tempo_inferencia_s!=null ? m.tempo_inferencia_s : cm.tempo_inferencia_s;
+    const pico = m.pico_memoria_mb!=null ? m.pico_memoria_mb : cm.pico_memoria_mb;
+    return `<tr><td>${esc(m.modelo)}</td><td>${pct(m.acuracia)}</td><td>${pct(m.macro_f1)}</td>`
+      +`<td>${pct(m.balanced_accuracy)}</td><td>${fmtSeg(tTreino)}</td><td>${fmtSeg(tInfer)}</td>`
+      +`<td>${pico!=null?fmtDec(pico,1)+" MB":"—"}</td></tr>`;
+  }).join("");
+}
+function renderModelosArtigoHist(){
+  const tb=document.querySelector("#tabModelosArtigoHist tbody");
+  if(!tb) return;
+  if(!ehCanonicoValido(COMP_HIST)){
+    indisponivelCanonico("tabModelosArtigoHist",6);
+    return;
+  }
+  const lin=[...(COMP_HIST.modelos||[])].sort((a,b)=>N(b.concordancia&&b.concordancia.acordo_bruto)-N(a.concordancia&&a.concordancia.acordo_bruto));
+  tb.innerHTML = lin.map(m=>{
+    const co=m.concordancia||{}, rc=m.reclassificacao||{};
+    return `<tr><td>${esc(m.modelo)}</td><td>${pct(co.acordo_bruto)}</td><td>${fmtDec(co.kappa,4)}</td>`
+      +`<td>${fmt(rc.corrigidos)}</td><td>${fmt(rc.prejudicados)}</td>`
+      +`<td class="${N(rc.ganho_liquido)>=0?'status-ok':'status-bad'}">${fmt(rc.ganho_liquido)}</td></tr>`;
+  }).join("");
+}
+function aplicarFonteModelos(){
+  const sel=document.getElementById("selModelosFonte");
+  const modo = sel ? sel.value : "artigo";
+  const nota=document.getElementById("modelosFonteNota");
+  const boxArtigo=document.getElementById("modelosArtigoBox");
+  const boxOp=document.getElementById("modelosOperacionalBox");
+  if(modo==="artigo"){
+    if(boxArtigo) boxArtigo.classList.remove("hide");
+    if(boxOp) boxOp.classList.add("hide");
+    if(nota) nota.innerHTML = `<strong>ARTIGO:</strong> resultados do corpus cientifico congelado (n=13.972, 41 categorias, 5 dobras agrupadas). Nao mudam com novos chamados.`;
+    renderModelosArtigo();
+    renderModelosArtigoHist();
+  } else {
+    if(boxArtigo) boxArtigo.classList.add("hide");
+    if(boxOp) boxOp.classList.remove("hide");
+    if(nota) nota.innerHTML = `<strong>OPERACIONAL:</strong> fotografia atual da base viva. Pode mudar com novas classificacoes, reclassificacoes e conferencias; nao substitui os resultados do artigo.`;
+  }
+}
+
+function renderEstatisticaArtigo(){
+  const notaIc=document.getElementById("estArtigoIcNota");
+  const tbIc=document.querySelector("#tabEstArtigoIC tbody");
+  const tbCorr=document.querySelector("#tabEstArtigoCorr tbody");
+  const kpisQ=document.getElementById("kpisEstArtigoQ");
+  const tbPares=document.querySelector("#tabEstArtigoPares tbody");
+  const tbKappa=document.querySelector("#tabEstArtigoKappa tbody");
+  if(!tbIc) return;
+  // A. Acuracia/Macro-F1 com IC (bootstrap de conglomerados)
+  if(!ehCanonicoValido(INFERENCIA_CANON) || !Array.isArray(INFERENCIA_CANON.intervalos)){
+    indisponivelCanonico("tabEstArtigoIC",5);
+    if(notaIc) notaIc.textContent="Dados cientificos congelados indisponiveis nesta publicacao (inferencia_canonica.json).";
+  } else {
+    if(notaIc) notaIc.textContent="Intervalos por bootstrap de conglomerados de grupos textuais.";
+    const lin=[...INFERENCIA_CANON.intervalos].sort((a,b)=>N(b.acuracia_pontual)-N(a.acuracia_pontual));
+    tbIc.innerHTML = lin.map(m=>{
+      const ac=m.acuracia||{}, f1=m.macro_f1||{};
+      return `<tr><td>${esc(m.modelo)}</td><td>${pct(m.acuracia_pontual)}</td>`
+        +`<td>[${pct(ac.ic95_min)} &ndash; ${pct(ac.ic95_max)}]</td>`
+        +`<td>${pct(m.macro_f1_pontual)}</td><td>[${pct(f1.ic95_min)} &ndash; ${pct(f1.ic95_max)}]</td></tr>`;
+    }).join("");
+  }
+  // B. Correlacao confianca x acerto (contra referencia humana)
+  const corrObj = ehCanonicoValido(INFERENCIA_CANON) ? INFERENCIA_CANON.correlacao_confianca_acerto : null;
+  if(!corrObj || !Array.isArray(corrObj.modelos)){
+    indisponivelCanonico("tabEstArtigoCorr",6);
+  } else {
+    const lin=[...corrObj.modelos].sort((a,b)=>N(b.spearman_r)-N(a.spearman_r));
+    tbCorr.innerHTML = lin.map(m=>
+      `<tr><td>${esc(m.modelo)}</td><td>${fmt(m.n)}</td><td>${fmtDec(m.spearman_r,4)}</td>`
+      +`<td>${fmtP(m.spearman_p)}</td><td>${fmtDec(m.pointbiserial_r,4)}</td><td>${fmtP(m.pointbiserial_p)}</td></tr>`
+    ).join("");
+  }
+  // C. Inferencia agrupada: Q global + pares (Holm-Bonferroni)
+  if(!ehCanonicoValido(INFERENCIA_AGRUPADA)){
+    if(kpisQ) kpisQ.innerHTML=kpi("—","Dados cientificos congelados indisponiveis nesta publicacao");
+    indisponivelCanonico("tabEstArtigoPares",6);
+  } else {
+    const tg=INFERENCIA_AGRUPADA.teste_global||{};
+    const cp=INFERENCIA_AGRUPADA.corpus||{};
+    if(kpisQ) kpisQ.innerHTML = kpi(fmtDec(tg.estatistica_q,2),"Q de Cochran")
+      +kpi(fmt(tg.graus_de_liberdade),"Graus de liberdade")
+      +kpi(fmtP(tg.p_permutacional),"p permutacional")
+      +kpi(esc(tg.unidade_da_permutacao||"grupo textual"),"Unidade")
+      +kpi(fmt(cp.grupos_textuais),"n grupos");
+    const pares=[...(INFERENCIA_AGRUPADA.pares||[])].sort((a,b)=>N(a.p_ajustado_holm)-N(b.p_ajustado_holm));
+    tbPares.innerHTML = pares.map(p=>{
+      const ic=p.ic95_da_diferenca||[];
+      const parNome=Array.isArray(p.par)?p.par.join(" x "):"—";
+      return `<tr><td>${esc(parNome)}</td><td>${fmtDec(p.diferenca_de_acuracia,4)}</td>`
+        +`<td>[${fmtDec(ic[0],4)} &ndash; ${fmtDec(ic[1],4)}]</td>`
+        +`<td>${fmtP(p.p_permutacional_agrupado)}</td><td>${fmtP(p.p_ajustado_holm)}</td>`
+        +`<td class="${p.significativo?'status-ok':'status-bad'}">${p.significativo?"sim":"nao"}</td></tr>`;
+    }).join("");
+  }
+  // D. Kappa IA x historico (protocolo OOF, comparacao_historica.json)
+  if(!ehCanonicoValido(COMP_HIST)){
+    indisponivelCanonico("tabEstArtigoKappa",4);
+  } else {
+    const lin=[...(COMP_HIST.modelos||[])].sort((a,b)=>N(b.concordancia&&b.concordancia.kappa)-N(a.concordancia&&a.concordancia.kappa));
+    tbKappa.innerHTML = lin.map(m=>{
+      const co=m.concordancia||{};
+      return `<tr><td>${esc(m.modelo)}</td><td>${fmt(co.n)}</td><td>${pct(co.acordo_bruto)}</td><td>${fmtDec(co.kappa,4)}</td></tr>`;
+    }).join("");
+  }
+}
+function aplicarFonteEstatistica(){
+  const sel=document.getElementById("selEstatFonte");
+  const modo = sel ? sel.value : "artigo";
+  const nota=document.getElementById("estatFonteNota");
+  const boxArtigo=document.getElementById("estatArtigoBox");
+  const boxOp=document.getElementById("estatOperacionalBox");
+  if(modo==="artigo"){
+    if(boxArtigo) boxArtigo.classList.remove("hide");
+    if(boxOp) boxOp.classList.add("hide");
+    if(nota) nota.innerHTML = `<strong>ARTIGO:</strong> resultados do corpus cientifico congelado (n=13.972, 41 categorias, 5 dobras agrupadas). Nao mudam com novos chamados.`;
+    renderEstatisticaArtigo();
+  } else {
+    if(boxArtigo) boxArtigo.classList.add("hide");
+    if(boxOp) boxOp.classList.remove("hide");
+    if(nota) nota.innerHTML = `<strong>OPERACIONAL:</strong> fotografia atual da base viva. Pode mudar com novas classificacoes, reclassificacoes e conferencias; nao substitui os resultados do artigo.`;
+  }
+}
+
+function renderCalibracaoArtigo(){
+  const tb=document.querySelector("#tabCalibArtigo tbody");
+  const nota=document.getElementById("calibArtigoNota");
+  if(!tb) return;
+  if(!ehCanonicoValido(CALIBRACAO_CANON) || !Array.isArray(CALIBRACAO_CANON.modelos)){
+    indisponivelCanonico("tabCalibArtigo",9);
+    if(nota) nota.textContent="Dados cientificos congelados indisponiveis nesta publicacao (calibracao_canonica.json).";
+    return;
+  }
+  if(nota) nota.textContent="Fonte: calibracao_canonica.json, rodada canonica que sustenta a Subsecao 4.4 do artigo.";
+  const lin=[...CALIBRACAO_CANON.modelos].sort((a,b)=>N(b.acuracia_global)-N(a.acuracia_global));
+  tb.innerHTML = lin.map(m=>{
+    const bruta=m.bruta||{}, calibrada=m.calibrada||{};
+    const as95=(m.automacao_seletiva&&m.automacao_seletiva["0.95"])||{};
+    return `<tr><td>${esc(m.modelo)}</td><td>${pct(m.acuracia_global)}</td>`
+      +`<td>${fmtDec(bruta.ece,4)}</td><td>${fmtDec(calibrada.ece,4)}</td>`
+      +`<td>${fmtDec(bruta.brier,4)}</td><td>${fmtDec(calibrada.brier,4)}</td>`
+      +`<td>${as95.cobertura!=null?pct(as95.cobertura):"—"}</td>`
+      +`<td>${as95.acuracia_seletiva!=null?pct(as95.acuracia_seletiva):"—"}</td>`
+      +`<td>${as95.taxa_encaminhamento_humano!=null?pct(as95.taxa_encaminhamento_humano):"—"}</td></tr>`;
+  }).join("");
+}
+function aplicarFonteCalibracao(){
+  const sel=document.getElementById("selCalibFonte");
+  const modo = sel ? sel.value : "artigo";
+  const nota=document.getElementById("calibFonteNota");
+  const boxArtigo=document.getElementById("metricsArtigoBox");
+  const boxOp=document.getElementById("metricsOperacionalBox");
+  if(modo==="artigo"){
+    if(boxArtigo) boxArtigo.classList.remove("hide");
+    if(boxOp) boxOp.classList.add("hide");
+    if(nota) nota.innerHTML = `<strong>ARTIGO:</strong> resultados do corpus cientifico congelado (n=13.972, 41 categorias, 5 dobras agrupadas). Nao mudam com novos chamados.`;
+    renderCalibracaoArtigo();
+  } else {
+    if(boxArtigo) boxArtigo.classList.add("hide");
+    if(boxOp) boxOp.classList.remove("hide");
+    if(nota) nota.innerHTML = `<strong>OPERACIONAL:</strong> fotografia atual da base viva. Pode mudar com novas classificacoes, reclassificacoes e conferencias; nao substitui os resultados do artigo.`;
+  }
+}
+
 (async function(){
   const [turnos,cat,rt,met,resumo,cal,calModels,calAjustada,mod,compCat,registros,multiMet,multiTurnos,multiRecl,estat,taxCorr,taxTermos,taxCruz] = await Promise.all([
     getJSON("log_turnos_classificacao.json"), getJSON("metricas_por_categoria.json"),
@@ -2553,11 +2863,13 @@ function renderBertimbauCoreset(cs){
     getJSON("estatistica.json"),
     getJSON("correlacao_categorias.json"), getJSON("termos_relevantes.json"), getJSON("cruzamento_taxonomia.json")
   ]);
-  const [avFinal, anErros, reclassResumo, shResumo, shModelos, jsModelos, shCategorias, shVotos, bertState, bertHoldout, compHist] = await Promise.all([
+  const [avFinal, anErros, reclassResumo, shResumo, shModelos, jsModelos, shCategorias, shVotos, bertState, bertHoldout, compHist, retreinoCanon, custoCanon, inferenciaCanon, inferenciaAgrupada, calibracaoCanon] = await Promise.all([
     getJSON("avaliacao_final.json"), getJSON("analise_erros.json"), getJSON("reclass_resumo.json"),
     getJSON("shannon_resumo.json"), getJSON("shannon_modelos.json"), getJSON("jensen_shannon_modelos.json"),
     getJSON("shannon_categorias.json"), getJSON("shannon_votos.json"), getJSON("bertimbau_training_state.json"),
-    getJSON("avaliacao_bertimbau_holdout.json"), getJSON("comparacao_historica.json")
+    getJSON("avaliacao_bertimbau_holdout.json"), getJSON("comparacao_historica.json"),
+    getJSON("retreino_canonico.json"), getJSON("custo_computacional_canonico.json"),
+    getJSON("inferencia_canonica.json"), getJSON("inferencia_agrupada.json"), getJSON("calibracao_canonica.json")
   ]);
   CONFUSAO = await getJSON("matriz_confusao.json");
   renderConfusao();
@@ -2595,6 +2907,20 @@ function renderBertimbauCoreset(cs){
   renderTaxonomia(taxCorr, taxTermos, taxCruz);
   renderEstatistica(estat);
   COMP_HIST = (compHist && !Array.isArray(compHist)) ? compHist : null;
+  RETREINO_CANON = ehCanonicoValido(retreinoCanon) ? retreinoCanon : null;
+  CUSTO_CANON = ehCanonicoValido(custoCanon) ? custoCanon : null;
+  INFERENCIA_CANON = ehCanonicoValido(inferenciaCanon) ? inferenciaCanon : null;
+  INFERENCIA_AGRUPADA = ehCanonicoValido(inferenciaAgrupada) ? inferenciaAgrupada : null;
+  CALIBRACAO_CANON = ehCanonicoValido(calibracaoCanon) ? calibracaoCanon : null;
+  const selMF=document.getElementById("selModelosFonte");
+  if(selMF) selMF.addEventListener("change", aplicarFonteModelos);
+  aplicarFonteModelos();
+  const selEF=document.getElementById("selEstatFonte");
+  if(selEF) selEF.addEventListener("change", aplicarFonteEstatistica);
+  aplicarFonteEstatistica();
+  const selCF=document.getElementById("selCalibFonte");
+  if(selCF) selCF.addEventListener("change", aplicarFonteCalibracao);
+  aplicarFonteCalibracao();
   RECLASS_RESUMO_OP = Array.isArray(reclassResumo)?null:reclassResumo;
   const linOp=(RECLASS_RESUMO_OP&&RECLASS_RESUMO_OP.por_modelo)||[];
   const temMulti = linOp.length>0;
