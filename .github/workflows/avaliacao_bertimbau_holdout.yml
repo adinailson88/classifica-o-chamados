@@ -58,7 +58,9 @@ jobs:
           git diff --cached --quiet && { echo "sem mudanca na avaliacao"; exit 0; }
           git commit -m "avaliacao held-out do BERTimbau [skip ci]"
           for i in 1 2 3 4 5; do
-            git pull --rebase --autostash -X theirs origin main && git push && exit 0
+            # Sem -X theirs: conflito real em docs/dados/avaliacao_bertimbau_holdout.json
+            # aborta o rebase (linha abaixo) em vez de escolher uma versao silenciosamente.
+            git pull --rebase --autostash origin main && git push && exit 0
             git rebase --abort 2>/dev/null || true
             echo "push rejeitado (tentativa $i/5); novo rebase em 5s"; sleep 5
           done
