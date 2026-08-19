@@ -21,8 +21,10 @@ name: Transformer fine-tuning (BERTimbau)
 # GOVERNANCA DE ESCRITA (Lote 8G-B): permissions e' contents:read no topo do workflow.
 # Somente o job persistir_estado tem contents:write, e so roda apos treino operacional
 # REAL bem-sucedido (houve_treino=true). Esse job so pode staged/commitar
-# docs/dados/bertimbau_training_state.json e dados/estado_automacao.json (allowlist
-# estrita com default-deny antes do commit).
+# docs/dados/bertimbau_training_state.json (allowlist estrita com default-deny
+# antes do commit). dados/estado_automacao.json NAO entra mais nesse commit textual
+# -- e persistido separadamente por src/persistir_estado_automacao.py, que parte
+# sempre do SHA remoto mais recente e altera so a chave 'transformer_ft' (Lote 8H-B2).
 
 on:
   # Noturno: ~02:17 America/Bahia (UTC-3) = 05:17 UTC. Minuto 17 evita o pico do topo
@@ -223,7 +225,7 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
-      - name: Registrar estado do treino + marcador da guarda
+      - name: Registrar estado do treino
         run: |
           python src/escrever_estado_bertimbau.py \
             --status ok \
@@ -231,16 +233,17 @@ jobs:
             --acao reclassificar_validados \
             --commit "${{ github.sha }}" \
             --motivo "treino concluido (modo ${{ needs.preparar.outputs.modo }})"
-          python src/guard_automacao.py --registrar --chave transformer_ft --valor "${{ needs.preparar.outputs.valor_atual }}"
       - name: Commit do estado operacional (allowlist estrita)
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add docs/dados/bertimbau_training_state.json dados/estado_automacao.json
-          # Default-deny: este job so pode persistir estado operacional. Se qualquer
-          # caminho fora da allowlist ficou staged, falha antes de commitar.
+          git add docs/dados/bertimbau_training_state.json
+          # Default-deny: este job so pode persistir o estado operacional do treino.
+          # Se qualquer caminho fora da allowlist ficou staged, falha antes de
+          # commitar. dados/estado_automacao.json NAO entra aqui -- e persistido
+          # separadamente pelo helper seguro no proximo step.
           INESPERADOS="$(git diff --cached --name-only -- . \
-            ':!docs/dados/bertimbau_training_state.json' ':!dados/estado_automacao.json')"
+            ':!docs/dados/bertimbau_training_state.json')"
           if [ -n "$INESPERADOS" ]; then
             echo "BLOQUEADO: arquivo(s) fora da allowlist deste job estao staged:" >&2
             echo "$INESPERADOS" >&2
@@ -254,6 +257,12 @@ jobs:
             echo "push rejeitado (tentativa $i/5); novo pull/rebase em 5s"; sleep 5
           done
           echo "push falhou apos 5 tentativas" >&2; exit 1
+      - name: Persistir marcador de automacao
+        run: |
+          python src/persistir_estado_automacao.py \
+            --chave transformer_ft \
+            --valor "${{ needs.preparar.outputs.valor_atual }}" \
+            --aplicar
 
   registrar_skip:
     needs: preparar

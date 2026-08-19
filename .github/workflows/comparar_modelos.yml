@@ -107,18 +107,10 @@ jobs:
       - name: Remover credenciais
         if: always()
         run: rm -f credenciais_sa.json
-      - name: Registrar marcador da aplicacao
+      - name: Persistir marcador de automacao
         if: ${{ github.event_name == 'schedule' || github.event.inputs.aplicar == 'true' }}
         run: |
-          python src/guard_automacao.py --registrar --chave comparar_modelos --valor '${{ needs.guard.outputs.valor_atual || '0' }}'
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add dados/estado_automacao.json
-          git diff --cached --quiet && { echo "sem mudanca no estado"; exit 0; }
-          git commit -m "estado automacao: comparar_modelos [skip ci]"
-          for i in 1 2 3 4 5; do
-            git pull --rebase --autostash -X theirs origin main && git push && exit 0
-            git rebase --abort 2>/dev/null || true
-            echo "push rejeitado (tentativa $i/5); novo rebase em 5s"; sleep 5
-          done
-          echo "push falhou apos 5 tentativas" >&2; exit 1
+          python src/persistir_estado_automacao.py \
+            --chave comparar_modelos \
+            --valor '${{ needs.guard.outputs.valor_atual || '0' }}' \
+            --aplicar
