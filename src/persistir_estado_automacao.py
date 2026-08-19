@@ -274,13 +274,17 @@ def _dry_run(chave, valor, remote, branch, cwd):
 
 
 def persistir(chave, valor, *, remote="origin", branch="main", max_tentativas=5,
-              cwd=None, aplicar=True, before_push=None):
+              cwd=None, aplicar=False, before_push=None):
     """Persiste `valor` na `chave` de dados/estado_automacao.json.
 
     Cada tentativa parte de um worktree temporario criado a partir do SHA
     mais recente de <remote>/<branch> -- nunca de git pull/rebase/stash.
     Se o push for rejeitado (remoto avancou), a tentativa e descartada e uma
     nova comeca do zero, ate `max_tentativas`.
+
+    `aplicar` e False por padrao (safe-by-default): sem opt-in explicito,
+    nenhuma chamada programatica comita ou da push -- mesmo principio ja
+    usado pela CLI, que so aplica com a flag `--aplicar`.
     """
     cwd = cwd or os.getcwd()
     validar_chave(chave)

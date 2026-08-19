@@ -455,6 +455,23 @@ class TestDryRun(BaseGitTestCase):
         )
         self.assertEqual(resultado["status"], "no-op")
 
+    def test_aplicar_e_false_por_padrao_sem_informar_o_argumento(self):
+        # Chamada programatica SEM aplicar=True: precisa se comportar como
+        # dry-run mesmo sem ninguem pedir explicitamente -- opt-in, nao
+        # opt-out. Nenhum commit/push pode acontecer por omissao.
+        sha_antes = self._sha_remoto()
+        novo_valor = ESTADO_SEED["comparar_modelos"] + 1
+
+        resultado = pea.persistir(
+            "comparar_modelos", novo_valor,
+            remote=str(self.remote), cwd=str(self.cwd_a),
+        )
+
+        self.assertEqual(resultado["status"], "dry-run")
+        self.assertEqual(self._sha_remoto(), sha_antes)
+        registrados = self._worktrees_registrados(self.cwd_a)
+        self.assertEqual(len(registrados), 1)  # nenhum worktree abandonado
+
 
 if __name__ == "__main__":
     unittest.main()
