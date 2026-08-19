@@ -220,7 +220,10 @@ def detectar_duplicatas(registros: list[dict], quase_limiar: float) -> tuple[dic
     exatos = defaultdict(list)
     for r in registros:
         exatos[(r["categoria"], r["texto_norm"])].append(r["linha"])
-    duplicatas = {f"{cat}|{txt[:40]}": linhas for (cat, txt), linhas in exatos.items() if len(linhas) > 1}
+    duplicatas = {
+        f"sha256:{hashlib.sha256((cat + chr(0) + txt).encode('utf-8')).hexdigest()}": linhas
+        for (cat, txt), linhas in exatos.items() if len(linhas) > 1
+    }
     quase = []
     por_cat = defaultdict(list)
     for r in registros:
