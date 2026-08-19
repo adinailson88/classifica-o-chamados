@@ -1,0 +1,149 @@
+name: Transformer BERTimbau — experimentos manuais
+
+# Experimentos cientificos/manuais do BERTimbau, extraidos de transformer_ft.yml no
+# Lote 8G-B:
+#   - cluster_coreset: diagnostico de selecao de subconjunto (TF-IDF + KMeans por
+#     categoria), SEM fine-tuning. So leitura da planilha.
+#   - comparar_full / comparar_coreset: avaliacao held-out do BERTimbau numa janela de
+#     teste (acuracia, F1 macro e por categoria), sobre a base completa ou sobre o
+#     coreset experimental.
+#
+# GOVERNANCA (Lote 8G-B): so workflow_dispatch, sem schedule. contents:read no topo,
+# nenhum job com contents:write — este workflow NUNCA escreve em main (zero git add/
+# commit/push). O experimento "comparar" roda src/comparar_modelos_lote.py SEM
+# --aplicar: o script so grava as abas COMPARACAO_MODELOS/_CATEGORIA/_PREVISOES quando
+# --aplicar esta presente (confirmado por leitura direta do codigo antes deste lote),
+# entao aqui ele fica em modo dry-run e so produz o JSON agregado local de metricas.
+#
+# Resultados ficam disponiveis como Actions artifact, com allowlist estrita. NAO
+# publica docs/dados/bertimbau_cluster_report.json, docs/dados/bertimbau_review_queue.json
+# nem dados/bertimbau_coreset_ids.json: a auditoria do Lote 8G-B encontrou que o
+# cluster_report pode conter fragmentos reais de texto de chamados (via deteccao de
+# quase-duplicatas), o que violaria o .gitignore do repositorio publico. A
+# remocao/sanitizacao do arquivo homonimo ja versionado em docs/dados/ fica para o
+# Lote 8G-C; este workflow so garante que nenhuma NOVA publicacao aconteca.
+
+on:
+  workflow_dispatch:
+    inputs:
+      experimento:
+        description: "cluster_coreset | comparar_full | comparar_coreset"
+        type: choice
+        default: cluster_coreset
+        options:
+          - cluster_coreset
+          - comparar_full
+          - comparar_coreset
+      coreset_max_total:
+        description: "Para cluster_coreset: limite alvo de exemplos selecionados"
+        default: "4000"
+      limite:
+        description: "Para comparar_full/comparar_coreset: tamanho da janela held-out de teste"
+        default: "500"
+      max_epochs:
+        description: "Para comparar_full/comparar_coreset: epocas de fine-tuning (vazio = padrao)"
+        default: ""
+
+# Grupo proprio, separado de 'bertimbau-finetune': experimentos manuais nao devem
+# bloquear nem esperar o fluxo operacional automatico, e vice-versa.
+concurrency:
+  group: bertimbau-experimentos
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  cluster_coreset:
+    if: ${{ github.event.inputs.experimento == 'cluster_coreset' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: requirements-leves.txt
+      - name: Dependencias leves
+        run: python -m pip install --retries 5 --timeout 120 -r requirements-leves.txt
+      - name: Recriar chave da conta de servico
+        env:
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+        run: |
+          if [ -z "$GCP_SA_KEY" ]; then echo "::error::Secret GCP_SA_KEY ausente."; exit 1; fi
+          printf '%s' "$GCP_SA_KEY" > credenciais_sa.json
+      - name: Gerar diagnostico cluster_coreset (sem treino, so leitura da planilha)
+        run: |
+          python src/bertimbau_coreset.py --max-total "${{ github.event.inputs.coreset_max_total || '4000' }}"
+      - name: Remover credenciais
+        if: always()
+        run: rm -f credenciais_sa.json
+      - name: Publicar artifact agregado (allowlist estrita, sem texto de chamado)
+        uses: actions/upload-artifact@v4
+        with:
+          name: bertimbau-coreset-resumo
+          retention-days: 14
+          if-no-files-found: error
+          path: |
+            docs/dados/bertimbau_coreset_resumo.json
+            docs/dados/bertimbau_token_stats.json
+
+  comparar:
+    if: ${{ github.event.inputs.experimento == 'comparar_full' || github.event.inputs.experimento == 'comparar_coreset' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    env:
+      SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
+      TRANSFORMER_TIME_BUDGET_S: "18000"
+      TRANSFORMER_EARLY_STOP: "1"
+      TRANSFORMER_EPOCHS: ${{ github.event.inputs.max_epochs || '4' }}
+      TRANSFORMER_MAX_TRAIN: "0"
+      TRANSFORMER_SELECT: ${{ github.event.inputs.experimento == 'comparar_coreset' && 'cluster_coreset' || 'none' }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: |
+            requirements-leves.txt
+            requirements-transformer.txt
+      - name: Cache do Hugging Face (modelo + tokenizer)
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/huggingface
+          key: hf-${{ runner.os }}-bertimbau
+      - name: Instalar dependencias leves
+        run: python -m pip install --retries 5 --timeout 120 -r requirements-leves.txt
+      - name: Instalar transformer (torch + transformers)
+        run: python -m pip install --retries 5 --timeout 600 -r requirements-transformer.txt
+      - name: Recriar chave da conta de servico
+        env:
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+        run: |
+          if [ -z "$GCP_SA_KEY" ]; then echo "::error::Secret GCP_SA_KEY ausente."; exit 1; fi
+          printf '%s' "$GCP_SA_KEY" > credenciais_sa.json
+      - name: "Avaliar held-out (SEM --aplicar: nao escreve planilha)"
+        run: |
+          SEL="${{ github.event.inputs.experimento == 'comparar_coreset' && 'cluster_coreset' || 'none' }}"
+          if [ "$SEL" = "cluster_coreset" ]; then
+            METR="docs/dados/bertimbau_metr_coreset.json"
+          else
+            METR="docs/dados/bertimbau_metr_full.json"
+          fi
+          echo "METR=$METR" >> "$GITHUB_ENV"
+          python src/comparar_modelos_lote.py --modelo transformer_ft --inicio 0 \
+            --limite "${{ github.event.inputs.limite || '500' }}" --metricas-json "$METR"
+      - name: Remover credenciais
+        if: always()
+        run: rm -f credenciais_sa.json
+      - name: Publicar artifact agregado (allowlist estrita)
+        uses: actions/upload-artifact@v4
+        with:
+          name: bertimbau-comparacao-metricas
+          retention-days: 14
+          if-no-files-found: error
+          path: ${{ env.METR }}
