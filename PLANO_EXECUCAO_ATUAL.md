@@ -41,8 +41,10 @@
 > completos em `docs/AUDITORIA_MATERIAL_SUPLEMENTAR.md`.
 >
 > **Regra principal:** os números do artigo já correspondem à execução canônica `1e476243`, a única que deve alimentar o texto. Qualquer alteração numérica futura exige nova execução canônica, reproduzível e comum a todos os modelos, antes de tocar o artigo; não é permitido substituir número isolado por preferência editorial.
+>
+> **Etapa 8 (governança de infraestrutura e dados), separada desta numeração de Passos do artigo: CONCLUÍDA no Lote 8I.** Cobre writers do GitHub Actions, proteção de `main`, privacidade e a separação entre artigo congelado, operação viva e novos cortes científicos. Estado final e auditoria de encerramento em [`docs/GOVERNANCA_FINAL_REPOSITORIO.md`](docs/GOVERNANCA_FINAL_REPOSITORIO.md).
 
-Atualizado em 16/08/2026, no fuso America/Bahia.
+Atualizado em 19/08/2026, no fuso America/Bahia.
 
 **Pendência documental registrada em 05/08/2026, confirmada na Rodada 10:** não existe no repositório
 documento de autorização institucional formal, de aprovação por comitê de ética

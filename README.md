@@ -33,6 +33,7 @@ Os resultados alimentam o painel público e o artigo/capítulo da tese em Biossi
 | Guia de reprodutibilidade (planilha → scripts → artigo) | [`docs/GUIA_REPRODUTIBILIDADE.md`](docs/GUIA_REPRODUTIBILIDADE.md) |
 | Contexto técnico atual | [`CONTEXTO.md`](CONTEXTO.md) |
 | Regras do repositório | [`AGENTS.md`](AGENTS.md) |
+| Governança final do repositório (writers, proteção de `main`, três domínios de dados) | [`docs/GOVERNANCA_FINAL_REPOSITORIO.md`](docs/GOVERNANCA_FINAL_REPOSITORIO.md) |
 | Código do experimento | [`src/`](src/) |
 | Testes | [`tests/`](tests/) |
 
