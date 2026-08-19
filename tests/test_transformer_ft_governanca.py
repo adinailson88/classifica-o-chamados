@@ -136,13 +136,22 @@ class TestWorkflowOperacional(unittest.TestCase):
         self.assertNotIn("valor_atual=0", self.texto_bruto)
 
     def test_10_staging_git_restrito_ao_estado_operacional(self):
+        # Lote 8H-B2: dados/estado_automacao.json saiu deste commit textual --
+        # e persistido separadamente pelo helper seguro (ver test_10b).
         linhas = linhas_git_add(self.texto_run)
         self.assertEqual(len(linhas), 1, f"esperado exatamente 1 'git add', achado: {linhas}")
         caminhos = set(linhas[0].split())
-        self.assertEqual(
-            caminhos,
-            {"docs/dados/bertimbau_training_state.json", "dados/estado_automacao.json"},
-        )
+        self.assertEqual(caminhos, {"docs/dados/bertimbau_training_state.json"})
+
+    def test_10b_estado_automacao_persistido_pelo_helper_seguro(self):
+        # dados/estado_automacao.json nao pode mais aparecer em nenhum `git add`
+        # (ja garantido por test_10, que exige exatamente 1 add e so o path do
+        # training_state); aqui confirmamos que o mecanismo antigo (registro via
+        # guard_automacao.py) foi removido e o helper seguro assumiu o lugar.
+        self.assertNotIn("guard_automacao.py --registrar", self.texto_run)
+        self.assertIn("persistir_estado_automacao.py", self.texto_run)
+        self.assertIn("--chave transformer_ft", self.texto_run)
+        self.assertIn("--aplicar", self.texto_run)
 
     def test_11_sem_comandos_destrutivos_ou_amplos(self):
         self.assertNotIn("git add .", self.texto_run)

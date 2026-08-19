@@ -83,13 +83,11 @@ jobs:
       - name: Remover credenciais
         if: always()
         run: rm -f credenciais_sa.json
-      - name: Registrar marcador de automacao
-        run: python src/guard_automacao.py --registrar --chave avaliacao_final --valor '${{ needs.guard.outputs.valor_atual || '0' }}'
       - name: Commit dos dados
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add docs/dados/avaliacao_final.json docs/dados/analise_erros.json dados/estado_automacao.json
+          git add docs/dados/avaliacao_final.json docs/dados/analise_erros.json
           git diff --cached --quiet && { echo "sem mudancas nos dados"; exit 0; }
           git commit -m "avaliacao final validada + analise de erros [skip ci]"
           for i in 1 2 3 4 5; do
@@ -101,3 +99,9 @@ jobs:
             echo "push rejeitado (tentativa $i/5); novo rebase em 5s"; sleep 5
           done
           echo "push falhou apos 5 tentativas" >&2; exit 1
+      - name: Persistir marcador de automacao
+        run: |
+          python src/persistir_estado_automacao.py \
+            --chave avaliacao_final \
+            --valor '${{ needs.guard.outputs.valor_atual || '0' }}' \
+            --aplicar
