@@ -30,8 +30,11 @@ concurrency:
   group: avaliacao-final
   cancel-in-progress: false
 
+# Menor escopo: so o job "avaliacao-final" comita/da push (JSON derivados +
+# marcador via helper). "guard" so le docs/dados/resumo.json e herda o
+# contents:read padrao.
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   guard:
@@ -53,6 +56,8 @@ jobs:
     if: ${{ github.event_name == 'workflow_dispatch' || needs.guard.outputs.executar == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    permissions:
+      contents: write
     env:
       SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
     steps:
@@ -91,9 +96,10 @@ jobs:
           git diff --cached --quiet && { echo "sem mudancas nos dados"; exit 0; }
           git commit -m "avaliacao final validada + analise de erros [skip ci]"
           for i in 1 2 3 4 5; do
-            # -X theirs: conflito em docs/dados/*.json (regerados por workflows concorrentes)
-            # resolve a favor do conteudo recem-gerado nesta execucao.
-            git pull --rebase --autostash -X theirs origin main && git push && exit 0
+            # Falha explicita em conflito real: sem -X theirs, um conflito verdadeiro
+            # nos dois JSON deste workflow aborta o rebase (linha abaixo) em vez de
+            # escolher uma versao silenciosamente.
+            git pull --rebase --autostash origin main && git push && exit 0
             # aborta rebase preso para a proxima tentativa nao herdar 'unmerged files'.
             git rebase --abort 2>/dev/null || true
             echo "push rejeitado (tentativa $i/5); novo rebase em 5s"; sleep 5
