@@ -106,31 +106,56 @@ jobs:
             [ -n "$modelo" ] && echo "registros_${modelo}.json" >> "$ALLOWLIST"
           done <<< "$MODELOS"
 
+          # Valida a lista de paths alterados (um por linha, via stdin) contra a
+          # allowlist acima e preenche o array global STAGE_LIST com os aprovados.
+          # Chamada diretamente (nunca via "$(...)"), para que o "exit 1" em caso
+          # de path inesperado aborte o job inteiro, e nao so uma subshell.
+          validar_e_montar_stage() {
+            STAGE_LIST=()
+            local inesperados=""
+            local path dir base
+            while IFS= read -r path; do
+              [ -z "$path" ] && continue
+              dir="$(dirname "$path")"
+              base="$(basename "$path")"
+              if [ "$dir" != "docs/dados" ] || ! grep -qxF "$base" "$ALLOWLIST"; then
+                inesperados="${inesperados}${path}\n"
+                continue
+              fi
+              STAGE_LIST+=("$path")
+            done <<< "$1"
+
+            if [ -n "$inesperados" ]; then
+              echo "BLOQUEADO: arquivo(s) inesperado(s) alterado(s) em docs/dados (fora da allowlist deste workflow):" >&2
+              printf '%b' "$inesperados" >&2
+              exit 1
+            fi
+          }
+
           # Arquivos tracked modificados + novos nao tracked + removidos, dentro de
           # docs/dados, nesta execucao.
           CHANGED="$(git status --porcelain -- docs/dados | sed -E 's/^...//')"
-
-          INESPERADOS=""
-          STAGE_LIST=()
-          while IFS= read -r path; do
-            [ -z "$path" ] && continue
-            dir="$(dirname "$path")"
-            base="$(basename "$path")"
-            if [ "$dir" != "docs/dados" ] || ! grep -qxF "$base" "$ALLOWLIST"; then
-              INESPERADOS="${INESPERADOS}${path}\n"
-              continue
-            fi
-            STAGE_LIST+=("$path")
-          done <<< "$CHANGED"
-
-          if [ -n "$INESPERADOS" ]; then
-            echo "BLOQUEADO: arquivo(s) inesperado(s) alterado(s) em docs/dados (fora da allowlist deste workflow):" >&2
-            printf '%b' "$INESPERADOS" >&2
-            exit 1
-          fi
+          validar_e_montar_stage "$CHANGED"
 
           if [ "${#STAGE_LIST[@]}" -eq 0 ]; then
             echo "sem mudancas nos dados"; exit 0
+          fi
+
+          # Antes do git add: restaura para o conteudo de HEAD os JSONs, dentre os
+          # ja aprovados pela allowlist acima, cuja unica mudanca substantiva seja
+          # o campo "gerado_em" no nivel superior do objeto (ver
+          # src/filtrar_noop_dashboard.py). Isso evita commits cujo unico efeito
+          # e atualizar um timestamp sem mudanca real nos dados. Falha fechado
+          # (aborta o job sem sobrescrever nada) se algum JSON estiver invalido.
+          python src/filtrar_noop_dashboard.py -- "${STAGE_LIST[@]}"
+
+          # Releitura apos o filtro: recomputa quais paths continuam realmente
+          # modificados e reaplica o mesmo default-deny sobre o resultado.
+          CHANGED="$(git status --porcelain -- docs/dados | sed -E 's/^...//')"
+          validar_e_montar_stage "$CHANGED"
+
+          if [ "${#STAGE_LIST[@]}" -eq 0 ]; then
+            echo "sem mudancas substantivas nos dados"; exit 0
           fi
 
           git add -- "${STAGE_LIST[@]}"
