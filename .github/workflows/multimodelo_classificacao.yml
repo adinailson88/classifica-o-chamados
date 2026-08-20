@@ -3,12 +3,23 @@ name: Multimodelo - classificacao completa
 # Materializa CLASSIF__<modelo> para cada IA selecionada, com predicao
 # out-of-fold e lote dinamico.
 #
-# AUTOMATICO A CADA 15 MIN (MESMO CRON DA ETAPA 1/LSTM), TODOS OS 8 MODELOS
-# (leves + pesados/LSTM/transformer_ft): classificam os chamados novos no
+# AUTOMATICO A CADA 15 MIN (MESMO CRON DA ETAPA 1/LSTM), OS 7 MODELOS
+# OPERACIONAIS NO CRON (6 leves + lstm): classificam os chamados novos no
 # mesmo ritmo do LSTM oficial. max_turnos=0 = todos os pendentes. E incremental
 # e barato depois da materializacao inicial: classificacao_multimodelo.py so
 # processa as linhas ainda nao feitas e encerra rapido quando nao ha pendentes
 # (no-op) — so fica pesado de novo apos um reset ou grande avanco da base.
+#
+# transformer_ft FICA FORA da selecao automatica do schedule (auditoria
+# A4-2, 2026-08-20): este cron nunca instala torch/transformers (so
+# tensorflow, para o lstm), entao o transformer_ft sempre cai em fallback
+# LSTM/RF e o proprio classificacao_multimodelo.py RECUSA publicar esse
+# fallback sob o nome do modelo pedido — nos runs auditados, ~10 dos ~11 min
+# do step "Classificar por modelo" eram gastos treinando esse fallback so
+# para descarta-lo. Nao e remocao cientifica do modelo: transformer_ft
+# continua disponivel via workflow_dispatch (input 'modelos': pesados/todos/
+# explicito) e no seu workflow dedicado (.github/workflows/transformer_ft.yml),
+# que instala as dependencias reais.
 # Compartilha o concurrency 'multimodelo-pipeline' com a reclassificacao
 # multimodelo (multimodelo_reclassificacao.yml): a reclassificacao LE
 # CLASSIF__<modelo>, que esta classificacao ESCREVE, entao as duas nunca
@@ -118,11 +129,13 @@ jobs:
           printf '%s' "$GCP_SA_KEY" > credenciais_sa.json
       - name: Classificar por modelo
         env:
-          MODELOS: ${{ github.event.inputs.modelos || 'todos' }}
+          MODELOS: ${{ github.event.inputs.modelos || 'naive_bayes,regressao_logistica,linear_svc,sgd,extra_trees,random_forest,lstm' }}
           MAX_TURNOS: ${{ github.event.inputs.max_turnos || '0' }}
         run: |
-          # No cron (schedule) materializa TODOS os 8 modelos (leves + pesados);
-          # manual respeita o input 'modelos'/'aplicar'.
+          # No cron (schedule) materializa os 7 modelos operacionais do cron
+          # (6 leves + lstm) -- transformer_ft fica de fora (ver comentario no
+          # topo do arquivo); manual respeita o input 'modelos'/'aplicar',
+          # incluindo 'pesados'/'todos'/transformer_ft explicito.
           APLICAR=""
           if [ "${{ github.event.inputs.aplicar }}" = "true" ] || [ "${{ github.event_name }}" = "schedule" ]; then
             APLICAR="--aplicar"
