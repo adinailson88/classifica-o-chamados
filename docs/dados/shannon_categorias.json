@@ -58,8 +58,8 @@
     {
       "categoria_historica": "Outros > Outros",
       "modelos": 9,
-      "suporte_max": 132,
-      "entropia_media_normalizada": 0.733,
+      "suporte_max": 133,
+      "entropia_media_normalizada": 0.7331,
       "maior_risco": "alta_ambiguidade"
     },
     {
@@ -135,8 +135,8 @@
     {
       "categoria_historica": "Instalação de Acessórios e Mobiliário > Instalação/reparo de equipamentos (Suportes de TV, acessórios de banheiro e quadro branco)",
       "modelos": 9,
-      "suporte_max": 1190,
-      "entropia_media_normalizada": 0.526,
+      "suporte_max": 1191,
+      "entropia_media_normalizada": 0.5283,
       "maior_risco": "alta_ambiguidade"
     },
     {
@@ -163,8 +163,8 @@
     {
       "categoria_historica": "Instalação de Acessórios e Mobiliário > Placas de identificação",
       "modelos": 9,
-      "suporte_max": 216,
-      "entropia_media_normalizada": 0.4682,
+      "suporte_max": 217,
+      "entropia_media_normalizada": 0.4742,
       "maior_risco": "ambiguidade_moderada"
     },
     {
@@ -385,16 +385,16 @@
     {
       "modelo": "lstm",
       "categoria_historica": "Outros > Outros",
-      "suporte": 132,
+      "suporte": 133,
       "categorias_previstas": 29,
-      "entropia_previsoes": 4.3756,
-      "entropia_normalizada": 0.9007,
-      "categorias_efetivas": 20.7579,
+      "entropia_previsoes": 4.3915,
+      "entropia_normalizada": 0.904,
+      "categorias_efetivas": 20.9882,
       "top_1_previsto": "Elétrica > Instalações elétricas",
-      "top_1_pct": 0.1212,
+      "top_1_pct": 0.1203,
       "top_2_previsto": "Outros > Outros",
-      "top_2_pct": 0.0985,
-      "concordancia_historico": 0.0985,
+      "top_2_pct": 0.0977,
+      "concordancia_historico": 0.0977,
       "risco": "alta_ambiguidade"
     },
     {
@@ -533,6 +533,21 @@
       "risco": "alta_ambiguidade"
     },
     {
+      "modelo": "sgd",
+      "categoria_historica": "Outros > Outros",
+      "suporte": 34,
+      "categorias_previstas": 12,
+      "entropia_previsoes": 2.9782,
+      "entropia_normalizada": 0.8307,
+      "categorias_efetivas": 7.88,
+      "top_1_previsto": "Outros > Outros",
+      "top_1_pct": 0.3824,
+      "top_2_previsto": "Outros > Erro de chamado",
+      "top_2_pct": 0.1471,
+      "concordancia_historico": 0.3824,
+      "risco": "alta_ambiguidade"
+    },
+    {
       "modelo": "linear_svc",
       "categoria_historica": "Hidrossanitária > ETA / ETE",
       "suporte": 32,
@@ -565,31 +580,16 @@
     {
       "modelo": "linear_svc",
       "categoria_historica": "Outros > Outros",
-      "suporte": 66,
+      "suporte": 67,
       "categorias_previstas": 14,
-      "entropia_previsoes": 3.1514,
-      "entropia_normalizada": 0.8277,
-      "categorias_efetivas": 8.8853,
+      "entropia_previsoes": 3.1487,
+      "entropia_normalizada": 0.827,
+      "categorias_efetivas": 8.8686,
       "top_1_previsto": "Outros > Outros",
-      "top_1_pct": 0.3485,
+      "top_1_pct": 0.3433,
       "top_2_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-      "top_2_pct": 0.1212,
-      "concordancia_historico": 0.3485,
-      "risco": "alta_ambiguidade"
-    },
-    {
-      "modelo": "sgd",
-      "categoria_historica": "Outros > Outros",
-      "suporte": 33,
-      "categorias_previstas": 12,
-      "entropia_previsoes": 2.9318,
-      "entropia_normalizada": 0.8178,
-      "categorias_efetivas": 7.6307,
-      "top_1_previsto": "Outros > Outros",
-      "top_1_pct": 0.3939,
-      "top_2_previsto": "Outros > Erro de chamado",
-      "top_2_pct": 0.1515,
-      "concordancia_historico": 0.3939,
+      "top_2_pct": 0.1343,
+      "concordancia_historico": 0.3433,
       "risco": "alta_ambiguidade"
     },
     {
@@ -605,6 +605,21 @@
       "top_2_previsto": "Manutenção Preventiva > Esgoto",
       "top_2_pct": 0.2727,
       "concordancia_historico": 0.2727,
+      "risco": "alta_ambiguidade"
+    },
+    {
+      "modelo": "regressao_logistica",
+      "categoria_historica": "Outros > Outros",
+      "suporte": 34,
+      "categorias_previstas": 11,
+      "entropia_previsoes": 2.8191,
+      "entropia_normalizada": 0.8149,
+      "categorias_efetivas": 7.0571,
+      "top_1_previsto": "Outros > Outros",
+      "top_1_pct": 0.3824,
+      "top_2_previsto": "Outros > Erro de chamado",
+      "top_2_pct": 0.1765,
+      "concordancia_historico": 0.3824,
       "risco": "alta_ambiguidade"
     },
     {
@@ -638,21 +653,6 @@
       "risco": "alta_ambiguidade"
     },
     {
-      "modelo": "naive_bayes",
-      "categoria_historica": "Outros > Outros",
-      "suporte": 33,
-      "categorias_previstas": 5,
-      "entropia_previsoes": 1.8768,
-      "entropia_normalizada": 0.8083,
-      "categorias_efetivas": 3.6727,
-      "top_1_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-      "top_1_pct": 0.4848,
-      "top_2_previsto": "Climatização > Ar condicionado split",
-      "top_2_pct": 0.2727,
-      "concordancia_historico": 0.0,
-      "risco": "alta_ambiguidade"
-    },
-    {
       "modelo": "lstm",
       "categoria_historica": "Manutenção Preventiva > Nobreak",
       "suporte": 40,
@@ -665,21 +665,6 @@
       "top_2_previsto": "Manutenção Preventiva > Nobreak",
       "top_2_pct": 0.25,
       "concordancia_historico": 0.25,
-      "risco": "alta_ambiguidade"
-    },
-    {
-      "modelo": "regressao_logistica",
-      "categoria_historica": "Outros > Outros",
-      "suporte": 33,
-      "categorias_previstas": 11,
-      "entropia_previsoes": 2.7907,
-      "entropia_normalizada": 0.8067,
-      "categorias_efetivas": 6.9199,
-      "top_1_previsto": "Outros > Outros",
-      "top_1_pct": 0.3939,
-      "top_2_previsto": "Outros > Erro de chamado",
-      "top_2_pct": 0.1818,
-      "concordancia_historico": 0.3939,
       "risco": "alta_ambiguidade"
     },
     {
@@ -710,6 +695,21 @@
       "top_2_previsto": "Manutenção Preventiva > Hidráulica",
       "top_2_pct": 0.2188,
       "concordancia_historico": 0.2188,
+      "risco": "alta_ambiguidade"
+    },
+    {
+      "modelo": "naive_bayes",
+      "categoria_historica": "Outros > Outros",
+      "suporte": 34,
+      "categorias_previstas": 5,
+      "entropia_previsoes": 1.8517,
+      "entropia_normalizada": 0.7975,
+      "categorias_efetivas": 3.6092,
+      "top_1_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
+      "top_1_pct": 0.5,
+      "top_2_previsto": "Climatização > Ar condicionado split",
+      "top_2_pct": 0.2647,
+      "concordancia_historico": 0.0,
       "risco": "alta_ambiguidade"
     },
     {
@@ -923,21 +923,6 @@
       "risco": "alta_ambiguidade"
     },
     {
-      "modelo": "random_forest",
-      "categoria_historica": "Outros > Outros",
-      "suporte": 66,
-      "categorias_previstas": 10,
-      "entropia_previsoes": 2.4714,
-      "entropia_normalizada": 0.744,
-      "categorias_efetivas": 5.5457,
-      "top_1_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-      "top_1_pct": 0.4697,
-      "top_2_previsto": "Outros > Outros",
-      "top_2_pct": 0.1818,
-      "concordancia_historico": 0.1818,
-      "risco": "alta_ambiguidade"
-    },
-    {
       "modelo": "transformer_ft",
       "categoria_historica": "Suprimentos / Apoio Técnico > Materiais",
       "suporte": 85,
@@ -980,6 +965,21 @@
       "top_2_previsto": "Hidrossanitária > Hidráulica",
       "top_2_pct": 0.2941,
       "concordancia_historico": 0.4118,
+      "risco": "alta_ambiguidade"
+    },
+    {
+      "modelo": "random_forest",
+      "categoria_historica": "Outros > Outros",
+      "suporte": 67,
+      "categorias_previstas": 10,
+      "entropia_previsoes": 2.4506,
+      "entropia_normalizada": 0.7377,
+      "categorias_efetivas": 5.4664,
+      "top_1_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
+      "top_1_pct": 0.4776,
+      "top_2_previsto": "Outros > Outros",
+      "top_2_pct": 0.1791,
+      "concordancia_historico": 0.1791,
       "risco": "alta_ambiguidade"
     },
     {
@@ -1058,21 +1058,6 @@
       "risco": "alta_ambiguidade"
     },
     {
-      "modelo": "extra_trees",
-      "categoria_historica": "Outros > Outros",
-      "suporte": 66,
-      "categorias_previstas": 10,
-      "entropia_previsoes": 2.4205,
-      "entropia_normalizada": 0.7287,
-      "categorias_efetivas": 5.3537,
-      "top_1_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-      "top_1_pct": 0.4242,
-      "top_2_previsto": "Outros > Outros",
-      "top_2_pct": 0.2727,
-      "concordancia_historico": 0.2727,
-      "risco": "alta_ambiguidade"
-    },
-    {
       "modelo": "random_forest",
       "categoria_historica": "Manutenção Preventiva > Telhados, calhas, rufos, etc.",
       "suporte": 87,
@@ -1146,6 +1131,21 @@
       "top_2_pct": 0.303,
       "concordancia_historico": 0.0,
       "risco": "ambiguidade_moderada"
+    },
+    {
+      "modelo": "extra_trees",
+      "categoria_historica": "Outros > Outros",
+      "suporte": 67,
+      "categorias_previstas": 10,
+      "entropia_previsoes": 2.4027,
+      "entropia_normalizada": 0.7233,
+      "categorias_efetivas": 5.2878,
+      "top_1_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
+      "top_1_pct": 0.4328,
+      "top_2_previsto": "Outros > Outros",
+      "top_2_pct": 0.2687,
+      "concordancia_historico": 0.2687,
+      "risco": "alta_ambiguidade"
     },
     {
       "modelo": "extra_trees",
@@ -1375,16 +1375,16 @@
     {
       "modelo": "lstm",
       "categoria_historica": "Instalação de Acessórios e Mobiliário > Instalação/reparo de equipamentos (Suportes de TV, acessórios de banheiro e quadro branco)",
-      "suporte": 1190,
+      "suporte": 1191,
       "categorias_previstas": 38,
-      "entropia_previsoes": 3.6401,
-      "entropia_normalizada": 0.6936,
-      "categorias_efetivas": 12.4675,
+      "entropia_previsoes": 3.6436,
+      "entropia_normalizada": 0.6943,
+      "categorias_efetivas": 12.4974,
       "top_1_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-      "top_1_pct": 0.2546,
+      "top_1_pct": 0.2544,
       "top_2_previsto": "Instalação de Acessórios e Mobiliário > Instalação/reparo de equipamentos (Suportes de TV, acessórios de banheiro e quadro branco)",
-      "top_2_pct": 0.2218,
-      "concordancia_historico": 0.2218,
+      "top_2_pct": 0.2217,
+      "concordancia_historico": 0.2217,
       "risco": "alta_ambiguidade"
     },
     {
@@ -1554,6 +1554,21 @@
     },
     {
       "modelo": "random_forest",
+      "categoria_historica": "Instalação de Acessórios e Mobiliário > Placas de identificação",
+      "suporte": 109,
+      "categorias_previstas": 3,
+      "entropia_previsoes": 1.0747,
+      "entropia_normalizada": 0.6781,
+      "categorias_efetivas": 2.1063,
+      "top_1_previsto": "Instalação de Acessórios e Mobiliário > Placas de identificação",
+      "top_1_pct": 0.6055,
+      "top_2_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
+      "top_2_pct": 0.3761,
+      "concordancia_historico": 0.6055,
+      "risco": "ambiguidade_moderada"
+    },
+    {
+      "modelo": "random_forest",
       "categoria_historica": "Climatização > Ar condicionado central",
       "suporte": 74,
       "categorias_previstas": 7,
@@ -1581,21 +1596,6 @@
       "top_2_pct": 0.3455,
       "concordancia_historico": 0.0,
       "risco": "alta_ambiguidade"
-    },
-    {
-      "modelo": "random_forest",
-      "categoria_historica": "Instalação de Acessórios e Mobiliário > Placas de identificação",
-      "suporte": 108,
-      "categorias_previstas": 3,
-      "entropia_previsoes": 1.0715,
-      "entropia_normalizada": 0.676,
-      "categorias_efetivas": 2.1016,
-      "top_1_previsto": "Instalação de Acessórios e Mobiliário > Placas de identificação",
-      "top_1_pct": 0.6111,
-      "top_2_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-      "top_2_pct": 0.3704,
-      "concordancia_historico": 0.6111,
-      "risco": "ambiguidade_moderada"
     },
     {
       "modelo": "transformer_ft",
@@ -1703,6 +1703,21 @@
       "risco": "alta_ambiguidade"
     },
     {
+      "modelo": "extra_trees",
+      "categoria_historica": "Instalação de Acessórios e Mobiliário > Placas de identificação",
+      "suporte": 109,
+      "categorias_previstas": 3,
+      "entropia_previsoes": 1.0453,
+      "entropia_normalizada": 0.6595,
+      "categorias_efetivas": 2.0637,
+      "top_1_previsto": "Instalação de Acessórios e Mobiliário > Placas de identificação",
+      "top_1_pct": 0.6422,
+      "top_2_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
+      "top_2_pct": 0.3394,
+      "concordancia_historico": 0.6422,
+      "risco": "ambiguidade_moderada"
+    },
+    {
       "modelo": "linear_svc",
       "categoria_historica": "Elétrica > Subestação",
       "suporte": 36,
@@ -1715,21 +1730,6 @@
       "top_2_previsto": "Elétrica > Instalações elétricas",
       "top_2_pct": 0.1667,
       "concordancia_historico": 0.6111,
-      "risco": "ambiguidade_moderada"
-    },
-    {
-      "modelo": "extra_trees",
-      "categoria_historica": "Instalação de Acessórios e Mobiliário > Placas de identificação",
-      "suporte": 108,
-      "categorias_previstas": 3,
-      "entropia_previsoes": 1.0404,
-      "entropia_normalizada": 0.6564,
-      "categorias_efetivas": 2.0568,
-      "top_1_previsto": "Instalação de Acessórios e Mobiliário > Placas de identificação",
-      "top_1_pct": 0.6481,
-      "top_2_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-      "top_2_pct": 0.3333,
-      "concordancia_historico": 0.6481,
       "risco": "ambiguidade_moderada"
     },
     {
@@ -2050,16 +2050,16 @@
     {
       "modelo": "sgd",
       "categoria_historica": "Instalação de Acessórios e Mobiliário > Instalação/reparo de equipamentos (Suportes de TV, acessórios de banheiro e quadro branco)",
-      "suporte": 302,
+      "suporte": 303,
       "categorias_previstas": 17,
-      "entropia_previsoes": 2.3628,
-      "entropia_normalizada": 0.5781,
-      "categorias_efetivas": 5.1437,
+      "entropia_previsoes": 2.372,
+      "entropia_normalizada": 0.5803,
+      "categorias_efetivas": 5.1766,
       "top_1_previsto": "Instalação de Acessórios e Mobiliário > Instalação/reparo de equipamentos (Suportes de TV, acessórios de banheiro e quadro branco)",
-      "top_1_pct": 0.5232,
+      "top_1_pct": 0.5215,
       "top_2_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-      "top_2_pct": 0.1887,
-      "concordancia_historico": 0.5232,
+      "top_2_pct": 0.1881,
+      "concordancia_historico": 0.5215,
       "risco": "alta_ambiguidade"
     },
     {
@@ -2155,16 +2155,16 @@
     {
       "modelo": "linear_svc",
       "categoria_historica": "Instalação de Acessórios e Mobiliário > Instalação/reparo de equipamentos (Suportes de TV, acessórios de banheiro e quadro branco)",
-      "suporte": 597,
+      "suporte": 598,
       "categorias_previstas": 22,
-      "entropia_previsoes": 2.505,
-      "entropia_normalizada": 0.5617,
-      "categorias_efetivas": 5.6766,
+      "entropia_previsoes": 2.5085,
+      "entropia_normalizada": 0.5625,
+      "categorias_efetivas": 5.6905,
       "top_1_previsto": "Instalação de Acessórios e Mobiliário > Instalação/reparo de equipamentos (Suportes de TV, acessórios de banheiro e quadro branco)",
-      "top_1_pct": 0.4121,
+      "top_1_pct": 0.4114,
       "top_2_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-      "top_2_pct": 0.3166,
-      "concordancia_historico": 0.4121,
+      "top_2_pct": 0.3161,
+      "concordancia_historico": 0.4114,
       "risco": "alta_ambiguidade"
     },
     {
@@ -2243,6 +2243,21 @@
       "risco": "ambiguidade_moderada"
     },
     {
+      "modelo": "naive_bayes",
+      "categoria_historica": "Instalação de Acessórios e Mobiliário > Instalação/reparo de equipamentos (Suportes de TV, acessórios de banheiro e quadro branco)",
+      "suporte": 303,
+      "categorias_previstas": 5,
+      "entropia_previsoes": 1.2378,
+      "entropia_normalizada": 0.5331,
+      "categorias_efetivas": 2.3585,
+      "top_1_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
+      "top_1_pct": 0.7393,
+      "top_2_previsto": "Hidrossanitária > Hidráulica",
+      "top_2_pct": 0.1188,
+      "concordancia_historico": 0.0,
+      "risco": "ambiguidade_moderada"
+    },
+    {
       "modelo": "transformer_ft",
       "categoria_historica": "Estrutura Predial > Forro",
       "suporte": 144,
@@ -2270,21 +2285,6 @@
       "top_2_previsto": "Projetos e Reformas > Reforma",
       "top_2_pct": 0.056,
       "concordancia_historico": 0.6293,
-      "risco": "ambiguidade_moderada"
-    },
-    {
-      "modelo": "naive_bayes",
-      "categoria_historica": "Instalação de Acessórios e Mobiliário > Instalação/reparo de equipamentos (Suportes de TV, acessórios de banheiro e quadro branco)",
-      "suporte": 302,
-      "categorias_previstas": 5,
-      "entropia_previsoes": 1.2206,
-      "entropia_normalizada": 0.5257,
-      "categorias_efetivas": 2.3305,
-      "top_1_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-      "top_1_pct": 0.7417,
-      "top_2_previsto": "Hidrossanitária > Hidráulica",
-      "top_2_pct": 0.1192,
-      "concordancia_historico": 0.0,
       "risco": "ambiguidade_moderada"
     },
     {
@@ -2333,6 +2333,21 @@
       "risco": "ambiguidade_moderada"
     },
     {
+      "modelo": "linear_svc",
+      "categoria_historica": "Instalação de Acessórios e Mobiliário > Placas de identificação",
+      "suporte": 109,
+      "categorias_previstas": 9,
+      "entropia_previsoes": 1.6418,
+      "entropia_normalizada": 0.5179,
+      "categorias_efetivas": 3.1206,
+      "top_1_previsto": "Instalação de Acessórios e Mobiliário > Placas de identificação",
+      "top_1_pct": 0.6881,
+      "top_2_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
+      "top_2_pct": 0.1468,
+      "concordancia_historico": 0.6881,
+      "risco": "ambiguidade_moderada"
+    },
+    {
       "modelo": "random_forest",
       "categoria_historica": "Estrutura Predial > Pintura",
       "suporte": 116,
@@ -2375,21 +2390,6 @@
       "top_2_previsto": "Projetos e Reformas > Reforma",
       "top_2_pct": 0.0952,
       "concordancia_historico": 0.594,
-      "risco": "ambiguidade_moderada"
-    },
-    {
-      "modelo": "linear_svc",
-      "categoria_historica": "Instalação de Acessórios e Mobiliário > Placas de identificação",
-      "suporte": 108,
-      "categorias_previstas": 9,
-      "entropia_previsoes": 1.6145,
-      "entropia_normalizada": 0.5093,
-      "categorias_efetivas": 3.0621,
-      "top_1_previsto": "Instalação de Acessórios e Mobiliário > Placas de identificação",
-      "top_1_pct": 0.6944,
-      "top_2_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-      "top_2_pct": 0.1481,
-      "concordancia_historico": 0.6944,
       "risco": "ambiguidade_moderada"
     },
     {
@@ -2483,6 +2483,21 @@
       "risco": "ambiguidade_moderada"
     },
     {
+      "modelo": "regressao_logistica",
+      "categoria_historica": "Instalação de Acessórios e Mobiliário > Instalação/reparo de equipamentos (Suportes de TV, acessórios de banheiro e quadro branco)",
+      "suporte": 303,
+      "categorias_previstas": 15,
+      "entropia_previsoes": 1.9283,
+      "entropia_normalizada": 0.4936,
+      "categorias_efetivas": 3.8062,
+      "top_1_previsto": "Instalação de Acessórios e Mobiliário > Instalação/reparo de equipamentos (Suportes de TV, acessórios de banheiro e quadro branco)",
+      "top_1_pct": 0.6568,
+      "top_2_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
+      "top_2_pct": 0.0957,
+      "concordancia_historico": 0.6568,
+      "risco": "ambiguidade_moderada"
+    },
+    {
       "modelo": "random_forest",
       "categoria_historica": "Estrutura Predial > Forro",
       "suporte": 297,
@@ -2525,21 +2540,6 @@
       "top_2_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
       "top_2_pct": 0.1552,
       "concordancia_historico": 0.7069,
-      "risco": "ambiguidade_moderada"
-    },
-    {
-      "modelo": "regressao_logistica",
-      "categoria_historica": "Instalação de Acessórios e Mobiliário > Instalação/reparo de equipamentos (Suportes de TV, acessórios de banheiro e quadro branco)",
-      "suporte": 302,
-      "categorias_previstas": 15,
-      "entropia_previsoes": 1.9164,
-      "entropia_normalizada": 0.4905,
-      "categorias_efetivas": 3.7747,
-      "top_1_previsto": "Instalação de Acessórios e Mobiliário > Instalação/reparo de equipamentos (Suportes de TV, acessórios de banheiro e quadro branco)",
-      "top_1_pct": 0.6589,
-      "top_2_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-      "top_2_pct": 0.096,
-      "concordancia_historico": 0.6589,
       "risco": "ambiguidade_moderada"
     },
     {
@@ -2590,16 +2590,16 @@
     {
       "modelo": "lstm",
       "categoria_historica": "Instalação de Acessórios e Mobiliário > Placas de identificação",
-      "suporte": 216,
+      "suporte": 217,
       "categorias_previstas": 26,
-      "entropia_previsoes": 2.2786,
-      "entropia_normalizada": 0.4848,
-      "categorias_efetivas": 4.8521,
+      "entropia_previsoes": 2.2889,
+      "entropia_normalizada": 0.487,
+      "categorias_efetivas": 4.8868,
       "top_1_previsto": "Instalação de Acessórios e Mobiliário > Placas de identificação",
-      "top_1_pct": 0.6713,
+      "top_1_pct": 0.6682,
       "top_2_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-      "top_2_pct": 0.0417,
-      "concordancia_historico": 0.6713,
+      "top_2_pct": 0.0461,
+      "concordancia_historico": 0.6682,
       "risco": "ambiguidade_moderada"
     },
     {
@@ -2753,6 +2753,21 @@
       "risco": "estavel"
     },
     {
+      "modelo": "regressao_logistica",
+      "categoria_historica": "Instalação de Acessórios e Mobiliário > Placas de identificação",
+      "suporte": 55,
+      "categorias_previstas": 8,
+      "entropia_previsoes": 1.3208,
+      "entropia_normalizada": 0.4403,
+      "categorias_efetivas": 2.4981,
+      "top_1_previsto": "Instalação de Acessórios e Mobiliário > Placas de identificação",
+      "top_1_pct": 0.7818,
+      "top_2_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
+      "top_2_pct": 0.0727,
+      "concordancia_historico": 0.7818,
+      "risco": "estavel"
+    },
+    {
       "modelo": "sgd",
       "categoria_historica": "Climatização > Ar condicionado central",
       "suporte": 37,
@@ -2765,6 +2780,21 @@
       "top_2_previsto": "Manutenção Preventiva > Ar condicionado central",
       "top_2_pct": 0.0811,
       "concordancia_historico": 0.8378,
+      "risco": "estavel"
+    },
+    {
+      "modelo": "sgd",
+      "categoria_historica": "Instalação de Acessórios e Mobiliário > Placas de identificação",
+      "suporte": 55,
+      "categorias_previstas": 8,
+      "entropia_previsoes": 1.3071,
+      "entropia_normalizada": 0.4357,
+      "categorias_efetivas": 2.4744,
+      "top_1_previsto": "Instalação de Acessórios e Mobiliário > Placas de identificação",
+      "top_1_pct": 0.7818,
+      "top_2_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
+      "top_2_pct": 0.0727,
+      "concordancia_historico": 0.7818,
       "risco": "estavel"
     },
     {
@@ -2845,16 +2875,16 @@
     {
       "modelo": "extra_trees",
       "categoria_historica": "Instalação de Acessórios e Mobiliário > Instalação/reparo de equipamentos (Suportes de TV, acessórios de banheiro e quadro branco)",
-      "suporte": 597,
+      "suporte": 598,
       "categorias_previstas": 11,
-      "entropia_previsoes": 1.4743,
-      "entropia_normalizada": 0.4262,
-      "categorias_efetivas": 2.7786,
+      "entropia_previsoes": 1.4727,
+      "entropia_normalizada": 0.4257,
+      "categorias_efetivas": 2.7754,
       "top_1_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-      "top_1_pct": 0.7152,
+      "top_1_pct": 0.7157,
       "top_2_previsto": "Instalação de Acessórios e Mobiliário > Instalação/reparo de equipamentos (Suportes de TV, acessórios de banheiro e quadro branco)",
-      "top_2_pct": 0.129,
-      "concordancia_historico": 0.129,
+      "top_2_pct": 0.1288,
+      "concordancia_historico": 0.1288,
       "risco": "estavel"
     },
     {
@@ -2901,36 +2931,6 @@
       "top_2_pct": 0.0563,
       "concordancia_historico": 0.6877,
       "risco": "ambiguidade_moderada"
-    },
-    {
-      "modelo": "regressao_logistica",
-      "categoria_historica": "Instalação de Acessórios e Mobiliário > Placas de identificação",
-      "suporte": 54,
-      "categorias_previstas": 8,
-      "entropia_previsoes": 1.2488,
-      "entropia_normalizada": 0.4163,
-      "categorias_efetivas": 2.3764,
-      "top_1_previsto": "Instalação de Acessórios e Mobiliário > Placas de identificação",
-      "top_1_pct": 0.7963,
-      "top_2_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-      "top_2_pct": 0.0741,
-      "concordancia_historico": 0.7963,
-      "risco": "estavel"
-    },
-    {
-      "modelo": "sgd",
-      "categoria_historica": "Instalação de Acessórios e Mobiliário > Placas de identificação",
-      "suporte": 54,
-      "categorias_previstas": 8,
-      "entropia_previsoes": 1.2488,
-      "entropia_normalizada": 0.4163,
-      "categorias_efetivas": 2.3764,
-      "top_1_previsto": "Instalação de Acessórios e Mobiliário > Placas de identificação",
-      "top_1_pct": 0.7963,
-      "top_2_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-      "top_2_pct": 0.0741,
-      "concordancia_historico": 0.7963,
-      "risco": "estavel"
     },
     {
       "modelo": "sgd",
@@ -2995,16 +2995,16 @@
     {
       "modelo": "random_forest",
       "categoria_historica": "Instalação de Acessórios e Mobiliário > Instalação/reparo de equipamentos (Suportes de TV, acessórios de banheiro e quadro branco)",
-      "suporte": 599,
+      "suporte": 600,
       "categorias_previstas": 13,
-      "entropia_previsoes": 1.5025,
-      "entropia_normalizada": 0.406,
-      "categorias_efetivas": 2.8333,
+      "entropia_previsoes": 1.5008,
+      "entropia_normalizada": 0.4056,
+      "categorias_efetivas": 2.8299,
       "top_1_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-      "top_1_pct": 0.7295,
+      "top_1_pct": 0.73,
       "top_2_previsto": "Hidrossanitária > Hidráulica",
-      "top_2_pct": 0.0935,
-      "concordancia_historico": 0.0902,
+      "top_2_pct": 0.0933,
+      "concordancia_historico": 0.09,
       "risco": "estavel"
     },
     {
@@ -3250,16 +3250,16 @@
     {
       "modelo": "etapa1_oficial",
       "categoria_historica": "Instalação de Acessórios e Mobiliário > Instalação/reparo de equipamentos (Suportes de TV, acessórios de banheiro e quadro branco)",
-      "suporte": 300,
+      "suporte": 302,
       "categorias_previstas": 6,
-      "entropia_previsoes": 0.9095,
-      "entropia_normalizada": 0.3518,
-      "categorias_efetivas": 1.8784,
+      "entropia_previsoes": 0.9299,
+      "entropia_normalizada": 0.3597,
+      "categorias_efetivas": 1.9052,
       "top_1_previsto": "Instalação de Acessórios e Mobiliário > Instalação/reparo de equipamentos (Suportes de TV, acessórios de banheiro e quadro branco)",
-      "top_1_pct": 0.8067,
+      "top_1_pct": 0.8046,
       "top_2_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-      "top_2_pct": 0.1567,
-      "concordancia_historico": 0.8067,
+      "top_2_pct": 0.1556,
+      "concordancia_historico": 0.8046,
       "risco": "estavel"
     },
     {
@@ -3863,21 +3863,6 @@
       "risco": "estavel"
     },
     {
-      "modelo": "naive_bayes",
-      "categoria_historica": "Instalação de Acessórios e Mobiliário > Placas de identificação",
-      "suporte": 54,
-      "categorias_previstas": 4,
-      "entropia_previsoes": 0.4921,
-      "entropia_normalizada": 0.246,
-      "categorias_efetivas": 1.4064,
-      "top_1_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-      "top_1_pct": 0.9259,
-      "top_2_previsto": "Estrutura Predial > Esquadrias, porta, portão e janelas",
-      "top_2_pct": 0.037,
-      "concordancia_historico": 0.0,
-      "risco": "estavel"
-    },
-    {
       "modelo": "etapa1_oficial",
       "categoria_historica": "Elétrica > Instalações elétricas",
       "suporte": 955,
@@ -3890,6 +3875,21 @@
       "top_2_previsto": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
       "top_2_pct": 0.0272,
       "concordancia_historico": 0.8555,
+      "risco": "estavel"
+    },
+    {
+      "modelo": "naive_bayes",
+      "categoria_historica": "Instalação de Acessórios e Mobiliário > Placas de identificação",
+      "suporte": 55,
+      "categorias_previstas": 4,
+      "entropia_previsoes": 0.4851,
+      "entropia_normalizada": 0.2426,
+      "categorias_efetivas": 1.3997,
+      "top_1_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
+      "top_1_pct": 0.9273,
+      "top_2_previsto": "Estrutura Predial > Esquadrias, porta, portão e janelas",
+      "top_2_pct": 0.0364,
+      "concordancia_historico": 0.0,
       "risco": "estavel"
     },
     {
@@ -4628,21 +4628,6 @@
       "risco": "estavel"
     },
     {
-      "modelo": "etapa1_oficial",
-      "categoria_historica": "Instalação de Acessórios e Mobiliário > Placas de identificação",
-      "suporte": 54,
-      "categorias_previstas": 2,
-      "entropia_previsoes": 0.133,
-      "entropia_normalizada": 0.133,
-      "categorias_efetivas": 1.0966,
-      "top_1_previsto": "Instalação de Acessórios e Mobiliário > Placas de identificação",
-      "top_1_pct": 0.9815,
-      "top_2_previsto": "Projetos e Reformas > Reforma",
-      "top_2_pct": 0.0185,
-      "concordancia_historico": 0.9815,
-      "risco": "estavel"
-    },
-    {
       "modelo": "transformer_ft",
       "categoria_historica": "Manutenção Preventiva > Ar condicionado central",
       "suporte": 165,
@@ -4653,6 +4638,21 @@
       "top_1_previsto": "Manutenção Preventiva > Ar condicionado central",
       "top_1_pct": 0.9818,
       "top_2_previsto": "Climatização > Ar condicionado central",
+      "top_2_pct": 0.0182,
+      "concordancia_historico": 0.9818,
+      "risco": "estavel"
+    },
+    {
+      "modelo": "etapa1_oficial",
+      "categoria_historica": "Instalação de Acessórios e Mobiliário > Placas de identificação",
+      "suporte": 55,
+      "categorias_previstas": 2,
+      "entropia_previsoes": 0.1311,
+      "entropia_normalizada": 0.1311,
+      "categorias_efetivas": 1.0951,
+      "top_1_previsto": "Instalação de Acessórios e Mobiliário > Placas de identificação",
+      "top_1_pct": 0.9818,
+      "top_2_previsto": "Projetos e Reformas > Reforma",
       "top_2_pct": 0.0182,
       "concordancia_historico": 0.9818,
       "risco": "estavel"
@@ -5545,7 +5545,7 @@
     {
       "modelo": "etapa1_oficial",
       "categoria_historica": "Outros > Outros",
-      "suporte": 33,
+      "suporte": 34,
       "categorias_previstas": 1,
       "entropia_previsoes": -0.0,
       "entropia_normalizada": 0.0,
