@@ -1,5 +1,5 @@
 {
-  "gerado_em": "20/08/2026 09:22",
+  "gerado_em": "20/08/2026 10:28",
   "fonte": "docs/dados/registros_<modelo>.json",
   "alvo": "categoria historica; validacao humana ainda nao iniciada",
   "calibrador_ajustado": false,
@@ -8,11 +8,11 @@
   "modelos": [
     {
       "modelo": "naive_bayes",
-      "total": 14169,
-      "acerto_historico": 0.6974,
+      "total": 14171,
+      "acerto_historico": 0.6973,
       "confianca_media": 0.7265,
-      "brier": 0.139,
-      "ece": 0.0361,
+      "brier": 0.1391,
+      "ece": 0.0359,
       "mce": 0.0601,
       "faixa_95": {
         "faixa": ">=95%",
@@ -33,11 +33,11 @@
         },
         {
           "faixa": "50-70%",
-          "n": 1866,
-          "acerto_historico": 0.5954,
+          "n": 1867,
+          "acerto_historico": 0.5951,
           "confianca_media": 0.5917,
-          "gap": -0.0037,
-          "brier": 0.2359
+          "gap": -0.0034,
+          "brier": 0.236
         },
         {
           "faixa": "70-80%",
@@ -57,11 +57,11 @@
         },
         {
           "faixa": "90-95%",
-          "n": 586,
-          "acerto_historico": 0.9454,
+          "n": 587,
+          "acerto_historico": 0.9438,
           "confianca_media": 0.9254,
-          "gap": -0.02,
-          "brier": 0.0519
+          "gap": -0.0184,
+          "brier": 0.0532
         },
         {
           "faixa": ">=95%",
@@ -77,12 +77,12 @@
     },
     {
       "modelo": "regressao_logistica",
-      "total": 14169,
-      "acerto_historico": 0.7698,
+      "total": 14171,
+      "acerto_historico": 0.7697,
       "confianca_media": 0.5207,
       "brier": 0.223,
       "ece": 0.249,
-      "mce": 0.3865,
+      "mce": 0.3864,
       "faixa_95": {
         "faixa": ">=95%",
         "n": 1556,
@@ -94,11 +94,11 @@
       "por_faixa": [
         {
           "faixa": "<50%",
-          "n": 7127,
+          "n": 7129,
           "acerto_historico": 0.6109,
-          "confianca_media": 0.2244,
-          "gap": -0.3865,
-          "brier": 0.3649
+          "confianca_media": 0.2245,
+          "gap": -0.3864,
+          "brier": 0.3648
         },
         {
           "faixa": "50-70%",
@@ -146,12 +146,12 @@
     },
     {
       "modelo": "linear_svc",
-      "total": 28277,
-      "acerto_historico": 0.8036,
+      "total": 28279,
+      "acerto_historico": 0.8035,
       "confianca_media": 0.0989,
       "brier": 0.6388,
       "ece": 0.7046,
-      "mce": 0.7047,
+      "mce": 0.7046,
       "faixa_95": {
         "faixa": ">=95%",
         "n": 0,
@@ -163,11 +163,11 @@
       "por_faixa": [
         {
           "faixa": "<50%",
-          "n": 28274,
+          "n": 28276,
           "acerto_historico": 0.8035,
           "confianca_media": 0.0988,
-          "gap": -0.7047,
-          "brier": 0.6389
+          "gap": -0.7046,
+          "brier": 0.6388
         },
         {
           "faixa": "50-70%",
@@ -215,12 +215,12 @@
     },
     {
       "modelo": "sgd",
-      "total": 14169,
-      "acerto_historico": 0.7763,
+      "total": 14171,
+      "acerto_historico": 0.7762,
       "confianca_media": 0.4635,
       "brier": 0.2516,
-      "ece": 0.3128,
-      "mce": 0.4206,
+      "ece": 0.3127,
+      "mce": 0.4205,
       "faixa_95": {
         "faixa": ">=95%",
         "n": 0,
@@ -232,11 +232,11 @@
       "por_faixa": [
         {
           "faixa": "<50%",
-          "n": 7935,
-          "acerto_historico": 0.6436,
+          "n": 7937,
+          "acerto_historico": 0.6434,
           "confianca_media": 0.223,
-          "gap": -0.4206,
-          "brier": 0.3787
+          "gap": -0.4205,
+          "brier": 0.3786
         },
         {
           "faixa": "50-70%",
@@ -284,12 +284,12 @@
     },
     {
       "modelo": "extra_trees",
-      "total": 28277,
+      "total": 28279,
       "acerto_historico": 0.7871,
       "confianca_media": 0.7106,
       "brier": 0.1281,
-      "ece": 0.0777,
-      "mce": 0.1743,
+      "ece": 0.0776,
+      "mce": 0.1742,
       "faixa_95": {
         "faixa": ">=95%",
         "n": 9538,
@@ -309,10 +309,10 @@
         },
         {
           "faixa": "50-70%",
-          "n": 4682,
-          "acerto_historico": 0.7725,
+          "n": 4683,
+          "acerto_historico": 0.7724,
           "confianca_media": 0.5982,
-          "gap": -0.1743,
+          "gap": -0.1742,
           "brier": 0.2017
         },
         {
@@ -325,11 +325,11 @@
         },
         {
           "faixa": "80-90%",
-          "n": 1945,
-          "acerto_historico": 0.9388,
+          "n": 1946,
+          "acerto_historico": 0.9383,
           "confianca_media": 0.8482,
-          "gap": -0.0906,
-          "brier": 0.065
+          "gap": -0.0901,
+          "brier": 0.0653
         },
         {
           "faixa": "90-95%",
@@ -353,12 +353,12 @@
     },
     {
       "modelo": "random_forest",
-      "total": 28304,
+      "total": 28306,
       "acerto_historico": 0.7769,
-      "confianca_media": 0.7003,
+      "confianca_media": 0.7002,
       "brier": 0.1283,
-      "ece": 0.0767,
-      "mce": 0.1793,
+      "ece": 0.0766,
+      "mce": 0.1792,
       "faixa_95": {
         "faixa": ">=95%",
         "n": 9056,
@@ -370,19 +370,19 @@
       "por_faixa": [
         {
           "faixa": "<50%",
-          "n": 8579,
-          "acerto_historico": 0.4566,
+          "n": 8580,
+          "acerto_historico": 0.4565,
           "confianca_media": 0.3587,
-          "gap": -0.0979,
+          "gap": -0.0978,
           "brier": 0.2468
         },
         {
           "faixa": "50-70%",
-          "n": 4608,
-          "acerto_historico": 0.7791,
+          "n": 4609,
+          "acerto_historico": 0.7789,
           "confianca_media": 0.5998,
-          "gap": -0.1793,
-          "brier": 0.2009
+          "gap": -0.1792,
+          "brier": 0.201
         },
         {
           "faixa": "70-80%",
@@ -422,10 +422,10 @@
     },
     {
       "modelo": "lstm",
-      "total": 56532,
+      "total": 56534,
       "acerto_historico": 0.6885,
       "confianca_media": 0.7127,
-      "brier": 0.1269,
+      "brier": 0.127,
       "ece": 0.0242,
       "mce": 0.0402,
       "faixa_95": {
@@ -439,8 +439,8 @@
       "por_faixa": [
         {
           "faixa": "<50%",
-          "n": 16685,
-          "acerto_historico": 0.2822,
+          "n": 16687,
+          "acerto_historico": 0.2823,
           "confianca_media": 0.3173,
           "gap": 0.0351,
           "brier": 0.1955
