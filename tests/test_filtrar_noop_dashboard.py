@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
-"""Testes do lote A3-2: `src/filtrar_noop_dashboard.py` restaura para HEAD os
-JSONs de docs/dados cuja unica mudanca seja o campo `gerado_em` no nivel
-superior, sem `git checkout`/`restore`/`reset`, e sem tocar em nenhum outro
-tipo de divergencia. Cobre a logica pura (sem Git), o uso de HEAD via `git
-show` em um repositorio local temporario, o CLI, a regressao historica do
-padrao observado em commits "dados do dashboard [skip ci]" e um teste
+"""Testes dos lotes A3-2 e A3-2R: `src/filtrar_noop_dashboard.py` restaura
+para HEAD os JSONs de docs/dados cuja unica mudanca seja um campo volatil de
+timestamp -- `gerado_em` no nivel superior (regra geral) ou, exclusivamente
+em docs/dados/multimodelo_metricas.json, `atualizado_em` por item da lista
+(excecao especifica, A3-2R) -- sem `git checkout`/`restore`/`reset`, e sem
+tocar em nenhum outro tipo de divergencia. Cobre a logica pura (sem Git), o
+uso de HEAD via `git ls-tree`/`git show` em um repositorio local temporario
+(inclusive fail-closed de falha real do Git), o CLI, as regressoes
+historicas dos commits reais "dados do dashboard [skip ci]" e um teste
 estatico de que a integracao em dashboard.yml preserva triggers/allowlist e
 chama o helper antes do `git add`.
 
@@ -162,6 +165,9 @@ class TestProcessarPathCasos(BaseRepoTestCase):
         self.assertEqual(self._ler(rel), novo_conteudo)
 
     def test_caso_c_arquivo_novo_sem_baseline_permanece(self):
+        # HEAD precisa existir (repo com pelo menos um commit) para exercitar
+        # de fato "path ausente em HEAD", e nao um HEAD inexistente (unborn).
+        self._commitar("docs/dados/outro.json", json.dumps({"gerado_em": "t0", "x": 1}))
         rel = "docs/dados/novo_arquivo.json"
         conteudo = json.dumps({"gerado_em": "19/08/2026 20:29", "total": 1})
         self._escrever_sem_commit(rel, conteudo)
@@ -204,9 +210,11 @@ class TestProcessarPathCasos(BaseRepoTestCase):
         self.assertEqual(self._ler(rel), conteudo_novo)
 
     def test_caso_f_lista_modificada_nao_aplica_excecao(self):
-        rel = "docs/dados/multimodelo_metricas.json"
-        self._commitar(rel, json.dumps([{"modelo": "a", "atualizado_em": "x"}]))
-        novo_conteudo = json.dumps([{"modelo": "a", "atualizado_em": "y"}])
+        # Path generico (nao multimodelo_metricas.json): lista no topo nunca
+        # recebe a excecao de gerado_em, mesmo com valor real mudando.
+        rel = "docs/dados/comparacao_previsoes.json"
+        self._commitar(rel, json.dumps([{"modelo": "a", "valor": 1}]))
+        novo_conteudo = json.dumps([{"modelo": "a", "valor": 2}])
         self._escrever_sem_commit(rel, novo_conteudo)
 
         _path_norm, status = fnd.processar_path(rel, cwd=self.repo)
@@ -340,6 +348,295 @@ class TestRegressaoHistoricaGeradoEmOnly(BaseRepoTestCase):
         self.assertEqual(status, fnd.STATUS_VOLATIL_RESTAURADO)
         status_git = _git(["status", "--porcelain", "--", rel], cwd=self.repo)
         self.assertEqual(status_git.strip(), "", "arquivo deveria estar sem diff apos a restauracao")
+
+
+# --------------------------------------------------------------------------
+# Grupo 3b: excecao exclusiva de docs/dados/multimodelo_metricas.json
+# (atualizado_em por item), microcorrecao A3-2R.
+# --------------------------------------------------------------------------
+
+class TestEhApenasAtualizadoEmPorItemDiferentePuro(unittest.TestCase):
+    def _item(self, modelo, atualizado_em, **extra):
+        base = {
+            "modelo": modelo,
+            "feitos_total": 14166,
+            "pendentes_restantes": 0,
+            "concordancia_acumulada": 0.8,
+            "concordancia_ultimo_lote": "",
+            "metodo_ultimo": "",
+            "processados_ultimo": 0,
+            "atualizado_em": atualizado_em,
+        }
+        base.update(extra)
+        return base
+
+    def test_todos_os_itens_mudam_so_atualizado_em(self):
+        baseline = [self._item("a", "t1"), self._item("b", "t1")]
+        novo = [self._item("a", "t2"), self._item("b", "t2")]
+        self.assertTrue(fnd.eh_apenas_atualizado_em_por_item_diferente(baseline, novo))
+
+    def test_so_alguns_itens_mudam_atualizado_em(self):
+        baseline = [self._item("a", "t1"), self._item("b", "t1")]
+        novo = [self._item("a", "t2"), self._item("b", "t1")]
+        self.assertTrue(fnd.eh_apenas_atualizado_em_por_item_diferente(baseline, novo))
+
+    def test_feitos_total_muda_em_um_item(self):
+        baseline = [self._item("a", "t1"), self._item("b", "t1")]
+        novo = [self._item("a", "t2", feitos_total=99), self._item("b", "t2")]
+        self.assertFalse(fnd.eh_apenas_atualizado_em_por_item_diferente(baseline, novo))
+
+    def test_concordancia_acumulada_muda(self):
+        baseline = [self._item("a", "t1")]
+        novo = [self._item("a", "t2", concordancia_acumulada=0.99)]
+        self.assertFalse(fnd.eh_apenas_atualizado_em_por_item_diferente(baseline, novo))
+
+    def test_ordem_dos_elementos_muda(self):
+        baseline = [self._item("a", "t1"), self._item("b", "t1")]
+        novo = [self._item("b", "t2"), self._item("a", "t2")]
+        self.assertFalse(fnd.eh_apenas_atualizado_em_por_item_diferente(baseline, novo))
+
+    def test_elemento_novo(self):
+        baseline = [self._item("a", "t1")]
+        novo = [self._item("a", "t2"), self._item("b", "t2")]
+        self.assertFalse(fnd.eh_apenas_atualizado_em_por_item_diferente(baseline, novo))
+
+    def test_elemento_removido(self):
+        baseline = [self._item("a", "t1"), self._item("b", "t1")]
+        novo = [self._item("a", "t2")]
+        self.assertFalse(fnd.eh_apenas_atualizado_em_por_item_diferente(baseline, novo))
+
+    def test_atualizado_em_so_de_um_lado(self):
+        item_sem_campo = self._item("a", "t1")
+        del item_sem_campo["atualizado_em"]
+        baseline = [item_sem_campo]
+        novo = [self._item("a", "t2")]
+        self.assertFalse(fnd.eh_apenas_atualizado_em_por_item_diferente(baseline, novo))
+
+    def test_elemento_deixa_de_ser_dict(self):
+        baseline = [self._item("a", "t1")]
+        novo = ["nao e mais um dict"]
+        self.assertFalse(fnd.eh_apenas_atualizado_em_por_item_diferente(baseline, novo))
+
+    def test_atualizado_em_aninhado_nao_conta(self):
+        baseline = [self._item("a", "t1", obj={"atualizado_em": "x"})]
+        novo = [self._item("a", "t1", obj={"atualizado_em": "y"})]
+        # atualizado_em top-level do item nao mudou; o aninhado nao e tocado
+        # pela excecao, entao o item difere e a excecao nao se aplica.
+        self.assertFalse(fnd.eh_apenas_atualizado_em_por_item_diferente(baseline, novo))
+
+    def test_topo_nao_e_lista(self):
+        self.assertFalse(fnd.eh_apenas_atualizado_em_por_item_diferente({"a": 1}, {"a": 1}))
+
+
+class TestExcecaoRestritaAoPathExato(BaseRepoTestCase):
+    """Item 10 da microcorrecao: mesma estrutura em outro filename nao deve
+    ignorar atualizado_em -- a excecao e exclusiva de
+    docs/dados/multimodelo_metricas.json."""
+
+    def _lista(self, atualizado_em):
+        return json.dumps([{
+            "modelo": "extra_trees", "feitos_total": 14166, "pendentes_restantes": 0,
+            "concordancia_acumulada": 0.7872, "concordancia_ultimo_lote": "",
+            "metodo_ultimo": "", "processados_ultimo": 0, "atualizado_em": atualizado_em,
+        }])
+
+    def test_arquivo_com_mesma_estrutura_mas_outro_nome_nao_e_isento(self):
+        rel = "docs/dados/multimodelo_reclass_turnos.json"
+        self._commitar(rel, self._lista("t1"))
+        novo_conteudo = self._lista("t2")
+        self._escrever_sem_commit(rel, novo_conteudo)
+
+        _path_norm, status = fnd.processar_path(rel, cwd=self.repo)
+
+        self.assertEqual(status, fnd.STATUS_SUBSTANTIVO)
+        self.assertEqual(self._ler(rel), novo_conteudo)
+
+    def test_multimodelo_metricas_no_path_exato_e_isento(self):
+        rel = "docs/dados/multimodelo_metricas.json"
+        self._commitar(rel, self._lista("t1"))
+        self._escrever_sem_commit(rel, self._lista("t2"))
+
+        _path_norm, status = fnd.processar_path(rel, cwd=self.repo)
+
+        self.assertEqual(status, fnd.STATUS_VOLATIL_RESTAURADO)
+
+
+class TestMultimodeloMetricasIntegracao(BaseRepoTestCase):
+    """Testes fim a fim (com Git real) para docs/dados/multimodelo_metricas.json."""
+
+    REL = "docs/dados/multimodelo_metricas.json"
+
+    def _item(self, modelo, atualizado_em, feitos_total=14166, concordancia_acumulada=0.8):
+        return {
+            "modelo": modelo, "feitos_total": feitos_total, "pendentes_restantes": 0,
+            "concordancia_acumulada": concordancia_acumulada, "concordancia_ultimo_lote": "",
+            "metodo_ultimo": "", "processados_ultimo": 0, "atualizado_em": atualizado_em,
+        }
+
+    def test_restauracao_e_byte_a_byte_igual_ao_head(self):
+        baseline = [self._item("extra_trees", "t1"), self._item("linear_svc", "t1")]
+        self._commitar(self.REL, json.dumps(baseline))
+        self._escrever_sem_commit(
+            self.REL,
+            json.dumps([self._item("extra_trees", "t2"), self._item("linear_svc", "t2")]),
+        )
+
+        fnd.processar_path(self.REL, cwd=self.repo)
+
+        bytes_head = subprocess.run(
+            ["git", "show", f"HEAD:{self.REL}"], cwd=self.repo, capture_output=True, check=True
+        ).stdout
+        self.assertEqual((self.repo / self.REL).read_bytes(), bytes_head)
+
+
+# --------------------------------------------------------------------------
+# Grupo 3c: fail-closed do baseline Git (git ls-tree / git show), item 7 da
+# microcorrecao.
+# --------------------------------------------------------------------------
+
+class TestBaselineGitFailClosed(BaseRepoTestCase):
+    def test_arquivo_realmente_inexistente_em_head_e_novo(self):
+        self._commitar("docs/dados/outro.json", json.dumps({"gerado_em": "t0"}))
+        rel = "docs/dados/nao_existe_em_head.json"
+        self._escrever_sem_commit(rel, json.dumps({"gerado_em": "t1"}))
+
+        _path_norm, status = fnd.processar_path(rel, cwd=self.repo)
+
+        self.assertEqual(status, fnd.STATUS_NOVO)
+
+    def test_falha_real_do_git_nunca_vira_novo(self):
+        # cwd fora de qualquer repositorio Git: git ls-tree falha de verdade
+        # (nao "path ausente em HEAD"), e isso deve ser ERRO, nunca NOVO.
+        tmp = tempfile.TemporaryDirectory(prefix="fnd-nao-git-")
+        try:
+            nao_repo = Path(tmp.name)
+            alvo = nao_repo / "docs" / "dados" / "arquivo.json"
+            alvo.parent.mkdir(parents=True)
+            alvo.write_text(json.dumps({"gerado_em": "t1"}), encoding="utf-8")
+
+            with self.assertRaises(fnd.GitBaselineError):
+                fnd.processar_path("docs/dados/arquivo.json", cwd=nao_repo)
+        finally:
+            tmp.cleanup()
+
+    def test_falha_em_git_show_de_path_que_existe_e_erro(self):
+        rel = "docs/dados/calibracao.json"
+        self._commitar(rel, json.dumps({"gerado_em": "t1", "total": 1}))
+        self._escrever_sem_commit(rel, json.dumps({"gerado_em": "t2", "total": 1}))
+
+        # Corrompe o objeto do blob referenciado pela arvore de HEAD: o path
+        # continua listado por `git ls-tree` (a entrada da arvore nao muda),
+        # mas `git show HEAD:<path>` falha ao tentar ler o conteudo do blob.
+        blob_sha = _git(["rev-parse", f"HEAD:{rel}"], cwd=self.repo).strip()
+        objeto = self.repo / ".git" / "objects" / blob_sha[:2] / blob_sha[2:]
+        self.assertTrue(objeto.exists(), "pre-condicao: objeto do blob deveria existir")
+        # objetos do Git sao gravados somente-leitura; ajusta o modo antes de
+        # corromper o conteudo (git-for-windows nega unlink direto).
+        os.chmod(objeto, 0o600)
+        objeto.write_bytes(b"conteudo corrompido, nao e um objeto git valido")
+
+        with self.assertRaises(fnd.GitBaselineError):
+            fnd.processar_path(rel, cwd=self.repo)
+
+        # Fail closed: o arquivo no working tree nao foi tocado.
+        self.assertEqual(
+            json.loads(self._ler(rel)), {"gerado_em": "t2", "total": 1}
+        )
+
+    def test_diretorio_chamado_algo_json_e_rejeitado(self):
+        (self.repo / "docs" / "dados" / "pasta.json").mkdir(parents=True)
+
+        with self.assertRaises(fnd.PathRejeitadoError):
+            fnd.processar_path("docs/dados/pasta.json", cwd=self.repo)
+
+
+# --------------------------------------------------------------------------
+# Grupo 3d: regressao com os dois commits reais observados pelo ChatGPT
+# (1f237f8e -> a3f1a731), item 10 da microcorrecao.
+# --------------------------------------------------------------------------
+
+class TestRegressaoDoisCommitsReais(BaseRepoTestCase):
+    REL = "docs/dados/multimodelo_metricas.json"
+
+    MODELOS = [
+        ("extra_trees", 14166, 0, 0.7872),
+        ("linear_svc", 14166, 0, 0.8035),
+        ("lstm", 14166, 0, 0.6885),
+        ("naive_bayes", 14166, 0, 0.6973),
+        ("random_forest", 14166, 0, 0.7769),
+        ("regressao_logistica", 14166, 0, 0.7697),
+        ("sgd", 14166, 0, 0.7762),
+        ("transformer_ft", "", 14166, ""),
+    ]
+
+    def _lista(self, atualizado_em):
+        return json.dumps([
+            {
+                "modelo": modelo, "feitos_total": feitos_total,
+                "pendentes_restantes": pendentes, "concordancia_acumulada": concordancia,
+                "concordancia_ultimo_lote": "", "metodo_ultimo": "", "processados_ultimo": 0,
+                "atualizado_em": atualizado_em,
+            }
+            for modelo, feitos_total, pendentes, concordancia in self.MODELOS
+        ])
+
+    def _rodar_ciclo(self, antes, depois):
+        self._commitar(self.REL, self._lista(antes))
+        self._escrever_sem_commit(self.REL, self._lista(depois))
+
+        _path_norm, status = fnd.processar_path(self.REL, cwd=self.repo)
+
+        self.assertEqual(status, fnd.STATUS_VOLATIL_RESTAURADO)
+        status_git = _git(["status", "--porcelain", "--", self.REL], cwd=self.repo)
+        self.assertEqual(status_git.strip(), "")
+
+    def test_regressao_1934_para_1955(self):
+        self._rodar_ciclo("19/08/2026 19:34", "19/08/2026 19:55")
+
+    def test_regressao_1955_para_2030(self):
+        self._rodar_ciclo("19/08/2026 19:55", "19/08/2026 20:30")
+
+
+# --------------------------------------------------------------------------
+# Grupo 3e: cenario misto (secao 11 da microcorrecao) -- calibracao.json e
+# multimodelo_metricas.json restaurados, resumo.json com mudanca real
+# permanece, staging final contem so ele.
+# --------------------------------------------------------------------------
+
+class TestCenarioMisto(BaseRepoTestCase):
+    def test_staging_final_contem_so_o_arquivo_com_mudanca_real(self):
+        rel_calib = "docs/dados/calibracao.json"
+        rel_multi = "docs/dados/multimodelo_metricas.json"
+        rel_resumo = "docs/dados/resumo.json"
+
+        self._commitar(rel_calib, json.dumps({"gerado_em": "t1", "total": 100}), mensagem="seed calib")
+        self._commitar(
+            rel_multi,
+            json.dumps([{"modelo": "a", "feitos_total": 1, "atualizado_em": "t1"}]),
+            mensagem="seed multi",
+        )
+        self._commitar(rel_resumo, json.dumps({"gerado_em": "t1", "total": 1}), mensagem="seed resumo")
+
+        self._escrever_sem_commit(rel_calib, json.dumps({"gerado_em": "t2", "total": 100}))
+        self._escrever_sem_commit(
+            rel_multi, json.dumps([{"modelo": "a", "feitos_total": 1, "atualizado_em": "t2"}])
+        )
+        novo_resumo = json.dumps({"gerado_em": "t2", "total": 2})
+        self._escrever_sem_commit(rel_resumo, novo_resumo)
+
+        resultados = {}
+        for rel in (rel_calib, rel_multi, rel_resumo):
+            _p, status = fnd.processar_path(rel, cwd=self.repo)
+            resultados[rel] = status
+
+        self.assertEqual(resultados[rel_calib], fnd.STATUS_VOLATIL_RESTAURADO)
+        self.assertEqual(resultados[rel_multi], fnd.STATUS_VOLATIL_RESTAURADO)
+        self.assertEqual(resultados[rel_resumo], fnd.STATUS_SUBSTANTIVO)
+
+        status_git = _git(["status", "--porcelain", "--", "docs/dados"], cwd=self.repo)
+        alterados = [l[3:] for l in status_git.splitlines() if l.strip()]
+        self.assertEqual(alterados, [rel_resumo])
+        self.assertEqual(self._ler(rel_resumo), novo_resumo)
 
 
 # --------------------------------------------------------------------------
