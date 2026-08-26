@@ -49,13 +49,6 @@
       "maior_risco": "alta_ambiguidade"
     },
     {
-      "categoria_historica": "Segurança contra Incêndio > Sistemas de combate a incêndio (extintores, hidrantes)",
-      "modelos": 4,
-      "suporte_max": 116,
-      "entropia_media_normalizada": 0.741,
-      "maior_risco": "alta_ambiguidade"
-    },
-    {
       "categoria_historica": "Outros > Outros",
       "modelos": 9,
       "suporte_max": 134,
@@ -95,6 +88,13 @@
       "modelos": 4,
       "suporte_max": 92,
       "entropia_media_normalizada": 0.6426,
+      "maior_risco": "alta_ambiguidade"
+    },
+    {
+      "categoria_historica": "Segurança contra Incêndio > Sistemas de combate a incêndio (extintores, hidrantes)",
+      "modelos": 8,
+      "suporte_max": 117,
+      "entropia_media_normalizada": 0.6392,
       "maior_risco": "alta_ambiguidade"
     },
     {
@@ -654,6 +654,21 @@
     },
     {
       "modelo": "lstm",
+      "categoria_historica": "Segurança contra Incêndio > Sistemas de combate a incêndio (extintores, hidrantes)",
+      "suporte": 117,
+      "categorias_previstas": 27,
+      "entropia_previsoes": 3.8503,
+      "entropia_normalizada": 0.8097,
+      "categorias_efetivas": 14.4225,
+      "top_1_previsto": "Segurança contra Incêndio > Sistemas de combate a incêndio (extintores, hidrantes)",
+      "top_1_pct": 0.3162,
+      "top_2_previsto": "Projetos e Reformas > Reforma",
+      "top_2_pct": 0.0855,
+      "concordancia_historico": 0.3162,
+      "risco": "alta_ambiguidade"
+    },
+    {
+      "modelo": "lstm",
       "categoria_historica": "Manutenção Preventiva > Nobreak",
       "suporte": 40,
       "categorias_previstas": 13,
@@ -665,21 +680,6 @@
       "top_2_previsto": "Manutenção Preventiva > Nobreak",
       "top_2_pct": 0.25,
       "concordancia_historico": 0.25,
-      "risco": "alta_ambiguidade"
-    },
-    {
-      "modelo": "lstm",
-      "categoria_historica": "Segurança contra Incêndio > Sistemas de combate a incêndio (extintores, hidrantes)",
-      "suporte": 116,
-      "categorias_previstas": 27,
-      "entropia_previsoes": 3.8291,
-      "entropia_normalizada": 0.8053,
-      "categorias_efetivas": 14.2124,
-      "top_1_previsto": "Segurança contra Incêndio > Sistemas de combate a incêndio (extintores, hidrantes)",
-      "top_1_pct": 0.319,
-      "top_2_previsto": "Projetos e Reformas > Reforma",
-      "top_2_pct": 0.0862,
-      "concordancia_historico": 0.319,
       "risco": "alta_ambiguidade"
     },
     {
@@ -803,21 +803,6 @@
       "risco": "alta_ambiguidade"
     },
     {
-      "modelo": "random_forest",
-      "categoria_historica": "Segurança contra Incêndio > Sistemas de combate a incêndio (extintores, hidrantes)",
-      "suporte": 58,
-      "categorias_previstas": 7,
-      "entropia_previsoes": 2.1495,
-      "entropia_normalizada": 0.7657,
-      "categorias_efetivas": 4.4367,
-      "top_1_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-      "top_1_pct": 0.431,
-      "top_2_previsto": "Segurança contra Incêndio > Sistemas de combate a incêndio (extintores, hidrantes)",
-      "top_2_pct": 0.2931,
-      "concordancia_historico": 0.2931,
-      "risco": "alta_ambiguidade"
-    },
-    {
       "modelo": "lstm",
       "categoria_historica": "Projetos e Reformas > Reforma",
       "suporte": 332,
@@ -845,6 +830,36 @@
       "top_2_previsto": "Hidrossanitária > ETA / ETE",
       "top_2_pct": 0.0841,
       "concordancia_historico": 0.3429,
+      "risco": "alta_ambiguidade"
+    },
+    {
+      "modelo": "regressao_logistica",
+      "categoria_historica": "Segurança contra Incêndio > Sistemas de combate a incêndio (extintores, hidrantes)",
+      "suporte": 30,
+      "categorias_previstas": 10,
+      "entropia_previsoes": 2.5283,
+      "entropia_normalizada": 0.7611,
+      "categorias_efetivas": 5.7688,
+      "top_1_previsto": "Segurança contra Incêndio > Sistemas de combate a incêndio (extintores, hidrantes)",
+      "top_1_pct": 0.5,
+      "top_2_previsto": "Manutenção Preventiva > Sistemas de combate a incêndio (extintores, hidrantes)",
+      "top_2_pct": 0.1,
+      "concordancia_historico": 0.5,
+      "risco": "alta_ambiguidade"
+    },
+    {
+      "modelo": "random_forest",
+      "categoria_historica": "Segurança contra Incêndio > Sistemas de combate a incêndio (extintores, hidrantes)",
+      "suporte": 59,
+      "categorias_previstas": 7,
+      "entropia_previsoes": 2.1334,
+      "entropia_normalizada": 0.7599,
+      "categorias_efetivas": 4.3874,
+      "top_1_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
+      "top_1_pct": 0.4407,
+      "top_2_previsto": "Segurança contra Incêndio > Sistemas de combate a incêndio (extintores, hidrantes)",
+      "top_2_pct": 0.2881,
+      "concordancia_historico": 0.2881,
       "risco": "alta_ambiguidade"
     },
     {
@@ -965,6 +980,21 @@
       "top_2_previsto": "Hidrossanitária > Hidráulica",
       "top_2_pct": 0.2941,
       "concordancia_historico": 0.4118,
+      "risco": "alta_ambiguidade"
+    },
+    {
+      "modelo": "sgd",
+      "categoria_historica": "Segurança contra Incêndio > Sistemas de combate a incêndio (extintores, hidrantes)",
+      "suporte": 30,
+      "categorias_previstas": 9,
+      "entropia_previsoes": 2.3413,
+      "entropia_normalizada": 0.7386,
+      "categorias_efetivas": 5.0676,
+      "top_1_previsto": "Segurança contra Incêndio > Sistemas de combate a incêndio (extintores, hidrantes)",
+      "top_1_pct": 0.5,
+      "top_2_previsto": "Manutenção Preventiva > Sistemas de combate a incêndio (extintores, hidrantes)",
+      "top_2_pct": 0.1667,
+      "concordancia_historico": 0.5,
       "risco": "alta_ambiguidade"
     },
     {
@@ -1223,21 +1253,6 @@
       "risco": "alta_ambiguidade"
     },
     {
-      "modelo": "extra_trees",
-      "categoria_historica": "Segurança contra Incêndio > Sistemas de combate a incêndio (extintores, hidrantes)",
-      "suporte": 58,
-      "categorias_previstas": 8,
-      "entropia_previsoes": 2.1294,
-      "entropia_normalizada": 0.7098,
-      "categorias_efetivas": 4.3753,
-      "top_1_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-      "top_1_pct": 0.4138,
-      "top_2_previsto": "Segurança contra Incêndio > Sistemas de combate a incêndio (extintores, hidrantes)",
-      "top_2_pct": 0.3276,
-      "concordancia_historico": 0.3276,
-      "risco": "alta_ambiguidade"
-    },
-    {
       "modelo": "lstm",
       "categoria_historica": "Estrutura Predial > Telhados, calhas, rufos, etc.",
       "suporte": 832,
@@ -1280,6 +1295,21 @@
       "top_2_previsto": "Estrutura Predial > Telhados, calhas, rufos, etc.",
       "top_2_pct": 0.2139,
       "concordancia_historico": 0.3526,
+      "risco": "alta_ambiguidade"
+    },
+    {
+      "modelo": "extra_trees",
+      "categoria_historica": "Segurança contra Incêndio > Sistemas de combate a incêndio (extintores, hidrantes)",
+      "suporte": 59,
+      "categorias_previstas": 8,
+      "entropia_previsoes": 2.1146,
+      "entropia_normalizada": 0.7049,
+      "categorias_efetivas": 4.3306,
+      "top_1_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
+      "top_1_pct": 0.4237,
+      "top_2_previsto": "Segurança contra Incêndio > Sistemas de combate a incêndio (extintores, hidrantes)",
+      "top_2_pct": 0.322,
+      "concordancia_historico": 0.322,
       "risco": "alta_ambiguidade"
     },
     {
@@ -1523,21 +1553,6 @@
       "risco": "alta_ambiguidade"
     },
     {
-      "modelo": "linear_svc",
-      "categoria_historica": "Segurança contra Incêndio > Sistemas de combate a incêndio (extintores, hidrantes)",
-      "suporte": 58,
-      "categorias_previstas": 8,
-      "entropia_previsoes": 2.0497,
-      "entropia_normalizada": 0.6832,
-      "categorias_efetivas": 4.1401,
-      "top_1_previsto": "Segurança contra Incêndio > Sistemas de combate a incêndio (extintores, hidrantes)",
-      "top_1_pct": 0.5,
-      "top_2_previsto": "Manutenção Preventiva > Sistemas de combate a incêndio (extintores, hidrantes)",
-      "top_2_pct": 0.2759,
-      "concordancia_historico": 0.5,
-      "risco": "alta_ambiguidade"
-    },
-    {
       "modelo": "sgd",
       "categoria_historica": "Estrutura Predial > Telhados, calhas, rufos, etc.",
       "suporte": 208,
@@ -1613,6 +1628,21 @@
       "risco": "alta_ambiguidade"
     },
     {
+      "modelo": "linear_svc",
+      "categoria_historica": "Segurança contra Incêndio > Sistemas de combate a incêndio (extintores, hidrantes)",
+      "suporte": 59,
+      "categorias_previstas": 9,
+      "entropia_previsoes": 2.1389,
+      "entropia_normalizada": 0.6747,
+      "categorias_efetivas": 4.4042,
+      "top_1_previsto": "Segurança contra Incêndio > Sistemas de combate a incêndio (extintores, hidrantes)",
+      "top_1_pct": 0.4915,
+      "top_2_previsto": "Manutenção Preventiva > Sistemas de combate a incêndio (extintores, hidrantes)",
+      "top_2_pct": 0.2712,
+      "concordancia_historico": 0.4915,
+      "risco": "alta_ambiguidade"
+    },
+    {
       "modelo": "naive_bayes",
       "categoria_historica": "Suprimentos / Apoio Técnico > Materiais",
       "suporte": 85,
@@ -1671,6 +1701,21 @@
       "top_2_pct": 0.2837,
       "concordancia_historico": 0.3389,
       "risco": "alta_ambiguidade"
+    },
+    {
+      "modelo": "naive_bayes",
+      "categoria_historica": "Segurança contra Incêndio > Sistemas de combate a incêndio (extintores, hidrantes)",
+      "suporte": 30,
+      "categorias_previstas": 3,
+      "entropia_previsoes": 1.053,
+      "entropia_normalizada": 0.6644,
+      "categorias_efetivas": 2.0748,
+      "top_1_previsto": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
+      "top_1_pct": 0.7333,
+      "top_2_previsto": "Climatização > Ar condicionado split",
+      "top_2_pct": 0.2,
+      "concordancia_historico": 0.0,
+      "risco": "ambiguidade_moderada"
     },
     {
       "modelo": "sgd",
@@ -5551,6 +5596,21 @@
       "entropia_normalizada": 0.0,
       "categorias_efetivas": 1.0,
       "top_1_previsto": "Outros > Outros",
+      "top_1_pct": 1.0,
+      "top_2_previsto": "",
+      "top_2_pct": 0.0,
+      "concordancia_historico": 1.0,
+      "risco": "estavel"
+    },
+    {
+      "modelo": "etapa1_oficial",
+      "categoria_historica": "Segurança contra Incêndio > Sistemas de combate a incêndio (extintores, hidrantes)",
+      "suporte": 30,
+      "categorias_previstas": 1,
+      "entropia_previsoes": -0.0,
+      "entropia_normalizada": 0.0,
+      "categorias_efetivas": 1.0,
+      "top_1_previsto": "Segurança contra Incêndio > Sistemas de combate a incêndio (extintores, hidrantes)",
       "top_1_pct": 1.0,
       "top_2_previsto": "",
       "top_2_pct": 0.0,
