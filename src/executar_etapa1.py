@@ -69,6 +69,56 @@ def cel(linha, idx) -> str:
     return str(linha[idx] or "").strip() if (idx is not None and idx < len(linha)) else ""
 
 
+def normalizar_id(valor) -> str:
+    """Normaliza IDs vindos do Sheets sem alterar o identificador lógico."""
+    bruto = str(valor or "").strip()
+    if not bruto:
+        return ""
+    try:
+        return str(int(float(bruto)))
+    except (TypeError, ValueError):
+        return bruto
+
+
+def validar_ids_antes_escrita(ws, lote: list[dict[str, Any]]) -> int:
+    """Confirma que cada ``linha`` ainda contém o ``id`` lido no início do run.
+
+    As colunas A:D são alimentadas por IMPORTRANGE e podem mudar de posição
+    enquanto o modelo treina. G:J, por outro lado, são células literais. Sem
+    este gate, uma inserção ou reordenação na origem pode gravar a previsão de
+    um chamado sobre outro. A validação é repetida imediatamente antes da
+    escrita e aborta todo o lote ao primeiro conjunto de divergências.
+    """
+    if not lote:
+        return 0
+
+    alvos = sorted({
+        int(item["linha"]): normalizar_id(item.get("id"))
+        for item in lote
+    }.items())
+    linha_ini, linha_fim = alvos[0][0], alvos[-1][0]
+    bloco = pl.ler_valores(ws, f"A{linha_ini}:A{linha_fim}")
+
+    divergencias = []
+    for linha, id_esperado in alvos:
+        off = linha - linha_ini
+        atual = bloco[off][0] if off < len(bloco) and bloco[off] else ""
+        id_atual = normalizar_id(atual)
+        if id_atual != id_esperado:
+            divergencias.append((linha, id_esperado, id_atual))
+
+    if divergencias:
+        amostra = "; ".join(
+            f"linha {linha}: esperado={esperado or '(vazio)'}, atual={atual or '(vazio)'}"
+            for linha, esperado, atual in divergencias[:10]
+        )
+        raise RuntimeError(
+            "alinhamento linha_planilha x id_chamado mudou antes da escrita; "
+            f"lote abortado ({len(divergencias)} divergencias). {amostra}"
+        )
+    return len(alvos)
+
+
 def treinar_e_prever(modelo, textos_treino, cats_treino, textos_alvo, config=None):
     if modelo == "producao":
         lstm_config = (config or {}).get("modelo_ia", {}).get("lstm", {})
@@ -294,6 +344,8 @@ def main() -> int:
         return 0
 
     # G:J em lote (% em H)
+    ids_confirmados = validar_ids_antes_escrita(ws, lote)
+    print(f"gate_alinhamento_id=ok | ids_confirmados={ids_confirmados}")
     linhas_gj = [{"linha": e["linha"],
                   "valores": [e["categoria_ia"], e["confianca"], e["executor"], e["criticidade"]]}
                  for e in lote]
