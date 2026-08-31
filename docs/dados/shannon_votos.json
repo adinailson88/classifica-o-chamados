@@ -1,8 +1,8 @@
 {
   "resumo": {
-    "linhas_com_2_ou_mais_modelos": 14073,
-    "linhas_alta_ambiguidade": 4122,
-    "entropia_media_votos": 1.1732
+    "linhas_com_2_ou_mais_modelos": 14207,
+    "linhas_alta_ambiguidade": 4166,
+    "entropia_media_votos": 1.1687
   },
   "linhas_mais_ambiguas": [
     {
@@ -18,6 +18,57 @@
       "modelos_divergentes": [
         "extra_trees",
         "lstm",
+        "naive_bayes",
+        "random_forest"
+      ]
+    },
+    {
+      "linha": 14090,
+      "categoria_historica": "Manutenção Preventiva > Gerador",
+      "n_modelos": 8,
+      "categorias_votadas": 2,
+      "entropia_votos": 1.0,
+      "entropia_normalizada": 1.0,
+      "categorias_efetivas": 2.0,
+      "maioria": "Manutenção Preventiva > Esgoto",
+      "maioria_pct": 0.5,
+      "modelos_divergentes": [
+        "extra_trees",
+        "linear_svc",
+        "naive_bayes",
+        "random_forest"
+      ]
+    },
+    {
+      "linha": 14115,
+      "categoria_historica": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
+      "n_modelos": 8,
+      "categorias_votadas": 2,
+      "entropia_votos": 1.0,
+      "entropia_normalizada": 1.0,
+      "categorias_efetivas": 2.0,
+      "maioria": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
+      "maioria_pct": 0.5,
+      "modelos_divergentes": [
+        "linear_svc",
+        "random_forest",
+        "regressao_logistica",
+        "sgd"
+      ]
+    },
+    {
+      "linha": 14166,
+      "categoria_historica": "Instalação de Acessórios e Mobiliário > Instalação/reparo de equipamentos (Suportes de TV, acessórios de banheiro e quadro branco)",
+      "n_modelos": 8,
+      "categorias_votadas": 2,
+      "entropia_votos": 1.0,
+      "entropia_normalizada": 1.0,
+      "categorias_efetivas": 2.0,
+      "maioria": "Instalação de Acessórios e Mobiliário > Instalação/reparo de equipamentos (Suportes de TV, acessórios de banheiro e quadro branco)",
+      "maioria_pct": 0.5,
+      "modelos_divergentes": [
+        "extra_trees",
+        "linear_svc",
         "naive_bayes",
         "random_forest"
       ]
@@ -386,6 +437,42 @@
         "linear_svc",
         "lstm",
         "random_forest",
+        "regressao_logistica",
+        "sgd"
+      ]
+    },
+    {
+      "linha": 14150,
+      "categoria_historica": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
+      "n_modelos": 8,
+      "categorias_votadas": 3,
+      "entropia_votos": 1.5613,
+      "entropia_normalizada": 0.9851,
+      "categorias_efetivas": 2.9512,
+      "maioria": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
+      "maioria_pct": 0.375,
+      "modelos_divergentes": [
+        "lstm",
+        "naive_bayes",
+        "random_forest",
+        "regressao_logistica",
+        "sgd"
+      ]
+    },
+    {
+      "linha": 14159,
+      "categoria_historica": "Área Externa e Ambiental > Manutenção área externa / meio ambiente / Poda de árvore / Roçagem",
+      "n_modelos": 8,
+      "categorias_votadas": 3,
+      "entropia_votos": 1.5613,
+      "entropia_normalizada": 0.9851,
+      "categorias_efetivas": 2.9512,
+      "maioria": "Área Externa e Ambiental > Manutenção área externa / meio ambiente / Poda de árvore / Roçagem",
+      "maioria_pct": 0.375,
+      "modelos_divergentes": [
+        "extra_trees",
+        "linear_svc",
+        "naive_bayes",
         "regressao_logistica",
         "sgd"
       ]
@@ -3761,90 +3848,6 @@
         "regressao_logistica",
         "sgd",
         "transformer_ft"
-      ]
-    },
-    {
-      "linha": 13200,
-      "categoria_historica": "Hidrossanitária > Hidráulica",
-      "n_modelos": 9,
-      "categorias_votadas": 3,
-      "entropia_votos": 1.5305,
-      "entropia_normalizada": 0.9656,
-      "categorias_efetivas": 2.8888,
-      "maioria": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-      "maioria_pct": 0.4444,
-      "modelos_divergentes": [
-        "etapa1_oficial",
-        "linear_svc",
-        "regressao_logistica",
-        "sgd",
-        "transformer_ft"
-      ]
-    },
-    {
-      "linha": 13759,
-      "categoria_historica": "Estrutura Predial > Esquadrias, porta, portão e janelas",
-      "n_modelos": 9,
-      "categorias_votadas": 3,
-      "entropia_votos": 1.5305,
-      "entropia_normalizada": 0.9656,
-      "categorias_efetivas": 2.8888,
-      "maioria": "Estrutura Predial > Pintura",
-      "maioria_pct": 0.4444,
-      "modelos_divergentes": [
-        "etapa1_oficial",
-        "extra_trees",
-        "naive_bayes",
-        "random_forest",
-        "transformer_ft"
-      ]
-    },
-    {
-      "linha": 14033,
-      "categoria_historica": "Climatização > Ar condicionado split",
-      "n_modelos": 8,
-      "categorias_votadas": 2,
-      "entropia_votos": 0.9544,
-      "entropia_normalizada": 0.9544,
-      "categorias_efetivas": 1.9378,
-      "maioria": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
-      "maioria_pct": 0.625,
-      "modelos_divergentes": [
-        "extra_trees",
-        "naive_bayes",
-        "random_forest"
-      ]
-    },
-    {
-      "linha": 14039,
-      "categoria_historica": "Instalação de Acessórios e Mobiliário > Instalação/reparo de equipamentos (Suportes de TV, acessórios de banheiro e quadro branco)",
-      "n_modelos": 8,
-      "categorias_votadas": 2,
-      "entropia_votos": 0.9544,
-      "entropia_normalizada": 0.9544,
-      "categorias_efetivas": 1.9378,
-      "maioria": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-      "maioria_pct": 0.625,
-      "modelos_divergentes": [
-        "etapa1_oficial",
-        "regressao_logistica",
-        "sgd"
-      ]
-    },
-    {
-      "linha": 14041,
-      "categoria_historica": "TI / Dados / Rede > Ponto de rede / fibra ótica / Wi-fi",
-      "n_modelos": 8,
-      "categorias_votadas": 2,
-      "entropia_votos": 0.9544,
-      "entropia_normalizada": 0.9544,
-      "categorias_efetivas": 1.9378,
-      "maioria": "Estrutura Predial > Alvenaria / Pisos / Estrutura",
-      "maioria_pct": 0.625,
-      "modelos_divergentes": [
-        "etapa1_oficial",
-        "regressao_logistica",
-        "sgd"
       ]
     }
   ]
