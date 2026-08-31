@@ -1,67 +1,67 @@
 {
- "total_chamados": 14211,
+ "total_chamados": 14213,
  "com_conferencia_glpi": 14060,
  "verdade_glpi": 13539,
  "verdade_manual": 521,
  "pendente_glpi_errado_sem_q": 0,
- "sem_conferencia": 151,
+ "sem_conferencia": 153,
  "correto_com_q_preenchida": 0,
  "errado_com_q_igual_a_c": 0,
  "por_modelo": {
   "naive_bayes": {
-   "correto": 9968,
-   "errado": 4088,
+   "correto": 9969,
+   "errado": 4091,
    "pendente": 0,
-   "sem_predicao": 4,
-   "avaliados": 14056,
-   "acuracia": 0.7092
+   "sem_predicao": 0,
+   "avaliados": 14060,
+   "acuracia": 0.709
   },
   "regressao_logistica": {
-   "correto": 11153,
+   "correto": 11157,
    "errado": 2903,
    "pendente": 0,
-   "sem_predicao": 4,
-   "avaliados": 14056,
+   "sem_predicao": 0,
+   "avaliados": 14060,
    "acuracia": 0.7935
   },
   "linear_svc": {
-   "correto": 11501,
+   "correto": 11505,
    "errado": 2555,
    "pendente": 0,
-   "sem_predicao": 4,
-   "avaliados": 14056,
-   "acuracia": 0.8182
+   "sem_predicao": 0,
+   "avaliados": 14060,
+   "acuracia": 0.8183
   },
   "sgd": {
-   "correto": 11222,
+   "correto": 11226,
    "errado": 2834,
    "pendente": 0,
-   "sem_predicao": 4,
-   "avaliados": 14056,
+   "sem_predicao": 0,
+   "avaliados": 14060,
    "acuracia": 0.7984
   },
   "extra_trees": {
-   "correto": 11211,
-   "errado": 2845,
+   "correto": 11214,
+   "errado": 2846,
    "pendente": 0,
-   "sem_predicao": 4,
-   "avaliados": 14056,
+   "sem_predicao": 0,
+   "avaliados": 14060,
    "acuracia": 0.7976
   },
   "random_forest": {
-   "correto": 11090,
-   "errado": 2966,
+   "correto": 11093,
+   "errado": 2967,
    "pendente": 0,
-   "sem_predicao": 4,
-   "avaliados": 14056,
+   "sem_predicao": 0,
+   "avaliados": 14060,
    "acuracia": 0.789
   },
   "lstm": {
-   "correto": 9974,
-   "errado": 4082,
+   "correto": 9977,
+   "errado": 4083,
    "pendente": 0,
-   "sem_predicao": 4,
-   "avaliados": 14056,
+   "sem_predicao": 0,
+   "avaliados": 14060,
    "acuracia": 0.7096
   },
   "transformer_ft": {
@@ -101,7 +101,7 @@
  "categorias_distintas_q": 23,
  "ids_correto_com_q_preenchida": [],
  "ids_errado_com_q_igual_a_c": [],
- "gerado_em": "31/08/2026 02:51",
+ "gerado_em": "31/08/2026 11:14",
  "aba": "CONFERENCIA_MULTIMODELO",
  "regra": "M='Correto' -> verdade = C; M='Errado' + Q preenchida -> verdade = Q; M='Errado' sem Q -> pendente; M vazio -> ignorado"
 }
