@@ -1,5 +1,5 @@
 {
-  "gerado_em": "01/09/2026 13:47",
+  "gerado_em": "01/09/2026 18:10",
   "schema_version": "1.0",
   "run_id": "EXP_CLASSIFICACAO_CHAMADOS_2026_06_001",
   "script_origem": "src/analise_estatistica.py",
@@ -84,30 +84,30 @@
   "normalidade_concordancia_turno": [
     {
       "modelo": "naive_bayes",
-      "n_turnos": 959,
-      "shapiro_W": 0.963,
-      "p": 7.34e-15,
+      "n_turnos": 960,
+      "shapiro_W": 0.9618,
+      "p": 3.88e-15,
       "normal_5pct": false
     },
     {
       "modelo": "regressao_logistica",
-      "n_turnos": 959,
-      "shapiro_W": 0.9211,
-      "p": 5.53e-22,
+      "n_turnos": 960,
+      "shapiro_W": 0.9215,
+      "p": 6.1e-22,
       "normal_5pct": false
     },
     {
       "modelo": "linear_svc",
-      "n_turnos": 959,
-      "shapiro_W": 0.9079,
-      "p": 1.31e-23,
+      "n_turnos": 960,
+      "shapiro_W": 0.9023,
+      "p": 2.85e-24,
       "normal_5pct": false
     },
     {
       "modelo": "sgd",
-      "n_turnos": 959,
-      "shapiro_W": 0.9181,
-      "p": 2.28e-22,
+      "n_turnos": 960,
+      "shapiro_W": 0.9185,
+      "p": 2.5e-22,
       "normal_5pct": false
     },
     {
@@ -135,38 +135,38 @@
   "residuos_tendencia": [
     {
       "modelo": "naive_bayes",
-      "n_turnos": 959,
-      "slope": -2.8e-05,
-      "r2": 0.0016,
-      "p_tendencia": 0.22,
-      "durbin_watson": 1.442,
+      "n_turnos": 960,
+      "slope": -3.3e-05,
+      "r2": 0.0021,
+      "p_tendencia": 0.158,
+      "durbin_watson": 1.431,
       "tendencia": "estavel"
     },
     {
       "modelo": "regressao_logistica",
-      "n_turnos": 959,
-      "slope": 0.000131,
-      "r2": 0.0434,
-      "p_tendencia": 7.34e-11,
-      "durbin_watson": 1.378,
+      "n_turnos": 960,
+      "slope": 0.000129,
+      "r2": 0.042,
+      "p_tendencia": 1.45e-10,
+      "durbin_watson": 1.375,
       "tendencia": "sobe"
     },
     {
       "modelo": "linear_svc",
-      "n_turnos": 959,
-      "slope": 9.2e-05,
-      "r2": 0.0262,
-      "p_tendencia": 4.6e-07,
-      "durbin_watson": 1.435,
+      "n_turnos": 960,
+      "slope": 8.6e-05,
+      "r2": 0.0226,
+      "p_tendencia": 2.82e-06,
+      "durbin_watson": 1.415,
       "tendencia": "sobe"
     },
     {
       "modelo": "sgd",
-      "n_turnos": 959,
-      "slope": 0.000117,
-      "r2": 0.035,
-      "p_tendencia": 5.29e-09,
-      "durbin_watson": 1.379,
+      "n_turnos": 960,
+      "slope": 0.000115,
+      "r2": 0.0338,
+      "p_tendencia": 9.77e-09,
+      "durbin_watson": 1.376,
       "tendencia": "sobe"
     },
     {
@@ -1179,44 +1179,44 @@
     }
   ],
   "validacao_humana_modelos": {
-    "n_verdade_derivada": 14060,
+    "n_verdade_derivada": 0,
     "base": "conferencia do GLPI (coluna M) + categoria manual (Q); restritos sem verdade excluidos",
     "nota": "Amostra parcial e nao probabilistica; nao estima a base completa.",
     "por_modelo": [
       {
-        "modelo": "linear_svc",
-        "n": 14060,
-        "acerto_validado": 0.8183
-      },
-      {
-        "modelo": "sgd",
-        "n": 14060,
-        "acerto_validado": 0.7984
-      },
-      {
-        "modelo": "extra_trees",
-        "n": 14060,
-        "acerto_validado": 0.7976
+        "modelo": "naive_bayes",
+        "n": 0,
+        "acerto_validado": null
       },
       {
         "modelo": "regressao_logistica",
-        "n": 14060,
-        "acerto_validado": 0.7935
+        "n": 0,
+        "acerto_validado": null
+      },
+      {
+        "modelo": "linear_svc",
+        "n": 0,
+        "acerto_validado": null
+      },
+      {
+        "modelo": "sgd",
+        "n": 0,
+        "acerto_validado": null
+      },
+      {
+        "modelo": "extra_trees",
+        "n": 0,
+        "acerto_validado": null
       },
       {
         "modelo": "random_forest",
-        "n": 14060,
-        "acerto_validado": 0.789
+        "n": 0,
+        "acerto_validado": null
       },
       {
         "modelo": "lstm",
-        "n": 14060,
-        "acerto_validado": 0.7096
-      },
-      {
-        "modelo": "naive_bayes",
-        "n": 14060,
-        "acerto_validado": 0.709
+        "n": 0,
+        "acerto_validado": null
       }
     ]
   },
@@ -1411,46 +1411,46 @@
           "acf_por_modelo": [
             {
               "modelo": "naive_bayes",
-              "n_turnos": 959,
+              "n_turnos": 960,
               "acf_lags_1_5": [
                 0.28,
-                0.157,
-                0.185,
-                0.16,
-                0.157
+                0.168,
+                0.191,
+                0.167,
+                0.161
               ]
             },
             {
               "modelo": "regressao_logistica",
-              "n_turnos": 959,
+              "n_turnos": 960,
               "acf_lags_1_5": [
-                0.341,
-                0.254,
-                0.263,
-                0.192,
-                0.201
+                0.34,
+                0.26,
+                0.262,
+                0.195,
+                0.202
               ]
             },
             {
               "modelo": "linear_svc",
-              "n_turnos": 959,
+              "n_turnos": 960,
               "acf_lags_1_5": [
-                0.301,
-                0.217,
-                0.203,
-                0.225,
-                0.178
+                0.295,
+                0.238,
+                0.191,
+                0.239,
+                0.167
               ]
             },
             {
               "modelo": "sgd",
-              "n_turnos": 959,
+              "n_turnos": 960,
               "acf_lags_1_5": [
-                0.335,
-                0.249,
-                0.239,
-                0.195,
-                0.193
+                0.334,
+                0.256,
+                0.238,
+                0.198,
+                0.191
               ]
             },
             {
