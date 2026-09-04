@@ -569,6 +569,25 @@
         <p class="muted" id="reclassVazio"></p>
       </div>
     </div>
+    <div class="card full" id="cardEstabilidadeReclass" style="border-left:3px solid #b7791f">
+      <h2>Estabilidade da reclassificacao (historico completo)</h2>
+      <div class="kpis" id="kpisEstabilidadeReclass"></div>
+      <div class="grid">
+        <div class="card">
+          <h2>Nº de reclassificacoes por chamado</h2>
+          <div class="tablebox"><table id="tabDistReclass"><thead><tr><th>Nº de reclassificacoes</th><th>Chamados</th></tr></thead><tbody></tbody></table></div>
+        </div>
+        <div class="card">
+          <h2>Resultado mais recente</h2>
+          <div class="tablebox"><table id="tabResultadoRecente"><thead><tr><th>Resultado</th><th>Chamados</th></tr></thead><tbody></tbody></table></div>
+        </div>
+        <div class="card">
+          <h2>Categorias mais reclassificadas</h2>
+          <div class="tablebox"><table id="tabTopCategoriasReclass"><thead><tr><th>Categoria</th><th>Chamados</th></tr></thead><tbody></tbody></table></div>
+        </div>
+      </div>
+      <p class="muted" id="estabilidadeReclassNota"></p>
+    </div>
   </section>
 
   <section id="tab-decisao" class="hide">
@@ -1885,6 +1904,46 @@ function renderReclassMulti(rt){
   trb.innerHTML = Object.keys(agg).sort().map(m=>`<tr><td>${esc(m)}</td><td>${fmt(agg[m].t)}</td><td>${fmt(agg[m].c)}</td><td>${fmt(agg[m].p)}</td><td class="${agg[m].g>=0?'status-ok':'status-bad'}">${fmt(agg[m].g)}</td></tr>`).join("");
 }
 
+function renderEstabilidadeReclassificacao(er){
+  const kb=document.getElementById("kpisEstabilidadeReclass");
+  const nota=document.getElementById("estabilidadeReclassNota");
+  const idsTabelas=["tabDistReclass","tabResultadoRecente","tabTopCategoriasReclass"];
+  if(!kb) return;
+  if(!er || typeof er!=="object" || !er.total_entradas_historico){
+    kb.innerHTML=kpi("sem dados","Estabilidade");
+    if(nota) nota.textContent="Arquivo docs/dados/estabilidade_reclassificacao.json ainda nao publicado, ou RECLASS_HISTORICO vazia.";
+    idsTabelas.forEach(id=>{const t=document.querySelector(`#${id} tbody`); if(t) t.innerHTML="";});
+    return;
+  }
+  const rpc=er.reclassificacoes_por_chamado||{}, mud=er.mudou_categoria_desde_a_primeira||{};
+  const totalMud=N(mud.sim)+N(mud.nao);
+  kb.innerHTML=
+    kpi(fmt(er.total_entradas_historico),"Entradas no historico")+
+    kpi(fmt(er.total_chamados_reclassificados),"Chamados reclassificados >=1x")+
+    kpi(rpc.media!=null?String(rpc.media).replace(".",","):"—","Reclassificacoes/chamado (media)")+
+    kpi(rpc.maximo!=null?fmt(rpc.maximo):"—","Maximo por um chamado")+
+    kpi(totalMud?pct(N(mud.sim)/totalMud):"—","Mudou de categoria desde a 1a");
+
+  const dist=er.distribuicao_qtd_reclassificacoes||{};
+  const tbDist=document.querySelector("#tabDistReclass tbody");
+  if(tbDist) tbDist.innerHTML=["1","2","3","4_ou_mais"].filter(k=>dist[k]!=null)
+    .map(k=>`<tr><td>${k==="4_ou_mais"?"4 ou mais":k}</td><td>${fmt(dist[k])}</td></tr>`).join("")
+    || "<tr><td colspan=2>Sem dados</td></tr>";
+
+  const res=er.resultado_mais_recente||{};
+  const tbRes=document.querySelector("#tabResultadoRecente tbody");
+  if(tbRes) tbRes.innerHTML=Object.keys(res).sort((a,b)=>res[b]-res[a])
+    .map(k=>`<tr><td>${esc(k)}</td><td>${fmt(res[k])}</td></tr>`).join("")
+    || "<tr><td colspan=2>Sem dados</td></tr>";
+
+  const topCat=er.top_categorias_mais_reclassificadas||[];
+  const tbCat=document.querySelector("#tabTopCategoriasReclass tbody");
+  if(tbCat) tbCat.innerHTML=topCat.map(c=>`<tr><td>${esc(c.categoria)}</td><td>${fmt(c.qtd_chamados)}</td></tr>`).join("")
+    || "<tr><td colspan=2>Sem dados</td></tr>";
+
+  if(nota) nota.textContent="Agrega TODO o log de reclassificacao (RECLASS_HISTORICO, todas as rodadas e modelos), complementando a tabela 'Reclassificacao por modelo' acima (que so mostra o snapshot mais recente por modelo). Nunca expoe id_chamado. Gerado em "+esc(er.gerado_em||"—")+".";
+}
+
 // ---- Taxonomia: mapa de correlacao + termos caracteristicos + cruzamento ----
 let TAXON_CORR=null, TAXON_TERMOS=null, TAXON_CRUZ=null;
 /* ---------- Matriz de confusao contra a verdade validada ----------
@@ -2943,6 +3002,8 @@ function aplicarFonteCalibracao(){
   renderBertimbauHoldout(Array.isArray(bertHoldout)?null:bertHoldout);
   const bertCoreset = await getJSON("bertimbau_coreset_resumo.json");
   renderBertimbauCoreset(Array.isArray(bertCoreset)?null:bertCoreset);
+  const estabilidadeReclass = await getJSON("estabilidade_reclassificacao.json");
+  renderEstabilidadeReclassificacao(Array.isArray(estabilidadeReclass)?null:estabilidadeReclass);
   instalarBotoesPNG();
 })();
 </script>
