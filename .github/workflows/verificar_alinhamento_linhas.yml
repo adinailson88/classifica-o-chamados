@@ -14,6 +14,13 @@ on:
       amostra:
         description: "Quantas divergencias listar"
         default: "10"
+      run_id_arquivo:
+        description: >-
+          Opcional (Fase 4, 09/2026): ID de um run do exportar_reclass_historico.yml ou
+          truncar_reclass_historico.yml cujo artifact tem o CSV arquivado do
+          RECLASS_HISTORICO anterior ao truncamento. Sem isso, so a planilha viva
+          (entradas recentes) e conferida.
+        default: ""
 
 concurrency:
   # Grupo proprio: e read-only e nao pode ser expulso da fila 'escrita-planilha'.
@@ -38,6 +45,13 @@ jobs:
           cache-dependency-path: requirements-leves.txt
       - name: Dependencias
         run: python -m pip install --retries 5 --timeout 120 -r requirements-leves.txt
+      - name: Baixar CSV arquivado (Fase 4 -- so se run_id_arquivo foi informado)
+        if: ${{ github.event.inputs.run_id_arquivo != '' }}
+        uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: ${{ github.event.inputs.run_id_arquivo }}
+          path: dados/arquivo_reclass_historico_baixado
       - name: Recriar chave da conta de servico
         env:
           GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
@@ -46,8 +60,18 @@ jobs:
           printf '%s' "$GCP_SA_KEY" > credenciais_sa.json
       - name: Verificar alinhamento
         run: |
+          ARQUIVO=""
+          if [ "${{ github.event.inputs.run_id_arquivo }}" != "" ]; then
+            CSV="$(find dados/arquivo_reclass_historico_baixado -name '*.csv' -print -quit)"
+            if [ -z "$CSV" ]; then
+              echo "run_id_arquivo informado, mas nenhum CSV encontrado no artifact." >&2
+              exit 1
+            fi
+            echo "usando arquivo arquivado: $CSV"
+            ARQUIVO="--arquivo-historico $CSV"
+          fi
           python scripts/migracoes/verificar_alinhamento_linhas.py \
-            --amostra "${{ github.event.inputs.amostra || '10' }}"
+            --amostra "${{ github.event.inputs.amostra || '10' }}" $ARQUIVO
       - name: Remover credenciais
         if: always()
         run: rm -f credenciais_sa.json

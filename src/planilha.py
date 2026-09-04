@@ -299,6 +299,43 @@ def ler_valores(ws, range_a1: str = "A:M") -> list[list[Any]]:
         tentativas=5, base=30, rotulo="ler_valores")
 
 
+def ler_historico_combinado(sh, aba_historico: str,
+                            arquivo_csv: str | Path | None = None,
+                            range_a1: str = "A:X") -> list[list[Any]]:
+    """Lê RECLASS_HISTORICO da planilha viva e, se `arquivo_csv` for dado,
+    combina com um export arquivado (Fase 1/3 do plano de redução de células,
+    09/2026) -- necessário desde que a aba viva foi truncada: só mantém
+    entradas recentes; o histórico anterior ao truncamento só existe no
+    arquivo (ver scripts/migracoes/exportar_reclass_historico.py e
+    scripts/migracoes/truncar_reclass_historico.py).
+
+    O cabeçalho vem da planilha viva (fonte de verdade do schema atual); as
+    linhas do arquivo são concatenadas ANTES das linhas da planilha viva --
+    a ordem não importa para quem consome (ambos os consumidores, restaurar
+    por data de corte e conferir alinhamento, tomam a entrada mais recente
+    por id/linha, não dependem de ordem de leitura).
+
+    Sem `arquivo_csv`: comportamento idêntico a ler antes (só a planilha
+    viva) -- retrocompatível com quem chamava a leitura direta.
+    """
+    hist_vivo = ler_valores(sh.worksheet(aba_historico), range_a1)
+    if not arquivo_csv:
+        return hist_vivo
+
+    import csv  # noqa: PLC0415
+
+    caminho = Path(arquivo_csv)
+    with caminho.open("r", encoding="utf-8", newline="") as f:
+        linhas_arquivo = list(csv.reader(f))
+    if not linhas_arquivo:
+        return hist_vivo
+
+    cabecalho = hist_vivo[0] if hist_vivo else linhas_arquivo[0]
+    dados_arquivo = linhas_arquivo[1:]
+    dados_vivo = hist_vivo[1:] if hist_vivo else []
+    return [cabecalho] + dados_arquivo + dados_vivo
+
+
 def _norm_veredito(valor) -> str | None:
     """Normaliza uma celula de conferencia: 'Correto' (qualquer caixa) -> 'Correto';
     qualquer outro valor nao vazio -> 'Errado'; vazio -> None (nao validado)."""
