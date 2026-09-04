@@ -14,9 +14,10 @@ Este script fecha essa lacuna: compara o id_chamado ATUAL da coluna A com o
 id_chamado que estava registrado quando aquela linha foi classificada pela
 última vez (SNAPSHOT_ETAPA_1, que já grava linha_planilha + id_chamado a cada
 turno -- não precisa de coluna nova nem de aba nova). Divergência = G órfã:
-limpa SOMENTE G:K dessa linha (nunca a linha inteira, nunca M/N/O/P/Q), ela
-volta a "pendente" e o próximo turno de `etapa1_turnos.yml` (já protegido pelo
-gate) reclassifica certo.
+limpa G:J dessa linha (nunca a linha inteira, nunca M/N/O/P/Q, e nunca K --
+K é fórmula e se recalcula sozinha a partir de G e C, ver
+`executar_etapa1.garantir_formula_k`), ela volta a "pendente" e o próximo
+turno de `etapa1_turnos.yml` (já protegido pelo gate) reclassifica certo.
 
 Protege linhas com CONFERÊNCIA GLPI (M) = TRUE: nunca limpa o que já foi
 validado por humano, mesmo que o id tenha divergido -- só registra no
@@ -24,10 +25,10 @@ relatório, para decisão manual.
 
 SEGURANÇA:
     - Sem --aplicar: dry-run, só relata quantas linhas estão órfãs.
-    - Com --aplicar: limpa G:K das linhas órfãs. Sem palavra de confirmação
-      extra (diferente de `rematerializar_etapa1_oficial.py`): é uma limpeza
-      cirúrgica e reversível -- a linha volta a pendente e é reclassificada
-      no próximo turno, em vez de apagar a base inteira.
+    - Com --aplicar: limpa G:J das linhas órfãs (nunca K). Sem palavra de
+      confirmação extra (diferente de `rematerializar_etapa1_oficial.py`): é
+      uma limpeza cirúrgica e reversível -- a linha volta a pendente e é
+      reclassificada no próximo turno, em vez de apagar a base inteira.
 """
 
 from __future__ import annotations
@@ -125,7 +126,16 @@ def encontrar_orfas(
 
 
 def limpar_orfas(ws, orfas: list[dict[str, Any]]) -> None:
-    ranges = [f"G{r['linha']}:K{r['linha']}" for r in orfas]
+    """Limpa G:J das linhas órfãs -- NUNCA K.
+
+    K é a fórmula `=SE(G="";"";G=C)` (ver `executar_etapa1.garantir_formula_k`):
+    ela mesma passa a mostrar "" assim que G fica vazia, e volta sozinha a
+    TRUE/FALSE assim que G for reclassificada -- não precisa (e não deve) ser
+    limpa manualmente. Limpá-la destruiria a fórmula, e como o gatilho que a
+    reaplica só dispara quando a ÚLTIMA linha da planilha ainda não tem
+    fórmula, uma linha no meio da base perderia K permanentemente.
+    """
+    ranges = [f"G{r['linha']}:J{r['linha']}" for r in orfas]
     for i in range(0, len(ranges), TAMANHO_LOTE_CLEAR):
         ws.batch_clear(ranges[i:i + TAMANHO_LOTE_CLEAR])
 
@@ -144,7 +154,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--credenciais", default=None)
     p.add_argument("--relatorio", type=Path, default=RELATORIO_PADRAO)
     p.add_argument("--aplicar", action="store_true",
-                    help="Limpa G:K das linhas orfas. Sem isso, dry-run (so relata).")
+                    help="Limpa G:J das linhas orfas (nunca K). Sem isso, dry-run (so relata).")
     return p.parse_args()
 
 
@@ -198,7 +208,8 @@ def main() -> int:
 
     if orfas:
         limpar_orfas(ws, orfas)
-        print(f"limpo: G:K de {len(orfas)} linha(s) orfa(s) -- voltam a pendentes no proximo turno.")
+        print(f"limpo: G:J de {len(orfas)} linha(s) orfa(s) (K preservada, e formula) "
+              f"-- voltam a pendentes no proximo turno.")
 
     relatorio["aplicado"] = True
     gravar_relatorio(args.relatorio, relatorio)
