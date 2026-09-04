@@ -119,6 +119,35 @@ def validar_ids_antes_escrita(ws, lote: list[dict[str, Any]]) -> int:
     return len(alvos)
 
 
+def garantir_formula_k(ws, total: int) -> bool:
+    """Garante que a coluna K (Comparação) tenha a fórmula `=SE(G="";"";G=C)`
+    até a linha `total`+1. Retorna True se aplicou/estendeu, False se a
+    cobertura já estava completa.
+
+    Verifica a FÓRMULA (via value_render_option="FORMULA") da ÚLTIMA linha da
+    faixa atual -- não o valor computado. Depois da 1a aplicação, K2 sempre
+    tem uma fórmula, mas o VALOR computado dela é "" enquanto G2 estiver
+    vazia; checar o valor (como esta função fazia antes) fazia a aplicação
+    nunca mais rodar depois da 1a vez, e qualquer linha nova que entrasse na
+    planilha depois disso ficava com K permanentemente em branco -- nenhuma
+    fórmula, nem uma que resultasse em "" (incidente de 09/2026: a coluna G
+    das linhas novas era escrita normalmente pelo fluxo de pendentes, mas K
+    nunca acompanhava, porque o gatilho antigo já tinha disparado uma vez, há
+    muito, para a linha 2).
+
+    Reaplica a faixa inteira 2..total+1 sempre que a última linha ainda não
+    tiver fórmula -- idempotente (recalcula o mesmo resultado onde já havia
+    fórmula) e barato o bastante para não precisar descobrir onde a cobertura
+    anterior termina.
+    """
+    ultima = ws.acell(f"K{total + 1}", value_render_option="FORMULA").value
+    if ultima and str(ultima).startswith("="):
+        return False
+    formulas = [[f'=SE(G{r}="";"";G{r}=C{r})'] for r in range(2, total + 2)]
+    ws.update(range_name=f"K2:K{total + 1}", values=formulas, value_input_option="USER_ENTERED")
+    return True
+
+
 def treinar_e_prever(modelo, textos_treino, cats_treino, textos_alvo, config=None):
     if modelo == "producao":
         lstm_config = (config or {}).get("modelo_ia", {}).get("lstm", {})
@@ -351,12 +380,11 @@ def main() -> int:
                  for e in lote]
     pl.exportar_lote_gj(ws, linhas_gj, col_inicio=COL_G, col_fim=COL_J)
 
-    # Fórmula de conferência K (uma vez)
+    # Fórmula de conferência K: cobertura até `total`, self-healing (ver
+    # garantir_formula_k -- corrige o gap que deixava linhas novas sem K).
     try:
-        if not ws.acell("K2").value:
-            formulas = [[f'=SE(G{r}="";"";G{r}=C{r})'] for r in range(2, total + 2)]
-            ws.update(range_name=f"K2:K{total + 1}", values=formulas, value_input_option="USER_ENTERED")
-            print("fórmula de conferência K aplicada.")
+        if garantir_formula_k(ws, total):
+            print("fórmula de conferência K aplicada/estendida.")
     except Exception as e:  # noqa: BLE001
         print(f"aviso: não consegui aplicar a fórmula K ({e})", file=sys.stderr)
 

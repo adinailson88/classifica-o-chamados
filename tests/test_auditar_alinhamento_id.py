@@ -127,15 +127,29 @@ class TestUltimaClassificacaoPorLinha(unittest.TestCase):
 
 
 class TestLimparOrfas(unittest.TestCase):
-    def test_limpa_so_g_k_das_linhas_orfas_em_lotes(self):
+    def test_limpa_g_j_das_linhas_orfas_em_lotes(self):
         ws = _WsPrincipal({}, 1, 1)
         orfas = [{"linha": n} for n in range(1, 251)]  # forca 3 lotes de 100
 
         aud.limpar_orfas(ws, orfas)
 
         self.assertEqual(len(ws.ranges_limpos), 250)
-        self.assertEqual(ws.ranges_limpos[0], "G1:K1")
-        self.assertEqual(ws.ranges_limpos[-1], "G250:K250")
+        self.assertEqual(ws.ranges_limpos[0], "G1:J1")
+        self.assertEqual(ws.ranges_limpos[-1], "G250:J250")
+
+    def test_nunca_limpa_a_coluna_k(self):
+        # K e formula (=SE(G="";"";G=C)) e se recalcula sozinha a partir de G
+        # e C -- limpa-la destruiria a formula sem necessidade, e o gatilho
+        # que a reaplica (executar_etapa1.garantir_formula_k) so dispara
+        # quando a ULTIMA linha da planilha fica sem formula, entao uma linha
+        # no meio da base perderia K pra sempre.
+        ws = _WsPrincipal({}, 1, 1)
+        orfas = [{"linha": 5}, {"linha": 9000}]
+
+        aud.limpar_orfas(ws, orfas)
+
+        for rng in ws.ranges_limpos:
+            self.assertNotIn("K", rng)
 
 
 if __name__ == "__main__":
