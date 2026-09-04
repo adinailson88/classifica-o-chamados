@@ -175,6 +175,145 @@ def exportar_reclass_resumo(sh, config):
             "por_modelo": por_modelo}
 
 
+FORMATOS_DATA_HISTORICO = ("%d/%m/%Y %H:%M:%S", "%d/%m/%Y %H:%M", "%d/%m/%Y")
+
+NATUREZA_ESTABILIDADE = (
+    "estabilidade da reclassificacao ao longo de TODO o historico (RECLASS_HISTORICO, "
+    "append-only, todas as rodadas e modelos) -- complementa reclass_resumo.json, que so "
+    "mostra o snapshot mais recente por modelo (abas RECLASS__<modelo>). So agregados: "
+    "sem id_chamado no JSON publico, mesma regra de sanitizar_comparacao_previsoes."
+)
+
+
+def _parse_data_historico(valor):
+    from datetime import datetime  # noqa: PLC0415
+    s = str(valor or "").strip()
+    for fmt in FORMATOS_DATA_HISTORICO:
+        try:
+            return datetime.strptime(s, fmt)
+        except ValueError:
+            continue
+    return None
+
+
+def _vazio_estabilidade_reclassificacao(aba: str) -> dict:
+    return {
+        "gerado_em": agora_bahia(), "aba_origem": aba, "natureza": NATUREZA_ESTABILIDADE,
+        "total_entradas_historico": 0, "total_chamados_reclassificados": 0,
+        "reclassificacoes_por_chamado": {"media": 0, "mediana": 0, "maximo": 0},
+        "distribuicao_qtd_reclassificacoes": {}, "resultado_mais_recente": {},
+        "mudou_categoria_desde_a_primeira": {"sim": 0, "nao": 0},
+        "top_categorias_mais_reclassificadas": [], "modelo_mais_recente": {},
+    }
+
+
+def exportar_estabilidade_reclassificacao(sh, config):
+    """Agrega RECLASS_HISTORICO (log append-only, todas as rodadas/modelos) por
+    id_chamado, medindo ESTABILIDADE ao longo do tempo -- angulo que
+    reclass_resumo.json (snapshot mais recente por modelo) nao cobre: quantas
+    vezes cada chamado foi reclassificado no total, se a categoria oscilou
+    entre a primeira e a ultima entrada, e qual o resultado mais recente
+    (corrigido/prejudicado/mantido_correto/mantido_errado).
+
+    So agregados no retorno: nenhum id_chamado nem texto de chamado (repo
+    publico), mesma regra usada por sanitizar_comparacao_previsoes.
+    """
+    aba = (config.get("multimodelo", {}) or {}).get(
+        "aba_historico_reclassificacao", "RECLASS_HISTORICO")
+    try:
+        ws = sh.worksheet(aba)
+        valores = ws.get_values(value_render_option="UNFORMATTED_VALUE")
+    except Exception:  # noqa: BLE001
+        valores = []
+
+    vazio = _vazio_estabilidade_reclassificacao(aba)
+    if len(valores) < 2:
+        return vazio
+
+    cab = valores[0]
+    norm = lambda s: " ".join(str(s or "").split()).strip().casefold()  # noqa: E731
+    idx = {norm(n): i for i, n in enumerate(cab)}
+
+    def col(nome):
+        return idx.get(norm(nome))
+
+    i_id, i_data, i_modelo = col("id_chamado"), col("data"), col("modelo")
+    i_cat_antes, i_cat_depois = col("categoria_antes"), col("categoria_depois")
+    i_resultado, i_cat_ref = col("resultado"), col("categoria_referencia")
+    if i_id is None:
+        return vazio
+
+    def cel(linha, i):
+        if i is None or i >= len(linha) or linha[i] is None:
+            return ""
+        return str(linha[i]).strip()
+
+    por_id: dict[str, list[dict]] = {}
+    for linha in valores[1:]:
+        id_chamado = cel(linha, i_id)
+        if not id_chamado:
+            continue
+        por_id.setdefault(id_chamado, []).append({
+            "data": _parse_data_historico(cel(linha, i_data)),
+            "modelo": cel(linha, i_modelo),
+            "categoria_antes": cel(linha, i_cat_antes),
+            "categoria_depois": cel(linha, i_cat_depois),
+            "categoria_referencia": cel(linha, i_cat_ref),
+            "resultado": cel(linha, i_resultado) or "?",
+        })
+
+    qtds = sorted(len(v) for v in por_id.values())
+    n_chamados = len(qtds)
+    dist_qtd: dict[str, int] = {}
+    resultado_recente: dict[str, int] = {}
+    modelo_recente: dict[str, int] = {}
+    mudou_sim = mudou_nao = 0
+    categoria_contagem: dict[str, int] = {}
+
+    for entradas in por_id.values():
+        chave = str(len(entradas)) if len(entradas) < 4 else "4_ou_mais"
+        dist_qtd[chave] = dist_qtd.get(chave, 0) + 1
+
+        com_data = [e for e in entradas if e["data"] is not None]
+        ordenadas = sorted(com_data, key=lambda e: e["data"]) if com_data else entradas
+        primeira, ultima = ordenadas[0], ordenadas[-1]
+
+        res = ultima["resultado"] or "?"
+        resultado_recente[res] = resultado_recente.get(res, 0) + 1
+        mod = ultima["modelo"] or "?"
+        modelo_recente[mod] = modelo_recente.get(mod, 0) + 1
+
+        cat_inicial = primeira["categoria_antes"] or primeira["categoria_referencia"]
+        cat_final = ultima["categoria_depois"]
+        if cat_inicial and cat_final and cat_inicial != cat_final:
+            mudou_sim += 1
+        else:
+            mudou_nao += 1
+
+        cat_ref = ultima["categoria_referencia"] or cat_inicial
+        if cat_ref:
+            categoria_contagem[cat_ref] = categoria_contagem.get(cat_ref, 0) + 1
+
+    top_categorias = sorted(categoria_contagem.items(), key=lambda kv: -kv[1])[:10]
+
+    return {
+        "gerado_em": agora_bahia(), "aba_origem": aba, "natureza": NATUREZA_ESTABILIDADE,
+        "total_entradas_historico": len(valores) - 1,
+        "total_chamados_reclassificados": n_chamados,
+        "reclassificacoes_por_chamado": {
+            "media": round(sum(qtds) / n_chamados, 2) if n_chamados else 0,
+            "mediana": qtds[n_chamados // 2] if n_chamados else 0,
+            "maximo": qtds[-1] if n_chamados else 0,
+        },
+        "distribuicao_qtd_reclassificacoes": dist_qtd,
+        "resultado_mais_recente": resultado_recente,
+        "mudou_categoria_desde_a_primeira": {"sim": mudou_sim, "nao": mudou_nao},
+        "top_categorias_mais_reclassificadas": [
+            {"categoria": c, "qtd_chamados": n} for c, n in top_categorias],
+        "modelo_mais_recente": modelo_recente,
+    }
+
+
 def main() -> int:
     with CONFIG_PADRAO.open(encoding="utf-8") as f:
         config = json.load(f)
@@ -224,6 +363,20 @@ def main() -> int:
         print(f"reclass_resumo: {len(rr.get('por_modelo', []))} modelos")
     except Exception as e:  # noqa: BLE001
         print(f"reclass_resumo falhou: {type(e).__name__}: {e}", file=sys.stderr)
+
+    # Estabilidade da reclassificacao no historico completo (RECLASS_HISTORICO,
+    # todas as rodadas/modelos) -- complementa reclass_resumo.json (snapshot
+    # mais recente por modelo) com a trajetoria: quantas vezes cada chamado foi
+    # reclassificado, se oscilou, resultado mais recente. So agregados.
+    try:
+        er = exportar_estabilidade_reclassificacao(sh, config)
+        (SAIDA / "estabilidade_reclassificacao.json").write_text(
+            json.dumps(er, ensure_ascii=False), encoding="utf-8")
+        resumo["abas"]["estabilidade_reclassificacao"] = er.get("total_chamados_reclassificados", 0)
+        print(f"estabilidade_reclassificacao: {er.get('total_entradas_historico', 0)} entradas, "
+              f"{er.get('total_chamados_reclassificados', 0)} chamados")
+    except Exception as e:  # noqa: BLE001
+        print(f"estabilidade_reclassificacao falhou: {type(e).__name__}: {e}", file=sys.stderr)
 
     # Calibração (confiança × acerto) — critério central do objetivo final.
     try:
