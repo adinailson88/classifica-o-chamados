@@ -21,6 +21,13 @@ on:
       corte:
         description: "So usa entradas do historico ANTERIORES a esta data/hora (dd/mm/aaaa hh:mm)"
         default: "01/08/2026 00:00"
+      run_id_arquivo:
+        description: >-
+          Opcional (Fase 4, 09/2026): ID de um run do exportar_reclass_historico.yml ou
+          truncar_reclass_historico.yml cujo artifact tem o CSV arquivado do
+          RECLASS_HISTORICO anterior ao truncamento. So necessario se --corte for
+          anterior ao truncamento (a aba viva sozinha nao tem mais esse historico).
+        default: ""
       aplicar:
         description: "Gravar na coluna O (sem isso, so relata em dry-run)"
         type: boolean
@@ -59,6 +66,13 @@ jobs:
         # unittest, nao pytest: pytest nao esta em requirements-leves.txt
         # (run 30708698503 falhou com "No module named pytest").
         run: python -m unittest discover -s tests -p "test_restaurar_coluna_o.py" -t tests
+      - name: Baixar CSV arquivado (Fase 4 -- so se run_id_arquivo foi informado)
+        if: ${{ github.event.inputs.run_id_arquivo != '' }}
+        uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: ${{ github.event.inputs.run_id_arquivo }}
+          path: dados/arquivo_reclass_historico_baixado
       - name: Recriar chave da conta de servico
         env:
           GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
@@ -69,8 +83,18 @@ jobs:
         run: |
           FLAGS=""
           if [ "${{ github.event.inputs.aplicar }}" = "true" ]; then FLAGS="--aplicar"; fi
+          ARQUIVO=""
+          if [ "${{ github.event.inputs.run_id_arquivo }}" != "" ]; then
+            CSV="$(find dados/arquivo_reclass_historico_baixado -name '*.csv' -print -quit)"
+            if [ -z "$CSV" ]; then
+              echo "run_id_arquivo informado, mas nenhum CSV encontrado no artifact." >&2
+              exit 1
+            fi
+            echo "usando arquivo arquivado: $CSV"
+            ARQUIVO="--arquivo-historico $CSV"
+          fi
           python scripts/migracoes/restaurar_coluna_o.py \
-            --corte "${{ github.event.inputs.corte }}" $FLAGS
+            --corte "${{ github.event.inputs.corte }}" $ARQUIVO $FLAGS
       - name: Remover credenciais
         if: always()
         run: rm -f credenciais_sa.json

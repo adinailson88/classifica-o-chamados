@@ -12,6 +12,12 @@ Este script compara, para cada entrada do historico, o `id_chamado` registrado
 com o `id_chamado` que hoje ocupa aquela linha na aba principal. NAO ESCREVE
 NADA.
 
+FASE 4 (09/2026): RECLASS_HISTORICO foi truncada na planilha viva (Fase 3 do
+plano de reducao de celulas) -- so mantem entradas recentes. Passe
+--arquivo-historico apontando para o CSV arquivado
+(scripts/migracoes/exportar_reclass_historico.py) para conferir tambem
+entradas anteriores ao truncamento; sem essa flag, so a planilha viva e lida.
+
 Saida: total conferido, casados, divergentes, e uma amostra das divergencias.
 Codigo de saida 2 se houver qualquer divergencia (para falhar o workflow).
 """
@@ -65,6 +71,11 @@ def main() -> int:
     p.add_argument("--config", type=Path, default=CONFIG_PADRAO)
     p.add_argument("--credenciais", default=None)
     p.add_argument("--aba-historico", default="RECLASS_HISTORICO")
+    p.add_argument("--arquivo-historico", type=Path, default=None,
+                   help="CSV arquivado (Fase 1/3, 09/2026) a combinar com a planilha "
+                        "viva -- necessario para conferir entradas anteriores ao "
+                        "truncamento de RECLASS_HISTORICO. Sem isso, so a planilha "
+                        "viva e lida.")
     p.add_argument("--coluna-id", default="ID Chamado",
                    help="Cabecalho da coluna de ID na aba principal "
                         "(mesma convencao de src/reclassificar_validados.py).")
@@ -86,9 +97,10 @@ def main() -> int:
                     for i, v in enumerate(atual, start=1)}
     print(f"linhas com ID na aba principal: {sum(1 for v in id_por_linha.values() if v)}")
 
-    hist = sh.worksheet(args.aba_historico).get_values(
-        "A:X", value_render_option="UNFORMATTED_VALUE")
-    print(f"{args.aba_historico}: {max(0, len(hist) - 1)} entradas")
+    hist = pl.ler_historico_combinado(sh, args.aba_historico, args.arquivo_historico)
+    fonte = (f"{args.aba_historico} + arquivo {args.arquivo_historico}"
+             if args.arquivo_historico else args.aba_historico)
+    print(f"{fonte}: {max(0, len(hist) - 1)} entradas")
 
     # Ultima entrada por linha (mesma regra do restaurador).
     ultimo: dict[int, tuple] = {}

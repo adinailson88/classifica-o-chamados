@@ -18,6 +18,15 @@ append-only e registra cada gravacao de O (coluna 'categoria_depois', indice 10)
 Para cada linha_planilha toma a ULTIMA entrada ANTERIOR ao corte (--corte),
 que por padrao e o inicio de 2026-08-01.
 
+FASE 4 (09/2026): RECLASS_HISTORICO foi truncada na planilha viva (Fase 3 do
+plano de reducao de celulas) -- so mantem entradas recentes. Historico
+anterior ao truncamento so existe no CSV arquivado
+(scripts/migracoes/exportar_reclass_historico.py). Passe
+--arquivo-historico apontando para esse CSV (baixado do artifact do GitHub
+Actions ou de onde tiver sido arquivado permanentemente) para restaurar a
+partir de datas anteriores ao truncamento; sem essa flag, so a planilha viva
+e lida (igual ao comportamento antigo).
+
 ESCOPO ESTRITO:
 - So escreve na coluna 'Classificacao IA - 2' da aba principal.
 - NUNCA escreve em 'CATEGORIA COMPLETA' (C) -- e IMPORTRANGE; ver o incidente
@@ -82,6 +91,10 @@ def parse_args() -> argparse.Namespace:
                    help="So considera entradas ANTERIORES a esta data/hora "
                         "(dd/mm/aaaa hh:mm). Padrao: 01/08/2026 00:00.")
     p.add_argument("--aba-historico", default=ABA_HISTORICO_PADRAO)
+    p.add_argument("--arquivo-historico", type=Path, default=None,
+                   help="CSV arquivado (Fase 1/3, 09/2026) a combinar com a planilha "
+                        "viva -- necessario para corte anterior ao truncamento de "
+                        "RECLASS_HISTORICO. Sem isso, so a planilha viva e lida.")
     p.add_argument("--aplicar", action="store_true",
                    help="Sem isso, e dry-run (nada e gravado).")
     return p.parse_args()
@@ -181,13 +194,15 @@ def main() -> int:
         return 1
 
     try:
-        hist = sh.worksheet(args.aba_historico).get_values(
-            "A:X", value_render_option="UNFORMATTED_VALUE")
+        hist = pl.ler_historico_combinado(sh, args.aba_historico, args.arquivo_historico)
     except Exception as exc:  # noqa: BLE001
-        print(f"ABORTADO: falha ao ler {args.aba_historico}: "
+        print(f"ABORTADO: falha ao ler {args.aba_historico}"
+              f"{f' + {args.arquivo_historico}' if args.arquivo_historico else ''}: "
               f"{type(exc).__name__}: {exc}", file=sys.stderr)
         return 1
-    print(f"{args.aba_historico}: {max(0, len(hist) - 1)} entradas | corte < {args.corte}")
+    fonte = (f"{args.aba_historico} + arquivo {args.arquivo_historico}"
+             if args.arquivo_historico else args.aba_historico)
+    print(f"{fonte}: {max(0, len(hist) - 1)} entradas | corte < {args.corte}")
 
     por_id, diag = ultimo_valor_por_id(hist, corte)
     print(f"diagnostico do historico: {diag}")
