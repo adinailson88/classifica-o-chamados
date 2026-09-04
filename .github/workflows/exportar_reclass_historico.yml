@@ -1,0 +1,56 @@
+name: Exportar RECLASS_HISTORICO (Fase 1 - arquivo)
+
+# Fase 1 do plano de reducao de celulas da planilha (2026-09): RECLASS_HISTORICO
+# e a maior aba (3.059.112 celulas em 04/09/2026, 33% do limite de 10 milhoes),
+# e e a fonte usada por scripts/migracoes/restaurar_coluna_o.py para
+# reconstrucao forense. Antes de truncar a aba (Fase 3, workflow separado, que
+# ainda nao existe), o conteudo integral precisa estar preservado fora do
+# Sheets. Este workflow SO LE a aba e sobe o CSV completo como artefato do
+# workflow, para download e conferencia -- nao escreve nada na planilha nem
+# no repositorio (dados/ e gitignored).
+
+on:
+  workflow_dispatch:
+    inputs:
+      limite_linhas:
+        description: "0 = exporta tudo; numero > 0 = so as N primeiras linhas (teste)"
+        default: "0"
+
+permissions:
+  contents: read
+
+jobs:
+  exportar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: requirements-leves.txt
+      - name: Instalar dependencias leves
+        run: python -m pip install --retries 5 --timeout 120 -r requirements-leves.txt
+      - name: Recriar chave da conta de servico
+        env:
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+        run: |
+          if [ -z "$GCP_SA_KEY" ]; then echo "Secret GCP_SA_KEY ausente." >&2; exit 1; fi
+          printf '%s' "$GCP_SA_KEY" > credenciais_sa.json
+      - name: Exportar RECLASS_HISTORICO
+        run: |
+          python scripts/migracoes/exportar_reclass_historico.py \
+            --limite-linhas "${{ github.event.inputs.limite_linhas || '0' }}"
+      - name: Remover credenciais
+        if: always()
+        run: rm -f credenciais_sa.json
+      - name: Upload do arquivo exportado
+        uses: actions/upload-artifact@v4
+        with:
+          name: reclass-historico-export
+          path: dados/arquivo_reclass_historico/
+          retention-days: 90
+          if-no-files-found: error
