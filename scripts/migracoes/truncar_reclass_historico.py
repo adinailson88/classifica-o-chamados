@@ -22,6 +22,15 @@ a aba inteira -- os escritores (`reclassificacao_multimodelo.py`,
 `reclassificar_validados.py`, via `pl.append_aba`) detectam o cabeçalho
 existente e continuam gravando normalmente logo abaixo dele.
 
+IMPORTANTE: limpar o CONTEÚDO (batch_clear) não reduz o TAMANHO ALOCADO da
+aba (row_count x col_count) -- e é o tamanho alocado que conta para o limite
+de 10 milhões de células do Google Sheets (ver
+`scripts/migracoes/auditar_abas_planilha.py`), não o conteúdo. Uma aba com
+127 mil linhas alocadas e 1 só com dado continua custando 127 mil linhas no
+limite. Por isso este script SEMPRE redimensiona a aba para
+`LINHAS_BUFFER_POS_TRUNCAMENTO` logo depois de limpar -- só assim a célula é
+de fato devolvida ao limite, não só esvaziada.
+
 SEGURANÇA:
     - Sem --aplicar: dry-run. Faz o export fresco (para já deixar o arquivo
       pronto) e relata quantas linhas/células seriam liberadas, sem tocar na
@@ -51,6 +60,7 @@ RAIZ = Path(__file__).resolve().parents[2]
 CONFIG_PADRAO = RAIZ / "config_experimento.json"
 SAIDA_PADRAO_DIR = RAIZ / "dados" / "arquivo_reclass_historico"
 PALAVRA_CONFIRMACAO = "TRUNCAR"
+LINHAS_BUFFER_POS_TRUNCAMENTO = 1000  # cabecalho + folga para os proximos appends
 
 
 def calcular_intervalo_limpeza(n_colunas: int, n_linhas_dados: int) -> str:
@@ -73,6 +83,22 @@ def confirmar_leitura_completa(ws, n_linhas_exportadas: int) -> tuple[bool, int]
     ids_coluna_a = ws.col_values(1)
     linhas_2a_leitura = len(ids_coluna_a) - 1  # exclui o cabecalho
     return linhas_2a_leitura == n_linhas_exportadas, linhas_2a_leitura
+
+
+def redimensionar_apos_limpeza(ws, linhas_alvo: int = LINHAS_BUFFER_POS_TRUNCAMENTO) -> tuple[int, int]:
+    """Encolhe row_count para `linhas_alvo` -- só isso reduz as células
+    ALOCADAS (o que conta para o limite de 10 milhões), diferente de
+    `batch_clear`, que só esvazia o conteúdo. Só chamar DEPOIS de limpar o
+    conteúdo (senão perderia dado que ainda estivesse na faixa cortada).
+
+    Retorna (linhas_antes, linhas_depois). Não redimensiona (retorna o mesmo
+    valor duas vezes) se `linhas_alvo` já for >= ao row_count atual.
+    """
+    linhas_antes = ws.row_count
+    if linhas_alvo >= linhas_antes:
+        return linhas_antes, linhas_antes
+    ws.resize(rows=linhas_alvo)
+    return linhas_antes, linhas_alvo
 
 
 def parse_args() -> argparse.Namespace:
@@ -134,11 +160,18 @@ def main() -> int:
         return 2
 
     faixa = calcular_intervalo_limpeza(n_colunas, n_linhas)
-    print(f"faixa a limpar (cabecalho preservado): {faixa}")
-    print(f"celulas a liberar: {celulas_liberadas:,}")
+    linhas_alocadas_antes = ws.row_count
+    linhas_alocadas_depois = min(linhas_alocadas_antes, LINHAS_BUFFER_POS_TRUNCAMENTO)
+    celulas_alocadas_a_liberar = (linhas_alocadas_antes - linhas_alocadas_depois) * n_colunas
+    print(f"faixa de conteudo a limpar (cabecalho preservado): {faixa}")
+    print(f"celulas de CONTEUDO a esvaziar: {celulas_liberadas:,}")
+    print(f"linhas ALOCADAS: {linhas_alocadas_antes} -> {linhas_alocadas_depois} apos redimensionar "
+          f"({celulas_alocadas_a_liberar:,} celulas ALOCADAS a liberar -- e isso que conta para o "
+          f"limite de 10 milhoes)")
 
     if not args.aplicar:
-        print("modo=dry-run (nada limpo). Para aplicar: --aplicar --confirmar " + PALAVRA_CONFIRMACAO)
+        print("modo=dry-run (nada limpo nem redimensionado). Para aplicar: --aplicar --confirmar "
+              + PALAVRA_CONFIRMACAO)
         return 0
 
     if args.confirmar != PALAVRA_CONFIRMACAO:
@@ -146,7 +179,18 @@ def main() -> int:
         return 2
 
     ws.batch_clear([faixa])
-    print(f"TRUNCADO: {aba}!{faixa} ({n_linhas} linhas, {celulas_liberadas:,} celulas liberadas).")
+    print(f"TRUNCADO: {aba}!{faixa} ({n_linhas} linhas de conteudo esvaziadas, "
+          f"{celulas_liberadas:,} celulas de conteudo).")
+
+    antes, depois = redimensionar_apos_limpeza(ws)
+    if depois < antes:
+        celulas_alocadas_liberadas = (antes - depois) * n_colunas
+        print(f"REDIMENSIONADO: {aba} de {antes} para {depois} linhas alocadas "
+              f"({celulas_alocadas_liberadas:,} celulas ALOCADAS liberadas).")
+    else:
+        print(f"redimensionamento nao necessario ({antes} linhas ja <= buffer de "
+              f"{LINHAS_BUFFER_POS_TRUNCAMENTO}).")
+
     print(f"Historico completo preservado em {caminho_csv} (baixe e arquive permanentemente -- "
           f"o artifact do GitHub Actions expira).")
     return 0
